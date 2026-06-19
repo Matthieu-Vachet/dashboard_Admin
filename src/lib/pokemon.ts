@@ -48,6 +48,8 @@ export type PokemonChecklistPayload = {
 
 export type PokemonMetrics = {
   source: "live" | "fallback";
+  status: string;
+  detail?: string;
   total: number;
   complete: number;
   issues: number;
@@ -71,6 +73,8 @@ export type PokemonMetrics = {
 
 const fallbackMetrics: PokemonMetrics = {
   source: "fallback",
+  status: "fallback",
+  detail: "Données de secours chargées.",
   total: 1602,
   complete: 1602,
   issues: 0,
@@ -124,18 +128,30 @@ export async function fetchPokemonMetrics(): Promise<PokemonMetrics> {
     });
 
     if (!response.ok) {
-      return fallbackMetrics;
+      return {
+        ...fallbackMetrics,
+        status: `HTTP ${response.status}`,
+        detail:
+          response.status === 401
+            ? "L'API Pokémon est encore protégée par Vercel. Le token bypass est absent, invalide ou ne vient pas du projet API Pokémon."
+            : "L'API Pokémon n'a pas renvoyé une réponse exploitable.",
+      };
     }
 
     const payload = (await response.json()) as PokemonChecklistPayload;
     const summary = payload.data?.summary;
 
     if (!summary) {
-      return fallbackMetrics;
+      return {
+        ...fallbackMetrics,
+        status: "format inattendu",
+        detail: "La réponse JSON ne contient pas data.summary.",
+      };
     }
 
     return {
       source: "live",
+      status: "live",
       total: summary.total,
       complete: summary.complete,
       issues: summary.issues,
@@ -151,7 +167,11 @@ export async function fetchPokemonMetrics(): Promise<PokemonMetrics> {
         value: item.count,
       })),
     };
-  } catch {
-    return fallbackMetrics;
+  } catch (error) {
+    return {
+      ...fallbackMetrics,
+      status: "erreur réseau",
+      detail: error instanceof Error ? error.message : "Impossible de joindre l'API Pokémon.",
+    };
   }
 }

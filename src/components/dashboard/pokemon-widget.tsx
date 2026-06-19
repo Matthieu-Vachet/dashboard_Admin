@@ -35,11 +35,15 @@ export function PokemonWidget() {
     <Card className="p-4">
       <CardHeader
         eyebrow="Pokemon GO API"
-        action={<Badge tone={metrics?.source === "live" ? "green" : "amber"}>{metrics?.source || "sync"}</Badge>}
+        action={
+          <Badge tone={metrics?.source === "live" ? "green" : "amber"}>
+            {metrics?.status || "sync"}
+          </Badge>
+        }
       >
         <CardTitle>Statistiques connectées</CardTitle>
         <CardDescription>
-          Vue reliée à ton endpoint public `/api/checklist-v3`.
+          {metrics?.detail || "Vue reliée à ton endpoint public `/api/checklist-v3`."}
         </CardDescription>
       </CardHeader>
 

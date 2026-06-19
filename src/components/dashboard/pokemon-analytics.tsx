@@ -32,11 +32,12 @@ export function PokemonAnalytics() {
     <div className="space-y-4">
       <Card tone="strong" className="p-5">
         <Badge tone={metrics?.source === "live" ? "green" : "amber"}>
-          {metrics?.source === "live" ? "Connecté live" : "Fallback prêt"}
+          {metrics?.source === "live" ? "Connecté live" : metrics?.status || "Fallback prêt"}
         </Badge>
         <h2 className="mt-3 text-3xl font-black">Statistiques Pokémon GO API</h2>
         <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-muted">
-          Cette page consomme ton endpoint `checklist-v3` et transforme le résumé en widgets de pilotage.
+          {metrics?.detail ||
+            "Cette page consomme ton endpoint `checklist-v3` et transforme le résumé en widgets de pilotage."}
         </p>
       </Card>
 
