@@ -105,9 +105,18 @@ export async function fetchPokemonMetrics(): Promise<PokemonMetrics> {
   const endpoint =
     process.env.POKEMON_API_URL ||
     "https://pokemon-go-7r5q2j05a-matthieu-vachets-projects.vercel.app/api/checklist-v3";
+  const bypassToken =
+    process.env.POKEMON_API_BYPASS_TOKEN || process.env.VERCEL_PROTECTION_BYPASS_TOKEN;
 
   try {
-    const response = await fetch(endpoint, {
+    const url = new URL(endpoint);
+
+    if (bypassToken) {
+      url.searchParams.set("x-vercel-set-bypass-cookie", "true");
+      url.searchParams.set("x-vercel-protection-bypass", bypassToken);
+    }
+
+    const response = await fetch(url.toString(), {
       next: { revalidate: 300 },
       headers: {
         accept: "application/json",

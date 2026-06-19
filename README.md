@@ -42,6 +42,15 @@ OPENAI_MODEL=gpt-5.5
 
 Ajoute les memes variables dans Vercel pour l'activer en production.
 
+## Statistiques Pokemon GO API
+
+Le widget consomme `POKEMON_API_URL`. Si ton API est protegee par Vercel Deployment Protection, ajoute aussi le token de bypass automation :
+
+```bash
+POKEMON_API_URL=https://pokemon-go-7r5q2j05a-matthieu-vachets-projects.vercel.app/api/checklist-v3
+POKEMON_API_BYPASS_TOKEN=...
+```
+
 ## Storybook
 
 ```bash
