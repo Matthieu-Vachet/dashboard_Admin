@@ -30,7 +30,7 @@ export function AppFrame({
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
 
   const activeLabel = useMemo(
     () => navItems.find((item) => item.href === pathname)?.label || "Accueil",
@@ -199,10 +199,11 @@ export function AppFrame({
               variant="secondary"
               size="icon"
               type="button"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
               aria-label="Changer le thème"
             >
-              {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
+              <Sun size={17} className="theme-icon-sun" />
+              <Moon size={17} className="theme-icon-moon" />
             </Button>
           </div>
         </header>

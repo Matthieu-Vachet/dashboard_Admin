@@ -54,7 +54,7 @@ export function PokemonAnalytics() {
             <CardDescription>Volume et taux qualité de la checklist.</CardDescription>
           </CardHeader>
           <div className="mt-6 h-80">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
               <BarChart data={metrics?.generations || []} margin={{ left: -20 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                 <XAxis dataKey="name" stroke="#94a3b8" tickLine={false} axisLine={false} />
@@ -79,7 +79,7 @@ export function PokemonAnalytics() {
             <CardDescription>Pokémon, formes, dynamax, mega et gigantamax.</CardDescription>
           </CardHeader>
           <div className="mt-6 h-80">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
               <PieChart>
                 <Tooltip
                   contentStyle={{

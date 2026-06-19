@@ -149,6 +149,30 @@ a {
   display: none;
 }
 
+.theme-icon-sun {
+  display: none;
+}
+
+.theme-icon-moon {
+  display: block;
+}
+
+.dark .theme-icon-sun {
+  display: block;
+}
+
+.dark .theme-icon-moon {
+  display: none;
+}
+
+.light .theme-icon-sun {
+  display: none;
+}
+
+.light .theme-icon-moon {
+  display: block;
+}
+
 @keyframes sheen {
   0%,
   100% {

@@ -31,7 +31,7 @@ export function DashboardCharts() {
           <CardDescription>Simulation de pilotage pour tes prochains projets.</CardDescription>
         </CardHeader>
         <div className="mt-6 h-72">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={0}>
             <AreaChart data={revenueData} margin={{ left: -18, right: 8, top: 16 }}>
               <defs>
                 <linearGradient id="revenueGradient" x1="0" x2="0" y1="0" y2="1">
@@ -68,7 +68,7 @@ export function DashboardCharts() {
           <CardDescription>Vue rapide de tes blocs de travail.</CardDescription>
         </CardHeader>
         <div className="mt-6 h-72">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" minWidth={0}>
             <BarChart data={focusBlocks} layout="vertical" margin={{ left: 18, right: 12 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" horizontal={false} />
               <XAxis type="number" stroke="#94a3b8" tickLine={false} axisLine={false} />
