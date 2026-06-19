@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Plus, Save, Search } from "lucide-react";
+import { Plus, Save, Search, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
 import { cn } from "@/lib/cn";
+import { usePersistentState } from "@/lib/use-persistent-state";
 
 type Note = {
   id: string;
@@ -40,8 +41,8 @@ const initialNotes: Note[] = [
   },
   {
     id: "n4",
-    title: "Assistant personnel",
-    body: "Prévoir des prompts rapides : plan de sprint, résumé, priorisation, audit API.",
+    title: "Outils quotidiens",
+    body: "Centraliser les liens, snippets, contacts, abonnements et notes rapides.",
     category: "Personnel",
     updatedAt: "Vendredi",
   },
@@ -55,7 +56,7 @@ const categoryTone = {
 } as const;
 
 export function NotesBoard() {
-  const [notes, setNotes] = useState(initialNotes);
+  const [notes, setNotes, ready] = usePersistentState("matweb.notes", initialNotes);
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(initialNotes[0]?.id);
 
@@ -85,11 +86,21 @@ export function NotesBoard() {
   }
 
   function updateSelected(patch: Partial<Note>) {
+    if (!selectedNote) return;
     setNotes((current) =>
       current.map((note) =>
         note.id === selectedNote?.id ? { ...note, ...patch, updatedAt: "Maintenant" } : note,
       ),
     );
+  }
+
+  function deleteSelected() {
+    if (!selectedNote) return;
+    setNotes((current) => {
+      const nextNotes = current.filter((note) => note.id !== selectedNote.id);
+      setSelectedId(nextNotes[0]?.id);
+      return nextNotes;
+    });
   }
 
   return (
@@ -102,7 +113,13 @@ export function NotesBoard() {
             </p>
             <h2 className="mt-2 text-2xl font-black">Carnet central</h2>
           </div>
-          <Button size="icon" variant="primary" type="button" onClick={addNote}>
+          <Button
+            size="icon"
+            variant="primary"
+            type="button"
+            onClick={addNote}
+            aria-label="Ajouter une note"
+          >
             <Plus size={17} />
           </Button>
         </div>
@@ -135,9 +152,17 @@ export function NotesBoard() {
               <p className="mt-2 line-clamp-2 text-sm font-medium leading-6 text-muted">
                 {note.body}
               </p>
-              <p className="mt-3 font-mono text-xs font-bold text-muted">{note.updatedAt}</p>
+              <div className="mt-3 flex items-center justify-between gap-3">
+                <p className="font-mono text-xs font-bold text-muted">{note.updatedAt}</p>
+                <span className="text-xs font-black text-brand-2">Ouvrir</span>
+              </div>
             </button>
           ))}
+          {!filteredNotes.length ? (
+            <div className="rounded-lg border border-line bg-white/[0.04] p-4 text-sm font-bold text-muted">
+              Aucune note trouvée.
+            </div>
+          ) : null}
         </div>
       </Card>
 
@@ -189,8 +214,17 @@ export function NotesBoard() {
                   ))}
                 </div>
               </div>
-              <Button className="w-full" variant="primary" icon={<Save size={17} />}>
-                Sauvegardé localement
+              <Button className="w-full" variant="primary" icon={<Save size={17} />} type="button">
+                {ready ? "Sauvegarde auto active" : "Chargement..."}
+              </Button>
+              <Button
+                className="w-full"
+                variant="danger"
+                icon={<Trash2 size={17} />}
+                type="button"
+                onClick={deleteSelected}
+              >
+                Supprimer la note
               </Button>
             </aside>
           </div>

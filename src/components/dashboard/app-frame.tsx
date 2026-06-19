@@ -3,17 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
+import gsap from "gsap";
 import {
   LogOut,
   Menu,
   Moon,
+  BookOpen,
   PanelLeftClose,
   PanelLeftOpen,
   Search,
   Sun,
   X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +30,7 @@ export function AppFrame({
   userEmail: string;
 }) {
   const pathname = usePathname();
+  const rootRef = useRef<HTMLDivElement>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const { resolvedTheme, setTheme } = useTheme();
@@ -36,6 +39,31 @@ export function AppFrame({
     () => navItems.find((item) => item.href === pathname)?.label || "Accueil",
     [pathname],
   );
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        "main .glass-panel, main .glass-panel-strong",
+        { autoAlpha: 0, y: 18, filter: "blur(8px)" },
+        {
+          autoAlpha: 1,
+          y: 0,
+          filter: "blur(0px)",
+          duration: 0.55,
+          ease: "power3.out",
+          stagger: 0.035,
+        },
+      );
+      gsap.to(".energy-scan", {
+        xPercent: 120,
+        duration: 5.5,
+        ease: "none",
+        repeat: -1,
+      });
+    }, rootRef);
+
+    return () => ctx.revert();
+  }, [pathname]);
 
   const SidebarContent = (
     <div className="flex h-full flex-col">
@@ -120,8 +148,10 @@ export function AppFrame({
   );
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div ref={rootRef} className="relative min-h-screen overflow-hidden">
       <div className="studio-grid pointer-events-none fixed inset-0 opacity-70" />
+      <div className="scanline-overlay pointer-events-none fixed inset-0" />
+      <div className="energy-scan pointer-events-none fixed inset-y-0 -left-1/3 w-1/3" />
       <div className="pointer-events-none fixed inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-2/70 to-transparent" />
 
       <aside
@@ -194,6 +224,13 @@ export function AppFrame({
               <Search size={16} />
               <span>Rechercher une note, tâche ou projet</span>
             </div>
+
+            <Button asChild variant="secondary" className="hidden sm:inline-flex">
+              <a href="/storybook/index.html" target="_blank" rel="noreferrer">
+                <BookOpen size={17} />
+                Storybook
+              </a>
+            </Button>
 
             <Button
               variant="secondary"

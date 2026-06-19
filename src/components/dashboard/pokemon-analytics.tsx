@@ -21,11 +21,15 @@ const colors = ["#20d3ff", "#905bf4", "#58f2a9", "#ffd166", "#ff5f7d"];
 
 export function PokemonAnalytics() {
   const [metrics, setMetrics] = useState<PokemonMetrics | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setMounted(true));
     fetch("/api/pokemon-stats")
       .then((response) => response.json())
       .then((data: PokemonMetrics) => setMetrics(data));
+
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   return (
@@ -48,14 +52,15 @@ export function PokemonAnalytics() {
         <Metric label="Moves" value={metrics?.catalog.moves.toLocaleString("fr-FR") || "..."} />
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1.2fr_.8fr]">
-        <Card className="p-4">
+      <section className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+        <Card className="min-w-0 p-4">
           <CardHeader eyebrow="Générations">
             <CardTitle>Complétion par génération</CardTitle>
             <CardDescription>Volume et taux qualité de la checklist.</CardDescription>
           </CardHeader>
-          <div className="mt-6 h-80">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+          <div className="mt-6 h-80 min-h-80 min-w-0">
+            {mounted ? (
+              <ResponsiveContainer width="100%" height="100%" minWidth={1}>
               <BarChart data={metrics?.generations || []} margin={{ left: -20 }}>
                 <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                 <XAxis dataKey="name" stroke="#94a3b8" tickLine={false} axisLine={false} />
@@ -70,17 +75,21 @@ export function PokemonAnalytics() {
                 />
                 <Bar dataKey="entries" radius={[8, 8, 0, 0]} fill="#20d3ff" />
               </BarChart>
-            </ResponsiveContainer>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full rounded-lg border border-line bg-white/[0.035]" />
+            )}
           </div>
         </Card>
 
-        <Card className="p-4">
+        <Card className="min-w-0 p-4">
           <CardHeader eyebrow="Types">
             <CardTitle>Répartition des fiches</CardTitle>
             <CardDescription>Pokémon, formes, dynamax, mega et gigantamax.</CardDescription>
           </CardHeader>
-          <div className="mt-6 h-80">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+          <div className="mt-6 h-80 min-h-80 min-w-0">
+            {mounted ? (
+              <ResponsiveContainer width="100%" height="100%" minWidth={1}>
               <PieChart>
                 <Tooltip
                   contentStyle={{
@@ -103,7 +112,10 @@ export function PokemonAnalytics() {
                   ))}
                 </Pie>
               </PieChart>
-            </ResponsiveContainer>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full rounded-lg border border-line bg-white/[0.035]" />
+            )}
           </div>
         </Card>
       </section>

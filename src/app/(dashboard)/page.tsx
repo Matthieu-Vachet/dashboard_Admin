@@ -1,4 +1,4 @@
-import { Bot, CalendarCheck, FolderKanban, Gauge, NotebookPen } from "lucide-react";
+import { BookOpen, CalendarCheck, FolderKanban, Gauge, NotebookPen, Wrench } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,14 +21,14 @@ export default function DashboardHome() {
                 Ton tableau de bord pour construire, suivre et shipper.
               </h2>
               <p className="mt-4 max-w-2xl text-sm font-semibold leading-7 text-muted sm:text-base">
-                Notes, kanban, projets, calendrier, todo, assistant IA et statistiques API dans un seul espace admin.
+                Notes, kanban, projets, calendrier, todo, outils quotidiens et statistiques API dans un seul espace admin.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button asChild variant="primary">
-                <Link href="/assistant">
-                  <Bot size={17} />
-                  Ouvrir l&apos;assistant
+                <Link href="/tools">
+                  <Wrench size={17} />
+                  Ouvrir les outils
                 </Link>
               </Button>
               <Button asChild>
@@ -36,6 +36,12 @@ export default function DashboardHome() {
                   <NotebookPen size={17} />
                   Nouvelle note
                 </Link>
+              </Button>
+              <Button asChild>
+                <a href="/storybook/index.html" target="_blank" rel="noreferrer">
+                  <BookOpen size={17} />
+                  Storybook
+                </a>
               </Button>
             </div>
           </div>

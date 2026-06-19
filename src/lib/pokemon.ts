@@ -109,19 +109,12 @@ export async function fetchPokemonMetrics(): Promise<PokemonMetrics> {
   const endpoint =
     process.env.POKEMON_API_URL ||
     "https://pokemon-go-7r5q2j05a-matthieu-vachets-projects.vercel.app/api/checklist-v3";
-  const bypassToken =
-    process.env.POKEMON_API_BYPASS_TOKEN || process.env.VERCEL_PROTECTION_BYPASS_TOKEN;
 
   try {
     const url = new URL(endpoint);
 
-    if (bypassToken) {
-      url.searchParams.set("x-vercel-set-bypass-cookie", "true");
-      url.searchParams.set("x-vercel-protection-bypass", bypassToken);
-    }
-
     const response = await fetch(url.toString(), {
-      next: { revalidate: 300 },
+      cache: "no-store",
       headers: {
         accept: "application/json",
       },
@@ -133,7 +126,7 @@ export async function fetchPokemonMetrics(): Promise<PokemonMetrics> {
         status: `HTTP ${response.status}`,
         detail:
           response.status === 401
-            ? "L'API Pokémon est encore protégée par Vercel. Le token bypass est absent, invalide ou ne vient pas du projet API Pokémon."
+            ? "L'API Pokémon est encore protégée par Vercel ou demande une authentification."
             : "L'API Pokémon n'a pas renvoyé une réponse exploitable.",
       };
     }
@@ -152,6 +145,7 @@ export async function fetchPokemonMetrics(): Promise<PokemonMetrics> {
     return {
       source: "live",
       status: "live",
+      detail: "Données Pokémon chargées depuis l'API publique.",
       total: summary.total,
       complete: summary.complete,
       issues: summary.issues,

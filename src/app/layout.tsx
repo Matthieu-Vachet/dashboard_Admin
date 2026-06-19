@@ -5,7 +5,7 @@ import { Providers } from "@/components/dashboard/providers";
 
 export const metadata: Metadata = {
   title: "MatWeb Dashboard Admin",
-  description: "Dashboard personnel pour piloter notes, projets, API, IA et design system.",
+  description: "Dashboard personnel pour piloter notes, projets, API, outils quotidiens et design system.",
 };
 
 export default function RootLayout({

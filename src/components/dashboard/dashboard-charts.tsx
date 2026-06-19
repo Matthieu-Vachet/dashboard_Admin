@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -23,15 +24,23 @@ const tooltipStyle = {
 };
 
 export function DashboardCharts() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setMounted(true));
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
   return (
-    <div className="grid gap-4 xl:grid-cols-[1.35fr_.65fr]">
-      <Card className="p-4">
+    <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.65fr)]">
+      <Card className="min-w-0 p-4">
         <CardHeader eyebrow="Pipeline">
           <CardTitle>Revenus et projets</CardTitle>
           <CardDescription>Simulation de pilotage pour tes prochains projets.</CardDescription>
         </CardHeader>
-        <div className="mt-6 h-72">
-          <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+        <div className="mt-6 h-72 min-h-72 min-w-0">
+          {mounted ? (
+            <ResponsiveContainer width="100%" height="100%" minWidth={1}>
             <AreaChart data={revenueData} margin={{ left: -18, right: 8, top: 16 }}>
               <defs>
                 <linearGradient id="revenueGradient" x1="0" x2="0" y1="0" y2="1">
@@ -58,17 +67,21 @@ export function DashboardCharts() {
                 fill="transparent"
               />
             </AreaChart>
-          </ResponsiveContainer>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full rounded-lg border border-line bg-white/[0.035]" />
+          )}
         </div>
       </Card>
 
-      <Card className="p-4">
+      <Card className="min-w-0 p-4">
         <CardHeader eyebrow="Temps">
           <CardTitle>Répartition focus</CardTitle>
           <CardDescription>Vue rapide de tes blocs de travail.</CardDescription>
         </CardHeader>
-        <div className="mt-6 h-72">
-          <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+        <div className="mt-6 h-72 min-h-72 min-w-0">
+          {mounted ? (
+            <ResponsiveContainer width="100%" height="100%" minWidth={1}>
             <BarChart data={focusBlocks} layout="vertical" margin={{ left: 18, right: 12 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" horizontal={false} />
               <XAxis type="number" stroke="#94a3b8" tickLine={false} axisLine={false} />
@@ -87,7 +100,10 @@ export function DashboardCharts() {
                 ))}
               </Bar>
             </BarChart>
-          </ResponsiveContainer>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full rounded-lg border border-line bg-white/[0.035]" />
+          )}
         </div>
       </Card>
     </div>

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/cn";
+import { usePersistentState } from "@/lib/use-persistent-state";
 
 type Todo = {
   id: string;
@@ -19,17 +20,11 @@ const initialTodos: Todo[] = [
   { id: "t1", title: "Configurer les variables Vercel", done: false, priority: "Haute" },
   { id: "t2", title: "Ajouter les premiers composants Storybook", done: true, priority: "Moyenne" },
   { id: "t3", title: "Créer un template de projet", done: false, priority: "Moyenne" },
-  { id: "t4", title: "Préparer les prompts assistant", done: false, priority: "Basse" },
+  { id: "t4", title: "Créer les outils quotidiens", done: false, priority: "Basse" },
 ];
 
-const priorities = {
-  Haute: "red",
-  Moyenne: "amber",
-  Basse: "green",
-} as const;
-
 export function TodoList() {
-  const [todos, setTodos] = useState(initialTodos);
+  const [todos, setTodos, ready] = usePersistentState("matweb.todos", initialTodos);
   const [title, setTitle] = useState("");
   const [filter, setFilter] = useState<"all" | "open" | "done">("all");
 
@@ -60,7 +55,9 @@ export function TodoList() {
             <Badge tone="green">Todo</Badge>
             <h2 className="mt-3 text-3xl font-black">Liste d&apos;actions</h2>
           </div>
-          <div className="flex rounded-lg border border-line bg-white/[0.045] p-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge tone={ready ? "green" : "neutral"}>{ready ? "Sauvegarde active" : "Chargement"}</Badge>
+            <div className="flex rounded-lg border border-line bg-white/[0.045] p-1">
             {[
               ["all", "Tout"],
               ["open", "Ouvert"],
@@ -78,6 +75,7 @@ export function TodoList() {
                 {label}
               </button>
             ))}
+            </div>
           </div>
         </div>
 
@@ -99,7 +97,7 @@ export function TodoList() {
           {filteredTodos.map((todo) => (
             <div
               key={todo.id}
-              className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-3 rounded-lg border border-line bg-white/[0.045] p-3"
+              className="grid gap-3 rounded-lg border border-line bg-white/[0.045] p-3 sm:grid-cols-[auto_1fr_150px_auto] sm:items-center"
             >
               <button
                 type="button"
@@ -120,10 +118,39 @@ export function TodoList() {
               >
                 {todo.done ? <Check size={16} /> : null}
               </button>
-              <p className={cn("text-sm font-black", todo.done && "text-muted line-through")}>
-                {todo.title}
-              </p>
-              <Badge tone={priorities[todo.priority]}>{todo.priority}</Badge>
+              <Input
+                className={cn(
+                  "min-h-10",
+                  todo.done && "text-muted line-through",
+                )}
+                value={todo.title}
+                onChange={(event) =>
+                  setTodos((current) =>
+                    current.map((item) =>
+                      item.id === todo.id ? { ...item, title: event.target.value } : item,
+                    ),
+                  )
+                }
+              />
+              <select
+                className="min-h-10 rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+                value={todo.priority}
+                onChange={(event) =>
+                  setTodos((current) =>
+                    current.map((item) =>
+                      item.id === todo.id
+                        ? { ...item, priority: event.target.value as Todo["priority"] }
+                        : item,
+                    ),
+                  )
+                }
+              >
+                {(["Haute", "Moyenne", "Basse"] as const).map((priority) => (
+                  <option key={priority} value={priority}>
+                    {priority}
+                  </option>
+                ))}
+              </select>
               <button
                 type="button"
                 onClick={() => setTodos((current) => current.filter((item) => item.id !== todo.id))}

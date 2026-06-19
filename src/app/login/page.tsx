@@ -22,10 +22,10 @@ export default async function LoginPage({
             MatWeb Dashboard, ton poste de contrôle.
           </h1>
           <p className="mt-5 max-w-xl text-base font-semibold leading-8 text-muted">
-            Connexion obligatoire pour accéder aux notes, au kanban, aux projets, au calendrier, aux todos, à l&apos;assistant et aux statistiques API.
+            Connexion obligatoire pour accéder aux notes, au kanban, aux projets, au calendrier, aux todos, aux outils et aux statistiques API.
           </p>
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
-            {["Design system", "AI workspace", "Projet cockpit"].map((item) => (
+            {["Design system", "Outils quotidiens", "Projet cockpit"].map((item) => (
               <div key={item} className="rounded-lg border border-line bg-white/[0.055] p-3">
                 <Sparkles size={16} className="text-brand-2" />
                 <p className="mt-3 text-sm font-black">{item}</p>

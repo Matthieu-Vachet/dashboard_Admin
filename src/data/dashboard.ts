@@ -1,5 +1,4 @@
 import {
-  Bot,
   CalendarDays,
   CheckSquare2,
   Folders,
@@ -7,17 +6,17 @@ import {
   KanbanSquare,
   LineChart,
   NotebookPen,
-  Sparkles,
+  Wrench,
 } from "lucide-react";
 
 export const navItems = [
   { href: "/", label: "Accueil", icon: Home },
   { href: "/notes", label: "Notes", icon: NotebookPen },
   { href: "/kanban", label: "Kanban", icon: KanbanSquare },
-  { href: "/assistant", label: "Assistant", icon: Bot },
   { href: "/projects", label: "Projets", icon: Folders },
   { href: "/calendar", label: "Calendrier", icon: CalendarDays },
   { href: "/todo", label: "Todo", icon: CheckSquare2 },
+  { href: "/tools", label: "Outils", icon: Wrench },
   { href: "/analytics", label: "Stats API", icon: LineChart },
 ];
 
@@ -62,23 +61,5 @@ export const quickActions = [
   "Créer une note projet",
   "Préparer un sprint",
   "Analyser l'API Pokémon",
-  "Résumer les priorités",
-];
-
-export const aiSuggestions = [
-  {
-    icon: Sparkles,
-    title: "Planifie ma semaine",
-    prompt: "Organise mes priorités Dashboard, Pokémon API et MatWeb pour 5 jours.",
-  },
-  {
-    icon: LineChart,
-    title: "Analyse mes stats",
-    prompt: "Lis les métriques Pokémon GO API et donne-moi les risques qualité.",
-  },
-  {
-    icon: KanbanSquare,
-    title: "Découpe un projet",
-    prompt: "Transforme mon idée en backlog Kanban avec priorités et catégories.",
-  },
+  "Ouvrir les outils du jour",
 ];

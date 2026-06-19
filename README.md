@@ -1,6 +1,6 @@
 # MatWeb Dashboard Admin
 
-Dashboard personnel Next.js pour piloter les futurs projets MatWeb : notes, kanban, assistant IA, projets, calendrier, todo list, statistiques Pokemon GO API et design system Storybook.
+Dashboard personnel Next.js pour piloter les futurs projets MatWeb : notes, kanban, projets, calendrier, todo list, outils quotidiens, statistiques Pokemon GO API et design system Storybook.
 
 ## Stack
 
@@ -8,7 +8,7 @@ Dashboard personnel Next.js pour piloter les futurs projets MatWeb : notes, kanb
 - Tailwind CSS 4
 - Framer Motion, Recharts, dnd-kit, lucide-react
 - Storybook pour documenter les composants
-- API OpenAI cote serveur via `OPENAI_API_KEY`
+- GSAP pour les animations d'interface
 
 ## Installation
 
@@ -31,24 +31,12 @@ SESSION_SECRET=une-valeur-longue
 
 En production, le dashboard refuse la connexion si `ADMIN_EMAIL`, `ADMIN_PASSWORD` ou `SESSION_SECRET` ne sont pas définis dans Vercel.
 
-## Assistant IA
-
-L'assistant ne connecte pas directement un compte ChatGPT. Il utilise l'API OpenAI cote serveur.
-
-```bash
-OPENAI_API_KEY=sk-...
-OPENAI_MODEL=gpt-5.5
-```
-
-Ajoute les memes variables dans Vercel pour l'activer en production.
-
 ## Statistiques Pokemon GO API
 
-Le widget consomme `POKEMON_API_URL`. Si ton API est protegee par Vercel Deployment Protection, ajoute aussi le token de bypass automation :
+Le widget consomme `POKEMON_API_URL`.
 
 ```bash
 POKEMON_API_URL=https://pokemon-go-7r5q2j05a-matthieu-vachets-projects.vercel.app/api/checklist-v3
-POKEMON_API_BYPASS_TOKEN=...
 ```
 
 ## Storybook
@@ -57,6 +45,8 @@ POKEMON_API_BYPASS_TOKEN=...
 npm run storybook
 npm run build-storybook
 ```
+
+Le build Storybook est servi directement dans le dashboard via `/storybook/index.html`.
 
 Les premiers composants documentes :
 

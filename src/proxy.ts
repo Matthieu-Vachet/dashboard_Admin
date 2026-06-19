@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { sessionCookieName, verifySessionToken } from "@/lib/session-token";
 
-const publicPaths = ["/login", "/api/session", "/api/logout", "/api/assistant"];
+const publicPaths = ["/login", "/api/session", "/api/logout"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
