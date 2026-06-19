@@ -19,7 +19,7 @@ npm run dev
 
 Ouvre ensuite `http://localhost:3000`.
 
-## Auth locale
+## Auth locale et production
 
 Copie `.env.example` en `.env` puis change au minimum :
 
@@ -28,6 +28,8 @@ ADMIN_EMAIL=matthieu@example.com
 ADMIN_PASSWORD=change-moi
 SESSION_SECRET=une-valeur-longue
 ```
+
+En production, le dashboard refuse la connexion si `ADMIN_EMAIL`, `ADMIN_PASSWORD` ou `SESSION_SECRET` ne sont pas définis dans Vercel.
 
 ## Assistant IA
 

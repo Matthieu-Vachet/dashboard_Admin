@@ -13,5 +13,12 @@ export function validateCredentials(email: string, password: string) {
   const expectedEmail = process.env.ADMIN_EMAIL || defaultEmail;
   const expectedPassword = process.env.ADMIN_PASSWORD || defaultPassword;
 
+  if (
+    process.env.NODE_ENV === "production" &&
+    (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD || !process.env.SESSION_SECRET)
+  ) {
+    return false;
+  }
+
   return email === expectedEmail && password === expectedPassword;
 }

@@ -47,7 +47,7 @@ export default async function LoginPage({
 
           {params.error ? (
             <div className="mt-5 rounded-lg border border-danger/30 bg-danger/10 p-3 text-sm font-bold text-rose-100">
-              Identifiants incorrects. Vérifie `ADMIN_EMAIL` et `ADMIN_PASSWORD`.
+              Identifiants incorrects ou variables production manquantes. Vérifie `ADMIN_EMAIL`, `ADMIN_PASSWORD` et `SESSION_SECRET`.
             </div>
           ) : null}
 
