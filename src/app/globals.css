@@ -1,0 +1,160 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  --background: #05060d;
+  --foreground: #eef3ff;
+  --muted: #94a3b8;
+  --panel: rgba(13, 17, 31, 0.74);
+  --panel-strong: rgba(18, 24, 43, 0.9);
+  --line: rgba(255, 255, 255, 0.1);
+  --line-strong: rgba(255, 255, 255, 0.18);
+  --brand: #905bf4;
+  --brand-2: #20d3ff;
+  --brand-3: #58f2a9;
+  --warning: #ffd166;
+  --danger: #ff5f7d;
+  --radius: 8px;
+}
+
+.light {
+  color-scheme: light;
+  --background: #f6f8fc;
+  --foreground: #131722;
+  --muted: #5e6a80;
+  --panel: rgba(255, 255, 255, 0.8);
+  --panel-strong: rgba(255, 255, 255, 0.96);
+  --line: rgba(17, 24, 39, 0.1);
+  --line-strong: rgba(17, 24, 39, 0.16);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-panel: var(--panel);
+  --color-panel-strong: var(--panel-strong);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brand-2: var(--brand-2);
+  --color-brand-3: var(--brand-3);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --font-sans: "Geist", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "SFMono-Regular", ui-monospace, monospace;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 8px;
+  --radius-xl: 8px;
+  --radius-2xl: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: var(--background);
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  background:
+    linear-gradient(115deg, rgba(144, 91, 244, 0.16), transparent 28%),
+    linear-gradient(245deg, rgba(32, 211, 255, 0.14), transparent 28%),
+    var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  letter-spacing: 0;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: rgba(32, 211, 255, 0.35);
+}
+
+.studio-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
+}
+
+.glass-panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(18px);
+}
+
+.glass-panel-strong {
+  border: 1px solid var(--line-strong);
+  background: var(--panel-strong);
+  box-shadow: 0 30px 120px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(22px);
+}
+
+.motion-border {
+  position: relative;
+  overflow: hidden;
+}
+
+.motion-border::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent, rgba(32, 211, 255, 0.38), transparent),
+    linear-gradient(180deg, transparent, rgba(144, 91, 244, 0.28), transparent);
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.motion-border:hover::before {
+  opacity: 1;
+}
+
+.animated-sheen {
+  background-size: 220% 100%;
+  animation: sheen 6s ease-in-out infinite;
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes sheen {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
