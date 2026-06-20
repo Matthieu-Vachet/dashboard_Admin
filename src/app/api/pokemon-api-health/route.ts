@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { recordDashboardApiCall } from "@/lib/dashboard-store";
 
 const defaultHealthUrl = "https://pokemon-go-api.vercel.app/health";
 
@@ -12,6 +13,7 @@ function json(data: unknown, init?: ResponseInit) {
 export async function GET() {
   const session = await getSession();
   if (!session) return json({ error: "Accès dashboard requis." }, { status: 401 });
+  await recordDashboardApiCall(session.email, "/api/pokemon-api-health", "GET");
 
   const healthUrl = process.env.POKEMON_API_HEALTH_URL || defaultHealthUrl;
 

@@ -1,5 +1,5 @@
-import { PokemonAnalytics } from "@/components/dashboard/pokemon-analytics";
+import { LearningAnalytics } from "@/components/dashboard/learning-analytics";
 
 export default function AnalyticsPage() {
-  return <PokemonAnalytics />;
+  return <LearningAnalytics />;
 }

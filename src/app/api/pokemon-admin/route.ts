@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import {
   dashboardStoreConfigured,
   readDashboardStoreValue,
+  recordDashboardApiCall,
   writeDashboardStoreValue,
 } from "@/lib/dashboard-store";
 
@@ -66,6 +67,10 @@ function requestError(message: string, status = 400) {
   return error;
 }
 
+function canWriteLocalRuleFiles() {
+  return process.env.VERCEL !== "1" && process.env.NODE_ENV !== "production";
+}
+
 async function readCustomRules(owner: string, workshop: ReturnType<typeof loadAdminModules>["workshop"]) {
   if (dashboardStoreConfigured()) {
     const document = await readDashboardStoreValue(owner, customRulesStoreKey);
@@ -80,9 +85,13 @@ async function writeCustomRules(owner: string, rules: RuleRecord[]) {
 }
 
 async function saveCustomRule(owner: string, body: JsonValue, workshop: ReturnType<typeof loadAdminModules>["workshop"]) {
-  await refreshLatestGithubDataSnapshot();
-  const activeWorkshop = loadAdminModules().workshop || workshop;
-  if (!dashboardStoreConfigured()) return activeWorkshop.saveCustomRule(body);
+  const activeWorkshop = workshop;
+  if (!dashboardStoreConfigured()) {
+    if (!canWriteLocalRuleFiles()) {
+      throw requestError("MongoDB dashboard non configuré: impossible de persister les règles sur le filesystem Vercel en lecture seule.", 503);
+    }
+    return activeWorkshop.saveCustomRule(body);
+  }
 
   const rules = await readCustomRules(owner, activeWorkshop);
   const normalized = activeWorkshop.previewCustomRule(body) as RuleRecord;
@@ -102,9 +111,13 @@ async function saveCustomRule(owner: string, body: JsonValue, workshop: ReturnTy
 }
 
 async function toggleCustomRule(owner: string, body: JsonValue, workshop: ReturnType<typeof loadAdminModules>["workshop"]) {
-  await refreshLatestGithubDataSnapshot();
-  const activeWorkshop = loadAdminModules().workshop || workshop;
-  if (!dashboardStoreConfigured()) return activeWorkshop.toggleCustomRule(body);
+  const activeWorkshop = workshop;
+  if (!dashboardStoreConfigured()) {
+    if (!canWriteLocalRuleFiles()) {
+      throw requestError("MongoDB dashboard non configuré: impossible de modifier les règles sur le filesystem Vercel en lecture seule.", 503);
+    }
+    return activeWorkshop.toggleCustomRule(body);
+  }
 
   const id = String(body.id || "");
   const rules = await readCustomRules(owner, activeWorkshop);
@@ -124,9 +137,13 @@ async function toggleCustomRule(owner: string, body: JsonValue, workshop: Return
 }
 
 async function deleteCustomRule(owner: string, body: JsonValue, workshop: ReturnType<typeof loadAdminModules>["workshop"]) {
-  await refreshLatestGithubDataSnapshot();
-  const activeWorkshop = loadAdminModules().workshop || workshop;
-  if (!dashboardStoreConfigured()) return activeWorkshop.deleteCustomRule(body);
+  const activeWorkshop = workshop;
+  if (!dashboardStoreConfigured()) {
+    if (!canWriteLocalRuleFiles()) {
+      throw requestError("MongoDB dashboard non configuré: impossible de supprimer les règles sur le filesystem Vercel en lecture seule.", 503);
+    }
+    return activeWorkshop.deleteCustomRule(body);
+  }
 
   const id = String(body.id || "");
   const rules = await readCustomRules(owner, activeWorkshop);
@@ -184,6 +201,8 @@ export async function GET(request: NextRequest) {
     if (!authenticated) {
       return json({ error: "Accès dashboard requis." }, { status: 401 });
     }
+
+    await recordDashboardApiCall(session!.email, `/api/pokemon-admin:${action}`, "GET");
 
     const { detailForKey, sourceWatch, workshop } = loadAdminModules();
 
@@ -247,6 +266,8 @@ export async function POST(request: NextRequest) {
       return json({ error: "Accès dashboard requis." }, { status: 401 });
     }
 
+    await recordDashboardApiCall(session!.email, `/api/pokemon-admin:${action}`, "POST");
+
     const { workshop } = loadAdminModules();
 
     if (action === "bootstrap") {
@@ -273,6 +294,16 @@ export async function POST(request: NextRequest) {
 
     if (action === "preview-rule") {
       return json({ data: workshop.previewCustomRule(body) });
+    }
+
+    if (action === "sync-github-data") {
+      const dataDir = await refreshLatestGithubDataSnapshot();
+      return json({
+        data: {
+          dataDir,
+          bootstrap: await bootstrapResponse(session!.email),
+        },
+      });
     }
 
     if (action === "save-rule") {

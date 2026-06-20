@@ -14,8 +14,45 @@ const tabLabels = {
   pvp: "PvP",
   shadow: "Shadow",
   assets: "Assets",
+  checks: "Contrôle de fiche",
   json: "JSON",
 };
+
+const typeBackgroundNames = {
+  BUG: "Bug",
+  DARK: "Dark",
+  DRAGON: "Dragon",
+  ELECTRIC: "Electric",
+  FAIRY: "Fairy",
+  FIGHTING: "Fighting",
+  FIRE: "Fire",
+  FLYING: "Flying",
+  GHOST: "Ghost",
+  GRASS: "Grass",
+  GROUND: "Ground",
+  ICE: "Ice",
+  NORMAL: "Normal",
+  POISON: "Poison",
+  PSYCHIC: "Psychic",
+  ROCK: "Rock",
+  STEEL: "Steel",
+  WATER: "Water",
+};
+
+const sectionTones = {
+  cyan: "border-cyan-200/20 bg-cyan-400/10 from-cyan-400/15",
+  emerald: "border-emerald-200/20 bg-emerald-400/10 from-emerald-400/15",
+  violet: "border-violet-200/20 bg-violet-400/10 from-violet-400/15",
+  amber: "border-amber-200/20 bg-amber-400/10 from-amber-400/15",
+  rose: "border-rose-200/20 bg-rose-400/10 from-rose-400/15",
+};
+
+const cardTones = [
+  "border-cyan-200/16 bg-cyan-400/[0.075]",
+  "border-emerald-200/16 bg-emerald-400/[0.075]",
+  "border-violet-200/16 bg-violet-400/[0.075]",
+  "border-amber-200/16 bg-amber-400/[0.075]",
+];
 
 function valueOrDash(value, suffix = "") {
   if (value === null || value === undefined || value === "") return "-";
@@ -23,9 +60,12 @@ function valueOrDash(value, suffix = "") {
   return `${value}${suffix}`;
 }
 
-function Section({ title, eyebrow, icon, children }) {
+function Section({ title, eyebrow, icon, children, tone = "cyan" }) {
+  const toneClass = sectionTones[tone] || sectionTones.cyan;
   return (
-    <section className="rounded-3xl border border-white/10 bg-white/[0.075] p-4 shadow-[0_20px_70px_rgba(0,0,0,.2)] backdrop-blur sm:p-5">
+    <section className={`relative overflow-hidden rounded-3xl border bg-gradient-to-br to-slate-950/18 p-4 shadow-[0_20px_70px_rgba(0,0,0,.2)] backdrop-blur sm:p-5 ${toneClass}`}>
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,.13),transparent_34%)]" />
+      <div className="relative">
       {eyebrow ? (
         <p className="mb-1 text-xs font-black uppercase tracking-[0.24em] text-cyan-200/70">
           {eyebrow}
@@ -40,6 +80,7 @@ function Section({ title, eyebrow, icon, children }) {
         <span>{title}</span>
       </h3>
       {children}
+      </div>
     </section>
   );
 }
@@ -51,12 +92,17 @@ function typePanelBackground(type, typeCatalog = []) {
     : "linear-gradient(135deg, rgba(15,23,42,.7), rgba(2,6,23,.58))";
 }
 
+function catchCardBackground(type) {
+  const name = typeBackgroundNames[String(type || "").toUpperCase()];
+  return name ? `/ui/backgrounds/catchCards/CatchCard_TypeBG_${name}.png` : "";
+}
+
 function DataGrid({ items }) {
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-      {items.map((item) => (
+      {items.map((item, index) => (
         <div
-          className="grid grid-cols-[2.45rem_minmax(0,1fr)] gap-3 rounded-2xl border border-white/10 bg-slate-950/45 p-4 text-left"
+          className={`grid grid-cols-[2.45rem_minmax(0,1fr)] gap-3 rounded-2xl border p-4 text-left shadow-[0_12px_38px_rgba(0,0,0,.18)] ${cardTones[index % cardTones.length]}`}
           key={item.label}
         >
           <span className="grid h-10 w-10 place-items-center rounded-2xl border border-white/10 bg-white/[0.06]">
@@ -94,10 +140,10 @@ function TranslationGrid({ names = {} }) {
   const entries = Object.entries(names || {}).filter(([, value]) => value);
   if (!entries.length) return null;
   return (
-    <Section title="Noms traduits" eyebrow="localisation" icon={uiAssets.icons.pokeball}>
+    <Section title="Noms traduits" eyebrow="localisation" icon={uiAssets.icons.pokeball} tone="emerald">
       <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-        {entries.map(([language, value]) => (
-          <div className="grid grid-cols-[2.2rem_minmax(0,1fr)] gap-3 rounded-2xl border border-white/10 bg-slate-950/45 p-3" key={language}>
+        {entries.map(([language, value], index) => (
+          <div className={`grid grid-cols-[2.2rem_minmax(0,1fr)] gap-3 rounded-2xl border p-3 ${cardTones[index % cardTones.length]}`} key={language}>
             <span className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.06] p-1.5 text-xs font-black text-cyan-100">
               <img className="max-h-full object-contain" src={uiAssets.icons.pokeball} alt="" />
             </span>
@@ -119,6 +165,27 @@ function EmptyInline({ children }) {
     <p className="rounded-2xl border border-dashed border-white/15 bg-white/[0.035] p-4 text-sm font-bold text-slate-300">
       {children}
     </p>
+  );
+}
+
+function CandyAmount({ value, icon, label = "bonbons" }) {
+  return (
+    <span className="inline-flex min-w-0 items-center gap-2 align-middle">
+      {icon ? <img className="h-5 w-5 shrink-0 object-contain" src={icon} alt="" /> : null}
+      <span>{valueOrDash(value)} {label}</span>
+    </span>
+  );
+}
+
+function RewardValue({ candy, stardust, candyIcon }) {
+  return (
+    <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      <CandyAmount value={candy} icon={candyIcon} />
+      <span className="inline-flex items-center gap-2">
+        <img className="h-5 w-5 shrink-0 object-contain" src={uiAssets.icons.stardust} alt="" />
+        <span>{valueOrDash(stardust)} poussières</span>
+      </span>
+    </span>
   );
 }
 
@@ -345,7 +412,7 @@ function AssetGallery({ entry, payload }) {
 
 function IssuesPanel({ entry }) {
   return (
-    <Section title="Contrôles de fiche" icon={uiAssets.icons.problem}>
+    <Section title="Contrôles de fiche" icon={uiAssets.icons.problem} tone="amber">
       {(entry.issues || []).length ? (
         <div className="space-y-3">
           {entry.issues.map((issue) => (
@@ -519,6 +586,7 @@ export function DetailModal({
         "pvp",
         payload.shadow || entry?.availability?.shadow ? "shadow" : null,
         "assets",
+        (entry?.issues || []).length ? "checks" : null,
         "json",
       ].filter(Boolean),
     [entry, payload],
@@ -527,6 +595,10 @@ export function DetailModal({
   useEffect(() => {
     setActiveTab("overview");
   }, [entry?.key]);
+
+  useEffect(() => {
+    if (!tabs.includes(activeTab)) setActiveTab("overview");
+  }, [activeTab, tabs]);
 
   if (!open || !entry || typeof document === "undefined") return null;
 
@@ -549,6 +621,7 @@ export function DetailModal({
     .filter(Boolean);
   const mainType = entry.primaryType || payload.primaryType || "NORMAL";
   const candyIcon = candyIconForDex(entry.dexId || payload.dexId);
+  const catchBackground = catchCardBackground(mainType);
 
   return createPortal(
     (
@@ -562,7 +635,11 @@ export function DetailModal({
         <div
           className="relative overflow-hidden border-b border-white/10 bg-cover bg-center px-4 py-5 sm:px-6 sm:py-6"
           style={{
-            backgroundImage: `${typePanelBackground(mainType, typeCatalog)}, radial-gradient(circle_at_8%_0%,${typeColors[mainType] || "#38bdf8"}66,transparent_36%), radial-gradient(circle_at_92%_15%,rgba(45,212,191,.32),transparent_34%)`,
+            backgroundImage: `${
+              catchBackground
+                ? `linear-gradient(135deg, rgba(4,10,22,.72), rgba(4,10,22,.28)), url("${catchBackground}"), `
+                : ""
+            }${typePanelBackground(mainType, typeCatalog)}, radial-gradient(circle_at_8%_0%,${typeColors[mainType] || "#38bdf8"}66,transparent_36%), radial-gradient(circle_at_92%_15%,rgba(45,212,191,.32),transparent_34%)`,
           }}
         >
           <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.08)_1px,transparent_1px)] [background-size:34px_34px]" />
@@ -616,8 +693,12 @@ export function DetailModal({
               <button
                 className={`rounded-full border px-4 py-2 text-sm font-black transition ${
                   activeTab === tab
-                    ? "border-cyan-200/50 bg-gradient-to-r from-cyan-400 to-blue-500 text-white shadow-[0_12px_35px_rgba(14,165,233,.25)]"
-                    : "border-white/10 bg-white/[0.055] text-slate-200 hover:bg-white/10"
+                    ? tab === "checks"
+                      ? "border-red-200/60 bg-gradient-to-r from-red-500 to-amber-400 text-white shadow-[0_12px_35px_rgba(248,113,113,.24)]"
+                      : "border-cyan-200/50 bg-gradient-to-r from-cyan-400 to-blue-500 text-white shadow-[0_12px_35px_rgba(14,165,233,.25)]"
+                    : tab === "checks"
+                      ? "border-red-300/35 bg-red-500/10 text-red-100 hover:bg-red-500/20"
+                      : "border-white/10 bg-white/[0.055] text-slate-200 hover:bg-white/10"
                 }`}
                 key={tab}
                 type="button"
@@ -647,7 +728,7 @@ export function DetailModal({
                   />
                 ) : null}
                 <TranslationGrid names={names} />
-                <Section title="Identifiants" icon={uiAssets.icons.tag}>
+                <Section title="Identifiants" icon={uiAssets.icons.tag} tone="violet">
                   <DataGrid
                     items={[
                       { label: "ID", value: valueOrDash(payload.id), icon: uiAssets.icons.tag },
@@ -661,7 +742,7 @@ export function DetailModal({
                     ]}
                   />
                 </Section>
-                <Section title="Identité et capture" icon={uiAssets.icons.pokedexKanto}>
+                <Section title="Identité et capture" icon={uiAssets.icons.pokedexKanto} tone="cyan">
                   <DataGrid
                     items={[
                       { label: "Types", value: [entry.primaryType, entry.secondaryType].filter(Boolean).map((type) => typeName(type, typeCatalog)).join(" / ") || "-", icon: uiAssets.icons.type },
@@ -673,12 +754,12 @@ export function DetailModal({
                       { label: "Taux fuite", value: valueOrDash(payload.fleeRate, "%"), icon: uiAssets.icons.grass },
                       { label: "Énergie méga", value: valueOrDash(payload.megaEnergyReward), icon: uiAssets.icons.megaEnergy },
                       { label: "Coût méga", value: valueOrDash(payload.energyCost), icon: uiAssets.icons.megaEnergy },
-                      { label: "Récompenses", value: `${valueOrDash(captureRewards.candy)} bonbons / ${valueOrDash(captureRewards.stardust)} poussières`, icon: uiAssets.icons.stardust },
-                      { label: "2e attaque", value: `${valueOrDash(secondMove.candy)} bonbons / ${valueOrDash(secondMove.stardust)} poussières`, icon: uiAssets.icons.attack },
+                      { label: "Récompenses", value: <RewardValue candy={captureRewards.candy} stardust={captureRewards.stardust} candyIcon={candyIcon} />, icon: candyIcon || uiAssets.icons.candy },
+                      { label: "2e attaque", value: <RewardValue candy={secondMove.candy} stardust={secondMove.stardust} candyIcon={candyIcon} />, icon: candyIcon || uiAssets.icons.candy },
                     ]}
                   />
                 </Section>
-                <Section title="Disponibilité" icon={uiAssets.icons.shiny}>
+                <Section title="Disponibilité" icon={uiAssets.icons.shiny} tone="emerald">
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                     {Object.entries(availability).map(([key, value]) => (
                       <span
@@ -700,7 +781,7 @@ export function DetailModal({
 
             {activeTab === "cp" ? (
               <>
-                <Section title="Statistiques de base" icon={uiAssets.icons.swords}>
+                <Section title="Statistiques de base" icon={uiAssets.icons.swords} tone="rose">
                   <DataGrid
                     items={[
                       { label: "Attaque", value: valueOrDash(stats.attack), icon: uiAssets.icons.swords },
@@ -709,7 +790,7 @@ export function DetailModal({
                     ]}
                   />
                 </Section>
-                <Section title="PC max et rencontres" icon={uiAssets.icons.maxPc}>
+                <Section title="PC max et rencontres" icon={uiAssets.icons.maxPc} tone="cyan">
                   <DataGrid
                     items={[
                       { label: "PC 50", value: valueOrDash(maxCp.maxLevel50), icon: uiAssets.icons.maxPc },
@@ -720,7 +801,7 @@ export function DetailModal({
                     ]}
                   />
                 </Section>
-                <Section title="PC par niveau" icon={uiAssets.icons.maxPc}>
+                <Section title="PC par niveau" icon={uiAssets.icons.maxPc} tone="violet">
                   {cpByLevel.length ? (
                     <div className="grid max-h-[48dvh] gap-2 overflow-auto pr-1 sm:grid-cols-2 lg:grid-cols-4">
                       {cpByLevel.map((row) => (
@@ -754,12 +835,12 @@ export function DetailModal({
             ) : null}
 
             {activeTab === "shadow" ? (
-              <Section title="Shadow / Purification" icon={uiAssets.icons.shadow}>
+              <Section title="Shadow / Purification" icon={uiAssets.icons.shadow} tone="violet">
                 <DataGrid
                   items={[
                     { label: "Shadow", value: availability.shadow ? "Oui" : "Non", icon: uiAssets.icons.shadow },
                     { label: "Purification", value: valueOrDash(payload.shadow?.purificationCost?.stardust, " poussières"), icon: uiAssets.icons.purified },
-                    { label: "Bonbons", value: valueOrDash(payload.shadow?.purificationCost?.candy), icon: candyIcon || uiAssets.icons.candy },
+                    { label: "Bonbons", value: <CandyAmount value={payload.shadow?.purificationCost?.candy} icon={candyIcon} />, icon: candyIcon || uiAssets.icons.candy },
                     { label: "Sortie", value: formatDate(payload.shadow?.firstReleaseDate || payload.shadow?.releaseDate), icon: uiAssets.icons.radar },
                     {
                       label: "Catch CP",
@@ -772,10 +853,10 @@ export function DetailModal({
             ) : null}
 
             {activeTab === "assets" ? <AssetGallery entry={entry} payload={payload} /> : null}
+            {activeTab === "checks" ? <IssuesPanel entry={entry} /> : null}
             {activeTab === "json" ? (
               <div className="space-y-4">
-                <IssuesPanel entry={entry} />
-                <Section title="JSON source" icon={uiAssets.icons.copy}>
+                <Section title="JSON source" icon={uiAssets.icons.copy} tone="cyan">
                   <JsonBlock payload={payload.sourceData || payload} />
                 </Section>
               </div>

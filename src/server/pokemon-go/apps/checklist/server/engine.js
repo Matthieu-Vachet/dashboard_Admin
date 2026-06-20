@@ -1301,6 +1301,14 @@ function buildChecklist(customRulesOverride = null) {
       form: data.form || "normal",
       file: relativeToApp(file),
       image: displayData.assets?.portrait || displayData.assets?.image || null,
+      homeImage:
+        displayData.assets?.home?.image ||
+        displayData.assets?.home?.shinyImage ||
+        displayData.assets?.home?.variants?.find((asset) => asset?.image || asset?.shinyImage)
+          ?.image ||
+        displayData.assets?.home?.variants?.find((asset) => asset?.image || asset?.shinyImage)
+          ?.shinyImage ||
+        null,
       shinyImage:
         displayData.assets?.portraitShiny || displayData.assets?.shinyImage || null,
       primaryType:

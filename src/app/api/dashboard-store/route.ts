@@ -4,6 +4,7 @@ import {
   dashboardStoreConfigured,
   normalizeDashboardStoreKey,
   readDashboardStoreValue,
+  recordDashboardApiCall,
   writeDashboardStoreValue,
 } from "@/lib/dashboard-store";
 
@@ -27,6 +28,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) return json({ error: "Accès dashboard requis." }, { status: 401 });
+    await recordDashboardApiCall(session.email, "/api/dashboard-store", "GET");
 
     const key = normalizeDashboardStoreKey(request.nextUrl.searchParams.get("key"));
     const document = await readDashboardStoreValue(session.email, key);
@@ -48,6 +50,7 @@ export async function PUT(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) return json({ error: "Accès dashboard requis." }, { status: 401 });
+    await recordDashboardApiCall(session.email, "/api/dashboard-store", "PUT");
 
     const body = (await request.json().catch(() => ({}))) as {
       key?: unknown;

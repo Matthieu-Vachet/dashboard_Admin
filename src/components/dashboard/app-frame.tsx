@@ -23,6 +23,20 @@ import { Badge } from "@/components/ui/badge";
 import { navItems } from "@/data/dashboard";
 import { cn } from "@/lib/cn";
 
+const navToneClasses = [
+  { icon: "text-brand-2", glow: "bg-brand-2/12" },
+  { icon: "text-sky-300", glow: "bg-sky-400/12" },
+  { icon: "text-violet-300", glow: "bg-violet-400/12" },
+  { icon: "text-emerald-300", glow: "bg-emerald-400/12" },
+  { icon: "text-amber-300", glow: "bg-amber-400/12" },
+  { icon: "text-lime-300", glow: "bg-lime-400/12" },
+  { icon: "text-rose-300", glow: "bg-rose-400/12" },
+  { icon: "text-cyan-300", glow: "bg-cyan-400/12" },
+  { icon: "text-fuchsia-300", glow: "bg-fuchsia-400/12" },
+  { icon: "text-orange-300", glow: "bg-orange-400/12" },
+  { icon: "text-teal-300", glow: "bg-teal-400/12" },
+] as const;
+
 export function AppFrame({
   children,
   userEmail,
@@ -118,9 +132,10 @@ export function AppFrame({
       </div>
 
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5" aria-label="Navigation dashboard">
-        {navItems.map((item) => {
+        {navItems.map((item, index) => {
           const active = pathname === item.href;
           const Icon = item.icon;
+          const tone = navToneClasses[index % navToneClasses.length];
 
           return (
             <Link
@@ -129,14 +144,27 @@ export function AppFrame({
               onClick={() => setSidebarOpen(false)}
               title={collapsed ? item.label : undefined}
               className={cn(
-                "dashboard-sidebar-link group relative flex min-h-10 items-center gap-2.5 rounded-lg border px-3 text-sm font-black transition",
+                "dashboard-sidebar-link group relative flex min-h-10 items-center gap-2.5 overflow-hidden rounded-lg border px-3 text-sm font-black transition",
                 active
                   ? "border-brand-2/35 bg-brand-2/12 text-foreground shadow-[0_12px_36px_rgba(32,211,255,0.12)]"
                   : "border-transparent text-muted hover:border-line hover:bg-white/[0.055] hover:text-foreground",
                 collapsed && "justify-center px-0",
               )}
             >
-              <Icon size={17} className={active ? "text-brand-2" : ""} />
+              <span
+                className={cn(
+                  "absolute inset-y-1 left-1 w-9 rounded-lg opacity-0 blur-sm transition duration-300 group-hover:opacity-70",
+                  tone.glow,
+                  active && "opacity-100",
+                )}
+              />
+              <Icon
+                size={17}
+                className={cn(
+                  "relative z-10 transition duration-300 group-hover:scale-125 group-hover:-rotate-6",
+                  active ? "text-brand-2 drop-shadow-[0_0_14px_rgba(32,211,255,.55)]" : tone.icon,
+                )}
+              />
               {!collapsed ? <span className="truncate">{item.label}</span> : null}
               {active ? (
                 <motion.span

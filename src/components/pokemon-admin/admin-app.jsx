@@ -4,18 +4,24 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
+  AlertTriangle,
   Archive,
   BarChart3,
   BookOpen,
   Boxes,
   ChevronDown,
   ClipboardCheck,
+  Cloud,
   Copy,
   ExternalLink,
   FileDiff,
   FileJson,
+  Filter,
+  Gauge,
+  Image as ImageIcon,
   History,
   LayoutDashboard,
+  Layers,
   ListTodo,
   PenLine,
   Radar,
@@ -23,6 +29,7 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  Wand2,
 } from "lucide-react";
 import { DetailModal } from "../checklist/detail-modal";
 import { PokemonCard } from "../checklist/pokemon-card";
@@ -40,6 +47,7 @@ const navItems = [
   ["overview", "Accueil", LayoutDashboard],
   ["pokedex", "Fiches", BookOpen],
   ["assets", "Assets", Boxes],
+  ["checks", "Contrôles", AlertTriangle],
   ["sources", "Veille", Radar],
   ["catalogs", "Catalogues", Archive],
   ["compare", "Comparaison", FileDiff],
@@ -58,6 +66,50 @@ const buttonClass =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.075] px-4 py-2 text-sm font-black text-white transition hover:border-cyan-200/50 hover:bg-cyan-400/15";
 const primaryButtonClass =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-400 px-4 py-2 text-sm font-black text-white shadow-[0_14px_45px_rgba(14,165,233,.26)] transition hover:scale-[1.01]";
+
+const generationFilters = [
+  ["all", "Toutes", null, null],
+  ["1", "Kanto", "/ui/PokedexV2/kanto_starters.png", "/ui/PokedexV2/kanto_locked.png"],
+  ["2", "Johto", "/ui/PokedexV2/jhoto_starters.png", "/ui/PokedexV2/jhoto_locked.png"],
+  ["3", "Hoenn", "/ui/PokedexV2/hoenn_starters.png", "/ui/PokedexV2/hoenn_locked.png"],
+  ["4", "Sinnoh", "/ui/PokedexV2/sinnoh_starters.png", "/ui/PokedexV2/sinnoh_locked.png"],
+  ["5", "Unys", "/ui/PokedexV2/unova_starters.png", "/ui/PokedexV2/unova_locked.png"],
+  ["6", "Kalos", "/ui/PokedexV2/kalos_starters.png", "/ui/PokedexV2/kalos_locked.png"],
+  ["7", "Alola", "/ui/PokedexV2/alola_starters.png", "/ui/PokedexV2/alola_locked.png"],
+  ["8", "Galar", "/ui/PokedexV2/galar_starters.png", "/ui/PokedexV2/galar_locked.png"],
+  ["hisui", "Hisui", "/ui/PokedexV2/hisui_starters.png", "/ui/PokedexV2/hisui_locked.png"],
+  ["9", "Paldea", "/ui/PokedexV2/paldea_starters.png", "/ui/PokedexV2/paldea_locked.png"],
+];
+
+const assetStatTone = {
+  cyan: "from-sky-500/24 via-cyan-300/12 to-slate-900/20 text-cyan-100 border-cyan-200/25",
+  violet: "from-violet-500/24 via-fuchsia-300/10 to-slate-900/20 text-violet-100 border-violet-200/25",
+  green: "from-emerald-400/24 via-teal-300/10 to-slate-900/20 text-emerald-100 border-emerald-200/25",
+  amber: "from-amber-400/24 via-orange-300/10 to-slate-900/20 text-amber-100 border-amber-200/25",
+};
+
+const categoryLabels = {
+  custom: "Règles personnalisées",
+  pokemon: "Fiches Pokémon",
+  form: "Formes",
+  mega: "Méga / Primo",
+  dynamax: "Dynamax",
+  gigantamax: "Gigamax",
+  assets: "Assets",
+  moves: "Attaques",
+  pvp: "PvP",
+  availability: "Disponibilité",
+  localization: "Localisation",
+  reference: "Références",
+};
+
+function formatCount(value) {
+  return Number(value || 0).toLocaleString("fr-FR");
+}
+
+function issueLabel(value) {
+  return categoryLabels[value] || String(value || "Autre");
+}
 
 const defaultRuleForm = {
   id: "",
@@ -251,15 +303,24 @@ function BarList({ items, labelKey = "id", valueKey = "count" }) {
         items.map((item) => {
           const value = Number(item[valueKey]) || 0;
           return (
-            <div className="grid grid-cols-[5.5rem_1fr_3rem] items-center gap-3 text-sm" key={item[labelKey]}>
-              <span className="truncate font-bold text-slate-300">{item[labelKey]}</span>
-              <span className="h-3 overflow-hidden rounded-full bg-white/10">
+            <div className="rounded-2xl border border-white/10 bg-slate-950/35 p-3" key={item[labelKey]}>
+              <div className="mb-2 flex items-center justify-between gap-3 text-sm">
+                <span className="min-w-0 truncate font-black text-slate-100">{issueLabel(item[labelKey])}</span>
+                <strong className="shrink-0 rounded-full bg-white/10 px-2.5 py-1 font-mono text-xs font-black text-white">
+                  {formatCount(value)}
+                </strong>
+              </div>
+              <span className="block h-2.5 overflow-hidden rounded-full bg-white/10">
                 <i
                   className="block h-full rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500"
                   style={{ width: `${(value / max) * 100}%` }}
                 />
               </span>
-              <strong className="text-right font-black text-white">{value}</strong>
+              <p className="mt-2 text-xs font-bold leading-5 text-slate-400">
+                {item[labelKey] === "custom"
+                  ? "Issues remontées par tes règles JSON ajoutées."
+                  : "Issues détectées par le checker intégré."}
+              </p>
             </div>
           );
         })
@@ -269,6 +330,86 @@ function BarList({ items, labelKey = "id", valueKey = "count" }) {
         </p>
       )}
     </div>
+  );
+}
+
+function AssetStatCard({ label, value, icon, tone = "cyan", detail }) {
+  return (
+    <article
+      className={`relative min-w-0 overflow-hidden rounded-2xl border bg-gradient-to-br p-3 shadow-[0_18px_65px_rgba(0,0,0,.22)] ${assetStatTone[tone] || assetStatTone.cyan}`}
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.22),transparent_34%),linear-gradient(135deg,rgba(255,255,255,.1),transparent_45%)]" />
+      <div className="relative grid min-w-0 grid-cols-[3rem_minmax(0,1fr)] items-center gap-3">
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/10 bg-slate-950/45 p-2 shadow-inner">
+          {icon ? <img className="max-h-full object-contain" src={icon} alt="" /> : <Gauge size={21} />}
+        </span>
+        <span className="min-w-0">
+          <span className="block truncate text-xs font-black uppercase tracking-[0.18em] text-white/72">
+            {label}
+          </span>
+          <strong className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[clamp(1.6rem,3vw,2.75rem)] font-black leading-none text-white drop-shadow-[0_0_18px_rgba(255,255,255,.16)]">
+            {formatCount(value)}
+          </strong>
+        </span>
+      </div>
+      {detail ? (
+        <p className="relative mt-3 truncate text-xs font-bold text-white/70">{detail}</p>
+      ) : null}
+    </article>
+  );
+}
+
+function GenerationFilterBar({ value, onChange }) {
+  return (
+    <section className="rounded-2xl border border-white/10 bg-slate-950/30 p-3 shadow-[0_18px_70px_rgba(0,0,0,.2)]">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-cyan-100/75">
+          <Filter size={15} /> Générations
+        </span>
+        <button className="text-xs font-black text-cyan-100 underline-offset-4 hover:underline" type="button" onClick={() => onChange("all")}>
+          Tout afficher
+        </button>
+      </div>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-11">
+        {generationFilters.map(([id, label, image, lockedImage]) => {
+          const active = value === id;
+          return (
+            <button
+              className={`group relative min-h-[92px] overflow-hidden rounded-2xl border p-2 text-left transition hover:-translate-y-0.5 hover:border-cyan-200/45 ${
+                active
+                  ? "border-cyan-200/50 bg-cyan-400/15 shadow-[0_14px_45px_rgba(34,211,238,.16)]"
+                  : "border-white/10 bg-white/[0.045]"
+              }`}
+              key={id}
+              type="button"
+              onClick={() => onChange(id)}
+            >
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_10%,rgba(34,211,238,.22),transparent_38%)] opacity-0 transition group-hover:opacity-100" />
+              {image ? (
+                <>
+                  <img
+                    className={`absolute bottom-1 right-1 h-16 max-w-[78%] object-contain transition duration-300 ${active ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+                    src={image}
+                    alt=""
+                  />
+                  <img
+                    className={`absolute bottom-1 right-1 h-16 max-w-[78%] object-contain transition duration-300 ${active ? "opacity-0" : "opacity-75 group-hover:opacity-0"}`}
+                    src={lockedImage || image}
+                    alt=""
+                  />
+                </>
+              ) : (
+                <Layers className="absolute bottom-3 right-3 text-cyan-100/60" size={26} />
+              )}
+              <span className="relative block text-xs font-black uppercase tracking-[0.14em] text-slate-400">
+                {id === "all" ? "Filtre" : `Gén. ${id}`}
+              </span>
+              <strong className="relative mt-1 block text-sm font-black text-white">{label}</strong>
+            </button>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
@@ -564,30 +705,62 @@ function MiniCardList({ entries, onOpen }) {
   return (
     <div className="grid gap-3">
       {entries.length ? (
-        entries.map((entry) => (
-          <button
-            className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950/35 p-4 text-left transition hover:border-cyan-200/40 hover:bg-cyan-400/10"
-            key={entry.key}
-            type="button"
-            onClick={() => onOpen(entry)}
-          >
-            <span className="min-w-0">
-              <strong className="block truncate font-black text-white">{entry.name}</strong>
-              <small className="mt-1 block truncate text-xs font-bold text-slate-400">
-                {entry.dexId} · {entry.form || entry.kind}
-              </small>
-            </span>
-            <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1 text-xs font-black text-amber-100">
-              {entry.issues?.length || 0}
-            </span>
-          </button>
-        ))
+        entries.map((entry) => {
+          const issues = entry.issues?.length || 0;
+          const image = entry.homeImage || entry.image || entry.shinyImage;
+          return (
+            <button
+              className="group grid grid-cols-[3.25rem_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/35 p-3 text-left transition hover:border-cyan-200/40 hover:bg-cyan-400/10"
+              key={entry.key}
+              type="button"
+              onClick={() => onOpen(entry)}
+            >
+              <span className="grid h-[3.25rem] w-[3.25rem] place-items-center rounded-2xl border border-white/10 bg-white/[0.055] p-1.5 shadow-inner">
+                {image ? (
+                  <img className="max-h-full object-contain drop-shadow-[0_12px_20px_rgba(0,0,0,.4)] transition group-hover:scale-110" src={image} alt="" />
+                ) : (
+                  <ImageIcon className="text-cyan-100/60" size={22} />
+                )}
+              </span>
+              <span className="min-w-0">
+                <strong className="block truncate font-black text-white">{entry.name}</strong>
+                <small className="mt-1 block truncate text-xs font-bold text-slate-400">
+                  {entry.dexId} · {entry.form || entry.kind}
+                </small>
+              </span>
+              <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1 text-xs font-black text-amber-100">
+                {issues}
+              </span>
+            </button>
+          );
+        })
       ) : (
         <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
           Rien à afficher ici.
         </p>
       )}
     </div>
+  );
+}
+
+function ControlCardsPanel({ title = "Fiches à contrôler", entries, onOpen, description }) {
+  const customIssueCount = entries.reduce((total, entry) => total + (entry.issues?.length || 0), 0);
+
+  return (
+    <Panel
+      title={title}
+      eyebrow="contrôle de fiche"
+      action={
+        <span className="rounded-full border border-amber-300/25 bg-amber-400/10 px-3 py-2 text-xs font-black text-amber-100">
+          {formatCount(customIssueCount)} clé(s)
+        </span>
+      }
+    >
+      <p className="mb-4 rounded-2xl border border-amber-200/15 bg-amber-400/10 p-4 text-sm font-bold leading-6 text-amber-50/85">
+        {description || "Toutes les fiches Pokémon qui ne respectent pas une règle active sont regroupées ici, avec leur sprite Home quand il existe."}
+      </p>
+      <MiniCardList entries={entries} onOpen={onOpen} />
+    </Panel>
   );
 }
 
@@ -649,6 +822,8 @@ function RulesPanel({
   onToggle,
   onDelete,
   onOpenEntry,
+  onSyncGithub,
+  syncingGithub = false,
 }) {
   const mode = form.mode || (form.templateSource ? "template" : "path");
   const customIssueEntries = entries.filter((entry) =>
@@ -708,16 +883,21 @@ function RulesPanel({
       title="Règles JSON personnalisées"
       eyebrow="checker dynamique"
       action={
-        <button className={primaryButtonClass} type="button" onClick={() => onFormChange({ ...defaultRuleForm })}>
-          <Sparkles size={17} /> Nouvelle règle
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button className={buttonClass} type="button" onClick={onSyncGithub} disabled={syncingGithub}>
+            <Cloud size={17} /> {syncingGithub ? "Sync..." : "Sync GitHub"}
+          </button>
+          <button className={primaryButtonClass} type="button" onClick={() => onFormChange({ ...defaultRuleForm })}>
+            <Sparkles size={17} /> Nouvelle règle
+          </button>
+        </div>
       }
     >
       <div className="mb-5 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-50">
-        Chaque sauvegarde synchronise le dernier snapshot GitHub de PokemonGo-Data, puis relance le contrôle sur toutes les cartes data: Pokémon, formes, attaques, types, météo, générations et stickers.
+        La sauvegarde d’une règle est instantanée et relance le contrôle sur le snapshot déjà chargé. Utilise “Sync GitHub” seulement quand tu veux reprendre les JSON distants avant de recalculer toutes les cartes data: Pokémon, formes, attaques, types, météo, générations et stickers.
       </div>
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
-        <section className="space-y-4">
+      <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(300px,420px)]">
+        <section className="min-w-0 space-y-4 overflow-hidden">
           {message ? (
             <p className="rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-3 text-sm font-bold text-cyan-100">
               {message}
@@ -727,10 +907,10 @@ function RulesPanel({
             <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
               Modèles utiles
             </span>
-            <div className="grid gap-2 md:grid-cols-2">
+            <div className="grid min-w-0 gap-2 md:grid-cols-2">
               {rulePresets.map((preset) => (
                 <button
-                  className="rounded-2xl border border-white/10 bg-slate-950/35 p-3 text-left transition hover:border-cyan-200/45 hover:bg-cyan-400/10"
+                  className="min-w-0 rounded-2xl border border-white/10 bg-slate-950/35 p-3 text-left transition hover:border-cyan-200/45 hover:bg-cyan-400/10"
                   key={preset.key}
                   type="button"
                   onClick={() => applyPreset(preset)}
@@ -766,13 +946,13 @@ function RulesPanel({
             <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
               Mode de règle
             </span>
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid min-w-0 gap-2 min-[480px]:grid-cols-2">
               {[
                 ["template", "Modèle JSON complet"],
                 ["path", "Clé simple + type"],
               ].map(([id, label]) => (
                 <button
-                  className={`rounded-2xl border px-4 py-3 text-sm font-black ${
+                  className={`min-w-0 rounded-2xl border px-3 py-3 text-sm font-black leading-5 ${
                     mode === id
                       ? "border-cyan-200/50 bg-cyan-400/20 text-cyan-50"
                       : "border-white/10 bg-white/[0.055] text-slate-300"
@@ -781,7 +961,7 @@ function RulesPanel({
                   type="button"
                   onClick={() => setMode(id)}
                 >
-                  {label}
+                  <span className="break-words">{label}</span>
                 </button>
               ))}
             </div>
@@ -790,19 +970,19 @@ function RulesPanel({
             <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
               Appliquer à
             </span>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
               {ruleTargetKinds.map(([id, label]) => (
                 <button
                   key={id}
                   type="button"
                   onClick={() => toggleKind(id)}
-                  className={`rounded-full border px-3 py-2 text-xs font-black ${
+                  className={`min-w-0 rounded-2xl border px-3 py-2 text-xs font-black leading-5 ${
                     form.appliesTo?.includes(id)
                       ? "border-cyan-200/50 bg-cyan-400/20 text-cyan-50"
                       : "border-white/10 bg-white/[0.055] text-slate-300"
                   }`}
                 >
-                  {label}
+                  <span className="break-words">{label}</span>
                 </button>
               ))}
             </div>
@@ -823,19 +1003,19 @@ function RulesPanel({
             <p className="mb-2 text-xs font-bold leading-5 text-slate-500">
               Optionnel: utile pour viser seulement les Méga, Hisui, Alola, Galar, Paldea ou un dossier précis.
             </p>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
               {formFilterOptions.map(([id, label]) => (
                 <button
                   key={id}
                   type="button"
                   onClick={() => toggleFormFilter(id)}
-                  className={`rounded-full border px-3 py-2 text-xs font-black ${
+                  className={`min-w-0 rounded-2xl border px-3 py-2 text-xs font-black leading-5 ${
                     form.formFilters?.includes(id)
                       ? "border-emerald-200/50 bg-emerald-400/20 text-emerald-50"
                       : "border-white/10 bg-white/[0.055] text-slate-300"
                   }`}
                 >
-                  {label}
+                  <span className="break-words">{label}</span>
                 </button>
               ))}
             </div>
@@ -855,7 +1035,7 @@ function RulesPanel({
                 Modèle JSON attendu
               </span>
               <textarea
-                className={`${fieldClass} min-h-[300px] resize-y font-mono text-xs leading-6`}
+                className={`${fieldClass} min-h-[260px] max-w-full resize-y font-mono text-xs leading-6`}
                 value={form.templateSource}
                 onChange={(event) => onFormChange({ ...form, templateSource: event.target.value })}
               />
@@ -891,7 +1071,7 @@ function RulesPanel({
               </label>
             </div>
           )}
-          <div className="grid gap-2 sm:grid-cols-3">
+          <div className="grid min-w-0 gap-2 sm:grid-cols-3">
             <button className={buttonClass} type="button" onClick={onPreview}>
               Prévisualiser
             </button>
@@ -912,7 +1092,7 @@ function RulesPanel({
           ) : null}
         </section>
 
-        <section>
+        <section className="min-w-0">
           <h3 className="text-lg font-black text-white">Règles enregistrées</h3>
           <div className="mt-4 space-y-3">
             {rules.length ? (
@@ -930,7 +1110,7 @@ function RulesPanel({
                       {rule.enabled !== false ? "active" : "off"}
                     </span>
                   </div>
-                  <div className="mt-4 grid grid-cols-3 gap-2">
+                  <div className="mt-4 grid gap-2 sm:grid-cols-3">
                     <button className={buttonClass} type="button" onClick={() => onEdit(rule)}>
                       Éditer
                     </button>
@@ -1082,10 +1262,12 @@ export function AdminApp() {
   const [compareB, setCompareB] = useState("");
   const [bulkOnlyIssues, setBulkOnlyIssues] = useState(true);
   const [assetTab, setAssetTab] = useState("all");
+  const [generationFilter, setGenerationFilter] = useState("all");
   const [customRules, setCustomRules] = useState([]);
   const [ruleForm, setRuleForm] = useState({ ...defaultRuleForm });
   const [rulePreview, setRulePreview] = useState(null);
   const [ruleMessage, setRuleMessage] = useState("");
+  const [rulesSyncing, setRulesSyncing] = useState(false);
 
   useEffect(() => {
     setAssetChecks(localJson(assetChecksKey, {}));
@@ -1138,16 +1320,28 @@ export function AdminApp() {
   const entries = bootstrap.payload?.entries || [];
   const customRuleEntries = bootstrap.payload?.customRuleEntries || [];
   const summary = bootstrap.payload?.summary || {};
+  const issueEntries = useMemo(() => entries.filter((entry) => entry.issues.length), [entries]);
+  const customIssueEntries = useMemo(
+    () =>
+      entries.filter((entry) =>
+        (entry.issues || []).some((issue) => issue.category === "custom"),
+      ),
+    [entries],
+  );
   const filtered = useMemo(
     () =>
       entries.filter((entry) =>
+        (generationFilter === "all" ||
+          (generationFilter === "hisui"
+            ? String(entry.form || "").toLowerCase().includes("hisui")
+            : String(entry.generation || "") === String(generationFilter))) &&
         [entry.name, entry.dexId, entry.form, entry.kind, entry.file, entry.primaryType]
           .filter(Boolean)
           .join(" ")
           .toLowerCase()
           .includes(search.toLowerCase()),
       ),
-    [entries, search],
+    [entries, search, generationFilter],
   );
   const selected = selectedIndex >= 0 ? filtered[selectedIndex] : null;
   const compareLeft = entries.find((entry) => entry.key === compareA);
@@ -1260,8 +1454,29 @@ export function AdminApp() {
     }
     setRuleForm({ ...defaultRuleForm });
     setRulePreview(payload.data);
-    setRuleMessage("Règle sauvegardée. La checklist est recalculée.");
+    setRuleMessage("Règle sauvegardée. Contrôle recalculé sur le snapshot local.");
     await loadAdminData();
+  }
+
+  async function syncGithubData() {
+    setRulesSyncing(true);
+    setRuleMessage("Synchronisation GitHub en cours...");
+    try {
+      const response = await fetch(adminApiPath, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "sync-github-data" }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Synchronisation impossible.");
+      setBootstrap({ loading: false, payload: payload.data?.bootstrap, error: "" });
+      setCustomRules(payload.data?.bootstrap?.customRules || []);
+      setRuleMessage("Snapshot GitHub synchronisé. Contrôle relancé sur les données à jour.");
+    } catch (error) {
+      setRuleMessage(error.message || "Synchronisation impossible.");
+    } finally {
+      setRulesSyncing(false);
+    }
   }
 
   async function toggleRule(rule) {
@@ -1318,7 +1533,18 @@ export function AdminApp() {
     <main className="pokemon-admin-surface text-white">
       <div className="w-full">
         <section className="min-w-0">
-          <header className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 shadow-[0_24px_90px_rgba(0,0,0,.25)] backdrop-blur-2xl sm:p-5">
+          <header
+            className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] p-4 shadow-[0_24px_90px_rgba(0,0,0,.25)] backdrop-blur-2xl sm:p-5"
+            style={{
+              backgroundImage:
+                'linear-gradient(135deg, rgba(15,23,42,.88), rgba(14,165,233,.18)), url("/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png")',
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          >
+            <div className="pointer-events-none absolute inset-0 bg-slate-950/45" />
+            <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.08)_1px,transparent_1px)] [background-size:28px_28px]" />
+            <div className="relative">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div>
                 <p className="mb-1 text-xs font-black uppercase tracking-[0.24em] text-cyan-200/70">
@@ -1343,22 +1569,24 @@ export function AdminApp() {
                 </button>
               </div>
             </div>
-            <nav className="mt-4 flex gap-2 overflow-x-auto pb-1">
+            <nav className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
               {navItems.map(([id, label, Icon]) => (
                 <button
-                  className={`inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border px-4 py-2 text-xs font-black tracking-normal ${
+                  className={`group inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-2xl border px-3 py-2 text-xs font-black tracking-normal transition ${
                     active === id
-                      ? "border-cyan-200/50 bg-cyan-400/20 text-cyan-50"
-                      : "border-white/10 bg-white/[0.055] text-slate-300 hover:bg-white/[0.09]"
+                      ? "border-cyan-200/55 bg-cyan-400/22 text-cyan-50 shadow-[0_12px_36px_rgba(34,211,238,.16)]"
+                      : "border-white/10 bg-slate-950/35 text-slate-300 hover:border-cyan-200/35 hover:bg-white/[0.09]"
                   }`}
                   key={id}
                   type="button"
                   onClick={() => setActive(id)}
                 >
-                  <Icon size={16} /> {label}
+                  <Icon className="shrink-0 transition group-hover:scale-110" size={16} />
+                  <span className="min-w-0 truncate">{label}</span>
                 </button>
               ))}
             </nav>
+            </div>
           </header>
 
           <div className="mt-5 space-y-5">
@@ -1403,45 +1631,48 @@ export function AdminApp() {
                   <Panel title="Complétion JSON par génération">
                     <CompletionList items={summary.generations || []} />
                   </Panel>
-                  <Panel title="Problèmes par catégorie">
+                  <Panel title="Diagnostic des contrôles" eyebrow="issues par famille">
                     <BarList items={summary.categories || []} />
                   </Panel>
                   <Panel title="Historique Git" action={<History className="text-cyan-200" size={22} />}>
                     <HistoryList history={history} />
                   </Panel>
-                  <Panel title="Fiches à surveiller">
-                    <MiniCardList entries={[...entries].filter((entry) => entry.issues.length).slice(0, 8)} onOpen={openDetail} />
+                  <Panel title="Fiches à surveiller" eyebrow="premières anomalies">
+                    <MiniCardList entries={issueEntries.slice(0, 8)} onOpen={openDetail} />
                   </Panel>
                 </section>
               </>
             ) : null}
 
             {active === "pokedex" ? (
-              <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                {filtered.slice(0, 240).map((entry) => (
-                  <PokemonCard
-                    admin
-                    key={entry.key}
-                    entry={entry}
-                    onOpen={openDetail}
-                    actionLabel="Ouvrir"
-                    assetChecked={Boolean(assetChecks[entry.key])}
-                    onAssetChecked={setAssetChecked}
-                    typeCatalog={catalog?.types}
-                    weatherCatalog={catalog?.weather}
-                  />
-                ))}
-              </section>
+              <>
+                <GenerationFilterBar value={generationFilter} onChange={setGenerationFilter} />
+                <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                  {filtered.slice(0, 240).map((entry) => (
+                    <PokemonCard
+                      admin
+                      key={entry.key}
+                      entry={entry}
+                      onOpen={openDetail}
+                      actionLabel="Ouvrir"
+                      assetChecked={Boolean(assetChecks[entry.key])}
+                      onAssetChecked={setAssetChecked}
+                      typeCatalog={catalog?.types}
+                      weatherCatalog={catalog?.weather}
+                    />
+                  ))}
+                </section>
+              </>
             ) : null}
 
             {active === "assets" ? (
               <section className="grid gap-5 xl:grid-cols-[1.4fr_.9fr]">
                 <Panel title="Vérification d’assets" eyebrow="bibliothèque">
-                  <div className="mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    <MetricCard label="GO" value={assetAudit?.totals?.goFiles || 0} icon={uiAssets.icons.goLogo} />
-                    <MetricCard label="Shuffle" value={assetAudit?.totals?.shuffleFiles || 0} accent="violet" icon={uiAssets.icons.pikachuShuffle} />
-                    <MetricCard label="Utilisés" value={assetAudit?.totals?.used || 0} accent="green" icon={uiAssets.icons.bookSpells} />
-                    <MetricCard label="Doublons" value={assetAudit?.totals?.duplicated || 0} accent="amber" icon={uiAssets.icons.problem} />
+                  <div className="mb-4 grid min-w-0 gap-3 sm:grid-cols-2 2xl:grid-cols-4">
+                    <AssetStatCard label="GO" value={assetAudit?.totals?.goFiles || 0} icon={uiAssets.icons.goLogo} tone="cyan" detail="Fichiers image GO" />
+                    <AssetStatCard label="Shuffle" value={assetAudit?.totals?.shuffleFiles || 0} icon={uiAssets.icons.pikachuShuffle} tone="violet" detail="Bibliothèque Shuffle" />
+                    <AssetStatCard label="Utilisés" value={assetAudit?.totals?.used || 0} icon={uiAssets.icons.bookSpells} tone="green" detail="Référencés par les fiches" />
+                    <AssetStatCard label="Doublons" value={assetAudit?.totals?.duplicated || 0} icon={uiAssets.icons.problem} tone="amber" detail="À dédupliquer" />
                   </div>
                   <p className="mb-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4 text-sm font-bold leading-6 text-slate-300">
                     Cette page sert à contrôler les images réellement liées aux fiches et les propositions HD. La recherche globale filtre aussi cette liste.
@@ -1484,6 +1715,20 @@ export function AdminApp() {
                 </Panel>
                 <Panel title="Fiches à vérifier" eyebrow={`${unchecked.length} restantes`}>
                   <MiniCardList entries={unchecked.slice(0, 50)} onOpen={openDetail} />
+                </Panel>
+              </section>
+            ) : null}
+
+            {active === "checks" ? (
+              <section className="grid gap-5 xl:grid-cols-[1.2fr_.8fr]">
+                <ControlCardsPanel
+                  title="Fiches à contrôler"
+                  entries={issueEntries}
+                  onOpen={openDetail}
+                  description="Liste dédiée pour ouvrir toutes les fiches qui ont une correction à faire, y compris les nouvelles règles JSON personnalisées."
+                />
+                <Panel title="Règles personnalisées" eyebrow="focus custom" action={<Wand2 className="text-amber-100" size={22} />}>
+                  <MiniCardList entries={customIssueEntries.slice(0, 120)} onOpen={openDetail} />
                 </Panel>
               </section>
             ) : null}
@@ -1553,6 +1798,8 @@ export function AdminApp() {
                 onPreview={previewRule}
                 onSave={saveRule}
                 onOpenEntry={openDetail}
+                onSyncGithub={syncGithubData}
+                syncingGithub={rulesSyncing}
                 onEdit={(rule) => {
                   setRuleForm({
                     ...defaultRuleForm,
