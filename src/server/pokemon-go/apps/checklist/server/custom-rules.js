@@ -1,9 +1,18 @@
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 const vm = require("vm");
 const { dataPath } = require("../../../src/lib/data-repository");
 
-const rulesDir = dataPath("checklist");
+const localRulesDir = dataPath("checklist");
+const runtimeRulesDir =
+  process.env.POKEMON_GO_RULES_DIR ||
+  (process.env.DASHBOARD_STATE_DIR
+    ? path.join(process.env.DASHBOARD_STATE_DIR, "pokemon-checklist")
+    : process.env.VERCEL
+      ? path.join(os.tmpdir(), "matweb-dashboard-admin", "pokemon-checklist")
+      : localRulesDir);
+const rulesDir = runtimeRulesDir;
 const rulesFile = path.join(rulesDir, "custom-rules.json");
 const allowedKinds = [
   "pokemon",
@@ -11,6 +20,11 @@ const allowedKinds = [
   "mega",
   "dynamax",
   "gigantamax",
+  "move",
+  "type",
+  "weather",
+  "generation",
+  "sticker",
 ];
 const allowedTypes = [
   "presence",
@@ -69,6 +83,25 @@ function slugify(value) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+function normalizeToken(value) {
+  return slugify(value).replace(/_/g, "-");
+}
+
+function normalizeStringList(value) {
+  const values = Array.isArray(value)
+    ? value
+    : typeof value === "string" && value.trim()
+      ? value.split(",")
+      : [];
+  return [
+    ...new Set(
+      values
+        .map((item) => normalizeToken(item))
+        .filter((item) => item && item !== "all" && item !== "toutes"),
+    ),
+  ];
 }
 
 function pathParts(pathName) {
@@ -206,6 +239,9 @@ function normalizeRuleInput(input, previous = null) {
     name,
     enabled: input.enabled !== false,
     appliesTo: normalizeAppliesTo(input.appliesTo),
+    formFilters: normalizeStringList(
+      input.formFilters || input.formFilter || input.formTags,
+    ),
     mode,
     path: mode === "path" ? pathName : null,
     expectedType: mode === "path" ? expectedType : null,
@@ -347,9 +383,67 @@ function appliesToKind(rule, kind) {
   return Array.isArray(rule.appliesTo) && rule.appliesTo.includes(kind);
 }
 
-function applyCustomRules(data, kind, addIssue, rules = enabledCustomRules()) {
+function ruleTargetTokens(data, kind, context = {}) {
+  const file = String(context.file || context.relativeFile || "");
+  const source = [
+    kind,
+    context.profile,
+    file,
+    path.dirname(file),
+    data?.id,
+    data?.formId,
+    data?.baseFormId,
+    data?.form,
+    data?.slug,
+    data?.regionId,
+    data?.region?.id,
+  ]
+    .filter(Boolean)
+    .map(normalizeToken);
+  const tokens = new Set(source);
+  const form = normalizeToken(data?.form);
+  const region = normalizeToken(data?.regionId || data?.region?.id);
+
+  if (kind === "mega" || form.startsWith("mega")) tokens.add("mega");
+  if (form === "primal") tokens.add("primal");
+  if (kind === "dynamax" || form === "dynamax") tokens.add("dynamax");
+  if (kind === "gigantamax" || form === "gigantamax") tokens.add("gigantamax");
+  if (region) tokens.add(region);
+
+  return {
+    tokens,
+    text: source.join(" "),
+  };
+}
+
+function matchesFormFilters(rule, data, kind, context = {}) {
+  const filters = normalizeStringList(rule.formFilters || rule.formFilter);
+  if (!filters.length) return true;
+  if (!["pokemon", "form", "mega", "dynamax", "gigantamax"].includes(kind))
+    return false;
+  const target = ruleTargetTokens(data, kind, context);
+  return filters.some(
+    (filter) =>
+      target.tokens.has(filter) ||
+      [...target.tokens].some((token) => token.includes(filter)) ||
+      target.text.includes(filter),
+  );
+}
+
+function applyCustomRules(
+  data,
+  kind,
+  addIssue,
+  rules = enabledCustomRules(),
+  context = {},
+) {
   for (const rule of rules) {
-    if (rule.enabled === false || !appliesToKind(rule, kind)) continue;
+    if (
+      rule.enabled === false ||
+      !appliesToKind(rule, kind) ||
+      !matchesFormFilters(rule, data, kind, context)
+    )
+      continue;
     for (const [key, template] of Object.entries(rule.template || {}))
       validateNode(data?.[key], template, key, rule, addIssue);
   }
@@ -362,6 +456,7 @@ module.exports = {
   deleteCustomRule,
   enabledCustomRules,
   listCustomRules,
+  normalizeCustomRuleInput: normalizeRuleInput,
   previewCustomRule,
   rulesFile,
   saveCustomRule,

@@ -12,6 +12,7 @@ import {
 import { fr } from "date-fns/locale";
 import { CalendarPlus, ChevronLeft, ChevronRight, Save, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { DashboardLoadingState } from "@/components/dashboard/loading-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -77,6 +78,10 @@ export function CalendarPlanner() {
     (_, index) => new Date(cursor.getFullYear(), semesterStart + index, 1),
   );
   const yearMonths = Array.from({ length: 12 }, (_, index) => new Date(cursor.getFullYear(), index, 1));
+
+  if (!ready) {
+    return <DashboardLoadingState title="Calendrier" />;
+  }
 
   function addEvent() {
     const event: CalendarEvent = {

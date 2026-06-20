@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Plus, Save, Search, Trash2 } from "lucide-react";
+import { DashboardLoadingState } from "@/components/dashboard/loading-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -34,6 +35,10 @@ export function NotesBoard() {
   }, [notes, query]);
 
   const selectedNote = notes.find((note) => note.id === selectedId) || notes[0];
+
+  if (!ready) {
+    return <DashboardLoadingState title="Carnet central" />;
+  }
 
   function addNote() {
     const note: Note = {

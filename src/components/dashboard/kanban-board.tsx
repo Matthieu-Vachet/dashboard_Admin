@@ -20,6 +20,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Edit3, GripVertical, Plus, Save, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { DashboardLoadingState } from "@/components/dashboard/loading-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -74,6 +75,10 @@ export function KanbanBoard() {
     }
     return null;
   }, [activeTaskId, board]);
+
+  if (!ready) {
+    return <DashboardLoadingState title="Kanban projet" />;
+  }
 
   function addTask() {
     const task: Task = {

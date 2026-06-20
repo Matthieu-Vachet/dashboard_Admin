@@ -2,6 +2,7 @@
 
 import { Check, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { DashboardLoadingState } from "@/components/dashboard/loading-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -24,6 +25,10 @@ export function TodoList() {
   const completion = todos.length
     ? Math.round((todos.filter((todo) => todo.done).length / todos.length) * 100)
     : 0;
+
+  if (!ready) {
+    return <DashboardLoadingState title="Liste d'actions" />;
+  }
 
   function addTodo() {
     if (!title.trim()) return;

@@ -359,6 +359,16 @@ function IssuesPanel({ entry }) {
               <span className="mt-1 block text-sm font-bold text-amber-200/80">
                 {issue.issue} · attendu {issue.expected} · actuel {issue.actual}
               </span>
+              {issue.ruleName ? (
+                <span className="mt-2 inline-flex rounded-full border border-amber-200/25 bg-amber-200/10 px-3 py-1 text-xs font-black text-amber-100">
+                  Règle: {issue.ruleName}
+                </span>
+              ) : null}
+              {issue.suggested !== undefined ? (
+                <pre className="mt-3 max-h-44 overflow-auto rounded-xl border border-white/10 bg-slate-950/50 p-3 font-mono text-xs leading-5 text-amber-50">
+                  {JSON.stringify(issue.suggested, null, 2)}
+                </pre>
+              ) : null}
             </div>
           ))}
         </div>

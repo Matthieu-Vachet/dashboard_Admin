@@ -15,6 +15,12 @@ function hasAssets(entry) {
   );
 }
 
+function missingKeyIssues(entry) {
+  return (entry?.issues || []).filter(
+    (issue) => issue.issue === "missing" || issue.category === "custom",
+  );
+}
+
 function TypeBadge({ type, catalog }) {
   if (!type) return null;
   return (
@@ -73,6 +79,7 @@ export function PokemonCard({
   const types = [entry.primaryType, entry.secondaryType].filter(Boolean);
   const weather = (entry.weatherBoost || []).filter(Boolean);
   const assetsPresent = hasAssets(entry);
+  const missingKeys = missingKeyIssues(entry);
   const mainType = entry.primaryType || "NORMAL";
   const background = typeBackground(mainType, typeCatalog);
 
@@ -162,6 +169,35 @@ export function PokemonCard({
           {assetsPresent ? "Assets liés" : "Assets à vérifier"}
         </span>
       </div>
+
+      {missingKeys.length ? (
+        <div className="mt-3 rounded-xl border border-amber-300/25 bg-slate-950/45 p-3">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs font-black uppercase tracking-[0.16em] text-amber-100">
+              Clés manquantes
+            </span>
+            <span className="rounded-full bg-amber-300/15 px-2 py-1 text-[11px] font-black text-amber-100">
+              {missingKeys.length}
+            </span>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {missingKeys.slice(0, 5).map((issue) => (
+              <span
+                className="max-w-full truncate rounded-lg border border-white/10 bg-white/10 px-2 py-1 font-mono text-[11px] font-bold text-slate-100"
+                key={`${issue.ruleId || "base"}-${issue.path}-${issue.issue}`}
+                title={issue.ruleName ? `${issue.ruleName}: ${issue.path}` : issue.path}
+              >
+                {issue.path}
+              </span>
+            ))}
+            {missingKeys.length > 5 ? (
+              <span className="rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-[11px] font-black text-slate-200">
+                +{missingKeys.length - 5}
+              </span>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
 
       <div className="mt-4 grid gap-2">
         {admin ? (

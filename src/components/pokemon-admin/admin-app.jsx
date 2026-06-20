@@ -61,10 +61,14 @@ const primaryButtonClass =
 
 const defaultRuleForm = {
   id: "",
+  mode: "template",
   name: "Description multilingue",
   enabled: true,
   appliesTo: ["pokemon", "form"],
+  formFilters: [],
   enforceNonEmpty: false,
+  path: "",
+  expectedType: "presence",
   templateSource: `{
   "description": {
     "English": "",
@@ -77,6 +81,134 @@ const defaultRuleForm = {
   }
 }`,
 };
+
+const rulePresets = [
+  {
+    key: "description",
+    name: "Description multilingue",
+    description: "Toutes les traductions de description doivent exister.",
+    appliesTo: ["pokemon", "form"],
+    enforceNonEmpty: true,
+    templateSource: `{
+  "description": {
+    "English": "",
+    "German": "",
+    "French": "",
+    "Italian": "",
+    "Japanese": "",
+    "Korean": "",
+    "Spanish": ""
+  }
+}`,
+  },
+  {
+    key: "assets",
+    name: "Images GO principales",
+    description: "Image normale et shiny obligatoires dans assets.",
+    appliesTo: ["pokemon", "form", "mega", "dynamax", "gigantamax"],
+    enforceNonEmpty: true,
+    templateSource: `{
+  "assets": {
+    "image": "",
+    "shinyImage": ""
+  }
+}`,
+  },
+  {
+    key: "stats",
+    name: "Stats de combat",
+    description: "Stamina, attaque et défense numériques sur chaque fiche.",
+    appliesTo: ["pokemon", "form", "mega", "dynamax", "gigantamax"],
+    enforceNonEmpty: false,
+    templateSource: `{
+  "stats": {
+    "stamina": 0,
+    "attack": 0,
+    "defense": 0
+  }
+}`,
+  },
+  {
+    key: "availability",
+    name: "Disponibilité complète",
+    description: "Flags de sortie, shiny, échange et transferts.",
+    appliesTo: ["pokemon", "form"],
+    enforceNonEmpty: false,
+    templateSource: `{
+  "availability": {
+    "released": false,
+    "shinyReleased": false,
+    "tradable": false,
+    "pokemonHomeTransfer": false,
+    "shadow": false,
+    "dynamax": false,
+    "gigantamax": false,
+    "apex": false
+  }
+}`,
+  },
+  {
+    key: "pvp",
+    name: "Bloc PvP",
+    description: "Présence des ligues PvP, même null si non pertinent.",
+    appliesTo: ["pokemon", "form"],
+    enforceNonEmpty: false,
+    templateSource: `{
+  "pvp": {
+    "littleCup": null,
+    "greatLeague": null,
+    "ultraLeague": null,
+    "masterLeague": null
+  }
+}`,
+  },
+  {
+    key: "weather",
+    name: "Météo boost",
+    description: "weatherBoost doit être un tableau non vide.",
+    appliesTo: ["pokemon", "form", "mega", "dynamax", "gigantamax"],
+    enforceNonEmpty: true,
+    templateSource: `{
+  "weatherBoost": [""]
+}`,
+  },
+];
+
+const expectedTypes = [
+  ["presence", "Présence"],
+  ["string", "Texte"],
+  ["number", "Nombre"],
+  ["boolean", "Booléen"],
+  ["object", "Objet"],
+  ["array", "Tableau"],
+];
+
+const ruleTargetKinds = [
+  ["pokemon", "Pokémon de base"],
+  ["form", "Formes régionales"],
+  ["mega", "Méga / Primo"],
+  ["dynamax", "Dynamax"],
+  ["gigantamax", "Gigamax"],
+  ["move", "Attaques"],
+  ["type", "Types"],
+  ["weather", "Météo"],
+  ["generation", "Générations"],
+  ["sticker", "Stickers"],
+];
+
+const formFilterOptions = [
+  ["mega", "Méga toutes"],
+  ["mega-x", "Méga X"],
+  ["mega-y", "Méga Y"],
+  ["primal", "Primo"],
+  ["alola", "Alola"],
+  ["galar", "Galar"],
+  ["hisui", "Hisui"],
+  ["paldea", "Paldea"],
+  ["normal", "Normal"],
+  ["dynamax", "Dynamax"],
+  ["gigantamax", "Gigamax"],
+];
 
 function localJson(key, fallback) {
   try {
@@ -459,8 +591,54 @@ function MiniCardList({ entries, onOpen }) {
   );
 }
 
+function JsonIssueList({ entries }) {
+  return (
+    <div className="grid gap-3">
+      {entries.length ? (
+        entries.map((entry) => {
+          const customIssues = (entry.issues || []).filter((issue) => issue.category === "custom");
+          return (
+            <article
+              className="rounded-2xl border border-white/10 bg-slate-950/35 p-4"
+              key={entry.key}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <span className="min-w-0">
+                  <strong className="block truncate font-black text-white">{entry.name}</strong>
+                  <small className="mt-1 block truncate text-xs font-bold text-slate-400">
+                    {entry.kind} · {entry.file}
+                  </small>
+                </span>
+                <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1 text-xs font-black text-amber-100">
+                  {customIssues.length}
+                </span>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {customIssues.slice(0, 8).map((issue) => (
+                  <span
+                    className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-bold text-slate-200"
+                    key={`${entry.key}-${issue.ruleId}-${issue.path}`}
+                  >
+                    {issue.path}
+                  </span>
+                ))}
+              </div>
+            </article>
+          );
+        })
+      ) : (
+        <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+          Rien à afficher ici.
+        </p>
+      )}
+    </div>
+  );
+}
+
 function RulesPanel({
   rules,
+  entries = [],
+  jsonEntries = [],
   form,
   preview,
   message,
@@ -470,20 +648,59 @@ function RulesPanel({
   onEdit,
   onToggle,
   onDelete,
+  onOpenEntry,
 }) {
-  const kinds = [
-    ["pokemon", "Pokémon"],
-    ["form", "Formes"],
-    ["mega", "Méga"],
-    ["dynamax", "Dynamax"],
-    ["gigantamax", "Gigamax"],
-  ];
+  const mode = form.mode || (form.templateSource ? "template" : "path");
+  const customIssueEntries = entries.filter((entry) =>
+    (entry.issues || []).some((issue) => issue.category === "custom"),
+  );
+  const customJsonIssueEntries = jsonEntries.filter((entry) =>
+    (entry.issues || []).some((issue) => issue.category === "custom"),
+  );
+  const customIssueCount = customIssueEntries.reduce(
+    (total, entry) =>
+      total + (entry.issues || []).filter((issue) => issue.category === "custom").length,
+    0,
+  );
+  const customJsonIssueCount = customJsonIssueEntries.reduce(
+    (total, entry) =>
+      total + (entry.issues || []).filter((issue) => issue.category === "custom").length,
+    0,
+  );
+
+  function setMode(nextMode) {
+    onFormChange({
+      ...form,
+      mode: nextMode,
+      templateSource: nextMode === "path" ? "" : form.templateSource || defaultRuleForm.templateSource,
+      path: nextMode === "path" ? form.path || "description.French" : form.path || "",
+      expectedType: form.expectedType || "presence",
+    });
+  }
+
+  function applyPreset(preset) {
+    onFormChange({
+      ...defaultRuleForm,
+      name: preset.name,
+      mode: "template",
+      appliesTo: preset.appliesTo,
+      enforceNonEmpty: preset.enforceNonEmpty,
+      templateSource: preset.templateSource,
+    });
+  }
 
   function toggleKind(kind) {
     const current = new Set(form.appliesTo || []);
     if (current.has(kind)) current.delete(kind);
     else current.add(kind);
     onFormChange({ ...form, appliesTo: [...current] });
+  }
+
+  function toggleFormFilter(filter) {
+    const current = new Set(form.formFilters || []);
+    if (current.has(filter)) current.delete(filter);
+    else current.add(filter);
+    onFormChange({ ...form, formFilters: [...current] });
   }
 
   return (
@@ -496,6 +713,9 @@ function RulesPanel({
         </button>
       }
     >
+      <div className="mb-5 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-50">
+        Chaque sauvegarde synchronise le dernier snapshot GitHub de PokemonGo-Data, puis relance le contrôle sur toutes les cartes data: Pokémon, formes, attaques, types, météo, générations et stickers.
+      </div>
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
         <section className="space-y-4">
           {message ? (
@@ -503,6 +723,26 @@ function RulesPanel({
               {message}
             </p>
           ) : null}
+          <div>
+            <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+              Modèles utiles
+            </span>
+            <div className="grid gap-2 md:grid-cols-2">
+              {rulePresets.map((preset) => (
+                <button
+                  className="rounded-2xl border border-white/10 bg-slate-950/35 p-3 text-left transition hover:border-cyan-200/45 hover:bg-cyan-400/10"
+                  key={preset.key}
+                  type="button"
+                  onClick={() => applyPreset(preset)}
+                >
+                  <strong className="block text-sm font-black text-white">{preset.name}</strong>
+                  <span className="mt-1 block text-xs font-bold leading-5 text-slate-400">
+                    {preset.description}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
           <label className="block">
             <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
               Nom
@@ -513,12 +753,45 @@ function RulesPanel({
               onChange={(event) => onFormChange({ ...form, name: event.target.value })}
             />
           </label>
+          <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/35 p-4 text-sm font-black text-white">
+            <input
+              className="h-5 w-5 accent-cyan-400"
+              type="checkbox"
+              checked={form.enabled !== false}
+              onChange={(event) => onFormChange({ ...form, enabled: event.target.checked })}
+            />
+            Règle active
+          </label>
+          <div>
+            <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+              Mode de règle
+            </span>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {[
+                ["template", "Modèle JSON complet"],
+                ["path", "Clé simple + type"],
+              ].map(([id, label]) => (
+                <button
+                  className={`rounded-2xl border px-4 py-3 text-sm font-black ${
+                    mode === id
+                      ? "border-cyan-200/50 bg-cyan-400/20 text-cyan-50"
+                      : "border-white/10 bg-white/[0.055] text-slate-300"
+                  }`}
+                  key={id}
+                  type="button"
+                  onClick={() => setMode(id)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
           <div>
             <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
               Appliquer à
             </span>
             <div className="flex flex-wrap gap-2">
-              {kinds.map(([id, label]) => (
+              {ruleTargetKinds.map(([id, label]) => (
                 <button
                   key={id}
                   type="button"
@@ -526,6 +799,39 @@ function RulesPanel({
                   className={`rounded-full border px-3 py-2 text-xs font-black ${
                     form.appliesTo?.includes(id)
                       ? "border-cyan-200/50 bg-cyan-400/20 text-cyan-50"
+                      : "border-white/10 bg-white/[0.055] text-slate-300"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+              <span className="block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                Filtrer les formes
+              </span>
+              <button
+                className="w-fit text-xs font-black text-cyan-100 underline-offset-4 hover:underline"
+                type="button"
+                onClick={() => onFormChange({ ...form, formFilters: [] })}
+              >
+                Toutes les formes
+              </button>
+            </div>
+            <p className="mb-2 text-xs font-bold leading-5 text-slate-500">
+              Optionnel: utile pour viser seulement les Méga, Hisui, Alola, Galar, Paldea ou un dossier précis.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {formFilterOptions.map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => toggleFormFilter(id)}
+                  className={`rounded-full border px-3 py-2 text-xs font-black ${
+                    form.formFilters?.includes(id)
+                      ? "border-emerald-200/50 bg-emerald-400/20 text-emerald-50"
                       : "border-white/10 bg-white/[0.055] text-slate-300"
                   }`}
                 >
@@ -543,16 +849,48 @@ function RulesPanel({
             />
             Signaler aussi les valeurs vides
           </label>
-          <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-              Modèle JSON attendu
-            </span>
-            <textarea
-              className={`${fieldClass} min-h-[300px] resize-y font-mono text-xs leading-6`}
-              value={form.templateSource}
-              onChange={(event) => onFormChange({ ...form, templateSource: event.target.value })}
-            />
-          </label>
+          {mode === "template" ? (
+            <label className="block">
+              <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                Modèle JSON attendu
+              </span>
+              <textarea
+                className={`${fieldClass} min-h-[300px] resize-y font-mono text-xs leading-6`}
+                value={form.templateSource}
+                onChange={(event) => onFormChange({ ...form, templateSource: event.target.value })}
+              />
+            </label>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
+              <label className="block">
+                <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                  Chemin JSON
+                </span>
+                <input
+                  className={fieldClass}
+                  placeholder="ex: description.French"
+                  value={form.path || ""}
+                  onChange={(event) => onFormChange({ ...form, path: event.target.value, templateSource: "" })}
+                />
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                  Type attendu
+                </span>
+                <select
+                  className={fieldClass}
+                  value={form.expectedType || "presence"}
+                  onChange={(event) => onFormChange({ ...form, expectedType: event.target.value, templateSource: "" })}
+                >
+                  {expectedTypes.map(([id, label]) => (
+                    <option key={id} value={id}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          )}
           <div className="grid gap-2 sm:grid-cols-3">
             <button className={buttonClass} type="button" onClick={onPreview}>
               Prévisualiser
@@ -585,6 +923,7 @@ function RulesPanel({
                       <strong className="block truncate text-white">{rule.name}</strong>
                       <small className="mt-1 block truncate text-xs font-bold text-slate-400">
                         {(rule.appliesTo || []).join(", ")}
+                        {(rule.formFilters || []).length ? ` · ${(rule.formFilters || []).join(", ")}` : ""}
                       </small>
                     </div>
                     <span className={`rounded-full px-3 py-1 text-xs font-black ${rule.enabled !== false ? "bg-emerald-400/15 text-emerald-100" : "bg-white/10 text-slate-300"}`}>
@@ -612,6 +951,46 @@ function RulesPanel({
           </div>
         </section>
       </div>
+      <section className="mt-5 rounded-2xl border border-white/10 bg-slate-950/30 p-4">
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h3 className="text-lg font-black text-white">Cartes à contrôler</h3>
+            <p className="mt-1 text-sm font-bold leading-6 text-slate-400">
+              Cartes Pokémon qui ne respectent pas une règle personnalisée.
+            </p>
+          </div>
+          <span className="rounded-full border border-amber-300/25 bg-amber-400/10 px-3 py-2 text-xs font-black text-amber-100">
+            {customIssueCount} clé(s)
+          </span>
+        </div>
+        {customIssueEntries.length ? (
+          <MiniCardList entries={customIssueEntries.slice(0, 80)} onOpen={onOpenEntry} />
+        ) : (
+          <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+            Aucune carte à contrôler pour les règles actives.
+          </p>
+        )}
+      </section>
+      <section className="mt-5 rounded-2xl border border-white/10 bg-slate-950/30 p-4">
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h3 className="text-lg font-black text-white">Autres JSON à contrôler</h3>
+            <p className="mt-1 text-sm font-bold leading-6 text-slate-400">
+              Attaques, types, météo, générations et stickers qui ne respectent pas une règle personnalisée.
+            </p>
+          </div>
+          <span className="rounded-full border border-amber-300/25 bg-amber-400/10 px-3 py-2 text-xs font-black text-amber-100">
+            {customJsonIssueCount} clé(s)
+          </span>
+        </div>
+        {customJsonIssueEntries.length ? (
+          <JsonIssueList entries={customJsonIssueEntries.slice(0, 80)} />
+        ) : (
+          <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+            Aucun JSON de catalogue à contrôler pour les règles actives.
+          </p>
+        )}
+      </section>
     </Panel>
   );
 }
@@ -757,6 +1136,7 @@ export function AdminApp() {
   }, []);
 
   const entries = bootstrap.payload?.entries || [];
+  const customRuleEntries = bootstrap.payload?.customRuleEntries || [];
   const summary = bootstrap.payload?.summary || {};
   const filtered = useMemo(
     () =>
@@ -1164,17 +1544,27 @@ export function AdminApp() {
             {active === "rules" ? (
               <RulesPanel
                 rules={customRules}
+                entries={entries}
+                jsonEntries={customRuleEntries}
                 form={ruleForm}
                 preview={rulePreview}
                 message={ruleMessage}
                 onFormChange={setRuleForm}
                 onPreview={previewRule}
                 onSave={saveRule}
+                onOpenEntry={openDetail}
                 onEdit={(rule) => {
                   setRuleForm({
                     ...defaultRuleForm,
                     ...rule,
-                    templateSource: rule.templateSource || JSON.stringify(rule.template || {}, null, 2),
+                    mode: rule.mode || (rule.path ? "path" : "template"),
+                    formFilters: rule.formFilters || [],
+                    path: rule.path || "",
+                    expectedType: rule.expectedType || "presence",
+                    templateSource:
+                      rule.mode === "path"
+                        ? ""
+                        : rule.templateSource || JSON.stringify(rule.template || {}, null, 2),
                   });
                   setRulePreview(rule);
                   setRuleMessage("Règle chargée dans l’éditeur.");

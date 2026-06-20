@@ -16,6 +16,9 @@ const pokemonDir = dataPath("pokemon");
 const formsDir = dataPath("pokemon-forms");
 const movesDir = dataPath("moves");
 const generationsDir = dataPath("generations");
+const typesDir = dataPath("types");
+const weatherDir = dataPath("weather");
+const stickersDir = dataPath("stickers");
 const languages = [
   "English",
   "German",
@@ -818,6 +821,7 @@ function validateSourceData(data, relativeFile = "", kindHint = "", options = {}
     kind,
     validator.add,
     options.customRules || enabledCustomRules(),
+    { file: relativeFile },
   );
   for (const issue of validator.issues)
     issue.path = issue.path.replace(/^\./, "");
@@ -1261,7 +1265,10 @@ function buildChecklist(customRulesOverride = null) {
     else if (kind === "dynamax" || kind === "gigantamax")
       validator.maxForm(data, "");
     else validator.pokemon(data, profile, "", kind === "form");
-    applyCustomRules(data, kind, validator.add, customRules);
+    applyCustomRules(data, kind, validator.add, customRules, {
+      file: relativeToApp(file),
+      profile,
+    });
     for (const issue of validator.issues)
       issue.path = issue.path.replace(/^\./, "");
     validator.issues.push(...referenceIssues(data, moveIds, formIds));
@@ -1338,6 +1345,54 @@ function buildChecklist(customRulesOverride = null) {
   });
 }
 
+function buildCustomRuleCatalogChecklist(customRulesOverride = null) {
+  const customRules = Array.isArray(customRulesOverride)
+    ? customRulesOverride.filter((rule) => rule?.enabled !== false)
+    : enabledCustomRules();
+  const sources = [
+    ["move", movesDir],
+    ["type", typesDir],
+    ["weather", weatherDir],
+    ["generation", generationsDir],
+    ["sticker", stickersDir],
+  ].flatMap(([kind, directory]) =>
+    fs.existsSync(directory)
+      ? listJsonFiles(directory)
+          .sort()
+          .map((file) => ({ kind, file, data: readJson(file) }))
+      : [],
+  );
+
+  return sources.map(({ kind, file, data }) => {
+    const validator = createValidator();
+    applyCustomRules(data, kind, validator.add, customRules, {
+      file: relativeToApp(file),
+    });
+    for (const issue of validator.issues)
+      issue.path = issue.path.replace(/^\./, "");
+    const name =
+      data.names?.French ||
+      data.names?.English ||
+      data.name ||
+      data.id ||
+      data.slug ||
+      path.basename(file);
+    const quality = qualitySummary(validator.issues);
+
+    return {
+      key: `${kind}:${relativeToApp(file)}`,
+      kind,
+      name,
+      file: relativeToApp(file),
+      complete: validator.issues.length === 0,
+      issues: validator.issues,
+      suggestedPatch: buildSuggestedPatch(validator.issues, kind),
+      quality,
+      issueCategories: quality.categories,
+    };
+  });
+}
+
 function detailForKey(key) {
   const separator = key.indexOf(":");
   const kind = key.slice(0, separator);
@@ -1382,6 +1437,7 @@ function detailForKey(key) {
 
 module.exports = {
   assetSummary,
+  buildCustomRuleCatalogChecklist,
   buildSuggestedPatch,
   buildChecklist,
   detailForKey,

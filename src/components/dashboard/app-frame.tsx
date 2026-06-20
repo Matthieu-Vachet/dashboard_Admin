@@ -44,24 +44,33 @@ export function AppFrame({
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo(
+      const panels = gsap.utils.toArray<HTMLElement>(
         "main .glass-panel, main .glass-panel-strong",
-        { autoAlpha: 0, y: 18, filter: "blur(8px)" },
-        {
-          autoAlpha: 1,
-          y: 0,
-          filter: "blur(0px)",
-          duration: 0.55,
-          ease: "power3.out",
-          stagger: 0.035,
-        },
       );
-      gsap.to(".energy-scan", {
-        xPercent: 120,
-        duration: 5.5,
-        ease: "none",
-        repeat: -1,
-      });
+      if (panels.length) {
+        gsap.fromTo(
+          panels,
+          { autoAlpha: 0, y: 18, filter: "blur(8px)" },
+          {
+            autoAlpha: 1,
+            y: 0,
+            filter: "blur(0px)",
+            duration: 0.55,
+            ease: "power3.out",
+            stagger: 0.035,
+          },
+        );
+      }
+
+      const energyScan = rootRef.current?.querySelector(".energy-scan");
+      if (energyScan) {
+        gsap.to(energyScan, {
+          xPercent: 120,
+          duration: 5.5,
+          ease: "none",
+          repeat: -1,
+        });
+      }
     }, rootRef);
 
     return () => ctx.revert();

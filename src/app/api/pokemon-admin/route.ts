@@ -1,8 +1,22 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import {
+  dashboardStoreConfigured,
+  readDashboardStoreValue,
+  writeDashboardStoreValue,
+} from "@/lib/dashboard-store";
 
 type JsonValue = Record<string, unknown>;
+type RuleRecord = Record<string, unknown> & {
+  id?: string;
+  enabled?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+const customRulesStoreKey = "matweb.pokemon.customRules";
+const pokemonModulePattern = `${process.cwd()}/src/server/pokemon-go/`;
 
 function json(data: unknown, init?: ResponseInit) {
   const response = NextResponse.json(data, init);
@@ -19,28 +33,123 @@ function getAction(request: NextRequest, body?: JsonValue) {
 }
 
 async function requireDashboardSession() {
-  const session = await getSession();
-  return Boolean(session);
+  return getSession();
 }
 
 function loadAdminModules() {
-  const { buildChecklist, detailForKey } = require("@/server/pokemon-go/apps/checklist/server/engine");
+  const { buildChecklist, buildCustomRuleCatalogChecklist, detailForKey } = require("@/server/pokemon-go/apps/checklist/server/engine");
   const { sourceWatch } = require("@/server/pokemon-go/apps/checklist/server/source-watch");
   const workshop = require("@/server/pokemon-go/apps/checklist/server/workshop");
   const { summarizeChecklist } = require("@/server/pokemon-go/src/lib/site-dashboard");
 
-  return { buildChecklist, detailForKey, sourceWatch, summarizeChecklist, workshop };
+  return { buildChecklist, buildCustomRuleCatalogChecklist, detailForKey, sourceWatch, summarizeChecklist, workshop };
 }
 
-function bootstrapResponse(customRules: unknown = null) {
-  const { buildChecklist, summarizeChecklist, workshop } = loadAdminModules();
-  const rules = Array.isArray(customRules) ? customRules : workshop.customRules();
+function clearPokemonModuleCache() {
+  for (const key of Object.keys(require.cache)) {
+    if (key.includes(pokemonModulePattern)) delete require.cache[key];
+  }
+}
+
+async function refreshLatestGithubDataSnapshot() {
+  if (process.env.POKEMON_GO_DATA_LIVE_SYNC === "false") return null;
+  const { syncGithubDataSnapshot } = require("@/server/pokemon-go/src/lib/github-data-sync");
+  const dataDir = await syncGithubDataSnapshot();
+  process.env.POKEMON_GO_DATA_DIR = dataDir;
+  clearPokemonModuleCache();
+  return dataDir;
+}
+
+function requestError(message: string, status = 400) {
+  const error = new Error(message);
+  (error as Error & { status?: number }).status = status;
+  return error;
+}
+
+async function readCustomRules(owner: string, workshop: ReturnType<typeof loadAdminModules>["workshop"]) {
+  if (dashboardStoreConfigured()) {
+    const document = await readDashboardStoreValue(owner, customRulesStoreKey);
+    return Array.isArray(document?.value) ? (document.value as RuleRecord[]) : [];
+  }
+
+  return workshop.customRules() as RuleRecord[];
+}
+
+async function writeCustomRules(owner: string, rules: RuleRecord[]) {
+  await writeDashboardStoreValue(owner, customRulesStoreKey, rules);
+}
+
+async function saveCustomRule(owner: string, body: JsonValue, workshop: ReturnType<typeof loadAdminModules>["workshop"]) {
+  await refreshLatestGithubDataSnapshot();
+  const activeWorkshop = loadAdminModules().workshop || workshop;
+  if (!dashboardStoreConfigured()) return activeWorkshop.saveCustomRule(body);
+
+  const rules = await readCustomRules(owner, activeWorkshop);
+  const normalized = activeWorkshop.previewCustomRule(body) as RuleRecord;
+  const index = rules.findIndex((rule) => rule.id === normalized.id);
+  const previous = index >= 0 ? rules[index] : null;
+  const nextRule = {
+    ...normalized,
+    createdAt: previous?.createdAt || normalized.createdAt,
+  };
+  const nextRules = [...rules];
+
+  if (index >= 0) nextRules[index] = nextRule;
+  else nextRules.unshift(nextRule);
+
+  await writeCustomRules(owner, nextRules);
+  return nextRule;
+}
+
+async function toggleCustomRule(owner: string, body: JsonValue, workshop: ReturnType<typeof loadAdminModules>["workshop"]) {
+  await refreshLatestGithubDataSnapshot();
+  const activeWorkshop = loadAdminModules().workshop || workshop;
+  if (!dashboardStoreConfigured()) return activeWorkshop.toggleCustomRule(body);
+
+  const id = String(body.id || "");
+  const rules = await readCustomRules(owner, activeWorkshop);
+  const index = rules.findIndex((rule) => rule.id === id);
+  if (index < 0) throw requestError("Règle introuvable.");
+
+  const updatedAt = new Date().toISOString();
+  const nextRule = {
+    ...rules[index],
+    enabled: body.enabled !== false,
+    updatedAt,
+  };
+  const nextRules = [...rules];
+  nextRules[index] = nextRule;
+  await writeCustomRules(owner, nextRules);
+  return nextRule;
+}
+
+async function deleteCustomRule(owner: string, body: JsonValue, workshop: ReturnType<typeof loadAdminModules>["workshop"]) {
+  await refreshLatestGithubDataSnapshot();
+  const activeWorkshop = loadAdminModules().workshop || workshop;
+  if (!dashboardStoreConfigured()) return activeWorkshop.deleteCustomRule(body);
+
+  const id = String(body.id || "");
+  const rules = await readCustomRules(owner, activeWorkshop);
+  const index = rules.findIndex((rule) => rule.id === id);
+  if (index < 0) throw requestError("Règle introuvable.");
+
+  const [removed] = rules.splice(index, 1);
+  await writeCustomRules(owner, rules);
+  return removed;
+}
+
+async function bootstrapResponse(owner: string, customRules: unknown = null) {
+  const { buildChecklist, buildCustomRuleCatalogChecklist, summarizeChecklist, workshop } = loadAdminModules();
+  const rules = Array.isArray(customRules)
+    ? (customRules as RuleRecord[])
+    : await readCustomRules(owner, workshop);
   const entries = buildChecklist(rules);
   const dataCatalog = workshop.catalog();
 
   return {
     viewer: { admin: true },
     entries,
+    customRuleEntries: buildCustomRuleCatalogChecklist(rules),
     summary: summarizeChecklist(entries),
     catalog: {
       types: dataCatalog.types.length,
@@ -64,7 +173,8 @@ function handleServerError(error: unknown) {
 
 export async function GET(request: NextRequest) {
   try {
-    const authenticated = await requireDashboardSession();
+    const session = await requireDashboardSession();
+    const authenticated = Boolean(session);
     const action = getAction(request);
 
     if (action === "session") {
@@ -78,7 +188,7 @@ export async function GET(request: NextRequest) {
     const { detailForKey, sourceWatch, workshop } = loadAdminModules();
 
     if (action === "bootstrap") {
-      return json({ data: bootstrapResponse() });
+      return json({ data: await bootstrapResponse(session!.email) });
     }
 
     if (action === "detail") {
@@ -109,7 +219,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (action === "custom-rules") {
-      return json({ data: workshop.customRules() });
+      return json({ data: await readCustomRules(session!.email, workshop) });
     }
 
     if (action === "notes") {
@@ -129,7 +239,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json().catch(() => ({}))) as JsonValue;
-    const authenticated = await requireDashboardSession();
+    const session = await requireDashboardSession();
+    const authenticated = Boolean(session);
     const action = getAction(request, body);
 
     if (!authenticated) {
@@ -139,7 +250,7 @@ export async function POST(request: NextRequest) {
     const { workshop } = loadAdminModules();
 
     if (action === "bootstrap") {
-      return json({ data: bootstrapResponse(body.customRules) });
+      return json({ data: await bootstrapResponse(session!.email, body.customRules) });
     }
 
     if (action === "login") {
@@ -165,15 +276,15 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === "save-rule") {
-      return json({ data: workshop.saveCustomRule(body) });
+      return json({ data: await saveCustomRule(session!.email, body, workshop) });
     }
 
     if (action === "toggle-rule") {
-      return json({ data: workshop.toggleCustomRule(body) });
+      return json({ data: await toggleCustomRule(session!.email, body, workshop) });
     }
 
     if (action === "delete-rule") {
-      return json({ data: workshop.deleteCustomRule(body) });
+      return json({ data: await deleteCustomRule(session!.email, body, workshop) });
     }
 
     if (action === "save-note") {

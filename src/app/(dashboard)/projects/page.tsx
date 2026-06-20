@@ -2,6 +2,7 @@
 
 import { ArrowUpRight, Github, Rocket, Save, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { DashboardLoadingState } from "@/components/dashboard/loading-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -33,6 +34,10 @@ export default function ProjectsPage() {
     () => projects.filter((project) => project.status !== "Archive").length,
     [projects],
   );
+
+  if (!ready) {
+    return <DashboardLoadingState title="Projets" />;
+  }
 
   function addProject() {
     const project: Project = {

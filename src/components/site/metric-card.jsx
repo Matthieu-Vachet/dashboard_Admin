@@ -9,21 +9,21 @@ const accents = {
 export function MetricCard({ label, value, accent = "blue", icon }) {
   return (
     <article
-      className={`grid items-center gap-4 rounded-lg border border-white/10 bg-white/[0.055] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.22)] backdrop-blur md:p-5 ${
-        icon ? "grid-cols-[auto_minmax(0,1fr)]" : ""
+      className={`grid min-w-0 items-center gap-3 rounded-lg border border-white/10 bg-white/[0.055] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.22)] backdrop-blur ${
+        icon ? "grid-cols-[3rem_minmax(0,1fr)]" : ""
       }`}
     >
       {icon ? (
-        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/10 bg-slate-950/35 p-2">
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-lg border border-white/10 bg-slate-950/35 p-2">
           <img className="pokemon-interface-icon max-h-full object-contain" src={icon} alt="" />
         </span>
       ) : null}
       <span className="min-w-0">
-        <span className="block text-xs font-bold uppercase tracking-wide text-slate-300">
+        <span className="block truncate text-xs font-bold uppercase tracking-wide text-slate-300">
           {label}
         </span>
         <strong
-          className={`mt-2 block break-words text-3xl font-black leading-none md:text-4xl ${
+          className={`mt-2 block whitespace-nowrap font-mono text-3xl font-black leading-none tracking-tight md:text-[2.5rem] ${
             accents[accent] || accents.blue
           }`}
         >

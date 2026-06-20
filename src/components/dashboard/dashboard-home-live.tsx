@@ -35,16 +35,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -67,14 +57,6 @@ import type { PokemonMetrics } from "@/lib/pokemon";
 import { cn } from "@/lib/cn";
 import { usePersistentState } from "@/lib/use-persistent-state";
 
-const tooltipStyle = {
-  background: "rgba(10, 13, 24, 0.95)",
-  border: "1px solid rgba(255,255,255,0.12)",
-  borderRadius: 8,
-  color: "#eef3ff",
-};
-
-const tooltipCursor = { fill: "rgba(32,211,255,0.08)" };
 const chartColors = ["#20d3ff", "#58f2a9", "#905bf4", "#ffd166", "#ff5f7d"];
 const fallbackMetrics: PokemonMetrics = {
   source: "fallback",
@@ -119,15 +101,15 @@ const defaultWidgetOrder = [
   "docs",
   "system",
 ] as const;
+const initialWidgetOrder = [...defaultWidgetOrder];
 
 type WidgetId = (typeof defaultWidgetOrder)[number];
 
 export function DashboardHomeLive() {
-  const [mounted, setMounted] = useState(false);
   const [metrics, setMetrics] = useState<PokemonMetrics | null>(null);
   const [widgetOrder, setWidgetOrder] = usePersistentState<WidgetId[]>(
     "matweb.home.widgetOrder",
-    [...defaultWidgetOrder],
+    initialWidgetOrder,
   );
   const [notes, , notesReady] = usePersistentState("matweb.notes", initialNotes);
   const [todos, , todosReady] = usePersistentState("matweb.todos", initialTodos);
@@ -143,7 +125,6 @@ export function DashboardHomeLive() {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => setMounted(true));
     let active = true;
 
     fetch("/api/pokemon-stats")
@@ -157,7 +138,6 @@ export function DashboardHomeLive() {
 
     return () => {
       active = false;
-      window.cancelAnimationFrame(frame);
     };
   }, []);
 
@@ -262,40 +242,12 @@ export function DashboardHomeLive() {
           <MiniMetric label="Issues" value={displayMetrics.issues} tone="amber" />
           <MiniMetric label="Qualité" value={`${pokemonQuality}%`} tone="green" />
         </div>
-        <div className="mt-4 h-40">
-          {mounted ? (
-            <ResponsiveContainer width="100%" height="100%" minWidth={1}>
-              <BarChart data={displayMetrics.generations.slice(0, 9)} margin={{ left: -22, right: 8, top: 12 }}>
-                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                <XAxis dataKey="name" stroke="#94a3b8" tickLine={false} axisLine={false} />
-                <YAxis stroke="#94a3b8" tickLine={false} axisLine={false} />
-                <Tooltip contentStyle={tooltipStyle} cursor={tooltipCursor} />
-                <Bar dataKey="entries" fill="#20d3ff" activeBar={{ fill: "#58f2a9" }} radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          ) : null}
-        </div>
+        <GenerationBars items={displayMetrics.generations.slice(0, 9)} />
       </WidgetContent>
     ),
     kanban: (
       <WidgetContent title="Kanban" eyebrow="Cartes par colonne" icon={FolderKanban}>
-        <div className="h-52">
-          {mounted ? (
-            <ResponsiveContainer width="100%" height="100%" minWidth={1}>
-              <BarChart data={kanbanData} margin={{ left: -22, right: 8, top: 12 }}>
-                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                <XAxis dataKey="name" stroke="#94a3b8" tickLine={false} axisLine={false} />
-                <YAxis stroke="#94a3b8" tickLine={false} axisLine={false} allowDecimals={false} />
-                <Tooltip contentStyle={tooltipStyle} cursor={tooltipCursor} />
-                <Bar dataKey="count" radius={[8, 8, 0, 0]} activeBar={{ fill: "#58f2a9" }}>
-                  {kanbanData.map((entry, index) => (
-                    <Cell key={entry.name} fill={chartColors[index % chartColors.length]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          ) : null}
-        </div>
+        <KanbanBars items={kanbanData} />
       </WidgetContent>
     ),
     calendar: (
@@ -416,7 +368,7 @@ export function DashboardHomeLive() {
         ))}
       </section>
 
-      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+      <DndContext id="home-dashboard-widgets" sensors={sensors} onDragEnd={handleDragEnd}>
         <SortableContext items={orderedWidgets} strategy={rectSortingStrategy}>
           <section className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-4">
             {orderedWidgets.map((id, index) => (
@@ -443,17 +395,20 @@ function SortableWidget({ id, index, children }: { id: WidgetId; index: number; 
       transition={{ duration: 0.42, delay: index * 0.035 }}
       className={cn("min-w-0", isDragging && "relative z-20 opacity-80")}
     >
-      <Card className="group relative min-h-[330px] overflow-hidden p-4">
-        <button
-          type="button"
-          className="absolute right-3 top-3 z-10 grid h-9 w-9 touch-none place-items-center rounded-lg border border-line bg-white/[0.06] text-muted transition hover:text-foreground"
-          aria-label="Déplacer le widget"
-          {...attributes}
-          {...listeners}
-        >
-          <GripVertical size={16} />
-        </button>
-        {children}
+      <Card className="group flex min-h-[330px] flex-col overflow-hidden">
+        <div className="flex-1 p-4">{children}</div>
+        <div className="border-t border-line bg-white/[0.03] px-4 py-2">
+          <button
+            type="button"
+            className="inline-flex min-h-9 touch-none items-center gap-2 rounded-lg border border-line bg-white/[0.045] px-3 text-xs font-black text-muted transition hover:border-brand-2/45 hover:text-foreground"
+            aria-label="Déplacer le widget"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical size={15} />
+            Déplacer
+          </button>
+        </div>
       </Card>
     </motion.div>
   );
@@ -570,6 +525,71 @@ function MiniMetric({
       <p className="mt-2 font-mono text-xl font-black">
         {typeof value === "number" ? value.toLocaleString("fr-FR") : value}
       </p>
+    </div>
+  );
+}
+
+function GenerationBars({ items }: { items: Array<{ name: string; entries: number }> }) {
+  const max = Math.max(...items.map((item) => item.entries || 0), 1);
+
+  return (
+    <div className="mt-4 space-y-2">
+      {items.map((item, index) => {
+        const width = Math.max(4, ((item.entries || 0) / max) * 100);
+        return (
+          <div
+            className="grid grid-cols-[3rem_minmax(0,1fr)_4rem] items-center gap-2 text-xs font-black"
+            key={item.name}
+          >
+            <span className="truncate text-muted">{item.name}</span>
+            <span className="h-2 overflow-hidden rounded-full bg-white/10">
+              <span
+                className="block h-full rounded-full"
+                style={{
+                  width: `${width}%`,
+                  background: chartColors[index % chartColors.length],
+                }}
+              />
+            </span>
+            <span className="text-right font-mono text-muted">
+              {item.entries.toLocaleString("fr-FR")}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function KanbanBars({ items }: { items: Array<{ name: string; count: number }> }) {
+  const max = Math.max(...items.map((item) => item.count || 0), 1);
+
+  if (!items.some((item) => item.count > 0)) {
+    return <EmptyLine>Aucune carte kanban pour le moment.</EmptyLine>;
+  }
+
+  return (
+    <div className="space-y-3">
+      {items.map((item, index) => {
+        const width = Math.max(4, ((item.count || 0) / max) * 100);
+        return (
+          <div className="rounded-lg border border-line bg-white/[0.045] p-3" key={item.name}>
+            <div className="mb-2 flex items-center justify-between gap-3 text-xs font-black">
+              <span className="truncate text-foreground">{item.name}</span>
+              <span className="font-mono text-muted">{item.count}</span>
+            </div>
+            <span className="block h-2 overflow-hidden rounded-full bg-white/10">
+              <span
+                className="block h-full rounded-full"
+                style={{
+                  width: `${width}%`,
+                  background: chartColors[index % chartColors.length],
+                }}
+              />
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }
