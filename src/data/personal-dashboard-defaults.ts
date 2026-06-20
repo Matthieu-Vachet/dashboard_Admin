@@ -251,6 +251,9 @@ export type Snippet = {
   id: string;
   title: string;
   content: string;
+  language?: string;
+  category?: string;
+  tags?: string;
 };
 
 export type Subscription = {
@@ -278,12 +281,34 @@ export const initialSnippets: Snippet[] = [
   {
     id: "s1",
     title: "Commit propre",
+    language: "bash",
+    category: "Git",
+    tags: "commit, push",
     content: "git status && git add -A && git commit -m \"feat: ...\" && git push",
   },
   {
     id: "s2",
     title: "Checklist deploy",
+    language: "bash",
+    category: "Vercel",
+    tags: "build, deploy",
     content: "npm run lint\nnpm run build\nnpx vercel deploy --prod --yes",
+  },
+];
+
+export type WriterDocument = {
+  id: string;
+  title: string;
+  body: string;
+  updatedAt: string;
+};
+
+export const initialWriterDocuments: WriterDocument[] = [
+  {
+    id: "doc1",
+    title: "Brief de projet",
+    body: "Objectif\n- \n\nAudience\n- \n\nLivrables\n- \n\nNotes\n- ",
+    updatedAt: "Aujourd'hui",
   },
 ];
 

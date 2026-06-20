@@ -1,0 +1,5 @@
+import{i as e}from"./preload-helper-DID7B_--.js";import{u as t}from"./iframe-NzBcYeOQ.js";import{n,r,t as i}from"./storybook-mocks-TTB3sFZC.js";import{n as a,t as o}from"./pokemon-api-status-4AbIIS1-.js";var s,c,l,u,d;e((()=>{s=t(),a(),i(),c={title:`Pokémon/API Status`,component:o,parameters:{layout:`centered`,docs:{description:{component:"Widget d'état de l'API Pokémon GO et de sa base Mongo. Affiche le badge `API + DB connectées` et les liens Redoc/Swagger."}}},tags:[`autodocs`],decorators:[r,e=>(0,s.jsx)(`div`,{className:`w-[680px] max-w-[calc(100vw-2rem)]`,children:(0,s.jsx)(e,{})}),n]},l={},u={args:{compact:!0}},l.parameters={...l.parameters,docs:{...l.parameters?.docs,source:{originalSource:`{}`,...l.parameters?.docs?.source}}},u.parameters={...u.parameters,docs:{...u.parameters?.docs,source:{originalSource:`{
+  args: {
+    compact: true
+  }
+}`,...u.parameters?.docs?.source}}},d=[`Full`,`Compact`]}))();export{u as Compact,l as Full,d as __namedExportsOrder,c as default};

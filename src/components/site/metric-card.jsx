@@ -19,11 +19,11 @@ export function MetricCard({ label, value, accent = "blue", icon }) {
         </span>
       ) : null}
       <span className="min-w-0">
-        <span className="block truncate text-xs font-bold uppercase tracking-wide text-slate-400">
+        <span className="block text-xs font-bold uppercase tracking-wide text-slate-300">
           {label}
         </span>
         <strong
-          className={`mt-2 block truncate text-3xl font-black leading-none md:text-4xl ${
+          className={`mt-2 block break-words text-3xl font-black leading-none md:text-4xl ${
             accents[accent] || accents.blue
           }`}
         >

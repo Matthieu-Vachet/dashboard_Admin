@@ -347,35 +347,54 @@ function gitHistory(relativeFile) {
   const dataFile = resolveDataFile(relativeFile);
   const cwd = isInsideData(dataFile) ? dataRoot : rootDir;
   const target = isInsideData(dataFile) ? relativeToData(dataFile) : relativeFile;
-  return childProcess
-    .execFileSync(
-      "git",
-      ["log", "-8", "--date=short", "--pretty=format:%h|%ad|%s", "--", target],
-      { cwd, encoding: "utf8" },
-    )
-    .trim()
-    .split("\n")
-    .filter(Boolean)
-    .map((line) => {
-      const [hash, date, ...subject] = line.split("|");
-      return { hash, date, subject: subject.join("|") };
-    });
+  try {
+    return childProcess
+      .execFileSync(
+        "git",
+        ["log", "-8", "--date=short", "--pretty=format:%h|%ad|%s", "--", target],
+        { cwd, encoding: "utf8" },
+      )
+      .trim()
+      .split("\n")
+      .filter(Boolean)
+      .map(parseGitLine);
+  } catch {
+    return deploymentHistory();
+  }
 }
 
 function repoHistory() {
-  return childProcess
-    .execFileSync(
-      "git",
-      ["log", "-12", "--date=short", "--pretty=format:%h|%ad|%s"],
-      { cwd: dataRoot, encoding: "utf8" },
-    )
-    .trim()
-    .split("\n")
-    .filter(Boolean)
-    .map((line) => {
-      const [hash, date, ...subject] = line.split("|");
-      return { hash, date, subject: subject.join("|") };
-    });
+  try {
+    return childProcess
+      .execFileSync(
+        "git",
+        ["log", "-12", "--date=short", "--pretty=format:%h|%ad|%s"],
+        { cwd: dataRoot, encoding: "utf8" },
+      )
+      .trim()
+      .split("\n")
+      .filter(Boolean)
+      .map(parseGitLine);
+  } catch {
+    return deploymentHistory();
+  }
+}
+
+function parseGitLine(line) {
+  const [hash, date, ...subject] = line.split("|");
+  return { hash, date, subject: subject.join("|") };
+}
+
+function deploymentHistory() {
+  const hash = process.env.VERCEL_GIT_COMMIT_SHA;
+  if (!hash) return [];
+  return [
+    {
+      hash: hash.slice(0, 12),
+      date: new Date().toISOString().slice(0, 10),
+      subject: process.env.VERCEL_GIT_COMMIT_MESSAGE || "Déploiement Vercel actif",
+    },
+  ];
 }
 
 function openFile(relativeFile) {

@@ -22,7 +22,7 @@ async function main() {
     ["mobile", 390, 844],
   ];
   const pages = [
-    ["/", "Accueil utile"],
+    ["/", "Cockpit de travail"],
     ["/pokemon-docs", "Documentation JSON"],
     ["/pokemon-admin", "Dashboard sécurisé"],
   ];
@@ -48,6 +48,13 @@ async function main() {
     for (const [route, text] of pages) {
       await page.goto(`http://127.0.0.1:3020${route}`, { waitUntil: "domcontentloaded" });
       await page.waitForTimeout(900);
+      if (route === "/pokemon-admin") {
+        await page
+          .getByText("Chargement du dashboard", { exact: false })
+          .first()
+          .waitFor({ state: "hidden", timeout: 6000 })
+          .catch(() => {});
+      }
       const found = await page.getByText(text, { exact: false }).first().isVisible().catch(() => false);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       const screenshot = `/tmp/dashboard-${label}-${route === "/" ? "home" : route.slice(1)}.png`;
@@ -59,6 +66,11 @@ async function main() {
       await page.evaluate(() => localStorage.setItem("matweb-theme", "light"));
       await page.goto("http://127.0.0.1:3020/pokemon-admin", { waitUntil: "domcontentloaded" });
       await page.waitForTimeout(900);
+      await page
+        .getByText("Chargement du dashboard", { exact: false })
+        .first()
+        .waitFor({ state: "hidden", timeout: 6000 })
+        .catch(() => {});
       const sidebarStyle = await page.locator("aside").first().evaluate((element) => {
         const styles = window.getComputedStyle(element);
         return { background: styles.backgroundColor, color: styles.color };

@@ -3,6 +3,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { typeBackground, typeColors, typeIcon, typeName } from "../site/pokemon-style";
 import { candyIconForDex, uiAssets } from "../site/ui-assets";
 
@@ -517,7 +518,7 @@ export function DetailModal({
     setActiveTab("overview");
   }, [entry?.key]);
 
-  if (!open || !entry) return null;
+  if (!open || !entry || typeof document === "undefined") return null;
 
   const stats = payload.stats || entry.stats || {};
   const maxCp = payload.maxCp || entry.maxCp || {};
@@ -539,8 +540,9 @@ export function DetailModal({
   const mainType = entry.primaryType || payload.primaryType || "NORMAL";
   const candyIcon = candyIconForDex(entry.dexId || payload.dexId);
 
-  return (
-    <div className="fixed inset-0 z-[90] flex items-end justify-center bg-slate-950/75 p-0 backdrop-blur-md sm:items-center sm:p-6" role="presentation" onClick={onClose}>
+  return createPortal(
+    (
+    <div className="fixed inset-0 z-[130] flex items-end justify-center bg-slate-950/75 p-0 backdrop-blur-md sm:items-center sm:p-6" role="presentation" onClick={onClose}>
       <div
         className="max-h-[96dvh] w-full max-w-6xl overflow-hidden rounded-t-[2rem] border border-white/10 bg-[#0d1a2b] text-white shadow-[0_30px_120px_rgba(0,0,0,.65)] sm:max-h-[92dvh] sm:rounded-[2rem]"
         role="dialog"
@@ -772,5 +774,7 @@ export function DetailModal({
         </div>
       </div>
     </div>
+    ),
+    document.body,
   );
 }

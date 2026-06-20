@@ -4,6 +4,8 @@ import {
   closestCorners,
   DndContext,
   type DragEndEvent,
+  type DragStartEvent,
+  DragOverlay,
   PointerSensor,
   useDroppable,
   useSensor,
@@ -22,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 import {
   initialBoard,
   kanbanCategories as categories,
@@ -43,8 +46,9 @@ const categoryStyles: Record<Category, string> = {
 
 export function KanbanBoard() {
   const [board, setBoard, ready] = usePersistentState("matweb.kanban", initialBoard);
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(initialBoard.doing[0]?.id);
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const taskToColumn = useMemo(() => {
     const map = new Map<string, ColumnId>();
@@ -63,6 +67,13 @@ export function KanbanBoard() {
   }, [board, selectedTaskId]);
 
   const selectedColumn = selectedTask ? taskToColumn.get(selectedTask.id) : undefined;
+  const activeTask = useMemo(() => {
+    for (const column of columns) {
+      const task = board[column.id].find((item) => item.id === activeTaskId);
+      if (task) return task;
+    }
+    return null;
+  }, [activeTaskId, board]);
 
   function addTask() {
     const task: Task = {
@@ -119,7 +130,12 @@ export function KanbanBoard() {
     setSelectedTaskId(null);
   }
 
+  function handleDragStart(event: DragStartEvent) {
+    setActiveTaskId(String(event.active.id));
+  }
+
   function handleDragEnd(event: DragEndEvent) {
+    setActiveTaskId(null);
     const { active, over } = event;
     if (!over) return;
 
@@ -182,9 +198,15 @@ export function KanbanBoard() {
         </div>
       </Card>
 
-      <section className="grid gap-4 2xl:grid-cols-[1fr_360px]">
-        <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
-          <div className="grid gap-4 xl:grid-cols-4">
+      <section>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragCancel={() => setActiveTaskId(null)}
+        >
+          <div className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-4">
             {columns.map((column) => (
               <KanbanColumn
                 key={column.id}
@@ -196,14 +218,20 @@ export function KanbanBoard() {
               />
             ))}
           </div>
+          <DragOverlay dropAnimation={{ duration: 180, easing: "cubic-bezier(.2,1,.2,1)" }}>
+            {activeTask ? <KanbanTaskPreview task={activeTask} /> : null}
+          </DragOverlay>
         </DndContext>
+      </section>
 
-        <Card className="p-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">
-            Édition carte
-          </p>
-          {selectedTask ? (
-            <div className="mt-4 space-y-4">
+      <Modal
+        open={Boolean(selectedTask)}
+        title={selectedTask ? selectedTask.title : "Carte kanban"}
+        description="Création, édition, catégorie, points et colonne."
+        onClose={() => setSelectedTaskId(null)}
+      >
+        {selectedTask ? (
+          <div className="space-y-4">
               <label className="block">
                 <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">
                   Titre
@@ -298,7 +326,7 @@ export function KanbanBoard() {
                   ))}
                 </div>
               </div>
-              <Button className="w-full" variant="primary" icon={<Save size={17} />} type="button">
+              <Button className="w-full" variant="primary" icon={<Save size={17} />} type="button" onClick={() => setSelectedTaskId(null)}>
                 Sauvegarde automatique
               </Button>
               <Button
@@ -311,13 +339,8 @@ export function KanbanBoard() {
                 Supprimer la carte
               </Button>
             </div>
-          ) : (
-            <div className="mt-4 rounded-lg border border-line bg-white/[0.04] p-4 text-sm font-bold text-muted">
-              Sélectionne une carte pour l&apos;éditer.
-            </div>
-          )}
-        </Card>
-      </section>
+        ) : null}
+      </Modal>
     </div>
   );
 }
@@ -341,7 +364,7 @@ function KanbanColumn({
     <Card
       ref={setNodeRef}
       data-column-id={column.id}
-      className={cn("min-h-[520px] p-3 transition", isOver && "border-brand-2/50 bg-brand-2/8")}
+      className={cn("min-h-[440px] p-3 transition", isOver && "border-brand-2/50 bg-brand-2/8")}
     >
       <div className="flex items-center justify-between gap-3 px-1 py-2">
         <div>
@@ -395,7 +418,7 @@ function KanbanTaskCard({
         transition,
       }}
       className={cn(
-        "rounded-lg border border-line bg-[#101522]/88 p-3 shadow-[0_14px_38px_rgba(0,0,0,0.18)] transition",
+        "rounded-lg border border-line bg-[#101522]/88 p-3 shadow-[0_14px_38px_rgba(0,0,0,0.18)] transition will-change-transform",
         selected && "border-brand-2/55 bg-brand-2/10",
         isDragging && "scale-[1.02] border-brand-2/50 opacity-80",
       )}
@@ -443,6 +466,26 @@ function KanbanTaskCard({
           {task.note}
         </p>
       </button>
+      <div className="mt-5 flex items-center justify-between gap-3">
+        <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-brand to-brand-2 text-xs font-black text-white">
+          {task.owner}
+        </span>
+        <span className="rounded-full border border-line bg-white/[0.06] px-2 py-1 font-mono text-xs font-black text-muted">
+          {task.points} pts
+        </span>
+      </div>
+    </article>
+  );
+}
+
+function KanbanTaskPreview({ task }: { task: Task }) {
+  return (
+    <article className="w-[320px] rounded-lg border border-brand-2/55 bg-[#101522] p-3 shadow-[0_28px_90px_rgba(32,211,255,0.24)]">
+      <span className={cn("inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black", categoryStyles[task.category])}>
+        {task.category}
+      </span>
+      <h4 className="mt-4 text-sm font-black leading-6">{task.title}</h4>
+      <p className="mt-2 line-clamp-2 text-xs font-semibold leading-5 text-muted">{task.note}</p>
       <div className="mt-5 flex items-center justify-between gap-3">
         <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-brand to-brand-2 text-xs font-black text-white">
           {task.owner}

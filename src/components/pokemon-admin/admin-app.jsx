@@ -43,6 +43,7 @@ const navItems = [
   ["sources", "Veille", Radar],
   ["catalogs", "Catalogues", Archive],
   ["compare", "Comparaison", FileDiff],
+  ["rules", "Règles JSON", Sparkles],
   ["bulk", "Corrections", ClipboardCheck],
   ["export", "Export", FileJson],
   ["todo", "Todo-list", ListTodo],
@@ -50,13 +51,32 @@ const navItems = [
 ];
 
 const panelClass =
-  "rounded-[2rem] border border-white/10 bg-white/[0.055] p-4 shadow-[0_22px_90px_rgba(0,0,0,.24)] backdrop-blur-xl sm:p-5";
+  "rounded-2xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_22px_90px_rgba(0,0,0,.24)] backdrop-blur-xl sm:p-5";
 const fieldClass =
   "min-h-12 w-full rounded-2xl border border-white/10 bg-slate-950/45 px-4 text-sm font-bold text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-400/10";
 const buttonClass =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.075] px-4 py-2 text-sm font-black text-white transition hover:border-cyan-200/50 hover:bg-cyan-400/15";
 const primaryButtonClass =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-400 px-4 py-2 text-sm font-black text-white shadow-[0_14px_45px_rgba(14,165,233,.26)] transition hover:scale-[1.01]";
+
+const defaultRuleForm = {
+  id: "",
+  name: "Description multilingue",
+  enabled: true,
+  appliesTo: ["pokemon", "form"],
+  enforceNonEmpty: false,
+  templateSource: `{
+  "description": {
+    "English": "",
+    "German": "",
+    "French": "",
+    "Italian": "",
+    "Japanese": "",
+    "Korean": "",
+    "Spanish": ""
+  }
+}`,
+};
 
 function localJson(key, fallback) {
   try {
@@ -439,6 +459,163 @@ function MiniCardList({ entries, onOpen }) {
   );
 }
 
+function RulesPanel({
+  rules,
+  form,
+  preview,
+  message,
+  onFormChange,
+  onPreview,
+  onSave,
+  onEdit,
+  onToggle,
+  onDelete,
+}) {
+  const kinds = [
+    ["pokemon", "Pokémon"],
+    ["form", "Formes"],
+    ["mega", "Méga"],
+    ["dynamax", "Dynamax"],
+    ["gigantamax", "Gigamax"],
+  ];
+
+  function toggleKind(kind) {
+    const current = new Set(form.appliesTo || []);
+    if (current.has(kind)) current.delete(kind);
+    else current.add(kind);
+    onFormChange({ ...form, appliesTo: [...current] });
+  }
+
+  return (
+    <Panel
+      title="Règles JSON personnalisées"
+      eyebrow="checker dynamique"
+      action={
+        <button className={primaryButtonClass} type="button" onClick={() => onFormChange({ ...defaultRuleForm })}>
+          <Sparkles size={17} /> Nouvelle règle
+        </button>
+      }
+    >
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <section className="space-y-4">
+          {message ? (
+            <p className="rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-3 text-sm font-bold text-cyan-100">
+              {message}
+            </p>
+          ) : null}
+          <label className="block">
+            <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+              Nom
+            </span>
+            <input
+              className={fieldClass}
+              value={form.name}
+              onChange={(event) => onFormChange({ ...form, name: event.target.value })}
+            />
+          </label>
+          <div>
+            <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+              Appliquer à
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {kinds.map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => toggleKind(id)}
+                  className={`rounded-full border px-3 py-2 text-xs font-black ${
+                    form.appliesTo?.includes(id)
+                      ? "border-cyan-200/50 bg-cyan-400/20 text-cyan-50"
+                      : "border-white/10 bg-white/[0.055] text-slate-300"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/35 p-4 text-sm font-black text-white">
+            <input
+              className="h-5 w-5 accent-cyan-400"
+              type="checkbox"
+              checked={form.enforceNonEmpty}
+              onChange={(event) => onFormChange({ ...form, enforceNonEmpty: event.target.checked })}
+            />
+            Signaler aussi les valeurs vides
+          </label>
+          <label className="block">
+            <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+              Modèle JSON attendu
+            </span>
+            <textarea
+              className={`${fieldClass} min-h-[300px] resize-y font-mono text-xs leading-6`}
+              value={form.templateSource}
+              onChange={(event) => onFormChange({ ...form, templateSource: event.target.value })}
+            />
+          </label>
+          <div className="grid gap-2 sm:grid-cols-3">
+            <button className={buttonClass} type="button" onClick={onPreview}>
+              Prévisualiser
+            </button>
+            <button className={primaryButtonClass} type="button" onClick={onSave}>
+              Sauvegarder
+            </button>
+            <button className={buttonClass} type="button" onClick={() => copyToClipboard(form.templateSource)}>
+              <Copy size={16} /> Copier
+            </button>
+          </div>
+          {preview ? (
+            <div className="rounded-2xl border border-emerald-300/20 bg-emerald-400/10 p-4">
+              <strong className="text-sm font-black text-emerald-100">Prévisualisation valide</strong>
+              <pre className="mt-3 max-h-72 overflow-auto rounded-2xl bg-slate-950/55 p-3 font-mono text-xs leading-6 text-emerald-50">
+                {JSON.stringify(preview, null, 2)}
+              </pre>
+            </div>
+          ) : null}
+        </section>
+
+        <section>
+          <h3 className="text-lg font-black text-white">Règles enregistrées</h3>
+          <div className="mt-4 space-y-3">
+            {rules.length ? (
+              rules.map((rule) => (
+                <article className="rounded-2xl border border-white/10 bg-slate-950/35 p-4" key={rule.id}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <strong className="block truncate text-white">{rule.name}</strong>
+                      <small className="mt-1 block truncate text-xs font-bold text-slate-400">
+                        {(rule.appliesTo || []).join(", ")}
+                      </small>
+                    </div>
+                    <span className={`rounded-full px-3 py-1 text-xs font-black ${rule.enabled !== false ? "bg-emerald-400/15 text-emerald-100" : "bg-white/10 text-slate-300"}`}>
+                      {rule.enabled !== false ? "active" : "off"}
+                    </span>
+                  </div>
+                  <div className="mt-4 grid grid-cols-3 gap-2">
+                    <button className={buttonClass} type="button" onClick={() => onEdit(rule)}>
+                      Éditer
+                    </button>
+                    <button className={buttonClass} type="button" onClick={() => onToggle(rule)}>
+                      {rule.enabled !== false ? "Pause" : "Activer"}
+                    </button>
+                    <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-red-300/25 bg-red-500/10 px-4 py-2 text-sm font-black text-red-100" type="button" onClick={() => onDelete(rule)}>
+                      Suppr.
+                    </button>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+                Aucune règle personnalisée pour le moment.
+              </p>
+            )}
+          </div>
+        </section>
+      </div>
+    </Panel>
+  );
+}
+
 function SourceRows({ sourceWatch }) {
   if (sourceWatch?.loading) {
     return (
@@ -526,6 +703,10 @@ export function AdminApp() {
   const [compareB, setCompareB] = useState("");
   const [bulkOnlyIssues, setBulkOnlyIssues] = useState(true);
   const [assetTab, setAssetTab] = useState("all");
+  const [customRules, setCustomRules] = useState([]);
+  const [ruleForm, setRuleForm] = useState({ ...defaultRuleForm });
+  const [rulePreview, setRulePreview] = useState(null);
+  const [ruleMessage, setRuleMessage] = useState("");
 
   useEffect(() => {
     setAssetChecks(localJson(assetChecksKey, {}));
@@ -544,23 +725,26 @@ export function AdminApp() {
   async function loadAdminData() {
     setBootstrap((current) => ({ ...current, loading: true, error: "" }));
     try {
-      const [checklistResponse, catalogResponse, assetResponse, historyResponse] = await Promise.all([
+      const [checklistResponse, catalogResponse, assetResponse, historyResponse, rulesResponse] = await Promise.all([
         fetch(adminApiPath),
         fetch(`${adminApiPath}?action=catalog`),
         fetch(`${adminApiPath}?action=assets`),
         fetch(`${adminApiPath}?action=history`),
+        fetch(`${adminApiPath}?action=custom-rules`),
       ]);
-      const [checklistPayload, catalogPayload, assetPayload, historyPayload] = await Promise.all([
+      const [checklistPayload, catalogPayload, assetPayload, historyPayload, rulesPayload] = await Promise.all([
         checklistResponse.json(),
         catalogResponse.json(),
         assetResponse.json(),
         historyResponse.json(),
+        rulesResponse.json(),
       ]);
       if (!checklistResponse.ok) throw new Error(checklistPayload.error || "Erreur de chargement.");
       setBootstrap({ loading: false, payload: checklistPayload.data, error: "" });
       setCatalog(catalogPayload.data || null);
       setAssetAudit(assetPayload.data || null);
       setHistory(historyPayload.data || []);
+      setCustomRules(rulesPayload.data || checklistPayload.data?.customRules || []);
     } catch (error) {
       setBootstrap({ loading: false, payload: null, error: error.message });
     }
@@ -665,6 +849,59 @@ export function AdminApp() {
     setSourceWatch(response.ok ? payload.data : { error: payload.error });
   }
 
+  async function previewRule() {
+    setRuleMessage("");
+    const response = await fetch(adminApiPath, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "preview-rule", ...ruleForm }),
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      setRulePreview(null);
+      setRuleMessage(payload.error || "Règle invalide.");
+      return;
+    }
+    setRulePreview(payload.data);
+    setRuleMessage("Modèle compris par le checker.");
+  }
+
+  async function saveRule() {
+    setRuleMessage("");
+    const response = await fetch(adminApiPath, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "save-rule", ...ruleForm }),
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      setRuleMessage(payload.error || "Impossible de sauvegarder la règle.");
+      return;
+    }
+    setRuleForm({ ...defaultRuleForm });
+    setRulePreview(payload.data);
+    setRuleMessage("Règle sauvegardée. La checklist est recalculée.");
+    await loadAdminData();
+  }
+
+  async function toggleRule(rule) {
+    await fetch(adminApiPath, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "toggle-rule", id: rule.id, enabled: rule.enabled === false }),
+    });
+    await loadAdminData();
+  }
+
+  async function deleteRule(rule) {
+    await fetch(adminApiPath, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "delete-rule", id: rule.id }),
+    });
+    await loadAdminData();
+  }
+
   function addTodo() {
     if (!newTodo.trim()) return;
     const next = [{ id: Date.now(), text: newTodo.trim(), done: false }, ...todos];
@@ -701,13 +938,13 @@ export function AdminApp() {
     <main className="pokemon-admin-surface text-white">
       <div className="w-full">
         <section className="min-w-0">
-          <header className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-4 shadow-[0_24px_90px_rgba(0,0,0,.25)] backdrop-blur-2xl sm:p-5">
+          <header className="rounded-2xl border border-white/10 bg-white/[0.06] p-4 shadow-[0_24px_90px_rgba(0,0,0,.25)] backdrop-blur-2xl sm:p-5">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div>
                 <p className="mb-1 text-xs font-black uppercase tracking-[0.24em] text-cyan-200/70">
                   Dashboard sécurisé
                 </p>
-                <h1 className="text-3xl font-black tracking-tight sm:text-5xl">
+                <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
                   {navItems.find(([id]) => id === active)?.[1]}
                 </h1>
               </div>
@@ -726,13 +963,13 @@ export function AdminApp() {
                 </button>
               </div>
             </div>
-            <nav className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-10">
+            <nav className="mt-4 flex gap-2 overflow-x-auto pb-1">
               {navItems.map(([id, label, Icon]) => (
                 <button
-                  className={`inline-flex items-center justify-center gap-2 rounded-2xl border px-3 py-2 text-sm font-black ${
+                  className={`inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border px-4 py-2 text-xs font-black tracking-normal ${
                     active === id
                       ? "border-cyan-200/50 bg-cyan-400/20 text-cyan-50"
-                      : "border-white/10 bg-white/[0.055] text-slate-300"
+                      : "border-white/10 bg-white/[0.055] text-slate-300 hover:bg-white/[0.09]"
                   }`}
                   key={id}
                   type="button"
@@ -922,6 +1159,29 @@ export function AdminApp() {
                   ))}
                 </div>
               </Panel>
+            ) : null}
+
+            {active === "rules" ? (
+              <RulesPanel
+                rules={customRules}
+                form={ruleForm}
+                preview={rulePreview}
+                message={ruleMessage}
+                onFormChange={setRuleForm}
+                onPreview={previewRule}
+                onSave={saveRule}
+                onEdit={(rule) => {
+                  setRuleForm({
+                    ...defaultRuleForm,
+                    ...rule,
+                    templateSource: rule.templateSource || JSON.stringify(rule.template || {}, null, 2),
+                  });
+                  setRulePreview(rule);
+                  setRuleMessage("Règle chargée dans l’éditeur.");
+                }}
+                onToggle={toggleRule}
+                onDelete={deleteRule}
+              />
             ) : null}
 
             {active === "bulk" ? (

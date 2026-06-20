@@ -1,14 +1,14 @@
 "use client";
 
-import { ArrowUpRight, CalendarClock, CircleDot, Github, Rocket, Save, Trash2 } from "lucide-react";
+import { ArrowUpRight, Github, Rocket, Save, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 import {
   initialProjects,
-  projectRoadmap as roadmap,
   projectStatuses as statuses,
   type Project,
   type ProjectStatus,
@@ -26,8 +26,8 @@ const statusTone = {
 
 export default function ProjectsPage() {
   const [projects, setProjects, ready] = usePersistentState("matweb.projects", initialProjects);
-  const [selectedId, setSelectedId] = useState(initialProjects[0]?.id);
-  const selectedProject = projects.find((project) => project.id === selectedId) || projects[0];
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selectedProject = projects.find((project) => project.id === selectedId) || null;
 
   const activeProjects = useMemo(
     () => projects.filter((project) => project.status !== "Archive").length,
@@ -59,7 +59,7 @@ export default function ProjectsPage() {
   function deleteProject(id: string) {
     setProjects((current) => {
       const nextProjects = current.filter((project) => project.id !== id);
-      setSelectedId(nextProjects[0]?.id);
+      setSelectedId(null);
       return nextProjects;
     });
   }
@@ -87,8 +87,8 @@ export default function ProjectsPage() {
         </div>
       </Card>
 
-      <section className="grid gap-4 2xl:grid-cols-[1fr_420px]">
-        <div className="grid gap-4 md:grid-cols-2">
+      <section>
+        <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
           {projects.map((project, index) => (
             <Card
               key={project.id}
@@ -155,177 +155,118 @@ export default function ProjectsPage() {
             </Card>
           ))}
         </div>
-
-        <aside className="space-y-4">
-          <Card className="p-4">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">
-              Fiche projet
-            </p>
-            {selectedProject ? (
-              <div className="mt-4 space-y-4">
-                <label className="block">
-                  <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">
-                    Nom
-                  </span>
-                  <Input
-                    className="mt-2"
-                    value={selectedProject.name}
-                    onChange={(event) => updateProject(selectedProject.id, { name: event.target.value })}
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">
-                    Type
-                  </span>
-                  <Input
-                    className="mt-2"
-                    value={selectedProject.type}
-                    onChange={(event) => updateProject(selectedProject.id, { type: event.target.value })}
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">
-                    Description
-                  </span>
-                  <Textarea
-                    className="mt-2 min-h-28"
-                    value={selectedProject.detail}
-                    onChange={(event) => updateProject(selectedProject.id, { detail: event.target.value })}
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">
-                    Prochaine action
-                  </span>
-                  <Input
-                    className="mt-2"
-                    value={selectedProject.nextStep}
-                    onChange={(event) => updateProject(selectedProject.id, { nextStep: event.target.value })}
-                  />
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <label className="block">
-                    <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">
-                      Progression
-                    </span>
-                    <Input
-                      className="mt-2"
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={selectedProject.progress}
-                      onChange={(event) =>
-                        updateProject(selectedProject.id, {
-                          progress: Math.min(100, Math.max(0, Number(event.target.value) || 0)),
-                        })
-                      }
-                    />
-                  </label>
-                  <label className="block">
-                    <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">
-                      Statut
-                    </span>
-                    <select
-                      className="mt-2 min-h-11 w-full rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
-                      value={selectedProject.status}
-                      onChange={(event) =>
-                        updateProject(selectedProject.id, {
-                          status: event.target.value as ProjectStatus,
-                        })
-                      }
-                    >
-                      {statuses.map((status) => (
-                        <option key={status} value={status}>
-                          {status}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </div>
-                <label className="block">
-                  <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">
-                    GitHub
-                  </span>
-                  <Input
-                    className="mt-2"
-                    value={selectedProject.repoUrl}
-                    onChange={(event) => updateProject(selectedProject.id, { repoUrl: event.target.value })}
-                    placeholder="https://github.com/..."
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">
-                    Site / Vercel
-                  </span>
-                  <Input
-                    className="mt-2"
-                    value={selectedProject.siteUrl}
-                    onChange={(event) => updateProject(selectedProject.id, { siteUrl: event.target.value })}
-                    placeholder="https://..."
-                  />
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant="secondary"
-                    icon={<Github size={16} />}
-                    type="button"
-                    disabled={!selectedProject.repoUrl}
-                    onClick={() => openUrl(selectedProject.repoUrl)}
-                  >
-                    GitHub
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    icon={<ArrowUpRight size={16} />}
-                    type="button"
-                    disabled={!selectedProject.siteUrl}
-                    onClick={() => openUrl(selectedProject.siteUrl)}
-                  >
-                    Ouvrir
-                  </Button>
-                </div>
-                <Button className="w-full" variant="primary" icon={<Save size={17} />} type="button">
-                  Sauvegarde automatique
-                </Button>
-                <Button
-                  className="w-full"
-                  variant="danger"
-                  icon={<Trash2 size={17} />}
-                  type="button"
-                  onClick={() => deleteProject(selectedProject.id)}
-                >
-                  Supprimer le projet
-                </Button>
-              </div>
-            ) : (
-              <p className="mt-4 rounded-lg border border-line bg-white/[0.04] p-3 text-sm font-semibold text-muted">
-                Crée ou sélectionne un projet.
-              </p>
-            )}
-          </Card>
-
-          <Card className="p-4">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">
-              Roadmap
-            </p>
-            <div className="mt-4 space-y-3">
-              {roadmap.map((item) => (
-                <div key={item} className="flex gap-3 rounded-lg border border-line bg-white/[0.045] p-3">
-                  <CircleDot size={17} className="mt-0.5 shrink-0 text-brand-3" />
-                  <p className="text-sm font-bold leading-6">{item}</p>
-                </div>
-              ))}
-            </div>
-          </Card>
-          <Card className="p-4">
-            <CalendarClock size={20} className="text-brand-2" />
-            <h3 className="mt-3 text-lg font-black">Prochain checkpoint</h3>
-            <p className="mt-2 text-sm font-semibold leading-6 text-muted">
-              Chaque lundi matin : review des projets, priorités kanban, puis focus bloc.
-            </p>
-          </Card>
-        </aside>
       </section>
+
+      <Modal
+        open={Boolean(selectedProject)}
+        title={selectedProject?.name || "Projet"}
+        description="Création, édition, liens GitHub/Vercel et progression."
+        onClose={() => setSelectedId(null)}
+      >
+        {selectedProject ? (
+          <div className="space-y-4">
+            <label className="block">
+              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Nom</span>
+              <Input
+                className="mt-2"
+                value={selectedProject.name}
+                onChange={(event) => updateProject(selectedProject.id, { name: event.target.value })}
+              />
+            </label>
+            <label className="block">
+              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Type</span>
+              <Input
+                className="mt-2"
+                value={selectedProject.type}
+                onChange={(event) => updateProject(selectedProject.id, { type: event.target.value })}
+              />
+            </label>
+            <label className="block">
+              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Description</span>
+              <Textarea
+                className="mt-2 min-h-28"
+                value={selectedProject.detail}
+                onChange={(event) => updateProject(selectedProject.id, { detail: event.target.value })}
+              />
+            </label>
+            <label className="block">
+              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Prochaine action</span>
+              <Input
+                className="mt-2"
+                value={selectedProject.nextStep}
+                onChange={(event) => updateProject(selectedProject.id, { nextStep: event.target.value })}
+              />
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block">
+                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Progression</span>
+                <Input
+                  className="mt-2"
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={selectedProject.progress}
+                  onChange={(event) =>
+                    updateProject(selectedProject.id, {
+                      progress: Math.min(100, Math.max(0, Number(event.target.value) || 0)),
+                    })
+                  }
+                />
+              </label>
+              <label className="block">
+                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Statut</span>
+                <select
+                  className="mt-2 min-h-11 w-full rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+                  value={selectedProject.status}
+                  onChange={(event) =>
+                    updateProject(selectedProject.id, {
+                      status: event.target.value as ProjectStatus,
+                    })
+                  }
+                >
+                  {statuses.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <label className="block">
+              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">GitHub</span>
+              <Input
+                className="mt-2"
+                value={selectedProject.repoUrl}
+                onChange={(event) => updateProject(selectedProject.id, { repoUrl: event.target.value })}
+                placeholder="https://github.com/..."
+              />
+            </label>
+            <label className="block">
+              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Site / Vercel</span>
+              <Input
+                className="mt-2"
+                value={selectedProject.siteUrl}
+                onChange={(event) => updateProject(selectedProject.id, { siteUrl: event.target.value })}
+                placeholder="https://..."
+              />
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <Button variant="secondary" icon={<Github size={16} />} type="button" disabled={!selectedProject.repoUrl} onClick={() => openUrl(selectedProject.repoUrl)}>
+                GitHub
+              </Button>
+              <Button variant="secondary" icon={<ArrowUpRight size={16} />} type="button" disabled={!selectedProject.siteUrl} onClick={() => openUrl(selectedProject.siteUrl)}>
+                Ouvrir
+              </Button>
+            </div>
+            <Button className="w-full" variant="primary" icon={<Save size={17} />} type="button" onClick={() => setSelectedId(null)}>
+              Sauvegarde automatique
+            </Button>
+            <Button className="w-full" variant="danger" icon={<Trash2 size={17} />} type="button" onClick={() => deleteProject(selectedProject.id)}>
+              Supprimer le projet
+            </Button>
+          </div>
+        ) : null}
+      </Modal>
     </div>
   );
 }

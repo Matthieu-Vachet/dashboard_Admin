@@ -58,7 +58,7 @@ export function PokemonDocsViewer({ docs }: { docs: PokemonDoc[] }) {
           />
         </label>
 
-        <div className="mt-4 max-h-[calc(100dvh-280px)] space-y-2 overflow-auto pr-1">
+        <div className="mt-4 space-y-2">
           {filteredDocs.map((doc) => (
             <button
               className={cn(

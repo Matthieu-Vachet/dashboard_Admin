@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import gsap from "gsap";
@@ -34,6 +35,7 @@ export function AppFrame({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const { resolvedTheme, setTheme } = useTheme();
+  const brandLogo = "/ui/matweb-innovation-letter-m3.png";
 
   const activeLabel = useMemo(
     () => navItems.find((item) => item.href === pathname)?.label || "Accueil",
@@ -69,13 +71,28 @@ export function AppFrame({
     <div className="flex h-full flex-col">
       <div className="flex h-20 items-center justify-between px-4">
         <Link href="/" className="flex min-w-0 items-center gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-white/10 bg-gradient-to-br from-brand via-[#5067f3] to-brand-2 font-black text-white shadow-[0_18px_60px_rgba(32,211,255,0.22)]">
-            MW
+          <span
+            className={cn(
+              "grid h-12 shrink-0 place-items-center rounded-lg p-0.5",
+              collapsed ? "w-12" : "w-14",
+            )}
+          >
+            <Image
+              className="max-h-full max-w-full object-contain opacity-95 contrast-125 drop-shadow-[0_0_18px_rgba(32,211,255,0.22)]"
+              src={brandLogo}
+              width={96}
+              height={107}
+              alt=""
+              priority
+              unoptimized
+            />
           </span>
           {!collapsed ? (
-            <span className="min-w-0">
-              <span className="block truncate text-sm font-black">MatWeb Studio</span>
-              <span className="block truncate text-xs font-bold text-muted">
+            <span className="min-w-0 leading-tight">
+              <span className="block max-w-[8.1rem] text-[0.8rem] font-black leading-tight 2xl:max-w-none 2xl:text-sm">
+                MatWeb Innovation
+              </span>
+              <span className="block truncate text-[0.68rem] font-bold text-muted 2xl:text-xs">
                 Dashboard Admin
               </span>
             </span>
@@ -91,7 +108,7 @@ export function AppFrame({
         </button>
       </div>
 
-      <nav className="flex-1 space-y-1 px-3" aria-label="Navigation dashboard">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5" aria-label="Navigation dashboard">
         {navItems.map((item) => {
           const active = pathname === item.href;
           const Icon = item.icon;
@@ -103,15 +120,15 @@ export function AppFrame({
               onClick={() => setSidebarOpen(false)}
               title={collapsed ? item.label : undefined}
               className={cn(
-                "dashboard-sidebar-link group relative flex min-h-11 items-center gap-3 rounded-lg border px-3 text-sm font-black transition",
+                "dashboard-sidebar-link group relative flex min-h-10 items-center gap-2.5 rounded-lg border px-3 text-sm font-black transition",
                 active
                   ? "border-brand-2/35 bg-brand-2/12 text-foreground shadow-[0_12px_36px_rgba(32,211,255,0.12)]"
                   : "border-transparent text-muted hover:border-line hover:bg-white/[0.055] hover:text-foreground",
                 collapsed && "justify-center px-0",
               )}
             >
-              <Icon size={18} className={active ? "text-brand-2" : ""} />
-              {!collapsed ? <span>{item.label}</span> : null}
+              <Icon size={17} className={active ? "text-brand-2" : ""} />
+              {!collapsed ? <span className="truncate">{item.label}</span> : null}
               {active ? (
                 <motion.span
                   layoutId="active-nav"
@@ -157,7 +174,7 @@ export function AppFrame({
       <aside
         className={cn(
           "dashboard-sidebar fixed inset-y-0 left-0 z-40 hidden border-r border-line backdrop-blur-2xl transition-[width] duration-300 lg:block",
-          collapsed ? "w-[84px]" : "w-[286px]",
+          collapsed ? "w-[84px]" : "w-[236px] 2xl:w-[286px]",
         )}
       >
         {SidebarContent}
@@ -189,7 +206,7 @@ export function AppFrame({
       <div
         className={cn(
           "relative z-10 min-h-screen transition-[padding] duration-300",
-          collapsed ? "lg:pl-[84px]" : "lg:pl-[286px]",
+          collapsed ? "lg:pl-[84px]" : "lg:pl-[236px] 2xl:pl-[286px]",
         )}
       >
         <header className="sticky top-0 z-30 border-b border-line bg-background/72 px-4 py-3 backdrop-blur-2xl sm:px-6">

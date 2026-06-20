@@ -34,7 +34,7 @@ function loadAdminModules() {
 
 function bootstrapResponse(customRules: unknown = null) {
   const { buildChecklist, summarizeChecklist, workshop } = loadAdminModules();
-  const rules = Array.isArray(customRules) ? customRules : null;
+  const rules = Array.isArray(customRules) ? customRules : workshop.customRules();
   const entries = buildChecklist(rules);
   const dataCatalog = workshop.catalog();
 

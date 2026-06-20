@@ -4,7 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/dashboard/providers";
 
 export const metadata: Metadata = {
-  title: "MatWeb Dashboard Admin",
+  title: "MatWeb Innovation Dashboard",
   description: "Dashboard personnel pour piloter notes, projets, API, outils quotidiens et design system.",
 };
 

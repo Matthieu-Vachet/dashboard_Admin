@@ -1,13 +1,16 @@
 import {
   CalendarDays,
   CheckSquare2,
+  Code2,
   Folders,
   Home,
   KanbanSquare,
   LineChart,
   NotebookPen,
+  Palette,
   ScrollText,
   ShieldCheck,
+  FileText,
   Wrench,
 } from "lucide-react";
 
@@ -18,6 +21,9 @@ export const navItems = [
   { href: "/projects", label: "Projets", icon: Folders },
   { href: "/calendar", label: "Calendrier", icon: CalendarDays },
   { href: "/todo", label: "Todo", icon: CheckSquare2 },
+  { href: "/writer", label: "Texte", icon: FileText },
+  { href: "/snippets", label: "Snippets", icon: Code2 },
+  { href: "/palette", label: "Couleurs", icon: Palette },
   { href: "/tools", label: "Outils", icon: Wrench },
   { href: "/analytics", label: "Stats API", icon: LineChart },
   { href: "/pokemon-admin", label: "Admin Pokémon", icon: ShieldCheck },
