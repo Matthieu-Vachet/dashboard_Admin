@@ -2,6 +2,7 @@
 .env
 .env*.local
 .next/
+.data/
 node_modules/
 out/
 storybook-static/

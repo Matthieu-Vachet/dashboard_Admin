@@ -2,6 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  outputFileTracingIncludes: {
+    "/api/pokemon-admin": [
+      "./.data/PokemonGo-Data/**",
+      "./public/ui/**",
+    ],
+  },
   images: {
     remotePatterns: [
       {

@@ -7,6 +7,10 @@ const config: StorybookConfig = {
     name: "@storybook/nextjs-vite",
     options: {},
   },
+  viteFinal: async (config) => ({
+    ...config,
+    publicDir: false,
+  }),
 };
 
 export default config;
