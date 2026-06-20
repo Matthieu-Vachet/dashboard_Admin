@@ -6,6 +6,11 @@ const meta = {
   component: Badge,
   parameters: {
     layout: "centered",
+    docs: {
+      description: {
+        component: "Badge de statut compact. Utilisé pour les états live, synchronisation, priorité, catégories et santé API.",
+      },
+    },
   },
   tags: ["autodocs"],
   argTypes: {

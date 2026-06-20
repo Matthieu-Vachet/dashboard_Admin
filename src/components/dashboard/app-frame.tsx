@@ -103,9 +103,9 @@ export function AppFrame({
               onClick={() => setSidebarOpen(false)}
               title={collapsed ? item.label : undefined}
               className={cn(
-                "group relative flex min-h-11 items-center gap-3 rounded-lg border px-3 text-sm font-black transition",
+                "dashboard-sidebar-link group relative flex min-h-11 items-center gap-3 rounded-lg border px-3 text-sm font-black transition",
                 active
-                  ? "border-brand-2/35 bg-brand-2/12 text-white shadow-[0_12px_36px_rgba(32,211,255,0.12)]"
+                  ? "border-brand-2/35 bg-brand-2/12 text-foreground shadow-[0_12px_36px_rgba(32,211,255,0.12)]"
                   : "border-transparent text-muted hover:border-line hover:bg-white/[0.055] hover:text-foreground",
                 collapsed && "justify-center px-0",
               )}
@@ -125,7 +125,7 @@ export function AppFrame({
 
       <div className="space-y-3 p-3">
         {!collapsed ? (
-          <div className="rounded-lg border border-line bg-white/[0.055] p-3">
+          <div className="dashboard-sidebar-card rounded-lg border border-line p-3">
             <div className="flex items-center justify-between gap-3">
               <Badge tone="green">Admin</Badge>
               <span className="h-2.5 w-2.5 rounded-full bg-brand-3 shadow-[0_0_24px_rgba(88,242,169,0.7)]" />
@@ -156,7 +156,7 @@ export function AppFrame({
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 hidden border-r border-line bg-[#060812]/78 backdrop-blur-2xl transition-[width] duration-300 lg:block",
+          "dashboard-sidebar fixed inset-y-0 left-0 z-40 hidden border-r border-line backdrop-blur-2xl transition-[width] duration-300 lg:block",
           collapsed ? "w-[84px]" : "w-[286px]",
         )}
       >
@@ -173,7 +173,7 @@ export function AppFrame({
             onClick={() => setSidebarOpen(false)}
           >
             <motion.aside
-              className="h-full w-[286px] border-r border-line bg-[#060812]/94"
+              className="dashboard-sidebar-mobile h-full w-[286px] border-r border-line"
               initial={{ x: -286 }}
               animate={{ x: 0 }}
               exit={{ x: -286 }}

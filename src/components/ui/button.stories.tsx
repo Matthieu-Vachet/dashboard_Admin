@@ -7,6 +7,11 @@ const meta = {
   component: Button,
   parameters: {
     layout: "centered",
+    docs: {
+      description: {
+        component: "Bouton principal du design system. Utiliser `primary` pour une action forte, `secondary` pour les actions courantes, `ghost` pour navigation, `danger` pour suppression.",
+      },
+    },
   },
   tags: ["autodocs"],
   argTypes: {
@@ -46,4 +51,16 @@ export const IconOnly: Story = {
     size: "icon",
     "aria-label": "Ajouter",
   },
+};
+
+export const AllVariants: Story = {
+  render: () => (
+    <div className="grid gap-3">
+      <Button variant="primary" icon={<Plus size={16} />}>Créer</Button>
+      <Button variant="secondary" icon={<Save size={16} />}>Sauvegarder</Button>
+      <Button variant="ghost">Navigation discrète</Button>
+      <Button variant="danger">Supprimer</Button>
+      <Button disabled>Indisponible</Button>
+    </div>
+  ),
 };

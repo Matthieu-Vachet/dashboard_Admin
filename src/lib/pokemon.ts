@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+
 export type PokemonChecklistEntry = {
   kind: string;
   name: string;
@@ -106,6 +108,9 @@ const fallbackMetrics: PokemonMetrics = {
 };
 
 export async function fetchPokemonMetrics(): Promise<PokemonMetrics> {
+  const localMetrics = readLocalPokemonMetrics();
+  if (localMetrics) return localMetrics;
+
   const endpoint =
     process.env.POKEMON_API_URL ||
     "https://pokemon-go-7r5q2j05a-matthieu-vachets-projects.vercel.app/api/checklist-v3";
@@ -167,5 +172,43 @@ export async function fetchPokemonMetrics(): Promise<PokemonMetrics> {
       status: "erreur réseau",
       detail: error instanceof Error ? error.message : "Impossible de joindre l'API Pokémon.",
     };
+  }
+}
+
+function readLocalPokemonMetrics(): PokemonMetrics | null {
+  try {
+    const { buildChecklist } = require("@/server/pokemon-go/apps/checklist/server/engine");
+    const workshop = require("@/server/pokemon-go/apps/checklist/server/workshop");
+    const { summarizeChecklist } = require("@/server/pokemon-go/src/lib/site-dashboard");
+    const entries = buildChecklist();
+    const summary = summarizeChecklist(entries);
+    const catalog = workshop.catalog();
+
+    return {
+      source: "live",
+      status: "local",
+      detail: "Données Pokémon chargées depuis la base data intégrée au dashboard.",
+      total: summary.total,
+      complete: summary.complete,
+      issues: summary.issues,
+      quality: summary.total ? Math.round((summary.complete / summary.total) * 100) : 0,
+      catalog: {
+        types: catalog.types.length,
+        weather: catalog.weather.length,
+        stickers: catalog.stickers.length,
+        moves: catalog.moves.length,
+      },
+      generations: summary.generations.map((item: { generation: number; percent: number; count: number }) => ({
+        name: `G${item.generation}`,
+        completion: item.percent,
+        entries: item.count,
+      })),
+      kinds: summary.kinds.map((item: { id: string; count: number }) => ({
+        name: item.id,
+        value: item.count,
+      })),
+    };
+  } catch {
+    return null;
   }
 }

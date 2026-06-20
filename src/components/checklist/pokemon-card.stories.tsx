@@ -1,13 +1,26 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import {
+  samplePokemonEntry,
+  samplePokemonEntryWithIssues,
+  sampleTypeCatalog,
+  sampleWeatherCatalog,
+} from "@/stories/mock-data";
+import { withDarkCanvas } from "@/stories/storybook-mocks";
 
 const { PokemonCard } = require("./pokemon-card.jsx");
 
 const meta = {
-  title: "Pokemon Admin/PokemonCard",
+  title: "Pokémon/Cartes/PokemonCard",
   component: PokemonCard,
   parameters: {
     layout: "centered",
+    docs: {
+      description: {
+        component:
+          "Carte fiche Pokémon utilisée dans l'admin: sprite, score qualité, types, météo, état JSON, assets et action d'ouverture.",
+      },
+    },
   },
   tags: ["autodocs"],
   decorators: [
@@ -16,6 +29,7 @@ const meta = {
         <Story />
       </div>
     ),
+    withDarkCanvas,
   ],
 } satisfies Meta<typeof PokemonCard>;
 
@@ -27,31 +41,21 @@ export const Complete: Story = {
     admin: true,
     actionLabel: "Ouvrir",
     assetChecked: true,
-    entry: {
-      key: "pokemon:data/pokemon/0001-bulbasaur.json",
-      dexId: "0001",
-      name: "Bulbizarre",
-      kind: "pokemon",
-      form: "normal",
-      generation: 1,
-      primaryType: "GRASS",
-      secondaryType: "POISON",
-      complete: true,
-      issues: [],
-      issueCategories: [],
-      quality: { score: 100 },
-      image:
-        "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/PokemonHd/poke_capture_0001_000_mf_n_00000000_f_n.png",
-      shinyImage:
-        "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/PokemonHd/poke_capture_0001_000_mf_n_00000000_f_r.png",
-      assets: {
-        go: true,
-        goShiny: true,
-        home: true,
-        homeShiny: true,
-        incompletePairs: 0,
-      },
-      file: "data/pokemon/0001-bulbasaur.json",
-    },
+    entry: samplePokemonEntry,
+    typeCatalog: sampleTypeCatalog,
+    weatherCatalog: sampleWeatherCatalog,
+    onOpen: () => {},
+    onAssetChecked: () => {},
+  },
+};
+
+export const WithIssues: Story = {
+  args: {
+    admin: true,
+    actionLabel: "Ouvrir",
+    entry: samplePokemonEntryWithIssues,
+    typeCatalog: sampleTypeCatalog,
+    weatherCatalog: sampleWeatherCatalog,
+    onOpen: () => {},
   },
 };

@@ -123,6 +123,61 @@ a {
   mix-blend-mode: screen;
 }
 
+.pokemon-interface-icon {
+  filter: brightness(0) invert(1) drop-shadow(0 0 12px rgba(34, 211, 238, 0.38));
+  opacity: 0.92;
+}
+
+.dashboard-sidebar {
+  background: rgba(6, 8, 18, 0.78);
+  color: var(--foreground);
+}
+
+.dashboard-sidebar-mobile {
+  background: rgba(6, 8, 18, 0.94);
+  color: var(--foreground);
+}
+
+.dashboard-sidebar-card {
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.light .dashboard-sidebar {
+  background: rgba(255, 255, 255, 0.88);
+  color: #0f172a;
+  box-shadow: 18px 0 70px rgba(15, 23, 42, 0.08);
+}
+
+.light .dashboard-sidebar-mobile {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0f172a;
+  box-shadow: 18px 0 70px rgba(15, 23, 42, 0.14);
+}
+
+.light .dashboard-sidebar-card {
+  background: rgba(15, 23, 42, 0.035);
+}
+
+.light .dashboard-sidebar-link:hover {
+  background: rgba(15, 23, 42, 0.045);
+}
+
+.pokemon-admin-surface {
+  color: #fff;
+}
+
+.light .pokemon-admin-surface {
+  min-height: calc(100dvh - 7rem);
+  border-radius: 2rem;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(14, 165, 233, 0.18), transparent 32%),
+    radial-gradient(circle at 88% 12%, rgba(34, 197, 94, 0.12), transparent 28%),
+    linear-gradient(135deg, rgba(5, 8, 21, 0.98), rgba(8, 16, 28, 0.95));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 30px 110px rgba(15, 23, 42, 0.16);
+}
+
 .glass-panel {
   border: 1px solid var(--line);
   background: var(--panel);

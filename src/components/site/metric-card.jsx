@@ -15,7 +15,7 @@ export function MetricCard({ label, value, accent = "blue", icon }) {
     >
       {icon ? (
         <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/10 bg-slate-950/35 p-2">
-          <img className="max-h-full object-contain" src={icon} alt="" />
+          <img className="pokemon-interface-icon max-h-full object-contain" src={icon} alt="" />
         </span>
       ) : null}
       <span className="min-w-0">

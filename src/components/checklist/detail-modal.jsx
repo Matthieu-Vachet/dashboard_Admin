@@ -33,7 +33,7 @@ function Section({ title, eyebrow, icon, children }) {
       <h3 className="mb-4 flex items-center gap-3 text-lg font-black tracking-tight text-white sm:text-xl">
         {icon ? (
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-white/10 bg-slate-950/35 p-2">
-            <img className="max-h-full object-contain" src={icon} alt="" />
+            <img className="pokemon-interface-icon max-h-full object-contain" src={icon} alt="" />
           </span>
         ) : null}
         <span>{title}</span>
@@ -60,7 +60,7 @@ function DataGrid({ items }) {
         >
           <span className="grid h-10 w-10 place-items-center rounded-2xl border border-white/10 bg-white/[0.06]">
             {item.icon ? (
-              <img className="h-6 w-6 object-contain" src={item.icon} alt="" />
+              <img className="pokemon-interface-icon h-6 w-6 object-contain" src={item.icon} alt="" />
             ) : (
               <span className="h-3 w-3 rounded-full bg-cyan-300" />
             )}
@@ -540,7 +540,7 @@ export function DetailModal({
   const candyIcon = candyIconForDex(entry.dexId || payload.dexId);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/75 p-0 backdrop-blur-md sm:items-center sm:p-6" role="presentation" onClick={onClose}>
+    <div className="fixed inset-0 z-[90] flex items-end justify-center bg-slate-950/75 p-0 backdrop-blur-md sm:items-center sm:p-6" role="presentation" onClick={onClose}>
       <div
         className="max-h-[96dvh] w-full max-w-6xl overflow-hidden rounded-t-[2rem] border border-white/10 bg-[#0d1a2b] text-white shadow-[0_30px_120px_rgba(0,0,0,.65)] sm:max-h-[92dvh] sm:rounded-[2rem]"
         role="dialog"

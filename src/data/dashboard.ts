@@ -6,6 +6,7 @@ import {
   KanbanSquare,
   LineChart,
   NotebookPen,
+  ScrollText,
   ShieldCheck,
   Wrench,
 } from "lucide-react";
@@ -20,6 +21,7 @@ export const navItems = [
   { href: "/tools", label: "Outils", icon: Wrench },
   { href: "/analytics", label: "Stats API", icon: LineChart },
   { href: "/pokemon-admin", label: "Admin Pokémon", icon: ShieldCheck },
+  { href: "/pokemon-docs", label: "Docs JSON", icon: ScrollText },
 ];
 
 export const activityFeed = [

@@ -6,24 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
+import {
+  initialProjects,
+  projectRoadmap as roadmap,
+  projectStatuses as statuses,
+  type Project,
+  type ProjectStatus,
+} from "@/data/personal-dashboard-defaults";
 import { cn } from "@/lib/cn";
 import { usePersistentState } from "@/lib/use-persistent-state";
-
-type ProjectStatus = "Idée" | "Build" | "Live" | "Pause" | "Archive";
-
-type Project = {
-  id: string;
-  name: string;
-  type: string;
-  status: ProjectStatus;
-  progress: number;
-  repoUrl: string;
-  siteUrl: string;
-  nextStep: string;
-  detail: string;
-};
-
-const statuses: ProjectStatus[] = ["Idée", "Build", "Live", "Pause", "Archive"];
 
 const statusTone = {
   Idée: "violet",
@@ -32,60 +23,6 @@ const statusTone = {
   Pause: "amber",
   Archive: "neutral",
 } as const;
-
-const initialProjects: Project[] = [
-  {
-    id: "p1",
-    name: "Dashboard Admin",
-    type: "Produit interne",
-    status: "Build",
-    progress: 72,
-    repoUrl: "https://github.com/Matthieu-Vachet/dashboard_Admin",
-    siteUrl: "https://dashboard-admin-pi-ebon.vercel.app",
-    nextStep: "Rendre chaque page réellement utilisable.",
-    detail: "Cockpit personnel avec notes, kanban, calendrier, outils quotidiens et design system.",
-  },
-  {
-    id: "p2",
-    name: "Pokemon GO API",
-    type: "API data",
-    status: "Live",
-    progress: 100,
-    repoUrl: "https://github.com/Matthieu-Vachet/PokemonGo-API-",
-    siteUrl: "https://pokemon-go-7r5q2j05a-matthieu-vachets-projects.vercel.app/checklist",
-    nextStep: "Surveiller la qualité des assets et les nouveaux endpoints.",
-    detail: "Checklist, assets, qualité et endpoints publics pour explorer les données.",
-  },
-  {
-    id: "p3",
-    name: "MatWeb Innovation",
-    type: "Site vitrine",
-    status: "Live",
-    progress: 84,
-    repoUrl: "https://github.com/Matthieu-Vachet/MatWeb-Innovation-Website",
-    siteUrl: "",
-    nextStep: "Améliorer les pages offres et portfolio.",
-    detail: "Identité, offres, projets, contact et présence professionnelle.",
-  },
-  {
-    id: "p4",
-    name: "Design System MW",
-    type: "UI kit",
-    status: "Idée",
-    progress: 38,
-    repoUrl: "",
-    siteUrl: "",
-    nextStep: "Documenter les composants dans Storybook.",
-    detail: "Tokens, composants, guidelines Storybook et primitives admin.",
-  },
-];
-
-const roadmap = [
-  "Créer des templates projet réutilisables",
-  "Ajouter un suivi clients simple",
-  "Relier les cartes projet au kanban",
-  "Ajouter une sauvegarde serveur quand tu voudras le multi-appareil",
-];
 
 export default function ProjectsPage() {
   const [projects, setProjects, ready] = usePersistentState("matweb.projects", initialProjects);

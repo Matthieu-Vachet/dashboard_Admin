@@ -21,62 +21,17 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
+import {
+  initialContacts,
+  initialFocusMinutes,
+  initialJournal,
+  initialLinks,
+  initialSnippets,
+  initialSubscriptions,
+  type Snippet,
+  type Subscription,
+} from "@/data/personal-dashboard-defaults";
 import { usePersistentState } from "@/lib/use-persistent-state";
-
-type QuickLink = {
-  id: string;
-  label: string;
-  url: string;
-};
-
-type Snippet = {
-  id: string;
-  title: string;
-  content: string;
-};
-
-type Subscription = {
-  id: string;
-  name: string;
-  price: number;
-  billing: "Mensuel" | "Annuel";
-};
-
-type Contact = {
-  id: string;
-  name: string;
-  role: string;
-  email: string;
-};
-
-const initialLinks: QuickLink[] = [
-  { id: "l1", label: "Dashboard prod", url: "https://dashboard-admin-pi-ebon.vercel.app" },
-  { id: "l2", label: "Storybook", url: "/storybook/index.html" },
-  { id: "l3", label: "GitHub dashboard", url: "https://github.com/Matthieu-Vachet/dashboard_Admin" },
-  { id: "l4", label: "Vercel", url: "https://vercel.com" },
-];
-
-const initialSnippets: Snippet[] = [
-  {
-    id: "s1",
-    title: "Commit propre",
-    content: "git status && git add -A && git commit -m \"feat: ...\" && git push",
-  },
-  {
-    id: "s2",
-    title: "Checklist deploy",
-    content: "npm run lint\nnpm run build\nnpx vercel deploy --prod --yes",
-  },
-];
-
-const initialSubscriptions: Subscription[] = [
-  { id: "sub1", name: "Vercel", price: 0, billing: "Mensuel" },
-  { id: "sub2", name: "Outil mensuel", price: 20, billing: "Mensuel" },
-];
-
-const initialContacts: Contact[] = [
-  { id: "c1", name: "Matthieu", role: "Admin", email: "vachet.matthieu@icloud.com" },
-];
 
 export function DailyTools() {
   const [links, setLinks] = usePersistentState("matweb.tools.links", initialLinks);
@@ -86,11 +41,8 @@ export function DailyTools() {
     initialSubscriptions,
   );
   const [contacts, setContacts] = usePersistentState("matweb.tools.contacts", initialContacts);
-  const [journal, setJournal] = usePersistentState(
-    "matweb.tools.journal",
-    "Aujourd'hui je dois avancer sur...",
-  );
-  const [focusMinutes, setFocusMinutes] = usePersistentState("matweb.tools.focusMinutes", 25);
+  const [journal, setJournal] = usePersistentState("matweb.tools.journal", initialJournal);
+  const [focusMinutes, setFocusMinutes] = usePersistentState("matweb.tools.focusMinutes", initialFocusMinutes);
   const [secondsLeft, setSecondsLeft] = useState(focusMinutes * 60);
   const [running, setRunning] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);

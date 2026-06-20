@@ -17,12 +17,10 @@ import {
   History,
   LayoutDashboard,
   ListTodo,
-  LogOut,
   PenLine,
   Radar,
   RefreshCcw,
   Search,
-  Settings,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
@@ -49,7 +47,6 @@ const navItems = [
   ["export", "Export", FileJson],
   ["todo", "Todo-list", ListTodo],
   ["editor", "Éditeur", PenLine],
-  ["account", "Compte", Settings],
 ];
 
 const panelClass =
@@ -463,23 +460,41 @@ function SourceRows({ sourceWatch }) {
         La veille interroge les sources configurées et affiche leur dernier état connu. Si une source expose un nouveau commit, tag ou statut différent, elle remonte ici au prochain contrôle.
       </p>
       {(sourceWatch?.sources || []).length ? (
-        sourceWatch.sources.map((source) => (
-          <a
-            className="flex flex-col gap-2 rounded-3xl border border-white/10 bg-slate-950/35 p-4 transition hover:border-cyan-200/40 hover:bg-cyan-400/10 sm:flex-row sm:items-center sm:justify-between"
-            href={source.remoteUrl || source.url}
-            key={source.id || source.name}
-            rel="noreferrer"
-            target="_blank"
-          >
-            <span>
-              <strong className="block font-black text-white">{source.name || source.repo || source.url}</strong>
-              <small className="mt-1 block text-xs font-bold text-slate-400">{source.message || source.status}</small>
-            </span>
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-xs font-black text-cyan-100">
-              {source.version || source.status || "ouvrir"} <ExternalLink size={14} />
-            </span>
-          </a>
-        ))
+        sourceWatch.sources.map((source) => {
+          const tone =
+            source.status === "ok"
+              ? {
+                  card: "border-emerald-300/20 bg-emerald-400/[0.055] hover:border-emerald-200/40 hover:bg-emerald-400/10",
+                  badge: "bg-emerald-400/15 text-emerald-100",
+                }
+              : source.status === "warning"
+                ? {
+                    card: "border-amber-300/25 bg-amber-400/[0.055] hover:border-amber-200/45 hover:bg-amber-400/10",
+                    badge: "bg-amber-400/15 text-amber-100",
+                  }
+                : {
+                    card: "border-red-300/25 bg-red-500/[0.055] hover:border-red-200/45 hover:bg-red-500/10",
+                    badge: "bg-red-500/15 text-red-100",
+                  };
+
+          return (
+            <a
+              className={`flex flex-col gap-2 rounded-3xl border p-4 transition sm:flex-row sm:items-center sm:justify-between ${tone.card}`}
+              href={source.remoteUrl || source.url}
+              key={source.id || source.name}
+              rel="noreferrer"
+              target="_blank"
+            >
+              <span>
+                <strong className="block font-black text-white">{source.name || source.repo || source.url}</strong>
+                <small className="mt-1 block text-xs font-bold text-slate-400">{source.message || source.status}</small>
+              </span>
+              <span className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-black ${tone.badge}`}>
+                {source.version || source.status || "ouvrir"} <ExternalLink size={14} />
+              </span>
+            </a>
+          );
+        })
       ) : (
         <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
           Lance une vérification pour afficher les sources.
@@ -620,11 +635,6 @@ export function AdminApp() {
     await loadAdminData();
   }
 
-  async function logout() {
-    await fetch("/api/logout", { method: "POST" });
-    window.location.href = "/login";
-  }
-
   async function openDetail(entry) {
     const index = filtered.findIndex((item) => item.key === entry.key);
     setSelectedIndex(index);
@@ -688,41 +698,9 @@ export function AdminApp() {
   }
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[radial-gradient(circle_at_10%_0%,rgba(14,165,233,.28),transparent_30%),radial-gradient(circle_at_95%_8%,rgba(168,85,247,.24),transparent_28%),#050816] text-white">
-      <div className="mx-auto flex w-full max-w-[1680px] gap-5 p-3 sm:p-5 lg:p-6">
-        <aside className="sticky top-6 hidden h-[calc(100dvh-3rem)] w-72 shrink-0 flex-col rounded-[2rem] border border-white/10 bg-black/35 p-4 shadow-[0_30px_110px_rgba(0,0,0,.45)] backdrop-blur-2xl lg:flex">
-          <div className="mb-6 flex items-center gap-3 rounded-3xl border border-white/10 bg-white/[0.055] p-3">
-            <span className="relative h-12 w-12 overflow-hidden rounded-full bg-white shadow-inner before:absolute before:left-0 before:right-0 before:top-0 before:h-1/2 before:bg-red-500 after:absolute after:left-1/2 after:top-1/2 after:h-5 after:w-5 after:-translate-x-1/2 after:-translate-y-1/2 after:rounded-full after:border-4 after:border-slate-900 after:bg-white" />
-            <span>
-              <strong className="block font-black">Admin Studio</strong>
-              <small className="font-bold text-emerald-200">Session sécurisée</small>
-            </span>
-          </div>
-
-          <nav className="flex min-h-0 flex-1 flex-col gap-2 overflow-auto pr-1">
-            {navItems.map(([id, label, Icon]) => (
-              <button
-                className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-black transition ${
-                  active === id
-                    ? "bg-gradient-to-r from-sky-500 to-cyan-400 text-white shadow-[0_14px_45px_rgba(14,165,233,.25)]"
-                    : "text-slate-300 hover:bg-white/10 hover:text-white"
-                }`}
-                key={id}
-                type="button"
-                onClick={() => setActive(id)}
-              >
-                <Icon size={18} aria-hidden="true" />
-                {label}
-              </button>
-            ))}
-          </nav>
-
-          <button className={`${buttonClass} mt-4 w-full`} type="button" onClick={logout}>
-            <LogOut size={17} /> Déconnexion
-          </button>
-        </aside>
-
-        <section className="min-w-0 flex-1">
+    <main className="pokemon-admin-surface text-white">
+      <div className="w-full">
+        <section className="min-w-0">
           <header className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-4 shadow-[0_24px_90px_rgba(0,0,0,.25)] backdrop-blur-2xl sm:p-5">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div>
@@ -748,7 +726,7 @@ export function AdminApp() {
                 </button>
               </div>
             </div>
-            <nav className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:hidden">
+            <nav className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-10">
               {navItems.map(([id, label, Icon]) => (
                 <button
                   className={`inline-flex items-center justify-center gap-2 rounded-2xl border px-3 py-2 text-sm font-black ${
@@ -763,9 +741,6 @@ export function AdminApp() {
                   <Icon size={16} /> {label}
                 </button>
               ))}
-              <button className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.055] px-3 py-2 text-sm font-black text-slate-300" type="button" onClick={logout}>
-                <LogOut size={16} /> Sortir
-              </button>
             </nav>
           </header>
 
@@ -1027,29 +1002,6 @@ export function AdminApp() {
               </Panel>
             ) : null}
 
-            {active === "account" ? (
-              <section className="grid gap-5 xl:grid-cols-2">
-                <Panel title="Profil admin" eyebrow="configuration">
-                  <div className="grid gap-3">
-                    <input className={fieldClass} placeholder="Email administrateur" />
-                    <input className={fieldClass} type="password" placeholder="Nouveau mot de passe" />
-                    <input className={fieldClass} type="password" placeholder="Confirmation" />
-                    <button className={primaryButtonClass} type="button" onClick={() => copyToClipboard("ADMIN_DASHBOARD_PASSWORD=<nouveau-secret>")}>
-                      Préparer la variable Vercel
-                    </button>
-                  </div>
-                </Panel>
-                <Panel title="Sécurité" eyebrow="état">
-                  <div className="grid gap-3">
-                    {["Session httpOnly", "Actions admin protégées", "Routes sources bloquées", "Mot de passe en variable Vercel"].map((item) => (
-                      <span className="rounded-2xl border border-emerald-300/20 bg-emerald-400/10 px-4 py-3 font-black text-emerald-100" key={item}>
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-                </Panel>
-              </section>
-            ) : null}
           </div>
         </section>
       </div>

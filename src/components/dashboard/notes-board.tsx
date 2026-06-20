@@ -6,47 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
+import { initialNotes, type Note } from "@/data/personal-dashboard-defaults";
 import { cn } from "@/lib/cn";
 import { usePersistentState } from "@/lib/use-persistent-state";
-
-type Note = {
-  id: string;
-  title: string;
-  body: string;
-  category: "Projet" | "Client" | "Idée" | "Personnel";
-  updatedAt: string;
-};
-
-const initialNotes: Note[] = [
-  {
-    id: "n1",
-    title: "Dashboard Admin",
-    body: "Créer le socle, les pages métier, Storybook et le déploiement Vercel.",
-    category: "Projet",
-    updatedAt: "Aujourd'hui",
-  },
-  {
-    id: "n2",
-    title: "Pokemon GO API",
-    body: "Ajouter une vue dédiée pour les métriques qualité, assets et générations.",
-    category: "Projet",
-    updatedAt: "Hier",
-  },
-  {
-    id: "n3",
-    title: "Design system",
-    body: "Référencer les primitives Button, Badge, Card, StatCard, KanbanCard.",
-    category: "Idée",
-    updatedAt: "Lundi",
-  },
-  {
-    id: "n4",
-    title: "Outils quotidiens",
-    body: "Centraliser les liens, snippets, contacts, abonnements et notes rapides.",
-    category: "Personnel",
-    updatedAt: "Vendredi",
-  },
-];
 
 const categoryTone = {
   Projet: "cyan",

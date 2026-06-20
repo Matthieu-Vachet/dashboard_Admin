@@ -22,82 +22,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  initialBoard,
+  kanbanCategories as categories,
+  kanbanColumns as columns,
+  type Category,
+  type ColumnId,
+  type Task,
+} from "@/data/personal-dashboard-defaults";
 import { cn } from "@/lib/cn";
 import { usePersistentState } from "@/lib/use-persistent-state";
-
-type Category = "Produit" | "Design" | "API" | "Ops" | "Urgent";
-type ColumnId = "backlog" | "doing" | "review" | "done";
-
-type Task = {
-  id: string;
-  title: string;
-  category: Category;
-  points: number;
-  owner: string;
-  note: string;
-};
-
-type BoardState = Record<ColumnId, Task[]>;
-
-const columns: Array<{ id: ColumnId; title: string; hint: string }> = [
-  { id: "backlog", title: "Backlog", hint: "À cadrer" },
-  { id: "doing", title: "En cours", hint: "Focus actif" },
-  { id: "review", title: "Review", hint: "À vérifier" },
-  { id: "done", title: "Terminé", hint: "Shippé" },
-];
-
-const categories: Category[] = ["Produit", "Design", "API", "Ops", "Urgent"];
-
-const initialBoard: BoardState = {
-  backlog: [
-    {
-      id: "k1",
-      title: "Finaliser les tokens Storybook",
-      category: "Design",
-      points: 3,
-      owner: "MW",
-      note: "Créer les variantes utiles pour Button, Badge, Card et StatCard.",
-    },
-    {
-      id: "k2",
-      title: "Brancher les stats Pokémon détaillées",
-      category: "API",
-      points: 5,
-      owner: "MW",
-      note: "Afficher live/fallback, générations et catalogue.",
-    },
-  ],
-  doing: [
-    {
-      id: "k3",
-      title: "Créer le dashboard personnel",
-      category: "Produit",
-      points: 8,
-      owner: "MW",
-      note: "Rendre chaque module utilisable, pas seulement joli.",
-    },
-  ],
-  review: [
-    {
-      id: "k5",
-      title: "Vérifier le parcours login",
-      category: "Urgent",
-      points: 2,
-      owner: "MW",
-      note: "Tester mobile, tablette et prod Vercel.",
-    },
-  ],
-  done: [
-    {
-      id: "k6",
-      title: "Architecture Next + Tailwind",
-      category: "Produit",
-      points: 5,
-      owner: "MW",
-      note: "Socle Next.js, auth et Storybook.",
-    },
-  ],
-};
 
 const categoryStyles: Record<Category, string> = {
   Produit: "border-brand-2/30 bg-brand-2/10 text-cyan-100",

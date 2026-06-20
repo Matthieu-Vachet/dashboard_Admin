@@ -6,22 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { initialTodos, type Todo } from "@/data/personal-dashboard-defaults";
 import { cn } from "@/lib/cn";
 import { usePersistentState } from "@/lib/use-persistent-state";
-
-type Todo = {
-  id: string;
-  title: string;
-  done: boolean;
-  priority: "Haute" | "Moyenne" | "Basse";
-};
-
-const initialTodos: Todo[] = [
-  { id: "t1", title: "Configurer les variables Vercel", done: false, priority: "Haute" },
-  { id: "t2", title: "Ajouter les premiers composants Storybook", done: true, priority: "Moyenne" },
-  { id: "t3", title: "Créer un template de projet", done: false, priority: "Moyenne" },
-  { id: "t4", title: "Créer les outils quotidiens", done: false, priority: "Basse" },
-];
 
 export function TodoList() {
   const [todos, setTodos, ready] = usePersistentState("matweb.todos", initialTodos);

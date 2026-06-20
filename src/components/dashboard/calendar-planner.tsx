@@ -16,19 +16,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
+import { initialEvents, type CalendarEvent, type EventTone } from "@/data/personal-dashboard-defaults";
 import { cn } from "@/lib/cn";
 import { usePersistentState } from "@/lib/use-persistent-state";
-
-type EventTone = "cyan" | "green" | "violet" | "amber" | "red";
-
-type CalendarEvent = {
-  id: string;
-  date: string;
-  title: string;
-  time: string;
-  tone: EventTone;
-  note: string;
-};
 
 const tones: EventTone[] = ["cyan", "green", "violet", "amber", "red"];
 
@@ -55,35 +45,6 @@ function dateKey(date: Date) {
 function dateFromKey(key: string) {
   return new Date(`${key}T12:00:00`);
 }
-
-const todayKey = dateKey(new Date());
-
-const initialEvents: CalendarEvent[] = [
-  {
-    id: "e1",
-    date: todayKey,
-    title: "Review Dashboard",
-    time: "09:30",
-    tone: "cyan",
-    note: "Tester les modules, corriger les vrais usages et déployer.",
-  },
-  {
-    id: "e2",
-    date: dateKey(new Date(Date.now() + 86400000 * 3)),
-    title: "Sprint Pokemon API",
-    time: "14:00",
-    tone: "green",
-    note: "Vérifier live stats, endpoints et qualité des assets.",
-  },
-  {
-    id: "e3",
-    date: dateKey(new Date(Date.now() + 86400000 * 8)),
-    title: "Storybook session",
-    time: "10:00",
-    tone: "violet",
-    note: "Référencer les composants du design system.",
-  },
-];
 
 export function CalendarPlanner() {
   const [events, setEvents, ready] = usePersistentState("matweb.calendar", initialEvents);
