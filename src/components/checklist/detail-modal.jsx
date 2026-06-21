@@ -85,6 +85,7 @@ function Section({ title, eyebrow, icon, children, tone = "cyan" }) {
   );
 }
 
+/** Construit un fond de panneau à partir du type principal quand l'asset existe. */
 function typePanelBackground(type, typeCatalog = []) {
   const background = typeBackground(type, typeCatalog);
   return background
@@ -92,6 +93,7 @@ function typePanelBackground(type, typeCatalog = []) {
     : "linear-gradient(135deg, rgba(15,23,42,.7), rgba(2,6,23,.58))";
 }
 
+/** Retrouve le background Catch Card correspondant au type Pokémon. */
 function catchCardBackground(type) {
   const name = typeBackgroundNames[String(type || "").toUpperCase()];
   return name ? `/ui/backgrounds/catchCards/CatchCard_TypeBG_${name}.png` : "";
@@ -619,7 +621,8 @@ export function DetailModal({
       return item?.names?.French || weatherId;
     })
     .filter(Boolean);
-  const mainType = entry.primaryType || payload.primaryType || "NORMAL";
+  const mainType = String(entry.primaryType || payload.primaryType || "NORMAL").toUpperCase();
+  const mainTypeColor = typeColors[mainType] || "#38bdf8";
   const candyIcon = candyIconForDex(entry.dexId || payload.dexId);
   const catchBackground = catchCardBackground(mainType);
 
@@ -627,7 +630,10 @@ export function DetailModal({
     (
     <div className="fixed inset-0 z-[130] flex items-end justify-center bg-slate-950/75 p-0 backdrop-blur-md sm:items-center sm:p-6" role="presentation" onClick={onClose}>
       <div
-        className="max-h-[96dvh] w-full max-w-6xl overflow-hidden rounded-t-[2rem] border border-white/10 bg-[#0d1a2b] text-white shadow-[0_30px_120px_rgba(0,0,0,.65)] sm:max-h-[92dvh] sm:rounded-[2rem]"
+        className="max-h-[96dvh] w-full max-w-6xl overflow-hidden rounded-t-[2rem] border border-white/10 text-white shadow-[0_30px_120px_rgba(0,0,0,.65)] sm:max-h-[92dvh] sm:rounded-[2rem]"
+        style={{
+          background: `linear-gradient(180deg, color-mix(in srgb, ${mainTypeColor} 24%, #0d1a2b), #08111f 72%)`,
+        }}
         role="dialog"
         aria-modal="true"
         onClick={(event) => event.stopPropagation()}
@@ -637,16 +643,16 @@ export function DetailModal({
           style={{
             backgroundImage: `${
               catchBackground
-                ? `linear-gradient(135deg, rgba(4,10,22,.72), rgba(4,10,22,.28)), url("${catchBackground}"), `
+                ? `linear-gradient(135deg, rgba(4,10,22,.62), color-mix(in srgb, ${mainTypeColor} 24%, rgba(4,10,22,.32))), url("${catchBackground}"), `
                 : ""
-            }${typePanelBackground(mainType, typeCatalog)}, radial-gradient(circle_at_8%_0%,${typeColors[mainType] || "#38bdf8"}66,transparent_36%), radial-gradient(circle_at_92%_15%,rgba(45,212,191,.32),transparent_34%)`,
+            }${typePanelBackground(mainType, typeCatalog)}, radial-gradient(circle_at_8%_0%,${mainTypeColor}88,transparent_36%), radial-gradient(circle_at_92%_15%,rgba(255,255,255,.18),transparent_34%)`,
           }}
         >
           <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.08)_1px,transparent_1px)] [background-size:34px_34px]" />
           <div className="relative flex items-center gap-4 pr-14">
-            <div className="grid h-24 w-24 shrink-0 place-items-center rounded-full border-4 border-white/80 bg-white shadow-[0_18px_60px_rgba(0,0,0,.32)] sm:h-28 sm:w-28">
+            <div className="grid h-28 w-28 shrink-0 place-items-center rounded-full border-4 border-white/80 bg-white shadow-[0_18px_60px_rgba(0,0,0,.32)] sm:h-36 sm:w-36">
               {entry.image ? (
-                <img className="max-h-[5.7rem] object-contain sm:max-h-[6.7rem]" src={entry.image} alt={entry.name} />
+                <img className="max-h-[6.9rem] object-contain drop-shadow-[0_16px_34px_rgba(0,0,0,.28)] sm:max-h-[8.6rem]" src={entry.image} alt={entry.name} />
               ) : (
                 <span className="h-10 w-10 rounded-full border-[10px] border-slate-900/20" />
               )}
@@ -676,7 +682,8 @@ export function DetailModal({
         <div
           className="max-h-[calc(96dvh-150px)] overflow-auto p-4 sm:max-h-[calc(92dvh-165px)] sm:p-6"
           style={{
-            backgroundImage: `radial-gradient(circle at 8% 0%, ${typeColors[mainType] || "#38bdf8"}2f, transparent 30%), radial-gradient(circle at 92% 10%, rgba(34,211,238,.14), transparent 28%)`,
+            backgroundImage: `linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px), radial-gradient(circle at 8% 0%, ${mainTypeColor}3d, transparent 30%), radial-gradient(circle at 92% 10%, color-mix(in srgb, ${mainTypeColor} 28%, transparent), transparent 28%)`,
+            backgroundSize: "30px 30px, 30px 30px, auto, auto",
           }}
         >
           <div className="grid grid-cols-2 gap-3">

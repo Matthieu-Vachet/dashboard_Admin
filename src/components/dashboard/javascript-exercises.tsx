@@ -14,6 +14,25 @@ import {
 import { usePersistentState } from "@/lib/use-persistent-state";
 import { cn } from "@/lib/cn";
 
+const exerciseLevelStyle: Record<string, string> = {
+  "Niveau 1": "border-emerald-300/25 bg-emerald-400/[0.06] shadow-[0_18px_60px_rgba(16,185,129,.08)]",
+  "Niveau 2": "border-cyan-300/25 bg-cyan-400/[0.06] shadow-[0_18px_60px_rgba(34,211,238,.08)]",
+  "Niveau 3": "border-violet-300/25 bg-violet-400/[0.06] shadow-[0_18px_60px_rgba(139,92,246,.08)]",
+  "Niveau 4": "border-amber-300/25 bg-amber-400/[0.06] shadow-[0_18px_60px_rgba(245,158,11,.08)]",
+  "Niveau 5": "border-rose-300/25 bg-rose-400/[0.06] shadow-[0_18px_60px_rgba(244,63,94,.08)]",
+  "Niveau 6": "border-sky-300/25 bg-sky-400/[0.06] shadow-[0_18px_60px_rgba(14,165,233,.08)]",
+};
+
+const exerciseLevelBadge: Record<string, string> = {
+  "Niveau 1": "border-emerald-300/25 bg-emerald-400/12 text-emerald-100",
+  "Niveau 2": "border-cyan-300/25 bg-cyan-400/12 text-cyan-100",
+  "Niveau 3": "border-violet-300/25 bg-violet-400/12 text-violet-100",
+  "Niveau 4": "border-amber-300/25 bg-amber-400/12 text-amber-100",
+  "Niveau 5": "border-rose-300/25 bg-rose-400/12 text-rose-100",
+  "Niveau 6": "border-sky-300/25 bg-sky-400/12 text-sky-100",
+};
+
+/** Fusionne la liste d'exercices actuelle avec le travail déjà sauvegardé. */
 function mergeExerciseState(state: JsExerciseState): JsExerciseState {
   return Object.fromEntries(
     jsExercises.map((exercise) => [
@@ -38,6 +57,7 @@ export function JavaScriptExercises() {
   const visibleExercises = jsExercises.filter((exercise) => activeLevel === "Tous" || exercise.level === activeLevel);
   const completed = jsExercises.filter((exercise) => mergedState[exercise.id]?.completed).length;
 
+  /** Enregistre ton pseudo-code au fil de la frappe. */
   function updateCode(id: string, code: string) {
     setState((current) => ({
       ...mergeExerciseState(current),
@@ -49,6 +69,7 @@ export function JavaScriptExercises() {
     }));
   }
 
+  /** Marque un exercice comme terminé ou le réouvre pour retravailler dessus. */
   function toggleCompleted(id: string) {
     setState((current) => {
       const merged = mergeExerciseState(current);
@@ -86,7 +107,7 @@ export function JavaScriptExercises() {
               "rounded-lg border px-4 py-2 text-sm font-black transition",
               activeLevel === level
                 ? "border-brand-2/40 bg-brand-2/15 text-brand-2"
-                : "border-line bg-white/[0.045] text-muted hover:text-foreground",
+                : cn("border-line bg-white/[0.045] text-muted hover:text-foreground", level !== "Tous" && exerciseLevelBadge[level]),
             )}
             key={level}
             type="button"
@@ -107,10 +128,10 @@ export function JavaScriptExercises() {
               transition={{ delay: index * 0.035 }}
               key={exercise.id}
             >
-              <Card className={cn("overflow-hidden p-4", exerciseState.completed && "border-brand-3/30 bg-brand-3/10")}>
+              <Card className={cn("overflow-hidden p-4", exerciseLevelStyle[exercise.level], exerciseState.completed && "border-brand-3/35 bg-brand-3/12")}>
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <span className="text-xs font-black uppercase tracking-[0.16em] text-brand-2">{exercise.level}</span>
+                    <span className={cn("inline-flex rounded-full border px-2.5 py-1 text-xs font-black uppercase tracking-[0.16em]", exerciseLevelBadge[exercise.level])}>{exercise.level}</span>
                     <h2 className="mt-1 text-xl font-black">{exercise.title}</h2>
                   </div>
                   <button

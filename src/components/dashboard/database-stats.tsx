@@ -36,9 +36,10 @@ const fallbackStats: DatabaseStatsPayload = {
   indexSize: 0,
   keys: [],
   usage: { total: 0, days: 14, perDay: [], endpoints: [] },
-  updatedAt: new Date().toISOString(),
+  updatedAt: "",
 };
 
+/** Convertit un poids MongoDB en texte lisible pour éviter les nombres bruts. */
 function formatBytes(value: number) {
   if (!value) return "0 o";
   const units = ["o", "Ko", "Mo", "Go"];
@@ -46,11 +47,20 @@ function formatBytes(value: number) {
   return `${(value / 1024 ** index).toFixed(index ? 1 : 0)} ${units[index]}`;
 }
 
+/** Formate une date stable côté client sans créer de mismatch d'hydratation. */
+function formatDateTime(value: string) {
+  if (!value) return "Jamais";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Jamais";
+  return date.toLocaleString("fr-FR");
+}
+
 export function DatabaseStats() {
   const [stats, setStats] = useState<DatabaseStatsPayload>(fallbackStats);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  /** Recharge les métriques Mongo sans cache pour afficher les appels API récents. */
   async function loadStats() {
     setLoading(true);
     setError("");
@@ -105,7 +115,7 @@ export function DatabaseStats() {
         </Card>
       ) : null}
 
-      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid items-start gap-3 md:grid-cols-2 xl:grid-cols-4">
         <StatCard icon={ShieldCheck} label="Connexion" value={stats.configured ? "Active" : "Non configurée"} tone="green" />
         <StatCard icon={Database} label="Documents compte" value={stats.ownerDocuments.toLocaleString("fr-FR")} tone="cyan" />
         <StatCard icon={Activity} label="Appels API suivis" value={stats.usage.total.toLocaleString("fr-FR")} tone="violet" />
@@ -172,7 +182,7 @@ export function DatabaseStats() {
             <MiniRow label="Stockage collection" value={formatBytes(stats.storageSize)} />
             <MiniRow label="Index MongoDB" value={formatBytes(stats.indexSize)} />
             <MiniRow label="Documents total" value={stats.totalDocuments.toLocaleString("fr-FR")} />
-            <MiniRow label="Dernière lecture" value={new Date(stats.updatedAt).toLocaleString("fr-FR")} />
+            <MiniRow label="Dernière lecture" value={formatDateTime(stats.updatedAt)} />
           </div>
         </Card>
       </section>
@@ -200,11 +210,11 @@ function StatCard({
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-      <Card className="p-4">
+      <Card className="min-w-0 p-4">
         <div className="flex items-start justify-between gap-3">
-          <span>
+          <span className="min-w-0">
             <span className="block text-xs font-black uppercase tracking-[0.16em] text-muted">{label}</span>
-            <strong className="mt-3 block text-2xl font-black">{value}</strong>
+            <strong className="mt-3 block break-words text-2xl font-black">{value}</strong>
           </span>
           <span className={`grid h-11 w-11 place-items-center rounded-lg border ${toneClass}`}>
             <Icon size={20} />
@@ -215,6 +225,7 @@ function StatCard({
   );
 }
 
+/** Dessine les appels par jour avec des barres visibles même après animation. */
 function ApiTimeline({ items }: { items: Array<{ day: string; count: number }> }) {
   const max = Math.max(...items.map((item) => item.count), 1);
 
@@ -229,18 +240,20 @@ function ApiTimeline({ items }: { items: Array<{ day: string; count: number }> }
           {items.reduce((sum, item) => sum + item.count, 0).toLocaleString("fr-FR")} appels
         </span>
       </div>
-      <div className="flex h-44 items-end gap-2">
+      <div className="flex h-44 items-end gap-1 sm:h-56 sm:gap-2">
         {items.length ? (
           items.map((item, index) => (
-            <div className="flex min-w-0 flex-1 flex-col items-center gap-2" key={item.day}>
-              <motion.span
-                className="w-full rounded-t-lg bg-gradient-to-t from-brand via-brand-2 to-brand-3 shadow-[0_0_22px_rgba(32,211,255,.22)]"
-                initial={{ height: 0 }}
-                animate={{ height: `${Math.max(6, (item.count / max) * 100)}%` }}
-                transition={{ duration: 0.48, delay: index * 0.025 }}
-                title={`${item.day}: ${item.count}`}
-              />
-              <span className="truncate text-[10px] font-black text-muted">{item.day.slice(5)}</span>
+            <div className="flex min-w-0 flex-1 basis-0 flex-col items-center gap-2 self-stretch" key={item.day}>
+              <span className="flex min-h-0 w-full flex-1 items-end">
+                <motion.span
+                  className="block w-full rounded-t-lg bg-gradient-to-t from-brand via-brand-2 to-brand-3 shadow-[0_0_22px_rgba(32,211,255,.22)]"
+                  initial={{ height: 0 }}
+                  animate={{ height: item.count ? `${Math.max(8, (item.count / max) * 100)}%` : "0%" }}
+                  transition={{ duration: 0.48, delay: index * 0.025 }}
+                  title={`${item.day}: ${item.count}`}
+                />
+              </span>
+              <span className="max-w-full truncate text-[9px] font-black text-muted sm:text-[10px]">{item.day.slice(5)}</span>
             </div>
           ))
         ) : (
@@ -251,6 +264,7 @@ function ApiTimeline({ items }: { items: Array<{ day: string; count: number }> }
   );
 }
 
+/** Affiche les routes les plus utilisées sans laisser les noms longs déborder sur mobile. */
 function EndpointBars({ items }: { items: Array<{ endpoint: string; count: number }> }) {
   const max = Math.max(...items.map((item) => item.count), 1);
 
@@ -263,9 +277,9 @@ function EndpointBars({ items }: { items: Array<{ endpoint: string; count: numbe
       <div className="space-y-3">
         {items.length ? (
           items.map((item, index) => (
-            <div key={item.endpoint}>
-              <div className="mb-1 flex items-center justify-between gap-3">
-                <span className="min-w-0 truncate text-xs font-black">{item.endpoint}</span>
+            <div className="min-w-0" key={item.endpoint}>
+              <div className="mb-1 flex min-w-0 items-start justify-between gap-3">
+                <span className="min-w-0 break-all text-xs font-black leading-5 sm:truncate">{item.endpoint}</span>
                 <span className="font-mono text-xs font-black text-muted">{item.count}</span>
               </div>
               <span className="block h-2.5 overflow-hidden rounded-full bg-white/10">
@@ -290,12 +304,12 @@ function EndpointBars({ items }: { items: Array<{ endpoint: string; count: numbe
 
 function MiniRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-lg border border-line bg-white/[0.045] p-3">
-      <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-muted">
+    <div className="flex min-w-0 flex-col gap-2 rounded-lg border border-line bg-white/[0.045] p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+      <span className="inline-flex min-w-0 items-center gap-2 break-words text-xs font-black uppercase tracking-[0.16em] text-muted">
         <KeyRound size={14} />
         {label}
       </span>
-      <strong className="text-sm font-black">{value}</strong>
+      <strong className="break-words text-sm font-black">{value}</strong>
     </div>
   );
 }

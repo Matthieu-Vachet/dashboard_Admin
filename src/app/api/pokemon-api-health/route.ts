@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { recordDashboardApiCall } from "@/lib/dashboard-store";
+import { rateLimit } from "@/lib/security";
 
 const defaultHealthUrl = "https://pokemon-go-api.vercel.app/health";
 
@@ -10,14 +11,14 @@ function json(data: unknown, init?: ResponseInit) {
   return response;
 }
 
-export async function GET() {
-  const session = await getSession();
-  if (!session) return json({ error: "Accès dashboard requis." }, { status: 401 });
-  await recordDashboardApiCall(session.email, "/api/pokemon-api-health", "GET");
-
-  const healthUrl = process.env.POKEMON_API_HEALTH_URL || defaultHealthUrl;
-
+export async function GET(request: Request) {
   try {
+    rateLimit(request, "pokemon-api-health", 90, 60_000);
+    const session = await getSession();
+    if (!session) return json({ error: "Accès dashboard requis." }, { status: 401 });
+    await recordDashboardApiCall(session.email, "/api/pokemon-api-health", "GET");
+
+    const healthUrl = process.env.POKEMON_API_HEALTH_URL || defaultHealthUrl;
     let health = await fetchHealth(healthUrl);
 
     if (!health.connected) {
@@ -43,6 +44,15 @@ export async function GET() {
       },
     });
   } catch (error) {
+    const status =
+      error && typeof error === "object" && "status" in error
+        ? Number((error as { status?: unknown }).status) || 500
+        : 500;
+
+    if (status === 429) {
+      return json({ error: error instanceof Error ? error.message : "Trop de requêtes." }, { status });
+    }
+
     return json({
       data: {
         connected: false,

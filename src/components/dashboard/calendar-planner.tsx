@@ -153,6 +153,7 @@ export function CalendarPlanner() {
               ))}
             </div>
             <Button
+              className="grid place-items-center [&>svg]:mx-auto [&>svg]:block"
               size="icon"
               type="button"
               onClick={() =>
@@ -167,6 +168,7 @@ export function CalendarPlanner() {
               <ChevronLeft size={17} />
             </Button>
             <Button
+              className="grid place-items-center [&>svg]:mx-auto [&>svg]:block"
               size="icon"
               type="button"
               onClick={() =>

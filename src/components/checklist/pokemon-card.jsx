@@ -1,6 +1,7 @@
 import { catalogItem, typeBackground, typeColors, typeIcon, typeName } from "../site/pokemon-style";
 import { uiAssets } from "../site/ui-assets";
 
+/** Vérifie si une fiche possède au moins un asset exploitable. */
 function hasAssets(entry) {
   const assets = entry.assets || {};
   return Boolean(
@@ -15,6 +16,7 @@ function hasAssets(entry) {
   );
 }
 
+/** Isole les clés manquantes, y compris celles remontées par les règles personnalisées. */
 function missingKeyIssues(entry) {
   return (entry?.issues || []).filter(
     (issue) => issue.issue === "missing" || issue.category === "custom",
@@ -80,12 +82,13 @@ export function PokemonCard({
   const weather = (entry.weatherBoost || []).filter(Boolean);
   const assetsPresent = hasAssets(entry);
   const missingKeys = missingKeyIssues(entry);
-  const mainType = entry.primaryType || "NORMAL";
+  const mainType = String(entry.primaryType || "NORMAL").toUpperCase();
   const background = typeBackground(mainType, typeCatalog);
+  const visibleWeather = compact ? weather.slice(0, 1) : weather.slice(0, 2);
 
   return (
     <article
-      className={`relative isolate min-h-[292px] overflow-hidden rounded-[1.65rem] border p-4 shadow-[0_18px_50px_rgba(0,0,0,0.24)] ${
+      className={`relative isolate min-h-0 overflow-hidden rounded-[1.65rem] border p-4 shadow-[0_18px_50px_rgba(0,0,0,0.24)] ${
         entry.complete ? "border-emerald-300/25" : "border-amber-300/30"
       } ${assetChecked ? "ring-2 ring-emerald-300/50" : ""}`}
       style={{
@@ -104,7 +107,7 @@ export function PokemonCard({
       <div className="grid grid-cols-[86px_minmax(0,1fr)_58px] items-center gap-3 max-[520px]:grid-cols-[74px_minmax(0,1fr)]">
         <div className="grid h-[86px] w-[86px] place-items-center overflow-hidden rounded-full border-[5px] border-white/75 bg-[linear-gradient(#fff_0_48%,#1f2937_49%_52%,#ff4f5e_53%_100%)] max-[520px]:h-[74px] max-[520px]:w-[74px]">
           {entry.image ? (
-            <img className="h-[91%] w-[91%] object-contain drop-shadow-lg" src={entry.image} alt={entry.name} />
+            <img className="h-[91%] w-[91%] object-contain drop-shadow-lg" src={entry.image} alt={entry.name} loading="lazy" />
           ) : (
             <span className="h-6 w-6 rounded-full bg-slate-900" />
           )}
@@ -129,14 +132,23 @@ export function PokemonCard({
         </div>
       </div>
 
-      <div className="mt-4 grid gap-2 min-[521px]:grid-cols-2">
+      <div className={`mt-4 grid gap-2 ${types.length > 1 ? "grid-cols-2" : ""}`}>
         {types.map((type) => (
           <TypeBadge key={type} type={type} catalog={typeCatalog} />
         ))}
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-2 max-[520px]:grid-cols-1">
-        {weather.slice(0, 2).map((weatherId) => (
+      <div className="mt-3 grid grid-cols-2 gap-2 min-[521px]:hidden">
+        <MiniInfo icon={uiAssets.icons.weatherBoost}>
+          {weather.length || 0} météo
+        </MiniInfo>
+        <MiniInfo icon={uiAssets.icons.attack}>
+          {(entry.quickMoveCount || 0) + (entry.chargedMoveCount || 0)} attaques
+        </MiniInfo>
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-2 max-[520px]:hidden">
+        {visibleWeather.map((weatherId) => (
           <WeatherBadge key={weatherId} weatherId={weatherId} catalog={weatherCatalog} />
         ))}
         <MiniInfo icon={uiAssets.icons.attack}>
@@ -150,6 +162,9 @@ export function PokemonCard({
             {entry.maxMoveCount} Max
           </MiniInfo>
         ) : null}
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-2">
         <span
           className={`inline-flex min-h-8 items-center justify-center rounded-lg border px-3 text-xs font-black ${
             entry.complete

@@ -333,6 +333,7 @@ function BarList({ items, labelKey = "id", valueKey = "count" }) {
   );
 }
 
+/** Carte compacte de statistiques asset, conçue pour ne jamais déborder sur mobile. */
 function AssetStatCard({ label, value, icon, tone = "cyan", detail }) {
   return (
     <article
@@ -359,6 +360,7 @@ function AssetStatCard({ label, value, icon, tone = "cyan", detail }) {
   );
 }
 
+/** Filtre visuel des générations avec les images PokedexV2 en couleur atténuée. */
 function GenerationFilterBar({ value, onChange }) {
   return (
     <section className="rounded-2xl border border-white/10 bg-slate-950/30 p-3 shadow-[0_18px_70px_rgba(0,0,0,.2)]">
@@ -371,11 +373,11 @@ function GenerationFilterBar({ value, onChange }) {
         </button>
       </div>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-11">
-        {generationFilters.map(([id, label, image, lockedImage]) => {
+        {generationFilters.map(([id, label, image]) => {
           const active = value === id;
           return (
             <button
-              className={`group relative min-h-[92px] overflow-hidden rounded-2xl border p-2 text-left transition hover:-translate-y-0.5 hover:border-cyan-200/45 ${
+              className={`group relative min-h-[74px] overflow-hidden rounded-2xl border px-3 py-2 text-left transition hover:-translate-y-0.5 hover:border-cyan-200/45 ${
                 active
                   ? "border-cyan-200/50 bg-cyan-400/15 shadow-[0_14px_45px_rgba(34,211,238,.16)]"
                   : "border-white/10 bg-white/[0.045]"
@@ -386,22 +388,18 @@ function GenerationFilterBar({ value, onChange }) {
             >
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_10%,rgba(34,211,238,.22),transparent_38%)] opacity-0 transition group-hover:opacity-100" />
               {image ? (
-                <>
-                  <img
-                    className={`absolute bottom-1 right-1 h-16 max-w-[78%] object-contain transition duration-300 ${active ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
-                    src={image}
-                    alt=""
-                  />
-                  <img
-                    className={`absolute bottom-1 right-1 h-16 max-w-[78%] object-contain transition duration-300 ${active ? "opacity-0" : "opacity-75 group-hover:opacity-0"}`}
-                    src={lockedImage || image}
-                    alt=""
-                  />
-                </>
+                <img
+                  className={`absolute bottom-1 right-1 h-14 max-w-[68%] object-contain drop-shadow-[0_10px_24px_rgba(0,0,0,.35)] transition duration-300 group-hover:scale-105 group-hover:opacity-100 ${
+                    active ? "opacity-100 saturate-125" : "opacity-45 saturate-75"
+                  }`}
+                  src={image}
+                  alt=""
+                  loading="lazy"
+                />
               ) : (
-                <Layers className="absolute bottom-3 right-3 text-cyan-100/60" size={26} />
+                <Layers className="absolute bottom-3 right-3 text-cyan-100/60" size={24} />
               )}
-              <span className="relative block text-xs font-black uppercase tracking-[0.14em] text-slate-400">
+              <span className="relative block text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">
                 {id === "all" ? "Filtre" : `Gén. ${id}`}
               </span>
               <strong className="relative mt-1 block text-sm font-black text-white">{label}</strong>
@@ -1602,14 +1600,14 @@ export function AdminApp() {
 
             {!bootstrap.loading && !bootstrap.error && active === "overview" ? (
               <>
-                <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <section className="grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-4">
                   <MetricCard label="Fiches analysées" value={summary.total || 0} icon={uiAssets.icons.fiche} />
                   <MetricCard label="Terminées" value={summary.complete || 0} accent="green" icon={uiAssets.icons.bookSpells} />
                   <MetricCard label="Problèmes" value={summary.issues || 0} accent="amber" icon={uiAssets.icons.problem} />
                   <MetricCard label="Assets vérifiés" value={Object.keys(assetChecks).length} accent="violet" icon={uiAssets.icons.result} />
                 </section>
 
-                <section className="grid gap-3 lg:grid-cols-3">
+                <section className="grid items-start gap-3 lg:grid-cols-3">
                   <article className="rounded-[2rem] border border-emerald-300/15 bg-emerald-400/10 p-5">
                     <Sparkles className="mb-4 text-emerald-200" size={24} />
                     <span className="text-sm font-bold text-emerald-100/80">Données complètes</span>
@@ -1627,7 +1625,7 @@ export function AdminApp() {
                   </article>
                 </section>
 
-                <section className="grid gap-5 xl:grid-cols-2">
+                <section className="grid items-start gap-5 xl:grid-cols-2">
                   <Panel title="Complétion JSON par génération">
                     <CompletionList items={summary.generations || []} />
                   </Panel>
@@ -1647,7 +1645,7 @@ export function AdminApp() {
             {active === "pokedex" ? (
               <>
                 <GenerationFilterBar value={generationFilter} onChange={setGenerationFilter} />
-                <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                <section className="grid items-start gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                   {filtered.slice(0, 240).map((entry) => (
                     <PokemonCard
                       admin
@@ -1666,9 +1664,9 @@ export function AdminApp() {
             ) : null}
 
             {active === "assets" ? (
-              <section className="grid gap-5 xl:grid-cols-[1.4fr_.9fr]">
+              <section className="grid items-start gap-5 xl:grid-cols-[1.4fr_.9fr]">
                 <Panel title="Vérification d’assets" eyebrow="bibliothèque">
-                  <div className="mb-4 grid min-w-0 gap-3 sm:grid-cols-2 2xl:grid-cols-4">
+                  <div className="mb-4 grid min-w-0 items-start gap-3 sm:grid-cols-2 2xl:grid-cols-4">
                     <AssetStatCard label="GO" value={assetAudit?.totals?.goFiles || 0} icon={uiAssets.icons.goLogo} tone="cyan" detail="Fichiers image GO" />
                     <AssetStatCard label="Shuffle" value={assetAudit?.totals?.shuffleFiles || 0} icon={uiAssets.icons.pikachuShuffle} tone="violet" detail="Bibliothèque Shuffle" />
                     <AssetStatCard label="Utilisés" value={assetAudit?.totals?.used || 0} icon={uiAssets.icons.bookSpells} tone="green" detail="Référencés par les fiches" />
@@ -1720,7 +1718,7 @@ export function AdminApp() {
             ) : null}
 
             {active === "checks" ? (
-              <section className="grid gap-5 xl:grid-cols-[1.2fr_.8fr]">
+              <section className="grid items-start gap-5 xl:grid-cols-[1.2fr_.8fr]">
                 <ControlCardsPanel
                   title="Fiches à contrôler"
                   entries={issueEntries}
@@ -1772,7 +1770,7 @@ export function AdminApp() {
                     ))}
                   </select>
                 </div>
-                <div className="grid gap-4 lg:grid-cols-2">
+                <div className="grid items-start gap-4 lg:grid-cols-2">
                   {[compareLeft, compareRight].map((entry, index) => (
                     <div className="rounded-[2rem] border border-white/10 bg-slate-950/30 p-3" key={index}>
                       {entry ? (

@@ -7,6 +7,7 @@ import {
   recordDashboardApiCall,
   writeDashboardStoreValue,
 } from "@/lib/dashboard-store";
+import { assertJsonPayloadSize, assertSameOrigin, rateLimit } from "@/lib/security";
 
 type JsonValue = Record<string, unknown>;
 type RuleRecord = Record<string, unknown> & {
@@ -190,6 +191,7 @@ function handleServerError(error: unknown) {
 
 export async function GET(request: NextRequest) {
   try {
+    rateLimit(request, "pokemon-admin-read", 180, 60_000);
     const session = await requireDashboardSession();
     const authenticated = Boolean(session);
     const action = getAction(request);
@@ -257,7 +259,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    rateLimit(request, "pokemon-admin-write", 80, 60_000);
+    assertSameOrigin(request);
     const body = (await request.json().catch(() => ({}))) as JsonValue;
+    assertJsonPayloadSize(body, 400_000);
     const session = await requireDashboardSession();
     const authenticated = Boolean(session);
     const action = getAction(request, body);

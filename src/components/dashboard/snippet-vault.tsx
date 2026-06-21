@@ -25,6 +25,7 @@ export function SnippetVault() {
   const [editing, setEditing] = useState<Snippet | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
+  /** Filtre côté client pour retrouver un snippet par langage, tag ou contenu. */
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
     if (!needle) return snippets;
@@ -37,6 +38,7 @@ export function SnippetVault() {
     );
   }, [query, snippets]);
 
+  /** Normalise puis sauvegarde un snippet dans le stockage persistant du dashboard. */
   function saveSnippet(snippet: Snippet) {
     const normalized = {
       ...snippet,
@@ -52,6 +54,7 @@ export function SnippetVault() {
     setEditing(null);
   }
 
+  /** Copie le contenu sans modifier le snippet enregistré. */
   function copySnippet(snippet: Snippet) {
     void navigator.clipboard.writeText(snippet.content);
     setCopiedId(snippet.id);
@@ -90,16 +93,16 @@ export function SnippetVault() {
         </label>
       </Card>
 
-      <section className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+      <section className="grid min-w-0 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
         {filtered.map((snippet) => (
-          <Card key={snippet.id} className="p-4">
+          <Card key={snippet.id} className="min-w-0 overflow-hidden p-4">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-2">
                   {snippet.language || "code"}
                 </p>
-                <h3 className="mt-2 truncate text-lg font-black">{snippet.title}</h3>
-                <p className="mt-1 truncate text-xs font-bold text-muted">
+                <h3 className="mt-2 break-words text-lg font-black">{snippet.title}</h3>
+                <p className="mt-1 break-words text-xs font-bold text-muted">
                   {[snippet.category, snippet.tags].filter(Boolean).join(" · ") || "Sans catégorie"}
                 </p>
               </div>
@@ -107,10 +110,10 @@ export function SnippetVault() {
                 <Code2 size={18} />
               </span>
             </div>
-            <pre className="mt-4 max-h-64 overflow-auto rounded-lg border border-line bg-slate-950/70 p-3 font-mono text-xs leading-6 text-cyan-50">
+            <pre className="mt-4 max-h-64 max-w-full overflow-auto whitespace-pre-wrap break-all rounded-lg border border-line bg-slate-950/70 p-3 font-mono text-xs leading-6 text-cyan-50">
               <code>{snippet.content || "// vide"}</code>
             </pre>
-            <div className="mt-4 grid grid-cols-3 gap-2">
+            <div className="mt-4 grid gap-2 min-[420px]:grid-cols-[1fr_1fr_auto]">
               <Button icon={copiedId === snippet.id ? <Check size={15} /> : <Copy size={15} />} type="button" onClick={() => copySnippet(snippet)}>
                 {copiedId === snippet.id ? "Copié" : "Copier"}
               </Button>

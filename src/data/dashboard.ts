@@ -1,6 +1,7 @@
 import {
   CalendarDays,
   CheckSquare2,
+  CircleDot,
   Code2,
   Coffee,
   Database,
@@ -14,7 +15,6 @@ import {
   NotebookPen,
   Palette,
   ScrollText,
-  ShieldCheck,
   FileText,
   Wrench,
 } from "lucide-react";
@@ -36,7 +36,7 @@ export const navItems = [
   { href: "/analytics", label: "Analytics", icon: LineChart },
   { href: "/database", label: "Mongo DB", icon: Database },
   { href: "/notion", label: "Notion", icon: BookOpenCheck },
-  { href: "/pokemon-admin", label: "Admin Pokémon", icon: ShieldCheck },
+  { href: "/pokemon-admin", label: "Admin Pokémon", icon: CircleDot },
   { href: "/pokemon-docs", label: "Docs JSON", icon: ScrollText },
 ];
 

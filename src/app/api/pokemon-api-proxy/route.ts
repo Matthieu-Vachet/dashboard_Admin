@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { recordDashboardApiCall } from "@/lib/dashboard-store";
+import { rateLimit } from "@/lib/security";
 
 const baseUrl = process.env.POKEMON_API_PUBLIC_URL || "https://pokemon-go-api.vercel.app";
 const allowedPaths = [
@@ -38,11 +39,12 @@ function safePath(value: string) {
 }
 
 export async function GET(request: NextRequest) {
-  const session = await getSession();
-  if (!session) return json({ error: "Accès dashboard requis." }, { status: 401 });
-  await recordDashboardApiCall(session.email, "/api/pokemon-api-proxy", "GET");
-
   try {
+    rateLimit(request, "pokemon-api-proxy", 60, 60_000);
+    const session = await getSession();
+    if (!session) return json({ error: "Accès dashboard requis." }, { status: 401 });
+    await recordDashboardApiCall(session.email, "/api/pokemon-api-proxy", "GET");
+
     const path = safePath(request.nextUrl.searchParams.get("path") || "/health");
     const target = new URL(path, baseUrl);
     const startedAt = Date.now();

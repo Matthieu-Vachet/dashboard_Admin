@@ -7,6 +7,7 @@ import {
   recordDashboardApiCall,
   writeDashboardStoreValue,
 } from "@/lib/dashboard-store";
+import { assertJsonPayloadSize, assertSameOrigin, rateLimit } from "@/lib/security";
 
 function json(data: unknown, init?: ResponseInit) {
   const response = NextResponse.json(data, init);
@@ -26,6 +27,7 @@ function serverError(error: unknown) {
 
 export async function GET(request: NextRequest) {
   try {
+    rateLimit(request, "dashboard-store-read", 240, 60_000);
     const session = await getSession();
     if (!session) return json({ error: "Accès dashboard requis." }, { status: 401 });
     await recordDashboardApiCall(session.email, "/api/dashboard-store", "GET");
@@ -48,6 +50,8 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    rateLimit(request, "dashboard-store-write", 120, 60_000);
+    assertSameOrigin(request);
     const session = await getSession();
     if (!session) return json({ error: "Accès dashboard requis." }, { status: 401 });
     await recordDashboardApiCall(session.email, "/api/dashboard-store", "PUT");
@@ -56,6 +60,7 @@ export async function PUT(request: NextRequest) {
       key?: unknown;
       value?: unknown;
     };
+    assertJsonPayloadSize(body.value);
     const key = normalizeDashboardStoreKey(body.key);
     const result = await writeDashboardStoreValue(session.email, key, body.value ?? null);
 

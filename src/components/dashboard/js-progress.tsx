@@ -28,6 +28,10 @@ const difficultyStyle = {
   difficile: "text-rose-100 bg-rose-400/12 border-rose-300/25",
 };
 
+/**
+ * Réconcilie la roadmap livrée dans le code avec la progression sauvegardée.
+ * Si j'ajoute une notion plus tard, elle apparaît sans écraser ton avancement.
+ */
 function mergeRoadmap(stored: JsRoadmapItem[]) {
   const storedMap = new Map(stored.map((item) => [item.id, item]));
   return initialJsRoadmap.map((item) => ({ ...item, ...storedMap.get(item.id) }));
@@ -87,13 +91,13 @@ export function JsProgress() {
 
             return (
               <motion.article
-                className={cn("relative grid gap-4 lg:grid-cols-[1fr_4rem_1fr]", right && "lg:[&>*:first-child]:col-start-3")}
+                className="relative grid gap-4 lg:grid-cols-[minmax(0,1fr)_3.5rem_minmax(0,1fr)] lg:items-center"
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.42, delay: index * 0.06 }}
                 key={level.level}
               >
-                <Card className="relative overflow-hidden p-4">
+                <Card className={cn("relative overflow-hidden p-4 lg:row-start-1", right ? "lg:col-start-3" : "lg:col-start-1")}>
                   <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(32,211,255,.09),transparent_40%),radial-gradient(circle_at_85%_0%,rgba(144,91,244,.14),transparent_34%)]" />
                   <div className="relative">
                     <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
@@ -118,12 +122,12 @@ export function JsProgress() {
                         <div className="rounded-lg border border-line bg-black/15 p-3" key={item.id}>
                           <div className="flex flex-wrap items-center justify-between gap-2">
                             <strong className="text-sm font-black">{item.title}</strong>
-                            <div className="flex flex-wrap gap-2">
-                              <span className={`rounded-full border px-2.5 py-1 text-[11px] font-black ${difficultyStyle[item.difficulty]}`}>
+                            <div className="flex flex-wrap items-center justify-end gap-2 max-[480px]:w-full max-[480px]:justify-start">
+                              <span className={`inline-flex min-h-7 items-center justify-center rounded-full border px-2.5 py-1 text-center text-[11px] font-black leading-none ${difficultyStyle[item.difficulty]}`}>
                                 {item.difficulty}
                               </span>
                               <button
-                                className={`rounded-full border px-2.5 py-1 text-[11px] font-black transition hover:scale-105 ${statusStyle[item.status]}`}
+                                className={`inline-flex min-h-7 items-center justify-center rounded-full border px-2.5 py-1 text-center text-[11px] font-black leading-none transition hover:scale-105 ${statusStyle[item.status]}`}
                                 type="button"
                                 onClick={() => cycleStatus(item)}
                               >
@@ -145,7 +149,7 @@ export function JsProgress() {
                     </div>
                   </div>
                 </Card>
-                <div className="relative hidden place-items-center lg:grid">
+                <div className="relative hidden place-items-center lg:col-start-2 lg:row-start-1 lg:grid">
                   <span className="grid h-12 w-12 place-items-center rounded-full border border-brand-2/30 bg-background text-brand-2 shadow-[0_0_35px_rgba(32,211,255,.22)]">
                     <Compass size={20} />
                   </span>
