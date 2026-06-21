@@ -3,8 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
-import gsap from "gsap";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   LogOut,
   Menu,
@@ -48,6 +47,7 @@ export function AppFrame({
   const rootRef = useRef<HTMLDivElement>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
   const { resolvedTheme, setTheme } = useTheme();
   const brandLogo = "/ui/matweb-innovation-letter-m3.png";
 
@@ -57,43 +57,55 @@ export function AppFrame({
   );
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      const panels = gsap.utils.toArray<HTMLElement>(
-        "main .glass-panel, main .glass-panel-strong",
-      );
-      if (panels.length) {
-        gsap.fromTo(
-          panels,
-          { autoAlpha: 0, y: 18, filter: "blur(8px)" },
-          {
-            autoAlpha: 1,
-            y: 0,
-            filter: "blur(0px)",
-            duration: 0.55,
-            ease: "power3.out",
-            stagger: 0.035,
-          },
+    if (prefersReducedMotion) return;
+
+    let cancelled = false;
+    let context: { revert: () => void } | null = null;
+
+    void import("gsap").then(({ default: gsap }) => {
+      if (cancelled) return;
+
+      context = gsap.context(() => {
+        const panels = gsap.utils.toArray<HTMLElement>(
+          "main .glass-panel, main .glass-panel-strong",
         );
-      }
+        if (panels.length) {
+          gsap.fromTo(
+            panels,
+            { autoAlpha: 0, y: 18, filter: "blur(8px)" },
+            {
+              autoAlpha: 1,
+              y: 0,
+              filter: "blur(0px)",
+              duration: 0.55,
+              ease: "power3.out",
+              stagger: 0.035,
+            },
+          );
+        }
 
-      const energyScan = rootRef.current?.querySelector(".energy-scan");
-      if (energyScan) {
-        gsap.to(energyScan, {
-          xPercent: 120,
-          duration: 5.5,
-          ease: "none",
-          repeat: -1,
-        });
-      }
-    }, rootRef);
+        const energyScan = rootRef.current?.querySelector(".energy-scan");
+        if (energyScan) {
+          gsap.to(energyScan, {
+            xPercent: 120,
+            duration: 5.5,
+            ease: "none",
+            repeat: -1,
+          });
+        }
+      }, rootRef);
+    });
 
-    return () => ctx.revert();
-  }, [pathname]);
+    return () => {
+      cancelled = true;
+      context?.revert();
+    };
+  }, [pathname, prefersReducedMotion]);
 
   const SidebarContent = (
     <div className="flex h-full flex-col">
       <div className="flex h-20 items-center justify-between px-4">
-        <Link href="/" className="flex min-w-0 items-center gap-3">
+        <Link href="/" className="flex min-w-0 items-center gap-3" aria-label="Retour à l’accueil">
           <span
             className={cn(
               "grid h-12 shrink-0 place-items-center rounded-lg p-0.5",
@@ -143,6 +155,7 @@ export function AppFrame({
               href={item.href}
               onClick={() => setSidebarOpen(false)}
               title={collapsed ? item.label : undefined}
+              aria-current={active ? "page" : undefined}
               className={cn(
                 "dashboard-sidebar-link group relative flex min-h-10 items-center gap-2.5 overflow-hidden rounded-lg border px-3 text-sm font-black transition",
                 active
@@ -193,6 +206,7 @@ export function AppFrame({
             variant="ghost"
             icon={<LogOut size={16} />}
             type="submit"
+            aria-label="Déconnexion"
           >
             {!collapsed ? "Déconnexion" : null}
           </Button>
@@ -203,6 +217,12 @@ export function AppFrame({
 
   return (
     <div ref={rootRef} className="relative min-h-screen overflow-hidden">
+      <a
+        href="#dashboard-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-brand-2 focus:px-4 focus:py-2 focus:text-sm focus:font-black focus:text-slate-950"
+      >
+        Aller au contenu principal
+      </a>
       <div className="studio-grid pointer-events-none fixed inset-0 opacity-70" />
       <div className="scanline-overlay pointer-events-none fixed inset-0" />
       <div className="energy-scan pointer-events-none fixed inset-y-0 -left-1/3 w-1/3" />
@@ -299,7 +319,7 @@ export function AppFrame({
           </div>
         </header>
 
-        <main className="mx-auto max-w-[1680px] px-4 py-5 sm:px-6 lg:py-7">
+        <main id="dashboard-content" tabIndex={-1} className="mx-auto max-w-[1680px] px-4 py-5 outline-none sm:px-6 lg:py-7">
           {children}
         </main>
       </div>
