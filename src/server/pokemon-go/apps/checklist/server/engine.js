@@ -1291,6 +1291,22 @@ function buildChecklist(customRulesOverride = null) {
       data.id ||
       path.basename(file);
     const quality = qualitySummary(validator.issues);
+    const home = displayData.assets?.home || {};
+    const homeVariants = Array.isArray(home.variants) ? home.variants : [];
+    const shuffleVariants = Array.isArray(displayData.assets?.shuffle?.variants)
+      ? displayData.assets.shuffle.variants
+      : [];
+    const homeVariant = homeVariants.find((asset) => asset?.image || asset?.shinyImage);
+    const shuffleVariant =
+      shuffleVariants.find((asset) => !asset?.shiny && (asset?.image || asset?.shinyImage)) ||
+      shuffleVariants.find((asset) => asset?.image || asset?.shinyImage);
+    const homeImage =
+      home.image ||
+      home.shinyImage ||
+      homeVariant?.image ||
+      homeVariant?.shinyImage ||
+      null;
+    const shuffleImage = shuffleVariant?.image || shuffleVariant?.shinyImage || null;
     return {
       key: `${kind}:${relativeToApp(file)}${
         kind === "mega" ? `#${data.formId || data.id}` : ""
@@ -1303,14 +1319,8 @@ function buildChecklist(customRulesOverride = null) {
       form: data.form || "normal",
       file: relativeToApp(file),
       image: displayData.assets?.portrait || displayData.assets?.image || null,
-      homeImage:
-        displayData.assets?.home?.image ||
-        displayData.assets?.home?.shinyImage ||
-        displayData.assets?.home?.variants?.find((asset) => asset?.image || asset?.shinyImage)
-          ?.image ||
-        displayData.assets?.home?.variants?.find((asset) => asset?.image || asset?.shinyImage)
-          ?.shinyImage ||
-        null,
+      homeImage,
+      shuffleImage,
       shinyImage:
         displayData.assets?.portraitShiny || displayData.assets?.shinyImage || null,
       primaryType:

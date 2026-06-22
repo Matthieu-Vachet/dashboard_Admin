@@ -363,9 +363,46 @@ function gitHistory(relativeFile) {
   }
 }
 
-function repoHistory() {
+function parsePokemonDataRepo() {
+  const repo = String(process.env.POKEMON_GO_DATA_REPO || "https://github.com/Matthieu-Vachet/PokemonGo-Data.git")
+    .trim()
+    .replace(/\.git$/, "");
+  const match = repo.match(/github\.com[:/]([^/]+)\/([^/]+)$/);
+  return match ? { owner: match[1], repo: match[2] } : null;
+}
+
+async function githubRepoHistory() {
+  const target = parsePokemonDataRepo();
+  if (!target) return deploymentHistory();
+  const ref = process.env.POKEMON_GO_DATA_REF || "main";
   try {
-    return childProcess
+    const response = await fetch(
+      `https://api.github.com/repos/${target.owner}/${target.repo}/commits?sha=${encodeURIComponent(ref)}&per_page=12`,
+      {
+        headers: {
+          accept: "application/vnd.github+json",
+          "user-agent": "matweb-dashboard-admin",
+        },
+      },
+    );
+    if (!response.ok) throw new Error(`GitHub history HTTP ${response.status}`);
+    const commits = await response.json();
+    return (Array.isArray(commits) ? commits : []).map((commit) => ({
+      hash: String(commit.sha || "").slice(0, 12),
+      date:
+        commit.commit?.committer?.date?.slice(0, 10) ||
+        commit.commit?.author?.date?.slice(0, 10) ||
+        "",
+      subject: commit.commit?.message?.split("\n")[0] || "Commit PokemonGo-Data",
+    }));
+  } catch {
+    return deploymentHistory();
+  }
+}
+
+async function repoHistory() {
+  try {
+    const history = childProcess
       .execFileSync(
         "git",
         ["log", "-12", "--date=short", "--pretty=format:%h|%ad|%s"],
@@ -375,8 +412,10 @@ function repoHistory() {
       .split("\n")
       .filter(Boolean)
       .map(parseGitLine);
+    if (history.length) return history;
+    return githubRepoHistory();
   } catch {
-    return deploymentHistory();
+    return githubRepoHistory();
   }
 }
 

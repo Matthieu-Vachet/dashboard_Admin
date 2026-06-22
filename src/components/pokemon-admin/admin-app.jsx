@@ -37,13 +37,14 @@ import { DetailModal } from "../checklist/detail-modal";
 import { PokemonCard } from "../checklist/pokemon-card";
 import { SortableWidgetGrid } from "../dashboard/sortable-widget-grid";
 import { MetricCard } from "../site/metric-card";
-import { typeBackground, typeColors, typeIcon, typeName } from "../site/pokemon-style";
+import { pokemonVariantLabel, preferredPokemonImage, typeBackground, typeColors, typeIcon, typeName } from "../site/pokemon-style";
 import { uiAssets } from "../site/ui-assets";
 import { LoginCard } from "./login-card";
 
 const assetChecksKey = "pokedex-v4-asset-checks";
 const todoKey = "pokedex-v4-admin-todos";
 const editorKey = "pokedex-v4-admin-editor";
+const sourceWatchSignatureKey = "pokedex-v4-source-watch-signatures";
 const adminApiPath = "/api/pokemon-admin";
 
 const navItems = [
@@ -414,6 +415,38 @@ function localJson(key, fallback) {
   } catch {
     return fallback;
   }
+}
+
+function sourceSignature(source) {
+  return [
+    source.signature,
+    source.version,
+    source.updatedAt,
+    source.status,
+    source.message,
+  ]
+    .filter(Boolean)
+    .join("|");
+}
+
+function persistSourceSignatures(sourceWatch) {
+  if (typeof localStorage === "undefined" || !sourceWatch?.sources?.length) return;
+  const previous = localJson(sourceWatchSignatureKey, {});
+  const current = {};
+  const changed = [];
+  const blocked = [];
+
+  for (const source of sourceWatch.sources) {
+    const id = source.id || source.name || source.url;
+    const signature = sourceSignature(source);
+    if (!id || !signature) continue;
+    current[id] = signature;
+    if (previous[id] && previous[id] !== signature) changed.push(source);
+    if (source.status === "warning") blocked.push(source);
+  }
+
+  localStorage.setItem(sourceWatchSignatureKey, JSON.stringify(current));
+  return { changed, blocked, known: Object.keys(previous).length };
 }
 
 async function copyToClipboard(value, label = "Copié dans le presse-papier") {
@@ -850,24 +883,52 @@ function CatalogPanel({ catalog = {} }) {
   );
 }
 
+function colorChannel(value) {
+  const numeric = Number(value ?? 0);
+  if (!Number.isFinite(numeric)) return 0;
+  return Math.max(0, Math.min(255, Math.round(numeric <= 1 ? numeric * 255 : numeric)));
+}
+
+function normalizeColor(color) {
+  if (!color || typeof color === "string") return null;
+  return {
+    r: colorChannel(color.r ?? color.red),
+    g: colorChannel(color.g ?? color.green),
+    b: colorChannel(color.b ?? color.blue),
+    a: Math.max(0, Math.min(1, Number(color.a ?? color.alpha ?? 1))),
+  };
+}
+
 function colorToCss(color) {
   if (!color) return "rgba(148,163,184,.35)";
   if (typeof color === "string") return color;
-  const r = Number(color.r ?? color.red ?? 0);
-  const g = Number(color.g ?? color.green ?? 0);
-  const b = Number(color.b ?? color.blue ?? 0);
-  const a = color.a ?? color.alpha ?? 1;
+  const { r, g, b, a } = normalizeColor(color);
   return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
 function colorToLabel(color) {
   if (!color) return "-";
   if (typeof color === "string") return color;
-  const r = Number(color.r ?? color.red ?? 0);
-  const g = Number(color.g ?? color.green ?? 0);
-  const b = Number(color.b ?? color.blue ?? 0);
-  const a = color.a ?? color.alpha ?? 1;
+  const { r, g, b, a } = normalizeColor(color);
   return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
+function colorToHex(color) {
+  const normalized = normalizeColor(color);
+  if (!normalized) return "";
+  return `#${[normalized.r, normalized.g, normalized.b]
+    .map((value) => value.toString(16).padStart(2, "0"))
+    .join("")
+    .toUpperCase()}`;
+}
+
+function variantTone(entry) {
+  const kind = String(entry.kind || "").toLowerCase();
+  if (kind === "dynamax") return "border-sky-300/35 bg-sky-400/15 text-sky-100";
+  if (kind === "gigantamax") return "border-violet-300/35 bg-violet-400/15 text-violet-100";
+  if (kind === "mega") return "border-fuchsia-300/35 bg-fuchsia-400/15 text-fuchsia-100";
+  if (kind === "form") return "border-amber-300/35 bg-amber-400/15 text-amber-100";
+  return "border-emerald-300/35 bg-emerald-400/15 text-emerald-100";
 }
 
 function CandyPanel({ entries = [], search = "", onOpen }) {
@@ -923,26 +984,30 @@ function CandyPanel({ entries = [], search = "", onOpen }) {
         couleurs principales et toutes les fiches Pokémon/formes reliées à cette famille.
       </p>
       <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-        {filteredGroups.map((group) => (
+        {filteredGroups.map((group) => {
+          const primary = colorToCss(group.primaryColor);
+          const secondary = colorToCss(group.secondaryColor);
+          return (
           <article
-            className="min-w-0 overflow-hidden rounded-3xl border border-white/10 bg-slate-950/45 shadow-[0_22px_70px_rgba(0,0,0,.22)]"
+            className="min-w-0 overflow-hidden rounded-3xl border border-white/10 bg-slate-950/55 shadow-[0_22px_70px_rgba(0,0,0,.22)]"
             key={group.familyId}
           >
             <div
-              className="grid gap-4 p-4 sm:grid-cols-[5rem_minmax(0,1fr)]"
+              className="relative grid gap-4 overflow-hidden p-4 sm:grid-cols-[5rem_minmax(0,1fr)]"
               style={{
-                background: `linear-gradient(135deg, ${colorToCss(group.primaryColor)}, ${colorToCss(group.secondaryColor)}), rgba(15,23,42,.9)`,
+                background: `linear-gradient(135deg, color-mix(in srgb, ${primary} 84%, #ffffff 6%), color-mix(in srgb, ${secondary} 72%, #020617 18%)), radial-gradient(circle at 88% 0%, rgba(255,255,255,.42), transparent 32%)`,
               }}
             >
-              <span className="grid h-20 w-20 place-items-center rounded-3xl border border-white/25 bg-white/80 p-3 shadow-2xl">
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.12)_1px,transparent_1px)] opacity-25 [background-size:24px_24px]" />
+              <span className="relative grid h-20 w-20 place-items-center rounded-3xl border border-white/40 bg-white/88 p-3 shadow-2xl">
                 {group.image ? (
                   <img className="max-h-full object-contain drop-shadow-xl" src={group.image} alt="" />
                 ) : (
                   <CircleDot size={30} className="text-slate-500" />
                 )}
               </span>
-              <div className="min-w-0 text-slate-950">
-                <p className="text-xs font-black uppercase tracking-[0.18em] opacity-70">FamilyId</p>
+              <div className="relative min-w-0 text-white drop-shadow-[0_2px_12px_rgba(0,0,0,.38)]">
+                <p className="text-xs font-black uppercase tracking-[0.18em] opacity-80">FamilyId</p>
                 <strong className="mt-1 block text-3xl font-black">{group.familyId}</strong>
                 <p className="mt-2 text-sm font-black">
                   {formatCount(group.pokemon.length)} fiche(s) associée(s)
@@ -961,7 +1026,12 @@ function CandyPanel({ entries = [], search = "", onOpen }) {
                     </span>
                     <span className="mt-2 flex items-center gap-2">
                       <i className="h-6 w-6 rounded-full border border-white/30" style={{ background: colorToCss(color) }} />
-                      <strong className="min-w-0 break-all text-xs text-slate-100">{colorToLabel(color)}</strong>
+                      <span className="min-w-0">
+                        <strong className="block break-all text-xs text-slate-100">{colorToLabel(color)}</strong>
+                        {colorToHex(color) ? (
+                          <small className="mt-1 block font-mono text-[11px] font-black text-cyan-100/75">{colorToHex(color)}</small>
+                        ) : null}
+                      </span>
                     </span>
                   </div>
                 ))}
@@ -971,26 +1041,33 @@ function CandyPanel({ entries = [], search = "", onOpen }) {
                   Pokémon associés
                 </span>
                 <div className="flex max-h-52 flex-wrap gap-2 overflow-auto pr-1">
-                  {group.pokemon.map((entry) => (
+                  {group.pokemon.map((entry) => {
+                    const image = preferredPokemonImage(entry);
+                    return (
                     <button
-                      className="inline-flex min-w-0 items-center gap-2 rounded-full border border-white/10 bg-white/[0.07] px-2.5 py-1.5 text-xs font-black text-slate-200 transition hover:border-cyan-200/45 hover:bg-cyan-400/15"
+                      className={`inline-flex min-w-0 items-center gap-2 rounded-full border px-2.5 py-1.5 text-xs font-black transition hover:border-cyan-200/45 hover:bg-cyan-400/15 ${variantTone(entry)}`}
                       key={entry.key}
                       type="button"
                       onClick={() => onOpen(entry)}
                     >
-                      {entry.homeImage || entry.image ? (
-                        <img className="h-5 w-5 object-contain" src={entry.homeImage || entry.image} alt="" />
+                      {image ? (
+                        <img className="h-6 w-6 object-contain" src={image} alt="" />
                       ) : null}
                       <span className="max-w-[11rem] truncate">
                         {entry.dexId} · {entry.name}
                       </span>
+                      <small className="rounded-full bg-slate-950/30 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em]">
+                        {pokemonVariantLabel(entry)}
+                      </small>
                     </button>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
           </article>
-        ))}
+          );
+        })}
       </div>
       {!filteredGroups.length ? (
         <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
@@ -1007,7 +1084,7 @@ function MiniCardList({ entries, onOpen }) {
       {entries.length ? (
         entries.map((entry) => {
           const issues = entry.issues?.length || 0;
-          const image = entry.homeImage || entry.image || entry.shinyImage;
+          const image = preferredPokemonImage(entry) || entry.shinyImage;
           return (
             <button
               className="group grid grid-cols-[3.25rem_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/35 p-3 text-left transition hover:border-cyan-200/40 hover:bg-cyan-400/10"
@@ -1025,7 +1102,7 @@ function MiniCardList({ entries, onOpen }) {
               <span className="min-w-0">
                 <strong className="block truncate font-black text-white">{entry.name}</strong>
                 <small className="mt-1 block truncate text-xs font-bold text-slate-400">
-                  {entry.dexId} · {entry.form || entry.kind}
+                  {entry.dexId} · {pokemonVariantLabel(entry)}
                 </small>
               </span>
               <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1 text-xs font-black text-amber-100">
@@ -1207,7 +1284,7 @@ function RulesPanel({
       <div className="mb-5 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-50">
         La sauvegarde d’une règle est instantanée et relance le contrôle sur le snapshot déjà chargé. Utilise “Sync GitHub” seulement quand tu veux reprendre les JSON distants avant de recalculer toutes les cartes data: Pokémon, formes, attaques, types, météo, générations et stickers.
       </div>
-      <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(300px,420px)]">
+      <div className="grid min-w-0 gap-5">
         <section className="min-w-0 space-y-4 overflow-hidden">
           {message ? (
             <p className="rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-3 text-sm font-bold text-cyan-100">
@@ -1409,7 +1486,7 @@ function RulesPanel({
           ) : null}
         </section>
 
-        <section className="min-w-0">
+        <section className="min-w-0 rounded-2xl border border-white/10 bg-slate-950/25 p-4">
           <h3 className="text-lg font-black text-white">Règles enregistrées</h3>
           <div className="mt-4 space-y-3">
             {rules.length ? (
@@ -1665,7 +1742,10 @@ export function AdminApp() {
 
   useEffect(() => {
     refreshSession().then((authenticated) => {
-      if (authenticated) loadAdminData();
+      if (authenticated) {
+        loadAdminData();
+        loadSources({ automatic: true });
+      }
     });
   }, []);
 
@@ -1727,6 +1807,7 @@ export function AdminApp() {
   const overviewWidgets = [
     {
       id: "completion",
+      label: "Complétion",
       node: (
         <Panel title="Complétion JSON par génération">
           <CompletionList items={summary.generations || []} />
@@ -1735,6 +1816,7 @@ export function AdminApp() {
     },
     {
       id: "diagnostic",
+      label: "Diagnostic",
       node: (
         <Panel title="Diagnostic des contrôles" eyebrow="issues par famille">
           <BarList items={summary.categories || []} />
@@ -1743,6 +1825,7 @@ export function AdminApp() {
     },
     {
       id: "history",
+      label: "Historique Git",
       node: (
         <Panel title="Historique Git" action={<History className="text-cyan-200" size={22} />}>
           <HistoryList history={history} />
@@ -1751,6 +1834,7 @@ export function AdminApp() {
     },
     {
       id: "watch",
+      label: "Fiches à surveiller",
       node: (
         <Panel title="Fiches à surveiller" eyebrow="premières anomalies">
           <MiniCardList entries={issueEntries.slice(0, 8)} onOpen={openDetail} />
@@ -1804,18 +1888,25 @@ export function AdminApp() {
     localStorage.setItem(assetChecksKey, JSON.stringify(next));
   }
 
-  async function loadSources() {
-    const toastId = toast.loading("Vérification des sources Pokémon GO...");
+  async function loadSources({ automatic = false } = {}) {
+    const toastId = automatic ? null : toast.loading("Vérification des sources Pokémon GO...");
     setSourceWatch({ loading: true, sources: [] });
     try {
       const response = await fetch(`${adminApiPath}?action=source-watch`);
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Veille indisponible.");
       setSourceWatch(payload.data);
-      toast.success(`${payload.data?.sources?.length || 0} source(s) vérifiée(s).`, { id: toastId });
+      const watchState = persistSourceSignatures(payload.data);
+      if (watchState?.changed?.length) {
+        toast.info(`${watchState.changed.length} source(s) Pokémon GO ont changé depuis le dernier passage.`);
+      }
+      if (watchState?.blocked?.length && !automatic) {
+        toast.warning(`${watchState.blocked.length} source(s) bloquent le contrôle serveur, mais restent surveillées.`);
+      }
+      if (!automatic) toast.success(`${payload.data?.sources?.length || 0} source(s) vérifiée(s).`, { id: toastId });
     } catch (error) {
       setSourceWatch({ error: error.message });
-      toast.error(error.message || "Veille indisponible.", { id: toastId });
+      if (!automatic) toast.error(error.message || "Veille indisponible.", { id: toastId });
     }
   }
 
@@ -2034,7 +2125,7 @@ export function AdminApp() {
                 </section>
 
                 <SortableWidgetGrid
-                  className="xl:grid-cols-2"
+                  columnsClassName="columns-1 xl:columns-2"
                   items={overviewWidgets}
                   storageKey="matweb.pokemonAdmin.widgetOrder"
                 />
@@ -2073,10 +2164,10 @@ export function AdminApp() {
                     <AssetStatCard label="GO" value={assetAudit?.totals?.goFiles || 0} icon={uiAssets.icons.goLogo} tone="cyan" detail="Fichiers image GO" />
                     <AssetStatCard label="Shuffle" value={assetAudit?.totals?.shuffleFiles || 0} icon={uiAssets.icons.pikachuShuffle} tone="violet" detail="Bibliothèque Shuffle" />
                     <AssetStatCard label="Utilisés" value={assetAudit?.totals?.used || 0} icon={uiAssets.icons.bookSpells} tone="green" detail="Référencés par les fiches" />
-                    <AssetStatCard label="Doublons" value={assetAudit?.totals?.duplicated || 0} icon={uiAssets.icons.problem} tone="amber" detail="À dédupliquer" />
+                    <AssetStatCard label="Réutilisations" value={assetAudit?.totals?.duplicated || 0} icon={uiAssets.icons.problem} tone="amber" detail="Même URL liée plusieurs fois" />
                   </div>
                   <p className="mb-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4 text-sm font-bold leading-6 text-slate-300">
-                    Cette page sert à contrôler les images réellement liées aux fiches et les propositions HD. La recherche globale filtre aussi cette liste.
+                    Cette page sert à contrôler les images réellement liées aux fiches et les propositions HD. “Réutilisations” signifie qu’une même URL d’asset est référencée par plusieurs fiches, ce n’est pas forcément une erreur.
                   </p>
                   <div className="mb-4 flex flex-wrap gap-2">
                     {[
@@ -2139,7 +2230,7 @@ export function AdminApp() {
                 title="Veille sources"
                 eyebrow="PokeMiners, Game Master, Shuffle"
                 action={
-                  <button className={primaryButtonClass} type="button" onClick={loadSources}>
+                  <button className={primaryButtonClass} type="button" onClick={() => loadSources()}>
                     <Radar size={17} /> Vérifier maintenant
                   </button>
                 }
@@ -2311,6 +2402,8 @@ export function AdminApp() {
         mode="admin"
         typeCatalog={catalog?.types}
         weatherCatalog={catalog?.weather}
+        assetChecked={Boolean(selected && assetChecks[selected.key])}
+        onAssetChecked={setAssetChecked}
         extraPanel={extraPanel}
         onPrevious={() => shiftDetail(-1)}
         onNext={() => shiftDetail(1)}

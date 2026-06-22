@@ -2,7 +2,8 @@ const fs = require("fs");
 const { dataPath } = require("../../../src/lib/data-repository");
 
 const sourcesFile = dataPath("source-watch", "sources.json");
-const userAgent = "PokemonGo-API-checklist-source-watch";
+const userAgent =
+  "Mozilla/5.0 (compatible; MatWebPokemonGoSourceWatch/1.0; +https://pokemon-go-api.vercel.app)";
 const timeoutMs = 12000;
 
 function readSources() {
@@ -48,12 +49,18 @@ async function githubStatus(source) {
 }
 
 async function websiteStatus(source) {
-  const response = await fetch(source.url, {
-    method: "GET",
+  const request = (method) => fetch(source.url, {
+    method,
     cache: "no-store",
     signal: AbortSignal.timeout(timeoutMs),
-    headers: { "user-agent": userAgent },
+    headers: {
+      accept: "text/html,application/json;q=0.9,*/*;q=0.8",
+      "accept-language": "fr-FR,fr;q=0.9,en;q=0.8",
+      "user-agent": userAgent,
+    },
   });
+  let response = await request(source.method || "HEAD");
+  if (!response.ok && response.status === 405 && !source.method) response = await request("GET");
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   const modified = response.headers.get("last-modified");
   const etag = response.headers.get("etag");
@@ -70,7 +77,7 @@ async function websiteStatus(source) {
 
 function transientSourceError(error) {
   const message = error instanceof Error ? error.message : String(error || "");
-  return /HTTP 5\d\d|timeout|aborted|fetch failed/i.test(message);
+  return /HTTP (403|429|5\d\d)|timeout|aborted|fetch failed/i.test(message);
 }
 
 async function inspectSource(source) {

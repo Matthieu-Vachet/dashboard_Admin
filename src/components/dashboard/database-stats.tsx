@@ -201,7 +201,7 @@ export function DatabaseStats() {
       </section>
 
       <SortableWidgetGrid
-        className="xl:grid-cols-2"
+        columnsClassName="columns-1 xl:columns-2"
         items={databaseWidgets}
         storageKey="matweb.mongo.widgetOrder"
       />

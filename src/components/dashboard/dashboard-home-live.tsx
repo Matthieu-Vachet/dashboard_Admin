@@ -1,21 +1,5 @@
 "use client";
 
-import {
-  closestCenter,
-  DndContext,
-  type DragEndEvent,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  rectSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -27,7 +11,6 @@ import {
   Database,
   FileText,
   FolderKanban,
-  GripVertical,
   Link2,
   NotebookPen,
   Palette,
@@ -36,11 +19,12 @@ import {
   Wrench,
   type LucideIcon,
 } from "lucide-react";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PokemonApiStatus } from "@/components/dashboard/pokemon-api-status";
+import { SortableWidgetGrid, type SortableWidgetItem } from "@/components/dashboard/sortable-widget-grid";
 import {
   initialBoard,
   initialContacts,
@@ -103,16 +87,10 @@ const defaultWidgetOrder = [
   "docs",
   "system",
 ] as const;
-const initialWidgetOrder = [...defaultWidgetOrder];
-
 type WidgetId = (typeof defaultWidgetOrder)[number];
 
 export function DashboardHomeLive() {
   const [metrics, setMetrics] = useState<PokemonMetrics | null>(null);
-  const [widgetOrder, setWidgetOrder] = usePersistentState<WidgetId[]>(
-    "matweb.home.widgetOrder",
-    initialWidgetOrder,
-  );
   const [notes, , notesReady] = usePersistentState("matweb.notes", initialNotes);
   const [todos, , todosReady] = usePersistentState("matweb.todos", initialTodos);
   const [board, , boardReady] = usePersistentState("matweb.kanban", initialBoard);
@@ -124,10 +102,6 @@ export function DashboardHomeLive() {
   const [contacts] = usePersistentState("matweb.tools.contacts", initialContacts);
   const [journal] = usePersistentState("matweb.tools.journal", initialJournal);
   const [focusMinutes] = usePersistentState("matweb.tools.focusMinutes", initialFocusMinutes);
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 120, tolerance: 8 } }),
-  );
 
   useEffect(() => {
     let active = true;
@@ -166,11 +140,6 @@ export function DashboardHomeLive() {
   const ready = notesReady && todosReady && boardReady && projectsReady && eventsReady;
   const displayMetrics = metrics ?? fallbackMetrics;
   const pokemonQuality = displayMetrics.quality;
-  const orderedWidgets = useMemo(() => {
-    const valid = widgetOrder.filter((id): id is WidgetId => defaultWidgetOrder.includes(id));
-    const missing = defaultWidgetOrder.filter((id) => !valid.includes(id));
-    return [...valid, ...missing];
-  }, [widgetOrder]);
 
   const realStats = [
     {
@@ -216,28 +185,6 @@ export function DashboardHomeLive() {
       accent: "green",
     },
   ] as const;
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    setWidgetOrder((current) => {
-      const valid = current.filter((id): id is WidgetId => defaultWidgetOrder.includes(id));
-      const oldIndex = valid.indexOf(active.id as WidgetId);
-      const newIndex = valid.indexOf(over.id as WidgetId);
-      if (oldIndex < 0 || newIndex < 0) return current;
-      return arrayMove(valid, oldIndex, newIndex);
-    });
-  }
-
-  function moveWidget(id: WidgetId, direction: -1 | 1) {
-    setWidgetOrder((current) => {
-      const valid = current.filter((item): item is WidgetId => defaultWidgetOrder.includes(item));
-      const index = valid.indexOf(id);
-      const nextIndex = index + direction;
-      if (index < 0 || nextIndex < 0 || nextIndex >= valid.length) return current;
-      return arrayMove(valid, index, nextIndex);
-    });
-  }
 
   const widgets: Record<WidgetId, ReactNode> = {
     today: (
@@ -331,6 +278,25 @@ export function DashboardHomeLive() {
       </WidgetContent>
     ),
   };
+  const widgetLabels: Record<WidgetId, string> = {
+    today: "Maintenant",
+    pokemon: "Pokémon API",
+    kanban: "Kanban",
+    calendar: "Calendrier",
+    projects: "Projets",
+    tools: "Outils",
+    docs: "Docs & API",
+    system: "Création",
+  };
+  const sortableWidgets: SortableWidgetItem[] = defaultWidgetOrder.map((id) => ({
+    id,
+    label: widgetLabels[id],
+    node: (
+      <Card className="group flex h-auto flex-col overflow-hidden">
+        <div className="p-4">{widgets[id]}</div>
+      </Card>
+    ),
+  }));
 
   return (
     <div className="space-y-5">
@@ -383,73 +349,12 @@ export function DashboardHomeLive() {
         ))}
       </section>
 
-      <DndContext id="home-dashboard-widgets" sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={orderedWidgets} strategy={rectSortingStrategy}>
-          <section className="columns-1 gap-4 lg:columns-2 2xl:columns-4">
-            {orderedWidgets.map((id, index) => (
-              <SortableWidget key={id} id={id} index={index} onMove={moveWidget}>
-                {widgets[id]}
-              </SortableWidget>
-            ))}
-          </section>
-        </SortableContext>
-      </DndContext>
+      <SortableWidgetGrid
+        columnsClassName="columns-1 lg:columns-2 2xl:columns-4"
+        items={sortableWidgets}
+        storageKey="matweb.home.widgetOrder"
+      />
     </div>
-  );
-}
-
-function SortableWidget({
-  id,
-  index,
-  children,
-  onMove,
-}: {
-  id: WidgetId;
-  index: number;
-  children: ReactNode;
-  onMove: (id: WidgetId, direction: -1 | 1) => void;
-}) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
-
-  return (
-    <motion.div
-      ref={setNodeRef}
-      style={{ transform: CSS.Transform.toString(transform), transition }}
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.42, delay: index * 0.035 }}
-      className={cn("mb-4 break-inside-avoid min-w-0", isDragging && "relative z-20 opacity-80")}
-    >
-      <Card className="group flex h-auto flex-col overflow-hidden">
-        <div className="p-4">{children}</div>
-        <div className="flex flex-wrap items-center gap-2 border-t border-line bg-white/[0.03] px-4 py-2">
-          <button
-            type="button"
-            className="inline-flex min-h-9 touch-none items-center gap-2 rounded-lg border border-line bg-white/[0.045] px-3 text-xs font-black text-muted transition hover:border-brand-2/45 hover:text-foreground"
-            aria-label="Déplacer le widget"
-            {...attributes}
-            {...listeners}
-          >
-            <GripVertical size={15} />
-            Déplacer
-          </button>
-          <button
-            type="button"
-            className="inline-flex min-h-9 items-center rounded-lg border border-line bg-white/[0.045] px-3 text-xs font-black text-muted transition hover:border-brand-2/45 hover:text-foreground"
-            onClick={() => onMove(id, -1)}
-          >
-            Monter
-          </button>
-          <button
-            type="button"
-            className="inline-flex min-h-9 items-center rounded-lg border border-line bg-white/[0.045] px-3 text-xs font-black text-muted transition hover:border-brand-2/45 hover:text-foreground"
-            onClick={() => onMove(id, 1)}
-          >
-            Descendre
-          </button>
-        </div>
-      </Card>
-    </motion.div>
   );
 }
 

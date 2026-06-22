@@ -232,7 +232,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (action === "history") {
-      return json({ data: workshop.repoHistory() });
+      return json({ data: await workshop.repoHistory() });
     }
 
     if (action === "url-audit") {

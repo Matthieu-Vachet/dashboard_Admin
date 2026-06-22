@@ -4,7 +4,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { typeBackground, typeColors, typeIcon, typeName } from "../site/pokemon-style";
+import { preferredPokemonImage, typeBackground, typeColors, typeIcon, typeName } from "../site/pokemon-style";
 import { uiAssets } from "../site/ui-assets";
 
 const tabLabels = {
@@ -527,10 +527,19 @@ function JsonBlock({ payload }) {
   );
 }
 
-function AdminActions({ entry, onCopyPatch, onAuditUrls, onAssetAudit, extraPanel }) {
+function AdminActions({ entry, assetChecked, onAssetChecked, onCopyPatch, onAuditUrls, onAssetAudit, extraPanel }) {
   return (
     <Section title="Outils admin" eyebrow="privé" icon={uiAssets.icons.radar}>
       <div className="flex flex-wrap gap-3">
+        <label className="inline-flex min-h-12 items-center gap-3 rounded-2xl border border-emerald-300/25 bg-emerald-400/10 px-4 py-3 text-sm font-black text-emerald-50 transition hover:border-emerald-200/50 hover:bg-emerald-400/18">
+          <input
+            className="h-5 w-5 accent-emerald-400"
+            type="checkbox"
+            checked={Boolean(assetChecked)}
+            onChange={(event) => onAssetChecked?.(entry.key, event.target.checked)}
+          />
+          Assets OK
+        </label>
         <button
           className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-black text-white transition hover:border-cyan-200/50 hover:bg-cyan-400/15"
           type="button"
@@ -571,6 +580,8 @@ export function DetailModal({
   onCopyPatch,
   onAuditUrls,
   onAssetAudit,
+  assetChecked = false,
+  onAssetChecked,
   extraPanel,
   onPrevious,
   onNext,
@@ -623,6 +634,19 @@ export function DetailModal({
     .filter(Boolean);
   const mainType = String(entry.primaryType || payload.primaryType || "NORMAL").toUpperCase();
   const mainTypeColor = typeColors[mainType] || "#38bdf8";
+  const displayImage = preferredPokemonImage({
+    ...entry,
+    assets: payload.assets || entry.assets,
+    image: payload.assets?.portrait || payload.assets?.image || entry.image,
+    homeImage:
+      payload.assets?.home?.image ||
+      payload.assets?.home?.shinyImage ||
+      entry.homeImage,
+    shuffleImage:
+      payload.assets?.shuffle?.variants?.find((asset) => !asset?.shiny && asset?.image)?.image ||
+      payload.assets?.shuffle?.variants?.find((asset) => asset?.image)?.image ||
+      entry.shuffleImage,
+  });
   const candyIcon =
     payload.assets?.candy?.image ||
     payload.sourceData?.assets?.candy?.image ||
@@ -655,8 +679,8 @@ export function DetailModal({
           <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.08)_1px,transparent_1px)] [background-size:34px_34px]" />
           <div className="relative flex items-center gap-4 pr-14">
             <div className="grid h-28 w-28 shrink-0 place-items-center rounded-full border-4 border-white/80 bg-white shadow-[0_18px_60px_rgba(0,0,0,.32)] sm:h-36 sm:w-36">
-              {entry.image ? (
-                <img className="max-h-[6.9rem] object-contain drop-shadow-[0_16px_34px_rgba(0,0,0,.28)] sm:max-h-[8.6rem]" src={entry.image} alt={entry.name} />
+              {displayImage ? (
+                <img className="max-h-[8.2rem] object-contain drop-shadow-[0_16px_34px_rgba(0,0,0,.28)] sm:max-h-[10.2rem]" src={displayImage} alt={entry.name} />
               ) : (
                 <span className="h-10 w-10 rounded-full border-[10px] border-slate-900/20" />
               )}
@@ -732,6 +756,8 @@ export function DetailModal({
                 {mode === "admin" ? (
                   <AdminActions
                     entry={entry}
+                    assetChecked={assetChecked}
+                    onAssetChecked={onAssetChecked}
                     onCopyPatch={onCopyPatch}
                     onAuditUrls={onAuditUrls}
                     onAssetAudit={onAssetAudit}

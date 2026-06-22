@@ -17,7 +17,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { motion } from "framer-motion";
-import { ChevronDown, ChevronUp, GripVertical } from "lucide-react";
+import { Eye, EyeOff, GripVertical, RotateCcw, SlidersHorizontal } from "lucide-react";
 import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { cn } from "@/lib/cn";
@@ -25,6 +25,7 @@ import { usePersistentState } from "@/lib/use-persistent-state";
 
 export type SortableWidgetItem = {
   id: string;
+  label?: string;
   node: ReactNode;
   className?: string;
 };
@@ -34,14 +35,19 @@ export function SortableWidgetGrid({
   items,
   className,
   itemClassName,
+  columnsClassName = "columns-1 lg:columns-2 2xl:columns-3",
+  enableHide = true,
 }: {
   storageKey: string;
   items: SortableWidgetItem[];
   className?: string;
   itemClassName?: string;
+  columnsClassName?: string;
+  enableHide?: boolean;
 }) {
-  const defaultOrder = items.map((item) => item.id);
+  const defaultOrder = useMemo(() => items.map((item) => item.id), [items]);
   const [widgetOrder, setWidgetOrder] = usePersistentState<string[]>(storageKey, defaultOrder);
+  const [hiddenWidgets, setHiddenWidgets] = usePersistentState<string[]>(`${storageKey}.hidden`, []);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 120, tolerance: 8 } }),
@@ -51,70 +57,123 @@ export function SortableWidgetGrid({
     const byId = new Map(items.map((item) => [item.id, item]));
     const validIds = widgetOrder.filter((id) => byId.has(id));
     const missingIds = defaultOrder.filter((id) => !validIds.includes(id));
-    return [...validIds, ...missingIds].map((id) => byId.get(id)).filter(Boolean) as SortableWidgetItem[];
-  }, [defaultOrder, items, widgetOrder]);
+    const hidden = new Set(hiddenWidgets.filter((id) => byId.has(id)));
+    return [...validIds, ...missingIds]
+      .filter((id) => !hidden.has(id))
+      .map((id) => byId.get(id))
+      .filter(Boolean) as SortableWidgetItem[];
+  }, [defaultOrder, hiddenWidgets, items, widgetOrder]);
+
+  const hiddenItems = useMemo(() => {
+    const byId = new Map(items.map((item) => [item.id, item]));
+    return hiddenWidgets
+      .map((id) => byId.get(id))
+      .filter(Boolean) as SortableWidgetItem[];
+  }, [hiddenWidgets, items]);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
     setWidgetOrder((current) => {
-      const valid = current.filter((id) => defaultOrder.includes(id));
-      const oldIndex = valid.indexOf(String(active.id));
-      const newIndex = valid.indexOf(String(over.id));
+      const visibleIds = orderedItems.map((item) => item.id);
+      const valid = current.filter((id) => visibleIds.includes(id));
+      const missing = visibleIds.filter((id) => !valid.includes(id));
+      const nextVisible = [...valid, ...missing];
+      const oldIndex = nextVisible.indexOf(String(active.id));
+      const newIndex = nextVisible.indexOf(String(over.id));
       if (oldIndex < 0 || newIndex < 0) return current;
-      return arrayMove(valid, oldIndex, newIndex);
+      const movedVisible = arrayMove(nextVisible, oldIndex, newIndex);
+      return [...movedVisible, ...defaultOrder.filter((id) => !movedVisible.includes(id))];
     });
   }
 
-  function moveWidget(id: string, direction: -1 | 1) {
-    setWidgetOrder((current) => {
-      const valid = current.filter((item) => defaultOrder.includes(item));
-      const index = valid.indexOf(id);
-      const nextIndex = index + direction;
-      if (index < 0 || nextIndex < 0 || nextIndex >= valid.length) return current;
-      return arrayMove(valid, index, nextIndex);
-    });
+  function hideWidget(id: string) {
+    setHiddenWidgets((current) => (current.includes(id) ? current : [...current, id]));
+  }
+
+  function showWidget(id: string) {
+    setHiddenWidgets((current) => current.filter((item) => item !== id));
+  }
+
+  function resetWidgets() {
+    setWidgetOrder(defaultOrder);
+    setHiddenWidgets([]);
   }
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <SortableContext items={orderedItems.map((item) => item.id)} strategy={rectSortingStrategy}>
-        <section className={cn("grid min-w-0 gap-5", className)}>
-          {orderedItems.map((item, index) => (
-            <SortableWidgetFrame
-              className={cn(itemClassName, item.className)}
-              id={item.id}
-              index={index}
-              isFirst={index === 0}
-              isLast={index === orderedItems.length - 1}
-              key={item.id}
-              onMove={moveWidget}
+    <div className="space-y-3">
+      {enableHide ? (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/10 bg-slate-950/35 px-3 py-2 text-xs font-black text-slate-300">
+          <span className="inline-flex items-center gap-2 text-cyan-100">
+            <SlidersHorizontal size={15} />
+            Widgets
+          </span>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {hiddenItems.length ? (
+              hiddenItems.map((item) => (
+                <button
+                  className="inline-flex min-h-8 items-center gap-2 rounded-xl border border-emerald-300/25 bg-emerald-400/10 px-3 text-emerald-100 transition hover:bg-emerald-400/18"
+                  key={item.id}
+                  type="button"
+                  onClick={() => showWidget(item.id)}
+                >
+                  <Eye size={14} />
+                  {item.label || item.id}
+                </button>
+              ))
+            ) : (
+              <span className="rounded-xl border border-white/10 bg-white/[0.045] px-3 py-2 text-slate-500">
+                Aucun widget masqué
+              </span>
+            )}
+            <button
+              className="inline-flex min-h-8 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.055] px-3 text-slate-200 transition hover:border-cyan-200/40 hover:bg-cyan-400/12"
+              type="button"
+              onClick={resetWidgets}
             >
-              {item.node}
-            </SortableWidgetFrame>
-          ))}
-        </section>
-      </SortableContext>
-    </DndContext>
+              <RotateCcw size={14} />
+              Réinitialiser
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={orderedItems.map((item) => item.id)} strategy={rectSortingStrategy}>
+          <section className={cn("min-w-0 gap-4", columnsClassName, className)}>
+            {orderedItems.map((item, index) => (
+              <SortableWidgetFrame
+                className={cn(itemClassName, item.className)}
+                id={item.id}
+                index={index}
+                key={item.id}
+                label={item.label || item.id}
+                onHide={enableHide ? hideWidget : undefined}
+              >
+                {item.node}
+              </SortableWidgetFrame>
+            ))}
+          </section>
+        </SortableContext>
+      </DndContext>
+    </div>
   );
 }
 
 function SortableWidgetFrame({
   id,
   index,
-  isFirst,
-  isLast,
+  label,
   children,
   className,
-  onMove,
+  onHide,
 }: {
   id: string;
   index: number;
-  isFirst: boolean;
-  isLast: boolean;
+  label: string;
   children: ReactNode;
   className?: string;
-  onMove: (id: string, direction: -1 | 1) => void;
+  onHide?: (id: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = {
@@ -126,7 +185,7 @@ function SortableWidgetFrame({
   return (
     <motion.div
       animate={{ opacity: 1, y: 0 }}
-      className={cn("min-w-0", className)}
+      className={cn("mb-4 min-w-0 break-inside-avoid", className)}
       initial={{ opacity: 0, y: 12 }}
       ref={setNodeRef}
       style={style}
@@ -139,35 +198,26 @@ function SortableWidgetFrame({
         )}
       >
         {children}
-        <div className="mt-2 flex flex-wrap items-center justify-end gap-2 rounded-2xl border border-white/10 bg-slate-950/45 px-2 py-2 opacity-80 backdrop-blur transition group-hover:opacity-100">
+        <div className="absolute right-3 top-3 z-20 flex items-center gap-1 rounded-2xl border border-white/10 bg-slate-950/70 p-1 opacity-100 shadow-2xl backdrop-blur transition md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
           <button
-            aria-label="Déplacer ce widget"
-            className="inline-flex min-h-9 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.07] px-3 text-xs font-black text-slate-200"
+            aria-label={`Déplacer le widget ${label}`}
+            className="grid h-9 w-9 touch-none place-items-center rounded-xl border border-white/10 bg-white/[0.07] text-slate-100 transition hover:border-cyan-200/40 hover:bg-cyan-400/15"
             type="button"
             {...attributes}
             {...listeners}
           >
             <GripVertical size={14} />
-            Déplacer
           </button>
-          <button
-            aria-label="Monter ce widget"
-            className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.07] text-slate-200 disabled:opacity-35"
-            disabled={isFirst}
-            type="button"
-            onClick={() => onMove(id, -1)}
-          >
-            <ChevronUp size={15} />
-          </button>
-          <button
-            aria-label="Descendre ce widget"
-            className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.07] text-slate-200 disabled:opacity-35"
-            disabled={isLast}
-            type="button"
-            onClick={() => onMove(id, 1)}
-          >
-            <ChevronDown size={15} />
-          </button>
+          {onHide ? (
+            <button
+              aria-label={`Masquer le widget ${label}`}
+              className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.07] text-slate-100 transition hover:border-amber-200/40 hover:bg-amber-400/15"
+              type="button"
+              onClick={() => onHide(id)}
+            >
+              <EyeOff size={14} />
+            </button>
+          ) : null}
         </div>
       </div>
     </motion.div>
