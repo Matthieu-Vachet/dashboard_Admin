@@ -10,6 +10,7 @@ import {
   BookOpen,
   Boxes,
   ChevronDown,
+  CircleDot,
   ClipboardCheck,
   Cloud,
   Copy,
@@ -34,6 +35,7 @@ import {
 import { toast } from "sonner";
 import { DetailModal } from "../checklist/detail-modal";
 import { PokemonCard } from "../checklist/pokemon-card";
+import { SortableWidgetGrid } from "../dashboard/sortable-widget-grid";
 import { MetricCard } from "../site/metric-card";
 import { typeBackground, typeColors, typeIcon, typeName } from "../site/pokemon-style";
 import { uiAssets } from "../site/ui-assets";
@@ -47,6 +49,7 @@ const adminApiPath = "/api/pokemon-admin";
 const navItems = [
   ["overview", "Accueil", LayoutDashboard],
   ["pokedex", "Fiches", BookOpen],
+  ["candies", "Candies", CircleDot],
   ["assets", "Assets", Boxes],
   ["checks", "Contrôles", AlertTriangle],
   ["sources", "Veille", Radar],
@@ -230,6 +233,133 @@ const rulePresets = [
   "weatherBoost": [""]
 }`,
   },
+  {
+    key: "type-damage-multiplier",
+    name: "Types: multiplicateurs",
+    description: "Chaque type individuel doit porter les 18 damageMultiplier.",
+    appliesTo: ["type"],
+    formFilters: [
+      "bug",
+      "dark",
+      "dragon",
+      "electric",
+      "fairy",
+      "fighting",
+      "fire",
+      "flying",
+      "ghost",
+      "grass",
+      "ground",
+      "ice",
+      "normal",
+      "poison",
+      "psychic",
+      "rock",
+      "steel",
+      "water",
+    ],
+    enforceNonEmpty: false,
+    templateSource: `{
+  "damageMultiplier": {
+    "Bug": 1,
+    "Dark": 1,
+    "Dragon": 1,
+    "Electric": 1,
+    "Fairy": 1,
+    "Fighting": 1,
+    "Fire": 1,
+    "Flying": 1,
+    "Ghost": 1,
+    "Grass": 1,
+    "Ground": 1,
+    "Ice": 1,
+    "Normal": 1,
+    "Poison": 1,
+    "Psychic": 1,
+    "Rock": 1,
+    "Steel": 1,
+    "Water": 1
+  }
+}`,
+  },
+  {
+    key: "type-assets",
+    name: "Types: icônes et fonds",
+    description: "Chaque type doit avoir ses URLs icon/background.",
+    appliesTo: ["type"],
+    enforceNonEmpty: true,
+    templateSource: `{
+  "assets": {
+    "icon": "",
+    "background": ""
+  },
+  "weatherBoost": ""
+}`,
+  },
+  {
+    key: "weather-catalog",
+    name: "Météo: boost + icône",
+    description: "Chaque météo doit déclarer son icône et les types boostés.",
+    appliesTo: ["weather"],
+    enforceNonEmpty: true,
+    templateSource: `{
+  "assets": {
+    "icon": ""
+  },
+  "boostedTypes": [""]
+}`,
+  },
+  {
+    key: "move-combat",
+    name: "Attaques: combat complet",
+    description: "Toutes les attaques doivent porter type, power, energy et bloc combat.",
+    appliesTo: ["move"],
+    formFilters: ["fast", "charged"],
+    enforceNonEmpty: false,
+    templateSource: `{
+  "type": "",
+  "power": 0,
+  "energy": 0,
+  "durationMs": 0,
+  "combat": {
+    "power": 0,
+    "energy": 0,
+    "turns": 0,
+    "buffs": null
+  }
+}`,
+  },
+  {
+    key: "move-max",
+    name: "Attaques Max/Gmax",
+    description: "Contrôle les capacités Max et G-Max sans exiger un bloc PvP.",
+    appliesTo: ["move"],
+    formFilters: ["max", "gmax"],
+    enforceNonEmpty: false,
+    templateSource: `{
+  "type": "",
+  "power": 0,
+  "energy": 0,
+  "durationMs": 0,
+  "combat": null
+}`,
+  },
+  {
+    key: "generation-catalog",
+    name: "Générations: identité",
+    description: "Chaque région/génération doit avoir id, slug, numéro et noms.",
+    appliesTo: ["generation"],
+    enforceNonEmpty: true,
+    templateSource: `{
+  "id": "",
+  "slug": "",
+  "generation": 0,
+  "names": {
+    "English": "",
+    "French": ""
+  }
+}`,
+  },
 ];
 
 const expectedTypes = [
@@ -266,6 +396,16 @@ const formFilterOptions = [
   ["normal", "Normal"],
   ["dynamax", "Dynamax"],
   ["gigantamax", "Gigamax"],
+  ["moves", "Dossier moves"],
+  ["fast", "Moves fast"],
+  ["charged", "Moves charged"],
+  ["elite", "Moves elite"],
+  ["types", "Dossier types"],
+  ["fire", "Type feu"],
+  ["water", "Type eau"],
+  ["weather", "Dossier météo"],
+  ["generations", "Dossier générations"],
+  ["stickers", "Dossier stickers"],
 ];
 
 function localJson(key, fallback) {
@@ -710,6 +850,157 @@ function CatalogPanel({ catalog = {} }) {
   );
 }
 
+function colorToCss(color) {
+  if (!color) return "rgba(148,163,184,.35)";
+  if (typeof color === "string") return color;
+  const r = Number(color.r ?? color.red ?? 0);
+  const g = Number(color.g ?? color.green ?? 0);
+  const b = Number(color.b ?? color.blue ?? 0);
+  const a = color.a ?? color.alpha ?? 1;
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
+function colorToLabel(color) {
+  if (!color) return "-";
+  if (typeof color === "string") return color;
+  const r = Number(color.r ?? color.red ?? 0);
+  const g = Number(color.g ?? color.green ?? 0);
+  const b = Number(color.b ?? color.blue ?? 0);
+  const a = color.a ?? color.alpha ?? 1;
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
+function CandyPanel({ entries = [], search = "", onOpen }) {
+  const groups = useMemo(() => {
+    const byFamily = new Map();
+    for (const entry of entries) {
+      const candy = entry.assets?.candy;
+      if (!candy?.familyId && candy?.familyId !== 0) continue;
+      const key = String(candy.familyId);
+      const current =
+        byFamily.get(key) || {
+          familyId: candy.familyId,
+          image: candy.image,
+          primaryColor: candy.primaryColor,
+          secondaryColor: candy.secondaryColor,
+          pokemon: [],
+        };
+      current.image ||= candy.image;
+      current.primaryColor ||= candy.primaryColor;
+      current.secondaryColor ||= candy.secondaryColor;
+      current.pokemon.push(entry);
+      byFamily.set(key, current);
+    }
+    return [...byFamily.values()].sort((left, right) => Number(left.familyId) - Number(right.familyId));
+  }, [entries]);
+  const needle = search.trim().toLowerCase();
+  const filteredGroups = groups.filter((group) => {
+    if (!needle) return true;
+    return [
+      group.familyId,
+      colorToLabel(group.primaryColor),
+      colorToLabel(group.secondaryColor),
+      ...group.pokemon.flatMap((entry) => [entry.name, entry.dexId, entry.form, entry.file]),
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase()
+      .includes(needle);
+  });
+
+  return (
+    <Panel
+      title="Bonbons par famille"
+      eyebrow="candy assets"
+      action={
+        <span className="rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-2 text-xs font-black text-emerald-100">
+          {formatCount(filteredGroups.length)} famille(s)
+        </span>
+      }
+    >
+      <p className="mb-5 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-50/85">
+        Chaque carte utilise la donnée ajoutée dans les JSON Pokémon: image de candy, familyId,
+        couleurs principales et toutes les fiches Pokémon/formes reliées à cette famille.
+      </p>
+      <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+        {filteredGroups.map((group) => (
+          <article
+            className="min-w-0 overflow-hidden rounded-3xl border border-white/10 bg-slate-950/45 shadow-[0_22px_70px_rgba(0,0,0,.22)]"
+            key={group.familyId}
+          >
+            <div
+              className="grid gap-4 p-4 sm:grid-cols-[5rem_minmax(0,1fr)]"
+              style={{
+                background: `linear-gradient(135deg, ${colorToCss(group.primaryColor)}, ${colorToCss(group.secondaryColor)}), rgba(15,23,42,.9)`,
+              }}
+            >
+              <span className="grid h-20 w-20 place-items-center rounded-3xl border border-white/25 bg-white/80 p-3 shadow-2xl">
+                {group.image ? (
+                  <img className="max-h-full object-contain drop-shadow-xl" src={group.image} alt="" />
+                ) : (
+                  <CircleDot size={30} className="text-slate-500" />
+                )}
+              </span>
+              <div className="min-w-0 text-slate-950">
+                <p className="text-xs font-black uppercase tracking-[0.18em] opacity-70">FamilyId</p>
+                <strong className="mt-1 block text-3xl font-black">{group.familyId}</strong>
+                <p className="mt-2 text-sm font-black">
+                  {formatCount(group.pokemon.length)} fiche(s) associée(s)
+                </p>
+              </div>
+            </div>
+            <div className="space-y-4 p-4">
+              <div className="grid gap-2 sm:grid-cols-2">
+                {[
+                  ["primaryColor", group.primaryColor],
+                  ["secondaryColor", group.secondaryColor],
+                ].map(([label, color]) => (
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.055] p-3" key={label}>
+                    <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+                      {label}
+                    </span>
+                    <span className="mt-2 flex items-center gap-2">
+                      <i className="h-6 w-6 rounded-full border border-white/30" style={{ background: colorToCss(color) }} />
+                      <strong className="min-w-0 break-all text-xs text-slate-100">{colorToLabel(color)}</strong>
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div>
+                <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+                  Pokémon associés
+                </span>
+                <div className="flex max-h-52 flex-wrap gap-2 overflow-auto pr-1">
+                  {group.pokemon.map((entry) => (
+                    <button
+                      className="inline-flex min-w-0 items-center gap-2 rounded-full border border-white/10 bg-white/[0.07] px-2.5 py-1.5 text-xs font-black text-slate-200 transition hover:border-cyan-200/45 hover:bg-cyan-400/15"
+                      key={entry.key}
+                      type="button"
+                      onClick={() => onOpen(entry)}
+                    >
+                      {entry.homeImage || entry.image ? (
+                        <img className="h-5 w-5 object-contain" src={entry.homeImage || entry.image} alt="" />
+                      ) : null}
+                      <span className="max-w-[11rem] truncate">
+                        {entry.dexId} · {entry.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+      {!filteredGroups.length ? (
+        <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+          Aucun candy ne correspond à la recherche actuelle.
+        </p>
+      ) : null}
+    </Panel>
+  );
+}
+
 function MiniCardList({ entries, onOpen }) {
   return (
     <div className="grid gap-3">
@@ -868,6 +1159,7 @@ function RulesPanel({
       name: preset.name,
       mode: "template",
       appliesTo: preset.appliesTo,
+      formFilters: preset.formFilters || [],
       enforceNonEmpty: preset.enforceNonEmpty,
       templateSource: preset.templateSource,
     });
@@ -885,6 +1177,16 @@ function RulesPanel({
     if (current.has(filter)) current.delete(filter);
     else current.add(filter);
     onFormChange({ ...form, formFilters: [...current] });
+  }
+
+  function updateFilterText(value) {
+    onFormChange({
+      ...form,
+      formFilters: value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean),
+    });
   }
 
   return (
@@ -999,19 +1301,25 @@ function RulesPanel({
           <div>
             <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
               <span className="block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-                Filtrer les formes
+                Filtrer fichiers / cibles
               </span>
               <button
                 className="w-fit text-xs font-black text-cyan-100 underline-offset-4 hover:underline"
                 type="button"
                 onClick={() => onFormChange({ ...form, formFilters: [] })}
               >
-                Toutes les formes
+                Toutes les cibles
               </button>
             </div>
             <p className="mb-2 text-xs font-bold leading-5 text-slate-500">
-              Optionnel: utile pour viser seulement les Méga, Hisui, Alola, Galar, Paldea ou un dossier précis.
+              Optionnel: vise une forme, un dossier, un fichier ou un id précis, par exemple types/fire, moves/charged, kanto ou WEATHER_BALL_FIRE.
             </p>
+            <input
+              className={`${fieldClass} mb-2`}
+              value={(form.formFilters || []).join(", ")}
+              placeholder="ex: types/fire, moves/charged, weather, kanto"
+              onChange={(event) => updateFilterText(event.target.value)}
+            />
             <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
               {formFilterOptions.map(([id, label]) => (
                 <button
@@ -1416,6 +1724,40 @@ export function AdminApp() {
     filters: { search },
     entries: filtered.slice(0, 250),
   };
+  const overviewWidgets = [
+    {
+      id: "completion",
+      node: (
+        <Panel title="Complétion JSON par génération">
+          <CompletionList items={summary.generations || []} />
+        </Panel>
+      ),
+    },
+    {
+      id: "diagnostic",
+      node: (
+        <Panel title="Diagnostic des contrôles" eyebrow="issues par famille">
+          <BarList items={summary.categories || []} />
+        </Panel>
+      ),
+    },
+    {
+      id: "history",
+      node: (
+        <Panel title="Historique Git" action={<History className="text-cyan-200" size={22} />}>
+          <HistoryList history={history} />
+        </Panel>
+      ),
+    },
+    {
+      id: "watch",
+      node: (
+        <Panel title="Fiches à surveiller" eyebrow="premières anomalies">
+          <MiniCardList entries={issueEntries.slice(0, 8)} onOpen={openDetail} />
+        </Panel>
+      ),
+    },
+  ];
 
   async function login() {
     setAuthError("");
@@ -1691,24 +2033,11 @@ export function AdminApp() {
                   </article>
                 </section>
 
-                <section className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(320px,.92fr)]">
-                  <div className="grid gap-5">
-                    <Panel title="Complétion JSON par génération">
-                      <CompletionList items={summary.generations || []} />
-                    </Panel>
-                    <Panel title="Historique Git" action={<History className="text-cyan-200" size={22} />}>
-                      <HistoryList history={history} />
-                    </Panel>
-                  </div>
-                  <div className="grid gap-5">
-                    <Panel title="Diagnostic des contrôles" eyebrow="issues par famille">
-                      <BarList items={summary.categories || []} />
-                    </Panel>
-                    <Panel title="Fiches à surveiller" eyebrow="premières anomalies">
-                      <MiniCardList entries={issueEntries.slice(0, 8)} onOpen={openDetail} />
-                    </Panel>
-                  </div>
-                </section>
+                <SortableWidgetGrid
+                  className="xl:grid-cols-2"
+                  items={overviewWidgets}
+                  storageKey="matweb.pokemonAdmin.widgetOrder"
+                />
               </>
             ) : null}
 
@@ -1731,6 +2060,10 @@ export function AdminApp() {
                   ))}
                 </section>
               </>
+            ) : null}
+
+            {active === "candies" ? (
+              <CandyPanel entries={entries} search={search} onOpen={openDetail} />
             ) : null}
 
             {active === "assets" ? (

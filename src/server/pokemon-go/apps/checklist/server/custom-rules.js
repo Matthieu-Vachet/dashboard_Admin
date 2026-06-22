@@ -389,14 +389,29 @@ function ruleTargetTokens(data, kind, context = {}) {
     kind,
     context.profile,
     file,
+    context.itemId,
+    context.itemIndex,
     path.dirname(file),
     data?.id,
     data?.formId,
     data?.baseFormId,
     data?.form,
     data?.slug,
+    data?.name,
+    data?.type,
+    data?.category,
+    data?.assetName,
+    data?.filename,
+    data?.combat?.type,
+    data?.combat?.category,
+    data?.moveType,
+    data?.weatherBoost,
+    Array.isArray(data?.boostedTypes) ? data.boostedTypes.join(" ") : "",
     data?.regionId,
     data?.region?.id,
+    data?.generation,
+    data?.names?.French,
+    data?.names?.English,
   ]
     .filter(Boolean)
     .map(normalizeToken);
@@ -419,8 +434,6 @@ function ruleTargetTokens(data, kind, context = {}) {
 function matchesFormFilters(rule, data, kind, context = {}) {
   const filters = normalizeStringList(rule.formFilters || rule.formFilter);
   if (!filters.length) return true;
-  if (!["pokemon", "form", "mega", "dynamax", "gigantamax"].includes(kind))
-    return false;
   const target = ruleTargetTokens(data, kind, context);
   return filters.some(
     (filter) =>

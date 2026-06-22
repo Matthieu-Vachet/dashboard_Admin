@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, Code2, Copy, Edit3, Plus, Search, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,15 @@ export function SnippetVault() {
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<Snippet | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!ready) return;
+    setSnippets((current) => {
+      const existingIds = new Set(current.map((snippet) => snippet.id));
+      const missing = initialSnippets.filter((snippet) => !existingIds.has(snippet.id));
+      return missing.length ? [...current, ...missing] : current;
+    });
+  }, [ready, setSnippets]);
 
   /** Filtre côté client pour retrouver un snippet par langage, tag ou contenu. */
   const filtered = useMemo(() => {

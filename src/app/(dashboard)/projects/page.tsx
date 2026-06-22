@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowUpRight, Code2, Github, ListChecks, Rocket, Save, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DashboardLoadingState } from "@/components/dashboard/loading-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,16 +26,41 @@ const statusTone = {
   Archive: "neutral",
 } as const;
 
-const difficultyTone = {
-  facile: "green",
-  moyen: "amber",
-  difficile: "violet",
-} as const;
+const guidedProjectDefaults: Project[] = jsPracticalProjects.map((project, index) => ({
+  id: `js-level6-${project.id}`,
+  name: project.title,
+  type: "JS Progress niveau 6",
+  status: "Build",
+  progress: 5,
+  repoUrl: "",
+  siteUrl: "",
+  nextStep: project.steps[0] || project.goal,
+  detail: [
+    project.goal,
+    "",
+    "Étapes:",
+    ...project.steps.map((step, stepIndex) => `${stepIndex + 1}. ${step}`),
+    "",
+    `Bonus: ${project.bonus}`,
+    "",
+    `Compétences: ${project.skills.join(", ")}.`,
+    `Difficulté: ${project.difficulty}. Projet ${index + 1}/${jsPracticalProjects.length}.`,
+  ].join("\n"),
+}));
 
 export default function ProjectsPage() {
   const [projects, setProjects, ready] = usePersistentState("matweb.projects", initialProjects);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selectedProject = projects.find((project) => project.id === selectedId) || null;
+
+  useEffect(() => {
+    if (!ready) return;
+    setProjects((current) => {
+      const existingIds = new Set(current.map((project) => project.id));
+      const missing = guidedProjectDefaults.filter((project) => !existingIds.has(project.id));
+      return missing.length ? [...current, ...missing] : current;
+    });
+  }, [ready, setProjects]);
 
   const activeProjects = useMemo(
     () => projects.filter((project) => project.status !== "Archive").length,
@@ -126,45 +151,31 @@ export default function ProjectsPage() {
             </div>
           </div>
         </Card>
-        <div className="grid gap-4 md:grid-cols-2">
-          {jsPracticalProjects.map((project) => (
-            <Card className="p-4" key={project.id}>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-2">
-                    Projet niveau 6
-                  </p>
-                  <h3 className="mt-2 text-lg font-black">{project.title}</h3>
-                </div>
-                <Badge tone={difficultyTone[project.difficulty]}>{project.difficulty}</Badge>
-              </div>
-              <p className="mt-3 text-sm font-semibold leading-6 text-muted">{project.goal}</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {project.skills.map((skill) => (
-                  <span
-                    className="rounded-full border border-line bg-white/[0.055] px-2.5 py-1 text-[11px] font-black text-muted"
-                    key={skill}
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-              <ol className="mt-4 space-y-2">
-                {project.steps.map((step, index) => (
-                  <li className="grid grid-cols-[1.6rem_minmax(0,1fr)] gap-2 text-sm font-semibold leading-6 text-muted" key={step}>
-                    <span className="grid h-6 w-6 place-items-center rounded-md border border-brand-2/25 bg-brand-2/10 text-xs font-black text-brand-2">
-                      {index + 1}
-                    </span>
-                    <span>{step}</span>
-                  </li>
-                ))}
-              </ol>
-              <p className="mt-4 rounded-lg border border-brand-3/20 bg-brand-3/10 p-3 text-sm font-bold leading-6 text-brand-3">
-                Bonus: {project.bonus}
-              </p>
-            </Card>
-          ))}
-        </div>
+        <Card className="p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <Badge tone="green">Synchronisés</Badge>
+              <h3 className="mt-3 text-2xl font-black">{guidedProjectDefaults.length} vrais projets éditables</h3>
+            </div>
+            <Badge tone={activeProjects ? "green" : "neutral"}>{activeProjects} actifs</Badge>
+          </div>
+          <p className="mt-3 text-sm font-semibold leading-6 text-muted">
+            Les projets niveau 6 sont ajoutés dans la grille ci-dessous comme des projets normaux:
+            progression, statut, description, prochaine action, liens et suppression restent modifiables.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {jsPracticalProjects.map((project) => (
+              <button
+                className="rounded-full border border-line bg-white/[0.055] px-3 py-1.5 text-xs font-black text-muted transition hover:border-brand-2/45 hover:text-white"
+                key={project.id}
+                type="button"
+                onClick={() => setSelectedId(`js-level6-${project.id}`)}
+              >
+                {project.title}
+              </button>
+            ))}
+          </div>
+        </Card>
       </section>
 
       <section>
@@ -191,7 +202,7 @@ export default function ProjectsPage() {
                   </div>
                   <Badge tone={statusTone[project.status]}>{project.status}</Badge>
                 </div>
-                <p className="mt-4 min-h-12 text-sm font-semibold leading-6 text-muted">
+                <p className="mt-4 min-h-12 overflow-hidden text-sm font-semibold leading-6 text-muted [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
                   {project.detail}
                 </p>
                 <div className="mt-5">

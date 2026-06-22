@@ -126,8 +126,8 @@ a {
 }
 
 .pokemon-interface-icon {
-  filter: brightness(0) invert(1) drop-shadow(0 0 12px rgba(34, 211, 238, 0.38));
-  opacity: 0.92;
+  filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.22));
+  opacity: 0.98;
 }
 
 .dashboard-sidebar {

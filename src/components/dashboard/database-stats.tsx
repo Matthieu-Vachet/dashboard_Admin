@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Activity, BarChart3, Database, HardDrive, KeyRound, RefreshCcw, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { SortableWidgetGrid, type SortableWidgetItem } from "@/components/dashboard/sortable-widget-grid";
 
 type DatabaseStatsPayload = {
   configured: boolean;
@@ -87,6 +88,83 @@ export function DatabaseStats() {
     () => Math.max(...stats.keys.map((item) => item.approxBytes), 1),
     [stats.keys],
   );
+  const databaseWidgets: SortableWidgetItem[] = [
+    {
+      id: "activity",
+      node: (
+        <Card className="min-w-0 overflow-hidden p-4 sm:p-5">
+          <CardHeader eyebrow="Appels API">
+            <CardTitle>Activité dashboard stockée dans Mongo</CardTitle>
+            <CardDescription>
+              Les compteurs suivent les routes dashboard par jour, sans étirer le graphe sur mobile.
+            </CardDescription>
+          </CardHeader>
+          <div className="mt-5 grid min-w-0 gap-4 2xl:grid-cols-[minmax(0,1.05fr)_minmax(0,.95fr)]">
+            <ApiTimeline items={stats.usage.perDay} />
+            <EndpointBars items={stats.usage.endpoints} />
+          </div>
+        </Card>
+      ),
+    },
+    {
+      id: "keys",
+      node: (
+        <Card className="min-w-0 overflow-hidden p-4 sm:p-5">
+          <CardHeader eyebrow="Clés stockées">
+            <CardTitle>Documents utilisés par le dashboard</CardTitle>
+            <CardDescription>Chaque ligne correspond à un module persistant, avec taille approximative côté JSON.</CardDescription>
+          </CardHeader>
+          <div className="mt-5 space-y-3">
+            {stats.keys.length ? (
+              stats.keys.map((item, index) => (
+                <motion.div
+                  className="min-w-0 rounded-lg border border-line bg-white/[0.045] p-3"
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.025 }}
+                  key={item.key}
+                >
+                  <div className="mb-2 flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                    <span className="min-w-0 break-all text-sm font-black sm:truncate">{item.key}</span>
+                    <span className="shrink-0 font-mono text-xs font-black text-muted">{formatBytes(item.approxBytes)}</span>
+                  </div>
+                  <span className="block h-2 overflow-hidden rounded-full bg-white/10">
+                    <motion.span
+                      className="block h-full rounded-full bg-gradient-to-r from-brand-2 via-brand to-brand-3"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.max(5, (item.approxBytes / maxKeySize) * 100)}%` }}
+                      transition={{ duration: 0.5, delay: index * 0.025 }}
+                    />
+                  </span>
+                </motion.div>
+              ))
+            ) : (
+              <p className="rounded-lg border border-dashed border-line p-4 text-sm font-semibold text-muted">
+                Aucun document stocké pour ce compte.
+              </p>
+            )}
+          </div>
+        </Card>
+      ),
+    },
+    {
+      id: "collection",
+      node: (
+        <Card className="min-w-0 overflow-hidden p-4 sm:p-5">
+          <CardHeader eyebrow="Collection">
+            <CardTitle>{stats.collection}</CardTitle>
+            <CardDescription>Base: {stats.database}</CardDescription>
+          </CardHeader>
+          <div className="mt-5 grid gap-3">
+            <MiniRow label="Stockage collection" value={formatBytes(stats.storageSize)} />
+            <MiniRow label="Index MongoDB" value={formatBytes(stats.indexSize)} />
+            <MiniRow label="Documents total" value={stats.totalDocuments.toLocaleString("fr-FR")} />
+            <MiniRow label="Dernière lecture" value={formatDateTime(stats.updatedAt)} />
+          </div>
+        </Card>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-5">
@@ -122,70 +200,11 @@ export function DatabaseStats() {
         <StatCard icon={HardDrive} label="Volume compte" value={formatBytes(stats.approxOwnerBytes)} tone="amber" />
       </section>
 
-      <section className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)]">
-        <Card className="p-5 xl:col-span-2">
-          <CardHeader eyebrow="Appels API">
-            <CardTitle>Activité dashboard stockée dans Mongo</CardTitle>
-            <CardDescription>
-              Les compteurs démarrent à partir de cette version et suivent les routes dashboard par jour.
-            </CardDescription>
-          </CardHeader>
-          <div className="mt-5 grid gap-5 xl:grid-cols-[1.2fr_.8fr]">
-            <ApiTimeline items={stats.usage.perDay} />
-            <EndpointBars items={stats.usage.endpoints} />
-          </div>
-        </Card>
-
-        <Card className="p-5">
-          <CardHeader eyebrow="Clés stockées">
-            <CardTitle>Documents utilisés par le dashboard</CardTitle>
-            <CardDescription>Chaque ligne correspond à un module persistant, avec taille approximative côté JSON.</CardDescription>
-          </CardHeader>
-          <div className="mt-5 space-y-3">
-            {stats.keys.length ? (
-              stats.keys.map((item, index) => (
-                <motion.div
-                  className="rounded-lg border border-line bg-white/[0.045] p-3"
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.025 }}
-                  key={item.key}
-                >
-                  <div className="mb-2 flex items-center justify-between gap-3">
-                    <span className="min-w-0 truncate text-sm font-black">{item.key}</span>
-                    <span className="font-mono text-xs font-black text-muted">{formatBytes(item.approxBytes)}</span>
-                  </div>
-                  <span className="block h-2 overflow-hidden rounded-full bg-white/10">
-                    <motion.span
-                      className="block h-full rounded-full bg-gradient-to-r from-brand-2 via-brand to-brand-3"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.max(5, (item.approxBytes / maxKeySize) * 100)}%` }}
-                      transition={{ duration: 0.5, delay: index * 0.025 }}
-                    />
-                  </span>
-                </motion.div>
-              ))
-            ) : (
-              <p className="rounded-lg border border-dashed border-line p-4 text-sm font-semibold text-muted">
-                Aucun document stocké pour ce compte.
-              </p>
-            )}
-          </div>
-        </Card>
-
-        <Card className="p-5">
-          <CardHeader eyebrow="Collection">
-            <CardTitle>{stats.collection}</CardTitle>
-            <CardDescription>Base: {stats.database}</CardDescription>
-          </CardHeader>
-          <div className="mt-5 grid gap-3">
-            <MiniRow label="Stockage collection" value={formatBytes(stats.storageSize)} />
-            <MiniRow label="Index MongoDB" value={formatBytes(stats.indexSize)} />
-            <MiniRow label="Documents total" value={stats.totalDocuments.toLocaleString("fr-FR")} />
-            <MiniRow label="Dernière lecture" value={formatDateTime(stats.updatedAt)} />
-          </div>
-        </Card>
-      </section>
+      <SortableWidgetGrid
+        className="xl:grid-cols-2"
+        items={databaseWidgets}
+        storageKey="matweb.mongo.widgetOrder"
+      />
     </div>
   );
 }
@@ -230,7 +249,7 @@ function ApiTimeline({ items }: { items: Array<{ day: string; count: number }> }
   const max = Math.max(...items.map((item) => item.count), 1);
 
   return (
-    <div className="rounded-lg border border-line bg-black/15 p-4">
+    <div className="min-w-0 overflow-hidden rounded-lg border border-line bg-black/15 p-3 sm:p-4">
       <div className="mb-4 flex items-center justify-between gap-3">
         <strong className="inline-flex items-center gap-2 text-sm font-black">
           <BarChart3 size={16} className="text-brand-2" />
@@ -240,7 +259,7 @@ function ApiTimeline({ items }: { items: Array<{ day: string; count: number }> }
           {items.reduce((sum, item) => sum + item.count, 0).toLocaleString("fr-FR")} appels
         </span>
       </div>
-      <div className="flex h-44 items-end gap-1 sm:h-56 sm:gap-2">
+      <div className="flex h-32 items-end gap-1 sm:h-40 sm:gap-2">
         {items.length ? (
           items.map((item, index) => (
             <div className="flex min-w-0 flex-1 basis-0 flex-col items-center gap-2 self-stretch" key={item.day}>
@@ -269,7 +288,7 @@ function EndpointBars({ items }: { items: Array<{ endpoint: string; count: numbe
   const max = Math.max(...items.map((item) => item.count), 1);
 
   return (
-    <div className="rounded-lg border border-line bg-black/15 p-4">
+    <div className="min-w-0 overflow-hidden rounded-lg border border-line bg-black/15 p-3 sm:p-4">
       <div className="mb-4 flex items-center justify-between gap-3">
         <strong className="text-sm font-black">Top endpoints</strong>
         <span className="text-xs font-black text-muted">{items.length} routes</span>

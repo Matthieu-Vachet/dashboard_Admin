@@ -1369,14 +1369,26 @@ function buildCustomRuleCatalogChecklist(customRulesOverride = null) {
     fs.existsSync(directory)
       ? listJsonFiles(directory)
           .sort()
-          .map((file) => ({ kind, file, data: readJson(file) }))
+          .flatMap((file) => {
+            const data = readJson(file);
+            if (!Array.isArray(data)) return [{ kind, file, data }];
+            return data.map((item, itemIndex) => ({
+              kind,
+              file,
+              data: item,
+              itemIndex,
+              itemId: item?.id || item?.slug || item?.filename || itemIndex,
+            }));
+          })
       : [],
   );
 
-  return sources.map(({ kind, file, data }) => {
+  return sources.map(({ kind, file, data, itemIndex, itemId }) => {
     const validator = createValidator();
     applyCustomRules(data, kind, validator.add, customRules, {
       file: relativeToApp(file),
+      itemId,
+      itemIndex,
     });
     for (const issue of validator.issues)
       issue.path = issue.path.replace(/^\./, "");
@@ -1390,10 +1402,10 @@ function buildCustomRuleCatalogChecklist(customRulesOverride = null) {
     const quality = qualitySummary(validator.issues);
 
     return {
-      key: `${kind}:${relativeToApp(file)}`,
+      key: `${kind}:${relativeToApp(file)}${itemId !== undefined ? `#${itemId}` : ""}`,
       kind,
       name,
-      file: relativeToApp(file),
+      file: `${relativeToApp(file)}${itemId !== undefined ? `#${itemId}` : ""}`,
       complete: validator.issues.length === 0,
       issues: validator.issues,
       suggestedPatch: buildSuggestedPatch(validator.issues, kind),
