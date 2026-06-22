@@ -28,6 +28,16 @@ export type JsExercise = {
 
 export type JsExerciseState = Record<string, { completed: boolean; code: string; updatedAt: string }>;
 
+export type JsPracticalProject = {
+  id: string;
+  title: string;
+  difficulty: JsDifficulty;
+  goal: string;
+  skills: string[];
+  steps: string[];
+  bonus: string;
+};
+
 const understood = new Set([
   "variables",
   "conditions",
@@ -154,6 +164,114 @@ export const jsRoadmapLevels: JsRoadmapLevel[] = [
 ];
 
 export const initialJsRoadmap = jsRoadmapLevels.flatMap((level) => level.items);
+
+export const jsPracticalProjects: JsPracticalProject[] = [
+  {
+    id: "todo-list-persistante",
+    title: "Todo list persistante",
+    difficulty: "moyen",
+    goal: "Créer une liste de tâches complète avec ajout, suppression, état terminé et sauvegarde locale.",
+    skills: ["DOM", "événements", "localStorage", "tableaux"],
+    steps: [
+      "Créer un tableau de tâches avec id, texte et done.",
+      "Afficher chaque tâche dans le DOM avec une case à cocher.",
+      "Ajouter une tâche depuis un formulaire sans recharger la page.",
+      "Sauvegarder et relire les tâches depuis localStorage.",
+      "Ajouter un filtre Toutes / Actives / Terminées.",
+    ],
+    bonus: "Ajoute un compteur de tâches restantes et un bouton pour supprimer les tâches terminées.",
+  },
+  {
+    id: "dashboard-notes",
+    title: "Dashboard de notes",
+    difficulty: "moyen",
+    goal: "Construire un mini espace de notes avec recherche, catégories et édition.",
+    skills: ["objets", "filter", "formulaires", "localStorage"],
+    steps: [
+      "Modéliser une note avec id, titre, contenu, catégorie et date.",
+      "Créer un formulaire d'ajout et un bouton modifier.",
+      "Filtrer les notes par texte et par catégorie.",
+      "Sauvegarder les notes localement.",
+      "Afficher une fiche détail au clic.",
+    ],
+    bonus: "Ajoute un tri par date de modification et une catégorie favorite.",
+  },
+  {
+    id: "calculatrice-clavier",
+    title: "Calculatrice avec clavier",
+    difficulty: "moyen",
+    goal: "Faire une calculatrice qui gère les opérations simples au clic et au clavier.",
+    skills: ["switch", "fonctions", "événements", "conditions"],
+    steps: [
+      "Créer les fonctions addition, soustraction, multiplication et division.",
+      "Brancher les boutons numériques à un affichage.",
+      "Gérer le choix d'opérateur avec switch.",
+      "Empêcher la division par zéro avec un message lisible.",
+      "Ajouter la saisie clavier pour chiffres, opérateurs, Entrée et Escape.",
+    ],
+    bonus: "Ajoute un historique des 5 derniers calculs.",
+  },
+  {
+    id: "pomodoro-focus",
+    title: "Pomodoro focus",
+    difficulty: "moyen",
+    goal: "Créer un minuteur focus/pause avec progression visuelle.",
+    skills: ["setInterval", "DOM", "conditions", "state"],
+    steps: [
+      "Créer un état pour le mode focus ou pause.",
+      "Afficher le temps restant au format mm:ss.",
+      "Ajouter start, pause et reset.",
+      "Changer automatiquement de mode à la fin du timer.",
+      "Sauvegarder le nombre de sessions terminées.",
+    ],
+    bonus: "Ajoute un son, une notification navigateur ou une couleur différente selon le mode.",
+  },
+  {
+    id: "app-meteo",
+    title: "App météo",
+    difficulty: "difficile",
+    goal: "Consommer une API météo et afficher un état clair avec gestion d'erreurs.",
+    skills: ["fetch", "async / await", "try / catch", "rendu DOM"],
+    steps: [
+      "Créer un champ ville et un bouton rechercher.",
+      "Appeler une API météo avec fetch.",
+      "Afficher ville, température, condition et humidité.",
+      "Gérer loading, succès et erreur.",
+      "Sauvegarder la dernière ville recherchée.",
+    ],
+    bonus: "Ajoute une liste de favoris météo et un thème visuel selon la condition.",
+  },
+  {
+    id: "mini-pokedex",
+    title: "Mini Pokédex",
+    difficulty: "difficile",
+    goal: "Créer un explorateur de Pokémon avec recherche, filtre par type et détail.",
+    skills: ["fetch", "filter", "map", "modale", "données JSON"],
+    steps: [
+      "Charger une liste de Pokémon depuis un JSON ou une API.",
+      "Afficher des cartes avec image, nom, numéro et types.",
+      "Ajouter une recherche par nom ou numéro.",
+      "Ajouter un filtre par type.",
+      "Ouvrir une modale détail au clic.",
+    ],
+    bonus: "Ajoute une comparaison de deux Pokémon et une sauvegarde des favoris.",
+  },
+  {
+    id: "tracker-api",
+    title: "Tracker d'appels API",
+    difficulty: "difficile",
+    goal: "Créer un tableau de bord qui mesure des appels API fictifs et les regroupe par endpoint.",
+    skills: ["reduce", "dates", "charts simples", "objets"],
+    steps: [
+      "Créer une liste d'appels avec endpoint, status et date.",
+      "Calculer le nombre total d'appels.",
+      "Grouper les appels par endpoint avec reduce.",
+      "Afficher les endpoints les plus appelés.",
+      "Mettre en couleur les erreurs 4xx/5xx.",
+    ],
+    bonus: "Ajoute un filtre par jour et un export JSON.",
+  },
+];
 
 export const jsExercises: JsExercise[] = [
   {
@@ -451,6 +569,206 @@ export const jsExercises: JsExercise[] = [
     concepts: ["LocalStorage", "objets", "DOM"],
     statement: "Ajoute une note, sauvegarde-la et recharge toutes les notes au démarrage.",
     starter: "function sauvegarderNotes(notes) {\n  // localStorage\n}\n\nfunction afficherNotes(notes) {\n  // rendu DOM\n}",
+  },
+  {
+    id: "uppercase-first-letter",
+    title: "Mettre la première lettre en majuscule",
+    level: "Niveau 1",
+    concepts: ["strings", "fonctions"],
+    statement: "Crée une fonction qui transforme \"pikachu\" en \"Pikachu\".",
+    starter: "function capitaliser(mot) {\n  // première lettre en majuscule + reste du mot\n}",
+  },
+  {
+    id: "is-even",
+    title: "Détecter un nombre pair",
+    level: "Niveau 1",
+    concepts: ["opérateurs", "conditions"],
+    statement: "Retourne true si un nombre est pair, false sinon.",
+    starter: "function estPair(nombre) {\n  // utilise le modulo %\n}",
+  },
+  {
+    id: "fizzbuzz",
+    title: "FizzBuzz",
+    level: "Niveau 1",
+    concepts: ["boucles", "conditions", "modulo"],
+    statement: "Affiche les nombres de 1 à 100, Fizz pour multiples de 3, Buzz pour multiples de 5.",
+    starter: "function fizzBuzz() {\n  for (let i = 1; i <= 100; i++) {\n    // conditions ici\n  }\n}",
+  },
+  {
+    id: "count-vowels",
+    title: "Compter les voyelles",
+    level: "Niveau 1",
+    concepts: ["strings", "boucles", "conditions"],
+    statement: "Compte le nombre de voyelles dans une phrase.",
+    starter: "function compterVoyelles(phrase) {\n  const voyelles = 'aeiouy';\n  let total = 0;\n  // boucle sur phrase\n  return total;\n}",
+  },
+  {
+    id: "reverse-string",
+    title: "Inverser un texte",
+    level: "Niveau 1",
+    concepts: ["strings", "tableaux"],
+    statement: "Retourne une chaîne inversée, par exemple \"abc\" devient \"cba\".",
+    starter: "function inverserTexte(texte) {\n  // split, reverse, join\n}",
+  },
+  {
+    id: "unique-values",
+    title: "Supprimer les doublons",
+    level: "Niveau 2",
+    concepts: ["Set", "tableaux"],
+    statement: "Retourne un nouveau tableau sans valeur en double.",
+    starter: "function valeursUniques(items) {\n  // utilise Set\n}",
+  },
+  {
+    id: "sort-by-name",
+    title: "Trier par nom",
+    level: "Niveau 2",
+    concepts: ["sort", "objets", "tableaux"],
+    statement: "Trie un tableau d'objets utilisateur par nom sans modifier le tableau original.",
+    starter: "function trierParNom(users) {\n  return [...users].sort(function(a, b) {\n    // localeCompare\n  });\n}",
+  },
+  {
+    id: "group-by-type",
+    title: "Grouper par type",
+    level: "Niveau 2",
+    concepts: ["reduce", "objets", "tableaux"],
+    statement: "Groupe des Pokémon par primaryType dans un objet.",
+    starter: "function grouperParType(pokemons) {\n  return pokemons.reduce(function(groupes, pokemon) {\n    // groupes[pokemon.primaryType]\n  }, {});\n}",
+  },
+  {
+    id: "flatten-tags",
+    title: "Aplatir des tags",
+    level: "Niveau 2",
+    concepts: ["flatMap", "Set", "tableaux"],
+    statement: "À partir de plusieurs notes avec tags, retourne la liste unique de tous les tags.",
+    starter: "function tagsUniques(notes) {\n  // flatMap + Set\n}",
+  },
+  {
+    id: "optional-chaining",
+    title: "Lire une donnée profonde",
+    level: "Niveau 2",
+    concepts: ["optional chaining", "objets"],
+    statement: "Récupère assets.candy.image sans faire planter la fonction si assets est absent.",
+    starter: "function imageBonbon(pokemon) {\n  return // pokemon?.assets?.candy?.image ou fallback\n}",
+  },
+  {
+    id: "dom-counter",
+    title: "Compteur interactif",
+    level: "Niveau 3",
+    concepts: ["DOM", "addEventListener", "state"],
+    statement: "Crée un compteur avec boutons +, - et reset.",
+    starter: "let count = 0;\nconst output = document.querySelector('#count');\n// branche les boutons",
+  },
+  {
+    id: "dom-tabs",
+    title: "Onglets simples",
+    level: "Niveau 3",
+    concepts: ["DOM", "classList", "dataset"],
+    statement: "Affiche un panneau différent selon l'onglet cliqué.",
+    starter: "document.querySelectorAll('[data-tab]').forEach(function(button) {\n  button.addEventListener('click', function() {\n    // active le bon panneau\n  });\n});",
+  },
+  {
+    id: "dom-search-list",
+    title: "Recherche instantanée",
+    level: "Niveau 3",
+    concepts: ["input", "filter", "DOM"],
+    statement: "Filtre une liste HTML pendant que l'utilisateur tape.",
+    starter: "const input = document.querySelector('input');\ninput.addEventListener('input', function(event) {\n  // filtrer puis afficher\n});",
+  },
+  {
+    id: "dom-modal",
+    title: "Ouvrir une modale",
+    level: "Niveau 3",
+    concepts: ["DOM", "événements", "accessibilité"],
+    statement: "Ouvre une modale au clic, ferme-la avec un bouton et la touche Escape.",
+    starter: "const modal = document.querySelector('.modal');\n// open, close, keydown Escape",
+  },
+  {
+    id: "module-export-utils",
+    title: "Créer un module utilitaire",
+    level: "Niveau 4",
+    concepts: ["Modules import / export", "fonctions"],
+    statement: "Exporte deux fonctions depuis utils.js puis importe-les dans app.js.",
+    starter: "// utils.js\nexport function formatName(name) {}\n\n// app.js\n// import ici",
+  },
+  {
+    id: "this-method",
+    title: "Comprendre this dans une méthode",
+    level: "Niveau 4",
+    concepts: ["this", "objets"],
+    statement: "Crée un objet user avec une méthode presentation qui utilise this.name.",
+    starter: "const user = {\n  name: 'Matthieu',\n  presentation() {\n    // this.name\n  },\n};",
+  },
+  {
+    id: "promise-all",
+    title: "Charger plusieurs données",
+    level: "Niveau 4",
+    concepts: ["Promises", "Promise.all"],
+    statement: "Charge trois Promises en parallèle et retourne un objet avec les trois résultats.",
+    starter: "async function chargerTout() {\n  const [a, b, c] = await Promise.all([\n    // promesses\n  ]);\n  return { a, b, c };\n}",
+  },
+  {
+    id: "async-retry",
+    title: "Réessayer un appel async",
+    level: "Niveau 5",
+    concepts: ["async / await", "try / catch", "boucles"],
+    statement: "Réessaie un appel async jusqu'à 3 fois avant de renvoyer l'erreur.",
+    starter: "async function retry(callback, attempts = 3) {\n  // boucle + try/catch\n}",
+  },
+  {
+    id: "fetch-timeout",
+    title: "Fetch avec timeout",
+    level: "Niveau 5",
+    concepts: ["Fetch API", "AbortController"],
+    statement: "Annule un fetch s'il dépasse 5 secondes.",
+    starter: "async function fetchAvecTimeout(url, timeout = 5000) {\n  const controller = new AbortController();\n  // setTimeout + fetch signal\n}",
+  },
+  {
+    id: "cache-memory",
+    title: "Cache mémoire simple",
+    level: "Niveau 5",
+    concepts: ["Map", "Fetch API", "performance"],
+    statement: "Évite de refaire le même fetch si l'URL a déjà été chargée.",
+    starter: "const cache = new Map();\nasync function getCached(url) {\n  // cache.has, cache.set\n}",
+  },
+  {
+    id: "project-api-explorer",
+    title: "Projet explorateur API",
+    level: "Niveau 6",
+    concepts: ["Fetch API", "DOM", "filter", "try / catch"],
+    statement: "Crée une page qui liste des endpoints, lance une requête et affiche le JSON formaté.",
+    starter: "async function testerEndpoint(url) {\n  // fetch + JSON.stringify(data, null, 2)\n}",
+  },
+  {
+    id: "project-kanban",
+    title: "Projet mini Kanban",
+    level: "Niveau 6",
+    concepts: ["objets", "tableaux", "LocalStorage", "DOM"],
+    statement: "Crée trois colonnes Backlog, En cours, Terminé et déplace les tâches entre elles.",
+    starter: "const board = {\n  backlog: [],\n  doing: [],\n  done: [],\n};\n// ajouter, déplacer, sauvegarder",
+  },
+  {
+    id: "project-snippet-manager",
+    title: "Projet gestionnaire de snippets",
+    level: "Niveau 6",
+    concepts: ["formulaire", "LocalStorage", "recherche", "clipboard"],
+    statement: "Crée un coffre de snippets avec ajout, recherche et copie dans le presse-papier.",
+    starter: "async function copierSnippet(contenu) {\n  await navigator.clipboard.writeText(contenu);\n}",
+  },
+  {
+    id: "project-comparison-tool",
+    title: "Projet comparateur de fiches",
+    level: "Niveau 6",
+    concepts: ["find", "objets", "DOM", "JSON"],
+    statement: "Sélectionne deux objets et affiche leurs différences principales.",
+    starter: "function comparer(left, right) {\n  // retourne les clés différentes\n}",
+  },
+  {
+    id: "project-source-watch",
+    title: "Projet veille sources",
+    level: "Niveau 6",
+    concepts: ["Fetch API", "dates", "tableaux", "erreurs"],
+    statement: "Surveille une liste de sources, affiche leur statut et repère celles qui changent.",
+    starter: "async function verifierSource(source) {\n  // fetch HEAD ou GET + statut\n}",
   },
 ];
 

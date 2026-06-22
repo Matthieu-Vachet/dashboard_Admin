@@ -2,11 +2,12 @@
 
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, Compass, Route, Sparkles } from "lucide-react";
+import { CheckCircle2, Code2, Compass, Dumbbell, Route, Sparkles, Target } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   initialJsRoadmap,
+  jsExercises,
   jsRoadmapLevels,
   type JsRoadmapItem,
   type JsStatus,
@@ -88,6 +89,8 @@ export function JsProgress() {
               levelItems.reduce((sum, item) => sum + item.progress, 0) / Math.max(levelItems.length, 1),
             );
             const right = index % 2 === 1;
+            const levelExercises = jsExercises.filter((exercise) => exercise.level === `Niveau ${level.level}`);
+            const nextItem = levelItems.find((item) => item.status !== "Compris") || levelItems[levelItems.length - 1];
 
             return (
               <motion.article
@@ -154,12 +157,79 @@ export function JsProgress() {
                     <Compass size={20} />
                   </span>
                 </div>
+                <LevelCompanion
+                  className={cn(
+                    "hidden lg:row-start-1 lg:block",
+                    right ? "lg:col-start-1" : "lg:col-start-3",
+                  )}
+                  exerciseCount={levelExercises.length}
+                  nextItem={nextItem}
+                  progress={levelProgress}
+                  title={level.title}
+                />
               </motion.article>
             );
           })}
         </div>
       </section>
     </div>
+  );
+}
+
+function LevelCompanion({
+  className,
+  exerciseCount,
+  nextItem,
+  progress,
+  title,
+}: {
+  className?: string;
+  exerciseCount: number;
+  nextItem?: JsRoadmapItem;
+  progress: number;
+  title: string;
+}) {
+  return (
+    <Card className={cn("relative overflow-hidden p-4", className)}>
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(32,211,255,.14),transparent_34%),radial-gradient(circle_at_90%_80%,rgba(88,242,169,.12),transparent_30%)]" />
+      <div className="relative space-y-4">
+        <div>
+          <span className="inline-flex items-center gap-2 rounded-full border border-brand-2/20 bg-brand-2/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-brand-2">
+            <Target size={13} /> Mission
+          </span>
+          <h3 className="mt-3 text-lg font-black">{title}</h3>
+          <p className="mt-2 text-sm font-semibold leading-6 text-muted">
+            Avancer une notion, coder un exercice court, puis marquer la progression.
+          </p>
+        </div>
+        <div className="grid gap-3">
+          <div className="rounded-lg border border-line bg-white/[0.045] p-3">
+            <span className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-muted">
+              <Code2 size={14} /> Prochaine notion
+            </span>
+            <strong className="mt-2 block text-sm">{nextItem?.title || "Révision libre"}</strong>
+          </div>
+          <div className="rounded-lg border border-line bg-white/[0.045] p-3">
+            <span className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-muted">
+              <Dumbbell size={14} /> Exercices
+            </span>
+            <strong className="mt-2 block text-sm">{exerciseCount} exercice(s) relié(s)</strong>
+          </div>
+        </div>
+        <div>
+          <div className="flex items-center justify-between text-xs font-black text-muted">
+            <span>Énergie du niveau</span>
+            <span>{progress}%</span>
+          </div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
+            <span
+              className="block h-full rounded-full bg-gradient-to-r from-brand-2 via-brand to-brand-3"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+      </div>
+    </Card>
   );
 }
 

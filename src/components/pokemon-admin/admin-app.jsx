@@ -31,6 +31,7 @@ import {
   Sparkles,
   Wand2,
 } from "lucide-react";
+import { toast } from "sonner";
 import { DetailModal } from "../checklist/detail-modal";
 import { PokemonCard } from "../checklist/pokemon-card";
 import { MetricCard } from "../site/metric-card";
@@ -101,6 +102,11 @@ const categoryLabels = {
   availability: "Disponibilité",
   localization: "Localisation",
   reference: "Références",
+  official: "Officiel",
+  news: "Actualités",
+  gamemaster: "Game Master",
+  shuffle: "Shuffle",
+  pvp: "PvP",
 };
 
 function formatCount(value) {
@@ -270,10 +276,15 @@ function localJson(key, fallback) {
   }
 }
 
-function copyToClipboard(value) {
-  return navigator.clipboard.writeText(
-    typeof value === "string" ? value : JSON.stringify(value, null, 2),
-  );
+async function copyToClipboard(value, label = "Copié dans le presse-papier") {
+  try {
+    await navigator.clipboard.writeText(
+      typeof value === "string" ? value : JSON.stringify(value, null, 2),
+    );
+    toast.success(label);
+  } catch {
+    toast.error("Impossible de copier pour le moment.");
+  }
 }
 
 function Panel({ title, eyebrow, action, children, className = "" }) {
@@ -1188,13 +1199,38 @@ function SourceRows({ sourceWatch }) {
       </p>
     );
   }
+  const sources = sourceWatch?.sources || [];
+  const okCount = sources.filter((source) => source.status === "ok").length;
+  const warningCount = sources.filter((source) => source.status === "warning").length;
+  const errorCount = sources.filter((source) => source.status && !["ok", "warning"].includes(source.status)).length;
+
   return (
     <div className="space-y-3">
+      <div className="grid gap-3 md:grid-cols-4">
+        <article className="rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4">
+          <span className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100/70">Sources</span>
+          <strong className="mt-2 block text-2xl font-black text-white">{sources.length}</strong>
+        </article>
+        <article className="rounded-2xl border border-emerald-300/15 bg-emerald-400/10 p-4">
+          <span className="text-xs font-black uppercase tracking-[0.18em] text-emerald-100/70">OK</span>
+          <strong className="mt-2 block text-2xl font-black text-white">{okCount}</strong>
+        </article>
+        <article className="rounded-2xl border border-amber-300/15 bg-amber-400/10 p-4">
+          <span className="text-xs font-black uppercase tracking-[0.18em] text-amber-100/70">À suivre</span>
+          <strong className="mt-2 block text-2xl font-black text-white">{warningCount}</strong>
+        </article>
+        <article className="rounded-2xl border border-red-300/15 bg-red-500/10 p-4">
+          <span className="text-xs font-black uppercase tracking-[0.18em] text-red-100/70">Erreurs</span>
+          <strong className="mt-2 block text-2xl font-black text-white">{errorCount}</strong>
+        </article>
+      </div>
       <p className="rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-100">
-        La veille interroge les sources configurées et affiche leur dernier état connu. Si une source expose un nouveau commit, tag ou statut différent, elle remonte ici au prochain contrôle.
+        La veille croise maintenant Game Master, assets dataminés, annonces officielles, sites communautaires et données PvP.
+        Un nouveau commit, tag, ETag, Last-Modified ou statut HTTP différent remontera au prochain contrôle.
       </p>
-      {(sourceWatch?.sources || []).length ? (
-        sourceWatch.sources.map((source) => {
+      {sources.length ? (
+        <div className="grid gap-3 xl:grid-cols-2">
+        {sources.map((source) => {
           const tone =
             source.status === "ok"
               ? {
@@ -1213,22 +1249,30 @@ function SourceRows({ sourceWatch }) {
 
           return (
             <a
-              className={`flex flex-col gap-2 rounded-3xl border p-4 transition sm:flex-row sm:items-center sm:justify-between ${tone.card}`}
+              className={`flex min-w-0 flex-col gap-3 rounded-3xl border p-4 transition sm:flex-row sm:items-center sm:justify-between ${tone.card}`}
               href={source.remoteUrl || source.url}
               key={source.id || source.name}
               rel="noreferrer"
               target="_blank"
             >
-              <span>
-                <strong className="block font-black text-white">{source.name || source.repo || source.url}</strong>
-                <small className="mt-1 block text-xs font-bold text-slate-400">{source.message || source.status}</small>
+              <span className="min-w-0">
+                <span className="mb-2 inline-flex rounded-full border border-white/10 bg-white/[0.055] px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-slate-300">
+                  {issueLabel(source.category)}
+                </span>
+                <strong className="block break-words font-black text-white">{source.name || source.repo || source.url}</strong>
+                <small className="mt-1 block break-words text-xs font-bold leading-5 text-slate-400">{source.message || source.status}</small>
+                {source.description ? (
+                  <small className="mt-2 block text-xs font-semibold leading-5 text-slate-500">{source.description}</small>
+                ) : null}
               </span>
-              <span className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-black ${tone.badge}`}>
+              <span className={`inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-2 text-xs font-black ${tone.badge}`}>
                 {source.version || source.status || "ouvrir"} <ExternalLink size={14} />
               </span>
             </a>
           );
         })
+        }
+        </div>
       ) : (
         <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
           Lance une vérification pour afficher les sources.
@@ -1281,7 +1325,7 @@ export function AdminApp() {
     return authenticated;
   }
 
-  async function loadAdminData() {
+  async function loadAdminData({ notify = false } = {}) {
     setBootstrap((current) => ({ ...current, loading: true, error: "" }));
     try {
       const [checklistResponse, catalogResponse, assetResponse, historyResponse, rulesResponse] = await Promise.all([
@@ -1304,8 +1348,10 @@ export function AdminApp() {
       setAssetAudit(assetPayload.data || null);
       setHistory(historyPayload.data || []);
       setCustomRules(rulesPayload.data || checklistPayload.data?.customRules || []);
+      if (notify) toast.success("Dashboard Pokémon actualisé.");
     } catch (error) {
       setBootstrap({ loading: false, payload: null, error: error.message });
+      if (notify) toast.error(error.message || "Erreur de chargement du dashboard.");
     }
   }
 
@@ -1383,11 +1429,13 @@ export function AdminApp() {
     if (!response.ok) {
       setSession({ loading: false, authenticated: false });
       setAuthError(payload.error || "Connexion refusée.");
+      toast.error(payload.error || "Connexion refusée.");
       return;
     }
     setSession({ loading: false, authenticated: true });
     setPassword("");
     setActive("overview");
+    toast.success("Session admin ouverte.");
     await loadAdminData();
   }
 
@@ -1415,10 +1463,18 @@ export function AdminApp() {
   }
 
   async function loadSources() {
+    const toastId = toast.loading("Vérification des sources Pokémon GO...");
     setSourceWatch({ loading: true, sources: [] });
-    const response = await fetch(`${adminApiPath}?action=source-watch`);
-    const payload = await response.json();
-    setSourceWatch(response.ok ? payload.data : { error: payload.error });
+    try {
+      const response = await fetch(`${adminApiPath}?action=source-watch`);
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Veille indisponible.");
+      setSourceWatch(payload.data);
+      toast.success(`${payload.data?.sources?.length || 0} source(s) vérifiée(s).`, { id: toastId });
+    } catch (error) {
+      setSourceWatch({ error: error.message });
+      toast.error(error.message || "Veille indisponible.", { id: toastId });
+    }
   }
 
   async function previewRule() {
@@ -1432,10 +1488,12 @@ export function AdminApp() {
     if (!response.ok) {
       setRulePreview(null);
       setRuleMessage(payload.error || "Règle invalide.");
+      toast.error(payload.error || "Règle invalide.");
       return;
     }
     setRulePreview(payload.data);
     setRuleMessage("Modèle compris par le checker.");
+    toast.success("Règle comprise par le checker.");
   }
 
   async function saveRule() {
@@ -1448,17 +1506,20 @@ export function AdminApp() {
     const payload = await response.json();
     if (!response.ok) {
       setRuleMessage(payload.error || "Impossible de sauvegarder la règle.");
+      toast.error(payload.error || "Impossible de sauvegarder la règle.");
       return;
     }
     setRuleForm({ ...defaultRuleForm });
     setRulePreview(payload.data);
     setRuleMessage("Règle sauvegardée. Contrôle recalculé sur le snapshot local.");
+    toast.success("Règle JSON sauvegardée.");
     await loadAdminData();
   }
 
   async function syncGithubData() {
     setRulesSyncing(true);
     setRuleMessage("Synchronisation GitHub en cours...");
+    const toastId = toast.loading("Synchronisation GitHub en cours...");
     try {
       const response = await fetch(adminApiPath, {
         method: "POST",
@@ -1470,8 +1531,10 @@ export function AdminApp() {
       setBootstrap({ loading: false, payload: payload.data?.bootstrap, error: "" });
       setCustomRules(payload.data?.bootstrap?.customRules || []);
       setRuleMessage("Snapshot GitHub synchronisé. Contrôle relancé sur les données à jour.");
+      toast.success("Snapshot GitHub synchronisé.", { id: toastId });
     } catch (error) {
       setRuleMessage(error.message || "Synchronisation impossible.");
+      toast.error(error.message || "Synchronisation impossible.", { id: toastId });
     } finally {
       setRulesSyncing(false);
     }
@@ -1483,6 +1546,7 @@ export function AdminApp() {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ action: "toggle-rule", id: rule.id, enabled: rule.enabled === false }),
     });
+    toast.success(rule.enabled === false ? "Règle activée." : "Règle désactivée.");
     await loadAdminData();
   }
 
@@ -1492,6 +1556,7 @@ export function AdminApp() {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ action: "delete-rule", id: rule.id }),
     });
+    toast.success("Règle supprimée.");
     await loadAdminData();
   }
 
@@ -1501,6 +1566,7 @@ export function AdminApp() {
     setTodos(next);
     setNewTodo("");
     localStorage.setItem(todoKey, JSON.stringify(next));
+    toast.success("Tâche ajoutée.");
   }
 
   if (session.loading && !session.authenticated) {
@@ -1562,7 +1628,7 @@ export function AdminApp() {
                     onChange={(event) => setSearch(event.target.value)}
                   />
                 </label>
-                <button className={buttonClass} type="button" onClick={loadAdminData}>
+                <button className={buttonClass} type="button" onClick={() => loadAdminData({ notify: true })}>
                   <RefreshCcw size={17} /> Actualiser
                 </button>
               </div>
@@ -1625,19 +1691,23 @@ export function AdminApp() {
                   </article>
                 </section>
 
-                <section className="grid items-start gap-5 xl:grid-cols-2">
-                  <Panel title="Complétion JSON par génération">
-                    <CompletionList items={summary.generations || []} />
-                  </Panel>
-                  <Panel title="Diagnostic des contrôles" eyebrow="issues par famille">
-                    <BarList items={summary.categories || []} />
-                  </Panel>
-                  <Panel title="Historique Git" action={<History className="text-cyan-200" size={22} />}>
-                    <HistoryList history={history} />
-                  </Panel>
-                  <Panel title="Fiches à surveiller" eyebrow="premières anomalies">
-                    <MiniCardList entries={issueEntries.slice(0, 8)} onOpen={openDetail} />
-                  </Panel>
+                <section className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(320px,.92fr)]">
+                  <div className="grid gap-5">
+                    <Panel title="Complétion JSON par génération">
+                      <CompletionList items={summary.generations || []} />
+                    </Panel>
+                    <Panel title="Historique Git" action={<History className="text-cyan-200" size={22} />}>
+                      <HistoryList history={history} />
+                    </Panel>
+                  </div>
+                  <div className="grid gap-5">
+                    <Panel title="Diagnostic des contrôles" eyebrow="issues par famille">
+                      <BarList items={summary.categories || []} />
+                    </Panel>
+                    <Panel title="Fiches à surveiller" eyebrow="premières anomalies">
+                      <MiniCardList entries={issueEntries.slice(0, 8)} onOpen={openDetail} />
+                    </Panel>
+                  </div>
                 </section>
               </>
             ) : null}

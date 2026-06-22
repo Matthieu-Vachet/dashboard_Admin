@@ -6,6 +6,7 @@ function hasAssets(entry) {
   const assets = entry.assets || {};
   return Boolean(
     assets.go ||
+      assets.candy ||
       assets.goShiny ||
       assets.home ||
       assets.homeShiny ||

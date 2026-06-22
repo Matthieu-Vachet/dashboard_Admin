@@ -121,6 +121,8 @@ a {
   background: linear-gradient(90deg, transparent, rgba(32, 211, 255, 0.12), transparent);
   transform: skewX(-14deg);
   mix-blend-mode: screen;
+  animation: energy-scan 5.5s linear infinite;
+  will-change: transform;
 }
 
 .pokemon-interface-icon {
@@ -275,5 +277,20 @@ a {
   }
   50% {
     background-position: 100% 50%;
+  }
+}
+
+@keyframes energy-scan {
+  from {
+    transform: translateX(-20%) skewX(-14deg);
+  }
+  to {
+    transform: translateX(420%) skewX(-14deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .energy-scan {
+    animation: none;
   }
 }

@@ -2,6 +2,7 @@
 
 import { Check, Code2, Copy, Edit3, Plus, Search, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -52,13 +53,19 @@ export function SnippetVault() {
         : [normalized, ...current];
     });
     setEditing(null);
+    toast.success("Snippet enregistré.");
   }
 
   /** Copie le contenu sans modifier le snippet enregistré. */
-  function copySnippet(snippet: Snippet) {
-    void navigator.clipboard.writeText(snippet.content);
-    setCopiedId(snippet.id);
-    window.setTimeout(() => setCopiedId(null), 1200);
+  async function copySnippet(snippet: Snippet) {
+    try {
+      await navigator.clipboard.writeText(snippet.content);
+      setCopiedId(snippet.id);
+      toast.success("Snippet copié.");
+      window.setTimeout(() => setCopiedId(null), 1200);
+    } catch {
+      toast.error("Impossible de copier ce snippet.");
+    }
   }
 
   return (
@@ -125,7 +132,10 @@ export function SnippetVault() {
                 variant="danger"
                 type="button"
                 aria-label="Supprimer le snippet"
-                onClick={() => setSnippets((current) => current.filter((item) => item.id !== snippet.id))}
+                onClick={() => {
+                  setSnippets((current) => current.filter((item) => item.id !== snippet.id));
+                  toast.success("Snippet supprimé.");
+                }}
               >
                 <Trash2 size={16} />
               </Button>

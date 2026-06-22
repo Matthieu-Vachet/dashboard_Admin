@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { typeBackground, typeColors, typeIcon, typeName } from "../site/pokemon-style";
-import { candyIconForDex, uiAssets } from "../site/ui-assets";
+import { uiAssets } from "../site/ui-assets";
 
 const tabLabels = {
   overview: "Aperçu",
@@ -623,7 +623,11 @@ export function DetailModal({
     .filter(Boolean);
   const mainType = String(entry.primaryType || payload.primaryType || "NORMAL").toUpperCase();
   const mainTypeColor = typeColors[mainType] || "#38bdf8";
-  const candyIcon = candyIconForDex(entry.dexId || payload.dexId);
+  const candyIcon =
+    payload.assets?.candy?.image ||
+    payload.sourceData?.assets?.candy?.image ||
+    entry.assets?.candy?.image ||
+    null;
   const catchBackground = catchCardBackground(mainType);
 
   return createPortal(

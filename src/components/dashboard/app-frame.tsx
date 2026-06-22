@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   LogOut,
   Menu,
@@ -15,7 +15,7 @@ import {
   Sun,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,10 +44,8 @@ export function AppFrame({
   userEmail: string;
 }) {
   const pathname = usePathname();
-  const rootRef = useRef<HTMLDivElement>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
-  const prefersReducedMotion = useReducedMotion();
   const { resolvedTheme, setTheme } = useTheme();
   const brandLogo = "/ui/matweb-innovation-letter-m3.png";
 
@@ -55,52 +53,6 @@ export function AppFrame({
     () => navItems.find((item) => item.href === pathname)?.label || "Accueil",
     [pathname],
   );
-
-  useEffect(() => {
-    if (prefersReducedMotion) return;
-
-    let cancelled = false;
-    let context: { revert: () => void } | null = null;
-
-    void import("gsap").then(({ default: gsap }) => {
-      if (cancelled) return;
-
-      context = gsap.context(() => {
-        const panels = gsap.utils.toArray<HTMLElement>(
-          "main .glass-panel, main .glass-panel-strong",
-        );
-        if (panels.length) {
-          gsap.fromTo(
-            panels,
-            { autoAlpha: 0, y: 18, filter: "blur(8px)" },
-            {
-              autoAlpha: 1,
-              y: 0,
-              filter: "blur(0px)",
-              duration: 0.55,
-              ease: "power3.out",
-              stagger: 0.035,
-            },
-          );
-        }
-
-        const energyScan = rootRef.current?.querySelector(".energy-scan");
-        if (energyScan) {
-          gsap.to(energyScan, {
-            xPercent: 120,
-            duration: 5.5,
-            ease: "none",
-            repeat: -1,
-          });
-        }
-      }, rootRef);
-    });
-
-    return () => {
-      cancelled = true;
-      context?.revert();
-    };
-  }, [pathname, prefersReducedMotion]);
 
   const SidebarContent = (
     <div className="flex h-full flex-col">
@@ -216,7 +168,7 @@ export function AppFrame({
   );
 
   return (
-    <div ref={rootRef} className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden">
       <a
         href="#dashboard-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-brand-2 focus:px-4 focus:py-2 focus:text-sm focus:font-black focus:text-slate-950"

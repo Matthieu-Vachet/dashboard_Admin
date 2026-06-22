@@ -115,14 +115,14 @@ export function DatabaseStats() {
         </Card>
       ) : null}
 
-      <section className="grid items-start gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid min-w-0 items-start gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard icon={ShieldCheck} label="Connexion" value={stats.configured ? "Active" : "Non configurée"} tone="green" />
         <StatCard icon={Database} label="Documents compte" value={stats.ownerDocuments.toLocaleString("fr-FR")} tone="cyan" />
         <StatCard icon={Activity} label="Appels API suivis" value={stats.usage.total.toLocaleString("fr-FR")} tone="violet" />
         <StatCard icon={HardDrive} label="Volume compte" value={formatBytes(stats.approxOwnerBytes)} tone="amber" />
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-[1.1fr_.9fr]">
+      <section className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)]">
         <Card className="p-5 xl:col-span-2">
           <CardHeader eyebrow="Appels API">
             <CardTitle>Activité dashboard stockée dans Mongo</CardTitle>
@@ -210,13 +210,13 @@ function StatCard({
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-      <Card className="min-w-0 p-4">
-        <div className="flex items-start justify-between gap-3">
-          <span className="min-w-0">
-            <span className="block text-xs font-black uppercase tracking-[0.16em] text-muted">{label}</span>
-            <strong className="mt-3 block break-words text-2xl font-black">{value}</strong>
+      <Card className="min-w-0 overflow-hidden p-4">
+        <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_2.75rem] items-start gap-3">
+          <span className="min-w-0 overflow-hidden">
+            <span className="block break-words text-[11px] font-black uppercase tracking-[0.12em] text-muted sm:text-xs sm:tracking-[0.16em]">{label}</span>
+            <strong className="mt-3 block max-w-full break-words text-xl font-black leading-tight sm:text-2xl">{value}</strong>
           </span>
-          <span className={`grid h-11 w-11 place-items-center rounded-lg border ${toneClass}`}>
+          <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-lg border ${toneClass}`}>
             <Icon size={20} />
           </span>
         </div>
@@ -305,11 +305,11 @@ function EndpointBars({ items }: { items: Array<{ endpoint: string; count: numbe
 function MiniRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex min-w-0 flex-col gap-2 rounded-lg border border-line bg-white/[0.045] p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-      <span className="inline-flex min-w-0 items-center gap-2 break-words text-xs font-black uppercase tracking-[0.16em] text-muted">
+      <span className="inline-flex min-w-0 items-center gap-2 break-words text-[11px] font-black uppercase tracking-[0.12em] text-muted sm:text-xs sm:tracking-[0.16em]">
         <KeyRound size={14} />
         {label}
       </span>
-      <strong className="break-words text-sm font-black">{value}</strong>
+      <strong className="min-w-0 break-words text-sm font-black sm:text-right">{value}</strong>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, Github, Rocket, Save, Trash2 } from "lucide-react";
+import { ArrowUpRight, Code2, Github, ListChecks, Rocket, Save, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { DashboardLoadingState } from "@/components/dashboard/loading-state";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,7 @@ import {
   type Project,
   type ProjectStatus,
 } from "@/data/personal-dashboard-defaults";
+import { jsPracticalProjects } from "@/data/javascript-learning";
 import { cn } from "@/lib/cn";
 import { usePersistentState } from "@/lib/use-persistent-state";
 
@@ -23,6 +24,12 @@ const statusTone = {
   Live: "green",
   Pause: "amber",
   Archive: "neutral",
+} as const;
+
+const difficultyTone = {
+  facile: "green",
+  moyen: "amber",
+  difficile: "violet",
 } as const;
 
 export default function ProjectsPage() {
@@ -91,6 +98,74 @@ export default function ProjectsPage() {
           </Button>
         </div>
       </Card>
+
+      <section className="grid gap-4 xl:grid-cols-[0.82fr_1.18fr]">
+        <Card className="p-5">
+          <Badge tone="cyan">JS Progress niveau 6</Badge>
+          <h3 className="mt-3 text-2xl font-black">Projets pratiques guidés</h3>
+          <p className="mt-2 text-sm font-semibold leading-6 text-muted">
+            Des projets concrets pour transformer les notions JavaScript en automatismes: DOM, fetch,
+            localStorage, tableaux, erreurs et mini dashboards.
+          </p>
+          <div className="mt-5 grid gap-3">
+            <div className="rounded-lg border border-line bg-white/[0.045] p-3">
+              <span className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-muted">
+                <Code2 size={15} /> Objectif
+              </span>
+              <strong className="mt-2 block text-sm leading-6">
+                Construire petit, vérifier souvent, puis améliorer avec un bonus.
+              </strong>
+            </div>
+            <div className="rounded-lg border border-line bg-white/[0.045] p-3">
+              <span className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-muted">
+                <ListChecks size={15} /> Routine
+              </span>
+              <strong className="mt-2 block text-sm leading-6">
+                1 projet = une version simple, une sauvegarde, puis une amélioration.
+              </strong>
+            </div>
+          </div>
+        </Card>
+        <div className="grid gap-4 md:grid-cols-2">
+          {jsPracticalProjects.map((project) => (
+            <Card className="p-4" key={project.id}>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-2">
+                    Projet niveau 6
+                  </p>
+                  <h3 className="mt-2 text-lg font-black">{project.title}</h3>
+                </div>
+                <Badge tone={difficultyTone[project.difficulty]}>{project.difficulty}</Badge>
+              </div>
+              <p className="mt-3 text-sm font-semibold leading-6 text-muted">{project.goal}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {project.skills.map((skill) => (
+                  <span
+                    className="rounded-full border border-line bg-white/[0.055] px-2.5 py-1 text-[11px] font-black text-muted"
+                    key={skill}
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+              <ol className="mt-4 space-y-2">
+                {project.steps.map((step, index) => (
+                  <li className="grid grid-cols-[1.6rem_minmax(0,1fr)] gap-2 text-sm font-semibold leading-6 text-muted" key={step}>
+                    <span className="grid h-6 w-6 place-items-center rounded-md border border-brand-2/25 bg-brand-2/10 text-xs font-black text-brand-2">
+                      {index + 1}
+                    </span>
+                    <span>{step}</span>
+                  </li>
+                ))}
+              </ol>
+              <p className="mt-4 rounded-lg border border-brand-3/20 bg-brand-3/10 p-3 text-sm font-bold leading-6 text-brand-3">
+                Bonus: {project.bonus}
+              </p>
+            </Card>
+          ))}
+        </div>
+      </section>
 
       <section>
         <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">

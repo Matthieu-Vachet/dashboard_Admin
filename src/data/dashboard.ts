@@ -11,7 +11,6 @@ import {
   Home,
   KanbanSquare,
   LineChart,
-  BookOpenCheck,
   NotebookPen,
   Palette,
   ScrollText,
@@ -35,7 +34,6 @@ export const navItems = [
   { href: "/tools", label: "Outils", icon: Wrench },
   { href: "/analytics", label: "Analytics", icon: LineChart },
   { href: "/database", label: "Mongo DB", icon: Database },
-  { href: "/notion", label: "Notion", icon: BookOpenCheck },
   { href: "/pokemon-admin", label: "Admin Pokémon", icon: CircleDot },
   { href: "/pokemon-docs", label: "Docs JSON", icon: ScrollText },
 ];
