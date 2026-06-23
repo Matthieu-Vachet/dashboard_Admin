@@ -8,6 +8,7 @@ const eslintConfig = [
     ignores: [
       ".next/**",
       ".vercel/**",
+      ".data/**",
       "out/**",
       "storybook-static/**",
       "public/storybook/**",

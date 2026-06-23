@@ -434,6 +434,17 @@ function createValidator() {
       });
   }
 
+  function releaseRecord(value, pathName) {
+    if (actualType(value) !== "object") {
+      add(pathName, "missing", "objet de disponibilité datée", actualType(value));
+      return;
+    }
+    field(value, "released", `${pathName}.released`, "boolean");
+    for (const key of ["releaseDate", "event", "source", "matchedName"]) {
+      field(value, key, `${pathName}.${key}`, "string", { nullable: true });
+    }
+  }
+
   function mega(value, pathName) {
     if (actualType(value) !== "object") {
       add(pathName, "type", "objet Méga / Primo", actualType(value));
@@ -459,11 +470,17 @@ function createValidator() {
       for (const key of [
         "released",
         "shinyReleased",
+        "shadowShinyReleased",
         "tradable",
         "pokemonHomeTransfer",
       ])
         field(availability, key, `${pathName}.availability.${key}`, "boolean");
     }
+    releaseRecord(value.shinyAvailability, `${pathName}.shinyAvailability`);
+    releaseRecord(
+      value.shadowShinyAvailability,
+      `${pathName}.shadowShinyAvailability`,
+    );
     const maxCp = field(value, "maxCp", `${pathName}.maxCp`, "object");
     if (actualType(maxCp) === "object") {
       for (const key of [
@@ -562,6 +579,11 @@ function createValidator() {
               actualType(flag),
             );
     }
+    releaseRecord(value.shinyAvailability, `${prefix}shinyAvailability`);
+    releaseRecord(
+      value.shadowShinyAvailability,
+      `${prefix}shadowShinyAvailability`,
+    );
     assets(
       value.assets,
       `${prefix}assets`,
@@ -635,6 +657,7 @@ function createValidator() {
       for (const key of [
         "released",
         "shinyReleased",
+        "shadowShinyReleased",
         "tradable",
         "pokemonHomeTransfer",
         "shadow",
@@ -645,6 +668,11 @@ function createValidator() {
         field(availability, key, `${prefix}availability.${key}`, "boolean");
       }
     }
+    releaseRecord(value.shinyAvailability, `${prefix}shinyAvailability`);
+    releaseRecord(
+      value.shadowShinyAvailability,
+      `${prefix}shadowShinyAvailability`,
+    );
     if (value.shadow !== undefined) shadow(value.shadow, `${prefix}shadow`);
     if (value.availability?.shadow === true && value.shadow === undefined)
       add(`${prefix}shadow`, "missing", "données Shadow", "absent");
@@ -1005,12 +1033,14 @@ function suggestedValue(issue, kind = "pokemon") {
         ? {
             released: false,
             shinyReleased: false,
+            shadowShinyReleased: false,
             tradable: false,
             pokemonHomeTransfer: false,
           }
         : {
             released: false,
             shinyReleased: false,
+            shadowShinyReleased: false,
             tradable: false,
             pokemonHomeTransfer: false,
             shadow: false,
