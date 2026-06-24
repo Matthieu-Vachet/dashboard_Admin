@@ -1456,22 +1456,22 @@ function CollectionsPanel({ entries = [], collections = [], onSave, onOpen, glob
       ) : null}
 
       {modalOpen ? (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/78 p-4 backdrop-blur-xl" role="dialog" aria-modal="true">
-          <section className="max-h-[92vh] w-full max-w-3xl overflow-auto rounded-[2rem] border border-white/10 bg-zinc-900 p-5 shadow-[0_32px_120px_rgba(0,0,0,.5)]">
-            <div className="mb-5 flex items-center justify-between gap-3">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-950/78 p-3 backdrop-blur-xl sm:p-4" role="dialog" aria-modal="true">
+          <section className="my-3 flex max-h-[calc(100vh-1.5rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-900 shadow-[0_32px_120px_rgba(0,0,0,.5)] sm:my-4 sm:max-h-[calc(100vh-2rem)]">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-white/10 bg-zinc-900/95 p-4 backdrop-blur sm:p-5">
               <h3 className="text-2xl font-black text-white">Nouvelle collection</h3>
               <button className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/[0.06] text-xl font-black text-white" type="button" onClick={() => setModalOpen(false)}>
                 ×
               </button>
             </div>
 
-            <div className="space-y-6">
+            <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-4 pb-5 sm:p-5">
               <div>
                 <h4 className="mb-3 text-sm font-black uppercase tracking-[0.18em] text-slate-300">Type de collection</h4>
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
                   {collectionTypes.map(([id, label, icon]) => (
                     <button
-                      className={`min-h-32 rounded-2xl border p-4 text-center transition ${
+                      className={`min-h-24 rounded-2xl border p-3 text-center transition sm:min-h-32 sm:p-4 ${
                         draft.type === id ? "border-emerald-200/65 bg-emerald-400/22" : "border-white/20 bg-white/[0.055] hover:border-cyan-200/45"
                       }`}
                       key={id}
@@ -1535,7 +1535,8 @@ function CollectionsPanel({ entries = [], collections = [], onSave, onOpen, glob
                   onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))}
                 />
               </label>
-
+            </div>
+            <div className="sticky bottom-0 border-t border-white/10 bg-zinc-900/95 p-4 backdrop-blur sm:p-5">
               <button className="min-h-12 w-full rounded-2xl bg-white px-5 text-base font-black text-slate-950 transition hover:scale-[1.01]" type="button" onClick={createCollection}>
                 Créer une Collection
               </button>
