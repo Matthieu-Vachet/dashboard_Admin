@@ -746,7 +746,7 @@ export function DetailModal({
           <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.08)_1px,transparent_1px)] [background-size:34px_34px]" />
           {shinyHeroImage ? (
             <img
-              className="pointer-events-none absolute -right-10 -top-10 h-56 w-56 rotate-6 object-contain opacity-20 blur-[0.4px] saturate-125 sm:h-80 sm:w-80"
+              className="pointer-events-none absolute -bottom-16 -right-20 h-80 w-80 rotate-6 object-contain opacity-24 blur-[0.35px] saturate-125 sm:-bottom-28 sm:-right-32 sm:h-[30rem] sm:w-[30rem] lg:-right-44 lg:h-[38rem] lg:w-[38rem]"
               src={shinyHeroImage}
               alt=""
             />

@@ -85,6 +85,14 @@ export function preferredPokemonImage(entry = {}, options = {}) {
         .map((value) => String(value).toLowerCase())
         .some((value) => value === form || value === kind),
     ) || firstImage(shuffleVariants, (asset) => !asset?.shiny) || firstImage(shuffleVariants);
+  const matchingShinyShuffle =
+    firstImage(shuffleVariants, (asset) =>
+      asset?.shiny &&
+      [asset.form, asset.state, ...(asset.tags || []), ...(asset.codes || [])]
+        .filter(Boolean)
+        .map((value) => String(value).toLowerCase())
+        .some((value) => value === form || value === kind),
+    ) || firstImage(shuffleVariants, (asset) => asset?.shiny);
 
   const matchingHome =
     firstImage(homeVariants, (asset) =>
@@ -94,12 +102,54 @@ export function preferredPokemonImage(entry = {}, options = {}) {
         .map((value) => String(value).toLowerCase())
         .some((value) => value.includes(form) || value.includes(kind)),
     ) || firstImage(homeVariants);
+  const matchingShinyHome =
+    firstImage(homeVariants, (asset) =>
+      Boolean(asset?.shinyImage) &&
+      Boolean(kind === "gigantamax" ? asset?.gigantamax : true) &&
+      [asset.detail, asset.view, asset.form, asset.genderCode]
+        .filter(Boolean)
+        .map((value) => String(value).toLowerCase())
+        .some((value) => value.includes(form) || value.includes(kind)),
+    ) || firstImage(homeVariants, (asset) => asset?.shinyImage);
 
-  if (kind === "dynamax") return matchingShuffle?.image || entry.shuffleImage || entry.image || entry.homeImage || null;
+  if (kind === "event") return (preferShiny ? entry.shinyImage : null) || entry.image || entry.shinyImage || null;
+  if (kind === "dynamax")
+    return (
+      (preferShiny ? matchingShinyShuffle?.image || entry.shuffleShinyImage || entry.shinyImage : null) ||
+      matchingShuffle?.image ||
+      entry.shuffleImage ||
+      entry.image ||
+      entry.homeImage ||
+      null
+    );
   if (kind === "gigantamax")
-    return matchingHome?.image || entry.homeImage || matchingShuffle?.image || entry.shuffleImage || entry.image || null;
-  if (kind === "mega") return entry.homeImage || entry.image || matchingHome?.image || matchingShuffle?.image || null;
-  if (kind === "form") return entry.image || matchingHome?.image || entry.homeImage || matchingShuffle?.image || null;
+    return (
+      (preferShiny ? matchingShinyHome?.shinyImage || entry.homeShinyImage || entry.shinyImage : null) ||
+      matchingHome?.image ||
+      entry.homeImage ||
+      matchingShuffle?.image ||
+      entry.shuffleImage ||
+      entry.image ||
+      null
+    );
+  if (kind === "mega")
+    return (
+      (preferShiny ? entry.homeShinyImage || matchingShinyHome?.shinyImage || entry.shinyImage : null) ||
+      entry.homeImage ||
+      entry.image ||
+      matchingHome?.image ||
+      matchingShuffle?.image ||
+      null
+    );
+  if (kind === "form")
+    return (
+      (preferShiny ? entry.shinyImage || entry.homeShinyImage || matchingShinyHome?.shinyImage : null) ||
+      entry.image ||
+      matchingHome?.image ||
+      entry.homeImage ||
+      matchingShuffle?.image ||
+      null
+    );
 
   return (
     (preferShiny ? entry.shinyImage : null) ||
@@ -114,6 +164,7 @@ export function preferredPokemonImage(entry = {}, options = {}) {
 export function pokemonVariantLabel(entry = {}) {
   const kind = String(entry.kind || "").toLowerCase();
   const form = String(entry.form || "normal").toLowerCase();
+  if (kind === "event") return "Évènement";
   if (kind === "mega") return "Méga";
   if (kind === "dynamax") return "Dynamax";
   if (kind === "gigantamax") return "Gigamax";

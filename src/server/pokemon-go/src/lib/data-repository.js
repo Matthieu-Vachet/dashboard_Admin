@@ -15,11 +15,13 @@ function hasDataShape(directory) {
 }
 
 function candidateRoots() {
+  // En local on préfère le dépôt frère PokemonGo-Data, plus frais que le clone
+  // ignoré dans .data. Sur Vercel, .data reste le fallback créé par ensure-data.
   return [
     process.env.POKEMON_GO_DATA_DIR,
     process.env.DATA_REPOSITORY_DIR,
-    path.join(/*turbopackIgnore: true*/ appRoot, ".data", "PokemonGo-Data"),
     path.resolve(/*turbopackIgnore: true*/ appRoot, "..", "PokemonGo-Data"),
+    path.join(/*turbopackIgnore: true*/ appRoot, ".data", "PokemonGo-Data"),
     path.join(/*turbopackIgnore: true*/ appRoot, "data"),
   ].filter(Boolean);
 }

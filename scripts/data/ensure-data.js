@@ -19,8 +19,8 @@ function candidates() {
   return [
     process.env.POKEMON_GO_DATA_DIR,
     process.env.DATA_REPOSITORY_DIR,
-    targetDir,
     path.resolve(appRoot, "..", "PokemonGo-Data"),
+    targetDir,
     path.join(appRoot, "data"),
   ].filter(Boolean);
 }

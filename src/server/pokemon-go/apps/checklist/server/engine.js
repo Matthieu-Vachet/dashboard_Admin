@@ -115,6 +115,9 @@ function createValidator() {
   function field(object, key, pathName, type, options = {}) {
     const value = object?.[key];
     if (value === undefined) {
+      // Certains champs existent seulement pour une mécanique précise
+      // (Méga, Dynamax, assets lourds). optional évite les faux positifs.
+      if (options.optional) return undefined;
       add(pathName, "missing", type, "absent");
       return undefined;
     }
@@ -427,7 +430,6 @@ function createValidator() {
       add(pathName, "type", "objet de données Shadow", actualType(value));
       return;
     }
-    field(value, "released", `${pathName}.released`, "boolean");
     field(value, "firstReleaseDate", `${pathName}.firstReleaseDate`, "string", {
       nonEmpty: true,
     });
@@ -586,13 +588,16 @@ function createValidator() {
         "raidLevel20",
         "researchLevel15",
       ])
-        field(maxCp, key, `${prefix}maxCp.${key}`, "number");
+        field(maxCp, key, `${prefix}maxCp.${key}`, "number", {
+          nullable: true,
+          optional: true,
+        });
       field(
         maxCp,
         "maxBattlesLevel20",
         `${prefix}maxCp.maxBattlesLevel20`,
         "number",
-        { nullable: true },
+        { nullable: true, optional: true },
       );
     }
 
@@ -675,6 +680,7 @@ function createValidator() {
     });
     field(value, "megaEnergyCost", `${prefix}megaEnergyCost`, "number", {
       nullable: true,
+      optional: true,
     });
     for (const [blockName, keys] of [
       ["captureRewards", ["candy", "stardust"]],
@@ -694,10 +700,21 @@ function createValidator() {
     ]) {
       const block = field(value, blockName, `${prefix}${blockName}`, "object");
       if (actualType(block) === "object")
-        for (const key of keys)
+        for (const key of keys) {
+          if (
+            blockName === "maxCp" &&
+            key === "maxBattlesLevel20" &&
+            block[key] === undefined &&
+            !value.availability?.dynamax &&
+            !value.availability?.gigantamax &&
+            !["dynamax", "gigantamax"].includes(String(value.form || "").toLowerCase())
+          ) {
+            continue;
+          }
           field(block, key, `${prefix}${blockName}.${key}`, "number", {
             nullable: blockName === "maxCp" && key === "maxBattlesLevel20",
           });
+        }
     }
     const availability = field(
       value,
@@ -1395,6 +1412,9 @@ function buildChecklist(customRulesOverride = null) {
     const shuffleVariant =
       shuffleVariants.find((asset) => !asset?.shiny && (asset?.image || asset?.shinyImage)) ||
       shuffleVariants.find((asset) => asset?.image || asset?.shinyImage);
+    const shuffleShinyVariant = shuffleVariants.find(
+      (asset) => asset?.shiny && (asset?.image || asset?.shinyImage),
+    );
     const homeImage =
       home.image ||
       home.shinyImage ||
@@ -1402,6 +1422,19 @@ function buildChecklist(customRulesOverride = null) {
       homeVariant?.shinyImage ||
       null;
     const shuffleImage = shuffleVariant?.image || shuffleVariant?.shinyImage || null;
+    // assetForms reste dans le fichier asset lourd, mais le dashboard a besoin
+    // d'un résumé léger pour construire les collections de costumes.
+    const eventAssets = Array.isArray(displayData.assetForms)
+      ? displayData.assetForms
+          .filter((asset) => asset?.image || asset?.shinyImage)
+          .map((asset) => ({
+            form: asset.form || null,
+            costume: asset.costume || null,
+            image: asset.image || null,
+            shinyImage: asset.shinyImage || null,
+            isFemale: Boolean(asset.isFemale),
+          }))
+      : [];
     return {
       key: `${kind}:${relativeToApp(file)}${
         kind === "mega" ? `#${data.formId || data.id}` : ""
@@ -1416,8 +1449,11 @@ function buildChecklist(customRulesOverride = null) {
       image: displayData.assets?.portrait || displayData.assets?.image || null,
       homeImage,
       shuffleImage,
+      homeShinyImage: home.shinyImage || homeVariant?.shinyImage || null,
+      shuffleShinyImage: shuffleShinyVariant?.image || shuffleShinyVariant?.shinyImage || null,
       shinyImage:
         displayData.assets?.portraitShiny || displayData.assets?.shinyImage || null,
+      eventAssets,
       primaryType:
         typeof displayData.primaryType === "string"
           ? displayData.primaryType
