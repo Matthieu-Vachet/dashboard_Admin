@@ -134,10 +134,10 @@ export function preferredPokemonImage(entry = {}, options = {}) {
     );
   if (kind === "mega")
     return (
-      (preferShiny ? entry.homeShinyImage || matchingShinyHome?.shinyImage || entry.shinyImage : null) ||
-      entry.homeImage ||
+      (preferShiny ? entry.shinyImage || entry.homeShinyImage || matchingShinyHome?.shinyImage : null) ||
       entry.image ||
       matchingHome?.image ||
+      entry.homeImage ||
       matchingShuffle?.image ||
       null
     );

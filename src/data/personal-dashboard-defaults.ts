@@ -12,7 +12,7 @@ export const initialNotes: Note[] = [
   {
     id: "n1",
     title: "Dashboard Admin",
-    body: "Créer le socle, les pages métier, Storybook et le déploiement Vercel.",
+    body: "Créer le socle, les pages métier, le design system intégré et le déploiement Vercel.",
     category: "Projet",
     updatedAt: "Aujourd'hui",
   },
@@ -66,7 +66,7 @@ export const initialBoard: BoardState = {
   backlog: [
     {
       id: "k1",
-      title: "Finaliser les tokens Storybook",
+      title: "Finaliser les tokens UI",
       category: "Design",
       points: 3,
       owner: "MW",
@@ -108,7 +108,7 @@ export const initialBoard: BoardState = {
       category: "Produit",
       points: 5,
       owner: "MW",
-      note: "Socle Next.js, auth et Storybook.",
+      note: "Socle Next.js, auth et design system intégré.",
     },
   ],
 };
@@ -122,7 +122,7 @@ export type Todo = {
 
 export const initialTodos: Todo[] = [
   { id: "t1", title: "Configurer les variables Vercel", done: false, priority: "Haute" },
-  { id: "t2", title: "Ajouter les premiers composants Storybook", done: true, priority: "Moyenne" },
+  { id: "t2", title: "Ajouter les premiers composants UI", done: true, priority: "Moyenne" },
   { id: "t3", title: "Créer un template de projet", done: false, priority: "Moyenne" },
   { id: "t4", title: "Créer les outils quotidiens", done: false, priority: "Basse" },
 ];
@@ -185,8 +185,8 @@ export const initialProjects: Project[] = [
     progress: 38,
     repoUrl: "",
     siteUrl: "",
-    nextStep: "Documenter les composants dans Storybook.",
-    detail: "Tokens, composants, guidelines Storybook et primitives admin.",
+    nextStep: "Documenter les composants dans les docs dashboard.",
+    detail: "Tokens, composants, guidelines UI et primitives admin.",
   },
 ];
 
@@ -234,7 +234,7 @@ export const initialEvents: CalendarEvent[] = [
   {
     id: "e3",
     date: dateKey(new Date(Date.now() + 86400000 * 8)),
-    title: "Storybook session",
+    title: "Design system session",
     time: "10:00",
     tone: "violet",
     note: "Référencer les composants du design system.",
@@ -272,7 +272,7 @@ export type Contact = {
 
 export const initialLinks: QuickLink[] = [
   { id: "l1", label: "Dashboard prod", url: "https://dashboard-admin-pi-ebon.vercel.app" },
-  { id: "l2", label: "Storybook", url: "/storybook/index.html" },
+  { id: "l2", label: "Docs JSON", url: "/pokemon-docs" },
   { id: "l3", label: "GitHub dashboard", url: "https://github.com/Matthieu-Vachet/dashboard_Admin" },
   { id: "l4", label: "Vercel", url: "https://vercel.com" },
 ];

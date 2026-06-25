@@ -971,8 +971,18 @@ export function DetailModal({
             {activeTab === "checks" ? <IssuesPanel entry={entry} /> : null}
             {activeTab === "json" ? (
               <div className="space-y-4">
-                <Section title="JSON source" icon={uiAssets.icons.copy} tone="cyan">
+                <Section title="JSON principal" icon={uiAssets.icons.copy} tone="cyan">
                   <JsonBlock payload={payload.sourceData || payload} />
+                </Section>
+                <Section title="JSON assets" icon={uiAssets.icons.result} tone="cyan">
+                  {payload.assetSourceData ? (
+                    <JsonBlock payload={payload.assetSourceData} />
+                  ) : (
+                    <EmptyInline>
+                      Aucun fichier asset séparé lié à cette fiche
+                      {payload.assetSourceFile ? ` (${payload.assetSourceFile}).` : "."}
+                    </EmptyInline>
+                  )}
                 </Section>
               </div>
             ) : null}

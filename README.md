@@ -1,13 +1,12 @@
 # MatWeb Dashboard Admin
 
-Dashboard personnel Next.js pour piloter les futurs projets MatWeb : notes, kanban, projets, calendrier, todo list, outils quotidiens, statistiques Pokemon GO API et design system Storybook.
+Dashboard personnel Next.js pour piloter les futurs projets MatWeb : notes, kanban, projets, calendrier, todo list, outils quotidiens, statistiques Pokemon GO API, veille data et design system intégré.
 
 ## Stack
 
 - Next.js App Router, React, TypeScript
 - Tailwind CSS 4
 - Framer Motion, Recharts, dnd-kit, lucide-react
-- Storybook pour documenter les composants
 - GSAP pour les animations d'interface
 
 ## Installation
@@ -38,22 +37,6 @@ Le widget consomme `POKEMON_API_URL`.
 ```bash
 POKEMON_API_URL=https://pokemon-go-7r5q2j05a-matthieu-vachets-projects.vercel.app/api/checklist-v3
 ```
-
-## Storybook
-
-```bash
-npm run storybook
-npm run build-storybook
-```
-
-Le build Storybook est servi directement dans le dashboard via `/storybook/index.html`.
-
-Les premiers composants documentes :
-
-- `Design System/Button`
-- `Design System/Badge`
-- `Design System/Card`
-- `Dashboard/StatCard`
 
 ## Checks
 

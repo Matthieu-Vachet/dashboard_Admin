@@ -47,7 +47,7 @@ export const activityFeed = [
   },
   {
     title: "Design system initialisé",
-    detail: "Button, Badge, Card et StatCard référencés dans Storybook.",
+    detail: "Tokens, cartes et boutons stabilisés directement dans le dashboard.",
     time: "08:40",
     tone: "violet",
   },
