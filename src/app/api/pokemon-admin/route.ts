@@ -18,6 +18,7 @@ type RuleRecord = Record<string, unknown> & {
 };
 
 const customRulesStoreKey = "matweb.pokemon.customRules";
+const sourceHistoryStoreKey = "matweb.pokemon.sourceHistory";
 const pokemonModulePattern = `${process.cwd()}/src/server/pokemon-go/`;
 
 function json(data: unknown, init?: ResponseInit) {
@@ -83,6 +84,75 @@ async function readCustomRules(owner: string, workshop: ReturnType<typeof loadAd
 
 async function writeCustomRules(owner: string, rules: RuleRecord[]) {
   await writeDashboardStoreValue(owner, customRulesStoreKey, rules);
+}
+
+function sourceId(source: Record<string, unknown>) {
+  return String(source.id || source.name || source.repo || source.url || "").trim();
+}
+
+function sourceSignature(source: Record<string, unknown>) {
+  return [
+    source.signature,
+    source.version,
+    source.updatedAt,
+    source.status,
+    source.message,
+  ]
+    .filter(Boolean)
+    .map(String)
+    .join("|");
+}
+
+async function readSourceHistory(owner: string) {
+  if (!dashboardStoreConfigured()) return [];
+  const document = await readDashboardStoreValue(owner, sourceHistoryStoreKey);
+  return Array.isArray(document?.value) ? document.value : [];
+}
+
+async function recordSourceWatchHistory(
+  owner: string,
+  sourceWatchPayload: { checkedAt?: string; sources?: Record<string, unknown>[] },
+) {
+  if (!dashboardStoreConfigured()) return [];
+
+  const currentHistory = (await readSourceHistory(owner)) as Record<string, unknown>[];
+  const latestBySource = new Map<string, Record<string, unknown>>();
+  for (const item of currentHistory) {
+    const id = String(item.sourceId || "");
+    if (id && !latestBySource.has(id)) latestBySource.set(id, item);
+  }
+
+  const checkedAt = sourceWatchPayload.checkedAt || new Date().toISOString();
+  const nextEvents: Record<string, unknown>[] = [];
+
+  for (const source of sourceWatchPayload.sources || []) {
+    const id = sourceId(source);
+    const signature = sourceSignature(source);
+    if (!id || !signature) continue;
+
+    const previous = latestBySource.get(id);
+    if (previous?.signature === signature) continue;
+
+    nextEvents.push({
+      id: `${id}-${Date.now()}-${nextEvents.length}`,
+      checkedAt,
+      sourceId: id,
+      name: source.name || source.repo || source.url || id,
+      category: source.category || source.type || null,
+      status: source.status || null,
+      version: source.version || null,
+      signature,
+      previousSignature: previous?.signature || null,
+      previousVersion: previous?.version || null,
+      updatedAt: source.updatedAt || null,
+      message: source.message || null,
+      remoteUrl: source.remoteUrl || source.url || null,
+    });
+  }
+
+  const nextHistory = [...nextEvents, ...currentHistory].slice(0, 500);
+  await writeDashboardStoreValue(owner, sourceHistoryStoreKey, nextHistory);
+  return nextHistory;
 }
 
 async function saveCustomRule(owner: string, body: JsonValue, workshop: ReturnType<typeof loadAdminModules>["workshop"]) {
@@ -228,7 +298,17 @@ export async function GET(request: NextRequest) {
     }
 
     if (action === "source-watch") {
-      return json({ data: await sourceWatch() });
+      const data = await sourceWatch();
+      return json({
+        data: {
+          ...data,
+          history: await recordSourceWatchHistory(session!.email, data),
+        },
+      });
+    }
+
+    if (action === "source-history") {
+      return json({ data: await readSourceHistory(session!.email) });
     }
 
     if (action === "history") {

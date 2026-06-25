@@ -9,9 +9,8 @@ lecture.
 
 | Dossier | Responsabilite |
 | --- | --- |
-| `app/` | Front public Next.js. `/admin` redirige vers `/` en attendant `dashboard_Admin`. |
-| `components/` | Bibliotheque de composants partagee entre pages et Storybook. |
-| `.storybook/` | Configuration de la documentation UI Storybook. |
+| `app/` | Front public Next.js : accueil, checklist, bibliothèques, robots et sitemap. |
+| `components/` | Composants UI partages par la landing, la bibliotheque API et les fiches. |
 | `.data/PokemonGo-Data/` | Clone local ignore du depot de donnees, cree par `npm run ensure:data` si besoin. |
 | `src/` | Coeur de l'API REST Express et synchronisation MongoDB. |
 | `api/` | Points d'entree serverless necessaires au deploiement Vercel. |
@@ -55,8 +54,8 @@ référencent leurs types boostés et exposent les icônes de `asset/weather/`.
 
 Les sources externes surveillées par la checklist vivent dans
 `PokemonGo-Data/source-watch/sources.json`. Dans ce depot public read-only, l'action
-`source-watch` de `/api/checklist-v3` est désactivée et sera déplacée dans
-`dashboard_Admin`.
+`source-watch` de `/api/checklist-v3` est désactivée : les outils de correction et
+de surveillance sont gérés dans le dashboard privé.
 
 Le script `scripts/import/shadow-pokemon.js` synchronise depuis Bulbapedia les
 sorties Shadow déjà effectives, les coûts de purification, les Catch CP et les
@@ -67,9 +66,10 @@ Le rôle détaillé de chaque fichier JavaScript est documenté dans
 
 Les icônes de style Pokémon Shuffle vivent dans `asset/pokemonShuffle/`.
 `scripts/import/pokemon-shuffle.js` les associe une seule fois à la fiche JSON exacte
-dans `assets.shuffle`. Une image Dynamax va uniquement dans une fiche Dynamax, une
-Méga dans sa fiche Méga et une forme régionale dans sa fiche régionale. Les images
-Shadow et purifiées restent regroupées sur la fiche de leur forme.
+dans le fichier `pokemon-assets/**/*.assets.json` référence par `assets.assetsRef`.
+Une image Dynamax va uniquement dans une fiche Dynamax, une Méga dans sa fiche Méga
+et une forme régionale dans sa fiche régionale. Les images Shadow et purifiées restent
+regroupées sur la fiche asset de leur forme.
 
 Les fiches principales ne dupliquent plus les données de formes. `regionForms` et
 `megaEvolutions` contiennent uniquement des références vers

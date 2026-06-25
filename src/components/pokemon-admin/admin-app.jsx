@@ -14,7 +14,6 @@ import {
   ClipboardCheck,
   Cloud,
   Copy,
-  ExternalLink,
   FileDiff,
   FileJson,
   Filter,
@@ -39,7 +38,9 @@ import { SortableWidgetGrid } from "../dashboard/sortable-widget-grid";
 import { MetricCard } from "../site/metric-card";
 import { pokemonVariantLabel, preferredPokemonImage, typeBackground, typeColors, typeIcon, typeName } from "../site/pokemon-style";
 import { uiAssets } from "../site/ui-assets";
+import { CollectionsPanel } from "./collections-panel";
 import { LoginCard } from "./login-card";
+import { SourceHistoryModal, SourceRows } from "./source-watch-panel";
 
 const assetChecksKey = "pokedex-v4-asset-checks";
 const todoKey = "pokedex-v4-admin-todos";
@@ -86,35 +87,6 @@ const generationFilters = [
   ["8", "Galar", "/ui/PokedexV2/galar_starters.png", "/ui/PokedexV2/galar_locked.png"],
   ["hisui", "Hisui", "/ui/PokedexV2/hisui_starters.png", "/ui/PokedexV2/hisui_locked.png"],
   ["9", "Paldea", "/ui/PokedexV2/paldea_starters.png", "/ui/PokedexV2/paldea_locked.png"],
-];
-
-const collectionTypes = [
-  ["normal", "Normal", uiAssets.icons.pokeball || "/ui/icons/pokeball.webp"],
-  ["event", "Évènement", "/ui/icons/pokeball.webp"],
-  ["lucky", "Chanceux", uiAssets.icons.shiny || "/ui/icons/ic_shiny_white.webp"],
-  ["shadow", "Obscur", uiAssets.icons.shadow || "/ui/icons/shadow.png"],
-  ["purified", "Purifié", uiAssets.icons.purified || "/ui/icons/purified.png"],
-  ["dynamax", "Dynamax", uiAssets.icons.maxCp || "/ui/icons/max_pc.webp"],
-  ["gigantamax", "Gigamax", uiAssets.icons.maxCp || "/ui/icons/max_pc.webp"],
-];
-
-const collectionVariantModes = [
-  ["multi", "Multi variante"],
-  ["single", "Non variante"],
-];
-
-const collectionRegionFilters = [
-  ["all", "Toutes", null],
-  ["1", "Kanto", "/ui/icons/pokedex-kanto.webp"],
-  ["2", "Johto", "/ui/icons/pokedex-johto.webp"],
-  ["3", "Hoenn", "/ui/icons/pokedex-hoenn.webp"],
-  ["4", "Sinnoh", "/ui/icons/pokedex-sinnoh.webp"],
-  ["5", "Unys", "/ui/icons/pokedex-unova.webp"],
-  ["6", "Kalos", "/ui/icons/pokedex-kalos.webp"],
-  ["7", "Alola", "/ui/icons/pokedex-alola.webp"],
-  ["8", "Galar", "/ui/icons/pokedex-galar.webp"],
-  ["hisui", "Hisui", "/ui/PokedexV2/hisui_starters.png"],
-  ["9", "Paldea", "/ui/icons/pokedex-paldea.webp"],
 ];
 
 const assetStatTone = {
@@ -461,204 +433,6 @@ function localJson(key, fallback) {
   } catch {
     return fallback;
   }
-}
-
-function textForEntry(entry) {
-  return [
-    entry.name,
-    entry.dexId,
-    entry.form,
-    entry.kind,
-    entry.profile,
-    entry.file,
-    entry.primaryType,
-    entry.secondaryType,
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-}
-
-function entryIsEvent(entry) {
-  if (entry.collectionType === "event") return true;
-  return /(event|costume|halloween|party|hat|cap|flower|clone|pikavisor|visor|fragment|libre|pop-star|rock-star)/i.test(
-    textForEntry(entry),
-  );
-}
-
-function entryMatchesCollectionType(entry, type) {
-  const kind = String(entry.kind || "").toLowerCase();
-  const form = String(entry.form || "").toLowerCase();
-  const availability = entry.availability || {};
-  if (type === "normal") {
-    return !["event", "mega", "dynamax", "gigantamax"].includes(kind) && !entryIsEvent(entry);
-  }
-  if (type === "event") return entry.collectionType === "event" || kind === "event";
-  if (type === "lucky") return !["dynamax", "gigantamax"].includes(kind);
-  if (type === "shadow" || type === "purified") return availability.shadow === true;
-  if (type === "dynamax") return kind === "dynamax" || form === "dynamax" || availability.dynamax === true;
-  if (type === "gigantamax") return kind === "gigantamax" || form === "gigantamax" || availability.gigantamax === true;
-  return true;
-}
-
-function entryMatchesVariantMode(entry, variantMode) {
-  if (entry.collectionType === "event") return true;
-  if (variantMode !== "single") return true;
-  return String(entry.kind || "").toLowerCase() === "pokemon" && String(entry.form || "normal").toLowerCase() === "normal";
-}
-
-function entryMatchesCollectionRegion(entry, region) {
-  if (region === "all") return true;
-  if (region === "hisui") return textForEntry(entry).includes("hisui");
-  return String(entry.generation || "") === String(region);
-}
-
-function entryMatchesCollection(entry, collection, region, query) {
-  if (!entryMatchesCollectionType(entry, collection.type)) return false;
-  if (!entryMatchesVariantMode(entry, collection.variantMode)) return false;
-  if (!entryMatchesCollectionRegion(entry, region)) return false;
-  const availability = entry.availability || {};
-  if (collection.shiny) {
-    if (collection.type === "event") {
-      if (!entry.shinyImage) return false;
-    } else {
-      const isShadowCollection = ["shadow", "purified"].includes(collection.type);
-      const released = isShadowCollection
-        ? availability.shadowShinyReleased === true
-        : availability.shinyReleased === true;
-      if (!released) return false;
-    }
-  }
-  const needle = query.trim().toLowerCase();
-  return !needle || textForEntry(entry).includes(needle);
-}
-
-// Les collections "Évènement" ne correspondent pas à des fichiers Pokémon dédiés.
-// Elles sont reconstruites depuis les variantes d'assets GO, puis affichées comme
-// des entrées virtuelles pour obtenir de vraies images de costumes.
-function eventAssetIsCollectionItem(asset = {}) {
-  const signature = [asset.form, asset.costume, asset.id, asset.filename]
-    .filter(Boolean)
-    .join(" ");
-  return Boolean(asset.costume) || /(event|costume|halloween|party|hat|cap|flower|clone|visor|fall|spring|jan|noevolve|libre|pop|rock)/i.test(signature);
-}
-
-function readableAssetLabel(value) {
-  return String(value || "")
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase())
-    .replace(/\bNoevolve\b/g, "No evolve");
-}
-
-function eventAssetName(entry, asset) {
-  const label = readableAssetLabel(asset.costume || asset.form || "Évènement");
-  return `${entry.name} ${label}`.trim();
-}
-
-function eventCollectionItems(entries) {
-  return entries.flatMap((entry) => {
-    const eventAssets = Array.isArray(entry.eventAssets) ? entry.eventAssets : [];
-    const seen = new Set();
-    return eventAssets
-      .filter(eventAssetIsCollectionItem)
-      .filter((asset) => {
-        const key = `${asset.costume || ""}|${asset.form || ""}|${asset.image || ""}|${asset.shinyImage || ""}`;
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      })
-      .map((asset, index) => ({
-        ...entry,
-        key: `${entry.key}:event:${asset.costume || asset.form || index}`,
-        baseKey: entry.key,
-        collectionType: "event",
-        kind: "event",
-        form: asset.costume || asset.form || "event",
-        name: eventAssetName(entry, asset),
-        image: asset.image || asset.shinyImage || entry.image,
-        shinyImage: asset.shinyImage || null,
-        eventAsset: asset,
-        availability: {
-          ...(entry.availability || {}),
-          shinyReleased: Boolean(asset.shinyImage),
-        },
-      }));
-  });
-}
-
-function collectionPool(entries, collection) {
-  if (!collection) return [];
-  return collection.type === "event" ? eventCollectionItems(entries) : entries;
-}
-
-function collectionImage(entry, collection) {
-  return (
-    preferredPokemonImage(entry, { preferShiny: Boolean(collection?.shiny) }) ||
-    (collection?.shiny ? entry.shinyImage : null) ||
-    entry.image ||
-    entry.homeImage ||
-    null
-  );
-}
-
-const generationLabels = {
-  1: "Kanto",
-  2: "Johto",
-  3: "Hoenn",
-  4: "Sinnoh",
-  5: "Unys",
-  6: "Kalos",
-  7: "Alola",
-  8: "Galar",
-  9: "Paldea",
-  hisui: "Hisui",
-  unknown: "Inconnue",
-};
-
-function generationKey(entry) {
-  if (textForEntry(entry).includes("hisui")) return "hisui";
-  return String(entry.generation || "unknown");
-}
-
-function groupedByGeneration(entries) {
-  const groups = new Map();
-  for (const entry of entries) {
-    const key = generationKey(entry);
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(entry);
-  }
-  return Array.from(groups.entries()).sort(([left], [right]) => {
-    const order = ["1", "2", "3", "4", "5", "6", "7", "8", "hisui", "9", "unknown"];
-    return order.indexOf(left) - order.indexOf(right);
-  });
-}
-
-function collectionStats(entries) {
-  const stats = {
-    shiny: 0,
-    shadow: 0,
-    shadowShiny: 0,
-    dynamax: 0,
-    gigantamax: 0,
-    mega: 0,
-    regional: 0,
-    event: eventCollectionItems(entries).length,
-    forms: 0,
-  };
-  for (const entry of entries) {
-    const kind = String(entry.kind || "").toLowerCase();
-    const form = String(entry.form || "normal").toLowerCase();
-    const availability = entry.availability || {};
-    if (availability.shinyReleased) stats.shiny += 1;
-    if (availability.shadow) stats.shadow += 1;
-    if (availability.shadowShinyReleased) stats.shadowShiny += 1;
-    if (availability.dynamax || kind === "dynamax") stats.dynamax += 1;
-    if (availability.gigantamax || kind === "gigantamax") stats.gigantamax += 1;
-    if (kind === "mega") stats.mega += 1;
-    if (kind === "form") stats.forms += 1;
-    if (["alola", "galar", "hisui", "paldea"].includes(form)) stats.regional += 1;
-  }
-  return stats;
 }
 
 function sourceSignature(source) {
@@ -1338,410 +1112,6 @@ function CandyPanel({ entries = [], search = "", onOpen }) {
   );
 }
 
-function CollectionsPanel({ entries = [], collections = [], onSave, onOpen, globalSearch = "" }) {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [activeId, setActiveId] = useState(collections[0]?.id || "");
-  const [region, setRegion] = useState("all");
-  const [status, setStatus] = useState("all");
-  const [query, setQuery] = useState("");
-  const [draft, setDraft] = useState({
-    name: "",
-    type: "normal",
-    variantMode: "multi",
-    shiny: false,
-    hundo: false,
-  });
-
-  useEffect(() => {
-    if (!collections.length) {
-      setActiveId("");
-      return;
-    }
-    if (!collections.some((collection) => collection.id === activeId)) {
-      setActiveId(collections[0].id);
-    }
-  }, [activeId, collections]);
-
-  const activeCollection = collections.find((collection) => collection.id === activeId) || collections[0] || null;
-  const activeItems = useMemo(() => activeCollection?.items || {}, [activeCollection]);
-  const combinedSearch = [globalSearch, query].filter(Boolean).join(" ");
-  const stats = useMemo(() => collectionStats(entries), [entries]);
-  const pool = useMemo(() => collectionPool(entries, activeCollection), [activeCollection, entries]);
-  const collectionEntries = useMemo(() => {
-    if (!activeCollection) return [];
-    return pool.filter((entry) => {
-      if (!entryMatchesCollection(entry, activeCollection, region, combinedSearch)) return false;
-      if (status === "have") return Boolean(activeItems[entry.key]);
-      if (status === "need") return !activeItems[entry.key];
-      return true;
-    });
-  }, [activeCollection, activeItems, combinedSearch, pool, region, status]);
-  const allMatching = useMemo(
-    () => (activeCollection ? pool.filter((entry) => entryMatchesCollection(entry, activeCollection, region, combinedSearch)) : []),
-    [activeCollection, combinedSearch, pool, region],
-  );
-  const generationGroups = useMemo(() => groupedByGeneration(collectionEntries), [collectionEntries]);
-  const haveCount = activeCollection
-    ? Object.values(activeItems).filter(Boolean).length
-    : 0;
-  const visibleHaveCount = allMatching.filter((entry) => activeItems[entry.key]).length;
-
-  function createCollection() {
-    const name = draft.name.trim();
-    if (!name) {
-      toast.error("Donne un nom à la collection.");
-      return;
-    }
-    const next = [
-      {
-        id: `collection-${Date.now()}`,
-        name,
-        type: draft.type,
-        variantMode: draft.variantMode,
-        shiny: draft.shiny,
-        hundo: draft.hundo,
-        items: {},
-        createdAt: new Date().toISOString(),
-      },
-      ...collections,
-    ];
-    onSave(next);
-    setActiveId(next[0].id);
-    setModalOpen(false);
-    setDraft({ name: "", type: "normal", variantMode: "multi", shiny: false, hundo: false });
-    toast.success("Collection créée.");
-  }
-
-  function updateActive(patch) {
-    if (!activeCollection) return;
-    onSave(collections.map((collection) => (collection.id === activeCollection.id ? { ...collection, ...patch } : collection)));
-  }
-
-  function toggleEntry(entry) {
-    if (!activeCollection) return;
-    const nextItems = { ...activeItems };
-    if (nextItems[entry.key]) delete nextItems[entry.key];
-    else nextItems[entry.key] = true;
-    updateActive({ items: nextItems, updatedAt: new Date().toISOString() });
-  }
-
-  function deleteActive() {
-    if (!activeCollection) return;
-    const next = collections.filter((collection) => collection.id !== activeCollection.id);
-    onSave(next);
-    setActiveId(next[0]?.id || "");
-    toast.success("Collection supprimée.");
-  }
-
-  return (
-    <Panel
-      title="Collections Pokémon GO"
-      eyebrow="expérimentation checklist"
-      action={
-        <button className={primaryButtonClass} type="button" onClick={() => setModalOpen(true)}>
-          <Sparkles size={17} /> Nouvelle collection
-        </button>
-      }
-    >
-      <div className="mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          ["Chromatiques", stats.shiny, uiAssets.icons.shiny, "Fiches dont availability.shinyReleased est vrai"],
-          ["Shadow", stats.shadow, uiAssets.icons.shadow, "Fiches disponibles en Obscur"],
-          ["Dynamax", stats.dynamax, uiAssets.icons.maxPc, "Fiches ou formes Dynamax"],
-          ["Gigamax", stats.gigantamax, uiAssets.icons.maxPc, "Fiches ou formes Gigamax"],
-          ["Méga", stats.mega, uiAssets.icons.mega, "Méga et Primo"],
-          ["Formes", stats.forms, uiAssets.icons.pokedex, "Fiches du dossier pokemon-forms"],
-          ["Régionales", stats.regional, uiAssets.icons.pokedex, "Alola, Galar, Hisui, Paldea"],
-          ["Évènements", stats.event, uiAssets.icons.pokeball, "Cartes construites depuis assetForms"],
-        ].map(([label, value, icon, detail]) => (
-          <AssetStatCard
-            detail={detail}
-            icon={icon}
-            key={label}
-            label={label}
-            tone={label === "Shadow" ? "violet" : label === "Évènements" ? "amber" : "cyan"}
-            value={value}
-          />
-        ))}
-      </div>
-
-      <div className="mb-5 grid gap-3 xl:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)]">
-        <div className="rounded-3xl border border-white/10 bg-slate-950/35 p-4">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <strong className="font-black text-white">Mes collections</strong>
-            <span className="rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-1 text-xs font-black text-emerald-100">
-              {collections.length}
-            </span>
-          </div>
-          <div className="grid gap-2">
-            {collections.length ? (
-              collections.map((collection) => (
-                <button
-                  className={`rounded-2xl border p-3 text-left transition ${
-                    activeCollection?.id === collection.id
-                      ? "border-cyan-200/55 bg-cyan-400/18"
-                      : "border-white/10 bg-white/[0.045] hover:border-cyan-200/35"
-                  }`}
-                  key={collection.id}
-                  type="button"
-                  onClick={() => setActiveId(collection.id)}
-                >
-                  <span className="flex items-center justify-between gap-3">
-                    <strong className="truncate text-sm font-black text-white">{collection.name}</strong>
-                    <small className="shrink-0 rounded-full bg-white/10 px-2 py-1 text-[10px] font-black uppercase text-slate-200">
-                      {collection.shiny ? "shiny" : "standard"}
-                    </small>
-                  </span>
-                  <small className="mt-2 block truncate text-xs font-bold text-slate-400">
-                    {collectionTypes.find(([id]) => id === collection.type)?.[1] || collection.type} ·{" "}
-                    {collectionVariantModes.find(([id]) => id === collection.variantMode)?.[1]}
-                    {collection.hundo ? " · Hundo" : ""}
-                  </small>
-                </button>
-              ))
-            ) : (
-              <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
-                Crée une première collection pour afficher les Pokémon correspondants.
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-sky-500/12 via-cyan-400/8 to-emerald-400/12 p-4">
-          {activeCollection ? (
-            <>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-100/70">Collection active</p>
-                  <h3 className="mt-1 text-2xl font-black text-white">{activeCollection.name}</h3>
-                  <p className="mt-1 text-sm font-bold text-slate-300">
-                    {visibleHaveCount}/{allMatching.length} sélectionnés sur le filtre actuel · {haveCount} au total
-                  </p>
-                </div>
-                <button className="rounded-2xl border border-rose-300/25 bg-rose-500/10 px-3 py-2 text-xs font-black text-rose-100" type="button" onClick={deleteActive}>
-                  Supprimer
-                </button>
-              </div>
-              <div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
-                <input
-                  className={fieldClass}
-                  placeholder="Rechercher dans la collection..."
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                />
-                <div className="grid grid-cols-3 gap-2">
-                  {["all", "have", "need"].map((id) => (
-                    <button
-                      className={`rounded-2xl border px-4 py-2 text-xs font-black uppercase ${
-                        status === id ? "border-cyan-200/55 bg-cyan-400/20 text-cyan-50" : "border-white/10 bg-white/[0.055] text-slate-300"
-                      }`}
-                      key={id}
-                      type="button"
-                      onClick={() => setStatus(id)}
-                    >
-                      {id}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="grid min-h-48 place-items-center text-center">
-              <div>
-                <Sparkles className="mx-auto mb-3 text-cyan-100" size={30} />
-                <h3 className="text-xl font-black text-white">Aucune collection active</h3>
-                <p className="mt-2 text-sm font-bold text-slate-400">Crée une collection pour générer automatiquement sa grille.</p>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {activeCollection ? (
-        <>
-          <div className="mb-5 grid grid-cols-[repeat(auto-fit,minmax(8.5rem,1fr))] gap-2">
-            {collectionRegionFilters.map(([id, label, icon]) => (
-              <button
-                className={`relative min-h-[72px] overflow-hidden rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 ${
-                  region === id ? "border-cyan-200/55 bg-cyan-400/20" : "border-white/10 bg-white/[0.045]"
-                }`}
-                key={id}
-                type="button"
-                onClick={() => setRegion(id)}
-              >
-                {icon ? (
-                  <img className="absolute bottom-1 right-1 h-12 max-w-[56%] object-contain opacity-60 drop-shadow-xl" src={icon} alt="" />
-                ) : (
-                  <LayoutDashboard className="absolute bottom-3 right-3 text-cyan-100/50" size={24} />
-                )}
-                <small className="relative block text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">
-                  {id === "all" ? "Régions" : `Gén. ${id}`}
-                </small>
-                <strong className="relative mt-1 block text-sm font-black text-white">{label}</strong>
-              </button>
-            ))}
-          </div>
-
-          <div className="space-y-6">
-            {generationGroups.map(([groupId, groupEntries]) => (
-              <section key={groupId}>
-                <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100/65">
-                      Génération
-                    </p>
-                    <h3 className="text-2xl font-black text-white">
-                      {generationLabels[groupId] || `Gén. ${groupId}`}
-                    </h3>
-                  </div>
-                  <span className="rounded-full border border-cyan-200/25 bg-cyan-400/12 px-3 py-1.5 text-xs font-black text-cyan-50">
-                    {groupEntries.filter((entry) => activeItems[entry.key]).length}/{groupEntries.length}
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
-                  {groupEntries.map((entry) => {
-                    const selected = Boolean(activeItems[entry.key]);
-                    const image = collectionImage(entry, activeCollection);
-                    const color = typeColors[entry.primaryType] || "#38bdf8";
-                    return (
-                      <button
-                        className={`group relative min-h-[13rem] overflow-hidden rounded-3xl border p-3 text-left transition hover:-translate-y-1 ${
-                          selected
-                            ? "border-pink-200/70 bg-pink-400/16 shadow-[0_18px_55px_rgba(244,114,182,.18)]"
-                            : "border-white/10 bg-slate-950/42 hover:border-cyan-200/45"
-                        }`}
-                        key={entry.key}
-                        type="button"
-                        onClick={() => toggleEntry(entry)}
-                        onDoubleClick={() => onOpen(entry)}
-                      >
-                        <span
-                          className="pointer-events-none absolute inset-x-3 bottom-3 h-16 rounded-2xl opacity-70"
-                          style={{ background: `linear-gradient(135deg, ${color}55, rgba(255,255,255,.08))` }}
-                        />
-                        <span className="absolute right-3 top-3 grid h-7 w-7 place-items-center rounded-full border border-white/20 bg-slate-950/70 text-xs font-black text-white">
-                          {selected ? "✓" : ""}
-                        </span>
-                        <span className="relative grid h-28 place-items-center p-2">
-                          {image ? (
-                            <img className="max-h-full object-contain drop-shadow-[0_18px_28px_rgba(0,0,0,.5)] transition group-hover:scale-110" src={image} alt="" />
-                          ) : (
-                            <ImageIcon className="text-cyan-100/55" size={34} />
-                          )}
-                        </span>
-                        <span className="relative mt-2 block">
-                          <strong className="block truncate text-sm font-black text-white">{entry.name}</strong>
-                          <small className="mt-1 block truncate font-mono text-xs font-black text-slate-300">{entry.dexId}</small>
-                          <small className="mt-1 block truncate text-[11px] font-bold text-slate-400">{pokemonVariantLabel(entry)}</small>
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
-            ))}
-          </div>
-          {!collectionEntries.length ? (
-            <p className="mt-4 rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
-              Aucun Pokémon ne correspond à cette combinaison de filtres.
-            </p>
-          ) : null}
-        </>
-      ) : null}
-
-      {modalOpen ? (
-        <div className="fixed inset-0 z-50 grid place-items-center overflow-hidden bg-slate-950/78 p-2 backdrop-blur-xl sm:p-4" role="dialog" aria-modal="true">
-          <section className="flex max-h-[calc(100dvh-1rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[1.5rem] border border-white/10 bg-zinc-900 shadow-[0_32px_120px_rgba(0,0,0,.5)] sm:max-h-[calc(100dvh-2rem)] sm:rounded-[2rem]">
-            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-white/10 bg-zinc-900/95 p-4 backdrop-blur sm:p-5">
-              <h3 className="text-2xl font-black text-white">Nouvelle collection</h3>
-              <button className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/[0.06] text-xl font-black text-white" type="button" onClick={() => setModalOpen(false)}>
-                ×
-              </button>
-            </div>
-
-            <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain p-4 pb-5 sm:p-5">
-              <div>
-                <h4 className="mb-3 text-sm font-black uppercase tracking-[0.18em] text-slate-300">Type de collection</h4>
-                <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-                  {collectionTypes.map(([id, label, icon]) => (
-                    <button
-                      className={`min-h-20 rounded-2xl border p-3 text-center transition sm:min-h-24 sm:p-4 ${
-                        draft.type === id ? "border-emerald-200/65 bg-emerald-400/22" : "border-white/20 bg-white/[0.055] hover:border-cyan-200/45"
-                      }`}
-                      key={id}
-                      type="button"
-                      onClick={() => setDraft((current) => ({ ...current, type: id }))}
-                    >
-                      <img className="mx-auto mb-2 h-10 w-10 object-contain" src={icon} alt="" />
-                      <strong className="font-black text-white">{label}</strong>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h4 className="mb-3 text-sm font-black uppercase tracking-[0.18em] text-slate-300">Mode Pokédex</h4>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {collectionVariantModes.map(([id, label]) => (
-                    <button
-                      className={`rounded-2xl border p-5 text-center font-black transition ${
-                        draft.variantMode === id ? "border-cyan-200/60 bg-cyan-400/18 text-white" : "border-white/20 bg-white/[0.055] text-slate-200"
-                      }`}
-                      key={id}
-                      type="button"
-                      onClick={() => setDraft((current) => ({ ...current, variantMode: id }))}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                <p className="mt-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 text-sm font-bold leading-6 text-slate-300">
-                  Multi variante inclut les formes disponibles. Non variante limite aux fiches de base normales.
-                </p>
-              </div>
-
-              <div>
-                <h4 className="mb-3 text-sm font-black uppercase tracking-[0.18em] text-slate-300">Autres caractéristiques</h4>
-                <div className="grid gap-3">
-                  {[
-                    ["shiny", "Chromatique"],
-                    ["hundo", "Hundo 100%"],
-                  ].map(([id, label]) => (
-                    <label className="flex items-center justify-between gap-4 rounded-2xl border border-white/15 bg-white/[0.055] p-4 text-sm font-black text-white" key={id}>
-                      {label}
-                      <input
-                        className="h-6 w-6 accent-cyan-400"
-                        type="checkbox"
-                        checked={Boolean(draft[id])}
-                        onChange={(event) => setDraft((current) => ({ ...current, [id]: event.target.checked }))}
-                      />
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <label className="block">
-                <span className="mb-2 block text-sm font-black uppercase tracking-[0.18em] text-slate-300">Nom de la collection</span>
-                <input
-                  className={fieldClass}
-                  value={draft.name}
-                  placeholder="ex. Shiny Shadow Kanto"
-                  onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))}
-                />
-              </label>
-            </div>
-            <div className="sticky bottom-0 border-t border-white/10 bg-zinc-900/95 p-4 backdrop-blur sm:p-5">
-              <button className="min-h-12 w-full rounded-2xl bg-white px-5 text-base font-black text-slate-950 transition hover:scale-[1.01]" type="button" onClick={createCollection}>
-                Créer une Collection
-              </button>
-            </div>
-          </section>
-        </div>
-      ) : null}
-    </Panel>
-  );
-}
-
 function MiniCardList({ entries, onOpen }) {
   return (
     <div className="grid gap-3">
@@ -2233,131 +1603,6 @@ function RulesPanel({
   );
 }
 
-function SourceRows({ sourceWatch }) {
-  if (sourceWatch?.loading) {
-    return (
-      <p className="rounded-2xl border border-white/10 bg-slate-950/35 p-4 text-sm font-bold text-slate-300">
-        Vérification en cours...
-      </p>
-    );
-  }
-  if (sourceWatch?.error) {
-    return (
-      <p className="rounded-2xl border border-red-300/30 bg-red-500/10 p-4 text-sm font-bold text-red-100">
-        {sourceWatch.error}
-      </p>
-    );
-  }
-  const sources = sourceWatch?.sources || [];
-  const okCount = sources.filter((source) => source.status === "ok").length;
-  const warningCount = sources.filter((source) => source.status === "warning").length;
-  const errorCount = sources.filter((source) => source.status && !["ok", "warning"].includes(source.status)).length;
-  const changedSources = sources.filter((source) => source.changedSinceLastCheck);
-
-  return (
-    <div className="space-y-3">
-      <div className="grid gap-3 md:grid-cols-5">
-        <article className="rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4">
-          <span className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100/70">Sources</span>
-          <strong className="mt-2 block text-2xl font-black text-white">{sources.length}</strong>
-        </article>
-        <article className="rounded-2xl border border-emerald-300/15 bg-emerald-400/10 p-4">
-          <span className="text-xs font-black uppercase tracking-[0.18em] text-emerald-100/70">OK</span>
-          <strong className="mt-2 block text-2xl font-black text-white">{okCount}</strong>
-        </article>
-        <article className="rounded-2xl border border-amber-300/15 bg-amber-400/10 p-4">
-          <span className="text-xs font-black uppercase tracking-[0.18em] text-amber-100/70">À suivre</span>
-          <strong className="mt-2 block text-2xl font-black text-white">{warningCount}</strong>
-        </article>
-        <article className="rounded-2xl border border-red-300/15 bg-red-500/10 p-4">
-          <span className="text-xs font-black uppercase tracking-[0.18em] text-red-100/70">Erreurs</span>
-          <strong className="mt-2 block text-2xl font-black text-white">{errorCount}</strong>
-        </article>
-        <article className="rounded-2xl border border-sky-300/15 bg-sky-400/10 p-4">
-          <span className="text-xs font-black uppercase tracking-[0.18em] text-sky-100/70">Changements</span>
-          <strong className="mt-2 block text-2xl font-black text-white">{changedSources.length}</strong>
-        </article>
-      </div>
-      <p className="rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-100">
-        La veille croise maintenant Game Master, assets dataminés, annonces officielles, sites communautaires et données PvP.
-        Un nouveau commit, tag, ETag, Last-Modified ou statut HTTP différent remontera au prochain contrôle.
-      </p>
-      {changedSources.length ? (
-        <div className="rounded-2xl border border-sky-300/25 bg-sky-400/10 p-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-sky-100/75">
-            Sources modifiées depuis ton dernier passage
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {changedSources.map((source) => (
-              <span
-                className="rounded-full border border-sky-200/25 bg-sky-300/15 px-3 py-1.5 text-xs font-black text-sky-50"
-                key={source.id || source.name || source.url}
-              >
-                {source.name || source.repo || source.url}
-              </span>
-            ))}
-          </div>
-        </div>
-      ) : null}
-      {sources.length ? (
-        <div className="grid gap-3 xl:grid-cols-2">
-        {sources.map((source) => {
-          const tone =
-            source.status === "ok"
-              ? {
-                  card: "border-emerald-300/20 bg-emerald-400/[0.055] hover:border-emerald-200/40 hover:bg-emerald-400/10",
-                  badge: "bg-emerald-400/15 text-emerald-100",
-                }
-              : source.status === "warning"
-                ? {
-                    card: "border-amber-300/25 bg-amber-400/[0.055] hover:border-amber-200/45 hover:bg-amber-400/10",
-                    badge: "bg-amber-400/15 text-amber-100",
-                  }
-                : {
-                    card: "border-red-300/25 bg-red-500/[0.055] hover:border-red-200/45 hover:bg-red-500/10",
-                    badge: "bg-red-500/15 text-red-100",
-                  };
-
-          return (
-            <a
-              className={`flex min-w-0 flex-col gap-3 rounded-3xl border p-4 transition sm:flex-row sm:items-center sm:justify-between ${tone.card}`}
-              href={source.remoteUrl || source.url}
-              key={source.id || source.name}
-              rel="noreferrer"
-              target="_blank"
-            >
-              <span className="min-w-0">
-                <span className="mb-2 inline-flex rounded-full border border-white/10 bg-white/[0.055] px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-slate-300">
-                  {issueLabel(source.category)}
-                </span>
-                {source.changedSinceLastCheck ? (
-                  <span className="mb-2 ml-2 inline-flex rounded-full border border-sky-200/25 bg-sky-300/15 px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-sky-50">
-                    changé
-                  </span>
-                ) : null}
-                <strong className="block break-words font-black text-white">{source.name || source.repo || source.url}</strong>
-                <small className="mt-1 block break-words text-xs font-bold leading-5 text-slate-400">{source.message || source.status}</small>
-                {source.description ? (
-                  <small className="mt-2 block text-xs font-semibold leading-5 text-slate-500">{source.description}</small>
-                ) : null}
-              </span>
-              <span className={`inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-2 text-xs font-black ${tone.badge}`}>
-                {source.version || source.status || "ouvrir"} <ExternalLink size={14} />
-              </span>
-            </a>
-          );
-        })
-        }
-        </div>
-      ) : (
-        <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
-          Lance une vérification pour afficher les sources.
-        </p>
-      )}
-    </div>
-  );
-}
-
 export function AdminApp() {
   const [session, setSession] = useState({ loading: true, authenticated: false });
   const [password, setPassword] = useState("");
@@ -2367,6 +1612,8 @@ export function AdminApp() {
   const [catalog, setCatalog] = useState(null);
   const [assetAudit, setAssetAudit] = useState(null);
   const [sourceWatch, setSourceWatch] = useState(null);
+  const [sourceHistory, setSourceHistory] = useState([]);
+  const [sourceHistoryOpen, setSourceHistoryOpen] = useState(false);
   const [history, setHistory] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [detail, setDetail] = useState(null);
@@ -2406,19 +1653,21 @@ export function AdminApp() {
   async function loadAdminData({ notify = false } = {}) {
     setBootstrap((current) => ({ ...current, loading: true, error: "" }));
     try {
-      const [checklistResponse, catalogResponse, assetResponse, historyResponse, rulesResponse] = await Promise.all([
+      const [checklistResponse, catalogResponse, assetResponse, historyResponse, rulesResponse, sourceHistoryResponse] = await Promise.all([
         fetch(adminApiPath),
         fetch(`${adminApiPath}?action=catalog`),
         fetch(`${adminApiPath}?action=assets`),
         fetch(`${adminApiPath}?action=history`),
         fetch(`${adminApiPath}?action=custom-rules`),
+        fetch(`${adminApiPath}?action=source-history`),
       ]);
-      const [checklistPayload, catalogPayload, assetPayload, historyPayload, rulesPayload] = await Promise.all([
+      const [checklistPayload, catalogPayload, assetPayload, historyPayload, rulesPayload, sourceHistoryPayload] = await Promise.all([
         checklistResponse.json(),
         catalogResponse.json(),
         assetResponse.json(),
         historyResponse.json(),
         rulesResponse.json(),
+        sourceHistoryResponse.json(),
       ]);
       if (!checklistResponse.ok) throw new Error(checklistPayload.error || "Erreur de chargement.");
       setBootstrap({ loading: false, payload: checklistPayload.data, error: "" });
@@ -2426,6 +1675,7 @@ export function AdminApp() {
       setAssetAudit(assetPayload.data || null);
       setHistory(historyPayload.data || []);
       setCustomRules(rulesPayload.data || checklistPayload.data?.customRules || []);
+      setSourceHistory(Array.isArray(sourceHistoryPayload.data) ? sourceHistoryPayload.data : []);
       if (notify) toast.success("Dashboard Pokémon actualisé.");
     } catch (error) {
       setBootstrap({ loading: false, payload: null, error: error.message });
@@ -2599,6 +1849,7 @@ export function AdminApp() {
         sources: watchState?.sources || payload.data?.sources || [],
         changedSources: watchState?.changed || [],
       });
+      if (Array.isArray(payload.data?.history)) setSourceHistory(payload.data.history);
       if (watchState?.changed?.length) {
         const names = watchState.changed
           .map((source) => source.name || source.repo || source.url)
@@ -2616,6 +1867,18 @@ export function AdminApp() {
     } catch (error) {
       setSourceWatch({ error: error.message });
       if (!automatic) toast.error(error.message || "Veille indisponible.", { id: toastId });
+    }
+  }
+
+  async function loadSourceHistory() {
+    try {
+      const response = await fetch(`${adminApiPath}?action=source-history`);
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Historique des sources indisponible.");
+      setSourceHistory(Array.isArray(payload.data) ? payload.data : []);
+      setSourceHistoryOpen(true);
+    } catch (error) {
+      toast.error(error.message || "Historique des sources indisponible.");
     }
   }
 
@@ -2949,9 +2212,14 @@ export function AdminApp() {
                 title="Veille sources"
                 eyebrow="PokeMiners, Game Master, Shuffle"
                 action={
-                  <button className={primaryButtonClass} type="button" onClick={() => loadSources()}>
-                    <Radar size={17} /> Vérifier maintenant
-                  </button>
+                  <div className="flex flex-wrap gap-2">
+                    <button className={buttonClass} type="button" onClick={loadSourceHistory}>
+                      <History size={17} /> Historique
+                    </button>
+                    <button className={primaryButtonClass} type="button" onClick={() => loadSources()}>
+                      <Radar size={17} /> Vérifier maintenant
+                    </button>
+                  </div>
                 }
               >
                 <SourceRows sourceWatch={sourceWatch} />
@@ -3113,6 +2381,12 @@ export function AdminApp() {
           </div>
         </section>
       </div>
+
+      <SourceHistoryModal
+        open={sourceHistoryOpen}
+        history={sourceHistory}
+        onClose={() => setSourceHistoryOpen(false)}
+      />
 
       <DetailModal
         open={Boolean(selected)}

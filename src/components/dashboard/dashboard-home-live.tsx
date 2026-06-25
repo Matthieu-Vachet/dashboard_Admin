@@ -8,6 +8,7 @@ import {
   CalendarDays,
   CheckSquare2,
   Code2,
+  Copy,
   Database,
   FileText,
   FolderKanban,
@@ -39,6 +40,7 @@ import {
   initialTodos,
   kanbanColumns,
 } from "@/data/personal-dashboard-defaults";
+import { getDailyCodeTip } from "@/data/daily-code-tips";
 import type { PokemonMetrics } from "@/lib/pokemon";
 import { cn } from "@/lib/cn";
 import { usePersistentState } from "@/lib/use-persistent-state";
@@ -79,6 +81,7 @@ const fallbackMetrics: PokemonMetrics = {
 
 const defaultWidgetOrder = [
   "today",
+  "codeTip",
   "pokemon",
   "kanban",
   "calendar",
@@ -121,6 +124,7 @@ export function DashboardHomeLive() {
   }, []);
 
   const today = new Date().toISOString().slice(0, 10);
+  const dailyCodeTip = getDailyCodeTip(today);
   const openTodos = todos.filter((todo) => !todo.done);
   const doneTodos = todos.length - openTodos.length;
   const kanbanData = kanbanColumns.map((column) => ({
@@ -197,6 +201,9 @@ export function DashboardHomeLive() {
         </div>
       </WidgetContent>
     ),
+    codeTip: (
+      <DailyCodePost tip={dailyCodeTip} date={today} />
+    ),
     pokemon: (
       <WidgetContent title="Pokémon API" eyebrow="Qualité data" icon={Database} action={<PokemonApiStatus compact />}>
         <div className="grid grid-cols-3 gap-3">
@@ -263,7 +270,6 @@ export function DashboardHomeLive() {
           <ExternalButton href="https://pokemon-go-api.vercel.app/api-docs" label="Documentation" />
           <ExternalButton href="https://pokemon-go-api.vercel.app/swagger" label="Swagger" />
           <ExternalButton href="/pokemon-docs" label="Docs JSON dashboard" />
-          <ExternalButton href="/storybook/index.html" label="Storybook design system" />
         </div>
       </WidgetContent>
     ),
@@ -280,6 +286,7 @@ export function DashboardHomeLive() {
   };
   const widgetLabels: Record<WidgetId, string> = {
     today: "Maintenant",
+    codeTip: "Astuce JS",
     pokemon: "Pokémon API",
     kanban: "Kanban",
     calendar: "Calendrier",
@@ -331,12 +338,6 @@ export function DashboardHomeLive() {
                     Snippets
                   </Link>
                 </Button>
-                <Button asChild>
-                  <a href="/storybook/index.html" target="_blank" rel="noreferrer">
-                    <BookOpen size={17} />
-                    Storybook
-                  </a>
-                </Button>
               </div>
             </div>
           </Card>
@@ -354,6 +355,61 @@ export function DashboardHomeLive() {
         items={sortableWidgets}
         storageKey="matweb.home.widgetOrder"
       />
+    </div>
+  );
+}
+
+function DailyCodePost({
+  tip,
+  date,
+}: {
+  tip: ReturnType<typeof getDailyCodeTip>;
+  date: string;
+}) {
+  const caption = `${tip.title}\n\n${tip.concept}\n\n${tip.snippet}\n\n${tip.takeaway}\n\n${tip.hashtags.join(" ")}`;
+
+  async function copyCaption() {
+    await navigator.clipboard.writeText(caption);
+  }
+
+  return (
+    <div className="relative overflow-hidden rounded-xl border border-brand-2/20 bg-slate-950 text-white shadow-[0_24px_70px_rgba(32,211,255,0.12)]">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_0%,rgba(32,211,255,.28),transparent_34%),radial-gradient(circle_at_86%_22%,rgba(88,242,169,.22),transparent_30%),linear-gradient(145deg,rgba(144,91,244,.18),transparent_46%)]" />
+      <div className="pointer-events-none absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.18)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.18)_1px,transparent_1px)] [background-size:28px_28px]" />
+      <div className="relative aspect-[4/5] min-h-[24rem] p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="font-mono text-xs font-black uppercase tracking-[0.2em] text-brand-2">Code du jour</p>
+            <p className="mt-1 text-xs font-bold text-muted">{date}</p>
+          </div>
+          <button
+            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/10 text-white transition hover:border-brand-2/45 hover:bg-brand-2/20"
+            type="button"
+            onClick={copyCaption}
+            aria-label="Copier la légende Instagram"
+            title="Copier la légende"
+          >
+            <Copy size={16} />
+          </button>
+        </div>
+        <div className="mt-8">
+          <h3 className="max-w-sm text-3xl font-black leading-none">{tip.title}</h3>
+          <p className="mt-4 text-sm font-bold leading-6 text-slate-200">{tip.concept}</p>
+        </div>
+        <pre className="mt-6 overflow-x-auto rounded-xl border border-white/10 bg-[#050816]/85 p-4 font-mono text-[0.8rem] font-bold leading-6 text-cyan-100 shadow-inner">
+          <code>{tip.snippet}</code>
+        </pre>
+        <p className="mt-5 rounded-xl border border-emerald-300/20 bg-emerald-400/10 p-3 text-sm font-black leading-6 text-emerald-100">
+          {tip.takeaway}
+        </p>
+        <div className="absolute inset-x-5 bottom-5 flex flex-wrap gap-2">
+          {tip.hashtags.map((hashtag) => (
+            <span className="rounded-full border border-white/10 bg-white/10 px-2.5 py-1 text-[0.68rem] font-black text-slate-100" key={hashtag}>
+              {hashtag}
+            </span>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

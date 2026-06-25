@@ -1563,6 +1563,7 @@ function detailForKey(key) {
   const file = resolveDataFile(relativeFile);
   if (!isInsideData(file) || !fs.existsSync(file)) return null;
   const sourceData = readJson(file);
+  const assetSourceData = readAssetRecord(sourceData);
   let data = hydrateSourceData(sourceData);
 
   if (relativeFile.startsWith("data/pokemon-forms/")) {
@@ -1587,6 +1588,8 @@ function detailForKey(key) {
   return {
     ...data,
     sourceData,
+    assetSourceData,
+    assetSourceFile: sourceData.assets?.assetsRef || null,
     moveDetails: {
       quickMoves: resolveMoves(data.quickMoves, moveCatalog),
       cinematicMoves: resolveMoves(data.cinematicMoves, moveCatalog),

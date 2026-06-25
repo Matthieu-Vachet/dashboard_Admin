@@ -8,7 +8,6 @@ import {
   LogOut,
   Menu,
   Moon,
-  BookOpen,
   PanelLeftClose,
   PanelLeftOpen,
   Search,
@@ -19,6 +18,7 @@ import { useMemo, useState } from "react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { DASHBOARD_VERSION } from "@/data/app-version";
 import { navItems } from "@/data/dashboard";
 import { cn } from "@/lib/cn";
 
@@ -251,12 +251,9 @@ export function AppFrame({
               <span>Rechercher une note, tâche ou projet</span>
             </div>
 
-            <Button asChild variant="secondary" className="hidden sm:inline-flex">
-              <a href="/storybook/index.html" target="_blank" rel="noreferrer">
-                <BookOpen size={17} />
-                Storybook
-              </a>
-            </Button>
+            <span className="inline-flex min-h-10 shrink-0 items-center rounded-lg border border-brand-2/25 bg-brand-2/10 px-2 text-[11px] font-black text-brand-2 shadow-[0_0_30px_rgba(32,211,255,0.10)] sm:px-3 sm:text-xs">
+              {DASHBOARD_VERSION}
+            </span>
 
             <Button
               variant="secondary"

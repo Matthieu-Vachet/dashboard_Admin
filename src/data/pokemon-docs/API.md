@@ -1,6 +1,6 @@
 # Pokemon GO API REST
 
-L'API publique est separee de la checklist et vit dans `src/`.
+L'API publique vit dans `src/` et reste separee des outils de controle du Dashboard Admin.
 Les fichiers du depot prive `PokemonGo-Data` restent la source de verite et ne sont
 jamais modifies par la synchronisation. Les details des attaques vivent dans
 `PokemonGo-Data/moves/`; les Pokemon ne conservent que leurs identifiants.
@@ -30,6 +30,15 @@ Chaque document MongoDB conserve :
 - le JSON complet dans `data` ;
 - son hash et ses fichiers sources ;
 - des metadonnees de synchronisation.
+
+Depuis la refonte du modele Pokemon, MongoDB separe les donnees en deux collections :
+
+- `pokemons` contient le gameplay, les stats, les attaques, le PvP, les disponibilites, les images principales, les bonbons et `data.assets.assetsRef`.
+- `pokemonAssets` contient les assets lourds : Home, portraits, portraits shiny, location cards, Shuffle et variantes visuelles.
+
+Les routes publiques joignent automatiquement `pokemons.formId` avec `pokemonAssets.formId`
+sur les fiches de detail et les routes d'assets. La liste `/pokemon` reste legere pour
+garder des reponses rapides.
 
 Les schemas utilisent `strict: false`. Un nouveau champ JSON est donc conserve dans
 MongoDB sans imposer une modification du backend.
@@ -108,6 +117,7 @@ Documentation :
 | PC | `/pokemon/:identifier/cp` |
 | Types | `/types`, `/types/:identifier`, `/types/:identifier/pokemon` |
 | Météo | `/weather`, `/weather/:identifier`, `/weather/:identifier/pokemon`, `/weather/:identifier/types`, `/weather/:identifier/moves` |
+| Candy | `/candy`, `/candy/:familyId`, `/candy/:familyId/pokemon` |
 | Regions | `/regions`, `/regions/:identifier/pokemon` |
 | Generations | `/generations`, `/generations/:identifier/pokemon` |
 | Assets | `/assets/:identifier`, `/pokemon/:identifier/assets` |
@@ -133,7 +143,7 @@ Filtres disponibles :
 
 - `q`, `generation`, `region`, `type`, `primaryType`, `secondaryType`
 - `form`, `kind`, `weather`, `move`, `pvpLeague`
-- `released`, `shinyReleased`, `tradable`, `pokemonHomeTransfer`
+- `released`, `shinyReleased`, `shadowShinyReleased`, `tradable`, `pokemonHomeTransfer`
 - `shadow`, `apex`, `dynamax`, `gigantamax`, `mega`
 - `buddyDistanceMin`, `buddyDistanceMax`
 - `catchRateMin`, `catchRateMax`, `fleeRateMin`, `fleeRateMax`
@@ -143,6 +153,12 @@ Filtres disponibles :
 Une fiche dont `availability.shadow` vaut `true` expose aussi `data.shadow` avec
 la première date de sortie, le coût de purification, les Catch CP normal et
 boosté par la météo, ainsi que les variantes régionales, Apex ou costumées.
+
+Toutes les fiches exposent aussi `data.shinyAvailability` et
+`data.shadowShinyAvailability`. Chaque bloc contient `releaseDate`, `event`, `source`
+et `matchedName`; les valeurs restent `null` quand la variante chromatique ou Obscure
+chromatique n'est pas encore sortie. La verite unique pour l'etat de sortie reste
+`data.availability.shinyReleased` et `data.availability.shadowShinyReleased`.
 
 ## Exemples
 
@@ -166,6 +182,8 @@ curl "http://localhost:3000/api/v1/shuffle/venusaur-mega"
 curl "http://localhost:3000/api/v1/pokemon/rattata-alola/shuffle"
 curl "http://localhost:3000/api/v1/weather/sunny/pokemon"
 curl "http://localhost:3000/api/v1/weather/rain/moves"
+curl "http://localhost:3000/api/v1/candy?familyId=1"
+curl "http://localhost:3000/api/v1/candy/1/pokemon"
 curl "http://localhost:3000/api/v1/dynamax"
 curl "http://localhost:3000/api/v1/gigantamax"
 ```
@@ -225,13 +243,13 @@ watchers concurrents sur les memes sources.
 
 `api/rest.js` expose l'application Express comme Vercel Function. Les routes `/api/v1`,
 `/api-docs`, `/swagger` et `/health` sont dirigees vers cette fonction par `vercel.json`.
-Le front Next.js sert `/`, `/checklist` et `/assets`. `/admin` redirige vers `/` en
-attendant le futur depot `dashboard_Admin`.
+Le front Next.js sert `/`, `/bibliotheque`, `/checklist` pour compatibilite,
+`/assets`, `/robots.txt` et `/sitemap.xml`.
 
-La checklist expose aussi `/api/checklist-v3`, qui regroupe le bootstrap public, le
-détail d'une fiche, les catalogues et les audits d'assets en lecture seule. Les actions
-admin historiques (`login`, `validate`, `preview-rule`, `source-watch`, `url-audit`) sont
-désactivées ici et renvoient `410 Gone`.
+La bibliothèque publique n'expose pas le moteur de règles du Dashboard Admin. Les
+anciennes routes de checklist restent limitees a la compatibilite lecture seule quand
+elles existent ; les actions de correction, d'audit admin ou d'ecriture restent
+desactivees hors Dashboard.
 
 Configurer dans Vercel les variables `MONGODB_URI`, `NODE_ENV=production` et
 `API_PUBLIC_URL`. Comme `PokemonGo-Data` est prive, ajouter aussi
