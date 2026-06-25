@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { Gauge, Image as ImageIcon, LayoutDashboard, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { pokemonVariantLabel, preferredPokemonImage, typeColors } from "../site/pokemon-style";
@@ -131,6 +132,7 @@ function entryMatchesCollection(entry, collection, region, query) {
         ? availability.shadowShinyReleased === true
         : availability.shinyReleased === true;
       if (!released) return false;
+      if (!entry.shinyImage && !entry.homeShinyImage && !entry.shuffleShinyImage) return false;
     }
   }
   const needle = query.trim().toLowerCase();
@@ -193,13 +195,17 @@ function collectionPool(entries, collection) {
 }
 
 function collectionImage(entry, collection) {
-  return (
-    preferredPokemonImage(entry, { preferShiny: Boolean(collection?.shiny) }) ||
-    (collection?.shiny ? entry.shinyImage : null) ||
-    entry.image ||
-    entry.homeImage ||
-    null
-  );
+  if (collection?.shiny) {
+    return (
+      entry.shinyImage ||
+      entry.homeShinyImage ||
+      entry.shuffleShinyImage ||
+      entry.eventAsset?.shinyImage ||
+      preferredPokemonImage(entry, { preferShiny: true }) ||
+      null
+    );
+  }
+  return preferredPokemonImage(entry) || entry.image || entry.homeImage || null;
 }
 
 function generationKey(entry) {
@@ -288,17 +294,8 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
     hundo: false,
   });
 
-  useEffect(() => {
-    if (!collections.length) {
-      setActiveId("");
-      return;
-    }
-    if (!collections.some((collection) => collection.id === activeId)) {
-      setActiveId(collections[0].id);
-    }
-  }, [activeId, collections]);
-
   const activeCollection = collections.find((collection) => collection.id === activeId) || collections[0] || null;
+  const canUsePortal = typeof document !== "undefined";
   const activeItems = useMemo(() => activeCollection?.items || {}, [activeCollection]);
   const combinedSearch = [globalSearch, query].filter(Boolean).join(" ");
   const stats = useMemo(() => collectionStats(entries), [entries]);
@@ -587,9 +584,9 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
         </>
       ) : null}
 
-      {modalOpen ? (
-        <div className="fixed inset-0 z-50 grid place-items-center overflow-hidden bg-slate-950/78 p-2 backdrop-blur-xl sm:p-4" role="dialog" aria-modal="true">
-          <section className="flex max-h-[calc(100dvh-1rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[1.5rem] border border-white/10 bg-zinc-900 shadow-[0_32px_120px_rgba(0,0,0,.5)] sm:max-h-[calc(100dvh-2rem)] sm:rounded-[2rem]">
+      {canUsePortal && modalOpen ? createPortal(
+        <div className="fixed inset-0 z-[999] overflow-y-auto bg-slate-950/78 p-3 backdrop-blur-xl sm:p-6" role="dialog" aria-modal="true">
+          <section className="mx-auto my-3 flex max-h-[calc(100dvh-1.5rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[1.5rem] border border-white/10 bg-zinc-900 shadow-[0_32px_120px_rgba(0,0,0,.5)] sm:my-0 sm:max-h-[calc(100dvh-3rem)] sm:rounded-[2rem]">
             <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-white/10 bg-zinc-900/95 p-4 backdrop-blur sm:p-5">
               <h3 className="text-2xl font-black text-white">Nouvelle collection</h3>
               <button className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/[0.06] text-xl font-black text-white" type="button" onClick={() => setModalOpen(false)}>
@@ -674,7 +671,8 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
               </button>
             </div>
           </section>
-        </div>
+        </div>,
+        document.body,
       ) : null}
     </section>
   );

@@ -498,6 +498,7 @@ function createValidator() {
       field(value, key, `${pathName}.${key}`, "number");
     field(value, "megaEnergyCost", `${pathName}.megaEnergyCost`, "number", {
       nullable: true,
+      optional: true,
     });
     const availability = field(
       value,
@@ -1442,10 +1443,14 @@ function buildChecklist(customRulesOverride = null) {
       kind,
       profile,
       name,
+      id: data.id || null,
+      formId: data.formId || data.id || null,
+      baseFormId: data.baseFormId || data.id || null,
       dexId: data.dexId || path.basename(file).slice(0, 4),
       generation: displayData.generation || null,
       form: data.form || "normal",
       file: relativeToApp(file),
+      assetsRef: data.assets?.assetsRef || null,
       image: displayData.assets?.portrait || displayData.assets?.image || null,
       homeImage,
       shuffleImage,

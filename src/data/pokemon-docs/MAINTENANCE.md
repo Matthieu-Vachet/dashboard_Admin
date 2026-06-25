@@ -5,6 +5,8 @@
 - Le depot prive `PokemonGo-Data` contient les JSON sources.
 - `PokemonGo-Data/pokemon/` contient uniquement les fiches principales.
 - `PokemonGo-Data/pokemon-forms/` contient les données complètes de chaque forme.
+- `PokemonGo-Data/pokemon-assets/` contient les assets lourds séparés : Home, portraits,
+  portraits shiny, Location Cards, Shuffle et variantes visuelles.
 - `regionForms`, `megaEvolutions`, `dynamaxForms` et `gigantamaxForms` sont des
   listes de références `formId`.
 - `PokemonGo-Data/moves/`, `PokemonGo-Data/types/`, `PokemonGo-Data/generations/` et `PokemonGo-Data/weather/` sont les
@@ -14,7 +16,10 @@
 - `weatherBoost` et `PokemonGo-Data/types/*/weatherBoost` utilisent les identifiants de
   `PokemonGo-Data/weather/`.
 
-Ne jamais recopier les données complètes d'une forme dans une fiche principale.
+Ne jamais recopier les données complètes d'une forme dans une fiche principale. Ne jamais
+remettre `assets.home`, `assets.shuffle`, `assets.locationCards`, `assets.portrait`,
+`assets.portraitShiny` ou `assetForms` dans `pokemon/` ou `pokemon-forms/` : ces champs
+doivent rester dans `pokemon-assets/` et dans la collection MongoDB `pokemonAssets`.
 
 ## Contrôles Avant Contribution
 
@@ -30,10 +35,15 @@ npm test
 Le normaliseur d'ordre vérifie que les valeurs sont strictement identiques avant
 chaque écriture.
 
-La checklist valide tous les champs obligatoires de chaque famille de fiche :
+Le Dashboard Admin valide tous les champs obligatoires de chaque famille de fiche :
 Pokémon normal, forme complète, Méga / Primo et forme Max. Un asset complémentaire
 comme Pokémon Shuffle ne remplace jamais les images Pokémon GO obligatoires d'une
 fiche déjà sortie.
+
+Après une modification manuelle des JSON, lancer au minimum une validation locale puis
+une synchronisation Mongo. Si une fiche de l'admin affiche encore des assets lourds dans
+son `JSON source`, le snapshot utilisé par l'application est obsolète ou n'a pas récupéré
+`pokemon-assets/`.
 
 Les migrations `npm run migrate:regions` et `npm run migrate:weather` doivent
 indiquer `changedFiles: 0` après une contribution. Utiliser leurs variantes

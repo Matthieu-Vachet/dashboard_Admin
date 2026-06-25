@@ -64,7 +64,7 @@ Une fiche Pokémon complète stocke la référence stable :
 ```
 
 Les formes Méga, Dynamax et Gigantamax héritent cette référence de leur `baseFormId`.
-La lecture des sources, l'API et la checklist recomposent automatiquement `region` et
+La lecture des sources, l'API, la bibliothèque et le Dashboard recomposent automatiquement `region` et
 `generation`.
 
 ## Météo
@@ -136,7 +136,7 @@ propre `slug`, puis ne stockent que les donnees propres au combat Max.
 
 Le bloc `maxCp` d'une forme Dynamax ou Gigantamax est propre a cette fiche et ne contient
 que `maxLevel50`, `maxLevel40` et `maxBattlesLevel20`. Il n'herite jamais du bloc `maxCp`
-normal dans l'API ou la checklist.
+normal dans l'API, la bibliothèque ou le Dashboard.
 
 Les liens d'evolution utilisent `targetFormId`. Une cible future comme
 `IVYSAUR_DYNAMAX` est valide meme si la fiche n'existe pas encore.

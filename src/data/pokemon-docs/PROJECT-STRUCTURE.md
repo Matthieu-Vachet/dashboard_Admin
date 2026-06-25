@@ -1,6 +1,6 @@
 # Structure Du Projet
 
-Le depot `PokemonGo-API-` contient l'API publique, le site visiteur, la checklist
+Le depot `PokemonGo-API-` contient l'API publique, le site visiteur, la bibliothèque API
 read-only et les outils de maintenance. Les donnees sources vivent dans le depot separe
 `PokemonGo-Data`, afin de garder les JSON prives et de publier uniquement le service de
 lecture.
@@ -9,12 +9,12 @@ lecture.
 
 | Dossier | Responsabilite |
 | --- | --- |
-| `app/` | Front public Next.js : accueil, checklist, bibliothèques, robots et sitemap. |
-| `components/` | Composants UI partages par la landing, la bibliotheque API et les fiches. |
+| `app/` | Front public Next.js : accueil, bibliothèque API, documentation, robots et sitemap. |
+| `components/` | Composants UI partages par la landing, la bibliotheque API et les fiches publiques. |
 | `.data/PokemonGo-Data/` | Clone local ignore du depot de donnees, cree par `npm run ensure:data` si besoin. |
 | `src/` | Coeur de l'API REST Express et synchronisation MongoDB. |
 | `api/` | Points d'entree serverless necessaires au deploiement Vercel. |
-| `apps/checklist/` | Interface, moteur et serveur de la checklist. |
+| `apps/checklist/` | Ancien nom technique de la bibliothèque API read-only et de son moteur de lecture. |
 | `scripts/sync/` | Commandes de synchronisation MongoDB. |
 | `scripts/import/` | Outils d'import et d'extraction des donnees. |
 | `scripts/audit/` | Controles de coherence non destructifs. |
@@ -48,11 +48,11 @@ associe ces ressources aux données. Chaque type possède un fichier dans
 compatible avec les anciens outils.
 
 Les régions et générations sont centralisées dans `PokemonGo-Data/generations/`. Les fiches
-Pokémon complètes conservent uniquement `regionId`; l'API et la checklist recomposent
+Pokémon complètes conservent uniquement `regionId`; l'API et la bibliothèque recomposent
 la région traduite et la génération. Les sept météos vivent dans `PokemonGo-Data/weather/`,
 référencent leurs types boostés et exposent les icônes de `asset/weather/`.
 
-Les sources externes surveillées par la checklist vivent dans
+Les sources externes surveillées par le Dashboard Admin vivent dans
 `PokemonGo-Data/source-watch/sources.json`. Dans ce depot public read-only, l'action
 `source-watch` de `/api/checklist-v3` est désactivée : les outils de correction et
 de surveillance sont gérés dans le dashboard privé.
@@ -84,13 +84,13 @@ Les fiches principales ne dupliquent plus les données de formes. `regionForms` 
 - `src/models/` contient les modeles Mongoose flexibles.
 - `src/sync/` transforme les sources JSON avant leur synchronisation.
 
-## Checklists
+## Bibliothèque API
 
 - `app/` contient le front Next.js public.
-- `components/` contient les cartes, modales et panneaux reutilises par le nouveau front.
-- `apps/checklist/` conserve l'ancienne interface statique et le moteur metier partage.
-- `apps/checklist/server/` contient le serveur local legacy, l'atelier d'audit et le moteur.
-- `api/checklist-v3.js` regroupe les actions serverless publiques exposees sur Vercel.
+- `components/` contient les cartes, modales et panneaux reutilises par le front.
+- `apps/checklist/` reste un nom de dossier historique, mais l'interface visible est la bibliothèque API.
+- `apps/checklist/server/` lit les JSON, hydrate les assets séparés et sert les données read-only.
+- `api/checklist-v3.js` expose les actions publiques sur Vercel sans moteur de règles ni outils admin.
 
 ## Commandes
 
@@ -98,6 +98,6 @@ Les fiches principales ne dupliquent plus les données de formes. `regionForms` 
 npm start
 npm run sync
 npm run sync:watch
-npm run checklist
+npm run sync:dry
 npm test
 ```

@@ -28,6 +28,8 @@ Template complet:
 {
   "id": "",
   "formId": "",
+  "baseFormId": "",
+  "form": "normal",
   "slug": "",
   "dexNr": null,
   "dexId": "",
@@ -41,20 +43,35 @@ Template complet:
     "Korean": "",
     "Spanish": ""
   },
-  "form": "normal",
+  "primaryType": "",
+  "secondaryType": null,
+  "pokemonClass": null,
   "size": {
     "height": null,
     "weight": null
+  },
+  "stats": {
+    "stamina": null,
+    "attack": null,
+    "defense": null
+  },
+  "maxCp": {
+    "maxLevel50": null,
+    "maxLevel40": null,
+    "weatherBoostLevel25": null,
+    "raidLevel20": null,
+    "researchLevel15": null,
+    "maxBattlesLevel20": null
   },
   "weatherBoost": [],
   "buddyDistance": null,
   "catchRate": null,
   "fleeRate": null,
+  "megaEnergyReward": null,
   "captureRewards": {
     "candy": null,
     "stardust": null
   },
-  "megaEnergyReward": null,
   "secondChargeMoveCost": {
     "candy": null,
     "stardust": null
@@ -65,71 +82,83 @@ Template complet:
     "tradable": true,
     "pokemonHomeTransfer": true,
     "shadow": false,
+    "shadowShinyReleased": false,
     "dynamax": false,
     "gigantamax": false,
     "apex": false
   },
-  "maxCp": {
-    "maxLevel50": null,
-    "maxLevel40": null,
-    "weatherBoostLevel25": null,
-    "raidLevel20": null,
-    "researchLevel15": null
+  "shinyAvailability": {
+    "releaseDate": null,
+    "event": null,
+    "source": null,
+    "matchedName": null
   },
+  "shadowShinyAvailability": {
+    "releaseDate": null,
+    "event": null,
+    "source": null,
+    "matchedName": null
+  },
+  "shadow": null,
+  "quickMoves": [],
+  "cinematicMoves": [],
+  "eliteQuickMoves": [],
+  "eliteCinematicMoves": [],
+  "maxBattle": null,
   "pvp": {
     "littleCup": null,
     "greatLeague": null,
     "ultraLeague": null,
     "masterLeague": null
   },
-  "stats": {
-    "stamina": null,
-    "attack": null,
-    "defense": null
-  },
-  "primaryType": "",
-  "secondaryType": null,
-  "pokemonClass": null,
-  "quickMoves": [],
-  "cinematicMoves": [],
-  "eliteQuickMoves": [],
-  "eliteCinematicMoves": [],
   "assets": {
-    "image": "",
-    "shinyImage": "",
-    "locationCards": [
-      {
-        "id": "lc_CitySafari2023_barcelona_2023",
-        "name": "City Safari Barcelona",
-        "type": "location",
-        "date": "October 13th - 14th 2023",
-        "eligibleForms": ["Eevee (Explorer Hat)"],
-        "image": "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/LocationCards/lc_CitySafari2023_barcelona_2023.png",
-        "source": "https://www.serebii.net/pokemongo/backgrounds.shtml"
-      }
-    ],
-    "shuffle": {
-      "source": "pokemon-shuffle",
-      "variants": [
-        {
-          "id": "0001_bulbasaur_shadow",
-          "filename": "0001_bulbasaur_shadow.png",
-          "image": "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/pokemonShuffle/0001_bulbasaur_shadow.png",
-          "form": "normal",
-          "state": "shadow",
-          "codes": ["bulbasaur", "shadow"],
-          "tags": ["bulbasaur"],
-          "shiny": false
-        }
-      ]
-    }
+    "image": null,
+    "shinyImage": null,
+    "candy": null,
+    "assetsRef": "pokemon-assets/normal/0001-bulbasaur.assets.json"
   },
   "regionForms": [],
   "evolutions": [],
   "hasMegaEvolution": false,
   "megaEvolutions": [],
+  "dynamaxForms": [],
   "hasGigantamaxEvolution": false,
-  "assetForms": []
+  "gigantamaxForms": []
+}
+```
+
+Le JSON principal doit rester leger. Ne jamais y remettre `assets.home`,
+`assets.locationCards`, `assets.shuffle`, `assets.portrait`, `assets.portraitShiny` ou
+`assetForms`: ces champs vivent dans `PokemonGo-Data/pokemon-assets/**/*.assets.json`
+et dans la collection MongoDB `pokemonAssets`.
+
+## Template Assets Séparés
+
+Nom du fichier:
+
+```text
+PokemonGo-Data/pokemon-assets/[forme]/[dexId]-[slug].assets.json
+```
+
+Template complet:
+
+```json
+{
+  "id": "",
+  "formId": "",
+  "baseFormId": "",
+  "form": "normal",
+  "slug": "",
+  "dexNr": null,
+  "dexId": "",
+  "assets": {
+    "home": null,
+    "portrait": null,
+    "portraitShiny": null,
+    "locationCards": [],
+    "shuffle": null,
+    "assetForms": []
+  }
 }
 ```
 
@@ -237,51 +266,73 @@ A créer dans `data/pokemon-forms/`, puis ajouter son `formId` à la liste
 
 ```json
 {
-  "VENUSAUR_MEGA": {
-    "id": "VENUSAUR_MEGA",
-    "slug": "venusaur_mega",
-    "formId": "VENUSAUR_MEGA",
-    "form": "mega",
-    "names": {
-      "English": "",
-      "German": "",
-      "French": "",
-      "Italian": "",
-      "Japanese": "",
-      "Korean": "",
-      "Spanish": ""
-    },
-    "size": {
-      "height": null,
-      "weight": null
-    },
-    "catchRate": null,
-    "fleeRate": null,
-    "availability": {
-      "released": false,
-      "shinyReleased": false,
-      "tradable": true,
-      "pokemonHomeTransfer": true
-    },
-    "maxCp": {
-      "maxLevel50": null,
-      "maxLevel40": null,
-      "weatherBoostLevel25": null,
-      "raidLevel20": null,
-      "researchLevel15": null
-    },
-    "stats": {
-      "stamina": null,
-      "attack": null,
-      "defense": null
-    },
-    "primaryType": "",
-    "secondaryType": null,
-    "energyCost": null,
-    "assets": {
-      "image": "",
-      "shinyImage": ""
-    }
+  "id": "VENUSAUR_MEGA",
+  "formId": "VENUSAUR_MEGA",
+  "baseFormId": "VENUSAUR",
+  "form": "mega",
+  "slug": "venusaur-mega",
+  "dexNr": 3,
+  "dexId": "0003",
+  "regionId": "kanto",
+  "names": {
+    "English": "",
+    "German": "",
+    "French": "",
+    "Italian": "",
+    "Japanese": "",
+    "Korean": "",
+    "Spanish": ""
+  },
+  "primaryType": "",
+  "secondaryType": null,
+  "size": {
+    "height": null,
+    "weight": null
+  },
+  "stats": {
+    "stamina": null,
+    "attack": null,
+    "defense": null
+  },
+  "maxCp": {
+    "maxLevel50": null,
+    "maxLevel40": null,
+    "weatherBoostLevel25": null,
+    "raidLevel20": null,
+    "researchLevel15": null,
+    "maxBattlesLevel20": null
+  },
+  "catchRate": null,
+  "fleeRate": null,
+  "megaEnergyCost": null,
+  "availability": {
+    "released": false,
+    "shinyReleased": false,
+    "tradable": true,
+    "pokemonHomeTransfer": true,
+    "shadow": false,
+    "shadowShinyReleased": false,
+    "dynamax": false,
+    "gigantamax": false,
+    "apex": false
+  },
+  "shinyAvailability": {
+    "releaseDate": null,
+    "event": null,
+    "source": null,
+    "matchedName": null
+  },
+  "shadowShinyAvailability": {
+    "releaseDate": null,
+    "event": null,
+    "source": null,
+    "matchedName": null
+  },
+  "assets": {
+    "image": null,
+    "shinyImage": null,
+    "candy": null,
+    "assetsRef": "pokemon-assets/mega/0003-venusaur-mega.assets.json"
   }
 }
 ```
@@ -332,12 +383,14 @@ references vers `data/moves/gmax/`. Leur bloc `maxCp` contient uniquement
 `maxLevel50`, `maxLevel40` et `maxBattlesLevel20`.
 
 Le bloc `assets` est obligatoire sur chaque fiche Max et peut contenir uniquement
-`shuffle` lorsqu'aucune image Pokémon GO propre à cette forme n'existe. Une forme
+`image`, `shinyImage`, `candy` et `assetsRef`. Les variantes Shuffle, Home, portraits et
+cartes de lieu restent dans le fichier `pokemon-assets/**/*.assets.json`. Une forme
 Dynamax conserve également son tableau `evolutions`.
 
 ## Bloc Asset Form
 
-A ajouter dans `assetForms` pour les costumes, formes visuelles ou variantes femelles.
+A ajouter dans `assets.assetForms` du fichier asset séparé pour les costumes, formes
+visuelles ou variantes femelles.
 
 ```json
 {
