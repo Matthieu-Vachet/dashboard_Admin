@@ -83,6 +83,13 @@ La synchronisation compare les hashes, n'ecrit que les documents nouveaux ou mod
 utilise des upserts et des cles uniques pour eviter les doublons. Une collection source
 vide ne provoque jamais une suppression massive automatique.
 
+Depuis la séparation des assets, `npm run ensure:data` et la synchronisation doivent
+récupérer aussi `PokemonGo-Data/pokemon-assets/`. Après l'import, les champs lourds
+historiques (`data.assets.home`, `data.assets.shuffle`, `data.assets.locationCards`,
+`data.assets.portrait`, `data.assets.portraitShiny` et `data.assetForms`) sont supprimés
+de la collection `pokemons`. Ils appartiennent uniquement à `pokemonAssets`, reliée par
+`formId`.
+
 ## Demarrage
 
 ```bash

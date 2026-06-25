@@ -95,7 +95,7 @@ Les valeurs inconnues ou non applicables utilisent `null`. Les listes vides util
 | `regionId` | string | Référence vers la région centrale de `data/generations/`. |
 | `pokemonClass` | string/null | Classe speciale si disponible, sinon `null`. |
 
-L'API et la checklist recomposent `region` et `generation` depuis `regionId`. Les formes
+L'API, la bibliothèque et le Dashboard recomposent `region` et `generation` depuis `regionId`. Les formes
 Méga, Dynamax et Gigantamax héritent cette référence de leur fiche de base.
 
 ### Langues Supportees
@@ -514,6 +514,11 @@ MongoDB `pokemonAssets.data` :
 Les assets lourds sont séparés dans `PokemonGo-Data/pokemon-assets` et dans la collection
 MongoDB `pokemonAssets`. Les routes de détail et le Dashboard hydratent automatiquement
 ces données à partir de `assets.assetsRef`.
+
+Si une fiche affiche encore `assets.home`, `assets.shuffle`, `assets.locationCards`,
+`assets.portrait`, `assets.portraitShiny` ou `assetForms` dans son `JSON source`, la
+source ou la collection `pokemons` utilise une ancienne structure. Relancer la
+synchronisation doit nettoyer ces champs et les replacer dans `pokemonAssets`.
 
 | Champ asset lourd | Type | Description |
 | --- | --- | --- |

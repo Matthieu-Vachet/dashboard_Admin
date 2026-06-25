@@ -376,7 +376,7 @@ function DailyCodePost({
     <div className="relative overflow-hidden rounded-xl border border-brand-2/20 bg-slate-950 text-white shadow-[0_24px_70px_rgba(32,211,255,0.12)]">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_0%,rgba(32,211,255,.28),transparent_34%),radial-gradient(circle_at_86%_22%,rgba(88,242,169,.22),transparent_30%),linear-gradient(145deg,rgba(144,91,244,.18),transparent_46%)]" />
       <div className="pointer-events-none absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.18)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.18)_1px,transparent_1px)] [background-size:28px_28px]" />
-      <div className="relative aspect-[4/5] min-h-[24rem] p-5">
+      <div className="relative flex aspect-[4/5] min-h-[28rem] flex-col p-5 max-[520px]:min-h-[34rem] max-[520px]:p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="font-mono text-xs font-black uppercase tracking-[0.2em] text-brand-2">Code du jour</p>
@@ -392,17 +392,17 @@ function DailyCodePost({
             <Copy size={16} />
           </button>
         </div>
-        <div className="mt-8">
-          <h3 className="max-w-sm text-3xl font-black leading-none">{tip.title}</h3>
+        <div className="mt-8 max-[520px]:mt-6">
+          <h3 className="max-w-sm text-[clamp(2rem,8.5vw,3rem)] font-black leading-none">{tip.title}</h3>
           <p className="mt-4 text-sm font-bold leading-6 text-slate-200">{tip.concept}</p>
         </div>
-        <pre className="mt-6 overflow-x-auto rounded-xl border border-white/10 bg-[#050816]/85 p-4 font-mono text-[0.8rem] font-bold leading-6 text-cyan-100 shadow-inner">
+        <pre className="mt-6 max-w-full overflow-hidden whitespace-pre-wrap break-words rounded-xl border border-white/10 bg-[#050816]/85 p-4 font-mono text-[clamp(.62rem,2.6vw,.8rem)] font-bold leading-6 text-cyan-100 shadow-inner">
           <code>{tip.snippet}</code>
         </pre>
-        <p className="mt-5 rounded-xl border border-emerald-300/20 bg-emerald-400/10 p-3 text-sm font-black leading-6 text-emerald-100">
+        <p className="mt-5 rounded-xl border border-emerald-300/20 bg-emerald-400/10 p-3 text-sm font-black leading-6 text-emerald-100 max-[520px]:text-xs">
           {tip.takeaway}
         </p>
-        <div className="absolute inset-x-5 bottom-5 flex flex-wrap gap-2">
+        <div className="mt-auto flex flex-wrap gap-2 pt-4">
           {tip.hashtags.map((hashtag) => (
             <span className="rounded-full border border-white/10 bg-white/10 px-2.5 py-1 text-[0.68rem] font-black text-slate-100" key={hashtag}>
               {hashtag}
