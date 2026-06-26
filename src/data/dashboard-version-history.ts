@@ -7,6 +7,18 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.1.0",
+    date: "2026-06-26",
+    title: "Redéploiement PokemonGo-Data et historique data",
+    changes: [
+      "Ajoute un bouton Redéployer pour forcer un rebuild Vercel du Dashboard après un push PokemonGo-Data.",
+      "Enregistre dans Mongo l'historique des redéploiements data avec comparaison des commits PokemonGo-Data.",
+      "Liste les JSON fiches, formes, assets et catalogues modifiés par redéploiement dans Logs & MAJ.",
+      "Ajoute un snapshot de commit PokemonGo-Data généré à chaque build.",
+      "Ignore les assets image/shiny absents ou vides quand une fiche Pokémon n'est pas encore sortie.",
+    ],
+  },
+  {
     version: "V1.0.2",
     date: "2026-06-26",
     title: "Synchronisation PokemonGo-Data et historique branche Mongo",
@@ -17,11 +29,6 @@ export const dashboardVersionHistory: DashboardVersionEntry[] = [
       "Remonte les modales d'historique au-dessus de la navigation.",
       "Branche l'historique des versions sur matweb.dashboard.versionHistory dans Mongo.",
       "Stabilise l'affichage mobile du widget Code du jour.",
-      "Ajoute un bouton Redéployer pour forcer un rebuild Vercel du Dashboard après un push PokemonGo-Data.",
-      "Enregistre dans Mongo l'historique des redéploiements data avec comparaison des commits PokemonGo-Data.",
-      "Liste les JSON fiches, formes, assets et catalogues modifiés par redéploiement dans Logs & MAJ.",
-      "Ajoute un snapshot de commit PokemonGo-Data généré à chaque build.",
-      "Ignore les assets image/shiny absents ou vides quand une fiche Pokémon n'est pas encore sortie.",
     ],
   },
   {
