@@ -302,8 +302,10 @@ function createValidator() {
     }
     if (partial && Object.keys(value).length === 0)
       add(pathName, "empty", "objet d'assets non vide", "vide");
+    const relaxedAssetFields = nullable && !partial;
     if (
       !partial &&
+      !relaxedAssetFields &&
       !(nullable && value.image === undefined && value.shinyImage === undefined)
     ) {
       field(value, "image", `${pathName}.image`, "string", { nonEmpty: true });
@@ -312,10 +314,14 @@ function createValidator() {
       });
     } else {
       if (value.image !== undefined)
-        field(value, "image", `${pathName}.image`, "string", { nonEmpty: true });
+        field(value, "image", `${pathName}.image`, "string", {
+          nonEmpty: !relaxedAssetFields,
+          nullable: relaxedAssetFields,
+        });
       if (value.shinyImage !== undefined)
         field(value, "shinyImage", `${pathName}.shinyImage`, "string", {
-          nonEmpty: true,
+          nonEmpty: !relaxedAssetFields,
+          nullable: relaxedAssetFields,
         });
     }
     if (value.home !== undefined && value.home !== null)
@@ -806,9 +812,12 @@ function createValidator() {
     );
     for (const referenceField of ["dynamaxForms", "gigantamaxForms"]) {
       if (value[referenceField] === undefined) continue;
+      const released = value.availability?.released !== false;
       const required =
-        (referenceField === "dynamaxForms" && value.availability?.dynamax === true) ||
-        (referenceField === "gigantamaxForms" && value.hasGigantamaxEvolution === true);
+        released &&
+        ((referenceField === "dynamaxForms" && value.availability?.dynamax === true) ||
+          (referenceField === "gigantamaxForms" && value.hasGigantamaxEvolution === true));
+      if (value[referenceField] === null && !required) continue;
       const references = field(
         value,
         referenceField,

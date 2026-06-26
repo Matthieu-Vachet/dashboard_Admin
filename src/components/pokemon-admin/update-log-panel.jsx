@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, GitCommitHorizontal, History } from "lucide-react";
+import { Cloud, ExternalLink, GitCommitHorizontal, History } from "lucide-react";
 
 function formatDate(value) {
   if (!value) return "date inconnue";
@@ -17,8 +17,15 @@ function shortValue(value) {
   return text.length > 16 ? text.slice(0, 16) : text || "sans signature";
 }
 
-export function UpdateLogPanel({ gitHistory = [], sourceHistory = [], onOpenSourceHistory }) {
+export function UpdateLogPanel({
+  gitHistory = [],
+  sourceHistory = [],
+  deployHistory = [],
+  onOpenSourceHistory,
+  onOpenDeployHistory,
+}) {
   const recentSources = [...sourceHistory].slice(0, 12);
+  const recentDeploys = [...deployHistory].slice(0, 6);
   const recentGit = [...gitHistory].slice(0, 10);
 
   return (
@@ -73,6 +80,58 @@ export function UpdateLogPanel({ gitHistory = [], sourceHistory = [], onOpenSour
         ) : (
           <p className="rounded-2xl border border-dashed border-white/15 p-5 text-sm font-bold text-slate-400">
             Aucun changement enregistré. Lance une veille pour créer les premiers logs.
+          </p>
+        )}
+      </article>
+
+      <article className="rounded-2xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_22px_90px_rgba(0,0,0,.24)] backdrop-blur-xl sm:p-5">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.22em] text-sky-200/70">PokemonGo-Data</p>
+            <h2 className="mt-2 text-2xl font-black text-white">Déploiements data</h2>
+            <p className="mt-2 text-sm font-bold leading-6 text-slate-400">
+              Redéploiements du Dashboard déclenchés après un push data, avec le diff des JSON suivis.
+            </p>
+          </div>
+          <button
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.075] px-4 py-2 text-sm font-black text-white transition hover:border-sky-200/50 hover:bg-sky-400/15"
+            type="button"
+            onClick={onOpenDeployHistory}
+          >
+            <Cloud size={17} /> Tout voir
+          </button>
+        </div>
+        {recentDeploys.length ? (
+          <div className="grid gap-3">
+            {recentDeploys.map((item) => {
+              const changes = item.dataChanges || {};
+              return (
+                <article
+                  className="rounded-2xl border border-sky-200/15 bg-sky-400/[0.07] p-4"
+                  key={item.id || `${item.triggeredAt}-${changes.targetCommit}`}
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <strong className="block break-words font-black text-white">
+                        {changes.trackedFiles || 0} JSON suivi(s)
+                      </strong>
+                      <small className="mt-1 block text-xs font-bold text-slate-400">{formatDate(item.triggeredAt)}</small>
+                      <p className="mt-2 text-sm font-bold leading-6 text-slate-300">
+                        Fiches {changes.pokemonFiles || 0} · Assets {changes.assetFiles || 0} · Catalogues{" "}
+                        {changes.catalogFiles || 0}
+                      </p>
+                    </div>
+                    <span className="shrink-0 rounded-full border border-sky-200/25 bg-slate-950/35 px-3 py-1.5 font-mono text-xs font-black text-sky-100">
+                      {changes.targetCommit ? String(changes.targetCommit).slice(0, 12) : item.status || "deploy"}
+                    </span>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="rounded-2xl border border-dashed border-white/15 p-5 text-sm font-bold text-slate-400">
+            Aucun redéploiement data enregistré pour le moment.
           </p>
         )}
       </article>

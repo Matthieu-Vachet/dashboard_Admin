@@ -69,6 +69,24 @@ des JSON et des assets séparés. En développement local, si `npm run dev` tour
 relancer le serveur ou exécuter `node scripts/data/ensure-data.js` pour rafraîchir
 immédiatement le snapshot.
 
+En production, après un push sur `PokemonGo-Data`, utiliser le bouton
+`Redéployer` dans le header du Dashboard Admin. Ce bouton appelle un Deploy Hook
+Vercel et force un nouveau build du Dashboard, donc `prebuild` récupère le dernier
+commit `PokemonGo-Data@main`.
+
+Configuration requise sur Vercel :
+
+- créer un Deploy Hook dans le projet Dashboard Admin, ciblé sur la branche `main` ;
+- ajouter son URL dans la variable d'environnement
+  `DASHBOARD_VERCEL_DEPLOY_HOOK_URL` ;
+- garder `POKEMON_GO_DATA_REPO`, `POKEMON_GO_DATA_REF` et
+  `POKEMON_GO_DATA_TOKEN` configurés pour que le build puisse cloner les JSON.
+
+Chaque redéploiement demandé depuis le Dashboard est historisé dans Mongo via
+`matweb.dashboard.deployHistory`. L'historique compare le commit data utilisé par le
+Dashboard deployé avec le dernier commit GitHub et liste les fichiers JSON suivis :
+fiches, formes, `pokemon-assets/`, catalogues, stickers et sources.
+
 Ne jamais corriger directement les JSON dans `.data/PokemonGo-Data` : ce dossier est un
 cache ignoré et sera écrasé à la prochaine synchronisation.
 

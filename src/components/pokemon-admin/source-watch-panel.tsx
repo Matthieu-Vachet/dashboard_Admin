@@ -32,6 +32,39 @@ type SourceHistoryItem = SourceItem & {
   previousVersion?: string | null;
 };
 
+type DataDeployHistoryItem = {
+  id?: string;
+  status?: string;
+  triggeredAt?: string;
+  triggeredBy?: string;
+  httpStatus?: number;
+  dataChanges?: {
+    status?: string;
+    repo?: string;
+    ref?: string;
+    baseCommit?: string | null;
+    targetCommit?: string;
+    compareUrl?: string;
+    trackedFiles?: number;
+    pokemonFiles?: number;
+    assetFiles?: number;
+    catalogFiles?: number;
+    truncated?: boolean;
+    note?: string;
+    files?: Array<{
+      path?: string;
+      status?: string;
+      category?: string;
+      label?: string;
+      dexId?: string | null;
+      additions?: number;
+      deletions?: number;
+      changes?: number;
+      rawUrl?: string | null;
+    }>;
+  };
+};
+
 const categoryLabels: Record<string, string> = {
   official: "Officiel",
   news: "Actualités",
@@ -43,6 +76,14 @@ const categoryLabels: Record<string, string> = {
   source: "Source",
   github: "GitHub",
   website: "Site web",
+};
+
+const dataCategoryLabels: Record<string, string> = {
+  pokemon: "Fiche",
+  form: "Forme",
+  assets: "Assets",
+  catalogue: "Catalogue",
+  source: "Source",
 };
 
 function issueLabel(value: unknown) {
@@ -160,6 +201,146 @@ export function SourceHistoryModal({
           ) : (
             <p className="rounded-2xl border border-dashed border-white/15 p-5 text-sm font-bold text-slate-400">
               Aucun historique enregistré pour le moment. Lance une vérification des sources pour créer le premier relevé.
+            </p>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+export function DataDeployHistoryModal({
+  open,
+  history = [],
+  onClose,
+}: {
+  open: boolean;
+  history?: DataDeployHistoryItem[];
+  onClose: () => void;
+}) {
+  if (!open) return null;
+
+  const events = [...history].slice(0, 80);
+
+  return (
+    <div
+      className="fixed inset-0 z-[1000] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl sm:p-5"
+      role="dialog"
+      aria-modal="true"
+    >
+      <section className="relative z-[1001] max-h-[calc(100dvh-2rem)] w-full max-w-5xl overflow-hidden rounded-3xl border border-white/10 bg-slate-950 shadow-[0_24px_120px_rgba(0,0,0,.5)] sm:max-h-[calc(100dvh-3rem)]">
+        <header className="flex items-start justify-between gap-4 border-b border-white/10 bg-white/[0.04] p-5">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200/75">PokemonGo-Data deploy history</p>
+            <h3 className="mt-2 text-2xl font-black text-white">Historique des déploiements data</h3>
+            <p className="mt-2 max-w-3xl text-sm font-bold leading-6 text-slate-400">
+              Chaque redéploiement demandé depuis le Dashboard conserve le commit PokemonGo-Data visé et les fichiers JSON
+              modifiés dans <span className="font-mono text-cyan-100">matweb.dashboard.deployHistory</span>.
+            </p>
+          </div>
+          <button
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.06] text-xl font-black text-white hover:bg-white/10"
+            type="button"
+            onClick={onClose}
+            aria-label="Fermer l'historique data"
+          >
+            x
+          </button>
+        </header>
+        <div className="max-h-[calc(100dvh-14rem)] overflow-y-auto p-5">
+          {events.length ? (
+            <div className="grid gap-3">
+              {events.map((item) => {
+                const changes = item.dataChanges;
+                const files = changes?.files || [];
+                return (
+                  <article
+                    className="rounded-2xl border border-white/10 bg-white/[0.045] p-4"
+                    key={item.id || `${item.triggeredAt}-${changes?.targetCommit}`}
+                  >
+                    <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-cyan-100">
+                            {item.status || "deploy"}
+                          </span>
+                          <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-slate-300">
+                            {changes?.trackedFiles || 0} JSON suivi(s)
+                          </span>
+                        </div>
+                        <strong className="mt-3 block break-words text-lg font-black text-white">
+                          PokemonGo-Data {changes?.ref || "main"}
+                        </strong>
+                        <small className="mt-1 block text-xs font-bold text-slate-400">{formatSourceDate(item.triggeredAt)}</small>
+                        {changes?.note ? (
+                          <p className="mt-3 text-sm font-bold leading-6 text-slate-300">{changes.note}</p>
+                        ) : null}
+                      </div>
+                      <div className="shrink-0 text-left md:text-right">
+                        <span className="inline-flex rounded-full border border-emerald-300/20 bg-emerald-400/10 px-3 py-1.5 font-mono text-xs font-black text-emerald-100">
+                          {changes?.targetCommit ? changes.targetCommit.slice(0, 12) : "commit inconnu"}
+                        </span>
+                        {changes?.compareUrl ? (
+                          <a
+                            className="mt-2 inline-flex items-center gap-1 text-xs font-black text-cyan-100 hover:text-white"
+                            href={changes.compareUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            comparer <ExternalLink size={13} />
+                          </a>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 text-xs font-bold text-slate-300 sm:grid-cols-3">
+                      <span className="rounded-2xl border border-white/10 bg-slate-950/35 p-3">
+                        Fiches: {changes?.pokemonFiles || 0}
+                      </span>
+                      <span className="rounded-2xl border border-white/10 bg-slate-950/35 p-3">
+                        Assets: {changes?.assetFiles || 0}
+                      </span>
+                      <span className="rounded-2xl border border-white/10 bg-slate-950/35 p-3">
+                        Catalogues: {changes?.catalogFiles || 0}
+                      </span>
+                    </div>
+
+                    {files.length ? (
+                      <div className="mt-4 grid gap-2">
+                        {files.slice(0, 48).map((file) => (
+                          <div
+                            className="flex min-w-0 flex-col gap-2 rounded-2xl border border-white/10 bg-slate-950/35 p-3 sm:flex-row sm:items-center sm:justify-between"
+                            key={`${item.id}-${file.path}`}
+                          >
+                            <span className="min-w-0">
+                              <span className="mr-2 inline-flex rounded-full border border-cyan-200/20 bg-cyan-300/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-cyan-100">
+                                {dataCategoryLabels[file.category || ""] || file.category || "JSON"}
+                              </span>
+                              <span className="break-all text-sm font-black text-white">{file.path}</span>
+                            </span>
+                            <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.055] px-3 py-1 text-xs font-black text-slate-300">
+                              {file.status || "modified"} · +{file.additions || 0} / -{file.deletions || 0}
+                            </span>
+                          </div>
+                        ))}
+                        {files.length > 48 || changes?.truncated ? (
+                          <p className="rounded-2xl border border-amber-300/20 bg-amber-400/10 p-3 text-xs font-bold text-amber-100">
+                            Liste raccourcie dans le Dashboard. Utilise le lien de comparaison GitHub pour tout voir.
+                          </p>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <p className="mt-4 rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+                        Aucun fichier JSON suivi n&apos;a été détecté entre les deux commits.
+                      </p>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="rounded-2xl border border-dashed border-white/15 p-5 text-sm font-bold text-slate-400">
+              Aucun redéploiement data enregistré pour le moment.
             </p>
           )}
         </div>

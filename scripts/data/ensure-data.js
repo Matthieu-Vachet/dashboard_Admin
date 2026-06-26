@@ -5,6 +5,7 @@ const path = require("path");
 const appRoot = path.resolve(__dirname, "../..");
 const defaultRepo = "https://github.com/Matthieu-Vachet/PokemonGo-Data.git";
 const targetDir = path.join(appRoot, ".data", "PokemonGo-Data");
+const snapshotFilename = ".dashboard-data-snapshot.json";
 
 function hasDataShape(directory) {
   return (
@@ -81,7 +82,29 @@ function syncTargetClone() {
   if (!hasDataShape(targetDir))
     throw new Error(`PokemonGo-Data synchronise mais structure invalide: ${targetDir}`);
 
+  writeSnapshot({ repo, ref, source: "remote" });
   console.log(`[data] dataset synchronise: ${targetDir}`);
+}
+
+function writeSnapshot({ repo = defaultRepo, ref = "main", source = "local" } = {}) {
+  if (!hasDataShape(targetDir) && source === "remote") return;
+
+  try {
+    const directory = source === "remote" ? targetDir : path.resolve(repo);
+    const commit = git(["rev-parse", "HEAD"], { cwd: directory }).trim();
+    const branch = git(["rev-parse", "--abbrev-ref", "HEAD"], { cwd: directory }).trim();
+    const snapshot = {
+      repo: source === "remote" ? repo : directory,
+      ref,
+      branch,
+      commit,
+      source,
+      syncedAt: new Date().toISOString(),
+    };
+    fs.writeFileSync(path.join(targetDir, snapshotFilename), `${JSON.stringify(snapshot, null, 2)}\n`);
+  } catch (error) {
+    console.warn(`[data] snapshot commit indisponible: ${error.message}`);
+  }
 }
 
 function ensureData() {
@@ -89,6 +112,7 @@ function ensureData() {
     const resolved = path.resolve(candidate);
     if (hasDataShape(resolved)) {
       console.log(`[data] dataset explicite: ${resolved}`);
+      if (resolved === targetDir) writeSnapshot({ repo: resolved, ref: "local", source: "local" });
       return;
     }
   }

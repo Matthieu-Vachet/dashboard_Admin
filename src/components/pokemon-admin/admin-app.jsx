@@ -51,7 +51,7 @@ import { CandyPanel } from "./candy-panel";
 import { CatalogPanel } from "./catalog-panel";
 import { CollectionsPanel } from "./collections-panel";
 import { LoginCard } from "./login-card";
-import { SourceHistoryModal, SourceRows } from "./source-watch-panel";
+import { DataDeployHistoryModal, SourceHistoryModal, SourceRows } from "./source-watch-panel";
 import { UpdateLogPanel } from "./update-log-panel";
 
 const assetChecksKey = "pokedex-v4-asset-checks";
@@ -60,6 +60,7 @@ const editorKey = "pokedex-v4-admin-editor";
 const sourceWatchSignatureKey = "pokedex-v4-source-watch-signatures";
 const collectionsKey = "pokedex-v4-admin-collections";
 const adminApiPath = "/api/pokemon-admin";
+const redeployApiPath = "/api/dashboard-redeploy";
 
 const navItems = [
   ["overview", "Accueil", LayoutDashboard],
@@ -844,6 +845,9 @@ export function AdminApp() {
   const [sourceWatch, setSourceWatch] = useState(null);
   const [sourceHistory, setSourceHistory] = useState([]);
   const [sourceHistoryOpen, setSourceHistoryOpen] = useState(false);
+  const [deployHistory, setDeployHistory] = useState([]);
+  const [deployHistoryOpen, setDeployHistoryOpen] = useState(false);
+  const [redeployingDashboard, setRedeployingDashboard] = useState(false);
   const [history, setHistory] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [detail, setDetail] = useState(null);
@@ -883,21 +887,39 @@ export function AdminApp() {
   async function loadAdminData({ notify = false } = {}) {
     setBootstrap((current) => ({ ...current, loading: true, error: "" }));
     try {
-      const [checklistResponse, catalogResponse, assetResponse, historyResponse, rulesResponse, sourceHistoryResponse] = await Promise.all([
+      const [
+        checklistResponse,
+        catalogResponse,
+        assetResponse,
+        historyResponse,
+        rulesResponse,
+        sourceHistoryResponse,
+        redeployResponse,
+      ] = await Promise.all([
         fetch(adminApiPath),
         fetch(`${adminApiPath}?action=catalog`),
         fetch(`${adminApiPath}?action=assets`),
         fetch(`${adminApiPath}?action=history`),
         fetch(`${adminApiPath}?action=custom-rules`),
         fetch(`${adminApiPath}?action=source-history`),
+        fetch(redeployApiPath),
       ]);
-      const [checklistPayload, catalogPayload, assetPayload, historyPayload, rulesPayload, sourceHistoryPayload] = await Promise.all([
+      const [
+        checklistPayload,
+        catalogPayload,
+        assetPayload,
+        historyPayload,
+        rulesPayload,
+        sourceHistoryPayload,
+        redeployPayload,
+      ] = await Promise.all([
         checklistResponse.json(),
         catalogResponse.json(),
         assetResponse.json(),
         historyResponse.json(),
         rulesResponse.json(),
         sourceHistoryResponse.json(),
+        redeployResponse.json(),
       ]);
       if (!checklistResponse.ok) throw new Error(checklistPayload.error || "Erreur de chargement.");
       setBootstrap({ loading: false, payload: checklistPayload.data, error: "" });
@@ -906,6 +928,7 @@ export function AdminApp() {
       setHistory(historyPayload.data || []);
       setCustomRules(rulesPayload.data || checklistPayload.data?.customRules || []);
       setSourceHistory(Array.isArray(sourceHistoryPayload.data) ? sourceHistoryPayload.data : []);
+      setDeployHistory(Array.isArray(redeployPayload.data?.history) ? redeployPayload.data.history : []);
       if (notify) toast.success("Dashboard Pokémon actualisé.");
     } catch (error) {
       setBootstrap({ loading: false, payload: null, error: error.message });
@@ -1112,6 +1135,18 @@ export function AdminApp() {
     }
   }
 
+  async function loadDeployHistory() {
+    try {
+      const response = await fetch(redeployApiPath);
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Historique data indisponible.");
+      setDeployHistory(Array.isArray(payload.data?.history) ? payload.data.history : []);
+      setDeployHistoryOpen(true);
+    } catch (error) {
+      toast.error(error.message || "Historique data indisponible.");
+    }
+  }
+
   async function previewRule() {
     setRuleMessage("");
     const response = await fetch(adminApiPath, {
@@ -1172,6 +1207,33 @@ export function AdminApp() {
       toast.error(error.message || "Synchronisation impossible.", { id: toastId });
     } finally {
       setRulesSyncing(false);
+    }
+  }
+
+  async function redeployDashboard() {
+    setRedeployingDashboard(true);
+    const toastId = toast.loading("Je demande a Vercel de reconstruire le Dashboard...");
+    try {
+      const response = await fetch(redeployApiPath, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ reason: "Manual PokemonGo-Data refresh" }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Redéploiement impossible.");
+      const history = Array.isArray(payload.data?.history) ? payload.data.history : [];
+      setDeployHistory(history);
+      const changed = payload.data?.event?.dataChanges?.trackedFiles || 0;
+      toast.success(
+        changed
+          ? `Redéploiement demandé. ${changed} JSON data seront visibles dans l'historique.`
+          : "Redéploiement demandé. Vercel va reconstruire le Dashboard.",
+        { id: toastId },
+      );
+    } catch (error) {
+      toast.error(error.message || "Redéploiement impossible.", { id: toastId });
+    } finally {
+      setRedeployingDashboard(false);
     }
   }
 
@@ -1253,7 +1315,7 @@ export function AdminApp() {
                   {navItems.find(([id]) => id === active)?.[1]}
                 </h1>
               </div>
-              <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] xl:w-[620px]">
+              <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] xl:w-[780px]">
                 <label className="relative block">
                   <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                   <input
@@ -1265,6 +1327,14 @@ export function AdminApp() {
                 </label>
                 <button className={buttonClass} type="button" onClick={() => loadAdminData({ notify: true })}>
                   <RefreshCcw size={17} /> Actualiser
+                </button>
+                <button
+                  className={primaryButtonClass}
+                  type="button"
+                  onClick={redeployDashboard}
+                  disabled={redeployingDashboard}
+                >
+                  <Cloud size={17} /> {redeployingDashboard ? "Déploiement..." : "Redéployer"}
                 </button>
               </div>
             </div>
@@ -1460,7 +1530,9 @@ export function AdminApp() {
               <UpdateLogPanel
                 gitHistory={history}
                 sourceHistory={sourceHistory}
+                deployHistory={deployHistory}
                 onOpenSourceHistory={loadSourceHistory}
+                onOpenDeployHistory={loadDeployHistory}
               />
             ) : null}
 
@@ -1624,6 +1696,12 @@ export function AdminApp() {
         open={sourceHistoryOpen}
         history={sourceHistory}
         onClose={() => setSourceHistoryOpen(false)}
+      />
+
+      <DataDeployHistoryModal
+        open={deployHistoryOpen}
+        history={deployHistory}
+        onClose={() => setDeployHistoryOpen(false)}
       />
 
       <DetailModal
