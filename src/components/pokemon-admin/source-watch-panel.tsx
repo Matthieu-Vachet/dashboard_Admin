@@ -74,8 +74,12 @@ export function SourceHistoryModal({
   const events = [...history].slice(0, 120);
 
   return (
-    <div className="fixed inset-0 z-[80] grid place-items-center bg-slate-950/80 p-3 backdrop-blur-xl" role="dialog" aria-modal="true">
-      <section className="max-h-[88vh] w-full max-w-5xl overflow-hidden rounded-3xl border border-white/10 bg-slate-950 shadow-[0_24px_120px_rgba(0,0,0,.5)]">
+    <div
+      className="fixed inset-0 z-[1000] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl sm:p-5"
+      role="dialog"
+      aria-modal="true"
+    >
+      <section className="relative z-[1001] max-h-[calc(100dvh-2rem)] w-full max-w-5xl overflow-hidden rounded-3xl border border-white/10 bg-slate-950 shadow-[0_24px_120px_rgba(0,0,0,.5)] sm:max-h-[calc(100dvh-3rem)]">
         <header className="flex items-start justify-between gap-4 border-b border-white/10 bg-white/[0.04] p-5">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200/75">Mongo source history</p>
@@ -94,7 +98,7 @@ export function SourceHistoryModal({
             x
           </button>
         </header>
-        <div className="max-h-[62vh] overflow-y-auto p-5">
+        <div className="max-h-[calc(100dvh-14rem)] overflow-y-auto p-5">
           {events.length ? (
             <div className="grid gap-3">
               {events.map((item) => (

@@ -10,18 +10,19 @@ function hasDataShape(directory) {
     directory &&
     fs.existsSync(path.join(directory, "pokemon")) &&
     fs.existsSync(path.join(directory, "pokemon-forms")) &&
+    fs.existsSync(path.join(directory, "pokemon-assets")) &&
     fs.existsSync(path.join(directory, "moves"))
   );
 }
 
 function candidateRoots() {
-  // En local on préfère le dépôt frère PokemonGo-Data, plus frais que le clone
-  // ignoré dans .data. Sur Vercel, .data reste le fallback créé par ensure-data.
+  // Le Dashboard lit d'abord le clone .data mis a jour par scripts/data/ensure-data.js.
+  // Cela garde le build local, Vercel et les écrans d'admin sur la même photo JSON.
   return [
     process.env.POKEMON_GO_DATA_DIR,
     process.env.DATA_REPOSITORY_DIR,
-    path.resolve(/*turbopackIgnore: true*/ appRoot, "..", "PokemonGo-Data"),
     path.join(/*turbopackIgnore: true*/ appRoot, ".data", "PokemonGo-Data"),
+    path.resolve(/*turbopackIgnore: true*/ appRoot, "..", "PokemonGo-Data"),
     path.join(/*turbopackIgnore: true*/ appRoot, "data"),
   ].filter(Boolean);
 }

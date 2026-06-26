@@ -45,6 +45,33 @@ une synchronisation Mongo. Si une fiche de l'admin affiche encore des assets lou
 son `JSON source`, le snapshot utilisé par l'application est obsolète ou n'a pas récupéré
 `pokemon-assets/`.
 
+## Snapshot Du Dashboard Admin
+
+Le Dashboard Admin ne doit pas lire un vieux dossier `.data/PokemonGo-Data`. Avant
+chaque build, `scripts/data/ensure-data.js` synchronise automatiquement ce clone local
+sur `PokemonGo-Data@main` avec `git fetch`, `git reset --hard origin/main` et
+`git clean -fd`. La structure est refusée si `pokemon-assets/` est absent.
+
+Flux normal après une modification manuelle :
+
+```bash
+cd ../PokemonGo-Data
+git add .
+git commit -m "..."
+git push origin main
+
+cd ../Dashboard\ Admin
+npm run build
+```
+
+Le `npm run build` déclenche `prebuild`, donc le Dashboard récupère la dernière version
+des JSON et des assets séparés. En développement local, si `npm run dev` tourne déjà,
+relancer le serveur ou exécuter `node scripts/data/ensure-data.js` pour rafraîchir
+immédiatement le snapshot.
+
+Ne jamais corriger directement les JSON dans `.data/PokemonGo-Data` : ce dossier est un
+cache ignoré et sera écrasé à la prochaine synchronisation.
+
 Les migrations `npm run migrate:regions` et `npm run migrate:weather` doivent
 indiquer `changedFiles: 0` après une contribution. Utiliser leurs variantes
 `:write` uniquement lorsqu'une migration centrale est réellement nécessaire.

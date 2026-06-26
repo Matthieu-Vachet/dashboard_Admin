@@ -658,6 +658,9 @@ function createValidator() {
 
   function pokemon(value, profile, pathName = "", requireBaseFormId = false) {
     const prefix = pathName ? `${pathName}.` : "";
+    const isMaxForm = ["dynamax", "gigantamax"].includes(
+      String(value.form || "").toLowerCase(),
+    );
     for (const key of ["id", "formId", "slug", "dexId", "form"])
       field(value, key, `${prefix}${key}`, "string", { nonEmpty: true });
     if (requireBaseFormId)
@@ -706,14 +709,16 @@ function createValidator() {
             blockName === "maxCp" &&
             key === "maxBattlesLevel20" &&
             block[key] === undefined &&
-            !value.availability?.dynamax &&
-            !value.availability?.gigantamax &&
-            !["dynamax", "gigantamax"].includes(String(value.form || "").toLowerCase())
+            !isMaxForm
           ) {
             continue;
           }
           field(block, key, `${prefix}${blockName}.${key}`, "number", {
             nullable: blockName === "maxCp" && key === "maxBattlesLevel20",
+            optional:
+              blockName === "maxCp" &&
+              key === "maxBattlesLevel20" &&
+              !isMaxForm,
           });
         }
     }
