@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  ChevronDown,
   LogOut,
   Menu,
   Moon,
@@ -20,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DASHBOARD_VERSION } from "@/data/app-version";
 import { dashboardVersionHistory } from "@/data/dashboard-version-history";
-import { navItems } from "@/data/dashboard";
+import { navGroups, navItems } from "@/data/dashboard";
 import { cn } from "@/lib/cn";
 import { usePersistentState } from "@/lib/use-persistent-state";
 
@@ -53,6 +54,10 @@ export function AppFrame({
     "matweb.dashboard.versionHistory",
     dashboardVersionHistory,
   );
+  const [openNavGroups, setOpenNavGroups] = usePersistentState(
+    "matweb.dashboard.sidebarGroups",
+    navGroups.map((group) => group.id),
+  );
   const { resolvedTheme, setTheme } = useTheme();
   const brandLogo = "/ui/matweb-innovation-letter-m3.png";
 
@@ -63,6 +68,14 @@ export function AppFrame({
   const displayedVersionHistory = Array.isArray(versionHistory)
     ? versionHistory
     : dashboardVersionHistory;
+
+  function toggleNavGroup(groupId: string) {
+    setOpenNavGroups((current) =>
+      current.includes(groupId)
+        ? current.filter((id) => id !== groupId)
+        : [...current, groupId],
+    );
+  }
 
   useEffect(() => {
     if (!versionHistoryReady || !Array.isArray(versionHistory)) return;
@@ -115,49 +128,83 @@ export function AppFrame({
         </button>
       </div>
 
-      <nav className="flex-1 space-y-0.5 overflow-y-auto px-2.5" aria-label="Navigation dashboard">
-        {navItems.map((item, index) => {
-          const active = pathname === item.href;
-          const Icon = item.icon;
-          const tone = navToneClasses[index % navToneClasses.length];
+      <nav className="flex-1 space-y-2 overflow-y-auto px-2.5" aria-label="Navigation dashboard">
+        {navGroups.map((group) => {
+          const groupActive = group.items.some((item) => item.href === pathname);
+          const groupOpen = collapsed || groupActive || openNavGroups.includes(group.id);
 
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setSidebarOpen(false)}
-              title={collapsed ? item.label : undefined}
-              aria-current={active ? "page" : undefined}
-              className={cn(
-                "dashboard-sidebar-link group relative flex min-h-10 items-center gap-2.5 overflow-hidden rounded-lg border px-3 text-sm font-black transition",
-                active
-                  ? "border-brand-2/35 bg-brand-2/12 text-foreground shadow-[0_12px_36px_rgba(32,211,255,0.12)]"
-                  : "border-transparent text-muted hover:border-line hover:bg-white/[0.055] hover:text-foreground",
-                collapsed && "justify-center px-0",
+            <div key={group.id} className="dashboard-sidebar-group rounded-lg border border-transparent">
+              {!collapsed ? (
+                <button
+                  type="button"
+                  onClick={() => toggleNavGroup(group.id)}
+                  className={cn(
+                    "flex min-h-9 w-full items-center justify-between gap-2 rounded-lg px-3 text-left text-[0.68rem] font-black uppercase tracking-[0.18em] transition",
+                    groupActive ? "text-brand-2" : "text-muted hover:bg-white/[0.045] hover:text-foreground",
+                  )}
+                  aria-expanded={groupOpen}
+                >
+                  <span className="truncate">{group.label}</span>
+                  <ChevronDown
+                    size={15}
+                    className={cn("transition", groupOpen && "rotate-180")}
+                  />
+                </button>
+              ) : (
+                <div className="mx-auto my-1 h-px w-8 bg-line" />
               )}
-            >
-              <span
-                className={cn(
-                  "absolute inset-y-1 left-1 w-9 rounded-lg opacity-0 blur-sm transition duration-300 group-hover:opacity-70",
-                  tone.glow,
-                  active && "opacity-100",
-                )}
-              />
-              <Icon
-                size={17}
-                className={cn(
-                  "relative z-10 transition duration-300 group-hover:scale-125 group-hover:-rotate-6",
-                  active ? "text-brand-2 drop-shadow-[0_0_14px_rgba(32,211,255,.55)]" : tone.icon,
-                )}
-              />
-              {!collapsed ? <span className="truncate">{item.label}</span> : null}
-              {active ? (
-                <motion.span
-                  layoutId="active-nav"
-                  className="absolute inset-y-2 right-2 w-1 rounded-full bg-brand-2"
-                />
+
+              {groupOpen ? (
+                <div className="space-y-0.5">
+                  {group.items.map((item) => {
+                    const active = pathname === item.href;
+                    const Icon = item.icon;
+                    const index = Math.max(navItems.findIndex((navItem) => navItem.href === item.href), 0);
+                    const tone = navToneClasses[index % navToneClasses.length];
+
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setSidebarOpen(false)}
+                        title={collapsed ? item.label : undefined}
+                        aria-current={active ? "page" : undefined}
+                        className={cn(
+                          "dashboard-sidebar-link group relative flex min-h-10 items-center gap-2.5 overflow-hidden rounded-lg border px-3 text-sm font-black transition",
+                          active
+                            ? "border-brand-2/35 bg-brand-2/12 text-foreground shadow-[0_12px_36px_rgba(32,211,255,0.12)]"
+                            : "border-transparent text-muted hover:border-line hover:bg-white/[0.055] hover:text-foreground",
+                          collapsed && "justify-center px-0",
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "absolute inset-y-1 left-1 w-9 rounded-lg opacity-0 blur-sm transition duration-300 group-hover:opacity-70",
+                            tone.glow,
+                            active && "opacity-100",
+                          )}
+                        />
+                        <Icon
+                          size={17}
+                          className={cn(
+                            "relative z-10 transition duration-300 group-hover:scale-125 group-hover:-rotate-6",
+                            active ? "text-brand-2 drop-shadow-[0_0_14px_rgba(32,211,255,.55)]" : tone.icon,
+                          )}
+                        />
+                        {!collapsed ? <span className="truncate">{item.label}</span> : null}
+                        {active ? (
+                          <motion.span
+                            layoutId="active-nav"
+                            className="absolute inset-y-2 right-2 w-1 rounded-full bg-brand-2"
+                          />
+                        ) : null}
+                      </Link>
+                    );
+                  })}
+                </div>
               ) : null}
-            </Link>
+            </div>
           );
         })}
       </nav>

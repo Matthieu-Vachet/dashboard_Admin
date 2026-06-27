@@ -10,7 +10,7 @@ import {
   startOfWeek,
 } from "date-fns";
 import { fr } from "date-fns/locale";
-import { CalendarPlus, ChevronLeft, ChevronRight, Save, Trash2 } from "lucide-react";
+import { CalendarPlus, ChevronLeft, ChevronRight, Filter, Save, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { DashboardLoadingState } from "@/components/dashboard/loading-state";
 import { Badge } from "@/components/ui/badge";
@@ -18,15 +18,33 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
-import { initialEvents, type CalendarEvent, type EventTone } from "@/data/personal-dashboard-defaults";
+import {
+  initialEvents,
+  type CalendarEvent,
+  type CalendarEventCategory,
+  type CalendarEventStatus,
+  type EventTone,
+} from "@/data/personal-dashboard-defaults";
 import { cn } from "@/lib/cn";
 import { usePersistentState } from "@/lib/use-persistent-state";
 
 const tones: EventTone[] = ["cyan", "green", "violet", "amber", "red"];
+const categories: CalendarEventCategory[] = [
+  "Community Day",
+  "Raid Day",
+  "Spotlight Hour",
+  "Go Fest",
+  "Event saisonnier",
+  "Événement spécial",
+  "Autre",
+];
+const statuses: CalendarEventStatus[] = ["À venir", "En cours", "Terminé"];
 const views = ["jour", "mois", "semestre", "année"] as const;
 type CalendarView = (typeof views)[number];
+type StatusFilter = CalendarEventStatus | "Tous";
+type CategoryFilter = CalendarEventCategory | "Toutes";
 
-const toneClasses = {
+const toneClasses: Record<EventTone, string> = {
   cyan: "bg-brand-2",
   green: "bg-brand-3",
   violet: "bg-brand",
@@ -34,13 +52,19 @@ const toneClasses = {
   red: "bg-danger",
 };
 
-const toneBadge = {
+const toneBadge: Record<EventTone, string> = {
   cyan: "cyan",
   green: "green",
   violet: "violet",
   amber: "amber",
   red: "red",
-} as const;
+};
+
+const statusTone: Record<CalendarEventStatus, "cyan" | "green" | "amber"> = {
+  "À venir": "cyan",
+  "En cours": "green",
+  Terminé: "amber",
+};
 
 function dateKey(date: Date) {
   return format(date, "yyyy-MM-dd");
@@ -57,6 +81,44 @@ function monthDays(month: Date) {
   });
 }
 
+function deriveStatus(startDate: string, endDate: string): CalendarEventStatus {
+  const today = dateKey(new Date());
+  if (endDate < today) return "Terminé";
+  if (startDate <= today && endDate >= today) return "En cours";
+  return "À venir";
+}
+
+function normalizeEvent(event: CalendarEvent): CalendarEvent {
+  const startDate = event.startDate || event.date || dateKey(new Date());
+  const endDate = event.endDate || startDate;
+  const color = tones.includes(event.color) ? event.color : event.tone && tones.includes(event.tone) ? event.tone : "cyan";
+  const category = categories.includes(event.category) ? event.category : "Autre";
+  const status = statuses.includes(event.status) ? event.status : deriveStatus(startDate, endDate);
+  const description = event.description || event.note || "";
+
+  return {
+    ...event,
+    date: event.date || startDate,
+    time: event.time || "09:00",
+    tone: event.tone || color,
+    note: event.note || description,
+    startDate,
+    endDate: endDate < startDate ? startDate : endDate,
+    description,
+    category,
+    status,
+    color,
+  };
+}
+
+function eventStartsSort(a: CalendarEvent, b: CalendarEvent) {
+  return `${a.startDate}${a.time}`.localeCompare(`${b.startDate}${b.time}`);
+}
+
+function isEventOnDay(event: CalendarEvent, key: string) {
+  return event.startDate <= key && event.endDate >= key;
+}
+
 export function CalendarPlanner() {
   const [events, setEvents, ready] = usePersistentState("matweb.calendar", initialEvents);
   const [cursor, setCursor] = useState(new Date());
@@ -64,14 +126,26 @@ export function CalendarPlanner() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(initialEvents[0]?.id);
   const [view, setView] = useState<CalendarView>("mois");
   const [modalOpen, setModalOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("Tous");
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("Toutes");
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
+  const normalizedEvents = useMemo(() => events.map(normalizeEvent), [events]);
+  const filteredEvents = useMemo(
+    () =>
+      normalizedEvents
+        .filter((event) => statusFilter === "Tous" || event.status === statusFilter)
+        .filter((event) => categoryFilter === "Toutes" || event.category === categoryFilter)
+        .sort(eventStartsSort),
+    [categoryFilter, normalizedEvents, statusFilter],
+  );
   const days = useMemo(() => monthDays(cursor), [cursor]);
   const selectedKey = dateKey(selectedDate);
-  const selectedEvents = events
-    .filter((event) => event.date === selectedKey)
-    .sort((a, b) => a.time.localeCompare(b.time));
+  const selectedEvents = filteredEvents.filter((event) => isEventOnDay(event, selectedKey)).sort(eventStartsSort);
   const selectedEvent =
-    events.find((event) => event.id === selectedEventId) || selectedEvents[0] || null;
+    normalizedEvents.find((event) => event.id === selectedEventId) || selectedEvents[0] || null;
+  const currentEvents = filteredEvents.filter((event) => event.status === "En cours").slice(0, 5);
+  const upcomingEvents = filteredEvents.filter((event) => event.status === "À venir").slice(0, 5);
   const semesterStart = Math.floor(cursor.getMonth() / 6) * 6;
   const semesterMonths = Array.from(
     { length: 6 },
@@ -87,46 +161,71 @@ export function CalendarPlanner() {
     const event: CalendarEvent = {
       id: `e${Date.now()}`,
       date: selectedKey,
-      title: "Nouvel événement",
+      title: "Nouvel event Pokémon GO",
       time: "09:00",
       tone: "cyan",
-      note: "Décris ce rendez-vous ou bloc de travail.",
+      note: "",
+      startDate: selectedKey,
+      endDate: selectedKey,
+      description: "Décris l'event, les bonus, raids ou actions à préparer.",
+      category: "Autre",
+      status: deriveStatus(selectedKey, selectedKey),
+      color: "cyan",
     };
-    setEvents((current) => [event, ...current]);
+    setEvents((current) => [event, ...current.map(normalizeEvent)]);
     setSelectedEventId(event.id);
     setModalOpen(true);
+    setConfirmDelete(false);
   }
 
   function updateEvent(id: string, patch: Partial<CalendarEvent>) {
     setEvents((current) =>
-      current.map((event) => (event.id === id ? { ...event, ...patch } : event)),
+      current.map((event) => {
+        const normalized = normalizeEvent(event);
+        if (normalized.id !== id) return normalized;
+        const next = normalizeEvent({ ...normalized, ...patch });
+        return {
+          ...next,
+          date: next.startDate,
+          tone: next.color,
+          note: next.description,
+        };
+      }),
     );
+    setConfirmDelete(false);
   }
 
   function deleteEvent(id: string) {
-    setEvents((current) => current.filter((event) => event.id !== id));
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
+    setEvents((current) => current.map(normalizeEvent).filter((event) => event.id !== id));
     setSelectedEventId(null);
     setModalOpen(false);
+    setConfirmDelete(false);
   }
 
   function selectDay(day: Date) {
+    const key = dateKey(day);
     setSelectedDate(day);
-    const firstEvent = events.find((event) => event.date === dateKey(day));
+    const firstEvent = filteredEvents.find((event) => isEventOnDay(event, key));
     setSelectedEventId(firstEvent?.id || null);
   }
 
   function openEvent(event: CalendarEvent) {
-    setSelectedDate(dateFromKey(event.date));
+    setSelectedDate(dateFromKey(event.startDate));
     setSelectedEventId(event.id);
     setModalOpen(true);
+    setConfirmDelete(false);
   }
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_400px]">
       <Card tone="strong" className="min-w-0 p-4 sm:p-5">
         <div className="flex flex-col gap-4 2xl:flex-row 2xl:items-center 2xl:justify-between">
           <div>
-            <Badge tone="cyan">Calendrier</Badge>
+            <Badge tone="cyan">Events Pokémon GO</Badge>
             <h2 className="mt-3 text-3xl font-black capitalize">
               {view === "année"
                 ? cursor.getFullYear()
@@ -188,6 +287,37 @@ export function CalendarPlanner() {
           </div>
         </div>
 
+        <div className="mt-5 grid gap-3 rounded-lg border border-line bg-white/[0.035] p-3 md:grid-cols-[auto_1fr_1fr]">
+          <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-brand-2">
+            <Filter size={15} />
+            Filtres
+          </span>
+          <select
+            className="min-h-11 rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+            value={statusFilter}
+            onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
+          >
+            <option value="Tous">Tous les statuts</option>
+            {statuses.map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
+          <select
+            className="min-h-11 rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+            value={categoryFilter}
+            onChange={(event) => setCategoryFilter(event.target.value as CategoryFilter)}
+          >
+            <option value="Toutes">Toutes les catégories</option>
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {view === "jour" ? (
           <DayView date={selectedDate} events={selectedEvents} onOpen={openEvent} />
         ) : null}
@@ -196,7 +326,7 @@ export function CalendarPlanner() {
           <MonthGrid
             days={days}
             cursor={cursor}
-            events={events}
+            events={filteredEvents}
             selectedKey={selectedKey}
             onSelect={selectDay}
           />
@@ -205,7 +335,7 @@ export function CalendarPlanner() {
         {view === "semestre" ? (
           <div className="mt-6 grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
             {semesterMonths.map((month) => (
-              <MiniMonth key={month.toISOString()} month={month} events={events} onSelect={selectDay} />
+              <MiniMonth key={month.toISOString()} month={month} events={filteredEvents} onSelect={selectDay} />
             ))}
           </div>
         ) : null}
@@ -213,13 +343,15 @@ export function CalendarPlanner() {
         {view === "année" ? (
           <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {yearMonths.map((month) => (
-              <MiniMonth key={month.toISOString()} month={month} events={events} onSelect={selectDay} />
+              <MiniMonth key={month.toISOString()} month={month} events={filteredEvents} onSelect={selectDay} />
             ))}
           </div>
         ) : null}
       </Card>
 
       <aside className="space-y-4">
+        <EventList title="En cours" events={currentEvents} empty="Aucun event en cours." onOpen={openEvent} />
+        <EventList title="À venir" events={upcomingEvents} empty="Aucun event à venir dans ce filtre." onOpen={openEvent} />
         <Card className="p-4">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">
             Jour sélectionné
@@ -230,25 +362,16 @@ export function CalendarPlanner() {
           <div className="mt-5 space-y-3">
             {selectedEvents.length ? (
               selectedEvents.map((event) => (
-                <button
+                <EventButton
                   key={event.id}
-                  type="button"
-                  onClick={() => openEvent(event)}
-                  className={cn(
-                    "w-full rounded-lg border p-3 text-left transition",
-                    selectedEvent?.id === event.id
-                      ? "border-brand-2/55 bg-brand-2/12"
-                      : "border-line bg-white/[0.045] hover:bg-white/[0.075]",
-                  )}
-                >
-                  <span className={cn("block h-1.5 w-12 rounded-full", toneClasses[event.tone])} />
-                  <p className="mt-3 text-sm font-black">{event.title}</p>
-                  <p className="mt-1 font-mono text-xs font-bold text-muted">{event.time}</p>
-                </button>
+                  event={event}
+                  selected={selectedEvent?.id === event.id}
+                  onOpen={openEvent}
+                />
               ))
             ) : (
               <p className="rounded-lg border border-line bg-white/[0.045] p-3 text-sm font-semibold text-muted">
-                Aucun événement. Clique sur Ajouter pour créer un bloc.
+                Aucun event sur cette journée.
               </p>
             )}
           </div>
@@ -258,8 +381,11 @@ export function CalendarPlanner() {
       <Modal
         open={modalOpen && Boolean(selectedEvent)}
         title={selectedEvent?.title || "Événement"}
-        description="Création et édition d'un bloc calendrier."
-        onClose={() => setModalOpen(false)}
+        description="Création et édition complète d'un événement Pokémon GO."
+        onClose={() => {
+          setModalOpen(false);
+          setConfirmDelete(false);
+        }}
       >
         {selectedEvent ? (
           <div className="space-y-4">
@@ -273,17 +399,31 @@ export function CalendarPlanner() {
             </label>
             <div className="grid grid-cols-2 gap-3">
               <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Date</span>
+                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Début</span>
                 <Input
                   className="mt-2"
                   type="date"
-                  value={selectedEvent.date}
+                  value={selectedEvent.startDate}
                   onChange={(event) => {
-                    updateEvent(selectedEvent.id, { date: event.target.value });
+                    updateEvent(selectedEvent.id, {
+                      startDate: event.target.value,
+                      endDate: selectedEvent.endDate < event.target.value ? event.target.value : selectedEvent.endDate,
+                    });
                     setSelectedDate(dateFromKey(event.target.value));
                   }}
                 />
               </label>
+              <label className="block">
+                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Fin</span>
+                <Input
+                  className="mt-2"
+                  type="date"
+                  value={selectedEvent.endDate}
+                  onChange={(event) => updateEvent(selectedEvent.id, { endDate: event.target.value })}
+                />
+              </label>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
               <label className="block">
                 <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Heure</span>
                 <Input
@@ -293,7 +433,35 @@ export function CalendarPlanner() {
                   onChange={(event) => updateEvent(selectedEvent.id, { time: event.target.value })}
                 />
               </label>
+              <label className="block">
+                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Statut</span>
+                <select
+                  className="mt-2 min-h-11 w-full rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+                  value={selectedEvent.status}
+                  onChange={(event) => updateEvent(selectedEvent.id, { status: event.target.value as CalendarEventStatus })}
+                >
+                  {statuses.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
+            <label className="block">
+              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Catégorie</span>
+              <select
+                className="mt-2 min-h-11 w-full rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+                value={selectedEvent.category}
+                onChange={(event) => updateEvent(selectedEvent.id, { category: event.target.value as CalendarEventCategory })}
+              >
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </label>
             <div>
               <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">Couleur</p>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -301,10 +469,10 @@ export function CalendarPlanner() {
                   <button
                     key={tone}
                     type="button"
-                    onClick={() => updateEvent(selectedEvent.id, { tone })}
+                    onClick={() => updateEvent(selectedEvent.id, { color: tone, tone })}
                     className={cn(
                       "rounded-full border px-3 py-2 text-xs font-black transition",
-                      selectedEvent.tone === tone
+                      selectedEvent.color === tone
                         ? "border-brand-2/45 bg-white/[0.1]"
                         : "border-line bg-white/[0.04]",
                     )}
@@ -316,18 +484,19 @@ export function CalendarPlanner() {
               </div>
             </div>
             <label className="block">
-              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Note</span>
+              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Description</span>
               <Textarea
-                className="mt-2 min-h-28"
-                value={selectedEvent.note}
-                onChange={(event) => updateEvent(selectedEvent.id, { note: event.target.value })}
+                className="mt-2 min-h-32"
+                value={selectedEvent.description}
+                onChange={(event) => updateEvent(selectedEvent.id, { description: event.target.value, note: event.target.value })}
+                placeholder="Bonus, Pokémon mis en avant, tâches à préparer, liens utiles..."
               />
             </label>
             <Button className="w-full" variant="primary" icon={<Save size={17} />} type="button" onClick={() => setModalOpen(false)}>
-              Sauvegarde automatique
+              Sauvegarde locale active
             </Button>
             <Button className="w-full" variant="danger" icon={<Trash2 size={17} />} type="button" onClick={() => deleteEvent(selectedEvent.id)}>
-              Supprimer l&apos;événement
+              {confirmDelete ? "Confirmer la suppression" : "Supprimer l'événement"}
             </Button>
           </div>
         ) : null}
@@ -358,7 +527,7 @@ function MonthGrid({
       ))}
       {days.map((day) => {
         const key = dateKey(day);
-        const dayEvents = events.filter((event) => event.date === key);
+        const dayEvents = events.filter((event) => isEventOnDay(event, key));
         const selected = key === selectedKey;
 
         return (
@@ -381,7 +550,7 @@ function MonthGrid({
                   key={event.id}
                   className="flex max-w-full items-center gap-1.5 rounded-full bg-white/[0.05] px-2 py-1"
                 >
-                  <span className={cn("h-1.5 w-3 rounded-full", toneClasses[event.tone])} />
+                  <span className={cn("h-1.5 w-3 rounded-full", toneClasses[event.color])} />
                   <span className="truncate text-[10px] font-black">{event.title}</span>
                 </span>
               ))}
@@ -408,7 +577,7 @@ function MiniMonth({
       <div className="mt-3 grid grid-cols-7 gap-1">
         {monthDays(month).map((day) => {
           const key = dateKey(day);
-          const count = events.filter((event) => event.date === key).length;
+          const count = events.filter((event) => isEventOnDay(event, key)).length;
           return (
             <button
               key={day.toISOString()}
@@ -453,16 +622,83 @@ function DayView({
               <span className="font-mono text-sm font-black text-brand-2">{event.time}</span>
               <span>
                 <strong className="block text-sm font-black">{event.title}</strong>
-                <small className="mt-1 block text-xs font-semibold text-muted">{event.note}</small>
+                <small className="mt-1 block text-xs font-semibold text-muted">
+                  {event.category} · {event.startDate} → {event.endDate}
+                </small>
+                <small className="mt-1 block text-xs font-semibold text-muted">{event.description}</small>
               </span>
             </button>
           ))
         ) : (
           <p className="rounded-lg border border-dashed border-line p-4 text-sm font-semibold text-muted">
-            Aucun bloc prévu sur cette journée.
+            Aucun event prévu sur cette journée.
           </p>
         )}
       </div>
     </div>
+  );
+}
+
+function EventList({
+  title,
+  events,
+  empty,
+  onOpen,
+}: {
+  title: string;
+  events: CalendarEvent[];
+  empty: string;
+  onOpen: (event: CalendarEvent) => void;
+}) {
+  return (
+    <Card className="p-4">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">{title}</p>
+        <Badge tone="neutral">{events.length}</Badge>
+      </div>
+      <div className="mt-4 space-y-3">
+        {events.length ? (
+          events.map((event) => <EventButton key={event.id} event={event} onOpen={onOpen} />)
+        ) : (
+          <p className="rounded-lg border border-line bg-white/[0.045] p-3 text-sm font-semibold text-muted">
+            {empty}
+          </p>
+        )}
+      </div>
+    </Card>
+  );
+}
+
+function EventButton({
+  event,
+  selected,
+  onOpen,
+}: {
+  event: CalendarEvent;
+  selected?: boolean;
+  onOpen: (event: CalendarEvent) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(event)}
+      className={cn(
+        "w-full rounded-lg border p-3 text-left transition",
+        selected
+          ? "border-brand-2/55 bg-brand-2/12"
+          : "border-line bg-white/[0.045] hover:bg-white/[0.075]",
+      )}
+    >
+      <span className={cn("block h-1.5 w-12 rounded-full", toneClasses[event.color])} />
+      <p className="mt-3 text-sm font-black">{event.title}</p>
+      <p className="mt-1 font-mono text-xs font-bold text-muted">
+        {event.startDate}
+        {event.endDate !== event.startDate ? ` → ${event.endDate}` : ""} · {event.time}
+      </p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Badge tone={statusTone[event.status]}>{event.status}</Badge>
+        <Badge tone="neutral">{event.category}</Badge>
+      </div>
+    </button>
   );
 }

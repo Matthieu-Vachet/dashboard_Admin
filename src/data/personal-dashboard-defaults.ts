@@ -4,7 +4,12 @@ export type Note = {
   id: string;
   title: string;
   body: string;
-  category: "Projet" | "Client" | "Idée" | "Personnel";
+  category: "Projet" | "Client" | "Idée" | "Personnel" | "Pokémon" | "Système";
+  tags: string[];
+  priority: "Haute" | "Moyenne" | "Basse";
+  color: "cyan" | "green" | "violet" | "amber" | "red";
+  favorite: boolean;
+  createdAt: string;
   updatedAt: string;
 };
 
@@ -14,6 +19,11 @@ export const initialNotes: Note[] = [
     title: "Dashboard Admin",
     body: "Créer le socle, les pages métier, le design system intégré et le déploiement Vercel.",
     category: "Projet",
+    tags: ["dashboard", "v1"],
+    priority: "Haute",
+    color: "cyan",
+    favorite: true,
+    createdAt: "2026-06-25",
     updatedAt: "Aujourd'hui",
   },
   {
@@ -21,6 +31,11 @@ export const initialNotes: Note[] = [
     title: "Pokemon GO API",
     body: "Ajouter une vue dédiée pour les métriques qualité, assets et générations.",
     category: "Projet",
+    tags: ["pokemon", "api"],
+    priority: "Haute",
+    color: "green",
+    favorite: false,
+    createdAt: "2026-06-25",
     updatedAt: "Hier",
   },
   {
@@ -28,6 +43,11 @@ export const initialNotes: Note[] = [
     title: "Design system",
     body: "Référencer les primitives Button, Badge, Card, StatCard, KanbanCard.",
     category: "Idée",
+    tags: ["ui", "tokens"],
+    priority: "Moyenne",
+    color: "violet",
+    favorite: false,
+    createdAt: "2026-06-26",
     updatedAt: "Lundi",
   },
   {
@@ -35,6 +55,11 @@ export const initialNotes: Note[] = [
     title: "Outils quotidiens",
     body: "Centraliser les liens, snippets, contacts, abonnements et notes rapides.",
     category: "Personnel",
+    tags: ["outils", "productivité"],
+    priority: "Basse",
+    color: "amber",
+    favorite: false,
+    createdAt: "2026-06-26",
     updatedAt: "Vendredi",
   },
 ];
@@ -49,6 +74,14 @@ export type Task = {
   points: number;
   owner: string;
   note: string;
+  description: string;
+  links: string[];
+  images: string[];
+  tags: string[];
+  priority: "Haute" | "Moyenne" | "Basse";
+  status: "Backlog" | "En cours" | "Review" | "Terminé" | "Bloqué";
+  dueDate: string;
+  checklist: Array<{ id: string; text: string; done: boolean }>;
 };
 
 export type BoardState = Record<ColumnId, Task[]>;
@@ -71,6 +104,17 @@ export const initialBoard: BoardState = {
       points: 3,
       owner: "MW",
       note: "Créer les variantes utiles pour Button, Badge, Card et StatCard.",
+      description: "Créer les variantes utiles pour Button, Badge, Card et StatCard.",
+      links: [],
+      images: [],
+      tags: ["ui", "tokens"],
+      priority: "Moyenne",
+      status: "Backlog",
+      dueDate: "",
+      checklist: [
+        { id: "k1-c1", text: "Lister les composants", done: true },
+        { id: "k1-c2", text: "Stabiliser les variantes", done: false },
+      ],
     },
     {
       id: "k2",
@@ -79,6 +123,14 @@ export const initialBoard: BoardState = {
       points: 5,
       owner: "MW",
       note: "Afficher live/fallback, générations et catalogue.",
+      description: "Afficher live/fallback, générations et catalogue.",
+      links: [],
+      images: [],
+      tags: ["pokemon", "api"],
+      priority: "Haute",
+      status: "Backlog",
+      dueDate: "",
+      checklist: [],
     },
   ],
   doing: [
@@ -89,6 +141,14 @@ export const initialBoard: BoardState = {
       points: 8,
       owner: "MW",
       note: "Rendre chaque module utilisable, pas seulement joli.",
+      description: "Rendre chaque module utilisable, pas seulement joli.",
+      links: [],
+      images: [],
+      tags: ["dashboard", "ux"],
+      priority: "Haute",
+      status: "En cours",
+      dueDate: "",
+      checklist: [{ id: "k3-c1", text: "Valider les pages principales", done: false }],
     },
   ],
   review: [
@@ -99,6 +159,14 @@ export const initialBoard: BoardState = {
       points: 2,
       owner: "MW",
       note: "Tester mobile, tablette et prod Vercel.",
+      description: "Tester mobile, tablette et prod Vercel.",
+      links: [],
+      images: [],
+      tags: ["auth", "qa"],
+      priority: "Haute",
+      status: "Review",
+      dueDate: "",
+      checklist: [],
     },
   ],
   done: [
@@ -109,6 +177,14 @@ export const initialBoard: BoardState = {
       points: 5,
       owner: "MW",
       note: "Socle Next.js, auth et design system intégré.",
+      description: "Socle Next.js, auth et design system intégré.",
+      links: [],
+      images: [],
+      tags: ["nextjs", "tailwind"],
+      priority: "Moyenne",
+      status: "Terminé",
+      dueDate: "",
+      checklist: [{ id: "k6-c1", text: "Déployer le socle", done: true }],
     },
   ],
 };
@@ -198,14 +274,29 @@ export const projectRoadmap = [
 ];
 
 export type EventTone = "cyan" | "green" | "violet" | "amber" | "red";
+export type CalendarEventCategory =
+  | "Community Day"
+  | "Raid Day"
+  | "Spotlight Hour"
+  | "Go Fest"
+  | "Event saisonnier"
+  | "Événement spécial"
+  | "Autre";
+export type CalendarEventStatus = "À venir" | "En cours" | "Terminé";
 
 export type CalendarEvent = {
   id: string;
-  date: string;
   title: string;
+  date: string;
   time: string;
   tone: EventTone;
   note: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+  category: CalendarEventCategory;
+  status: CalendarEventStatus;
+  color: EventTone;
 };
 
 function dateKey(date: Date) {
@@ -222,6 +313,12 @@ export const initialEvents: CalendarEvent[] = [
     time: "09:30",
     tone: "cyan",
     note: "Tester les modules, corriger les vrais usages et déployer.",
+    startDate: todayKey,
+    endDate: todayKey,
+    description: "Tester les modules, corriger les vrais usages et déployer.",
+    category: "Autre",
+    status: "En cours",
+    color: "cyan",
   },
   {
     id: "e2",
@@ -230,6 +327,12 @@ export const initialEvents: CalendarEvent[] = [
     time: "14:00",
     tone: "green",
     note: "Vérifier live stats, endpoints et qualité des assets.",
+    startDate: dateKey(new Date(Date.now() + 86400000 * 3)),
+    endDate: dateKey(new Date(Date.now() + 86400000 * 3)),
+    description: "Vérifier live stats, endpoints et qualité des assets.",
+    category: "Événement spécial",
+    status: "À venir",
+    color: "green",
   },
   {
     id: "e3",
@@ -238,6 +341,12 @@ export const initialEvents: CalendarEvent[] = [
     time: "10:00",
     tone: "violet",
     note: "Référencer les composants du design system.",
+    startDate: dateKey(new Date(Date.now() + 86400000 * 8)),
+    endDate: dateKey(new Date(Date.now() + 86400000 * 8)),
+    description: "Référencer les composants du design system.",
+    category: "Autre",
+    status: "À venir",
+    color: "violet",
   },
 ];
 
@@ -404,6 +513,8 @@ export type WriterDocument = {
   id: string;
   title: string;
   body: string;
+  tags: string[];
+  createdAt: string;
   updatedAt: string;
 };
 
@@ -412,6 +523,8 @@ export const initialWriterDocuments: WriterDocument[] = [
     id: "doc1",
     title: "Brief de projet",
     body: "Objectif\n- \n\nAudience\n- \n\nLivrables\n- \n\nNotes\n- ",
+    tags: ["brief", "projet"],
+    createdAt: "2026-06-25",
     updatedAt: "Aujourd'hui",
   },
 ];

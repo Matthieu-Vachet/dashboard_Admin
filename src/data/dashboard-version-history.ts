@@ -7,6 +7,19 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.3.0",
+    date: "2026-06-27",
+    title: "Éditeurs, calendrier, widgets, light mode et sidebar",
+    changes: [
+      "Refond l'éditeur Notes avec recherche, tri, tags, priorité, couleur, favoris, dates et suppression confirmée.",
+      "Transforme le Kanban en cartes projet enrichies avec description, liens, images, tags, priorité, statut, échéance, checklist et édition complète en modale.",
+      "Ajoute un éditeur texte enrichi avec toolbar, titres, listes, citations, liens, blocs code, aperçu et sauvegarde visible.",
+      "Refond le Calendrier pour gérer les événements Pokémon GO avec dates début/fin, catégories, statuts, couleurs, filtres et vues en cours/à venir.",
+      "Ajoute drag & drop, masquage, restauration et ordre sauvegardé aux widgets Outils et Analytics avec glow contrôlé compatible dark/light.",
+      "Reprend le light mode global et regroupe la sidebar en sous-menus repliables plus lisibles.",
+    ],
+  },
+  {
     version: "V1.2.0",
     date: "2026-06-27",
     title: "Admin Pokémon : filtres, assets, collections et catalogues",

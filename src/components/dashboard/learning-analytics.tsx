@@ -10,6 +10,7 @@ import {
   TimerReset,
   Trophy,
 } from "lucide-react";
+import { SortableWidgetGrid } from "@/components/dashboard/sortable-widget-grid";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { initialProjects, initialTodos } from "@/data/personal-dashboard-defaults";
 import {
@@ -57,6 +58,51 @@ export function LearningAnalytics() {
     { name: "En cours", value: items.filter((item) => item.status === "En cours").length },
     { name: "À apprendre", value: items.filter((item) => item.status === "À apprendre").length },
   ];
+  const analyticsWidgets = [
+    {
+      id: "metrics",
+      label: "Métriques",
+      className: "xl:col-span-2",
+      node: (
+        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <Metric icon={CheckSquare2} label="Tâches totales" value={String(totalTasks)} tone="cyan" />
+          <Metric icon={Trophy} label="Tâches terminées" value={String(doneTasks)} tone="green" />
+          <Metric icon={FolderKanban} label="Projets actifs" value={String(activeProjects)} tone="violet" />
+          <Metric icon={GraduationCap} label="Concepts JS compris" value={String(understoodConcepts)} tone="amber" />
+          <Metric icon={BarChart3} label="Exercices terminés" value={String(completedExercises)} tone="cyan" />
+          <Metric icon={TimerReset} label="Sessions Pomodoro" value={String(pomodoro.sessions || 0)} tone="green" />
+          <Metric icon={TimerReset} label="Minutes focus" value={String(pomodoro.focusMinutes || 0)} tone="violet" />
+          <Metric icon={GraduationCap} label="Progression JS" value={`${jsProgress}%`} tone="amber" />
+        </section>
+      ),
+    },
+    {
+      id: "levels",
+      label: "Roadmap JS",
+      node: (
+        <Card className="min-w-0 p-4">
+          <CardHeader eyebrow="Roadmap">
+            <CardTitle>Progression par niveau JS</CardTitle>
+            <CardDescription>Chaque niveau reprend les jalons de la roadmap.</CardDescription>
+          </CardHeader>
+          <LevelProgressGrid items={levelData} />
+        </Card>
+      ),
+    },
+    {
+      id: "concepts",
+      label: "Concepts",
+      node: (
+        <Card className="min-w-0 p-4">
+          <CardHeader eyebrow="Concepts">
+            <CardTitle>Statut des notions</CardTitle>
+            <CardDescription>Compris, en cours, ou à apprendre.</CardDescription>
+          </CardHeader>
+          <StatusChart items={statusData} />
+        </Card>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-5">
@@ -70,34 +116,12 @@ export function LearningAnalytics() {
         </CardHeader>
       </Card>
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Metric icon={CheckSquare2} label="Tâches totales" value={String(totalTasks)} tone="cyan" />
-        <Metric icon={Trophy} label="Tâches terminées" value={String(doneTasks)} tone="green" />
-        <Metric icon={FolderKanban} label="Projets actifs" value={String(activeProjects)} tone="violet" />
-        <Metric icon={GraduationCap} label="Concepts JS compris" value={String(understoodConcepts)} tone="amber" />
-        <Metric icon={BarChart3} label="Exercices terminés" value={String(completedExercises)} tone="cyan" />
-        <Metric icon={TimerReset} label="Sessions Pomodoro" value={String(pomodoro.sessions || 0)} tone="green" />
-        <Metric icon={TimerReset} label="Minutes focus" value={String(pomodoro.focusMinutes || 0)} tone="violet" />
-        <Metric icon={GraduationCap} label="Progression JS" value={`${jsProgress}%`} tone="amber" />
-      </section>
-
-      <section className="grid gap-5 xl:grid-cols-[1.2fr_.8fr]">
-        <Card className="min-w-0 p-4">
-          <CardHeader eyebrow="Roadmap">
-            <CardTitle>Progression par niveau JS</CardTitle>
-            <CardDescription>Chaque niveau reprend les jalons de la roadmap.</CardDescription>
-          </CardHeader>
-          <LevelProgressGrid items={levelData} />
-        </Card>
-
-        <Card className="min-w-0 p-4">
-          <CardHeader eyebrow="Concepts">
-            <CardTitle>Statut des notions</CardTitle>
-            <CardDescription>Compris, en cours, ou à apprendre.</CardDescription>
-          </CardHeader>
-          <StatusChart items={statusData} />
-        </Card>
-      </section>
+      <SortableWidgetGrid
+        columnsClassName="grid gap-5 xl:grid-cols-[1.2fr_.8fr]"
+        itemClassName="mb-0"
+        items={analyticsWidgets}
+        storageKey="matweb.analytics.widgets"
+      />
     </div>
   );
 }

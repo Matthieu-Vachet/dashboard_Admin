@@ -17,26 +17,69 @@ import {
   FileText,
   Wrench,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-export const navItems = [
-  { href: "/", label: "Accueil", icon: Home },
-  { href: "/notes", label: "Notes", icon: NotebookPen },
-  { href: "/kanban", label: "Kanban", icon: KanbanSquare },
-  { href: "/projects", label: "Projets", icon: Folders },
-  { href: "/calendar", label: "Calendrier", icon: CalendarDays },
-  { href: "/todo", label: "Todo", icon: CheckSquare2 },
-  { href: "/js-progress", label: "JS Progress", icon: GraduationCap },
-  { href: "/pomodoro", label: "Pomodoro", icon: Coffee },
-  { href: "/exercices-javascript", label: "Exercices JS", icon: Dumbbell },
-  { href: "/writer", label: "Texte", icon: FileText },
-  { href: "/snippets", label: "Snippets", icon: Code2 },
-  { href: "/palette", label: "Couleurs", icon: Palette },
-  { href: "/tools", label: "Outils", icon: Wrench },
-  { href: "/analytics", label: "Analytics", icon: LineChart },
-  { href: "/database", label: "Mongo DB", icon: Database },
-  { href: "/pokemon-admin", label: "Admin Pokémon", icon: CircleDot },
-  { href: "/pokemon-docs", label: "Docs JSON", icon: ScrollText },
+export type NavItem = {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+};
+
+export type NavGroup = {
+  id: string;
+  label: string;
+  items: NavItem[];
+};
+
+export const navGroups: NavGroup[] = [
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    items: [
+      { href: "/", label: "Accueil", icon: Home },
+      { href: "/analytics", label: "Analytics", icon: LineChart },
+      { href: "/tools", label: "Outils", icon: Wrench },
+    ],
+  },
+  {
+    id: "pokemon-data",
+    label: "Pokémon Data",
+    items: [
+      { href: "/pokemon-admin", label: "Admin Pokémon", icon: CircleDot },
+      { href: "/pokemon-docs", label: "Docs JSON", icon: ScrollText },
+    ],
+  },
+  {
+    id: "organisation",
+    label: "Organisation",
+    items: [
+      { href: "/notes", label: "Notes", icon: NotebookPen },
+      { href: "/kanban", label: "Kanban", icon: KanbanSquare },
+      { href: "/projects", label: "Projets", icon: Folders },
+      { href: "/calendar", label: "Calendrier", icon: CalendarDays },
+      { href: "/todo", label: "Todo", icon: CheckSquare2 },
+      { href: "/writer", label: "Texte", icon: FileText },
+    ],
+  },
+  {
+    id: "studio-js",
+    label: "Studio JS",
+    items: [
+      { href: "/js-progress", label: "JS Progress", icon: GraduationCap },
+      { href: "/pomodoro", label: "Pomodoro", icon: Coffee },
+      { href: "/exercices-javascript", label: "Exercices JS", icon: Dumbbell },
+      { href: "/snippets", label: "Snippets", icon: Code2 },
+      { href: "/palette", label: "Couleurs", icon: Palette },
+    ],
+  },
+  {
+    id: "systeme",
+    label: "Système",
+    items: [{ href: "/database", label: "Mongo DB", icon: Database }],
+  },
 ];
+
+export const navItems = navGroups.flatMap((group) => group.items);
 
 export const activityFeed = [
   {

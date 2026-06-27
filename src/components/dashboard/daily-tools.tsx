@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
+import { SortableWidgetGrid } from "@/components/dashboard/sortable-widget-grid";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -88,18 +89,12 @@ export function DailyTools() {
     window.setTimeout(() => setCopiedId(null), 1200);
   }
 
-  return (
-    <div className="space-y-4">
-      <Card tone="strong" className="p-5">
-        <Badge tone="cyan">Local-first</Badge>
-        <h2 className="mt-3 text-3xl font-black">Outils quotidiens</h2>
-        <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-muted">
-          Ton panneau rapide pour bosser : liens, snippets, budget, contacts, journal et focus.
-        </p>
-      </Card>
-
-      <section className="grid gap-4 xl:grid-cols-2">
-        <Card className="p-4">
+  const toolWidgets = [
+    {
+      id: "links",
+      label: "Liens rapides",
+      node: (
+        <Card className="h-full p-4">
           <ToolHeader icon={Link2} title="Liens rapides" action={(
             <Button
               size="sm"
@@ -143,9 +138,7 @@ export function DailyTools() {
                   size="icon"
                   type="button"
                   aria-label="Ouvrir le lien"
-                  onClick={() =>
-                    window.open(new URL(link.url, window.location.origin), "_blank", "noopener,noreferrer")
-                  }
+                  onClick={() => window.open(new URL(link.url, window.location.origin).toString(), "_blank", "noopener,noreferrer")}
                 >
                   <ExternalLink size={16} />
                 </Button>
@@ -162,8 +155,13 @@ export function DailyTools() {
             ))}
           </div>
         </Card>
-
-        <Card className="p-4">
+      ),
+    },
+    {
+      id: "snippets",
+      label: "Snippets",
+      node: (
+        <Card className="h-full p-4">
           <ToolHeader icon={Copy} title="Snippets" action={(
             <Button
               size="sm"
@@ -194,11 +192,7 @@ export function DailyTools() {
                       )
                     }
                   />
-                  <Button
-                    type="button"
-                    icon={<Copy size={16} />}
-                    onClick={() => copySnippet(snippet)}
-                  >
+                  <Button type="button" icon={<Copy size={16} />} onClick={() => copySnippet(snippet)}>
                     {copiedId === snippet.id ? "Copié" : "Copier"}
                   </Button>
                   <Button
@@ -206,9 +200,7 @@ export function DailyTools() {
                     variant="danger"
                     type="button"
                     aria-label="Supprimer le snippet"
-                    onClick={() =>
-                      setSnippets((current) => current.filter((item) => item.id !== snippet.id))
-                    }
+                    onClick={() => setSnippets((current) => current.filter((item) => item.id !== snippet.id))}
                   >
                     <Trash2 size={16} />
                   </Button>
@@ -228,8 +220,13 @@ export function DailyTools() {
             ))}
           </div>
         </Card>
-
-        <Card className="p-4">
+      ),
+    },
+    {
+      id: "subscriptions",
+      label: "Abonnements",
+      node: (
+        <Card className="h-full p-4">
           <ToolHeader icon={WalletCards} title="Abonnements" action={(
             <Button
               size="sm"
@@ -296,9 +293,7 @@ export function DailyTools() {
                   variant="danger"
                   type="button"
                   aria-label="Supprimer l'abonnement"
-                  onClick={() =>
-                    setSubscriptions((current) => current.filter((sub) => sub.id !== item.id))
-                  }
+                  onClick={() => setSubscriptions((current) => current.filter((sub) => sub.id !== item.id))}
                 >
                   <Trash2 size={16} />
                 </Button>
@@ -306,8 +301,13 @@ export function DailyTools() {
             ))}
           </div>
         </Card>
-
-        <Card className="p-4">
+      ),
+    },
+    {
+      id: "contacts",
+      label: "Contacts",
+      node: (
+        <Card className="h-full p-4">
           <ToolHeader icon={Users} title="Contacts" action={(
             <Button
               size="sm"
@@ -371,10 +371,13 @@ export function DailyTools() {
             ))}
           </div>
         </Card>
-      </section>
-
-      <section className="grid gap-4 xl:grid-cols-[.8fr_1.2fr]">
-        <Card className="p-4">
+      ),
+    },
+    {
+      id: "focus",
+      label: "Focus timer",
+      node: (
+        <Card className="h-full p-4">
           <ToolHeader icon={Timer} title="Focus timer" />
           <div className="mt-5 rounded-lg border border-brand/25 bg-brand/10 p-5 text-center">
             <p className="font-mono text-6xl font-black">{timerLabel}</p>
@@ -408,8 +411,13 @@ export function DailyTools() {
             </div>
           </div>
         </Card>
-
-        <Card className="p-4">
+      ),
+    },
+    {
+      id: "journal",
+      label: "Journal",
+      node: (
+        <Card className="h-full p-4">
           <ToolHeader icon={Save} title="Journal du jour" />
           <Textarea
             className="mt-4 min-h-72 text-base"
@@ -419,7 +427,26 @@ export function DailyTools() {
           />
           <p className="mt-3 text-xs font-bold text-muted">Sauvegarde automatique dans ton navigateur.</p>
         </Card>
-      </section>
+      ),
+    },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <Card tone="strong" className="p-5">
+        <Badge tone="cyan">Local-first</Badge>
+        <h2 className="mt-3 text-3xl font-black">Outils quotidiens</h2>
+        <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-muted">
+          Ton panneau rapide pour bosser : liens, snippets, budget, contacts, journal et focus.
+        </p>
+      </Card>
+
+      <SortableWidgetGrid
+        columnsClassName="grid gap-4 xl:grid-cols-2"
+        itemClassName="mb-0"
+        items={toolWidgets}
+        storageKey="matweb.tools.widgets"
+      />
     </div>
   );
 }

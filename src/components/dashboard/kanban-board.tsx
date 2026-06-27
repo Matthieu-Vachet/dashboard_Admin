@@ -18,18 +18,29 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Edit3, GripVertical, Plus, Save, Trash2 } from "lucide-react";
+import {
+  CalendarDays,
+  CheckCircle2,
+  Edit3,
+  GripVertical,
+  Image as ImageIcon,
+  Link2,
+  Plus,
+  Save,
+  Trash2,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { DashboardLoadingState } from "@/components/dashboard/loading-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Input, Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import {
   initialBoard,
   kanbanCategories as categories,
   kanbanColumns as columns,
+  type BoardState,
   type Category,
   type ColumnId,
   type Task,
@@ -45,36 +56,108 @@ const categoryStyles: Record<Category, string> = {
   Urgent: "border-danger/35 bg-danger/10 text-rose-100",
 };
 
+const priorities: Task["priority"][] = ["Haute", "Moyenne", "Basse"];
+const statuses: Task["status"][] = ["Backlog", "En cours", "Review", "Terminé", "Bloqué"];
+
+const priorityStyles: Record<Task["priority"], string> = {
+  Haute: "border-danger/40 bg-danger/12 text-danger",
+  Moyenne: "border-warning/40 bg-warning/12 text-warning",
+  Basse: "border-brand-3/40 bg-brand-3/12 text-brand-3",
+};
+
+const columnStatus: Record<ColumnId, Task["status"]> = {
+  backlog: "Backlog",
+  doing: "En cours",
+  review: "Review",
+  done: "Terminé",
+};
+
+function normalizeList(value: unknown) {
+  if (Array.isArray(value)) return value.map(String).map((item) => item.trim()).filter(Boolean);
+  if (typeof value === "string") {
+    return value.split(/\n|,/).map((item) => item.trim()).filter(Boolean);
+  }
+  return [];
+}
+
+function splitLines(value: string) {
+  return value.split("\n").map((item) => item.trim()).filter(Boolean);
+}
+
+function normalizeTask(task: Task, columnId: ColumnId): Task {
+  const category = categories.includes(task.category) ? task.category : "Produit";
+  const status = statuses.includes(task.status) ? task.status : columnStatus[columnId];
+  const description = task.description || task.note || "";
+
+  return {
+    ...task,
+    category,
+    points: Number(task.points) || 1,
+    owner: task.owner || "MW",
+    note: task.note || description,
+    description,
+    links: normalizeList(task.links),
+    images: normalizeList(task.images),
+    tags: normalizeList(task.tags),
+    priority: priorities.includes(task.priority) ? task.priority : "Moyenne",
+    status,
+    dueDate: task.dueDate || "",
+    checklist: Array.isArray(task.checklist)
+      ? task.checklist.map((item, index) => ({
+          id: item.id || `${task.id}-c${index}`,
+          text: item.text || "Action",
+          done: Boolean(item.done),
+        }))
+      : [],
+  };
+}
+
+function normalizeBoard(board: BoardState): BoardState {
+  return columns.reduce((next, column) => {
+    next[column.id] = (board[column.id] || []).map((task) => normalizeTask(task, column.id));
+    return next;
+  }, {} as BoardState);
+}
+
+function checklistProgress(task: Task) {
+  if (!task.checklist.length) return null;
+  const done = task.checklist.filter((item) => item.done).length;
+  return `${done}/${task.checklist.length}`;
+}
+
 export function KanbanBoard() {
   const [board, setBoard, ready] = usePersistentState("matweb.kanban", initialBoard);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+
+  const normalizedBoard = useMemo(() => normalizeBoard(board), [board]);
 
   const taskToColumn = useMemo(() => {
     const map = new Map<string, ColumnId>();
     columns.forEach((column) => {
-      board[column.id].forEach((task) => map.set(task.id, column.id));
+      normalizedBoard[column.id].forEach((task) => map.set(task.id, column.id));
     });
     return map;
-  }, [board]);
+  }, [normalizedBoard]);
 
   const selectedTask = useMemo(() => {
     for (const column of columns) {
-      const task = board[column.id].find((item) => item.id === selectedTaskId);
+      const task = normalizedBoard[column.id].find((item) => item.id === selectedTaskId);
       if (task) return task;
     }
     return null;
-  }, [board, selectedTaskId]);
+  }, [normalizedBoard, selectedTaskId]);
 
   const selectedColumn = selectedTask ? taskToColumn.get(selectedTask.id) : undefined;
   const activeTask = useMemo(() => {
     for (const column of columns) {
-      const task = board[column.id].find((item) => item.id === activeTaskId);
+      const task = normalizedBoard[column.id].find((item) => item.id === activeTaskId);
       if (task) return task;
     }
     return null;
-  }, [activeTaskId, board]);
+  }, [activeTaskId, normalizedBoard]);
 
   if (!ready) {
     return <DashboardLoadingState title="Kanban projet" />;
@@ -88,25 +171,36 @@ export function KanbanBoard() {
       points: 1,
       owner: "MW",
       note: "Décris l'objectif, les critères de sortie et le prochain pas.",
+      description: "Décris l'objectif, les critères de sortie et le prochain pas.",
+      links: [],
+      images: [],
+      tags: [],
+      priority: "Moyenne",
+      status: "Backlog",
+      dueDate: "",
+      checklist: [],
     };
 
     setBoard((current) => ({
-      ...current,
-      backlog: [task, ...current.backlog],
+      ...normalizeBoard(current),
+      backlog: [task, ...normalizeBoard(current).backlog],
     }));
     setSelectedTaskId(task.id);
+    setConfirmDelete(false);
   }
 
   function updateTask(id: string, patch: Partial<Task>) {
     setBoard((current) => {
-      const next = { ...current };
+      const normalized = normalizeBoard(current);
+      const next = { ...normalized };
       columns.forEach((column) => {
-        next[column.id] = current[column.id].map((task) =>
-          task.id === id ? { ...task, ...patch } : task,
+        next[column.id] = normalized[column.id].map((task) =>
+          task.id === id ? { ...task, ...patch, note: patch.description ?? task.note } : task,
         );
       });
       return next;
     });
+    setConfirmDelete(false);
   }
 
   function moveTask(id: string, targetColumn: ColumnId) {
@@ -114,25 +208,37 @@ export function KanbanBoard() {
     if (!sourceColumn || sourceColumn === targetColumn) return;
 
     setBoard((current) => {
-      const movingTask = current[sourceColumn].find((task) => task.id === id);
-      if (!movingTask) return current;
+      const normalized = normalizeBoard(current);
+      const movingTask = normalized[sourceColumn].find((task) => task.id === id);
+      if (!movingTask) return normalized;
       return {
-        ...current,
-        [sourceColumn]: current[sourceColumn].filter((task) => task.id !== id),
-        [targetColumn]: [movingTask, ...current[targetColumn]],
+        ...normalized,
+        [sourceColumn]: normalized[sourceColumn].filter((task) => task.id !== id),
+        [targetColumn]: [{ ...movingTask, status: columnStatus[targetColumn] }, ...normalized[targetColumn]],
       };
     });
   }
 
+  function requestDelete(id: string) {
+    setSelectedTaskId(id);
+    setConfirmDelete(true);
+  }
+
   function deleteTask(id: string) {
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
     setBoard((current) => {
-      const next = { ...current };
+      const normalized = normalizeBoard(current);
+      const next = { ...normalized };
       columns.forEach((column) => {
-        next[column.id] = current[column.id].filter((task) => task.id !== id);
+        next[column.id] = normalized[column.id].filter((task) => task.id !== id);
       });
       return next;
     });
     setSelectedTaskId(null);
+    setConfirmDelete(false);
   }
 
   function handleDragStart(event: DragStartEvent) {
@@ -154,26 +260,27 @@ export function KanbanBoard() {
     if (!sourceColumn || !targetColumn) return;
 
     setBoard((current) => {
-      const sourceTasks = current[sourceColumn];
-      const targetTasks = current[targetColumn];
+      const normalized = normalizeBoard(current);
+      const sourceTasks = normalized[sourceColumn];
+      const targetTasks = normalized[targetColumn];
       const activeIndex = sourceTasks.findIndex((task) => task.id === activeId);
       const overIndex = targetTasks.findIndex((task) => task.id === overId);
 
-      if (activeIndex < 0) return current;
+      if (activeIndex < 0) return normalized;
 
       if (sourceColumn === targetColumn) {
         const nextIndex = overIndex >= 0 ? overIndex : sourceTasks.length - 1;
         return {
-          ...current,
+          ...normalized,
           [sourceColumn]: arrayMove(sourceTasks, activeIndex, nextIndex),
         };
       }
 
-      const movingTask = sourceTasks[activeIndex];
+      const movingTask = { ...sourceTasks[activeIndex], status: columnStatus[targetColumn] };
       const insertAt = overIndex >= 0 ? overIndex : targetTasks.length;
 
       return {
-        ...current,
+        ...normalized,
         [sourceColumn]: sourceTasks.filter((task) => task.id !== activeId),
         [targetColumn]: [
           ...targetTasks.slice(0, insertAt),
@@ -183,6 +290,7 @@ export function KanbanBoard() {
       };
     });
     setSelectedTaskId(activeId);
+    setConfirmDelete(false);
   }
 
   return (
@@ -192,7 +300,7 @@ export function KanbanBoard() {
           <Badge tone="cyan">Drag handle</Badge>
           <h2 className="mt-3 text-3xl font-black">Kanban projet</h2>
           <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-muted">
-            Glisse avec la poignée, clique pour éditer, supprime quand la carte ne sert plus.
+            Cartes enrichies pour organiser le projet : liens, images, tags, priorité, checklist et échéance.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -216,10 +324,13 @@ export function KanbanBoard() {
               <KanbanColumn
                 key={column.id}
                 column={column}
-                tasks={board[column.id]}
+                tasks={normalizedBoard[column.id]}
                 selectedTaskId={selectedTaskId}
-                onSelect={setSelectedTaskId}
-                onDelete={deleteTask}
+                onSelect={(id) => {
+                  setSelectedTaskId(id);
+                  setConfirmDelete(false);
+                }}
+                onDelete={requestDelete}
               />
             ))}
           </div>
@@ -232,15 +343,17 @@ export function KanbanBoard() {
       <Modal
         open={Boolean(selectedTask)}
         title={selectedTask ? selectedTask.title : "Carte kanban"}
-        description="Création, édition, catégorie, points et colonne."
-        onClose={() => setSelectedTaskId(null)}
+        description="Edition complète de la carte projet."
+        onClose={() => {
+          setSelectedTaskId(null);
+          setConfirmDelete(false);
+        }}
       >
         {selectedTask ? (
           <div className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-[1fr_160px]">
               <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">
-                  Titre
-                </span>
+                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Titre</span>
                 <Input
                   className="mt-2"
                   value={selectedTask.title}
@@ -248,49 +361,99 @@ export function KanbanBoard() {
                 />
               </label>
               <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">
-                  Note
-                </span>
-                <textarea
-                  className="mt-2 min-h-28 w-full resize-none rounded-lg border border-line bg-white/[0.06] p-3 text-sm font-semibold leading-6 outline-none transition focus:border-brand-2/55"
-                  value={selectedTask.note}
-                  onChange={(event) => updateTask(selectedTask.id, { note: event.target.value })}
+                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Échéance</span>
+                <Input
+                  className="mt-2"
+                  type="date"
+                  value={selectedTask.dueDate}
+                  onChange={(event) => updateTask(selectedTask.id, { dueDate: event.target.value })}
                 />
               </label>
-              <div className="grid grid-cols-2 gap-3">
-                <label className="block">
-                  <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">
-                    Points
-                  </span>
-                  <Input
-                    className="mt-2"
-                    type="number"
-                    min={1}
-                    max={21}
-                    value={selectedTask.points}
-                    onChange={(event) =>
-                      updateTask(selectedTask.id, { points: Number(event.target.value) || 1 })
-                    }
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">
-                    Owner
-                  </span>
-                  <Input
-                    className="mt-2"
-                    maxLength={3}
-                    value={selectedTask.owner}
-                    onChange={(event) =>
-                      updateTask(selectedTask.id, { owner: event.target.value.toUpperCase() })
-                    }
-                  />
-                </label>
-              </div>
+            </div>
+            <label className="block">
+              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Description enrichie</span>
+              <Textarea
+                className="mt-2 min-h-32 resize-y"
+                value={selectedTask.description}
+                onChange={(event) =>
+                  updateTask(selectedTask.id, {
+                    description: event.target.value,
+                    note: event.target.value,
+                  })
+                }
+                placeholder="Contexte, objectifs, décisions, critères de sortie..."
+              />
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block">
+                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Points</span>
+                <Input
+                  className="mt-2"
+                  type="number"
+                  min={1}
+                  max={21}
+                  value={selectedTask.points}
+                  onChange={(event) => updateTask(selectedTask.id, { points: Number(event.target.value) || 1 })}
+                />
+              </label>
+              <label className="block">
+                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Owner</span>
+                <Input
+                  className="mt-2"
+                  maxLength={3}
+                  value={selectedTask.owner}
+                  onChange={(event) => updateTask(selectedTask.id, { owner: event.target.value.toUpperCase() })}
+                />
+              </label>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="block">
+                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Tags</span>
+                <Input
+                  className="mt-2"
+                  value={selectedTask.tags.join(", ")}
+                  onChange={(event) => updateTask(selectedTask.id, { tags: normalizeList(event.target.value) })}
+                  placeholder="ui, bug, pokemon"
+                />
+              </label>
+              <label className="block">
+                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Statut</span>
+                <select
+                  className="mt-2 min-h-11 w-full rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+                  value={selectedTask.status}
+                  onChange={(event) => updateTask(selectedTask.id, { status: event.target.value as Task["status"] })}
+                >
+                  {statuses.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="block">
+                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Liens</span>
+                <Textarea
+                  className="mt-2 min-h-24 font-mono text-xs"
+                  value={selectedTask.links.join("\n")}
+                  onChange={(event) => updateTask(selectedTask.id, { links: splitLines(event.target.value) })}
+                  placeholder="https://github.com/..."
+                />
+              </label>
+              <label className="block">
+                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Images</span>
+                <Textarea
+                  className="mt-2 min-h-24 font-mono text-xs"
+                  value={selectedTask.images.join("\n")}
+                  onChange={(event) => updateTask(selectedTask.id, { images: splitLines(event.target.value) })}
+                  placeholder="URL image ou asset"
+                />
+              </label>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">
-                  Catégorie
-                </p>
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">Catégorie</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {categories.map((category) => (
                     <button
@@ -310,40 +473,118 @@ export function KanbanBoard() {
                 </div>
               </div>
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">
-                  Colonne
-                </p>
-                <div className="mt-2 grid grid-cols-2 gap-2">
-                  {columns.map((column) => (
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">Priorité</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {priorities.map((priority) => (
                     <button
-                      key={column.id}
+                      key={priority}
                       type="button"
-                      onClick={() => moveTask(selectedTask.id, column.id)}
+                      onClick={() => updateTask(selectedTask.id, { priority })}
                       className={cn(
-                        "rounded-lg border px-3 py-2 text-left text-xs font-black transition",
-                        selectedColumn === column.id
-                          ? "border-brand-2/45 bg-brand-2/12 text-foreground"
+                        "rounded-full border px-3 py-2 text-xs font-black transition",
+                        selectedTask.priority === priority
+                          ? priorityStyles[priority]
                           : "border-line bg-white/[0.04] text-muted hover:text-foreground",
                       )}
                     >
-                      {column.title}
+                      {priority}
                     </button>
                   ))}
                 </div>
               </div>
-              <Button className="w-full" variant="primary" icon={<Save size={17} />} type="button" onClick={() => setSelectedTaskId(null)}>
-                Sauvegarde automatique
-              </Button>
-              <Button
-                className="w-full"
-                variant="danger"
-                icon={<Trash2 size={17} />}
-                type="button"
-                onClick={() => deleteTask(selectedTask.id)}
-              >
-                Supprimer la carte
-              </Button>
             </div>
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">Checklist</p>
+              <div className="mt-2 space-y-2">
+                {selectedTask.checklist.map((item) => (
+                  <div key={item.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-2 rounded-lg border border-line bg-white/[0.04] p-2">
+                    <input
+                      checked={item.done}
+                      className="h-5 w-5 accent-cyan-400"
+                      type="checkbox"
+                      onChange={(event) =>
+                        updateTask(selectedTask.id, {
+                          checklist: selectedTask.checklist.map((check) =>
+                            check.id === item.id ? { ...check, done: event.target.checked } : check,
+                          ),
+                        })
+                      }
+                    />
+                    <Input
+                      value={item.text}
+                      onChange={(event) =>
+                        updateTask(selectedTask.id, {
+                          checklist: selectedTask.checklist.map((check) =>
+                            check.id === item.id ? { ...check, text: event.target.value } : check,
+                          ),
+                        })
+                      }
+                    />
+                    <Button
+                      size="icon"
+                      variant="danger"
+                      type="button"
+                      aria-label="Supprimer l'action"
+                      onClick={() =>
+                        updateTask(selectedTask.id, {
+                          checklist: selectedTask.checklist.filter((check) => check.id !== item.id),
+                        })
+                      }
+                    >
+                      <Trash2 size={15} />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  size="sm"
+                  type="button"
+                  icon={<Plus size={15} />}
+                  onClick={() =>
+                    updateTask(selectedTask.id, {
+                      checklist: [
+                        ...selectedTask.checklist,
+                        { id: `${selectedTask.id}-c${Date.now()}`, text: "Nouvelle action", done: false },
+                      ],
+                    })
+                  }
+                >
+                  Ajouter une action
+                </Button>
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">Colonne</p>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {columns.map((column) => (
+                  <button
+                    key={column.id}
+                    type="button"
+                    onClick={() => moveTask(selectedTask.id, column.id)}
+                    className={cn(
+                      "rounded-lg border px-3 py-2 text-left text-xs font-black transition",
+                      selectedColumn === column.id
+                        ? "border-brand-2/45 bg-brand-2/12 text-foreground"
+                        : "border-line bg-white/[0.04] text-muted hover:text-foreground",
+                    )}
+                  >
+                    {column.title}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <Button className="w-full" variant="primary" icon={<Save size={17} />} type="button" onClick={() => setSelectedTaskId(null)}>
+              Sauvegarde locale active
+            </Button>
+            <Button
+              className="w-full"
+              variant="danger"
+              icon={<Trash2 size={17} />}
+              type="button"
+              onClick={() => deleteTask(selectedTask.id)}
+            >
+              {confirmDelete ? "Confirmer la suppression" : "Supprimer la carte"}
+            </Button>
+          </div>
         ) : null}
       </Modal>
     </div>
@@ -413,6 +654,7 @@ function KanbanTaskCard({
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: task.id });
+  const progress = checklistProgress(task);
 
   return (
     <article
@@ -429,12 +671,7 @@ function KanbanTaskCard({
       )}
     >
       <div className="flex items-center justify-between gap-2">
-        <span
-          className={cn(
-            "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black",
-            categoryStyles[task.category],
-          )}
-        >
+        <span className={cn("inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black", categoryStyles[task.category])}>
           {task.category}
         </span>
         <div className="flex items-center gap-1">
@@ -459,7 +696,7 @@ function KanbanTaskCard({
             type="button"
             className="grid h-8 w-8 place-items-center rounded-lg text-muted transition hover:bg-danger/10 hover:text-danger"
             onClick={() => onDelete(task.id)}
-            aria-label="Supprimer la carte"
+            aria-label="Demander la suppression de la carte"
           >
             <Trash2 size={15} />
           </button>
@@ -468,15 +705,46 @@ function KanbanTaskCard({
       <button type="button" className="block w-full text-left" onClick={() => onSelect(task.id)}>
         <h4 className="mt-4 text-sm font-black leading-6">{task.title}</h4>
         <p className="mt-2 line-clamp-2 text-xs font-semibold leading-5 text-muted">
-          {task.note}
+          {task.description || "Aucune description."}
         </p>
       </button>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <span className={cn("rounded-full border px-2 py-1 text-[10px] font-black", priorityStyles[task.priority])}>
+          {task.priority}
+        </span>
+        <span className="rounded-full border border-line bg-white/[0.05] px-2 py-1 text-[10px] font-black text-muted">
+          {task.status}
+        </span>
+        {task.dueDate ? (
+          <span className="inline-flex items-center gap-1 rounded-full border border-line bg-white/[0.05] px-2 py-1 text-[10px] font-black text-muted">
+            <CalendarDays size={11} />
+            {task.dueDate}
+          </span>
+        ) : null}
+        {progress ? (
+          <span className="inline-flex items-center gap-1 rounded-full border border-brand-3/25 bg-brand-3/10 px-2 py-1 text-[10px] font-black text-brand-3">
+            <CheckCircle2 size={11} />
+            {progress}
+          </span>
+        ) : null}
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {task.tags.slice(0, 3).map((tag) => (
+          <span key={tag} className="rounded-full bg-white/[0.055] px-2 py-1 text-[10px] font-black text-muted">
+            #{tag}
+          </span>
+        ))}
+      </div>
       <div className="mt-5 flex items-center justify-between gap-3">
         <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-brand to-brand-2 text-xs font-black text-white">
           {task.owner}
         </span>
-        <span className="rounded-full border border-line bg-white/[0.06] px-2 py-1 font-mono text-xs font-black text-muted">
-          {task.points} pts
+        <span className="flex items-center gap-2">
+          {task.links.length ? <Link2 size={14} className="text-brand-2" /> : null}
+          {task.images.length ? <ImageIcon size={14} className="text-brand-3" /> : null}
+          <span className="rounded-full border border-line bg-white/[0.06] px-2 py-1 font-mono text-xs font-black text-muted">
+            {task.points} pts
+          </span>
         </span>
       </div>
     </article>
@@ -490,7 +758,7 @@ function KanbanTaskPreview({ task }: { task: Task }) {
         {task.category}
       </span>
       <h4 className="mt-4 text-sm font-black leading-6">{task.title}</h4>
-      <p className="mt-2 line-clamp-2 text-xs font-semibold leading-5 text-muted">{task.note}</p>
+      <p className="mt-2 line-clamp-2 text-xs font-semibold leading-5 text-muted">{task.description}</p>
       <div className="mt-5 flex items-center justify-between gap-3">
         <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-brand to-brand-2 text-xs font-black text-white">
           {task.owner}
