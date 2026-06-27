@@ -1,6 +1,7 @@
 "use client";
 
 import { ExternalLink } from "lucide-react";
+import { createPortal } from "react-dom";
 
 type SourceItem = {
   id?: string;
@@ -114,9 +115,11 @@ export function SourceHistoryModal({
 
   const events = [...history].slice(0, 120);
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div
-      className="fixed inset-0 z-[1000] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl sm:p-5"
+      className="fixed inset-0 z-[1100] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl sm:p-5"
       role="dialog"
       aria-modal="true"
     >
@@ -205,7 +208,8 @@ export function SourceHistoryModal({
           )}
         </div>
       </section>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -222,9 +226,11 @@ export function DataDeployHistoryModal({
 
   const events = [...history].slice(0, 80);
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div
-      className="fixed inset-0 z-[1000] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl sm:p-5"
+      className="fixed inset-0 z-[1100] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl sm:p-5"
       role="dialog"
       aria-modal="true"
     >
@@ -345,7 +351,8 @@ export function DataDeployHistoryModal({
           )}
         </div>
       </section>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -406,7 +413,12 @@ export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
         <div className="grid gap-3 xl:grid-cols-2">
           {sources.map((source) => {
             const tone =
-              source.status === "ok"
+              source.changedSinceLastCheck
+                ? {
+                    card: "border-red-300/55 bg-red-500/18 shadow-[0_0_0_1px_rgba(252,165,165,.28),0_24px_90px_rgba(239,68,68,.20)] hover:border-red-200/75 hover:bg-red-500/24",
+                    badge: "bg-red-500/20 text-red-50",
+                  }
+                : source.status === "ok"
                 ? {
                     card: "border-emerald-300/20 bg-emerald-400/[0.055] hover:border-emerald-200/40 hover:bg-emerald-400/10",
                     badge: "bg-emerald-400/15 text-emerald-100",
@@ -434,8 +446,8 @@ export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
                     {issueLabel(source.category)}
                   </span>
                   {source.changedSinceLastCheck ? (
-                    <span className="mb-2 ml-2 inline-flex rounded-full border border-sky-200/25 bg-sky-300/15 px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-sky-50">
-                      change
+                    <span className="mb-2 ml-2 inline-flex rounded-full border border-red-200/40 bg-red-500/25 px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-red-50">
+                      source modifiée
                     </span>
                   ) : null}
                   <strong className="block break-words font-black text-white">{source.name || source.repo || source.url}</strong>

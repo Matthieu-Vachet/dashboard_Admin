@@ -22,9 +22,10 @@ function formatBuffValue(value) {
   return String(value);
 }
 
-function AdminMoveCard({ move, typeCatalog = [] }) {
+function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
   const [open, setOpen] = useState(false);
   const type = move.type;
+  const linkedPokemon = Array.isArray(move.pokemon) ? move.pokemon : [];
   const rows = [
     ["Puissance arène/raid", move.power ?? "-"],
     ["Énergie arène/raid", move.energy ?? "-"],
@@ -70,7 +71,7 @@ function AdminMoveCard({ move, typeCatalog = [] }) {
           {typeName(type, typeCatalog)}
         </span>
         <span className="inline-flex items-center justify-end gap-2 text-xs font-black text-cyan-100">
-          {move.power ?? "-"} puissance <ChevronDown className={open ? "rotate-180 transition" : "transition"} size={15} />
+          {linkedPokemon.length} Pokémon <ChevronDown className={open ? "rotate-180 transition" : "transition"} size={15} />
         </span>
       </button>
       {open ? (
@@ -107,13 +108,47 @@ function AdminMoveCard({ move, typeCatalog = [] }) {
               <p className="mt-2 text-sm font-bold text-slate-400">Aucun buff PvP renseigné.</p>
             )}
           </div>
+          <div className="mt-3 rounded-2xl border border-white/10 bg-slate-950/35 p-3">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <span className="block text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+                Pokémon liés
+              </span>
+              <span className="rounded-full border border-cyan-200/20 bg-cyan-400/10 px-3 py-1 text-xs font-black text-cyan-50">
+                {linkedPokemon.length}
+              </span>
+            </div>
+            {linkedPokemon.length ? (
+              <div className="flex max-h-72 flex-wrap gap-2 overflow-auto pr-1">
+                {linkedPokemon.map((pokemon) => (
+                  <button
+                    className="inline-flex min-w-0 items-center gap-2 rounded-full border border-white/10 bg-white/[0.065] px-2.5 py-1.5 text-xs font-black text-slate-100 transition hover:border-cyan-200/45 hover:bg-cyan-400/15"
+                    key={pokemon.key}
+                    type="button"
+                    onClick={() => onOpen?.(pokemon)}
+                  >
+                    {pokemon.image ? <img className="h-7 w-7 object-contain" src={pokemon.image} alt="" /> : null}
+                    <span className="max-w-[12rem] truncate">
+                      {pokemon.dexId} · {pokemon.name}
+                    </span>
+                    <small className="rounded-full bg-slate-950/40 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em]">
+                      {(pokemon.moveSlots || []).join(", ")}
+                    </small>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm font-bold text-slate-400">
+                Aucun Pokémon lié à cette attaque dans les JSON chargés.
+              </p>
+            )}
+          </div>
         </div>
       ) : null}
     </article>
   );
 }
 
-export function CatalogPanel({ catalog = {} }) {
+export function CatalogPanel({ catalog = {}, onOpen }) {
   const [tab, setTab] = useState("moves");
   const [catalogSearch, setCatalogSearch] = useState("");
   const data = catalog || {};
@@ -175,7 +210,7 @@ export function CatalogPanel({ catalog = {} }) {
       {tab === "moves" ? (
         <div className="grid gap-3" key="moves">
           {items.slice(0, 180).map((item, index) => (
-            <AdminMoveCard move={item} typeCatalog={data.types || []} key={`${item.id || item.slug}-${index}`} />
+            <AdminMoveCard move={item} onOpen={onOpen} typeCatalog={data.types || []} key={`${item.id || item.slug}-${index}`} />
           ))}
         </div>
       ) : (

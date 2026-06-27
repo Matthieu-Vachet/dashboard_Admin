@@ -972,10 +972,11 @@ function evolutionProfile(data, incomingIds) {
 }
 
 function mergedFormAssets(parent, form) {
+  const hasOwnHome = Object.prototype.hasOwnProperty.call(form.assets || {}, "home");
   const assets = {
     ...(parent.assets || {}),
     ...(form.assets || {}),
-    home: form.assets?.home || parent.assets?.home,
+    home: hasOwnHome ? form.assets.home : parent.assets?.home,
   };
   if (form.assets?.shuffle === undefined) delete assets.shuffle;
   return assets;
@@ -1626,6 +1627,7 @@ module.exports = {
   buildSuggestedPatch,
   buildChecklist,
   detailForKey,
+  hydrateSourceData,
   issueCategory,
   qualitySummary,
   referenceIssues,

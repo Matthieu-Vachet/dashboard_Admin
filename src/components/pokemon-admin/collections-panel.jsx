@@ -27,6 +27,7 @@ const collectionTypes = [
   ["lucky", "Chanceux", uiAssets.icons.shiny || "/ui/icons/ic_shiny_white.webp"],
   ["shadow", "Obscur", uiAssets.icons.shadow || "/ui/icons/shadow.png"],
   ["purified", "Purifie", uiAssets.icons.purified || "/ui/icons/purified.png"],
+  ["mega", "Méga", uiAssets.icons.mega || "/ui/icons/mega.png"],
   ["dynamax", "Dynamax", uiAssets.icons.maxCp || "/ui/icons/max_pc.webp"],
   ["gigantamax", "Gigamax", uiAssets.icons.maxCp || "/ui/icons/max_pc.webp"],
 ];
@@ -84,25 +85,42 @@ function textForEntry(entry) {
     .toLowerCase();
 }
 
+function entryIsReleased(entry) {
+  return entry.availability?.released !== false;
+}
+
+function entryIsMega(entry) {
+  const kind = String(entry.kind || "").toLowerCase();
+  const form = String(entry.form || "").toLowerCase();
+  return kind === "mega" || form.startsWith("mega") || form === "primal";
+}
+
+function entryIsMax(entry, type) {
+  const kind = String(entry.kind || "").toLowerCase();
+  const form = String(entry.form || "").toLowerCase();
+  return kind === type || form === type;
+}
+
 function entryIsEvent(entry) {
-  if (entry.collectionType === "event") return true;
-  return /(event|costume|halloween|party|hat|cap|flower|clone|pikavisor|visor|fragment|libre|pop-star|rock-star)/i.test(
-    textForEntry(entry),
-  );
+  return entry.collectionType === "event" || String(entry.kind || "").toLowerCase() === "event";
 }
 
 function entryMatchesCollectionType(entry, type) {
-  const kind = String(entry.kind || "").toLowerCase();
-  const form = String(entry.form || "").toLowerCase();
+  if (!entryIsReleased(entry)) return false;
   const availability = entry.availability || {};
+  const isMega = entryIsMega(entry);
+  const isDynamax = entryIsMax(entry, "dynamax");
+  const isGigantamax = entryIsMax(entry, "gigantamax");
+  const isEvent = entryIsEvent(entry);
   if (type === "normal") {
-    return !["event", "mega", "dynamax", "gigantamax"].includes(kind) && !entryIsEvent(entry);
+    return !isEvent && !isMega && !isDynamax && !isGigantamax;
   }
-  if (type === "event") return entry.collectionType === "event" || kind === "event";
-  if (type === "lucky") return !["dynamax", "gigantamax"].includes(kind);
-  if (type === "shadow" || type === "purified") return availability.shadow === true;
-  if (type === "dynamax") return kind === "dynamax" || form === "dynamax" || availability.dynamax === true;
-  if (type === "gigantamax") return kind === "gigantamax" || form === "gigantamax" || availability.gigantamax === true;
+  if (type === "event") return isEvent;
+  if (type === "lucky") return !isEvent && !isMega && !isDynamax && !isGigantamax;
+  if (type === "shadow" || type === "purified") return !isEvent && !isMega && !isDynamax && !isGigantamax && availability.shadow === true;
+  if (type === "mega") return isMega;
+  if (type === "dynamax") return !isEvent && isDynamax;
+  if (type === "gigantamax") return !isEvent && isGigantamax;
   return true;
 }
 
@@ -139,11 +157,26 @@ function entryMatchesCollection(entry, collection, region, query) {
   return !needle || textForEntry(entry).includes(needle);
 }
 
+const nonEventAssetForms = new Set([
+  "normal",
+  "mega",
+  "mega-x",
+  "mega-y",
+  "primal",
+  "dynamax",
+  "gigantamax",
+  "shadow",
+  "purified",
+  "alola",
+  "galar",
+  "hisui",
+  "paldea",
+]);
+
 function eventAssetIsCollectionItem(asset = {}) {
-  const signature = [asset.form, asset.costume, asset.id, asset.filename]
-    .filter(Boolean)
-    .join(" ");
-  return Boolean(asset.costume) || /(event|costume|halloween|party|hat|cap|flower|clone|visor|fall|spring|jan|noevolve|libre|pop|rock)/i.test(signature);
+  const form = String(asset.form || "").toLowerCase();
+  if (asset.costume) return true;
+  return Boolean(form) && !nonEventAssetForms.has(form);
 }
 
 function readableAssetLabel(value) {
@@ -159,7 +192,7 @@ function eventAssetName(entry, asset) {
 }
 
 function eventCollectionItems(entries) {
-  return entries.flatMap((entry) => {
+  return entries.filter(entryIsReleased).flatMap((entry) => {
     const eventAssets = Array.isArray(entry.eventAssets) ? entry.eventAssets : [];
     const seen = new Set();
     return eventAssets
@@ -213,16 +246,51 @@ function generationKey(entry) {
   return String(entry.generation || "unknown");
 }
 
+function dexSortValue(entry) {
+  const value = Number.parseInt(String(entry.dexId || "").replace(/\D/g, ""), 10);
+  return Number.isFinite(value) ? value : Number.MAX_SAFE_INTEGER;
+}
+
+function collectionSortKey(entry) {
+  const kind = String(entry.kind || "").toLowerCase();
+  const form = String(entry.form || "normal").toLowerCase();
+  const kindRank = {
+    pokemon: 0,
+    form: 1,
+    mega: 2,
+    dynamax: 3,
+    gigantamax: 4,
+    event: 5,
+  }[kind] ?? 9;
+  return [dexSortValue(entry), kindRank, form, String(entry.name || ""), String(entry.key || "")];
+}
+
+function sortCollectionEntries(entries) {
+  return [...entries].sort((left, right) => {
+    const leftKey = collectionSortKey(left);
+    const rightKey = collectionSortKey(right);
+    return (
+      leftKey[0] - rightKey[0] ||
+      leftKey[1] - rightKey[1] ||
+      leftKey[2].localeCompare(rightKey[2], "fr") ||
+      leftKey[3].localeCompare(rightKey[3], "fr") ||
+      leftKey[4].localeCompare(rightKey[4], "fr")
+    );
+  });
+}
+
 function groupedByGeneration(entries) {
   const groups = new Map();
-  for (const entry of entries) {
+  for (const entry of sortCollectionEntries(entries)) {
     const key = generationKey(entry);
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(entry);
   }
   return Array.from(groups.entries()).sort(([left], [right]) => {
     const order = ["1", "2", "3", "4", "5", "6", "7", "8", "hisui", "9", "unknown"];
-    return order.indexOf(left) - order.indexOf(right);
+    const leftIndex = order.includes(left) ? order.indexOf(left) : order.length;
+    const rightIndex = order.includes(right) ? order.indexOf(right) : order.length;
+    return leftIndex - rightIndex;
   });
 }
 
@@ -239,15 +307,16 @@ function collectionStats(entries) {
     forms: 0,
   };
   for (const entry of entries) {
+    if (!entryIsReleased(entry)) continue;
     const kind = String(entry.kind || "").toLowerCase();
     const form = String(entry.form || "normal").toLowerCase();
     const availability = entry.availability || {};
     if (availability.shinyReleased) stats.shiny += 1;
     if (availability.shadow) stats.shadow += 1;
     if (availability.shadowShinyReleased) stats.shadowShiny += 1;
-    if (availability.dynamax || kind === "dynamax") stats.dynamax += 1;
-    if (availability.gigantamax || kind === "gigantamax") stats.gigantamax += 1;
-    if (kind === "mega") stats.mega += 1;
+    if (entryIsMax(entry, "dynamax")) stats.dynamax += 1;
+    if (entryIsMax(entry, "gigantamax")) stats.gigantamax += 1;
+    if (entryIsMega(entry)) stats.mega += 1;
     if (kind === "form") stats.forms += 1;
     if (["alola", "galar", "hisui", "paldea"].includes(form)) stats.regional += 1;
   }
@@ -302,15 +371,15 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
   const pool = useMemo(() => collectionPool(entries, activeCollection), [activeCollection, entries]);
   const collectionEntries = useMemo(() => {
     if (!activeCollection) return [];
-    return pool.filter((entry) => {
+    return sortCollectionEntries(pool.filter((entry) => {
       if (!entryMatchesCollection(entry, activeCollection, region, combinedSearch)) return false;
       if (status === "have") return Boolean(activeItems[entry.key]);
       if (status === "need") return !activeItems[entry.key];
       return true;
-    });
+    }));
   }, [activeCollection, activeItems, combinedSearch, pool, region, status]);
   const allMatching = useMemo(
-    () => (activeCollection ? pool.filter((entry) => entryMatchesCollection(entry, activeCollection, region, combinedSearch)) : []),
+    () => (activeCollection ? sortCollectionEntries(pool.filter((entry) => entryMatchesCollection(entry, activeCollection, region, combinedSearch))) : []),
     [activeCollection, combinedSearch, pool, region],
   );
   const generationGroups = useMemo(() => groupedByGeneration(collectionEntries), [collectionEntries]);
@@ -354,6 +423,14 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
     if (nextItems[entry.key]) delete nextItems[entry.key];
     else nextItems[entry.key] = true;
     updateActive({ items: nextItems, updatedAt: new Date().toISOString() });
+  }
+
+  function selectEntries(entriesToSelect) {
+    if (!activeCollection || !entriesToSelect.length) return;
+    const nextItems = { ...activeItems };
+    for (const entry of entriesToSelect) nextItems[entry.key] = true;
+    updateActive({ items: nextItems, updatedAt: new Date().toISOString() });
+    toast.success(`${entriesToSelect.length} Pokémon sélectionné(s).`);
   }
 
   function deleteActive() {
@@ -453,9 +530,14 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
                     {visibleHaveCount}/{allMatching.length} selectionnes sur le filtre actuel - {haveCount} au total
                   </p>
                 </div>
-                <button className="rounded-2xl border border-rose-300/25 bg-rose-500/10 px-3 py-2 text-xs font-black text-rose-100" type="button" onClick={deleteActive}>
-                  Supprimer
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button className="rounded-2xl border border-cyan-200/25 bg-cyan-400/10 px-3 py-2 text-xs font-black text-cyan-50" type="button" onClick={() => selectEntries(allMatching)}>
+                    Sélectionner tous
+                  </button>
+                  <button className="rounded-2xl border border-rose-300/25 bg-rose-500/10 px-3 py-2 text-xs font-black text-rose-100" type="button" onClick={deleteActive}>
+                    Supprimer
+                  </button>
+                </div>
               </div>
               <div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
                 <input
@@ -529,9 +611,14 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
                       {generationLabels[groupId] || `Gen. ${groupId}`}
                     </h3>
                   </div>
-                  <span className="rounded-full border border-cyan-200/25 bg-cyan-400/12 px-3 py-1.5 text-xs font-black text-cyan-50">
-                    {groupEntries.filter((entry) => activeItems[entry.key]).length}/{groupEntries.length}
-                  </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button className="rounded-full border border-cyan-200/25 bg-cyan-400/12 px-3 py-1.5 text-xs font-black text-cyan-50" type="button" onClick={() => selectEntries(groupEntries)}>
+                      Sélectionner tous
+                    </button>
+                    <span className="rounded-full border border-cyan-200/25 bg-cyan-400/12 px-3 py-1.5 text-xs font-black text-cyan-50">
+                      {groupEntries.filter((entry) => activeItems[entry.key]).length}/{groupEntries.length}
+                    </span>
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
                   {groupEntries.map((entry) => {
@@ -585,7 +672,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
       ) : null}
 
       {canUsePortal && modalOpen ? createPortal(
-        <div className="fixed inset-0 z-[999] overflow-y-auto bg-slate-950/78 p-3 backdrop-blur-xl sm:p-6" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-[1100] overflow-y-auto bg-slate-950/78 p-3 backdrop-blur-xl sm:p-6" role="dialog" aria-modal="true">
           <section className="mx-auto my-3 flex max-h-[calc(100dvh-1.5rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[1.5rem] border border-white/10 bg-zinc-900 shadow-[0_32px_120px_rgba(0,0,0,.5)] sm:my-0 sm:max-h-[calc(100dvh-3rem)] sm:rounded-[2rem]">
             <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-white/10 bg-zinc-900/95 p-4 backdrop-blur sm:p-5">
               <h3 className="text-2xl font-black text-white">Nouvelle collection</h3>

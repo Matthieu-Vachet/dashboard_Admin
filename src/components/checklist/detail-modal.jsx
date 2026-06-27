@@ -451,7 +451,7 @@ function AssetGallery({ entry, payload }) {
             </div>
           ))}
           {preview ? (
-            <div className="fixed inset-0 z-[70] grid place-items-center bg-slate-950/86 p-4 backdrop-blur-md" role="presentation" onClick={() => setPreview(null)}>
+            <div className="fixed inset-0 z-[1120] grid place-items-center bg-slate-950/86 p-4 backdrop-blur-md" role="presentation" onClick={() => setPreview(null)}>
               <div className="w-full max-w-5xl overflow-hidden rounded-[2rem] border border-white/10 bg-[#07111f]" onClick={(event) => event.stopPropagation()}>
                 <div className="flex items-center justify-between gap-3 border-b border-white/10 p-4">
                   <strong className="truncate text-xl font-black text-white">{preview.label}</strong>
@@ -723,7 +723,7 @@ export function DetailModal({
 
   return createPortal(
     (
-    <div className="fixed inset-0 z-[130] flex items-end justify-center bg-slate-950/75 p-0 backdrop-blur-md sm:items-center sm:p-6" role="presentation" onClick={onClose}>
+    <div className="fixed inset-0 z-[1100] flex items-end justify-center bg-slate-950/75 p-0 backdrop-blur-md sm:items-center sm:p-6" role="presentation" onClick={onClose}>
       <div
         className="max-h-[96dvh] w-full max-w-6xl overflow-hidden rounded-t-[2rem] border border-white/10 text-white shadow-[0_30px_120px_rgba(0,0,0,.65)] sm:max-h-[92dvh] sm:rounded-[2rem]"
         style={{

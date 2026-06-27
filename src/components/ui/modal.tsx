@@ -41,7 +41,7 @@ export function Modal({
   if (!open || typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[120] grid place-items-center bg-black/65 p-3 backdrop-blur-xl sm:p-5">
+    <div className="fixed inset-0 z-[1100] grid place-items-center bg-black/65 p-3 backdrop-blur-xl sm:p-5">
       <button className="absolute inset-0 cursor-default" type="button" aria-label="Fermer" onClick={onClose} />
       <section
         className={cn(

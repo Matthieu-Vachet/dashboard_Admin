@@ -7,6 +7,32 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.2.0",
+    date: "2026-06-27",
+    title: "Admin Pokémon : filtres, assets, collections et catalogues",
+    changes: [
+      "Corrige l'ouverture des fiches Pokémon depuis Bonbons, Collections et Catalogues même hors grille Pokédex active.",
+      "Empêche les formes Méga de récupérer les assets HOME du Pokémon parent quand le JSON d'assets indique home: null.",
+      "Rend les sources modifiées immédiatement repérables avec une carte entière en alerte rouge.",
+      "Ajoute les filtres Fiches Chromatique, Costume/Event, Méga et Régional avec les bannières dédiées.",
+      "Refond le pipeline Collections avec exclusion release:false, Méga seulement via type Méga, Dynamax/Gigamax stricts et tri Pokédex déterministe.",
+      "Ajoute Sélectionner tous aux collections et recalcule les stats selon les mêmes règles que les listes.",
+      "Étend la bibliothèque assets aux GO, HOME, portraits, variantes, backgrounds, bonbons et Shuffle avec copie d'URL GitHub.",
+      "Ajoute les Pokémon liés dans le catalogue Attaques avec image et ouverture de la modale Pokémon.",
+    ],
+  },
+  {
+    version: "V1.1.1",
+    date: "2026-06-27",
+    title: "Correction des modales au-dessus de la sidebar",
+    changes: [
+      "Aligne les overlays modaux sur un niveau z-index global au-dessus de la navigation.",
+      "Déplace les modales d'historique des sources et des déploiements data dans un portal document.body.",
+      "Corrige la modale de détail Pokémon et sa preview d'asset pour rester au-dessus de la sidebar.",
+      "Scanne les autres modales du dashboard : Projects, Kanban, Calendar, Snippets et Collections utilisent désormais un overlay hors du stacking context du contenu.",
+    ],
+  },
+  {
     version: "V1.1.0",
     date: "2026-06-26",
     title: "Redéploiement PokemonGo-Data et historique data",

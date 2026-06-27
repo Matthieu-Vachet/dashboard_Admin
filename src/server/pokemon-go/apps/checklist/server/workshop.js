@@ -10,7 +10,7 @@ const {
   relativeToData,
   resolveDataFile,
 } = require("../../../src/lib/data-repository");
-const { detailForKey, validateSourceData } = require("./engine");
+const { detailForKey, hydrateSourceData, validateSourceData } = require("./engine");
 const {
   deleteCustomRule,
   listCustomRules,
@@ -114,12 +114,13 @@ function usedAssetUrls() {
 
 function allGoAssets() {
   const assets = [];
-  const add = (data, file, label, url, shiny = false, details = "") => {
+  const add = (data, file, label, url, shiny = false, details = "", assetType = "go") => {
     if (!url) return;
     assets.push({
       dexId: data.dexId || path.basename(file).slice(0, 4),
       name: data.names?.French || data.names?.English || data.slug || data.id,
       form: data.form || "normal",
+      assetType,
       label,
       shiny,
       details,
@@ -132,9 +133,27 @@ function allGoAssets() {
     ...listFiles(dataPath("pokemon")),
     ...listFiles(dataPath("pokemon-forms")),
   ]) {
-    const data = readJson(file, {});
-    add(data, file, "Image principale", data.assets?.image);
-    add(data, file, "Image principale shiny", data.assets?.shinyImage, true);
+    const data = hydrateSourceData(readJson(file, {}));
+    add(data, file, "Image principale", data.assets?.image, false, "", "go");
+    add(data, file, "Image principale shiny", data.assets?.shinyImage, true, "", "go");
+    add(data, file, "Candy", data.assets?.candy?.image, false, `familyId ${data.assets?.candy?.familyId ?? "-"}`, "candy");
+    add(data, file, "Portrait", data.assets?.portrait, false, "portrait", "portrait");
+    add(data, file, "Portrait shiny", data.assets?.portraitShiny, true, "portrait", "portrait");
+    add(data, file, "Home", data.assets?.home?.image, false, "home", "home");
+    add(data, file, "Home shiny", data.assets?.home?.shinyImage, true, "home", "home");
+    for (const [index, asset] of (data.assets?.home?.variants || []).entries()) {
+      const details = [
+        asset.formIndex && `formIndex ${asset.formIndex}`,
+        asset.gender && `genre ${asset.gender}`,
+        asset.detail && `detail ${asset.detail}`,
+        asset.view && `vue ${asset.view}`,
+        asset.gigantamax && "gigantamax",
+      ]
+        .filter(Boolean)
+        .join(" · ");
+      add(data, file, `Home variante ${index + 1}`, asset.image, false, details, "home");
+      add(data, file, `Home variante ${index + 1} shiny`, asset.shinyImage, true, details, "home");
+    }
     for (const [index, asset] of (data.assetForms || []).entries()) {
       const details = [
         asset.form && `forme ${asset.form}`,
@@ -143,7 +162,7 @@ function allGoAssets() {
       ]
         .filter(Boolean)
         .join(" · ");
-      add(data, file, `Variante ${index + 1}`, asset.image, false, details);
+      add(data, file, `Variante ${index + 1}`, asset.image, false, details, "variant");
       add(
         data,
         file,
@@ -151,7 +170,15 @@ function allGoAssets() {
         asset.shinyImage,
         true,
         details,
+        "variant",
       );
+    }
+    for (const [index, asset] of (data.assets?.shuffle?.variants || []).entries()) {
+      const details = [asset.form, asset.state, ...(asset.tags || [])].filter(Boolean).join(" · ");
+      add(data, file, `Shuffle ${index + 1}`, asset.image, Boolean(asset.shiny), details, "shuffle");
+    }
+    for (const [index, asset] of (data.assets?.locationCards || []).entries()) {
+      add(data, file, `Background ${index + 1}`, asset.image, false, asset.name || asset.type || "", "background");
     }
   }
   return assets.sort(
@@ -225,6 +252,7 @@ async function assetAudit(dexId = "") {
   const counts = new Map();
   for (const item of used)
     counts.set(item.url, (counts.get(item.url) || 0) + 1);
+  const countLinkedType = (type) => goAssets.filter((asset) => asset.assetType === type).length;
   const filterDex = String(dexId).padStart(4, "0");
   return {
     totals: {
@@ -233,6 +261,13 @@ async function assetAudit(dexId = "") {
       unused: assets.filter((asset) => !counts.has(asset.url)).length,
       duplicated: [...counts.values()].filter((count) => count > 1).length,
       goFiles: goAssets.length,
+      linkedGoFiles: countLinkedType("go"),
+      variantFiles: countLinkedType("variant"),
+      homeFiles: countLinkedType("home"),
+      portraitFiles: countLinkedType("portrait"),
+      backgroundFiles: countLinkedType("background"),
+      candyFiles: countLinkedType("candy"),
+      linkedShuffleFiles: countLinkedType("shuffle"),
       shuffleFiles: shuffleAssets.length,
     },
     proposals: assets
@@ -286,11 +321,96 @@ function listFiles(directory) {
       ? listFiles(file)
       : entry.isFile() && entry.name.endsWith(".json")
         ? [file]
-        : [];
+      : [];
   });
 }
 
+function moveIdsFrom(value) {
+  if (Array.isArray(value)) return value.filter(Boolean);
+  if (value && typeof value === "object") return Object.keys(value).filter(Boolean);
+  return [];
+}
+
+function sourceKindForFile(file, data) {
+  const relativeFile = relativeToData(file);
+  if (relativeFile.startsWith("pokemon/")) return "pokemon";
+  const form = String(data.form || "");
+  if (form.startsWith("mega") || form === "primal") return "mega";
+  if (form === "dynamax" || form === "gigantamax") return form;
+  return "form";
+}
+
+function linkedPokemonImage(data) {
+  return (
+    data.assets?.portrait ||
+    data.assets?.image ||
+    data.assets?.home?.image ||
+    data.assets?.home?.shinyImage ||
+    data.assetForms?.find((asset) => asset?.image)?.image ||
+    null
+  );
+}
+
+function buildMoveLinks() {
+  const links = new Map();
+  const files = [
+    ...listFiles(dataPath("pokemon")),
+    ...listFiles(dataPath("pokemon-forms")),
+  ];
+  for (const file of files) {
+    const data = hydrateSourceData(readJson(file, {}));
+    if (data.availability?.released === false) continue;
+    const kind = sourceKindForFile(file, data);
+    const relativeFile = relativeToApp(file);
+    const pokemon = {
+      key: `${kind}:${relativeFile}${kind === "mega" ? `#${data.formId || data.id}` : ""}`,
+      kind,
+      name: data.names?.French || data.names?.English || data.slug || data.id,
+      dexId: data.dexId || path.basename(file).slice(0, 4),
+      form: data.form || "normal",
+      file: relativeFile,
+      image: linkedPokemonImage(data),
+      primaryType:
+        typeof data.primaryType === "string"
+          ? data.primaryType
+          : data.primaryType?.type || null,
+    };
+    const slots = [
+      ["quickMoves", "Rapide", moveIdsFrom(data.quickMoves)],
+      ["cinematicMoves", "Chargée", moveIdsFrom(data.cinematicMoves)],
+      ["eliteQuickMoves", "Elite rapide", moveIdsFrom(data.eliteQuickMoves)],
+      ["eliteCinematicMoves", "Elite chargée", moveIdsFrom(data.eliteCinematicMoves)],
+      ["maxBattle.moves", "Max", moveIdsFrom(data.maxBattle?.moves)],
+    ];
+    for (const [, slotLabel, moveIds] of slots) {
+      for (const moveId of moveIds) {
+        const current = links.get(moveId) || [];
+        const existing = current.find((item) => item.key === pokemon.key);
+        if (existing) {
+          if (!existing.moveSlots.includes(slotLabel)) existing.moveSlots.push(slotLabel);
+        } else {
+          current.push({ ...pokemon, moveSlots: [slotLabel] });
+        }
+        links.set(moveId, current);
+      }
+    }
+  }
+  for (const [moveId, pokemon] of links.entries()) {
+    links.set(
+      moveId,
+      pokemon.sort(
+        (left, right) =>
+          String(left.dexId).localeCompare(String(right.dexId)) ||
+          String(left.form).localeCompare(String(right.form), "fr") ||
+          String(left.name).localeCompare(String(right.name), "fr"),
+      ),
+    );
+  }
+  return links;
+}
+
 function catalog() {
+  const moveLinks = buildMoveLinks();
   return {
     types: readJson(typesFile, []),
     weather: readJson(weatherFile, []),
@@ -298,6 +418,7 @@ function catalog() {
     moves: listFiles(movesDir)
       .map((file) => readJson(file))
       .filter(Boolean)
+      .map((move) => ({ ...move, pokemon: moveLinks.get(move.id) || [] }))
       .sort((a, b) =>
         String(a.names?.French || a.id).localeCompare(
           String(b.names?.French || b.id),

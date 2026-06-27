@@ -383,6 +383,14 @@ const formFilterOptions = [
   ["stickers", "Dossier stickers"],
 ];
 
+const ficheFilterOptions = [
+  ["all", "Toutes", null, "Toutes les fiches"],
+  ["chromatic", "Chromatique", "/ui/chromatique_banner.png", "availability.shinyReleased"],
+  ["costume", "Costume / Event", "/ui/costume_banner.png", "assetForms événementiels"],
+  ["mega", "Méga", "/ui/mega_banner.png", "kind/form méga ou primo"],
+  ["regional", "Régional", "/ui/regional_banner.png", "formes Alola, Galar, Hisui, Paldea"],
+];
+
 function localJson(key, fallback) {
   try {
     return JSON.parse(localStorage.getItem(key) || "null") ?? fallback;
@@ -437,6 +445,18 @@ function persistSourceSignatures(sourceWatch) {
       };
     }),
   };
+}
+
+function entryMatchesFicheFilter(entry, filter) {
+  if (filter === "all") return true;
+  const kind = String(entry.kind || "").toLowerCase();
+  const form = String(entry.form || "").toLowerCase();
+  const availability = entry.availability || {};
+  if (filter === "chromatic") return availability.shinyReleased === true;
+  if (filter === "costume") return Array.isArray(entry.eventAssets) && entry.eventAssets.length > 0;
+  if (filter === "mega") return kind === "mega" || form.startsWith("mega") || form === "primal";
+  if (filter === "regional") return ["alola", "galar", "hisui", "paldea"].some((region) => form.includes(region));
+  return true;
 }
 
 async function copyToClipboard(value, label = "Copié dans le presse-papier") {
@@ -850,6 +870,7 @@ export function AdminApp() {
   const [redeployingDashboard, setRedeployingDashboard] = useState(false);
   const [history, setHistory] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [selectedEntry, setSelectedEntry] = useState(null);
   const [detail, setDetail] = useState(null);
   const [extraPanel, setExtraPanel] = useState(null);
   const [search, setSearch] = useState("");
@@ -863,6 +884,7 @@ export function AdminApp() {
   const [bulkOnlyIssues, setBulkOnlyIssues] = useState(true);
   const [assetTab, setAssetTab] = useState("all");
   const [generationFilter, setGenerationFilter] = useState("all");
+  const [ficheFilter, setFicheFilter] = useState("all");
   const [customRules, setCustomRules] = useState([]);
   const [ruleForm, setRuleForm] = useState({ ...defaultRuleForm });
   const [rulePreview, setRulePreview] = useState(null);
@@ -945,8 +967,8 @@ export function AdminApp() {
     });
   }, []);
 
-  const entries = bootstrap.payload?.entries || [];
-  const customRuleEntries = bootstrap.payload?.customRuleEntries || [];
+  const entries = useMemo(() => bootstrap.payload?.entries || [], [bootstrap.payload]);
+  const customRuleEntries = useMemo(() => bootstrap.payload?.customRuleEntries || [], [bootstrap.payload]);
   const summary = bootstrap.payload?.summary || {};
   const issueEntries = useMemo(() => entries.filter((entry) => entry.issues.length), [entries]);
   const customIssueEntries = useMemo(
@@ -963,29 +985,66 @@ export function AdminApp() {
           (generationFilter === "hisui"
             ? String(entry.form || "").toLowerCase().includes("hisui")
             : String(entry.generation || "") === String(generationFilter))) &&
+        entryMatchesFicheFilter(entry, ficheFilter) &&
         [entry.name, entry.dexId, entry.form, entry.kind, entry.file, entry.primaryType]
           .filter(Boolean)
           .join(" ")
           .toLowerCase()
           .includes(search.toLowerCase()),
       ),
-    [entries, search, generationFilter],
+    [entries, search, generationFilter, ficheFilter],
   );
-  const selected = selectedIndex >= 0 ? filtered[selectedIndex] : null;
+  const ficheFilterCounts = useMemo(
+    () =>
+      Object.fromEntries(
+        ficheFilterOptions.map(([id]) => [
+          id,
+          entries.filter((entry) => entryMatchesFicheFilter(entry, id)).length,
+        ]),
+      ),
+    [entries],
+  );
+  const selected = selectedEntry || (selectedIndex >= 0 ? filtered[selectedIndex] : null);
   const compareLeft = entries.find((entry) => entry.key === compareA);
   const compareRight = entries.find((entry) => entry.key === compareB);
   const bulkEntries = filtered.filter((entry) => !bulkOnlyIssues || entry.issues.length).slice(0, 80);
   const unchecked = entries.filter((entry) => !assetChecks[entry.key]);
   const assetItems = useMemo(() => {
+    const linkedAssets = assetAudit?.goAssets || [];
+    const linkedByType = (type, group) =>
+      linkedAssets
+        .filter((item) => item.assetType === type)
+        .map((item) => ({ ...item, group, image: item.url }));
     const lists = [
       ...(assetTab === "all" || assetTab === "proposals"
         ? (assetAudit?.proposals || []).map((item) => ({ ...item, group: "Propositions HD", image: item.url }))
         : []),
-      ...(assetTab === "all" || assetTab === "go"
-        ? (assetAudit?.goAssets || []).map((item) => ({ ...item, group: "Assets liés GO", image: item.url }))
+      ...(assetTab === "all" || assetTab === "linked"
+        ? linkedAssets.map((item) => ({ ...item, group: "Assets liés", image: item.url }))
+        : []),
+      ...(assetTab === "go"
+        ? linkedByType("go", "GO")
+        : []),
+      ...(assetTab === "home"
+        ? linkedByType("home", "HOME")
+        : []),
+      ...(assetTab === "portrait"
+        ? linkedByType("portrait", "Portraits")
+        : []),
+      ...(assetTab === "variant"
+        ? linkedByType("variant", "Variantes")
+        : []),
+      ...(assetTab === "background"
+        ? linkedByType("background", "Backgrounds")
+        : []),
+      ...(assetTab === "candy"
+        ? linkedByType("candy", "Bonbons")
         : []),
       ...(assetTab === "all" || assetTab === "shuffle"
-        ? (assetAudit?.shuffleAssets || []).map((item) => ({ ...item, group: "Shuffle", image: item.url }))
+        ? [
+            ...linkedByType("shuffle", "Shuffle liés"),
+            ...(assetAudit?.shuffleAssets || []).map((item) => ({ ...item, group: "Shuffle bibliothèque", image: item.url })),
+          ]
         : []),
       ...(assetTab === "all" || assetTab === "unused"
         ? (assetAudit?.unused || []).map((item) => ({ ...item, group: "HD non utilisés", image: item.url }))
@@ -1064,6 +1123,7 @@ export function AdminApp() {
   async function openDetail(entry) {
     const index = filtered.findIndex((item) => item.key === entry.key);
     setSelectedIndex(index);
+    setSelectedEntry(entry);
     setExtraPanel(null);
     setDetail(null);
     const response = await fetch(`${adminApiPath}?action=detail&key=${encodeURIComponent(entry.key)}`);
@@ -1073,7 +1133,8 @@ export function AdminApp() {
 
   function shiftDetail(delta) {
     if (!filtered.length) return;
-    const nextIndex = (selectedIndex + delta + filtered.length) % filtered.length;
+    const baseIndex = selectedIndex >= 0 ? selectedIndex : filtered.findIndex((item) => item.key === selected?.key);
+    const nextIndex = ((baseIndex >= 0 ? baseIndex : 0) + delta + filtered.length) % filtered.length;
     openDetail(filtered[nextIndex]);
   }
 
@@ -1407,7 +1468,53 @@ export function AdminApp() {
             {active === "pokedex" ? (
               <>
                 <GenerationFilterBar value={generationFilter} onChange={setGenerationFilter} />
-                <section className="grid items-start gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                <section className="mt-4 rounded-2xl border border-white/10 bg-slate-950/30 p-3 shadow-[0_18px_70px_rgba(0,0,0,.2)]">
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-cyan-100/75">
+                      <Search size={15} /> Filtres fiches
+                    </span>
+                    <button className="text-xs font-black text-cyan-100 underline-offset-4 hover:underline" type="button" onClick={() => setFicheFilter("all")}>
+                      Réinitialiser
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
+                    {ficheFilterOptions.map(([id, label, image, detail]) => {
+                      const activeFilter = ficheFilter === id;
+                      return (
+                        <button
+                          className={`group relative min-h-[92px] overflow-hidden rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 ${
+                            activeFilter
+                              ? "border-cyan-200/55 bg-cyan-400/18 shadow-[0_16px_55px_rgba(34,211,238,.18)]"
+                              : "border-white/10 bg-white/[0.045] hover:border-cyan-200/35"
+                          }`}
+                          key={id}
+                          type="button"
+                          onClick={() => setFicheFilter(id)}
+                        >
+                          {image ? (
+                            <img
+                              className={`absolute inset-0 h-full w-full object-cover transition duration-300 ${
+                                activeFilter ? "opacity-52 saturate-125" : "opacity-24 saturate-75 group-hover:opacity-40"
+                              }`}
+                              src={image}
+                              alt=""
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(34,211,238,.25),transparent_42%)]" />
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-br from-slate-950/76 via-slate-950/52 to-slate-950/70" />
+                          <span className="relative inline-flex rounded-full border border-white/10 bg-slate-950/45 px-2.5 py-1 text-[11px] font-black text-cyan-50">
+                            {ficheFilterCounts[id] || 0}
+                          </span>
+                          <strong className="relative mt-3 block text-sm font-black text-white">{label}</strong>
+                          <small className="relative mt-1 block truncate text-[11px] font-bold text-slate-300">{detail}</small>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+                <section className="mt-4 grid items-start gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                   {filtered.slice(0, 240).map((entry) => (
                     <PokemonCard
                       admin
@@ -1443,8 +1550,13 @@ export function AdminApp() {
               <section className="grid items-start gap-5 xl:grid-cols-[1.4fr_.9fr]">
                 <Panel title="Vérification d’assets" eyebrow="bibliothèque">
                   <div className="mb-4 grid min-w-0 items-start gap-3 sm:grid-cols-2 2xl:grid-cols-4">
-                    <AssetStatCard label="GO" value={assetAudit?.totals?.goFiles || 0} icon={uiAssets.icons.goLogo} tone="cyan" detail="Fichiers image GO" />
+                    <AssetStatCard label="Liés" value={assetAudit?.totals?.goFiles || 0} icon={uiAssets.icons.goLogo} tone="cyan" detail="Tous assets JSON fiches" />
+                    <AssetStatCard label="HOME" value={assetAudit?.totals?.homeFiles || 0} icon={uiAssets.icons.pokemon} tone="green" detail="Images HOME liées" />
+                    <AssetStatCard label="Portraits" value={assetAudit?.totals?.portraitFiles || 0} icon={uiAssets.icons.mega} tone="violet" detail="Portraits et shiny" />
                     <AssetStatCard label="Shuffle" value={assetAudit?.totals?.shuffleFiles || 0} icon={uiAssets.icons.pikachuShuffle} tone="violet" detail="Bibliothèque Shuffle" />
+                    <AssetStatCard label="Variantes" value={assetAudit?.totals?.variantFiles || 0} icon={uiAssets.icons.tag} tone="amber" detail="assetForms JSON" />
+                    <AssetStatCard label="Backgrounds" value={assetAudit?.totals?.backgroundFiles || 0} icon={uiAssets.icons.bookSpells} tone="cyan" detail="Location cards" />
+                    <AssetStatCard label="Bonbons" value={assetAudit?.totals?.candyFiles || 0} icon={uiAssets.icons.candy} tone="amber" detail="Candy assets" />
                     <AssetStatCard label="Utilisés" value={assetAudit?.totals?.used || 0} icon={uiAssets.icons.bookSpells} tone="green" detail="Référencés par les fiches" />
                     <AssetStatCard label="Réutilisations" value={assetAudit?.totals?.duplicated || 0} icon={uiAssets.icons.problem} tone="amber" detail="Même URL liée plusieurs fois" />
                   </div>
@@ -1455,7 +1567,13 @@ export function AdminApp() {
                     {[
                       ["all", "Tout"],
                       ["proposals", "Propositions HD"],
-                      ["go", "Liés GO"],
+                      ["linked", "Liés"],
+                      ["go", "GO"],
+                      ["home", "HOME"],
+                      ["portrait", "Portraits"],
+                      ["variant", "Variantes"],
+                      ["background", "Backgrounds"],
+                      ["candy", "Bonbons"],
                       ["shuffle", "Shuffle"],
                       ["unused", "HD non utilisés"],
                     ].map(([id, label]) => (
@@ -1482,6 +1600,13 @@ export function AdminApp() {
                         <div className="border-t border-white/10 p-3">
                           <strong className="block truncate text-xs font-black text-white">{asset.filename || asset.label}</strong>
                           <span className="mt-1 block truncate text-xs font-bold text-slate-400">{asset.group} · {asset.label || asset.details || asset.form || "standard"}</span>
+                          <button
+                            className="mt-3 inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-2xl border border-cyan-200/20 bg-cyan-400/10 px-3 text-[11px] font-black text-cyan-50 transition hover:border-cyan-200/45 hover:bg-cyan-400/18"
+                            type="button"
+                            onClick={() => copyToClipboard(asset.url, "URL GitHub copiée.")}
+                          >
+                            <Copy size={13} /> Copy GitHub URL
+                          </button>
                         </div>
                       </article>
                     ))}
@@ -1536,7 +1661,7 @@ export function AdminApp() {
               />
             ) : null}
 
-            {active === "catalogs" ? <CatalogPanel catalog={catalog} /> : null}
+            {active === "catalogs" ? <CatalogPanel catalog={catalog} onOpen={openDetail} /> : null}
 
             {active === "compare" ? (
               <Panel title="Comparaison de fiches" eyebrow="contrôle">
@@ -1718,6 +1843,7 @@ export function AdminApp() {
         onNext={() => shiftDetail(1)}
         onClose={() => {
           setSelectedIndex(-1);
+          setSelectedEntry(null);
           setDetail(null);
           setExtraPanel(null);
         }}

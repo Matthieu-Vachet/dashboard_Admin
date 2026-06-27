@@ -301,7 +301,7 @@ export function AppFrame({
       <AnimatePresence>
         {versionHistoryOpen ? (
           <motion.div
-            className="fixed inset-0 z-[1000] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl sm:p-5"
+            className="fixed inset-0 z-[1100] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl sm:p-5"
             role="dialog"
             aria-modal="true"
             aria-label="Historique des versions du Dashboard"
@@ -311,7 +311,7 @@ export function AppFrame({
             onClick={() => setVersionHistoryOpen(false)}
           >
             <motion.section
-              className="relative z-[1001] max-h-[calc(100dvh-2rem)] w-full max-w-3xl overflow-hidden rounded-3xl border border-line bg-card shadow-[0_24px_120px_rgba(0,0,0,.55)]"
+              className="relative z-[1110] max-h-[calc(100dvh-2rem)] w-full max-w-3xl overflow-hidden rounded-3xl border border-line bg-card shadow-[0_24px_120px_rgba(0,0,0,.55)]"
               initial={{ y: 18, scale: 0.98 }}
               animate={{ y: 0, scale: 1 }}
               exit={{ y: 18, scale: 0.98 }}
