@@ -7,6 +7,16 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.4.4",
+    date: "2026-06-28",
+    title: "Badges femelles dans les assets",
+    changes: [
+      "Ajoute un badge Forme femelle sur les cards Assets des variantes GO quand assetForms[].isFemale vaut true.",
+      "Affiche aussi le badge sur les variantes HOME dont gender vaut female-difference ou genderCode vaut fd.",
+      "Conserve les assets existants et enrichit uniquement l'affichage de la galerie et de la preview.",
+    ],
+  },
+  {
     version: "V1.4.3",
     date: "2026-06-28",
     title: "Validation assetForms nullable",

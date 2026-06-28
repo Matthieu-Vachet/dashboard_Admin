@@ -389,8 +389,8 @@ function MoveList({ title, moves, typeCatalog = [], icon }) {
 function AssetGallery({ entry, payload }) {
   const [preview, setPreview] = useState(null);
   const assets = [];
-  const add = (group, label, url, meta = "") => {
-    if (url) assets.push({ group, label, url, meta });
+  const add = (group, label, url, meta = "", options = {}) => {
+    if (url) assets.push({ group, label, url, meta, female: Boolean(options.female) });
   };
 
   add("Pokémon GO", "Image principale", payload.assets?.image || entry.image);
@@ -400,11 +400,15 @@ function AssetGallery({ entry, payload }) {
   add("Pokémon Home", "Home shiny", payload.assets?.home?.shinyImage, "shiny");
 
   for (const [index, asset] of (payload.assetForms || []).entries()) {
-    add("Variantes GO", `Variante ${index + 1}`, asset.image, asset.form || asset.costume || "");
-    add("Variantes GO", `Variante shiny ${index + 1}`, asset.shinyImage, "shiny");
+    const female = isFemaleAsset(asset);
+    const meta = assetMeta([asset.form, asset.costume, female ? "Forme femelle" : ""]);
+    add("Variantes GO", `Variante ${index + 1}`, asset.image, meta, { female });
+    add("Variantes GO", `Variante shiny ${index + 1}`, asset.shinyImage, assetMeta(["shiny", female ? "Forme femelle" : ""]), { female });
   }
   for (const [index, asset] of (payload.assets?.home?.variants || []).entries()) {
-    add("Variantes Home", `Home ${index + 1}`, asset.image || asset.shinyImage, asset.detail || asset.view || "");
+    const female = isFemaleAsset(asset);
+    const meta = assetMeta([asset.detail, asset.view, asset.form, asset.gender, asset.genderCode, female ? "Forme femelle" : ""]);
+    add("Variantes Home", `Home ${index + 1}`, asset.image || asset.shinyImage, meta, { female });
   }
   for (const [index, asset] of (payload.assets?.shuffle?.variants || []).entries()) {
     add("Pokémon Shuffle", `Shuffle ${index + 1}`, asset.image, asset.tags?.join(" · ") || asset.state || "");
@@ -436,14 +440,16 @@ function AssetGallery({ entry, payload }) {
                     type="button"
                     onClick={() => setPreview(asset)}
                   >
-                    <div className="flex aspect-square items-center justify-center bg-[radial-gradient(circle_at_30%_15%,rgba(125,211,252,.2),transparent_38%),rgba(255,255,255,.04)] p-4">
+                    <div className="relative flex aspect-square items-center justify-center bg-[radial-gradient(circle_at_30%_15%,rgba(125,211,252,.2),transparent_38%),rgba(255,255,255,.04)] p-4">
+                      {asset.female ? <FemaleAssetBadge className="absolute left-3 top-3" /> : null}
                       <img className="max-h-full object-contain drop-shadow-2xl" src={asset.url} alt={asset.label} />
                     </div>
                     <div className="border-t border-white/10 p-3">
-                      <strong className="block truncate text-sm font-black text-white">{asset.label}</strong>
-                      <span className="mt-1 block truncate text-xs font-bold text-slate-400">
-                        {asset.meta || "standard"}
-                      </span>
+                      <div className="flex min-w-0 items-start justify-between gap-2">
+                        <strong className="block truncate text-sm font-black text-white">{asset.label}</strong>
+                        {asset.female ? <FemaleAssetBadge compact /> : null}
+                      </div>
+                      <span className="mt-1 block truncate text-xs font-bold text-slate-400">{asset.meta || "standard"}</span>
                     </div>
                   </button>
                 ))}
@@ -454,7 +460,10 @@ function AssetGallery({ entry, payload }) {
             <div className="fixed inset-0 z-[1120] grid place-items-center bg-slate-950/86 p-4 backdrop-blur-md" role="presentation" onClick={() => setPreview(null)}>
               <div className="w-full max-w-5xl overflow-hidden rounded-[2rem] border border-white/10 bg-[#07111f]" onClick={(event) => event.stopPropagation()}>
                 <div className="flex items-center justify-between gap-3 border-b border-white/10 p-4">
-                  <strong className="truncate text-xl font-black text-white">{preview.label}</strong>
+                  <div className="flex min-w-0 items-center gap-3">
+                    <strong className="truncate text-xl font-black text-white">{preview.label}</strong>
+                    {preview.female ? <FemaleAssetBadge /> : null}
+                  </div>
                   <button className="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-2xl" type="button" onClick={() => setPreview(null)}>×</button>
                 </div>
                 <div className="grid max-h-[78dvh] place-items-center overflow-auto p-5">
@@ -468,6 +477,25 @@ function AssetGallery({ entry, payload }) {
         <EmptyInline>Aucun asset lié à cette fiche.</EmptyInline>
       )}
     </Section>
+  );
+}
+
+function isFemaleAsset(asset = {}) {
+  return asset.isFemale === true || asset.gender === "female-difference" || asset.genderCode === "fd";
+}
+
+function assetMeta(parts) {
+  return parts.filter(Boolean).join(" · ");
+}
+
+function FemaleAssetBadge({ compact = false, className = "" }) {
+  return (
+    <span
+      className={`inline-flex shrink-0 items-center gap-1 rounded-full border border-fuchsia-300/45 bg-fuchsia-500/18 px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-fuchsia-100 shadow-[0_0_24px_rgba(217,70,239,.22)] ${className}`}
+    >
+      <span aria-hidden="true">♀</span>
+      <span>{compact ? "Femelle" : "Forme femelle"}</span>
+    </span>
   );
 }
 
