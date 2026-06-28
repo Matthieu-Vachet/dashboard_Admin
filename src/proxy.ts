@@ -4,7 +4,7 @@ import { sessionCookieName, verifySessionToken } from "@/lib/session-token";
 import { applySecurityHeaders } from "@/lib/security";
 
 const publicPaths = ["/login", "/api/session", "/api/logout"];
-const protectedApiPaths = ["/api/dashboard-store", "/api/pokemon-admin"];
+const protectedApiPaths = ["/api/dashboard-store", "/api/pokemon-admin", "/api/dashboard-backlog"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

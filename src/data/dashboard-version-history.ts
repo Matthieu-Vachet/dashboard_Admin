@@ -7,6 +7,18 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.4.0",
+    date: "2026-06-28",
+    title: "Dashboard Backlog interne",
+    changes: [
+      "Ajoute la page Dashboard Backlog dans Outils pour centraliser bugs, features, refactors, UI et data.",
+      "Crée la collection Mongo dashboard_backlog avec modèle complet, historique, resolvedAt et contexte Codex généré.",
+      "Expose l'API CRUD /api/dashboard-backlog et /api/dashboard-backlog/:id avec session, rate-limit et protection origin.",
+      "Ajoute liste filtrable, statistiques, édition complète, archivage, suppression confirmée et exports Markdown Codex.",
+      "Ajoute les filtres type, statut, priorité, page, composant, recherche texte et tris plus récent, priorité, statut.",
+    ],
+  },
+  {
     version: "V1.3.0",
     date: "2026-06-27",
     title: "Éditeurs, calendrier, widgets, light mode et sidebar",

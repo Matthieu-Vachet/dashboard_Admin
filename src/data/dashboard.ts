@@ -13,6 +13,7 @@ import {
   LineChart,
   NotebookPen,
   Palette,
+  ClipboardList,
   ScrollText,
   FileText,
   Wrench,
@@ -39,6 +40,7 @@ export const navGroups: NavGroup[] = [
       { href: "/", label: "Accueil", icon: Home },
       { href: "/analytics", label: "Analytics", icon: LineChart },
       { href: "/tools", label: "Outils", icon: Wrench },
+      { href: "/tools/dashboard-backlog", label: "Dashboard Backlog", icon: ClipboardList },
     ],
   },
   {
