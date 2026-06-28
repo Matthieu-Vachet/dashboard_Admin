@@ -54,7 +54,8 @@ import { LoginCard } from "./login-card";
 import { DataDeployHistoryModal, SourceHistoryModal, SourceRows } from "./source-watch-panel";
 import { UpdateLogPanel } from "./update-log-panel";
 
-const assetChecksKey = "pokedex-v4-asset-checks";
+const legacyAssetChecksKey = "pokedex-v4-asset-checks";
+const assetChecksStoreKey = "matweb.pokemon.assetChecks";
 const todoKey = "pokedex-v4-admin-todos";
 const editorKey = "pokedex-v4-admin-editor";
 const sourceWatchSignatureKey = "pokedex-v4-source-watch-signatures";
@@ -397,6 +398,40 @@ function localJson(key, fallback) {
   } catch {
     return fallback;
   }
+}
+
+async function readDashboardStoreValue(key) {
+  try {
+    const response = await fetch(`/api/dashboard-store?key=${encodeURIComponent(key)}`, {
+      cache: "no-store",
+    });
+    if (!response.ok) return { ok: false, configured: false, value: null };
+    const payload = await response.json();
+    return {
+      ok: true,
+      configured: Boolean(payload.data?.configured),
+      value: payload.data?.value,
+    };
+  } catch {
+    return { ok: false, configured: false, value: null };
+  }
+}
+
+async function writeDashboardStoreValue(key, value) {
+  try {
+    const response = await fetch("/api/dashboard-store", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ key, value }),
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+function isPlainObject(value) {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
 
 function sourceSignature(source) {
@@ -892,11 +927,42 @@ export function AdminApp() {
   const [rulesSyncing, setRulesSyncing] = useState(false);
 
   useEffect(() => {
-    setAssetChecks(localJson(assetChecksKey, {}));
+    setAssetChecks(localJson(legacyAssetChecksKey, {}));
     setCollections(localJson(collectionsKey, []));
     setTodos(localJson(todoKey, []));
     setEditorText(localStorage.getItem(editorKey) || "");
   }, []);
+
+  useEffect(() => {
+    if (!session.authenticated) return;
+    let cancelled = false;
+
+    async function hydrateAssetChecks() {
+      const legacyValue = localJson(legacyAssetChecksKey, {});
+      const stored = await readDashboardStoreValue(assetChecksStoreKey);
+      if (cancelled || !stored.ok || !stored.configured) return;
+
+      if (isPlainObject(stored.value)) {
+        setAssetChecks(stored.value);
+        return;
+      }
+
+      if (isPlainObject(legacyValue) && Object.keys(legacyValue).length) {
+        setAssetChecks(legacyValue);
+        const saved = await writeDashboardStoreValue(assetChecksStoreKey, legacyValue);
+        if (saved) localStorage.removeItem(legacyAssetChecksKey);
+        return;
+      }
+
+      setAssetChecks({});
+    }
+
+    void hydrateAssetChecks();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session.authenticated]);
 
   async function refreshSession() {
     const response = await fetch(`${adminApiPath}?action=session`);
@@ -1139,10 +1205,18 @@ export function AdminApp() {
   }
 
   function setAssetChecked(key, checked) {
-    const next = { ...assetChecks, [key]: checked };
-    if (!checked) delete next[key];
-    setAssetChecks(next);
-    localStorage.setItem(assetChecksKey, JSON.stringify(next));
+    setAssetChecks((current) => {
+      const next = { ...current, [key]: checked };
+      if (!checked) delete next[key];
+      void writeDashboardStoreValue(assetChecksStoreKey, next).then((saved) => {
+        if (saved) {
+          localStorage.removeItem(legacyAssetChecksKey);
+          return;
+        }
+        toast.error("La vérification d'asset n'a pas pu être synchronisée sur Mongo.");
+      });
+      return next;
+    });
   }
 
   function saveCollections(next) {

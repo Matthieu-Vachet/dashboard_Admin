@@ -7,6 +7,16 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.4.2",
+    date: "2026-06-28",
+    title: "Synchronisation Mongo des assets vérifiés",
+    changes: [
+      "Déplace l'état des assets vérifiés de l'Admin Pokémon vers matweb.pokemon.assetChecks dans Mongo.",
+      "Migre automatiquement l'ancien localStorage pokedex-v4-asset-checks quand Mongo ne contient pas encore de valeur.",
+      "Synchronise chaque coche d'asset depuis les cartes, la modale Pokémon et le widget Admin Pokémon pour conserver l'état entre appareils.",
+    ],
+  },
+  {
     version: "V1.4.1",
     date: "2026-06-28",
     title: "Compatibilité secret admin PokemonGo-API",
