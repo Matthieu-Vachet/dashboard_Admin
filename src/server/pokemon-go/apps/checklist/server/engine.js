@@ -58,6 +58,22 @@ function readAssetRecord(data) {
   return readJson(file);
 }
 
+function normalizeAssetForm(asset) {
+  const source = asset && typeof asset === "object" ? asset : {};
+  return {
+    ...source,
+    form: source.form ?? null,
+    image: typeof source.image === "string" ? source.image : source.image ?? "",
+    shinyImage: source.shinyImage ?? null,
+    costume: source.costume ?? null,
+    isFemale: source.isFemale === true,
+  };
+}
+
+function normalizeAssetForms(assetForms) {
+  return Array.isArray(assetForms) ? assetForms.map(normalizeAssetForm) : [];
+}
+
 function hydrateSourceData(data) {
   const record = readAssetRecord(data);
   if (!record?.assets) return data;
@@ -73,9 +89,7 @@ function hydrateSourceData(data) {
         : [],
       shuffle: record.assets.shuffle ?? null,
     },
-    assetForms: Array.isArray(record.assets.assetForms)
-      ? record.assets.assetForms
-      : [],
+    assetForms: normalizeAssetForms(record.assets.assetForms),
   };
 }
 
@@ -907,6 +921,7 @@ function createValidator() {
         });
         field(asset, "shinyImage", `${assetPath}.shinyImage`, "string", {
           nonEmpty: true,
+          nullable: true,
         });
       });
     }

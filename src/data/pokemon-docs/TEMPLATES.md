@@ -398,9 +398,13 @@ visuelles ou variantes femelles.
   "costume": null,
   "isFemale": false,
   "image": "",
-  "shinyImage": ""
+  "shinyImage": null
 }
 ```
+
+`form`, `costume` et `shinyImage` acceptent `string` ou `null`. Le champ `costume`
+reste toujours présent, même sans costume, et une variante femelle conserve
+`isFemale: true` même si `form`, `costume` ou `shinyImage` valent `null`.
 
 ## Type
 

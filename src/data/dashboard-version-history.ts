@@ -7,6 +7,16 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.4.3",
+    date: "2026-06-28",
+    title: "Validation assetForms nullable",
+    changes: [
+      "Accepte assetForms[].shinyImage en string ou null quand une variante Pokémon GO n'a pas de chromatique disponible.",
+      "Normalise les assetForms hydratés pour garantir form, costume, shinyImage et isFemale avant validation.",
+      "Corrige les faux positifs du vérificateur sur Venusaur COPY_2019 et les variantes femelles sans costume explicite.",
+    ],
+  },
+  {
     version: "V1.4.2",
     date: "2026-06-28",
     title: "Synchronisation Mongo des assets vérifiés",

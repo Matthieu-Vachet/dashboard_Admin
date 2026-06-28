@@ -537,6 +537,11 @@ synchronisation doit nettoyer ces champs et les replacer dans `pokemonAssets`.
 | `assets.shuffle.variants[].codes` | string[] | Codes bruts extraits du nom de fichier. |
 | `assets.shuffle.variants[].tags` | string[] | Codes utiles sans l'état terminal ni `chromatique`. |
 | `assets.shuffle.variants[].shiny` | boolean | Vrai lorsque le fichier se termine par `chromatique`. |
+| `assets.assetForms[].form` | string/null | Forme visuelle GO, ou `null` si l'asset ne cible pas une forme nommée. |
+| `assets.assetForms[].image` | string | Image GO de la variante. |
+| `assets.assetForms[].shinyImage` | string/null | Image GO chromatique de la variante, ou `null` si elle n'existe pas. |
+| `assets.assetForms[].costume` | string/null | Costume ou événement GO, toujours présent et `null` sans costume. |
+| `assets.assetForms[].isFemale` | boolean | Vrai pour une variante femelle, y compris sans costume ni shiny. |
 
 Une fiche principale déjà sortie doit conserver `assets.image` et `assets.shinyImage`
 quand les URLs existent. Les visuels Home, portraits, Shuffle, location cards et
