@@ -32,11 +32,23 @@ En production, le dashboard refuse la connexion si `ADMIN_EMAIL`, `ADMIN_PASSWOR
 
 ## Statistiques Pokemon GO API
 
-Le widget consomme `POKEMON_API_URL`.
+Les widgets de lecture publique consomment `POKEMON_API_URL` et `POKEMON_API_PUBLIC_URL`.
 
 ```bash
 POKEMON_API_URL=https://pokemon-go-7r5q2j05a-matthieu-vachets-projects.vercel.app/api/checklist-v3
+POKEMON_API_PUBLIC_URL=https://pokemon-go-api.vercel.app
 ```
+
+Les endpoints publics de `PokemonGo-API` n'ont pas besoin du secret admin. Si le
+dashboard doit appeler une route privee de `PokemonGo-API`, ajoute dans Vercel
+Dashboard Admin une variable serveur :
+
+```bash
+POKEMON_API_ADMIN_SECRET=meme-valeur-que-API_ADMIN_SECRET-cote-pokemon-go-api
+```
+
+Cette variable ne doit jamais etre prefixee par `NEXT_PUBLIC_`. Le dashboard l'utilise
+uniquement dans ses routes serveur pour envoyer le header `x-api-admin-secret`.
 
 ## Checks
 

@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.4.1",
+    date: "2026-06-28",
+    title: "Compatibilité secret admin PokemonGo-API",
+    changes: [
+      "Corrige l'API Explorer Pokémon pour utiliser /api/v1/meta/filters au lieu de l'ancienne route /api/v1/meta/sync.",
+      "Ajoute le support serveur optionnel de POKEMON_API_ADMIN_SECRET pour les actions privées PokemonGo-API saisies dans le proxy dashboard.",
+      "Documente où configurer le secret admin côté Dashboard sans l'exposer au navigateur.",
+      "Met à jour la documentation Pokémon embarquée avec l'authentification x-api-admin-secret.",
+    ],
+  },
+  {
     version: "V1.4.0",
     date: "2026-06-28",
     title: "Dashboard Backlog interne",

@@ -16,7 +16,8 @@ const endpoints = [
   { label: "Types", path: "/api/v1/types" },
   { label: "Météo", path: "/api/v1/weather" },
   { label: "Régions", path: "/api/v1/regions" },
-  { label: "Dernière sync", path: "/api/v1/meta/sync" },
+  { label: "Filtres publics", path: "/api/v1/meta/filters" },
+  { label: "Checklist publique", path: "/api/checklist-v3" },
 ];
 
 type ApiResult = {

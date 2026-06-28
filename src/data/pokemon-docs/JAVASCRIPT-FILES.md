@@ -10,7 +10,7 @@ imports, aux migrations, aux audits ou à la synchronisation.
 | --- | --- |
 | `app.js` | Démarre le serveur Express local. |
 | `api/rest.js` | Expose l'API comme fonction serverless Vercel. |
-| `api/checklist-v3.js` | Nom historique de l'endpoint de bibliothèque API read-only : détails de fiche, catalogues et assets publics. |
+| `api/checklist-v3.js` | Nom historique de l'endpoint de bibliothèque API read-only : détails de fiche, catalogues et assets publics ; les anciennes actions internes exigent `x-api-admin-secret`. |
 | `api/blocked.js` | Bloque les accès directs aux sources internes quand le site est déployé sur Vercel. |
 | `app/*.js` | Pages Next.js du front public, métadonnées SEO, robots et sitemap. |
 | `components/**/*.jsx` | Composants UI réutilisables pour la landing, la bibliothèque API et les fiches. |
@@ -76,7 +76,7 @@ Les commandes sans suffixe `:write` simulent généralement le résultat. Les co
 - `apps/checklist/server/*.js` alimente la bibliothèque API et les lectures de données.
 - `apps/checklist/server/source-watch.js` vérifie les dépôts GitHub et sites déclarés
   dans `PokemonGo-Data/source-watch/sources.json`; l'action publique Vercel est
-  désactivée dans ce depot read-only.
+  protegee par `x-api-admin-secret`, puis desactivee dans ce depot read-only.
 
 ## Commandes Sûres
 

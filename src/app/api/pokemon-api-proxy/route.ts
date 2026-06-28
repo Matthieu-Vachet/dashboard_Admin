@@ -7,14 +7,16 @@ const baseUrl = process.env.POKEMON_API_PUBLIC_URL || "https://pokemon-go-api.ve
 const allowedPaths = [
   "/health",
   "/api-docs.json",
+  "/api/checklist-v3",
   "/api/v1",
   "/api/v1/pokemon",
   "/api/v1/moves",
   "/api/v1/types",
   "/api/v1/weather",
   "/api/v1/regions",
-  "/api/v1/meta/sync",
+  "/api/v1/meta/filters",
 ];
+const privateChecklistActions = new Set(["source-watch", "history", "url-audit"]);
 
 function json(data: unknown, init?: ResponseInit) {
   const response = NextResponse.json(data, init);
@@ -25,9 +27,10 @@ function json(data: unknown, init?: ResponseInit) {
 function safePath(value: string) {
   const path = value.trim() || "/health";
   const normalized = path.startsWith("/") ? path : `/${path}`;
-  const allowed = allowedPaths.some(
-    (allowedPath) => normalized === allowedPath || normalized.startsWith(`${allowedPath}/`),
-  );
+  const pathname = new URL(normalized, baseUrl).pathname;
+  const allowed = allowedPaths.some((allowedPath) => {
+    return pathname === allowedPath || pathname.startsWith(`${allowedPath}/`);
+  });
 
   if (!allowed) {
     const error = new Error("Endpoint Pokémon non autorisé dans le testeur.");
@@ -36,6 +39,29 @@ function safePath(value: string) {
   }
 
   return normalized;
+}
+
+function shouldAttachAdminSecret(path: string) {
+  const target = new URL(path, baseUrl);
+  if (target.pathname !== "/api/checklist-v3") return false;
+  return privateChecklistActions.has(target.searchParams.get("action") || "");
+}
+
+function pokemonApiHeaders(path: string) {
+  const headers: Record<string, string> = { accept: "application/json" };
+  if (!shouldAttachAdminSecret(path)) return headers;
+
+  const secret = process.env.POKEMON_API_ADMIN_SECRET || process.env.API_ADMIN_SECRET;
+  if (!secret) {
+    const error = new Error(
+      "POKEMON_API_ADMIN_SECRET doit être défini côté serveur pour appeler cette route Pokémon privée.",
+    );
+    (error as Error & { status?: number }).status = 500;
+    throw error;
+  }
+
+  headers["x-api-admin-secret"] = secret;
+  return headers;
 }
 
 export async function GET(request: NextRequest) {
@@ -51,7 +77,7 @@ export async function GET(request: NextRequest) {
     const response = await fetch(target, {
       cache: "no-store",
       signal: AbortSignal.timeout(12000),
-      headers: { accept: "application/json" },
+      headers: pokemonApiHeaders(path),
     });
     const contentType = response.headers.get("content-type") || "";
     const body = contentType.includes("application/json")

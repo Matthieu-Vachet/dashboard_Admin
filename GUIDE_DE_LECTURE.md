@@ -70,7 +70,7 @@ Si tu modifies manuellement un JSON dans `PokemonGo-Data`, le chemin normal est:
 2. verifier le schema avec les scripts du depot data;
 3. commit et push sur `main`;
 4. declencher ou laisser declencher la synchronisation MongoDB du repo `PokemonGo-API-`;
-5. verifier `/api/v1/meta/sync` ou le dashboard MongoDB.
+5. verifier `/api/v1/meta/filters`, `/health` ou le dashboard MongoDB.
 
 Le dashboard ne synchronise pas MongoDB directement. Il lit les donnees et controle leur qualite.
 
