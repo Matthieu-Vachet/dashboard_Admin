@@ -13,6 +13,8 @@ const fieldClass =
   "min-h-12 w-full rounded-2xl border border-white/10 bg-slate-950/45 px-4 text-sm font-bold text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-400/10";
 const primaryButtonClass =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-400 px-4 py-2 text-sm font-black text-white shadow-[0_14px_45px_rgba(14,165,233,.26)] transition hover:scale-[1.01]";
+const initialCollectionLimit = 96;
+const collectionLimitStep = 96;
 
 const assetStatTone = {
   cyan: "from-sky-500/24 via-cyan-300/12 to-slate-900/20 text-cyan-100 border-cyan-200/25",
@@ -252,17 +254,22 @@ function dexSortValue(entry) {
 }
 
 function collectionSortKey(entry) {
+  const form = String(entry.form || "normal").toLowerCase();
+  const kindRank = collectionVariantRank(entry);
+  return [dexSortValue(entry), kindRank, form, String(entry.name || ""), String(entry.key || "")];
+}
+
+function collectionVariantRank(entry) {
   const kind = String(entry.kind || "").toLowerCase();
   const form = String(entry.form || "normal").toLowerCase();
-  const kindRank = {
-    pokemon: 0,
-    form: 1,
-    mega: 2,
-    dynamax: 3,
-    gigantamax: 4,
-    event: 5,
-  }[kind] ?? 9;
-  return [dexSortValue(entry), kindRank, form, String(entry.name || ""), String(entry.key || "")];
+  if (kind === "pokemon" && ["normal", "base"].includes(form)) return 0;
+  if (["alola", "galar", "hisui", "paldea"].some((value) => kind === value || form.includes(value))) return 1;
+  if (kind === "form") return 1;
+  if (kind === "mega" || form.includes("mega") || form.includes("primal")) return 2;
+  if (kind === "dynamax" || form.includes("dynamax")) return 3;
+  if (kind === "gigantamax" || form.includes("gigantamax")) return 4;
+  if (kind === "event") return 5;
+  return 9;
 }
 
 function sortCollectionEntries(entries) {
@@ -355,6 +362,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
   const [region, setRegion] = useState("all");
   const [status, setStatus] = useState("all");
   const [query, setQuery] = useState("");
+  const [collectionView, setCollectionView] = useState({ key: "", limit: initialCollectionLimit });
   const [draft, setDraft] = useState({
     name: "",
     type: "normal",
@@ -367,6 +375,9 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
   const canUsePortal = typeof document !== "undefined";
   const activeItems = useMemo(() => activeCollection?.items || {}, [activeCollection]);
   const combinedSearch = [globalSearch, query].filter(Boolean).join(" ");
+  const collectionFilterKey = [activeCollection?.id || "", region, status, combinedSearch].join("|");
+  const collectionLimit =
+    collectionView.key === collectionFilterKey ? collectionView.limit : initialCollectionLimit;
   const stats = useMemo(() => collectionStats(entries), [entries]);
   const pool = useMemo(() => collectionPool(entries, activeCollection), [activeCollection, entries]);
   const collectionEntries = useMemo(() => {
@@ -382,7 +393,8 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
     () => (activeCollection ? sortCollectionEntries(pool.filter((entry) => entryMatchesCollection(entry, activeCollection, region, combinedSearch))) : []),
     [activeCollection, combinedSearch, pool, region],
   );
-  const generationGroups = useMemo(() => groupedByGeneration(collectionEntries), [collectionEntries]);
+  const visibleCollectionEntries = collectionEntries.slice(0, collectionLimit);
+  const generationGroups = useMemo(() => groupedByGeneration(visibleCollectionEntries), [visibleCollectionEntries]);
   const haveCount = activeCollection ? Object.values(activeItems).filter(Boolean).length : 0;
   const visibleHaveCount = allMatching.filter((entry) => activeItems[entry.key]).length;
 
@@ -663,6 +675,22 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
               </section>
             ))}
           </div>
+          {visibleCollectionEntries.length < collectionEntries.length ? (
+            <div className="mt-5 flex justify-center">
+              <button
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-cyan-200/30 bg-cyan-400/12 px-5 py-2 text-sm font-black text-cyan-50 transition hover:border-cyan-200/55 hover:bg-cyan-400/20"
+                type="button"
+                onClick={() =>
+                  setCollectionView({
+                    key: collectionFilterKey,
+                    limit: collectionLimit + collectionLimitStep,
+                  })
+                }
+              >
+                Afficher plus · {(collectionEntries.length - visibleCollectionEntries.length).toLocaleString("fr-FR")} restant(s)
+              </button>
+            </div>
+          ) : null}
           {!collectionEntries.length ? (
             <p className="mt-4 rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
               Aucun Pokemon ne correspond a cette combinaison de filtres.

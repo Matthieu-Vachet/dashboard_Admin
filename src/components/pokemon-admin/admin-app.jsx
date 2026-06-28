@@ -392,6 +392,11 @@ const ficheFilterOptions = [
   ["regional", "Régional", "/ui/regional_banner.png", "formes Alola, Galar, Hisui, Paldea"],
 ];
 
+const initialFicheLimit = 240;
+const ficheLimitStep = 240;
+const initialAssetLimit = 120;
+const assetLimitStep = 120;
+
 function localJson(key, fallback) {
   try {
     return JSON.parse(localStorage.getItem(key) || "null") ?? fallback;
@@ -494,6 +499,36 @@ function entryMatchesFicheFilter(entry, filter) {
   return true;
 }
 
+function dexSortValue(entry) {
+  const value = Number.parseInt(String(entry.dexId || "").replace(/\D/g, ""), 10);
+  return Number.isFinite(value) ? value : Number.MAX_SAFE_INTEGER;
+}
+
+function variantSortRank(entry) {
+  const kind = String(entry.kind || "").toLowerCase();
+  const form = String(entry.form || "normal").toLowerCase();
+  if (kind === "pokemon" && ["normal", "base"].includes(form)) return 0;
+  if (["form", "alola", "galar", "hisui", "paldea"].some((value) => kind === value || form.includes(value))) return 1;
+  if (kind === "mega" || form.includes("mega") || form.includes("primal")) return 2;
+  if (kind === "dynamax" || form.includes("dynamax")) return 3;
+  if (kind === "gigantamax" || form.includes("gigantamax")) return 4;
+  if (kind === "event") return 5;
+  return 9;
+}
+
+function sortPokemonEntries(entries) {
+  return [...entries].sort((left, right) => {
+    const dexDiff = dexSortValue(left) - dexSortValue(right);
+    if (dexDiff) return dexDiff;
+    const rankDiff = variantSortRank(left) - variantSortRank(right);
+    if (rankDiff) return rankDiff;
+    return String(left.form || left.name || left.key || "").localeCompare(
+      String(right.form || right.name || right.key || ""),
+      "fr",
+    );
+  });
+}
+
 async function copyToClipboard(value, label = "Copié dans le presse-papier") {
   try {
     await navigator.clipboard.writeText(
@@ -503,6 +538,21 @@ async function copyToClipboard(value, label = "Copié dans le presse-papier") {
   } catch {
     toast.error("Impossible de copier pour le moment.");
   }
+}
+
+function LoadMoreButton({ shown, total, onClick }) {
+  const remaining = Math.max(0, total - shown);
+  return (
+    <div className="mt-5 flex justify-center">
+      <button
+        className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-cyan-200/30 bg-cyan-400/12 px-5 py-2 text-sm font-black text-cyan-50 transition hover:border-cyan-200/55 hover:bg-cyan-400/20"
+        type="button"
+        onClick={onClick}
+      >
+        Afficher plus · {remaining.toLocaleString("fr-FR")} restant(s)
+      </button>
+    </div>
+  );
 }
 
 function RulesPanel({
@@ -918,6 +968,8 @@ export function AdminApp() {
   const [compareB, setCompareB] = useState("");
   const [bulkOnlyIssues, setBulkOnlyIssues] = useState(true);
   const [assetTab, setAssetTab] = useState("all");
+  const [ficheLimit, setFicheLimit] = useState(initialFicheLimit);
+  const [assetLimit, setAssetLimit] = useState(initialAssetLimit);
   const [generationFilter, setGenerationFilter] = useState("all");
   const [ficheFilter, setFicheFilter] = useState("all");
   const [customRules, setCustomRules] = useState([]);
@@ -1033,6 +1085,14 @@ export function AdminApp() {
     });
   }, []);
 
+  useEffect(() => {
+    setFicheLimit(initialFicheLimit);
+  }, [search, generationFilter, ficheFilter]);
+
+  useEffect(() => {
+    setAssetLimit(initialAssetLimit);
+  }, [search, assetTab]);
+
   const entries = useMemo(() => bootstrap.payload?.entries || [], [bootstrap.payload]);
   const customRuleEntries = useMemo(() => bootstrap.payload?.customRuleEntries || [], [bootstrap.payload]);
   const summary = bootstrap.payload?.summary || {};
@@ -1046,17 +1106,19 @@ export function AdminApp() {
   );
   const filtered = useMemo(
     () =>
-      entries.filter((entry) =>
-        (generationFilter === "all" ||
-          (generationFilter === "hisui"
-            ? String(entry.form || "").toLowerCase().includes("hisui")
-            : String(entry.generation || "") === String(generationFilter))) &&
-        entryMatchesFicheFilter(entry, ficheFilter) &&
-        [entry.name, entry.dexId, entry.form, entry.kind, entry.file, entry.primaryType]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase()
-          .includes(search.toLowerCase()),
+      sortPokemonEntries(
+        entries.filter((entry) =>
+          (generationFilter === "all" ||
+            (generationFilter === "hisui"
+              ? String(entry.form || "").toLowerCase().includes("hisui")
+              : String(entry.generation || "") === String(generationFilter))) &&
+          entryMatchesFicheFilter(entry, ficheFilter) &&
+          [entry.name, entry.dexId, entry.form, entry.kind, entry.file, entry.primaryType]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase()
+            .includes(search.toLowerCase()),
+        ),
       ),
     [entries, search, generationFilter, ficheFilter],
   );
@@ -1120,6 +1182,8 @@ export function AdminApp() {
     if (!needle) return lists;
     return lists.filter((item) => JSON.stringify(item).toLowerCase().includes(needle));
   }, [assetAudit, assetTab, search]);
+  const visibleFiches = filtered.slice(0, ficheLimit);
+  const visibleAssetItems = assetItems.slice(0, assetLimit);
   const exportPayload = {
     generatedAt: new Date().toISOString(),
     filters: { search },
@@ -1589,7 +1653,7 @@ export function AdminApp() {
                   </div>
                 </section>
                 <section className="mt-4 grid items-start gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                  {filtered.slice(0, 240).map((entry) => (
+                  {visibleFiches.map((entry) => (
                     <PokemonCard
                       admin
                       key={entry.key}
@@ -1603,6 +1667,13 @@ export function AdminApp() {
                     />
                   ))}
                 </section>
+                {visibleFiches.length < filtered.length ? (
+                  <LoadMoreButton
+                    shown={visibleFiches.length}
+                    total={filtered.length}
+                    onClick={() => setFicheLimit((current) => current + ficheLimitStep)}
+                  />
+                ) : null}
               </>
             ) : null}
 
@@ -1666,7 +1737,7 @@ export function AdminApp() {
                     ))}
                   </div>
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-                    {assetItems.slice(0, 120).map((asset, index) => (
+                    {visibleAssetItems.map((asset, index) => (
                       <article className="overflow-hidden rounded-3xl border border-white/10 bg-slate-950/40" key={`${asset.group}-${asset.filename || asset.url}-${index}`}>
                         <div className="grid aspect-square place-items-center bg-white/[0.04] p-3">
                           <img className="max-h-full object-contain" src={asset.image || asset.url} alt={asset.filename || asset.label || "asset"} />
@@ -1685,6 +1756,13 @@ export function AdminApp() {
                       </article>
                     ))}
                   </div>
+                  {visibleAssetItems.length < assetItems.length ? (
+                    <LoadMoreButton
+                      shown={visibleAssetItems.length}
+                      total={assetItems.length}
+                      onClick={() => setAssetLimit((current) => current + assetLimitStep)}
+                    />
+                  ) : null}
                 </Panel>
                 <Panel title="Fiches à vérifier" eyebrow={`${unchecked.length} restantes`}>
                   <MiniCardList entries={unchecked.slice(0, 50)} onOpen={openDetail} />

@@ -390,25 +390,25 @@ function AssetGallery({ entry, payload }) {
   const [preview, setPreview] = useState(null);
   const assets = [];
   const add = (group, label, url, meta = "", options = {}) => {
-    if (url) assets.push({ group, label, url, meta, female: Boolean(options.female) });
+    if (url) assets.push({ group, label, url, meta, badges: options.badges || [] });
   };
 
   add("Pokémon GO", "Image principale", payload.assets?.image || entry.image);
-  add("Pokémon GO", "Image shiny", payload.assets?.shinyImage || entry.shinyImage, "shiny");
+  add("Pokémon GO", "Image shiny", payload.assets?.shinyImage || entry.shinyImage, "shiny", { badges: ["shiny"] });
   add("Portraits", "Portrait", payload.assets?.portrait, "méga / primo");
   add("Pokémon Home", "Home", payload.assets?.home?.image);
-  add("Pokémon Home", "Home shiny", payload.assets?.home?.shinyImage, "shiny");
+  add("Pokémon Home", "Home shiny", payload.assets?.home?.shinyImage, "shiny", { badges: ["shiny"] });
 
   for (const [index, asset] of (payload.assetForms || []).entries()) {
-    const female = isFemaleAsset(asset);
-    const meta = assetMeta([asset.form, asset.costume, female ? "Forme femelle" : ""]);
-    add("Variantes GO", `Variante ${index + 1}`, asset.image, meta, { female });
-    add("Variantes GO", `Variante shiny ${index + 1}`, asset.shinyImage, assetMeta(["shiny", female ? "Forme femelle" : ""]), { female });
+    const badges = assetBadges(asset);
+    const meta = assetMeta([asset.form, asset.costume, isFemaleAsset(asset) ? "Forme femelle" : ""]);
+    add("Variantes GO", `Variante ${index + 1}`, asset.image, meta, { badges });
+    add("Variantes GO", `Variante shiny ${index + 1}`, asset.shinyImage, assetMeta(["shiny", meta]), { badges: uniqueBadges(["shiny", ...badges]) });
   }
   for (const [index, asset] of (payload.assets?.home?.variants || []).entries()) {
-    const female = isFemaleAsset(asset);
-    const meta = assetMeta([asset.detail, asset.view, asset.form, asset.gender, asset.genderCode, female ? "Forme femelle" : ""]);
-    add("Variantes Home", `Home ${index + 1}`, asset.image || asset.shinyImage, meta, { female });
+    const badges = assetBadges(asset);
+    const meta = assetMeta([asset.detail, asset.view, asset.form, asset.gender, asset.genderCode, isFemaleAsset(asset) ? "Forme femelle" : ""]);
+    add("Variantes Home", `Home ${index + 1}`, asset.image || asset.shinyImage, meta, { badges });
   }
   for (const [index, asset] of (payload.assets?.shuffle?.variants || []).entries()) {
     add("Pokémon Shuffle", `Shuffle ${index + 1}`, asset.image, asset.tags?.join(" · ") || asset.state || "");
@@ -441,14 +441,11 @@ function AssetGallery({ entry, payload }) {
                     onClick={() => setPreview(asset)}
                   >
                     <div className="relative flex aspect-square items-center justify-center bg-[radial-gradient(circle_at_30%_15%,rgba(125,211,252,.2),transparent_38%),rgba(255,255,255,.04)] p-4">
-                      {asset.female ? <FemaleAssetBadge className="absolute left-3 top-3" /> : null}
+                      <AssetBadges badges={asset.badges} className="absolute left-2 top-2 sm:left-3 sm:top-3" />
                       <img className="max-h-full object-contain drop-shadow-2xl" src={asset.url} alt={asset.label} />
                     </div>
                     <div className="border-t border-white/10 p-3">
-                      <div className="flex min-w-0 items-start justify-between gap-2">
-                        <strong className="block truncate text-sm font-black text-white">{asset.label}</strong>
-                        {asset.female ? <FemaleAssetBadge compact /> : null}
-                      </div>
+                      <strong className="block truncate text-sm font-black text-white">{asset.label}</strong>
                       <span className="mt-1 block truncate text-xs font-bold text-slate-400">{asset.meta || "standard"}</span>
                     </div>
                   </button>
@@ -460,10 +457,7 @@ function AssetGallery({ entry, payload }) {
             <div className="fixed inset-0 z-[1120] grid place-items-center bg-slate-950/86 p-4 backdrop-blur-md" role="presentation" onClick={() => setPreview(null)}>
               <div className="w-full max-w-5xl overflow-hidden rounded-[2rem] border border-white/10 bg-[#07111f]" onClick={(event) => event.stopPropagation()}>
                 <div className="flex items-center justify-between gap-3 border-b border-white/10 p-4">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <strong className="truncate text-xl font-black text-white">{preview.label}</strong>
-                    {preview.female ? <FemaleAssetBadge /> : null}
-                  </div>
+                  <strong className="truncate text-xl font-black text-white">{preview.label}</strong>
                   <button className="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-2xl" type="button" onClick={() => setPreview(null)}>×</button>
                 </div>
                 <div className="grid max-h-[78dvh] place-items-center overflow-auto p-5">
@@ -484,18 +478,77 @@ function isFemaleAsset(asset = {}) {
   return asset.isFemale === true || asset.gender === "female-difference" || asset.genderCode === "fd";
 }
 
+function isMaleAsset(asset = {}) {
+  return asset.isMale === true || asset.gender === "male-difference" || asset.genderCode === "md";
+}
+
+function uniqueBadges(badges) {
+  return [...new Set(badges.filter(Boolean))];
+}
+
+function assetBadges(asset = {}) {
+  const form = String(asset.form || asset.detail || "").toLowerCase();
+  const costume = String(asset.costume || "").trim();
+  const badges = [];
+  if (isFemaleAsset(asset)) badges.push("female");
+  if (isMaleAsset(asset)) badges.push("male");
+  if (costume || (form && !["normal", "standard"].includes(form) && !variantBadgeForForm(form))) badges.push("event");
+  if (asset.gigantamax || form.includes("gigantamax")) badges.push("gigantamax");
+  const formBadge = variantBadgeForForm(form);
+  if (formBadge) badges.push(formBadge);
+  return uniqueBadges(badges);
+}
+
+function variantBadgeForForm(form) {
+  if (form.includes("mega")) return "mega";
+  if (form.includes("primal")) return "primal";
+  if (form.includes("alola")) return "alola";
+  if (form.includes("galar")) return "galar";
+  if (form.includes("hisui")) return "hisui";
+  if (form.includes("paldea")) return "paldea";
+  if (form.includes("dynamax")) return "dynamax";
+  if (form.includes("gigantamax")) return "gigantamax";
+  return "";
+}
+
 function assetMeta(parts) {
   return parts.filter(Boolean).join(" · ");
 }
 
-function FemaleAssetBadge({ compact = false, className = "" }) {
+const assetBadgeConfig = {
+  female: ["♀", "Femelle", "border-fuchsia-300/45 bg-fuchsia-500/18 text-fuchsia-100"],
+  male: ["♂", "Mâle", "border-sky-300/45 bg-sky-500/18 text-sky-100"],
+  event: ["✦", "Event", "border-amber-300/45 bg-amber-500/18 text-amber-100"],
+  mega: ["Μ", "Méga", "border-violet-300/45 bg-violet-500/18 text-violet-100"],
+  primal: ["Ω", "Primo", "border-orange-300/45 bg-orange-500/18 text-orange-100"],
+  alola: ["A", "Alola", "border-yellow-200/45 bg-yellow-400/18 text-yellow-100"],
+  galar: ["G", "Galar", "border-indigo-300/45 bg-indigo-500/18 text-indigo-100"],
+  hisui: ["H", "Hisui", "border-stone-200/45 bg-stone-400/18 text-stone-100"],
+  paldea: ["P", "Paldea", "border-rose-300/45 bg-rose-500/18 text-rose-100"],
+  dynamax: ["D", "Dyna", "border-red-300/45 bg-red-500/18 text-red-100"],
+  gigantamax: ["G", "Giga", "border-red-300/45 bg-red-500/18 text-red-100"],
+  shiny: ["✦", "Shiny", "border-cyan-200/45 bg-cyan-400/18 text-cyan-100"],
+};
+
+function AssetBadges({ badges = [], className = "" }) {
+  if (!badges.length) return null;
   return (
-    <span
-      className={`inline-flex shrink-0 items-center gap-1 rounded-full border border-fuchsia-300/45 bg-fuchsia-500/18 px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-fuchsia-100 shadow-[0_0_24px_rgba(217,70,239,.22)] ${className}`}
-    >
-      <span aria-hidden="true">♀</span>
-      <span>{compact ? "Femelle" : "Forme femelle"}</span>
-    </span>
+    <div className={`flex max-w-[calc(100%-1rem)] flex-wrap gap-1.5 ${className}`}>
+      {badges.map((badge) => {
+        const config = assetBadgeConfig[badge];
+        if (!config) return null;
+        const [symbol, label, tone] = config;
+        return (
+          <span
+            className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-[9px] font-black uppercase leading-none tracking-[0.08em] shadow-[0_0_18px_rgba(255,255,255,.1)] sm:text-[10px] ${tone}`}
+            key={badge}
+          >
+            <span aria-hidden="true">{symbol}</span>
+            <span>{label}</span>
+          </span>
+        );
+      })}
+    </div>
   );
 }
 

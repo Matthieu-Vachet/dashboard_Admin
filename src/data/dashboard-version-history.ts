@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.4.5",
+    date: "2026-06-28",
+    title: "Badges assets, tri Dex et pagination",
+    changes: [
+      "Remplace le double badge femelle par un seul bandeau compact au-dessus de l'image dans la galerie Assets.",
+      "Ajoute des badges visuels pour femelle, mâle, événement, shiny, Méga, Primo, Alola, Galar, Hisui, Paldea, Dynamax et Gigamax.",
+      "Trie les fiches et collections par numéro Pokédex puis par rang de variante pour garder les formes avec leur Pokémon de base.",
+      "Ajoute Afficher plus aux grilles Fiches, Bibliothèque assets et Collections pour ne plus couper les listes définitivement.",
+    ],
+  },
+  {
     version: "V1.4.4",
     date: "2026-06-28",
     title: "Badges femelles dans les assets",
