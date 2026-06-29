@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.6.0",
+    date: "2026-06-29",
+    title: "Oeufs et Max Battles Pokémon GO",
+    changes: [
+      "Ajoute les sections Œufs et Max Battles dans Pokémon Admin.",
+      "Affiche eggs/currentEggs.json avec catégories, rareté, CP, shiny, types, assets et noms locaux.",
+      "Affiche max-battles/currentsMaxBattle.json par tiers dynamiques avec formes Dynamax/Gigantamax locales.",
+      "Ajoute les actions Actualiser, Télécharger JSON, Envoyer MongoDB et Régénérer via les routes API protégées.",
+    ],
+  },
+  {
     version: "V1.5.0",
     date: "2026-06-29",
     title: "Raids Pokémon GO",

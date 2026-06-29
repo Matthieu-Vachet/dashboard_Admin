@@ -13,6 +13,7 @@ import {
   ClipboardCheck,
   Cloud,
   Copy,
+  Egg,
   FileDiff,
   FileJson,
   History,
@@ -26,6 +27,7 @@ import {
   Sparkles,
   Swords,
   Wand2,
+  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 import { DetailModal } from "../checklist/detail-modal";
@@ -51,7 +53,9 @@ import {
 import { CandyPanel } from "./candy-panel";
 import { CatalogPanel } from "./catalog-panel";
 import { CollectionsPanel } from "./collections-panel";
+import { EggsPanel } from "./eggs-panel";
 import { LoginCard } from "./login-card";
+import { MaxBattlesPanel } from "./max-battles-panel";
 import { RaidsPanel } from "./raids-panel";
 import { DataDeployHistoryModal, SourceHistoryModal, SourceRows } from "./source-watch-panel";
 import { UpdateLogPanel } from "./update-log-panel";
@@ -71,6 +75,8 @@ const navItems = [
   ["candies", "Candies", CircleDot],
   ["collections", "Collections", ClipboardCheck],
   ["raids", "Raids", Swords],
+  ["eggs", "Œufs", Egg],
+  ["max-battles", "Max Battles", Zap],
   ["assets", "Assets", Boxes],
   ["checks", "Contrôles", AlertTriangle],
   ["sources", "Veille", Radar],
@@ -959,6 +965,12 @@ export function AdminApp() {
   const [raids, setRaids] = useState(null);
   const [raidsLoading, setRaidsLoading] = useState(false);
   const [raidsBusyAction, setRaidsBusyAction] = useState("");
+  const [eggs, setEggs] = useState(null);
+  const [eggsLoading, setEggsLoading] = useState(false);
+  const [eggsBusyAction, setEggsBusyAction] = useState("");
+  const [maxBattles, setMaxBattles] = useState(null);
+  const [maxBattlesLoading, setMaxBattlesLoading] = useState(false);
+  const [maxBattlesBusyAction, setMaxBattlesBusyAction] = useState("");
   const [history, setHistory] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [selectedEntry, setSelectedEntry] = useState(null);
@@ -1104,6 +1116,18 @@ export function AdminApp() {
       loadRaids();
     }
   }, [active, session.authenticated, raids, raidsLoading]);
+
+  useEffect(() => {
+    if (session.authenticated && active === "eggs" && !eggs && !eggsLoading) {
+      loadEggs();
+    }
+  }, [active, session.authenticated, eggs, eggsLoading]);
+
+  useEffect(() => {
+    if (session.authenticated && active === "max-battles" && !maxBattles && !maxBattlesLoading) {
+      loadMaxBattles();
+    }
+  }, [active, session.authenticated, maxBattles, maxBattlesLoading]);
 
   const entries = useMemo(() => bootstrap.payload?.entries || [], [bootstrap.payload]);
   const customRuleEntries = useMemo(() => bootstrap.payload?.customRuleEntries || [], [bootstrap.payload]);
@@ -1305,6 +1329,98 @@ export function AdminApp() {
       toast.error(error.message || "Action raids impossible.");
     } finally {
       setRaidsBusyAction("");
+    }
+  }
+
+  async function loadEggs({ notify = false } = {}) {
+    setEggsLoading(true);
+    try {
+      const response = await fetch(`${adminApiPath}?action=eggs`, { cache: "no-store" });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Impossible de charger les oeufs.");
+      setEggs(payload.data || null);
+      if (notify) toast.success("Oeufs actualisés.");
+    } catch (error) {
+      toast.error(error.message || "Erreur de chargement des oeufs.");
+    } finally {
+      setEggsLoading(false);
+    }
+  }
+
+  function downloadEggsJson() {
+    const data = eggs?.data || eggs;
+    if (!data) return;
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "currentEggs.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function runEggsAdminAction(action, label) {
+    setEggsBusyAction(action);
+    try {
+      const response = await fetch(adminApiPath, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: action === "import" ? "import-eggs" : "regenerate-eggs" }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Action oeufs impossible.");
+      toast.success(label);
+      await loadEggs();
+    } catch (error) {
+      toast.error(error.message || "Action oeufs impossible.");
+    } finally {
+      setEggsBusyAction("");
+    }
+  }
+
+  async function loadMaxBattles({ notify = false } = {}) {
+    setMaxBattlesLoading(true);
+    try {
+      const response = await fetch(`${adminApiPath}?action=max-battles`, { cache: "no-store" });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Impossible de charger les Max Battles.");
+      setMaxBattles(payload.data || null);
+      if (notify) toast.success("Max Battles actualisées.");
+    } catch (error) {
+      toast.error(error.message || "Erreur de chargement des Max Battles.");
+    } finally {
+      setMaxBattlesLoading(false);
+    }
+  }
+
+  function downloadMaxBattlesJson() {
+    const data = maxBattles?.data || maxBattles;
+    if (!data) return;
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "currentsMaxBattle.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function runMaxBattlesAdminAction(action, label) {
+    setMaxBattlesBusyAction(action);
+    try {
+      const response = await fetch(adminApiPath, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: action === "import" ? "import-max-battles" : "regenerate-max-battles" }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Action Max Battles impossible.");
+      toast.success(label);
+      await loadMaxBattles();
+    } catch (error) {
+      toast.error(error.message || "Action Max Battles impossible.");
+    } finally {
+      setMaxBattlesBusyAction("");
     }
   }
 
@@ -1758,6 +1874,30 @@ export function AdminApp() {
                 onDownload={downloadRaidsJson}
                 onImportMongo={() => runRaidsAdminAction("import", "Raids envoyés vers MongoDB.")}
                 onRegenerate={() => runRaidsAdminAction("regenerate", "Raids régénérés côté API.")}
+              />
+            ) : null}
+
+            {active === "eggs" ? (
+              <EggsPanel
+                eggs={eggs}
+                loading={eggsLoading}
+                busyAction={eggsBusyAction}
+                onRefresh={() => loadEggs({ notify: true })}
+                onDownload={downloadEggsJson}
+                onImportMongo={() => runEggsAdminAction("import", "Oeufs envoyés vers MongoDB.")}
+                onRegenerate={() => runEggsAdminAction("regenerate", "Oeufs régénérés côté API.")}
+              />
+            ) : null}
+
+            {active === "max-battles" ? (
+              <MaxBattlesPanel
+                maxBattles={maxBattles}
+                loading={maxBattlesLoading}
+                busyAction={maxBattlesBusyAction}
+                onRefresh={() => loadMaxBattles({ notify: true })}
+                onDownload={downloadMaxBattlesJson}
+                onImportMongo={() => runMaxBattlesAdminAction("import", "Max Battles envoyées vers MongoDB.")}
+                onRegenerate={() => runMaxBattlesAdminAction("regenerate", "Max Battles régénérées côté API.")}
               />
             ) : null}
 

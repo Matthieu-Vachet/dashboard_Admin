@@ -63,10 +63,36 @@ function readCurrentRaids() {
   return { data, meta: { source: "data/raids/currentRaids.json", buckets } };
 }
 
+function readCurrentEggs() {
+  const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
+  const file = dataPath("eggs", "currentEggs.json");
+  const data = JSON.parse(fs.readFileSync(file, "utf8"));
+  const buckets = Object.fromEntries(
+    Object.entries(data.currentEggsList || {}).map(([key, pokemon]) => [
+      key,
+      Array.isArray(pokemon) ? pokemon.length : 0,
+    ]),
+  );
+  return { data, meta: { source: "data/eggs/currentEggs.json", buckets } };
+}
+
+function readCurrentMaxBattles() {
+  const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
+  const file = dataPath("max-battles", "currentsMaxBattle.json");
+  const data = JSON.parse(fs.readFileSync(file, "utf8"));
+  const buckets = Object.fromEntries(
+    Object.entries(data.currentMaxBattle || {}).map(([key, pokemon]) => [
+      key,
+      Array.isArray(pokemon) ? pokemon.length : 0,
+    ]),
+  );
+  return { data, meta: { source: "data/max-battles/currentsMaxBattle.json", buckets } };
+}
+
 async function callPokemonApiAdmin(path: string) {
   const secret = process.env.POKEMON_API_ADMIN_SECRET || process.env.API_ADMIN_SECRET;
   if (!secret) {
-    throw requestError("POKEMON_API_ADMIN_SECRET doit être défini côté serveur pour gérer les raids.", 500);
+    throw requestError("POKEMON_API_ADMIN_SECRET doit être défini côté serveur pour gérer les données Pokémon privées.", 500);
   }
 
   const target = new URL(path, pokemonApiBaseUrl);
@@ -360,6 +386,14 @@ export async function GET(request: NextRequest) {
       return json({ data: readCurrentRaids() });
     }
 
+    if (action === "eggs") {
+      return json({ data: readCurrentEggs() });
+    }
+
+    if (action === "max-battles") {
+      return json({ data: readCurrentMaxBattles() });
+    }
+
     if (action === "history") {
       return json({ data: await workshop.repoHistory() });
     }
@@ -466,6 +500,22 @@ export async function POST(request: NextRequest) {
 
     if (action === "regenerate-raids") {
       return json({ data: await callPokemonApiAdmin("/api/v1/admin/raids/regenerate") });
+    }
+
+    if (action === "import-eggs") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/eggs/import") });
+    }
+
+    if (action === "regenerate-eggs") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/eggs/regenerate") });
+    }
+
+    if (action === "import-max-battles") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/max-battles/import") });
+    }
+
+    if (action === "regenerate-max-battles") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/max-battles/regenerate") });
     }
 
     if (action === "open-file") {

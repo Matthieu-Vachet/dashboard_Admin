@@ -14,6 +14,8 @@ const allowedPaths = [
   "/api/v1/types",
   "/api/v1/weather",
   "/api/v1/raids",
+  "/api/v1/eggs",
+  "/api/v1/max-battles",
   "/api/v1/regions",
   "/api/v1/meta/filters",
 ];

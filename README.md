@@ -61,6 +61,21 @@ Les boutons `Envoyer MongoDB` et `Regenerer raids` appellent les routes privees 
 `POKEMON_API_ADMIN_SECRET` soit configure avec la meme valeur que `API_ADMIN_SECRET`
 cote API.
 
+## Oeufs Et Max Battles Pokemon GO
+
+Les sections `Pokemon Admin > Oeufs` et `Pokemon Admin > Max Battles` lisent les
+fichiers `PokemonGo-Data/eggs/currentEggs.json` et
+`PokemonGo-Data/max-battles/currentsMaxBattle.json` depuis le snapshot data du
+dashboard.
+
+`Oeufs` affiche les categories LeekDuck, la rarete visuelle, le CP, le shiny,
+les types et les assets locaux. `Max Battles` affiche les tiers Snacknap
+dynamiques avec les formes Dynamax/Gigantamax locales quand elles existent.
+
+Les boutons `Envoyer MongoDB` et `Regenerer` appellent les routes privees
+`/api/v1/admin/eggs/*` et `/api/v1/admin/max-battles/*` via le serveur
+dashboard. Ils utilisent aussi `POKEMON_API_ADMIN_SECRET`.
+
 ## Checks
 
 ```bash
