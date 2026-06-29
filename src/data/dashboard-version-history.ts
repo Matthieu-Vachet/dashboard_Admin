@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.5.0",
+    date: "2026-06-29",
+    title: "Raids Pokémon GO",
+    changes: [
+      "Ajoute une section Raids dans Pokémon Admin avec sections Ultra Beast, Méga, 5 étoiles, 3 étoiles, 1 étoile et Shadow.",
+      "Affiche les boss depuis raids/currentRaids.json avec images, noms, niveaux, types, shiny, CP, météo boostée et faiblesses.",
+      "Ajoute les actions Actualiser, Télécharger JSON, Envoyer MongoDB et Régénérer raids via des actions serveur protégées.",
+      "Utilise les visuels raids existants du dossier public/ui/raids.",
+    ],
+  },
+  {
     version: "V1.4.5",
     date: "2026-06-28",
     title: "Badges assets, tri Dex et pagination",

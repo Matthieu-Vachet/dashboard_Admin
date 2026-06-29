@@ -24,6 +24,7 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  Swords,
   Wand2,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -51,6 +52,7 @@ import { CandyPanel } from "./candy-panel";
 import { CatalogPanel } from "./catalog-panel";
 import { CollectionsPanel } from "./collections-panel";
 import { LoginCard } from "./login-card";
+import { RaidsPanel } from "./raids-panel";
 import { DataDeployHistoryModal, SourceHistoryModal, SourceRows } from "./source-watch-panel";
 import { UpdateLogPanel } from "./update-log-panel";
 
@@ -68,6 +70,7 @@ const navItems = [
   ["pokedex", "Fiches", BookOpen],
   ["candies", "Candies", CircleDot],
   ["collections", "Collections", ClipboardCheck],
+  ["raids", "Raids", Swords],
   ["assets", "Assets", Boxes],
   ["checks", "Contrôles", AlertTriangle],
   ["sources", "Veille", Radar],
@@ -953,6 +956,9 @@ export function AdminApp() {
   const [deployHistory, setDeployHistory] = useState([]);
   const [deployHistoryOpen, setDeployHistoryOpen] = useState(false);
   const [redeployingDashboard, setRedeployingDashboard] = useState(false);
+  const [raids, setRaids] = useState(null);
+  const [raidsLoading, setRaidsLoading] = useState(false);
+  const [raidsBusyAction, setRaidsBusyAction] = useState("");
   const [history, setHistory] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [selectedEntry, setSelectedEntry] = useState(null);
@@ -1092,6 +1098,12 @@ export function AdminApp() {
   useEffect(() => {
     setAssetLimit(initialAssetLimit);
   }, [search, assetTab]);
+
+  useEffect(() => {
+    if (session.authenticated && active === "raids" && !raids && !raidsLoading) {
+      loadRaids();
+    }
+  }, [active, session.authenticated, raids, raidsLoading]);
 
   const entries = useMemo(() => bootstrap.payload?.entries || [], [bootstrap.payload]);
   const customRuleEntries = useMemo(() => bootstrap.payload?.customRuleEntries || [], [bootstrap.payload]);
@@ -1248,6 +1260,52 @@ export function AdminApp() {
     setActive("overview");
     toast.success("Session admin ouverte.");
     await loadAdminData();
+  }
+
+  async function loadRaids({ notify = false } = {}) {
+    setRaidsLoading(true);
+    try {
+      const response = await fetch(`${adminApiPath}?action=raids`, { cache: "no-store" });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Impossible de charger les raids.");
+      setRaids(payload.data || null);
+      if (notify) toast.success("Raids actualisés.");
+    } catch (error) {
+      toast.error(error.message || "Erreur de chargement des raids.");
+    } finally {
+      setRaidsLoading(false);
+    }
+  }
+
+  function downloadRaidsJson() {
+    const data = raids?.data || raids;
+    if (!data) return;
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "currentRaids.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function runRaidsAdminAction(action, label) {
+    setRaidsBusyAction(action);
+    try {
+      const response = await fetch(adminApiPath, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: action === "import" ? "import-raids" : "regenerate-raids" }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Action raids impossible.");
+      toast.success(label);
+      await loadRaids();
+    } catch (error) {
+      toast.error(error.message || "Action raids impossible.");
+    } finally {
+      setRaidsBusyAction("");
+    }
   }
 
   async function openDetail(entry) {
@@ -1688,6 +1746,18 @@ export function AdminApp() {
                 onSave={saveCollections}
                 onOpen={openDetail}
                 globalSearch={search}
+              />
+            ) : null}
+
+            {active === "raids" ? (
+              <RaidsPanel
+                raids={raids}
+                loading={raidsLoading}
+                busyAction={raidsBusyAction}
+                onRefresh={() => loadRaids({ notify: true })}
+                onDownload={downloadRaidsJson}
+                onImportMongo={() => runRaidsAdminAction("import", "Raids envoyés vers MongoDB.")}
+                onRegenerate={() => runRaidsAdminAction("regenerate", "Raids régénérés côté API.")}
               />
             ) : null}
 

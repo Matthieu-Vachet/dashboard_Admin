@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 import { NextRequest, NextResponse } from "next/server";
+import fs from "node:fs";
 import { getSession } from "@/lib/auth";
 import {
   dashboardStoreConfigured,
@@ -20,6 +21,7 @@ type RuleRecord = Record<string, unknown> & {
 const customRulesStoreKey = "matweb.pokemon.customRules";
 const sourceHistoryStoreKey = "matweb.pokemon.sourceHistory";
 const pokemonModulePattern = `${process.cwd()}/src/server/pokemon-go/`;
+const pokemonApiBaseUrl = process.env.POKEMON_API_PUBLIC_URL || "https://pokemon-go-api.vercel.app";
 
 function json(data: unknown, init?: ResponseInit) {
   const response = NextResponse.json(data, init);
@@ -46,6 +48,49 @@ function loadAdminModules() {
   const { summarizeChecklist } = require("@/server/pokemon-go/src/lib/site-dashboard");
 
   return { buildChecklist, buildCustomRuleCatalogChecklist, detailForKey, sourceWatch, summarizeChecklist, workshop };
+}
+
+function readCurrentRaids() {
+  const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
+  const file = dataPath("raids", "currentRaids.json");
+  const data = JSON.parse(fs.readFileSync(file, "utf8"));
+  const buckets = Object.fromEntries(
+    Object.entries(data.currentList || {}).map(([key, bosses]) => [
+      key,
+      Array.isArray(bosses) ? bosses.length : 0,
+    ]),
+  );
+  return { data, meta: { source: "data/raids/currentRaids.json", buckets } };
+}
+
+async function callPokemonApiAdmin(path: string) {
+  const secret = process.env.POKEMON_API_ADMIN_SECRET || process.env.API_ADMIN_SECRET;
+  if (!secret) {
+    throw requestError("POKEMON_API_ADMIN_SECRET doit être défini côté serveur pour gérer les raids.", 500);
+  }
+
+  const target = new URL(path, pokemonApiBaseUrl);
+  const response = await fetch(target, {
+    method: "POST",
+    cache: "no-store",
+    signal: AbortSignal.timeout(30_000),
+    headers: {
+      accept: "application/json",
+      "x-api-admin-secret": secret,
+    },
+  });
+  const payload = (await response.json().catch(() => ({}))) as {
+    error?: string | { message?: string };
+  };
+  if (!response.ok) {
+    throw requestError(
+      typeof payload?.error === "string"
+        ? payload.error
+        : payload?.error?.message || `PokemonGo-API HTTP ${response.status}`,
+      response.status,
+    );
+  }
+  return payload;
 }
 
 function clearPokemonModuleCache() {
@@ -311,6 +356,10 @@ export async function GET(request: NextRequest) {
       return json({ data: await readSourceHistory(session!.email) });
     }
 
+    if (action === "raids") {
+      return json({ data: readCurrentRaids() });
+    }
+
     if (action === "history") {
       return json({ data: await workshop.repoHistory() });
     }
@@ -409,6 +458,14 @@ export async function POST(request: NextRequest) {
 
     if (action === "save-image-review") {
       return json({ data: workshop.saveImageReview(body) });
+    }
+
+    if (action === "import-raids") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/raids/import") });
+    }
+
+    if (action === "regenerate-raids") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/raids/regenerate") });
     }
 
     if (action === "open-file") {

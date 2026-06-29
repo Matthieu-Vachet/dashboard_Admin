@@ -50,6 +50,17 @@ POKEMON_API_ADMIN_SECRET=meme-valeur-que-API_ADMIN_SECRET-cote-pokemon-go-api
 Cette variable ne doit jamais etre prefixee par `NEXT_PUBLIC_`. Le dashboard l'utilise
 uniquement dans ses routes serveur pour envoyer le header `x-api-admin-secret`.
 
+## Raids Pokemon GO
+
+La section `Pokemon Admin > Raids` lit `PokemonGo-Data/raids/currentRaids.json`
+depuis le snapshot data du dashboard. Elle affiche les boss par bucket LeekDuck :
+Ultra Beast, Mega, 5 etoiles, 3 etoiles, 1 etoile et Shadow.
+
+Les boutons `Envoyer MongoDB` et `Regenerer raids` appellent les routes privees de
+`PokemonGo-API` via le serveur dashboard. Ils exigent donc que
+`POKEMON_API_ADMIN_SECRET` soit configure avec la meme valeur que `API_ADMIN_SECRET`
+cote API.
+
 ## Checks
 
 ```bash

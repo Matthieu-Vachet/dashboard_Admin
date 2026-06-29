@@ -13,6 +13,7 @@ const allowedPaths = [
   "/api/v1/moves",
   "/api/v1/types",
   "/api/v1/weather",
+  "/api/v1/raids",
   "/api/v1/regions",
   "/api/v1/meta/filters",
 ];
