@@ -1,34 +1,43 @@
 "use client";
 
-import { CloudUpload, Download, RefreshCcw, RotateCcw, Shield, Sparkles } from "lucide-react";
+import { CloudUpload, Download, RefreshCcw, RotateCcw } from "lucide-react";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
 import { uiAssets } from "../site/ui-assets";
+
+const rocketTrainerAssets = {
+  arlo: "/ui/rocket/leader-arlo.webp",
+  cliff: "/ui/rocket/leader-cliff.webp",
+  giovanni: "/ui/rocket/boss-giovanni.webp",
+  sierra: "/ui/rocket/leader-sierra.webp",
+  maleGrunt: "/ui/rocket/male-grunt.webp",
+  femaleGrunt: "/ui/rocket/female-grunt.webp",
+};
+
+const typeIconMap = {
+  Normal: "/ui/Types/ico_0_normal.png",
+  Fighting: "/ui/Types/ico_1_fighting.png",
+  Flying: "/ui/Types/ico_2_flying.png",
+  Poison: "/ui/Types/ico_3_poison.png",
+  Ground: "/ui/Types/ico_4_ground.png",
+  Rock: "/ui/Types/ico_5_rock.png",
+  Bug: "/ui/Types/ico_6_bug.png",
+  Ghost: "/ui/Types/ico_7_ghost.png",
+  Steel: "/ui/Types/ico_8_steel.png",
+  Fire: "/ui/Types/ico_9_fire.png",
+  Water: "/ui/Types/ico_10_water.png",
+  Grass: "/ui/Types/ico_11_grass.png",
+  Electric: "/ui/Types/ico_12_electric.png",
+  Psychic: "/ui/Types/ico_13_psychic.png",
+  Ice: "/ui/Types/ico_14_ice.png",
+  Dragon: "/ui/Types/ico_15_dragon.png",
+  Dark: "/ui/Types/ico_16_dark.png",
+  Fairy: "/ui/Types/ico_17_fairy.png",
+};
 
 const fallbackAccents = {
   giovanni: "#ef4444",
   leader: "#8b5cf6",
   grunt: "#06b6d4",
-};
-
-const typeTone = {
-  Normal: "bg-slate-400/22 text-slate-50 border-slate-200/25",
-  Fire: "bg-orange-400/22 text-orange-50 border-orange-200/25",
-  Water: "bg-sky-400/22 text-sky-50 border-sky-200/25",
-  Grass: "bg-emerald-400/22 text-emerald-50 border-emerald-200/25",
-  Electric: "bg-yellow-300/22 text-yellow-50 border-yellow-100/25",
-  Ice: "bg-cyan-200/22 text-cyan-50 border-cyan-100/25",
-  Fighting: "bg-red-400/22 text-red-50 border-red-200/25",
-  Poison: "bg-purple-400/22 text-purple-50 border-purple-200/25",
-  Ground: "bg-amber-500/22 text-amber-50 border-amber-200/25",
-  Flying: "bg-indigo-300/22 text-indigo-50 border-indigo-100/25",
-  Psychic: "bg-pink-400/22 text-pink-50 border-pink-200/25",
-  Bug: "bg-lime-400/22 text-lime-50 border-lime-200/25",
-  Rock: "bg-stone-400/22 text-stone-50 border-stone-200/25",
-  Ghost: "bg-violet-500/22 text-violet-50 border-violet-200/25",
-  Dragon: "bg-blue-500/22 text-blue-50 border-blue-200/25",
-  Dark: "bg-zinc-500/22 text-zinc-50 border-zinc-200/25",
-  Steel: "bg-slate-300/22 text-slate-50 border-slate-100/25",
-  Fairy: "bg-fuchsia-300/22 text-fuchsia-50 border-fuchsia-100/25",
 };
 
 function values(data) {
@@ -66,145 +75,214 @@ function totalPokemon(profiles) {
   );
 }
 
-function Pill({ children, tone = "" }) {
-  return (
-    <span className={`inline-flex min-h-7 items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-black ${tone}`}>
-      {children}
-    </span>
-  );
+function trainerImage(profile) {
+  if (profile.assets?.trainerImage) return profile.assets.trainerImage;
+  const trainer = String(profile.trainer || "").toLowerCase();
+  if (trainer.includes("female")) return rocketTrainerAssets.femaleGrunt;
+  if (trainer.includes("arlo")) return rocketTrainerAssets.arlo;
+  if (trainer.includes("cliff")) return rocketTrainerAssets.cliff;
+  if (trainer.includes("sierra")) return rocketTrainerAssets.sierra;
+  if (trainer.includes("giovanni")) return rocketTrainerAssets.giovanni;
+  return rocketTrainerAssets.maleGrunt;
 }
 
-function PokemonChip({ pokemon, compact = false }) {
-  const name = pokemon.names?.French || pokemon.names?.English || pokemon.sourceName || pokemon.id || "Pokemon";
-  return (
-    <article className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.055] p-3">
-      <div className="flex min-w-0 items-center gap-3">
-        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-slate-950/55 p-1.5 ring-1 ring-white/10">
-          <img
-            className="max-h-full object-contain drop-shadow-[0_12px_22px_rgba(0,0,0,.35)]"
-            src={pokemon.assets?.image || pokemon.assets?.shinyImage || uiAssets.icons.pokemon}
-            alt={name}
-            loading="lazy"
-          />
-        </span>
-        <div className="min-w-0 flex-1">
-          <h4 className="truncate text-sm font-black text-white">{name}</h4>
-          <div className="mt-1 flex flex-wrap gap-1">
-            {pokemon.shadow ? (
-              <Pill tone="border-violet-200/25 bg-violet-400/14 text-violet-50">
-                <Shield size={11} /> Shadow
-              </Pill>
-            ) : null}
-            {pokemon.shiny ? (
-              <Pill tone="border-amber-200/25 bg-amber-300/16 text-amber-50">
-                <Sparkles size={11} /> Shiny
-              </Pill>
-            ) : null}
-            {pokemon.unmatched ? <Pill tone="border-red-200/30 bg-red-400/16 text-red-50">Non matché</Pill> : null}
-          </div>
-        </div>
-      </div>
-      {!compact ? (
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {values(pokemon.types).map((type) => (
-            <Pill key={type} tone={typeTone[type] || "border-white/10 bg-white/10 text-white"}>
-              {type}
-            </Pill>
-          ))}
-          {pokemon.form ? <Pill tone="border-cyan-200/25 bg-cyan-400/12 text-cyan-50">{pokemon.form}</Pill> : null}
-        </div>
-      ) : null}
-    </article>
-  );
+function typeIcon(type) {
+  return typeIconMap[type] || typeIconMap[String(type || "").charAt(0).toUpperCase() + String(type || "").slice(1).toLowerCase()];
 }
 
-function SlotColumn({ label, pokemon }) {
+function pokemonName(pokemon) {
+  return pokemon.names?.French || pokemon.names?.English || pokemon.sourceName || pokemon.id || "Pokemon";
+}
+
+function TypeIcons({ types }) {
+  const list = values(types);
+  if (!list.length) return null;
   return (
-    <section className="min-w-0 rounded-2xl border border-white/10 bg-slate-950/28 p-3">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <h4 className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100/70">{label}</h4>
-        <span className="rounded-full bg-white/10 px-2 py-1 text-[10px] font-black text-white">{pokemon.length}</span>
-      </div>
-      <div className="grid gap-2">
-        {pokemon.length ? (
-          pokemon.map((item, index) => (
-            <PokemonChip key={`${label}-${item.form || item.id || item.sourceName}-${index}`} pokemon={item} />
-          ))
+    <div className="flex flex-wrap items-center gap-1.5" aria-label="Types Pokémon">
+      {list.map((type) => {
+        const icon = typeIcon(type);
+        return icon ? (
+          <span key={type} className="grid h-8 w-8 place-items-center rounded-full border border-white/10 bg-slate-950/35 p-1.5" title={type}>
+            <img className="h-full w-full object-contain" src={icon} alt={type} loading="lazy" />
+          </span>
         ) : (
-          <p className="rounded-xl border border-dashed border-white/12 p-3 text-sm font-bold text-slate-400">
-            Aucun Pokémon.
-          </p>
-        )}
+          <span key={type} className="grid h-8 w-8 place-items-center rounded-full border border-white/10 bg-white/10 text-[10px] font-black text-white" title={type}>
+            {String(type).slice(0, 2).toUpperCase()}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
+function StatusIcons({ pokemon }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      {pokemon.shadow ? (
+        <span className="grid h-8 w-8 place-items-center rounded-full border border-violet-200/20 bg-violet-400/16 p-1.5" title="Shadow">
+          <img className="h-full w-full object-contain" src="/ui/icons/shadow.png" alt="Shadow" loading="lazy" />
+        </span>
+      ) : null}
+      {pokemon.shiny ? (
+        <span className="grid h-8 w-8 place-items-center rounded-full border border-amber-200/20 bg-amber-300/16 p-1.5" title="Shiny">
+          <img className="h-full w-full object-contain" src="/ui/icons/ic_shiny_white.webp" alt="Shiny" loading="lazy" />
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+function PokemonCard({ pokemon, onOpenPokemon }) {
+  const name = pokemonName(pokemon);
+  const canOpen = Boolean(onOpenPokemon && !pokemon.unmatched);
+
+  return (
+    <button
+      type="button"
+      onClick={() => canOpen && onOpenPokemon(pokemon)}
+      disabled={!canOpen}
+      className="group min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/34 text-left shadow-[0_16px_45px_rgba(0,0,0,.18)] transition enabled:hover:-translate-y-0.5 enabled:hover:border-cyan-200/35 enabled:hover:bg-cyan-400/8 disabled:cursor-default"
+    >
+      <div className="relative grid min-h-[126px] place-items-center overflow-hidden bg-[radial-gradient(circle_at_50%_20%,rgba(34,211,238,.18),transparent_44%),linear-gradient(135deg,rgba(15,23,42,.92),rgba(8,47,73,.66))] p-3">
+        <div className="absolute left-3 top-3 z-10">
+          <StatusIcons pokemon={pokemon} />
+        </div>
+        {pokemon.unmatched ? (
+          <span className="absolute right-3 top-3 z-10 rounded-full border border-red-200/30 bg-red-400/18 px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-red-50">
+            Non matché
+          </span>
+        ) : null}
+        <img
+          className="relative z-0 max-h-24 object-contain drop-shadow-[0_18px_32px_rgba(0,0,0,.42)] transition duration-300 group-hover:scale-105"
+          src={pokemon.assets?.image || pokemon.assets?.shinyImage || uiAssets.icons.pokemon}
+          alt={name}
+          loading="lazy"
+        />
       </div>
+      <div className="space-y-2 border-t border-white/10 p-3">
+        <div className="min-w-0">
+          <h4 className="truncate text-sm font-black text-white">{name}</h4>
+          {pokemon.names?.English && pokemon.names.English !== name ? (
+            <p className="truncate text-xs font-bold text-slate-400">{pokemon.names.English}</p>
+          ) : null}
+        </div>
+        <div className="flex min-w-0 items-center justify-between gap-2">
+          <TypeIcons types={pokemon.types} />
+          {canOpen ? <span className="text-[10px] font-black uppercase tracking-[0.14em] text-cyan-100/60">Ouvrir</span> : null}
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function SlotBlock({ label, pokemon, onOpenPokemon }) {
+  return (
+    <section className="min-w-0 rounded-2xl border border-white/10 bg-slate-950/24 p-3">
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h4 className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100/72">{label}</h4>
+        <span className="rounded-full border border-white/10 bg-white/[0.07] px-2 py-1 text-[10px] font-black text-white">{pokemon.length}</span>
+      </div>
+      {pokemon.length ? (
+        <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
+          {pokemon.map((item, index) => (
+            <PokemonCard
+              key={`${label}-${item.form || item.id || item.sourceName}-${index}`}
+              pokemon={item}
+              onOpenPokemon={onOpenPokemon}
+            />
+          ))}
+        </div>
+      ) : (
+        <p className="rounded-xl border border-dashed border-white/12 p-3 text-sm font-bold text-slate-400">
+          Aucun Pokémon.
+        </p>
+      )}
     </section>
   );
 }
 
-function TrainerCard({ profile }) {
+function TrainerCard({ profile, group, onOpenPokemon }) {
   const accent = profile.color?.primary || fallbackAccents[profile.trainerType] || fallbackAccents.grunt;
   const name = profile.trainer || "Rocket";
+  const isGrunt = group === "grunt";
 
   return (
     <article
-      className="overflow-hidden rounded-3xl border bg-slate-950/36 shadow-[0_20px_80px_rgba(0,0,0,.24)]"
+      className="min-w-0 overflow-hidden rounded-3xl border bg-slate-950/34 shadow-[0_20px_80px_rgba(0,0,0,.24)]"
       style={{
-        borderColor: alpha(accent, 0.45),
-        boxShadow: `0 20px 90px ${alpha(accent, 0.16)}`,
+        borderColor: alpha(accent, 0.42),
+        boxShadow: `0 20px 90px ${alpha(accent, 0.14)}`,
       }}
     >
       <div
         className="relative overflow-hidden p-4 sm:p-5"
         style={{
-          background: `linear-gradient(135deg, ${alpha(accent, 0.34)}, rgba(15,23,42,.75))`,
+          background: `linear-gradient(135deg, ${alpha(accent, isGrunt ? 0.28 : 0.36)}, rgba(15,23,42,.78))`,
         }}
       >
-        <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.12)_1px,transparent_1px)] [background-size:24px_24px]" />
-        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.12)_1px,transparent_1px)] [background-size:24px_24px]" />
+        <div className="relative flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-center gap-4">
-            <span className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-3xl border border-white/18 bg-slate-950/38 p-1">
-              {profile.assets?.trainerImage ? (
-                <img className="h-full w-full object-contain" src={profile.assets.trainerImage} alt={name} loading="lazy" />
-              ) : (
-                <span className="text-3xl font-black text-white">{name.slice(0, 1)}</span>
-              )}
+            <span className={`${isGrunt ? "h-24 w-20" : "h-24 w-24"} grid shrink-0 place-items-end overflow-hidden rounded-3xl border border-white/18 bg-slate-950/35 p-1`}>
+              <img className="max-h-full object-contain drop-shadow-[0_16px_28px_rgba(0,0,0,.4)]" src={trainerImage(profile)} alt={name} loading="lazy" />
             </span>
             <div className="min-w-0">
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-white/62">
                 {profile.trainerType || "rocket"}
               </p>
-              <h3 className="truncate text-2xl font-black text-white">{name}</h3>
-              {profile.quote ? <p className="mt-1 line-clamp-2 text-sm font-bold text-white/72">{profile.quote}</p> : null}
+              <h3 className="truncate text-xl font-black text-white sm:text-2xl">{name}</h3>
+              {profile.quote ? <p className="mt-1 line-clamp-3 text-sm font-bold text-white/72">{profile.quote}</p> : null}
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {profile.rocketType ? <Pill tone="border-cyan-200/25 bg-cyan-400/14 text-cyan-50">{profile.rocketType}</Pill> : null}
-            <Pill tone="border-red-200/25 bg-red-400/16 text-red-50">Team GO Rocket</Pill>
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
+            {profile.rocketType ? <TypeIcons types={[profile.rocketType]} /> : null}
+            <span className="rounded-full border border-red-200/25 bg-red-400/16 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-red-50">
+              Team Rocket
+            </span>
           </div>
         </div>
       </div>
       <div className="space-y-4 p-4 sm:p-5">
-        <div className="grid gap-3 xl:grid-cols-3">
-          <SlotColumn label="Slot 1" pokemon={values(profile.slots?.slot1)} />
-          <SlotColumn label="Slot 2" pokemon={values(profile.slots?.slot2)} />
-          <SlotColumn label="Slot 3" pokemon={values(profile.slots?.slot3)} />
+        <div className="grid gap-4">
+          <SlotBlock label="Slot 1" pokemon={values(profile.slots?.slot1)} onOpenPokemon={onOpenPokemon} />
+          <SlotBlock label="Slot 2" pokemon={values(profile.slots?.slot2)} onOpenPokemon={onOpenPokemon} />
+          <SlotBlock label="Slot 3" pokemon={values(profile.slots?.slot3)} onOpenPokemon={onOpenPokemon} />
         </div>
-        <section className="rounded-2xl border border-emerald-200/18 bg-emerald-400/8 p-3">
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <h4 className="text-xs font-black uppercase tracking-[0.18em] text-emerald-100/75">Récompenses possibles</h4>
-            <span className="rounded-full bg-emerald-300/14 px-2 py-1 text-[10px] font-black text-emerald-50">
-              {values(profile.rewards).length}
-            </span>
-          </div>
-          {values(profile.rewards).length ? (
+        {values(profile.rewards).length ? (
+          <section className="rounded-2xl border border-emerald-200/18 bg-emerald-400/8 p-3">
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <h4 className="text-xs font-black uppercase tracking-[0.18em] text-emerald-100/75">Récompenses possibles</h4>
+              <span className="rounded-full bg-emerald-300/14 px-2 py-1 text-[10px] font-black text-emerald-50">
+                {values(profile.rewards).length}
+              </span>
+            </div>
             <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-              {values(profile.rewards).map((item, index) => (
-                <PokemonChip key={`reward-${item.form || item.id || item.sourceName}-${index}`} pokemon={item} compact />
+              {values(profile.rewards).map((pokemon, index) => (
+                <button
+                  key={`reward-${pokemon.form || pokemon.id || pokemon.sourceName}-${index}`}
+                  type="button"
+                  className="flex min-w-0 items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/28 p-2 text-left transition hover:border-emerald-200/35 hover:bg-emerald-400/10"
+                  onClick={() => onOpenPokemon?.(pokemon)}
+                >
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-slate-950/55 p-1 ring-1 ring-white/10">
+                    <img
+                      className="max-h-full object-contain"
+                      src={pokemon.assets?.image || pokemon.assets?.shinyImage || uiAssets.icons.pokemon}
+                      alt={pokemonName(pokemon)}
+                      loading="lazy"
+                    />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-black text-white">{pokemonName(pokemon)}</span>
+                    <span className="mt-1 block">
+                      <TypeIcons types={pokemon.types} />
+                    </span>
+                  </span>
+                </button>
               ))}
             </div>
-          ) : (
-            <p className="text-sm font-bold text-slate-400">Aucune récompense indiquée par la source.</p>
-          )}
-        </section>
+          </section>
+        ) : null}
       </div>
     </article>
   );
@@ -218,6 +296,7 @@ export function RocketPanel({
   onDownload,
   onImportMongo,
   onRegenerate,
+  onOpenPokemon,
 }) {
   const currentRocketList = rocket?.data?.currentRocketList || rocket?.currentRocketList || {};
   const groups = trainerGroups(currentRocketList);
@@ -248,13 +327,13 @@ export function RocketPanel({
         }
       >
         <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <AssetStatCard label="Trainers" value={totalTrainers} icon="/ui/rocket/boss-giovanni.webp" tone="violet" detail="Giovanni, leaders, grunts" />
-          <AssetStatCard label="Giovanni" value={values(currentRocketList.giovanni).length} icon="/ui/rocket/boss-giovanni.webp" tone="amber" detail="Boss actuel" />
-          <AssetStatCard label="Leaders" value={groups.find(([title]) => title === "Leaders")?.[1]?.length || 0} icon="/ui/rocket/leader-sierra.webp" tone="cyan" detail="Arlo, Cliff, Sierra" />
-          <AssetStatCard label="Pokémon slots" value={totalEntries} icon={uiAssets.icons.pokemon} tone="green" detail="Entrées matchées" />
+          <AssetStatCard label="Trainers" value={totalTrainers} icon={rocketTrainerAssets.maleGrunt} tone="violet" detail="Giovanni, leaders, grunts" />
+          <AssetStatCard label="Giovanni" value={values(currentRocketList.giovanni).length} icon={rocketTrainerAssets.giovanni} tone="amber" detail="Boss actuel" />
+          <AssetStatCard label="Leaders" value={groups.find(([title]) => title === "Leaders")?.[1]?.length || 0} icon={rocketTrainerAssets.sierra} tone="cyan" detail="Arlo, Cliff, Sierra" />
+          <AssetStatCard label="Pokémon slots" value={totalEntries} icon="/ui/icons/shadow.png" tone="green" detail="Entrées Rocket" />
         </div>
         <p className="mt-4 rounded-2xl border border-violet-300/15 bg-violet-400/10 p-4 text-sm font-bold leading-6 text-violet-50/86">
-          Les lineups viennent de LeekDuck, mais les Pokémon affichés utilisent les fiches locales du dashboard.
+          Les lineups viennent de LeekDuck, mais les Pokémon affichés utilisent les fiches locales du dashboard. Clique sur une card Pokémon pour ouvrir la fiche.
         </p>
       </Panel>
 
@@ -264,7 +343,7 @@ export function RocketPanel({
         </Panel>
       ) : null}
 
-      {groups.map(([title, items, tone]) => (
+      {groups.map(([title, items, group]) => (
         <section key={title} className="space-y-3">
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -276,9 +355,14 @@ export function RocketPanel({
             </span>
           </div>
           {items.length ? (
-            <div className={`grid gap-4 ${tone === "grunt" ? "xl:grid-cols-2" : ""}`}>
+            <div className={`grid gap-5 ${group === "grunt" ? "2xl:grid-cols-2" : ""}`}>
               {items.map((profile, index) => (
-                <TrainerCard key={`${profile.trainerSlug || profile.trainer}-${index}`} profile={profile} />
+                <TrainerCard
+                  key={`${profile.trainerSlug || profile.trainer}-${index}`}
+                  profile={profile}
+                  group={group}
+                  onOpenPokemon={onOpenPokemon}
+                />
               ))}
             </div>
           ) : (

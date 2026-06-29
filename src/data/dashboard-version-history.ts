@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.7.1",
+    date: "2026-06-29",
+    title: "Refonte UI Rocket",
+    changes: [
+      "Refond les cards Rocket pour rendre Giovanni, les leaders et les grunts lisibles sur desktop et mobile.",
+      "Remplace les badges texte de types et Shadow par les icônes UI locales.",
+      "Utilise les portraits male-grunt, female-grunt, leaders et Giovanni avec fallback propre.",
+      "Ouvre la modale Pokémon existante au clic sur une card Rocket.",
+    ],
+  },
+  {
     version: "V1.7.0",
     date: "2026-06-29",
     title: "Rocket et Research Pokémon GO",

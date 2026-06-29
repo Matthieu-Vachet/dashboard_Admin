@@ -1549,6 +1549,31 @@ export function AdminApp() {
     setDetail(response.ok ? payload.data : { detail: { error: payload.error || "Erreur de chargement." } });
   }
 
+  function findEntryForPokemonReference(pokemon) {
+    const candidates = [pokemon?.formId, pokemon?.form, pokemon?.id, pokemon?.pokemonId]
+      .filter(Boolean)
+      .map((value) => String(value).toUpperCase());
+    if (!candidates.length) return null;
+
+    return (
+      entries.find((entry) => {
+        const entryKeys = [entry.key, entry.formId, entry.id, entry.baseFormId]
+          .filter(Boolean)
+          .map((value) => String(value).toUpperCase());
+        return candidates.some((candidate) => entryKeys.includes(candidate));
+      }) || null
+    );
+  }
+
+  async function openPokemonReference(pokemon) {
+    const entry = findEntryForPokemonReference(pokemon);
+    if (!entry) {
+      toast.error("Fiche Pokémon introuvable pour cette entrée.");
+      return;
+    }
+    await openDetail(entry);
+  }
+
   function shiftDetail(delta) {
     if (!filtered.length) return;
     const baseIndex = selectedIndex >= 0 ? selectedIndex : filtered.findIndex((item) => item.key === selected?.key);
@@ -2024,6 +2049,7 @@ export function AdminApp() {
                 onDownload={downloadRocketJson}
                 onImportMongo={() => runRocketAdminAction("import", "Rocket envoyé vers MongoDB.")}
                 onRegenerate={() => runRocketAdminAction("regenerate", "Rocket régénéré côté API.")}
+                onOpenPokemon={openPokemonReference}
               />
             ) : null}
 
