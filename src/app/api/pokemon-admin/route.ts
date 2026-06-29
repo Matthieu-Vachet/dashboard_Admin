@@ -89,6 +89,42 @@ function readCurrentMaxBattles() {
   return { data, meta: { source: "data/max-battles/currentsMaxBattle.json", buckets } };
 }
 
+function readCurrentRocket() {
+  const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
+  const file = dataPath("rocket", "currentRocket.json");
+  const data = JSON.parse(fs.readFileSync(file, "utf8"));
+  const leaders = Object.values(data.currentRocketList?.leaders || {}).flatMap((items) =>
+    Array.isArray(items) ? items : [],
+  );
+  const giovanni = Array.isArray(data.currentRocketList?.giovanni) ? data.currentRocketList.giovanni : [];
+  const grunts = Array.isArray(data.currentRocketList?.grunts) ? data.currentRocketList.grunts : [];
+  return {
+    data,
+    meta: {
+      source: "data/rocket/currentRocket.json",
+      summary: {
+        giovanni: giovanni.length,
+        leaders: leaders.length,
+        grunts: grunts.length,
+        trainers: giovanni.length + leaders.length + grunts.length,
+      },
+    },
+  };
+}
+
+function readCurrentResearch() {
+  const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
+  const file = dataPath("research", "currentResearch.json");
+  const data = JSON.parse(fs.readFileSync(file, "utf8"));
+  const buckets = Object.fromEntries(
+    Object.entries(data.currentResearchList || {}).map(([key, tasks]) => [
+      key,
+      Array.isArray(tasks) ? tasks.length : 0,
+    ]),
+  );
+  return { data, meta: { source: "data/research/currentResearch.json", buckets } };
+}
+
 async function callPokemonApiAdmin(path: string) {
   const secret = process.env.POKEMON_API_ADMIN_SECRET || process.env.API_ADMIN_SECRET;
   if (!secret) {
@@ -394,6 +430,14 @@ export async function GET(request: NextRequest) {
       return json({ data: readCurrentMaxBattles() });
     }
 
+    if (action === "rocket") {
+      return json({ data: readCurrentRocket() });
+    }
+
+    if (action === "research") {
+      return json({ data: readCurrentResearch() });
+    }
+
     if (action === "history") {
       return json({ data: await workshop.repoHistory() });
     }
@@ -516,6 +560,22 @@ export async function POST(request: NextRequest) {
 
     if (action === "regenerate-max-battles") {
       return json({ data: await callPokemonApiAdmin("/api/v1/admin/max-battles/regenerate") });
+    }
+
+    if (action === "import-rocket") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/rocket/import") });
+    }
+
+    if (action === "regenerate-rocket") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/rocket/regenerate") });
+    }
+
+    if (action === "import-research") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/research/import") });
+    }
+
+    if (action === "regenerate-research") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/research/regenerate") });
     }
 
     if (action === "open-file") {

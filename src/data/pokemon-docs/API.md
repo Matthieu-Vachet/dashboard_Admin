@@ -35,7 +35,7 @@ Depuis la refonte du modele Pokemon, MongoDB separe les donnees en deux collecti
 
 - `pokemons` contient le gameplay, les stats, les attaques, le PvP, les disponibilites, les images principales, les bonbons et `data.assets.assetsRef`.
 - `pokemonAssets` contient les assets lourds : Home, portraits, portraits shiny, location cards, Shuffle et variantes visuelles.
-- `raids`, `eggs` et `maxbattles` contiennent chacun un document courant `current` importe depuis les JSON live du depot data.
+- `raids`, `eggs`, `maxbattles`, `rockets` et `researches` contiennent chacun un document courant `current` importe depuis les JSON live du depot data.
 
 Les routes publiques joignent automatiquement `pokemons.formId` avec `pokemonAssets.formId`
 sur les fiches de detail et les routes d'assets. La liste `/pokemon` reste legere pour
@@ -138,11 +138,19 @@ curl "https://domain.com/api/v1/pokemon"
 curl "https://domain.com/api/v1/raids"
 curl "https://domain.com/api/v1/eggs"
 curl "https://domain.com/api/v1/max-battles"
+curl "https://domain.com/api/v1/rocket"
+curl "https://domain.com/api/v1/research"
 
 curl -X POST "https://domain.com/api/v1/pokemon" \
   -H "x-api-admin-secret: $API_ADMIN_SECRET"
 
 curl -X POST "https://domain.com/api/v1/admin/eggs/import" \
+  -H "x-api-admin-secret: $API_ADMIN_SECRET"
+
+curl -X POST "https://domain.com/api/v1/admin/rocket/import" \
+  -H "x-api-admin-secret: $API_ADMIN_SECRET"
+
+curl -X POST "https://domain.com/api/v1/admin/research/import" \
   -H "x-api-admin-secret: $API_ADMIN_SECRET"
 
 curl "https://domain.com/api/checklist-v3?action=history" \
@@ -162,6 +170,7 @@ PUBLIC :
   recherche, attaques, PvP, comparaison, statistiques publiques, types, regions,
   generations, meteo, bonbons, assets publics, backgrounds, shadow, stickers, Shuffle,
   collection checklist, raids courants, oeufs courants, Max Battles courantes,
+  lineups Team GO Rocket courants, quetes Research courantes,
   evolutions speciales, raid counters et `meta/filters`.
 - `GET /api/checklist-v3?action=bootstrap|detail|catalog|assets|session`.
 
@@ -171,6 +180,8 @@ PRIVATE :
 - `POST /api/v1/admin/raids/import` et `/api/v1/admin/raids/regenerate`.
 - `POST /api/v1/admin/eggs/import` et `/api/v1/admin/eggs/regenerate`.
 - `POST /api/v1/admin/max-battles/import` et `/api/v1/admin/max-battles/regenerate`.
+- `POST /api/v1/admin/rocket/import` et `/api/v1/admin/rocket/regenerate`.
+- `POST /api/v1/admin/research/import` et `/api/v1/admin/research/regenerate`.
 - Toute methode non `GET`, `HEAD` ou `OPTIONS` sur `/api/checklist-v3`.
 - `GET /api/checklist-v3?action=source-watch|history|url-audit`.
 
@@ -200,6 +211,8 @@ INTERNAL :
 | Raids | `/raids`, `/admin/raids/import`, `/admin/raids/regenerate` |
 | Oeufs | `/eggs`, `/admin/eggs/import`, `/admin/eggs/regenerate` |
 | Max Battles | `/max-battles`, `/admin/max-battles/import`, `/admin/max-battles/regenerate` |
+| Rocket | `/rocket`, `/admin/rocket/import`, `/admin/rocket/regenerate` |
+| Research | `/research`, `/admin/research/import`, `/admin/research/regenerate` |
 | Regions | `/regions`, `/regions/:identifier/pokemon` |
 | Generations | `/generations`, `/generations/:identifier/pokemon` |
 | Assets | `/assets/:identifier`, `/pokemon/:identifier/assets` |
@@ -269,6 +282,8 @@ curl "http://localhost:3000/api/v1/candy/1/pokemon"
 curl "http://localhost:3000/api/v1/raids"
 curl "http://localhost:3000/api/v1/eggs"
 curl "http://localhost:3000/api/v1/max-battles"
+curl "http://localhost:3000/api/v1/rocket"
+curl "http://localhost:3000/api/v1/research"
 curl "http://localhost:3000/api/v1/dynamax"
 curl "http://localhost:3000/api/v1/gigantamax"
 ```

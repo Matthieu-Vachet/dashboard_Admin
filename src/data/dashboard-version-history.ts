@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.7.0",
+    date: "2026-06-29",
+    title: "Rocket et Research Pokémon GO",
+    changes: [
+      "Ajoute les sections Rocket et Research dans Pokémon Admin.",
+      "Affiche rocket/currentRocket.json avec Giovanni, leaders, grunts, slots, rewards, badges Shadow/Shiny et portraits Rocket locaux.",
+      "Affiche research/currentResearch.json par catégories avec quêtes, récompenses Pokémon/items, CP, shiny, types et assets UI locaux quand disponibles.",
+      "Ajoute les actions Actualiser, Télécharger JSON, Envoyer MongoDB et Régénérer via les routes API protégées.",
+    ],
+  },
+  {
     version: "V1.6.0",
     date: "2026-06-29",
     title: "Oeufs et Max Battles Pokémon GO",

@@ -57,6 +57,8 @@ import { EggsPanel } from "./eggs-panel";
 import { LoginCard } from "./login-card";
 import { MaxBattlesPanel } from "./max-battles-panel";
 import { RaidsPanel } from "./raids-panel";
+import { ResearchPanel } from "./research-panel";
+import { RocketPanel } from "./rocket-panel";
 import { DataDeployHistoryModal, SourceHistoryModal, SourceRows } from "./source-watch-panel";
 import { UpdateLogPanel } from "./update-log-panel";
 
@@ -77,6 +79,8 @@ const navItems = [
   ["raids", "Raids", Swords],
   ["eggs", "Œufs", Egg],
   ["max-battles", "Max Battles", Zap],
+  ["rocket", "Rocket", ShieldCheck],
+  ["research", "Research", Search],
   ["assets", "Assets", Boxes],
   ["checks", "Contrôles", AlertTriangle],
   ["sources", "Veille", Radar],
@@ -971,6 +975,12 @@ export function AdminApp() {
   const [maxBattles, setMaxBattles] = useState(null);
   const [maxBattlesLoading, setMaxBattlesLoading] = useState(false);
   const [maxBattlesBusyAction, setMaxBattlesBusyAction] = useState("");
+  const [rocket, setRocket] = useState(null);
+  const [rocketLoading, setRocketLoading] = useState(false);
+  const [rocketBusyAction, setRocketBusyAction] = useState("");
+  const [research, setResearch] = useState(null);
+  const [researchLoading, setResearchLoading] = useState(false);
+  const [researchBusyAction, setResearchBusyAction] = useState("");
   const [history, setHistory] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [selectedEntry, setSelectedEntry] = useState(null);
@@ -1128,6 +1138,18 @@ export function AdminApp() {
       loadMaxBattles();
     }
   }, [active, session.authenticated, maxBattles, maxBattlesLoading]);
+
+  useEffect(() => {
+    if (session.authenticated && active === "rocket" && !rocket && !rocketLoading) {
+      loadRocket();
+    }
+  }, [active, session.authenticated, rocket, rocketLoading]);
+
+  useEffect(() => {
+    if (session.authenticated && active === "research" && !research && !researchLoading) {
+      loadResearch();
+    }
+  }, [active, session.authenticated, research, researchLoading]);
 
   const entries = useMemo(() => bootstrap.payload?.entries || [], [bootstrap.payload]);
   const customRuleEntries = useMemo(() => bootstrap.payload?.customRuleEntries || [], [bootstrap.payload]);
@@ -1421,6 +1443,98 @@ export function AdminApp() {
       toast.error(error.message || "Action Max Battles impossible.");
     } finally {
       setMaxBattlesBusyAction("");
+    }
+  }
+
+  async function loadRocket({ notify = false } = {}) {
+    setRocketLoading(true);
+    try {
+      const response = await fetch(`${adminApiPath}?action=rocket`, { cache: "no-store" });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Impossible de charger Rocket.");
+      setRocket(payload.data || null);
+      if (notify) toast.success("Rocket actualisé.");
+    } catch (error) {
+      toast.error(error.message || "Erreur de chargement Rocket.");
+    } finally {
+      setRocketLoading(false);
+    }
+  }
+
+  function downloadRocketJson() {
+    const data = rocket?.data || rocket;
+    if (!data) return;
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "currentRocket.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function runRocketAdminAction(action, label) {
+    setRocketBusyAction(action);
+    try {
+      const response = await fetch(adminApiPath, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: action === "import" ? "import-rocket" : "regenerate-rocket" }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Action Rocket impossible.");
+      toast.success(label);
+      await loadRocket();
+    } catch (error) {
+      toast.error(error.message || "Action Rocket impossible.");
+    } finally {
+      setRocketBusyAction("");
+    }
+  }
+
+  async function loadResearch({ notify = false } = {}) {
+    setResearchLoading(true);
+    try {
+      const response = await fetch(`${adminApiPath}?action=research`, { cache: "no-store" });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Impossible de charger Research.");
+      setResearch(payload.data || null);
+      if (notify) toast.success("Research actualisé.");
+    } catch (error) {
+      toast.error(error.message || "Erreur de chargement Research.");
+    } finally {
+      setResearchLoading(false);
+    }
+  }
+
+  function downloadResearchJson() {
+    const data = research?.data || research;
+    if (!data) return;
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "currentResearch.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function runResearchAdminAction(action, label) {
+    setResearchBusyAction(action);
+    try {
+      const response = await fetch(adminApiPath, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: action === "import" ? "import-research" : "regenerate-research" }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Action Research impossible.");
+      toast.success(label);
+      await loadResearch();
+    } catch (error) {
+      toast.error(error.message || "Action Research impossible.");
+    } finally {
+      setResearchBusyAction("");
     }
   }
 
@@ -1898,6 +2012,30 @@ export function AdminApp() {
                 onDownload={downloadMaxBattlesJson}
                 onImportMongo={() => runMaxBattlesAdminAction("import", "Max Battles envoyées vers MongoDB.")}
                 onRegenerate={() => runMaxBattlesAdminAction("regenerate", "Max Battles régénérées côté API.")}
+              />
+            ) : null}
+
+            {active === "rocket" ? (
+              <RocketPanel
+                rocket={rocket}
+                loading={rocketLoading}
+                busyAction={rocketBusyAction}
+                onRefresh={() => loadRocket({ notify: true })}
+                onDownload={downloadRocketJson}
+                onImportMongo={() => runRocketAdminAction("import", "Rocket envoyé vers MongoDB.")}
+                onRegenerate={() => runRocketAdminAction("regenerate", "Rocket régénéré côté API.")}
+              />
+            ) : null}
+
+            {active === "research" ? (
+              <ResearchPanel
+                research={research}
+                loading={researchLoading}
+                busyAction={researchBusyAction}
+                onRefresh={() => loadResearch({ notify: true })}
+                onDownload={downloadResearchJson}
+                onImportMongo={() => runResearchAdminAction("import", "Research envoyé vers MongoDB.")}
+                onRegenerate={() => runResearchAdminAction("regenerate", "Research régénéré côté API.")}
               />
             ) : null}
 
