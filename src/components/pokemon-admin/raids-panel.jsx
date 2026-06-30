@@ -1,6 +1,7 @@
 "use client";
 
 import { CloudUpload, Download, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
+import { TypeIcons, WeatherIcons } from "./asset-icons";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
 import { uiAssets } from "../site/ui-assets";
 
@@ -15,39 +16,12 @@ const raidSections = [
   ["shadow_lvl1", "Shadow 1 étoile", "/ui/raids/teamrocket_r.png", "green"],
 ];
 
-const typeTone = {
-  Normal: "bg-slate-400/22 text-slate-50 border-slate-200/25",
-  Fire: "bg-orange-400/22 text-orange-50 border-orange-200/25",
-  Water: "bg-sky-400/22 text-sky-50 border-sky-200/25",
-  Grass: "bg-emerald-400/22 text-emerald-50 border-emerald-200/25",
-  Electric: "bg-yellow-300/22 text-yellow-50 border-yellow-100/25",
-  Ice: "bg-cyan-200/22 text-cyan-50 border-cyan-100/25",
-  Fighting: "bg-red-400/22 text-red-50 border-red-200/25",
-  Poison: "bg-purple-400/22 text-purple-50 border-purple-200/25",
-  Ground: "bg-amber-500/22 text-amber-50 border-amber-200/25",
-  Flying: "bg-indigo-300/22 text-indigo-50 border-indigo-100/25",
-  Psychic: "bg-pink-400/22 text-pink-50 border-pink-200/25",
-  Bug: "bg-lime-400/22 text-lime-50 border-lime-200/25",
-  Rock: "bg-stone-400/22 text-stone-50 border-stone-200/25",
-  Ghost: "bg-violet-500/22 text-violet-50 border-violet-200/25",
-  Dragon: "bg-blue-500/22 text-blue-50 border-blue-200/25",
-  Dark: "bg-zinc-500/22 text-zinc-50 border-zinc-200/25",
-  Steel: "bg-slate-300/22 text-slate-50 border-slate-100/25",
-  Fairy: "bg-fuchsia-300/22 text-fuchsia-50 border-fuchsia-100/25",
-};
-
 function values(data) {
   return Array.isArray(data) ? data : [];
 }
 
 function totalRaids(currentList) {
   return Object.values(currentList || {}).reduce((total, bosses) => total + values(bosses).length, 0);
-}
-
-function compactList(items, limit = 4) {
-  const list = values(items).filter(Boolean);
-  if (list.length <= limit) return list.join(", ");
-  return `${list.slice(0, limit).join(", ")} +${list.length - limit}`;
 }
 
 function RaidPill({ children, tone = "" }) {
@@ -58,17 +32,21 @@ function RaidPill({ children, tone = "" }) {
   );
 }
 
-function RaidCard({ boss }) {
+function RaidCard({ boss, onOpenPokemon, typeCatalog = [], weatherCatalog = [] }) {
   const name = boss.names?.French || boss.names?.English || boss.sourceName || boss.id || "Boss inconnu";
   const english = boss.names?.English && boss.names.English !== name ? boss.names.English : null;
   const cp = boss.cpRange?.length === 2 ? `${boss.cpRange[0]} - ${boss.cpRange[1]}` : "n/a";
   const boosted = boss.cpRangeBoost?.length === 2 ? `${boss.cpRangeBoost[0]} - ${boss.cpRangeBoost[1]}` : "n/a";
-  const counters = Object.entries(boss.counter || {})
-    .slice(0, 4)
-    .map(([type, multiplier]) => `${type} x${multiplier}`);
+  const counters = Object.entries(boss.counter || {}).slice(0, 4);
+  const canOpen = Boolean(onOpenPokemon && !boss.unmatched);
 
   return (
-    <article className="group min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/38 shadow-[0_18px_70px_rgba(0,0,0,.2)] transition hover:-translate-y-0.5 hover:border-cyan-200/35">
+    <button
+      className="group min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/38 text-left shadow-[0_18px_70px_rgba(0,0,0,.2)] transition hover:-translate-y-0.5 hover:border-cyan-200/35 disabled:cursor-default"
+      type="button"
+      disabled={!canOpen}
+      onClick={() => canOpen && onOpenPokemon(boss)}
+    >
       <div className="relative grid min-h-[150px] place-items-center overflow-hidden bg-[radial-gradient(circle_at_50%_15%,rgba(34,211,238,.18),transparent_42%),linear-gradient(135deg,rgba(15,23,42,.88),rgba(8,47,73,.68))] p-4">
         <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.1)_1px,transparent_1px)] [background-size:24px_24px]" />
         {boss.shiny ? (
@@ -94,11 +72,7 @@ function RaidCard({ boss }) {
           {english ? <p className="truncate text-xs font-bold text-slate-400">{english}</p> : null}
         </div>
         <div className="flex flex-wrap gap-1.5">
-          {values(boss.types).map((type) => (
-            <RaidPill key={type} tone={typeTone[type] || "border-white/10 bg-white/10 text-white"}>
-              {type}
-            </RaidPill>
-          ))}
+          <TypeIcons types={boss.types} catalog={typeCatalog} />
           {boss.form ? <RaidPill tone="border-cyan-200/25 bg-cyan-400/12 text-cyan-50">{boss.form}</RaidPill> : null}
           {boss.costume ? <RaidPill tone="border-fuchsia-200/25 bg-fuchsia-400/12 text-fuchsia-50">{boss.costume}</RaidPill> : null}
         </div>
@@ -112,19 +86,27 @@ function RaidCard({ boss }) {
             {boosted}
           </span>
         </div>
-        <p className="text-xs font-bold leading-5 text-slate-400">
-          Météo: {compactList(boss.weather) || "n/a"}
-        </p>
-        <p className="text-xs font-bold leading-5 text-slate-400">
-          Faiblesses: {counters.length ? counters.join(", ") : "n/a"}
-        </p>
+        <div className="flex items-center gap-2 text-xs font-bold leading-5 text-slate-400">
+          <span>Météo</span>
+          <WeatherIcons weather={boss.weather} catalog={weatherCatalog} />
+          {!values(boss.weather).length ? <span>n/a</span> : null}
+        </div>
+        <div className="flex flex-wrap items-center gap-2 text-xs font-bold leading-5 text-slate-400">
+          <span>Faiblesses</span>
+          {counters.length ? counters.map(([type, multiplier]) => (
+            <span className="inline-flex items-center gap-1" key={type}>
+              <TypeIcons types={[type]} catalog={typeCatalog} size="sm" />
+              <span>x{multiplier}</span>
+            </span>
+          )) : <span>n/a</span>}
+        </div>
         {boss.note ? <p className="text-xs font-bold leading-5 text-cyan-100/80">{boss.note}</p> : null}
       </div>
-    </article>
+    </button>
   );
 }
 
-function RaidSection({ id, title, image, bosses }) {
+function RaidSection({ id, title, image, bosses, onOpenPokemon, typeCatalog = [], weatherCatalog = [] }) {
   return (
     <section className="rounded-2xl border border-white/10 bg-slate-950/26 p-4">
       <div className="mb-4 flex items-center justify-between gap-3">
@@ -144,7 +126,13 @@ function RaidSection({ id, title, image, bosses }) {
       {bosses.length ? (
         <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
           {bosses.map((boss, index) => (
-            <RaidCard key={`${id}-${boss.form || boss.id || boss.sourceName}-${index}`} boss={boss} />
+            <RaidCard
+              key={`${id}-${boss.form || boss.id || boss.sourceName}-${index}`}
+              boss={boss}
+              onOpenPokemon={onOpenPokemon}
+              typeCatalog={typeCatalog}
+              weatherCatalog={weatherCatalog}
+            />
           ))}
         </div>
       ) : (
@@ -164,6 +152,9 @@ export function RaidsPanel({
   onDownload,
   onImportMongo,
   onRegenerate,
+  onOpenPokemon,
+  typeCatalog = [],
+  weatherCatalog = [],
 }) {
   const currentList = raids?.data?.currentList || raids?.currentList || {};
   const buckets = raids?.meta?.buckets || Object.fromEntries(
@@ -213,7 +204,16 @@ export function RaidsPanel({
 
       <div className="space-y-4">
         {raidSections.map(([id, title, image]) => (
-          <RaidSection key={id} id={id} title={title} image={image} bosses={values(currentList[id])} />
+          <RaidSection
+            key={id}
+            id={id}
+            title={title}
+            image={image}
+            bosses={values(currentList[id])}
+            onOpenPokemon={onOpenPokemon}
+            typeCatalog={typeCatalog}
+            weatherCatalog={weatherCatalog}
+          />
         ))}
       </div>
     </div>

@@ -1,29 +1,9 @@
 "use client";
 
 import { CloudUpload, Download, RefreshCcw, RotateCcw, Sparkles, Zap } from "lucide-react";
+import { TypeIcons } from "./asset-icons";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
 import { uiAssets } from "../site/ui-assets";
-
-const typeTone = {
-  Normal: "bg-slate-400/22 text-slate-50 border-slate-200/25",
-  Fire: "bg-orange-400/22 text-orange-50 border-orange-200/25",
-  Water: "bg-sky-400/22 text-sky-50 border-sky-200/25",
-  Grass: "bg-emerald-400/22 text-emerald-50 border-emerald-200/25",
-  Electric: "bg-yellow-300/22 text-yellow-50 border-yellow-100/25",
-  Ice: "bg-cyan-200/22 text-cyan-50 border-cyan-100/25",
-  Fighting: "bg-red-400/22 text-red-50 border-red-200/25",
-  Poison: "bg-purple-400/22 text-purple-50 border-purple-200/25",
-  Ground: "bg-amber-500/22 text-amber-50 border-amber-200/25",
-  Flying: "bg-indigo-300/22 text-indigo-50 border-indigo-100/25",
-  Psychic: "bg-pink-400/22 text-pink-50 border-pink-200/25",
-  Bug: "bg-lime-400/22 text-lime-50 border-lime-200/25",
-  Rock: "bg-stone-400/22 text-stone-50 border-stone-200/25",
-  Ghost: "bg-violet-500/22 text-violet-50 border-violet-200/25",
-  Dragon: "bg-blue-500/22 text-blue-50 border-blue-200/25",
-  Dark: "bg-zinc-500/22 text-zinc-50 border-zinc-200/25",
-  Steel: "bg-slate-300/22 text-slate-50 border-slate-100/25",
-  Fairy: "bg-fuchsia-300/22 text-fuchsia-50 border-fuchsia-100/25",
-};
 
 function values(data) {
   return Array.isArray(data) ? data : [];
@@ -49,13 +29,19 @@ function MaxPill({ children, tone = "" }) {
   );
 }
 
-function MaxBattleCard({ pokemon }) {
+function MaxBattleCard({ pokemon, onOpenPokemon, typeCatalog = [] }) {
   const name = pokemon.names?.French || pokemon.names?.English || pokemon.sourceName || pokemon.id || "Pokemon inconnu";
   const english = pokemon.names?.English && pokemon.names.English !== name ? pokemon.names.English : null;
   const cp = pokemon.cpRange?.length === 2 ? `${pokemon.cpRange[0]} - ${pokemon.cpRange[1]}` : pokemon.cpRange?.[0] || "n/a";
+  const canOpen = Boolean(onOpenPokemon && !pokemon.unmatched);
 
   return (
-    <article className="group min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/38 shadow-[0_18px_70px_rgba(0,0,0,.2)] transition hover:-translate-y-0.5 hover:border-cyan-200/35">
+    <button
+      className="group min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/38 text-left shadow-[0_18px_70px_rgba(0,0,0,.2)] transition hover:-translate-y-0.5 hover:border-cyan-200/35 disabled:cursor-default"
+      type="button"
+      disabled={!canOpen}
+      onClick={() => canOpen && onOpenPokemon(pokemon)}
+    >
       <div className="relative grid min-h-[152px] place-items-center overflow-hidden bg-[radial-gradient(circle_at_50%_18%,rgba(14,165,233,.2),transparent_42%),linear-gradient(135deg,rgba(15,23,42,.9),rgba(30,64,175,.58))] p-4">
         <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.1)_1px,transparent_1px)] [background-size:24px_24px]" />
         <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-sky-100/25 bg-sky-300/16 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-sky-50">
@@ -84,11 +70,7 @@ function MaxBattleCard({ pokemon }) {
           {english ? <p className="truncate text-xs font-bold text-slate-400">{english}</p> : null}
         </div>
         <div className="flex flex-wrap gap-1.5">
-          {values(pokemon.types).map((type) => (
-            <MaxPill key={type} tone={typeTone[type] || "border-white/10 bg-white/10 text-white"}>
-              {type}
-            </MaxPill>
-          ))}
+          <TypeIcons types={pokemon.types} catalog={typeCatalog} />
           {pokemon.form ? <MaxPill tone="border-cyan-200/25 bg-cyan-400/12 text-cyan-50">{pokemon.form}</MaxPill> : null}
           {pokemon.costume ? <MaxPill tone="border-fuchsia-200/25 bg-fuchsia-400/12 text-fuchsia-50">{pokemon.costume}</MaxPill> : null}
         </div>
@@ -97,11 +79,11 @@ function MaxBattleCard({ pokemon }) {
           {cp}
         </p>
       </div>
-    </article>
+    </button>
   );
 }
 
-function MaxBattleSection({ id, pokemon }) {
+function MaxBattleSection({ id, pokemon, onOpenPokemon, typeCatalog = [] }) {
   return (
     <section className="rounded-2xl border border-white/10 bg-slate-950/26 p-4">
       <div className="mb-4 flex items-center justify-between gap-3">
@@ -121,7 +103,12 @@ function MaxBattleSection({ id, pokemon }) {
       {pokemon.length ? (
         <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
           {pokemon.map((item, index) => (
-            <MaxBattleCard key={`${id}-${item.form || item.id || item.sourceName}-${index}`} pokemon={item} />
+            <MaxBattleCard
+              key={`${id}-${item.form || item.id || item.sourceName}-${index}`}
+              pokemon={item}
+              onOpenPokemon={onOpenPokemon}
+              typeCatalog={typeCatalog}
+            />
           ))}
         </div>
       ) : (
@@ -141,6 +128,8 @@ export function MaxBattlesPanel({
   onDownload,
   onImportMongo,
   onRegenerate,
+  onOpenPokemon,
+  typeCatalog = [],
 }) {
   const currentMaxBattle = maxBattles?.data?.currentMaxBattle || maxBattles?.currentMaxBattle || {};
   const buckets = maxBattles?.meta?.buckets || Object.fromEntries(
@@ -190,7 +179,13 @@ export function MaxBattlesPanel({
 
       <div className="space-y-4">
         {tierEntries.map(([id, pokemon]) => (
-          <MaxBattleSection key={id} id={id} pokemon={values(pokemon)} />
+          <MaxBattleSection
+            key={id}
+            id={id}
+            pokemon={values(pokemon)}
+            onOpenPokemon={onOpenPokemon}
+            typeCatalog={typeCatalog}
+          />
         ))}
       </div>
     </div>

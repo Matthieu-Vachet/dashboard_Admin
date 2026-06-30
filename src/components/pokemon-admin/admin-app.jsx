@@ -2025,6 +2025,9 @@ export function AdminApp() {
                 onDownload={downloadRaidsJson}
                 onImportMongo={() => runRaidsAdminAction("import", "Raids envoyés vers MongoDB.")}
                 onRegenerate={() => runRaidsAdminAction("regenerate", "Raids régénérés côté API.")}
+                onOpenPokemon={openPokemonReference}
+                typeCatalog={catalog?.types}
+                weatherCatalog={catalog?.weather}
               />
             ) : null}
 
@@ -2037,6 +2040,8 @@ export function AdminApp() {
                 onDownload={downloadEggsJson}
                 onImportMongo={() => runEggsAdminAction("import", "Oeufs envoyés vers MongoDB.")}
                 onRegenerate={() => runEggsAdminAction("regenerate", "Oeufs régénérés côté API.")}
+                onOpenPokemon={openPokemonReference}
+                typeCatalog={catalog?.types}
               />
             ) : null}
 
@@ -2049,6 +2054,8 @@ export function AdminApp() {
                 onDownload={downloadMaxBattlesJson}
                 onImportMongo={() => runMaxBattlesAdminAction("import", "Max Battles envoyées vers MongoDB.")}
                 onRegenerate={() => runMaxBattlesAdminAction("regenerate", "Max Battles régénérées côté API.")}
+                onOpenPokemon={openPokemonReference}
+                typeCatalog={catalog?.types}
               />
             ) : null}
 

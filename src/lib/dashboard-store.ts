@@ -42,6 +42,7 @@ export type DashboardBacklogDocument = {
   type: DashboardBacklogType;
   status: DashboardBacklogStatus;
   priority: DashboardBacklogPriority;
+  project: string;
   page: string;
   component: string;
   stepsToReproduce: string;
@@ -357,6 +358,7 @@ function backlogCodexPrompt(
     `Type: ${ticket.type}`,
     `Priority: ${ticket.priority}`,
     `Status: ${ticket.status}`,
+    `Project: ${ticket.project || ""}`,
     `Page: ${ticket.page}`,
     `Component: ${ticket.component}`,
     "",
@@ -385,6 +387,7 @@ function serializeBacklogTicket(ticket: DashboardBacklogDocument) {
     type: ticket.type,
     status: ticket.status,
     priority: ticket.priority,
+    project: ticket.project || "",
     page: ticket.page,
     component: ticket.component,
     stepsToReproduce: ticket.stepsToReproduce,
@@ -421,6 +424,7 @@ function normalizeBacklogPatch(input: Record<string, unknown>) {
   if ("type" in input) patch.type = enumValue(input.type, backlogTypes, "bug");
   if ("status" in input) patch.status = enumValue(input.status, backlogStatuses, "todo");
   if ("priority" in input) patch.priority = enumValue(input.priority, backlogPriorities, "medium");
+  if ("project" in input) patch.project = textValue(input.project);
   if ("page" in input) patch.page = textValue(input.page);
   if ("component" in input) patch.component = textValue(input.component);
   if ("stepsToReproduce" in input) patch.stepsToReproduce = textValue(input.stepsToReproduce);
@@ -462,6 +466,7 @@ export async function createDashboardBacklogTicket(
     type: enumValue(input.type, backlogTypes, "bug"),
     status: enumValue(input.status, backlogStatuses, "todo"),
     priority: enumValue(input.priority, backlogPriorities, "medium"),
+    project: textValue(input.project, "Dashboard Admin"),
     page: textValue(input.page),
     component: textValue(input.component),
     stepsToReproduce: textValue(input.stepsToReproduce),

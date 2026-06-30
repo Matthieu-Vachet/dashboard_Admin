@@ -29,6 +29,7 @@ type BacklogTicket = {
   type: BacklogType;
   status: BacklogStatus;
   priority: BacklogPriority;
+  project: string;
   page: string;
   component: string;
   stepsToReproduce: string;
@@ -52,6 +53,13 @@ const ticketTypes: BacklogType[] = ["bug", "feature", "refactor", "ui", "data"];
 const statuses: BacklogStatus[] = ["todo", "in_progress", "blocked", "done", "archived", "ignored"];
 const priorities: BacklogPriority[] = ["low", "medium", "high", "critical"];
 const openStatuses: BacklogStatus[] = ["todo", "in_progress", "blocked"];
+const workspaceProjects = [
+  "Dashboard Admin",
+  "PokemonGo-API",
+  "PokemonGo-Data",
+  "PokemonGo-Assets-API",
+  "Landing-Page-PogoApi",
+];
 
 const emptyDraft: TicketDraft = {
   title: "",
@@ -59,6 +67,7 @@ const emptyDraft: TicketDraft = {
   type: "bug",
   status: "todo",
   priority: "medium",
+  project: "Dashboard Admin",
   page: "",
   component: "",
   stepsToReproduce: "",
@@ -157,6 +166,7 @@ function ticketCodexContext(ticket: BacklogTicket | TicketDraft) {
     `Type: ${ticket.type}`,
     `Priority: ${ticket.priority}`,
     `Status: ${ticket.status}`,
+    `Project: ${ticket.project || ""}`,
     `Page: ${ticket.page}`,
     `Component: ${ticket.component}`,
     "",
@@ -177,6 +187,15 @@ function ticketCodexContext(ticket: BacklogTicket | TicketDraft) {
   ].join("\n");
 }
 
+function inferProject(page = "") {
+  const value = page.toLowerCase();
+  if (value.includes("pokemon") || value.includes("pokémon")) return "PokemonGo-API";
+  if (value.includes("data")) return "PokemonGo-Data";
+  if (value.includes("asset")) return "PokemonGo-Assets-API";
+  if (value.includes("landing")) return "Landing-Page-PogoApi";
+  return "Dashboard Admin";
+}
+
 function ticketToDraft(ticket: BacklogTicket): TicketDraft {
   return {
     title: ticket.title,
@@ -184,6 +203,7 @@ function ticketToDraft(ticket: BacklogTicket): TicketDraft {
     type: ticket.type,
     status: ticket.status,
     priority: ticket.priority,
+    project: ticket.project || inferProject(ticket.page),
     page: ticket.page,
     component: ticket.component,
     stepsToReproduce: ticket.stepsToReproduce,
@@ -222,12 +242,18 @@ export function DashboardBacklog() {
     [editingId, tickets],
   );
 
-  const pages = useMemo(
-    () => Array.from(new Set(tickets.map((ticket) => ticket.page).filter(Boolean))).sort(),
-    [tickets],
-  );
   const components = useMemo(
     () => Array.from(new Set(tickets.map((ticket) => ticket.component).filter(Boolean))).sort(),
+    [tickets],
+  );
+  const projects = useMemo(
+    () =>
+      Array.from(
+        new Set([
+          ...workspaceProjects,
+          ...tickets.map((ticket) => ticket.project || inferProject(ticket.page)).filter(Boolean),
+        ]),
+      ).sort(),
     [tickets],
   );
 
@@ -237,13 +263,14 @@ export function DashboardBacklog() {
       .filter((ticket) => typeFilter === "all" || ticket.type === typeFilter)
       .filter((ticket) => statusFilter === "all" || ticket.status === statusFilter)
       .filter((ticket) => priorityFilter === "all" || ticket.priority === priorityFilter)
-      .filter((ticket) => pageFilter === "all" || ticket.page === pageFilter)
+      .filter((ticket) => pageFilter === "all" || (ticket.project || inferProject(ticket.page)) === pageFilter)
       .filter((ticket) => componentFilter === "all" || ticket.component === componentFilter)
       .filter((ticket) => {
         if (!search) return true;
         return [
           ticket.title,
           ticket.description,
+          ticket.project || inferProject(ticket.page),
           ticket.page,
           ticket.component,
           ticket.notes,
@@ -474,7 +501,7 @@ export function DashboardBacklog() {
           <FilterSelect label="Type" value={typeFilter} onChange={(value) => setTypeFilter(value as BacklogType | "all")} values={ticketTypes} labels={typeLabel} />
           <FilterSelect label="Statut" value={statusFilter} onChange={(value) => setStatusFilter(value as BacklogStatus | "all")} values={statuses} labels={statusLabel} />
           <FilterSelect label="Priorité" value={priorityFilter} onChange={(value) => setPriorityFilter(value as BacklogPriority | "all")} values={priorities} labels={priorityLabel} />
-          <FilterSelect label="Page" value={pageFilter} onChange={setPageFilter} values={pages} />
+          <FilterSelect label="Projet" value={pageFilter} onChange={setPageFilter} values={projects} />
           <FilterSelect label="Composant" value={componentFilter} onChange={setComponentFilter} values={components} />
           <FilterSelect label="Tri" value={sortKey} onChange={(value) => setSortKey(value as "recent" | "priority" | "status")} values={["recent", "priority", "status"]} labels={{ recent: "Plus récent", priority: "Priorité", status: "Statut" }} includeAll={false} />
         </div>
@@ -706,6 +733,12 @@ function TicketForm({
         <SelectField label="Statut" value={draft.status} values={statuses} labels={statusLabel} onChange={(value) => onUpdate({ status: value as BacklogStatus })} />
         <SelectField label="Priorité" value={draft.priority} values={priorities} labels={priorityLabel} onChange={(value) => onUpdate({ priority: value as BacklogPriority })} />
       </div>
+      <SelectField
+        label="Projet workspace"
+        value={draft.project || "Dashboard Admin"}
+        values={workspaceProjects}
+        onChange={(value) => onUpdate({ project: value })}
+      />
       <div className="grid gap-3 md:grid-cols-2">
         <Field label="Page" value={draft.page} onChange={(value) => onUpdate({ page: value })} placeholder="/tools/dashboard-backlog" />
         <Field label="Composant" value={draft.component} onChange={(value) => onUpdate({ component: value })} placeholder="DashboardBacklog" />
@@ -750,7 +783,7 @@ function SelectField<T extends string>({
   label: string;
   value: T;
   values: T[];
-  labels: Record<T, string>;
+  labels?: Record<T, string>;
   onChange: (value: string) => void;
 }) {
   return (
@@ -763,7 +796,7 @@ function SelectField<T extends string>({
       >
         {values.map((item) => (
           <option key={item} value={item}>
-            {labels[item]}
+            {labels?.[item] || item}
           </option>
         ))}
       </select>

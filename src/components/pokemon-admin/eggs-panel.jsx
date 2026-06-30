@@ -1,6 +1,7 @@
 "use client";
 
 import { CloudUpload, Download, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
+import { TypeIcons } from "./asset-icons";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
 import { uiAssets } from "../site/ui-assets";
 
@@ -15,27 +16,6 @@ const eggSections = [
   ["10km_adventure_sync", "10 km Adventure Sync", "/ui/eggs/10_km.png", "amber"],
   ["12km", "12 km", "/ui/eggs/12_km.png", "cyan"],
 ];
-
-const typeTone = {
-  Normal: "bg-slate-400/22 text-slate-50 border-slate-200/25",
-  Fire: "bg-orange-400/22 text-orange-50 border-orange-200/25",
-  Water: "bg-sky-400/22 text-sky-50 border-sky-200/25",
-  Grass: "bg-emerald-400/22 text-emerald-50 border-emerald-200/25",
-  Electric: "bg-yellow-300/22 text-yellow-50 border-yellow-100/25",
-  Ice: "bg-cyan-200/22 text-cyan-50 border-cyan-100/25",
-  Fighting: "bg-red-400/22 text-red-50 border-red-200/25",
-  Poison: "bg-purple-400/22 text-purple-50 border-purple-200/25",
-  Ground: "bg-amber-500/22 text-amber-50 border-amber-200/25",
-  Flying: "bg-indigo-300/22 text-indigo-50 border-indigo-100/25",
-  Psychic: "bg-pink-400/22 text-pink-50 border-pink-200/25",
-  Bug: "bg-lime-400/22 text-lime-50 border-lime-200/25",
-  Rock: "bg-stone-400/22 text-stone-50 border-stone-200/25",
-  Ghost: "bg-violet-500/22 text-violet-50 border-violet-200/25",
-  Dragon: "bg-blue-500/22 text-blue-50 border-blue-200/25",
-  Dark: "bg-zinc-500/22 text-zinc-50 border-zinc-200/25",
-  Steel: "bg-slate-300/22 text-slate-50 border-slate-100/25",
-  Fairy: "bg-fuchsia-300/22 text-fuchsia-50 border-fuchsia-100/25",
-};
 
 function values(data) {
   return Array.isArray(data) ? data : [];
@@ -65,12 +45,18 @@ function Rarity({ value }) {
   );
 }
 
-function EggCard({ pokemon }) {
+function EggCard({ pokemon, onOpenPokemon, typeCatalog = [] }) {
   const name = pokemon.names?.French || pokemon.names?.English || pokemon.sourceName || pokemon.id || "Pokemon inconnu";
   const english = pokemon.names?.English && pokemon.names.English !== name ? pokemon.names.English : null;
+  const canOpen = Boolean(onOpenPokemon && !pokemon.unmatched);
 
   return (
-    <article className="group min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/38 shadow-[0_18px_70px_rgba(0,0,0,.2)] transition hover:-translate-y-0.5 hover:border-cyan-200/35">
+    <button
+      className="group min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/38 text-left shadow-[0_18px_70px_rgba(0,0,0,.2)] transition hover:-translate-y-0.5 hover:border-cyan-200/35 disabled:cursor-default"
+      type="button"
+      disabled={!canOpen}
+      onClick={() => canOpen && onOpenPokemon(pokemon)}
+    >
       <div className="relative grid min-h-[148px] place-items-center overflow-hidden bg-[radial-gradient(circle_at_50%_18%,rgba(250,204,21,.2),transparent_42%),linear-gradient(135deg,rgba(15,23,42,.88),rgba(14,116,144,.58))] p-4">
         <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.1)_1px,transparent_1px)] [background-size:24px_24px]" />
         {pokemon.shiny ? (
@@ -99,11 +85,7 @@ function EggCard({ pokemon }) {
           <Rarity value={pokemon.rarity} />
         </div>
         <div className="flex flex-wrap gap-1.5">
-          {values(pokemon.types).map((type) => (
-            <EggPill key={type} tone={typeTone[type] || "border-white/10 bg-white/10 text-white"}>
-              {type}
-            </EggPill>
-          ))}
+          <TypeIcons types={pokemon.types} catalog={typeCatalog} />
           {pokemon.form ? <EggPill tone="border-cyan-200/25 bg-cyan-400/12 text-cyan-50">{pokemon.form}</EggPill> : null}
           {pokemon.costume ? <EggPill tone="border-fuchsia-200/25 bg-fuchsia-400/12 text-fuchsia-50">{pokemon.costume}</EggPill> : null}
         </div>
@@ -112,11 +94,11 @@ function EggCard({ pokemon }) {
           {pokemon.cp || "n/a"}
         </p>
       </div>
-    </article>
+    </button>
   );
 }
 
-function EggSection({ id, title, image, pokemon }) {
+function EggSection({ id, title, image, pokemon, onOpenPokemon, typeCatalog = [] }) {
   return (
     <section className="rounded-2xl border border-white/10 bg-slate-950/26 p-4">
       <div className="mb-4 flex items-center justify-between gap-3">
@@ -136,7 +118,12 @@ function EggSection({ id, title, image, pokemon }) {
       {pokemon.length ? (
         <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
           {pokemon.map((item, index) => (
-            <EggCard key={`${id}-${item.form || item.id || item.sourceName}-${index}`} pokemon={item} />
+            <EggCard
+              key={`${id}-${item.form || item.id || item.sourceName}-${index}`}
+              pokemon={item}
+              onOpenPokemon={onOpenPokemon}
+              typeCatalog={typeCatalog}
+            />
           ))}
         </div>
       ) : (
@@ -156,6 +143,8 @@ export function EggsPanel({
   onDownload,
   onImportMongo,
   onRegenerate,
+  onOpenPokemon,
+  typeCatalog = [],
 }) {
   const currentEggsList = eggs?.data?.currentEggsList || eggs?.currentEggsList || {};
   const buckets = eggs?.meta?.buckets || Object.fromEntries(
@@ -205,7 +194,15 @@ export function EggsPanel({
 
       <div className="space-y-4">
         {eggSections.map(([id, title, image]) => (
-          <EggSection key={id} id={id} title={title} image={image} pokemon={values(currentEggsList[id])} />
+          <EggSection
+            key={id}
+            id={id}
+            title={title}
+            image={image}
+            pokemon={values(currentEggsList[id])}
+            onOpenPokemon={onOpenPokemon}
+            typeCatalog={typeCatalog}
+          />
         ))}
       </div>
     </div>

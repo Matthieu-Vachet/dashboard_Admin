@@ -185,13 +185,22 @@ export function AppFrame({
                             active && "opacity-100",
                           )}
                         />
-                        <Icon
-                          size={17}
-                          className={cn(
-                            "relative z-10 transition duration-300 group-hover:scale-125 group-hover:-rotate-6",
-                            active ? "text-brand-2 drop-shadow-[0_0_14px_rgba(32,211,255,.55)]" : tone.icon,
-                          )}
-                        />
+                        {typeof Icon === "string" ? (
+                          <img
+                            className="relative z-10 h-[22px] w-[22px] object-contain drop-shadow-[0_0_12px_rgba(32,211,255,.3)] transition duration-300 group-hover:scale-125 group-hover:-rotate-6"
+                            src={Icon}
+                            alt=""
+                            loading="lazy"
+                          />
+                        ) : (
+                          <Icon
+                            size={17}
+                            className={cn(
+                              "relative z-10 transition duration-300 group-hover:scale-125 group-hover:-rotate-6",
+                              active ? "text-brand-2 drop-shadow-[0_0_14px_rgba(32,211,255,.55)]" : tone.icon,
+                            )}
+                          />
+                        )}
                         {!collapsed ? <span className="truncate">{item.label}</span> : null}
                         {active ? (
                           <motion.span

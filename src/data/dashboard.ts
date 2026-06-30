@@ -1,7 +1,6 @@
 import {
   CalendarDays,
   CheckSquare2,
-  CircleDot,
   Code2,
   Coffee,
   Database,
@@ -16,6 +15,7 @@ import {
   ClipboardList,
   ScrollText,
   FileText,
+  TerminalSquare,
   Wrench,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -23,7 +23,7 @@ import type { LucideIcon } from "lucide-react";
 export type NavItem = {
   href: string;
   label: string;
-  icon: LucideIcon;
+  icon: LucideIcon | string;
 };
 
 export type NavGroup = {
@@ -41,13 +41,18 @@ export const navGroups: NavGroup[] = [
       { href: "/analytics", label: "Analytics", icon: LineChart },
       { href: "/tools", label: "Outils", icon: Wrench },
       { href: "/tools/dashboard-backlog", label: "Dashboard Backlog", icon: ClipboardList },
+      { href: "/tools/workspace-scripts", label: "Scripts workspace", icon: TerminalSquare },
     ],
   },
   {
     id: "pokemon-data",
     label: "Pokémon Data",
     items: [
-      { href: "/pokemon-admin", label: "Admin Pokémon", icon: CircleDot },
+      {
+        href: "/pokemon-admin",
+        label: "Admin Pokémon",
+        icon: "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers/ic_pikachu_home.png",
+      },
       { href: "/pokemon-docs", label: "Docs JSON", icon: ScrollText },
     ],
   },

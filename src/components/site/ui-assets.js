@@ -41,7 +41,8 @@ export const uiAssets = {
     shieldAlt: "/ui/icons/shield-alt.svg",
     up: "/ui/icons/up.svg",
     candy: "/ui/icons/bonbon.png",
-    littleLeague: "/ui/icons/little.png",
+    littleLeague:
+      "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers/GBL_littlecup.png",
     greatLeague: "/ui/icons/great.png",
     ultraLeague: "/ui/icons/ultra.png",
     masterLeague: "/ui/icons/master.png",
