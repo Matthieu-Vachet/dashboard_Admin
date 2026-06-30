@@ -11,9 +11,12 @@ type WorkspaceScript = {
   id: string;
   project: string;
   kind: "npm" | "node";
+  category: string;
   name: string;
   command: string;
   description: string;
+  relativePath?: string;
+  runnable: boolean;
 };
 
 type RunResult = {
@@ -28,6 +31,7 @@ export function WorkspaceScripts() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [runningId, setRunningId] = useState("");
+  const [projectFilter, setProjectFilter] = useState("all");
   const [result, setResult] = useState<RunResult | null>(null);
 
   async function loadScripts() {
@@ -63,16 +67,22 @@ export function WorkspaceScripts() {
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    if (!needle) return scripts;
-    return scripts.filter((script) =>
-      [script.project, script.kind, script.name, script.command, script.description]
+    return scripts
+      .filter((script) => projectFilter === "all" || script.project === projectFilter)
+      .filter((script) =>
+      !needle || [script.project, script.kind, script.category, script.name, script.command, script.description, script.relativePath]
         .join(" ")
         .toLowerCase()
         .includes(needle),
     );
-  }, [query, scripts]);
+  }, [projectFilter, query, scripts]);
 
   const projects = useMemo(() => Array.from(new Set(scripts.map((script) => script.project))).sort(), [scripts]);
+  const categoryCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const script of filtered) counts.set(script.category, (counts.get(script.category) || 0) + 1);
+    return Array.from(counts.entries()).sort((left, right) => right[1] - left[1]);
+  }, [filtered]);
 
   async function runScript(script: WorkspaceScript) {
     setRunningId(script.id);
@@ -98,7 +108,7 @@ export function WorkspaceScripts() {
             <Badge tone="cyan">Workspace</Badge>
             <h2 className="mt-3 text-3xl font-black">Scripts workspace</h2>
             <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-muted">
-              {loading ? "Scan en cours..." : `${scripts.length} scripts detectes dans ${projects.length} projets.`}
+              {loading ? "Scan en cours..." : `${scripts.length} scripts detectes dans ${projects.length} projets, dont ${scripts.filter((script) => script.runnable).length} lançables.`}
             </p>
           </div>
           <Button icon={<RefreshCcw size={16} />} type="button" onClick={loadScripts} disabled={loading}>
@@ -108,6 +118,7 @@ export function WorkspaceScripts() {
       </Card>
 
       <Card className="p-4">
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
         <label className="flex min-h-11 items-center gap-2 rounded-lg border border-line bg-white/[0.055] px-3 text-muted">
           <Search size={16} />
           <Input
@@ -117,6 +128,28 @@ export function WorkspaceScripts() {
             placeholder="Rechercher projet, script, commande..."
           />
         </label>
+        <select
+          className="min-h-11 rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+          value={projectFilter}
+          onChange={(event) => setProjectFilter(event.target.value)}
+        >
+          <option value="all">Tous les projets</option>
+          {projects.map((project) => (
+            <option key={project} value={project}>
+              {project}
+            </option>
+          ))}
+        </select>
+        </div>
+        {categoryCounts.length ? (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {categoryCounts.map(([category, count]) => (
+              <span key={category} className="rounded-full border border-line bg-white/[0.045] px-2.5 py-1 text-xs font-black text-muted">
+                {category}: {count}
+              </span>
+            ))}
+          </div>
+        ) : null}
       </Card>
 
       <section className="grid gap-3 xl:grid-cols-2">
@@ -126,6 +159,7 @@ export function WorkspaceScripts() {
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge tone={script.kind === "npm" ? "green" : "violet"}>{script.kind}</Badge>
+                  <Badge tone={script.runnable ? "cyan" : "neutral"}>{script.runnable ? script.category : "Utilitaire"}</Badge>
                   <span className="text-xs font-black uppercase tracking-[0.14em] text-muted">{script.project}</span>
                 </div>
                 <h3 className="mt-3 truncate text-lg font-black">{script.name}</h3>
@@ -144,10 +178,10 @@ export function WorkspaceScripts() {
                 variant="primary"
                 icon={<Play size={15} />}
                 type="button"
-                disabled={Boolean(runningId)}
+                disabled={Boolean(runningId) || !script.runnable}
                 onClick={() => runScript(script)}
               >
-                {runningId === script.id ? "Execution..." : "Lancer"}
+                {script.runnable ? (runningId === script.id ? "Execution..." : "Lancer") : "Non lançable"}
               </Button>
             </div>
           </Card>

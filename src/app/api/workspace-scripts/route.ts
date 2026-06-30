@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
     const body = (await request.json().catch(() => ({}))) as { id?: string };
     const script = listWorkspaceScripts().find((item) => item.id === body.id);
     if (!script) return json({ error: "Script introuvable ou non autorise." }, { status: 404 });
+    if (!script.runnable) return json({ error: "Ce fichier est un utilitaire interne et n'est pas lançable depuis le dashboard." }, { status: 400 });
 
     const args = script.kind === "npm" ? ["run", script.name] : [script.scriptPath || ""];
     const bin = script.kind === "npm" ? "npm" : "node";
@@ -69,4 +70,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
