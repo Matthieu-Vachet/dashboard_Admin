@@ -1,6 +1,6 @@
 "use client";
 
-import { CloudUpload, Download, RefreshCcw, RotateCcw } from "lucide-react";
+import { ChevronDown, CloudUpload, Download, RefreshCcw, RotateCcw } from "lucide-react";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
 import { uiAssets } from "../site/ui-assets";
 
@@ -44,6 +44,15 @@ function values(data) {
   return Array.isArray(data) ? data : [];
 }
 
+function textKey(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
 function hexToRgb(hex) {
   const normalized = String(hex || "").replace("#", "").trim();
   if (!/^[0-9a-f]{6}$/i.test(normalized)) return null;
@@ -57,6 +66,49 @@ function hexToRgb(hex) {
 function alpha(hex, opacity) {
   const rgb = hexToRgb(hex);
   return rgb ? `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})` : `rgba(34, 211, 238, ${opacity})`;
+}
+
+function rocketTextList(rocketTexts) {
+  return values(rocketTexts?.data?.rocketTexts || rocketTexts?.rocketTexts);
+}
+
+function profileGender(profile) {
+  const source = `${profile?.trainer || ""} ${profile?.trainerSlug || ""}`.toLowerCase();
+  if (source.includes("female")) return "female";
+  if (source.includes("male")) return "male";
+  return null;
+}
+
+function profileCharacter(profile) {
+  const source = `${profile?.trainer || ""} ${profile?.trainerSlug || ""}`.toLowerCase();
+  if (source.includes("giovanni")) return "giovanni";
+  if (source.includes("arlo")) return "arlo";
+  if (source.includes("cliff")) return "cliff";
+  if (source.includes("sierra")) return "sierra";
+  return null;
+}
+
+function findRocketText(profile, texts) {
+  const quoteKey = textKey(profile?.quote);
+  if (quoteKey) {
+    const byQuote = texts.find((entry) => {
+      const variants = Object.values(entry.textVariants || {}).flatMap((items) => values(items));
+      return [...Object.values(entry.texts || {}), ...variants].some((value) => textKey(value) === quoteKey);
+    });
+    if (byQuote) return byQuote;
+  }
+
+  const trainerType = String(profile?.trainerType || "").toLowerCase();
+  const type = String(profile?.rocketType || "").toUpperCase();
+  const gender = profileGender(profile);
+  const character = profileCharacter(profile);
+  return texts.find((entry) => {
+    if (trainerType && String(entry.trainerType || "").toLowerCase() !== trainerType) return false;
+    if (type && entry.type && String(entry.type).toUpperCase() !== type) return false;
+    if (gender && entry.gender && entry.gender !== gender) return false;
+    if (character && entry.character && entry.character !== character) return false;
+    return true;
+  }) || null;
 }
 
 function trainerGroups(currentRocketList) {
@@ -87,7 +139,8 @@ function trainerImage(profile) {
 }
 
 function typeIcon(type) {
-  return typeIconMap[type] || typeIconMap[String(type || "").charAt(0).toUpperCase() + String(type || "").slice(1).toLowerCase()];
+  const label = String(type || "");
+  return typeIconMap[label] || typeIconMap[label.charAt(0).toUpperCase() + label.slice(1).toLowerCase()];
 }
 
 function pokemonName(pokemon) {
@@ -98,7 +151,7 @@ function TypeIcons({ types }) {
   const list = values(types);
   if (!list.length) return null;
   return (
-    <div className="flex flex-wrap items-center gap-1.5" aria-label="Types Pokémon">
+    <span className="inline-flex flex-wrap items-center gap-1.5" aria-label="Types Pokémon">
       {list.map((type) => {
         const icon = typeIcon(type);
         return icon ? (
@@ -111,13 +164,13 @@ function TypeIcons({ types }) {
           </span>
         );
       })}
-    </div>
+    </span>
   );
 }
 
 function StatusIcons({ pokemon }) {
   return (
-    <div className="flex items-center gap-1.5">
+    <span className="inline-flex items-center gap-1.5">
       {pokemon.shadow ? (
         <span className="grid h-8 w-8 place-items-center rounded-full border border-violet-200/20 bg-violet-400/16 p-1.5" title="Shadow">
           <img className="h-full w-full object-contain" src="/ui/icons/shadow.png" alt="Shadow" loading="lazy" />
@@ -128,11 +181,11 @@ function StatusIcons({ pokemon }) {
           <img className="h-full w-full object-contain" src="/ui/icons/ic_shiny_white.webp" alt="Shiny" loading="lazy" />
         </span>
       ) : null}
-    </div>
+    </span>
   );
 }
 
-function PokemonCard({ pokemon, onOpenPokemon }) {
+function PokemonCard({ pokemon, onOpenPokemon, compact = false }) {
   const name = pokemonName(pokemon);
   const canOpen = Boolean(onOpenPokemon && !pokemon.unmatched);
 
@@ -141,36 +194,31 @@ function PokemonCard({ pokemon, onOpenPokemon }) {
       type="button"
       onClick={() => canOpen && onOpenPokemon(pokemon)}
       disabled={!canOpen}
-      className="group min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/34 text-left shadow-[0_16px_45px_rgba(0,0,0,.18)] transition enabled:hover:-translate-y-0.5 enabled:hover:border-cyan-200/35 enabled:hover:bg-cyan-400/8 disabled:cursor-default"
+      className="group grid min-w-0 grid-cols-[72px_minmax(0,1fr)] gap-3 rounded-2xl border border-white/10 bg-slate-950/34 p-3 text-left shadow-[0_14px_40px_rgba(0,0,0,.16)] transition enabled:hover:-translate-y-0.5 enabled:hover:border-cyan-200/35 enabled:hover:bg-cyan-400/8 disabled:cursor-default"
     >
-      <div className="relative grid min-h-[126px] place-items-center overflow-hidden bg-[radial-gradient(circle_at_50%_20%,rgba(34,211,238,.18),transparent_44%),linear-gradient(135deg,rgba(15,23,42,.92),rgba(8,47,73,.66))] p-3">
-        <div className="absolute left-3 top-3 z-10">
-          <StatusIcons pokemon={pokemon} />
-        </div>
-        {pokemon.unmatched ? (
-          <span className="absolute right-3 top-3 z-10 rounded-full border border-red-200/30 bg-red-400/18 px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-red-50">
-            Non matché
-          </span>
-        ) : null}
+      <span className="relative grid h-[72px] w-[72px] place-items-center rounded-2xl border border-white/10 bg-slate-950/48 p-2">
         <img
-          className="relative z-0 max-h-24 object-contain drop-shadow-[0_18px_32px_rgba(0,0,0,.42)] transition duration-300 group-hover:scale-105"
+          className="max-h-full object-contain drop-shadow-[0_12px_22px_rgba(0,0,0,.4)] transition duration-300 group-hover:scale-105"
           src={pokemon.assets?.image || pokemon.assets?.shinyImage || uiAssets.icons.pokemon}
           alt={name}
           loading="lazy"
         />
-      </div>
-      <div className="space-y-2 border-t border-white/10 p-3">
-        <div className="min-w-0">
-          <h4 className="truncate text-sm font-black text-white">{name}</h4>
-          {pokemon.names?.English && pokemon.names.English !== name ? (
-            <p className="truncate text-xs font-bold text-slate-400">{pokemon.names.English}</p>
-          ) : null}
-        </div>
-        <div className="flex min-w-0 items-center justify-between gap-2">
+      </span>
+      <span className="min-w-0 space-y-2">
+        <span className="flex min-w-0 items-start justify-between gap-2">
+          <span className="min-w-0">
+            <strong className="block truncate text-sm font-black text-white">{name}</strong>
+            {!compact && pokemon.names?.English && pokemon.names.English !== name ? (
+              <span className="block truncate text-xs font-bold text-slate-400">{pokemon.names.English}</span>
+            ) : null}
+          </span>
+          <StatusIcons pokemon={pokemon} />
+        </span>
+        <span className="flex min-w-0 items-center justify-between gap-2">
           <TypeIcons types={pokemon.types} />
           {canOpen ? <span className="text-[10px] font-black uppercase tracking-[0.14em] text-cyan-100/60">Ouvrir</span> : null}
-        </div>
-      </div>
+        </span>
+      </span>
     </button>
   );
 }
@@ -183,13 +231,9 @@ function SlotBlock({ label, pokemon, onOpenPokemon }) {
         <span className="rounded-full border border-white/10 bg-white/[0.07] px-2 py-1 text-[10px] font-black text-white">{pokemon.length}</span>
       </div>
       {pokemon.length ? (
-        <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {pokemon.map((item, index) => (
-            <PokemonCard
-              key={`${label}-${item.form || item.id || item.sourceName}-${index}`}
-              pokemon={item}
-              onOpenPokemon={onOpenPokemon}
-            />
+            <PokemonCard key={`${label}-${item.form || item.id || item.sourceName}-${index}`} pokemon={item} onOpenPokemon={onOpenPokemon} />
           ))}
         </div>
       ) : (
@@ -201,47 +245,51 @@ function SlotBlock({ label, pokemon, onOpenPokemon }) {
   );
 }
 
-function TrainerCard({ profile, group, onOpenPokemon }) {
+function TrainerCard({ profile, group, rocketText, onOpenPokemon, defaultOpen = false }) {
   const accent = profile.color?.primary || fallbackAccents[profile.trainerType] || fallbackAccents.grunt;
   const name = profile.trainer || "Rocket";
   const isGrunt = group === "grunt";
+  const frQuote = rocketText?.texts?.French || profile.quote || "Phrase Rocket indisponible.";
+  const englishQuote = rocketText?.texts?.English && rocketText.texts.English !== frQuote ? rocketText.texts.English : profile.quote;
+  const pokemonCount = Object.values(profile.slots || {}).reduce((sum, slot) => sum + values(slot).length, 0);
 
   return (
-    <article
-      className="min-w-0 overflow-hidden rounded-3xl border bg-slate-950/34 shadow-[0_20px_80px_rgba(0,0,0,.24)]"
+    <details
+      className="group min-w-0 overflow-hidden rounded-3xl border bg-slate-950/34 shadow-[0_20px_80px_rgba(0,0,0,.24)]"
+      defaultOpen={defaultOpen}
       style={{
         borderColor: alpha(accent, 0.42),
         boxShadow: `0 20px 90px ${alpha(accent, 0.14)}`,
       }}
     >
-      <div
-        className="relative overflow-hidden p-4 sm:p-5"
+      <summary
+        className="relative grid cursor-pointer list-none gap-4 overflow-hidden p-4 marker:hidden sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:p-5"
         style={{
           background: `linear-gradient(135deg, ${alpha(accent, isGrunt ? 0.28 : 0.36)}, rgba(15,23,42,.78))`,
         }}
       >
         <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.12)_1px,transparent_1px)] [background-size:24px_24px]" />
-        <div className="relative flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex min-w-0 items-center gap-4">
-            <span className={`${isGrunt ? "h-24 w-20" : "h-24 w-24"} grid shrink-0 place-items-end overflow-hidden rounded-3xl border border-white/18 bg-slate-950/35 p-1`}>
-              <img className="max-h-full object-contain drop-shadow-[0_16px_28px_rgba(0,0,0,.4)]" src={trainerImage(profile)} alt={name} loading="lazy" />
+        <span className="relative flex min-w-0 items-center gap-4">
+          <span className={`${isGrunt ? "h-24 w-20" : "h-24 w-24"} grid shrink-0 place-items-end overflow-hidden rounded-3xl border border-white/18 bg-slate-950/35 p-1`}>
+            <img className="max-h-full object-contain drop-shadow-[0_16px_28px_rgba(0,0,0,.4)]" src={trainerImage(profile)} alt={name} loading="lazy" />
+          </span>
+          <span className="min-w-0">
+            <span className="text-[10px] font-black uppercase tracking-[0.22em] text-white/62">
+              {profile.trainerType || "rocket"}
             </span>
-            <div className="min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-white/62">
-                {profile.trainerType || "rocket"}
-              </p>
-              <h3 className="truncate text-xl font-black text-white sm:text-2xl">{name}</h3>
-              {profile.quote ? <p className="mt-1 line-clamp-3 text-sm font-bold text-white/72">{profile.quote}</p> : null}
-            </div>
-          </div>
-          <div className="flex shrink-0 flex-wrap items-center gap-2">
-            {profile.rocketType ? <TypeIcons types={[profile.rocketType]} /> : null}
-            <span className="rounded-full border border-red-200/25 bg-red-400/16 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-red-50">
-              Team Rocket
-            </span>
-          </div>
-        </div>
-      </div>
+            <span className="block truncate text-xl font-black text-white sm:text-2xl">{name}</span>
+            <span className="mt-1 line-clamp-2 text-sm font-bold text-white/78">{frQuote}</span>
+            {englishQuote && englishQuote !== frQuote ? <span className="mt-1 block line-clamp-1 text-xs font-bold text-white/45">{englishQuote}</span> : null}
+          </span>
+        </span>
+        <span className="relative flex flex-wrap items-center gap-2 sm:justify-end">
+          {profile.rocketType ? <TypeIcons types={[profile.rocketType]} /> : null}
+          <span className="rounded-full border border-red-200/25 bg-red-400/16 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-red-50">
+            {pokemonCount} Pokémon
+          </span>
+          <ChevronDown className="text-white/70 transition group-open:rotate-180" size={22} />
+        </span>
+      </summary>
       <div className="space-y-4 p-4 sm:p-5">
         <div className="grid gap-4">
           <SlotBlock label="Slot 1" pokemon={values(profile.slots?.slot1)} onOpenPokemon={onOpenPokemon} />
@@ -256,40 +304,26 @@ function TrainerCard({ profile, group, onOpenPokemon }) {
                 {values(profile.rewards).length}
               </span>
             </div>
-            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {values(profile.rewards).map((pokemon, index) => (
-                <button
+                <PokemonCard
                   key={`reward-${pokemon.form || pokemon.id || pokemon.sourceName}-${index}`}
-                  type="button"
-                  className="flex min-w-0 items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/28 p-2 text-left transition hover:border-emerald-200/35 hover:bg-emerald-400/10"
-                  onClick={() => onOpenPokemon?.(pokemon)}
-                >
-                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-slate-950/55 p-1 ring-1 ring-white/10">
-                    <img
-                      className="max-h-full object-contain"
-                      src={pokemon.assets?.image || pokemon.assets?.shinyImage || uiAssets.icons.pokemon}
-                      alt={pokemonName(pokemon)}
-                      loading="lazy"
-                    />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-black text-white">{pokemonName(pokemon)}</span>
-                    <span className="mt-1 block">
-                      <TypeIcons types={pokemon.types} />
-                    </span>
-                  </span>
-                </button>
+                  pokemon={pokemon}
+                  onOpenPokemon={onOpenPokemon}
+                  compact
+                />
               ))}
             </div>
           </section>
         ) : null}
       </div>
-    </article>
+    </details>
   );
 }
 
 export function RocketPanel({
   rocket,
+  rocketTexts,
   loading = false,
   busyAction = "",
   onRefresh,
@@ -299,16 +333,18 @@ export function RocketPanel({
   onOpenPokemon,
 }) {
   const currentRocketList = rocket?.data?.currentRocketList || rocket?.currentRocketList || {};
+  const texts = rocketTextList(rocketTexts);
   const groups = trainerGroups(currentRocketList);
   const profiles = groups.flatMap(([, items]) => items);
   const totalTrainers = profiles.length;
   const totalEntries = totalPokemon(profiles);
+  const translatedProfiles = profiles.filter((profile) => findRocketText(profile, texts)).length;
 
   return (
     <div className="space-y-5">
       <Panel
         title="Team GO Rocket"
-        eyebrow="LeekDuck + JSON local"
+        eyebrow="lineups + phrases FR"
         action={
           <div className="flex flex-wrap gap-2">
             <button className={buttonClass} type="button" onClick={onRefresh} disabled={loading}>
@@ -328,13 +364,10 @@ export function RocketPanel({
       >
         <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <AssetStatCard label="Trainers" value={totalTrainers} icon={rocketTrainerAssets.maleGrunt} tone="violet" detail="Giovanni, leaders, grunts" />
-          <AssetStatCard label="Giovanni" value={values(currentRocketList.giovanni).length} icon={rocketTrainerAssets.giovanni} tone="amber" detail="Boss actuel" />
-          <AssetStatCard label="Leaders" value={groups.find(([title]) => title === "Leaders")?.[1]?.length || 0} icon={rocketTrainerAssets.sierra} tone="cyan" detail="Arlo, Cliff, Sierra" />
+          <AssetStatCard label="Textes FR" value={translatedProfiles} icon="/ui/icons/radar.png" tone="cyan" detail={`${texts.length} références`} />
+          <AssetStatCard label="Leaders" value={groups.find(([title]) => title === "Leaders")?.[1]?.length || 0} icon={rocketTrainerAssets.sierra} tone="amber" detail="Arlo, Cliff, Sierra" />
           <AssetStatCard label="Pokémon slots" value={totalEntries} icon="/ui/icons/shadow.png" tone="green" detail="Entrées Rocket" />
         </div>
-        <p className="mt-4 rounded-2xl border border-violet-300/15 bg-violet-400/10 p-4 text-sm font-bold leading-6 text-violet-50/86">
-          Les lineups viennent de LeekDuck, mais les Pokémon affichés utilisent les fiches locales du dashboard. Clique sur une card Pokémon pour ouvrir la fiche.
-        </p>
       </Panel>
 
       {loading && !totalTrainers ? (
@@ -361,7 +394,9 @@ export function RocketPanel({
                   key={`${profile.trainerSlug || profile.trainer}-${index}`}
                   profile={profile}
                   group={group}
+                  rocketText={findRocketText(profile, texts)}
                   onOpenPokemon={onOpenPokemon}
+                  defaultOpen={group !== "grunt" && index === 0}
                 />
               ))}
             </div>

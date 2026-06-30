@@ -84,9 +84,11 @@ fichiers `PokemonGo-Data/rocket/currentRocket.json` et
 dashboard.
 
 `Rocket` affiche Giovanni, les leaders et les grunts avec portraits Rocket
-locaux, slots, rewards possibles, badges Shadow/Shiny et couleurs par profil.
-`Research` affiche les quetes par categorie avec rewards Pokemon/items, CP, shiny,
-types et assets UI locaux quand le reward item est reconnu.
+locaux, slots, rewards possibles, icones Shadow/Shiny, couleurs par profil et
+phrases françaises depuis `PokemonGo-Data/rocket/rocketTexts.json`.
+`Research` affiche les quetes par categorie dans des panneaux repliables avec
+rewards Pokemon/items, CP, shiny, types et assets UI locaux. Les rewards items
+sont relies a `PokemonGo-Data/items/items.json` quand un alias LeekDuck existe.
 
 Les boutons `Envoyer MongoDB` et `Regenerer` appellent les routes privees
 `/api/v1/admin/rocket/*` et `/api/v1/admin/research/*` via le serveur

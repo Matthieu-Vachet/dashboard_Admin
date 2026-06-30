@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.8.0",
+    date: "2026-06-30",
+    title: "Research, Rocket et référentiels API",
+    changes: [
+      "Refond Research en sections et quêtes repliables avec rewards Pokémon et items plus lisibles.",
+      "Refond Rocket en cards déroulantes et affiche les phrases françaises issues de rocketTexts.json.",
+      "Charge items.json et rocketTexts.json comme référentiels dashboard pour les rewards et traductions.",
+      "Ajoute les routes API publiques items et rocket-texts côté testeur interne.",
+    ],
+  },
+  {
     version: "V1.7.1",
     date: "2026-06-29",
     title: "Refonte UI Rocket",

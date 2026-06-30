@@ -976,9 +976,11 @@ export function AdminApp() {
   const [maxBattlesLoading, setMaxBattlesLoading] = useState(false);
   const [maxBattlesBusyAction, setMaxBattlesBusyAction] = useState("");
   const [rocket, setRocket] = useState(null);
+  const [rocketTexts, setRocketTexts] = useState(null);
   const [rocketLoading, setRocketLoading] = useState(false);
   const [rocketBusyAction, setRocketBusyAction] = useState("");
   const [research, setResearch] = useState(null);
+  const [itemsReference, setItemsReference] = useState(null);
   const [researchLoading, setResearchLoading] = useState(false);
   const [researchBusyAction, setResearchBusyAction] = useState("");
   const [history, setHistory] = useState([]);
@@ -1449,10 +1451,15 @@ export function AdminApp() {
   async function loadRocket({ notify = false } = {}) {
     setRocketLoading(true);
     try {
-      const response = await fetch(`${adminApiPath}?action=rocket`, { cache: "no-store" });
-      const payload = await response.json();
+      const [response, textsResponse] = await Promise.all([
+        fetch(`${adminApiPath}?action=rocket`, { cache: "no-store" }),
+        fetch(`${adminApiPath}?action=rocket-texts`, { cache: "no-store" }),
+      ]);
+      const [payload, textsPayload] = await Promise.all([response.json(), textsResponse.json()]);
       if (!response.ok) throw new Error(payload.error || "Impossible de charger Rocket.");
+      if (!textsResponse.ok) throw new Error(textsPayload.error || "Impossible de charger les textes Rocket.");
       setRocket(payload.data || null);
+      setRocketTexts(textsPayload.data || null);
       if (notify) toast.success("Rocket actualisé.");
     } catch (error) {
       toast.error(error.message || "Erreur de chargement Rocket.");
@@ -1495,10 +1502,15 @@ export function AdminApp() {
   async function loadResearch({ notify = false } = {}) {
     setResearchLoading(true);
     try {
-      const response = await fetch(`${adminApiPath}?action=research`, { cache: "no-store" });
-      const payload = await response.json();
+      const [response, itemsResponse] = await Promise.all([
+        fetch(`${adminApiPath}?action=research`, { cache: "no-store" }),
+        fetch(`${adminApiPath}?action=items`, { cache: "no-store" }),
+      ]);
+      const [payload, itemsPayload] = await Promise.all([response.json(), itemsResponse.json()]);
       if (!response.ok) throw new Error(payload.error || "Impossible de charger Research.");
+      if (!itemsResponse.ok) throw new Error(itemsPayload.error || "Impossible de charger les items.");
       setResearch(payload.data || null);
+      setItemsReference(itemsPayload.data || null);
       if (notify) toast.success("Research actualisé.");
     } catch (error) {
       toast.error(error.message || "Erreur de chargement Research.");
@@ -2043,6 +2055,7 @@ export function AdminApp() {
             {active === "rocket" ? (
               <RocketPanel
                 rocket={rocket}
+                rocketTexts={rocketTexts}
                 loading={rocketLoading}
                 busyAction={rocketBusyAction}
                 onRefresh={() => loadRocket({ notify: true })}
@@ -2056,6 +2069,7 @@ export function AdminApp() {
             {active === "research" ? (
               <ResearchPanel
                 research={research}
+                itemsReference={itemsReference}
                 loading={researchLoading}
                 busyAction={researchBusyAction}
                 onRefresh={() => loadResearch({ notify: true })}

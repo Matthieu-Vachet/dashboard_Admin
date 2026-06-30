@@ -125,6 +125,32 @@ function readCurrentResearch() {
   return { data, meta: { source: "data/research/currentResearch.json", buckets } };
 }
 
+function readItems() {
+  const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
+  const file = dataPath("items", "items.json");
+  const data = JSON.parse(fs.readFileSync(file, "utf8"));
+  return {
+    data,
+    meta: {
+      source: "data/items/items.json",
+      total: Array.isArray(data.items) ? data.items.length : 0,
+    },
+  };
+}
+
+function readRocketTexts() {
+  const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
+  const file = dataPath("rocket", "rocketTexts.json");
+  const data = JSON.parse(fs.readFileSync(file, "utf8"));
+  return {
+    data,
+    meta: {
+      source: "data/rocket/rocketTexts.json",
+      total: Array.isArray(data.rocketTexts) ? data.rocketTexts.length : 0,
+    },
+  };
+}
+
 async function callPokemonApiAdmin(path: string) {
   const secret = process.env.POKEMON_API_ADMIN_SECRET || process.env.API_ADMIN_SECRET;
   if (!secret) {
@@ -436,6 +462,14 @@ export async function GET(request: NextRequest) {
 
     if (action === "research") {
       return json({ data: readCurrentResearch() });
+    }
+
+    if (action === "items") {
+      return json({ data: readItems() });
+    }
+
+    if (action === "rocket-texts") {
+      return json({ data: readRocketTexts() });
     }
 
     if (action === "history") {
