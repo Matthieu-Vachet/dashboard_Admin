@@ -1320,6 +1320,27 @@ export function AdminApp() {
     await loadAdminData();
   }
 
+  function unwrapAdminActionReport(payload) {
+    return payload?.data?.data || payload?.data || payload;
+  }
+
+  function assertSuccessfulAdminAction(payload, fallbackMessage) {
+    const report = unwrapAdminActionReport(payload);
+    if (report?.success === false) {
+      throw new Error(report.error || fallbackMessage);
+    }
+    return report;
+  }
+
+  function adminActionLabel(label, report) {
+    const count = report?.itemsParsed ?? report?.summary?.tasks ?? null;
+    return Number.isFinite(Number(count)) ? `${label} ${Number(count)} éléments.` : label;
+  }
+
+  function currentDataEnvelope(resource) {
+    return resource?.data || resource || undefined;
+  }
+
   async function loadRaids({ notify = false } = {}) {
     setRaidsLoading(true);
     try {
@@ -1350,14 +1371,19 @@ export function AdminApp() {
   async function runRaidsAdminAction(action, label) {
     setRaidsBusyAction(action);
     try {
+      const data = action === "import" ? currentDataEnvelope(raids) : undefined;
       const response = await fetch(adminApiPath, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: action === "import" ? "import-raids" : "regenerate-raids" }),
+        body: JSON.stringify({
+          action: action === "import" ? "import-raids" : "regenerate-raids",
+          ...(data ? { data } : {}),
+        }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Action raids impossible.");
-      toast.success(label);
+      const report = assertSuccessfulAdminAction(payload, "Action raids impossible.");
+      toast.success(adminActionLabel(label, report));
       await loadRaids();
     } catch (error) {
       toast.error(error.message || "Action raids impossible.");
@@ -1396,14 +1422,19 @@ export function AdminApp() {
   async function runEggsAdminAction(action, label) {
     setEggsBusyAction(action);
     try {
+      const data = action === "import" ? currentDataEnvelope(eggs) : undefined;
       const response = await fetch(adminApiPath, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: action === "import" ? "import-eggs" : "regenerate-eggs" }),
+        body: JSON.stringify({
+          action: action === "import" ? "import-eggs" : "regenerate-eggs",
+          ...(data ? { data } : {}),
+        }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Action oeufs impossible.");
-      toast.success(label);
+      const report = assertSuccessfulAdminAction(payload, "Action oeufs impossible.");
+      toast.success(adminActionLabel(label, report));
       await loadEggs();
     } catch (error) {
       toast.error(error.message || "Action oeufs impossible.");
@@ -1442,14 +1473,19 @@ export function AdminApp() {
   async function runMaxBattlesAdminAction(action, label) {
     setMaxBattlesBusyAction(action);
     try {
+      const data = action === "import" ? currentDataEnvelope(maxBattles) : undefined;
       const response = await fetch(adminApiPath, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: action === "import" ? "import-max-battles" : "regenerate-max-battles" }),
+        body: JSON.stringify({
+          action: action === "import" ? "import-max-battles" : "regenerate-max-battles",
+          ...(data ? { data } : {}),
+        }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Action Max Battles impossible.");
-      toast.success(label);
+      const report = assertSuccessfulAdminAction(payload, "Action Max Battles impossible.");
+      toast.success(adminActionLabel(label, report));
       await loadMaxBattles();
     } catch (error) {
       toast.error(error.message || "Action Max Battles impossible.");
@@ -1493,14 +1529,19 @@ export function AdminApp() {
   async function runRocketAdminAction(action, label) {
     setRocketBusyAction(action);
     try {
+      const data = action === "import" ? currentDataEnvelope(rocket) : undefined;
       const response = await fetch(adminApiPath, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: action === "import" ? "import-rocket" : "regenerate-rocket" }),
+        body: JSON.stringify({
+          action: action === "import" ? "import-rocket" : "regenerate-rocket",
+          ...(data ? { data } : {}),
+        }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Action Rocket impossible.");
-      toast.success(label);
+      const report = assertSuccessfulAdminAction(payload, "Action Rocket impossible.");
+      toast.success(adminActionLabel(label, report));
       await loadRocket();
     } catch (error) {
       toast.error(error.message || "Action Rocket impossible.");
@@ -1544,18 +1585,20 @@ export function AdminApp() {
   async function runResearchAdminAction(action, label) {
     setResearchBusyAction(action);
     try {
+      const data = action === "import" ? currentDataEnvelope(research) : undefined;
       const response = await fetch(adminApiPath, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           action: action === "import" ? "import-research" : "regenerate-research",
+          ...(data ? { data } : {}),
         }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Action Research impossible.");
-      const summary = payload.data?.data?.summary || payload.data?.data?.report || payload.data?.summary || payload.data?.report;
-      const tasks = summary?.tasks;
-      toast.success(tasks ? `${label} ${tasks} quêtes.` : label);
+      const report = assertSuccessfulAdminAction(payload, "Action Research impossible.");
+      const tasks = report?.summary?.tasks ?? report?.itemsParsed;
+      toast.success(tasks ? `${label} ${tasks} quêtes.` : adminActionLabel(label, report));
       await loadResearch();
     } catch (error) {
       toast.error(error.message || "Action Research impossible.");

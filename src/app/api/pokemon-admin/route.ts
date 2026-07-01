@@ -11,6 +11,7 @@ import {
 import { assertJsonPayloadSize, assertSameOrigin, rateLimit } from "@/lib/security";
 
 type JsonValue = Record<string, unknown>;
+type CurrentPayload = { data: Record<string, unknown>; meta: Record<string, unknown> };
 type RuleRecord = Record<string, unknown> & {
   id?: string;
   enabled?: boolean;
@@ -50,7 +51,43 @@ function loadAdminModules() {
   return { buildChecklist, buildCustomRuleCatalogChecklist, detailForKey, sourceWatch, summarizeChecklist, workshop };
 }
 
-function readCurrentRaids() {
+async function readPokemonApiCurrent(
+  path: string,
+  validate: (data: Record<string, unknown>) => boolean,
+  normalize: (data: Record<string, unknown>, meta: Record<string, unknown>) => CurrentPayload,
+  fallback: () => CurrentPayload,
+) {
+  try {
+    const target = new URL(path, pokemonApiBaseUrl);
+    const response = await fetch(target, {
+      cache: "no-store",
+      headers: { accept: "application/json" },
+      signal: AbortSignal.timeout(12_000),
+    });
+    const payload = await response.json().catch(() => null) as {
+      data?: Record<string, unknown>;
+      meta?: Record<string, unknown>;
+    } | null;
+    if (!response.ok || !payload?.data || !validate(payload.data)) {
+      throw new Error("PokemonGo-API indisponible.");
+    }
+    return normalize(payload.data, payload.meta || {});
+  } catch {
+    return fallback();
+  }
+}
+
+function sourceLabel(meta: Record<string, unknown>, fileSource: string) {
+  if (meta.source === "mongo") return "pokemon-api-mongo";
+  if (meta.source === "file") return "pokemon-api-file";
+  return fileSource;
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+}
+
+function readCurrentRaidsLocal() {
   const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
   const file = dataPath("raids", "currentRaids.json");
   const data = JSON.parse(fs.readFileSync(file, "utf8"));
@@ -63,7 +100,25 @@ function readCurrentRaids() {
   return { data, meta: { source: "data/raids/currentRaids.json", buckets } };
 }
 
-function readCurrentEggs() {
+async function readCurrentRaids() {
+  return readPokemonApiCurrent(
+    "/api/v1/raids?source=mongo",
+    (data) => Boolean(data.currentList && typeof data.currentList === "object"),
+    (data, meta) => {
+      const currentList = asRecord(data.currentList);
+      const buckets = Object.fromEntries(
+        Object.entries(currentList).map(([key, bosses]) => [
+          key,
+          Array.isArray(bosses) ? bosses.length : 0,
+        ]),
+      );
+      return { data, meta: { ...meta, source: sourceLabel(meta, "data/raids/currentRaids.json"), buckets } };
+    },
+    readCurrentRaidsLocal,
+  );
+}
+
+function readCurrentEggsLocal() {
   const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
   const file = dataPath("eggs", "currentEggs.json");
   const data = JSON.parse(fs.readFileSync(file, "utf8"));
@@ -76,7 +131,25 @@ function readCurrentEggs() {
   return { data, meta: { source: "data/eggs/currentEggs.json", buckets } };
 }
 
-function readCurrentMaxBattles() {
+async function readCurrentEggs() {
+  return readPokemonApiCurrent(
+    "/api/v1/eggs?source=mongo",
+    (data) => Boolean(data.currentEggsList && typeof data.currentEggsList === "object"),
+    (data, meta) => {
+      const currentEggsList = asRecord(data.currentEggsList);
+      const buckets = Object.fromEntries(
+        Object.entries(currentEggsList).map(([key, pokemon]) => [
+          key,
+          Array.isArray(pokemon) ? pokemon.length : 0,
+        ]),
+      );
+      return { data, meta: { ...meta, source: sourceLabel(meta, "data/eggs/currentEggs.json"), buckets } };
+    },
+    readCurrentEggsLocal,
+  );
+}
+
+function readCurrentMaxBattlesLocal() {
   const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
   const file = dataPath("max-battles", "currentsMaxBattle.json");
   const data = JSON.parse(fs.readFileSync(file, "utf8"));
@@ -89,27 +162,66 @@ function readCurrentMaxBattles() {
   return { data, meta: { source: "data/max-battles/currentsMaxBattle.json", buckets } };
 }
 
-function readCurrentRocket() {
+async function readCurrentMaxBattles() {
+  return readPokemonApiCurrent(
+    "/api/v1/max-battles?source=mongo",
+    (data) => Boolean(data.currentMaxBattle && typeof data.currentMaxBattle === "object"),
+    (data, meta) => {
+      const currentMaxBattle = asRecord(data.currentMaxBattle);
+      const buckets = Object.fromEntries(
+        Object.entries(currentMaxBattle).map(([key, pokemon]) => [
+          key,
+          Array.isArray(pokemon) ? pokemon.length : 0,
+        ]),
+      );
+      return { data, meta: { ...meta, source: sourceLabel(meta, "data/max-battles/currentsMaxBattle.json"), buckets } };
+    },
+    readCurrentMaxBattlesLocal,
+  );
+}
+
+function rocketSummary(data: { currentRocketList?: Record<string, unknown> }) {
+  const currentRocketList = asRecord(data.currentRocketList);
+  const leaders = Object.values(asRecord(currentRocketList.leaders)).flatMap((items) =>
+    Array.isArray(items) ? items : [],
+  );
+  const giovanni = Array.isArray(currentRocketList.giovanni) ? currentRocketList.giovanni : [];
+  const grunts = Array.isArray(currentRocketList.grunts) ? currentRocketList.grunts : [];
+  return {
+    giovanni: giovanni.length,
+    leaders: leaders.length,
+    grunts: grunts.length,
+    trainers: giovanni.length + leaders.length + grunts.length,
+  };
+}
+
+function readCurrentRocketLocal() {
   const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
   const file = dataPath("rocket", "currentRocket.json");
   const data = JSON.parse(fs.readFileSync(file, "utf8"));
-  const leaders = Object.values(data.currentRocketList?.leaders || {}).flatMap((items) =>
-    Array.isArray(items) ? items : [],
-  );
-  const giovanni = Array.isArray(data.currentRocketList?.giovanni) ? data.currentRocketList.giovanni : [];
-  const grunts = Array.isArray(data.currentRocketList?.grunts) ? data.currentRocketList.grunts : [];
   return {
     data,
     meta: {
       source: "data/rocket/currentRocket.json",
-      summary: {
-        giovanni: giovanni.length,
-        leaders: leaders.length,
-        grunts: grunts.length,
-        trainers: giovanni.length + leaders.length + grunts.length,
-      },
+      summary: rocketSummary(data),
     },
   };
+}
+
+async function readCurrentRocket() {
+  return readPokemonApiCurrent(
+    "/api/v1/rocket?source=mongo",
+    (data) => Boolean(data.currentRocketList && typeof data.currentRocketList === "object"),
+    (data, meta) => ({
+      data,
+      meta: {
+        ...meta,
+        source: sourceLabel(meta, "data/rocket/currentRocket.json"),
+        summary: rocketSummary(data),
+      },
+    }),
+    readCurrentRocketLocal,
+  );
 }
 
 function researchSummary(data: { currentResearchList?: Record<string, unknown> }) {
@@ -484,19 +596,19 @@ export async function GET(request: NextRequest) {
     }
 
     if (action === "raids") {
-      return json({ data: readCurrentRaids() });
+      return json({ data: await readCurrentRaids() });
     }
 
     if (action === "eggs") {
-      return json({ data: readCurrentEggs() });
+      return json({ data: await readCurrentEggs() });
     }
 
     if (action === "max-battles") {
-      return json({ data: readCurrentMaxBattles() });
+      return json({ data: await readCurrentMaxBattles() });
     }
 
     if (action === "rocket") {
-      return json({ data: readCurrentRocket() });
+      return json({ data: await readCurrentRocket() });
     }
 
     if (action === "research") {
@@ -612,7 +724,8 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === "import-raids") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/raids/import") });
+      const raidsPayload = body?.data && typeof body.data === "object" ? body.data : undefined;
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/raids/import", raidsPayload) });
     }
 
     if (action === "regenerate-raids") {
@@ -620,7 +733,8 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === "import-eggs") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/eggs/import") });
+      const eggsPayload = body?.data && typeof body.data === "object" ? body.data : undefined;
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/eggs/import", eggsPayload) });
     }
 
     if (action === "regenerate-eggs") {
@@ -628,7 +742,8 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === "import-max-battles") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/max-battles/import") });
+      const maxBattlesPayload = body?.data && typeof body.data === "object" ? body.data : undefined;
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/max-battles/import", maxBattlesPayload) });
     }
 
     if (action === "regenerate-max-battles") {
@@ -636,7 +751,8 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === "import-rocket") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/rocket/import") });
+      const rocketPayload = body?.data && typeof body.data === "object" ? body.data : undefined;
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/rocket/import", rocketPayload) });
     }
 
     if (action === "regenerate-rocket") {

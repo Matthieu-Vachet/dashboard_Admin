@@ -7,6 +7,16 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.10.1",
+    date: "2026-07-01",
+    title: "Pipeline wrappers live",
+    changes: [
+      "Recharge Raids, Oeufs, Max Battles, Rocket et Research depuis PokemonGo-API/Mongo avant fallback fichier.",
+      "Envoie le JSON actuellement charge lors de l'import Mongo pour eviter les reimports de snapshots obsoletes.",
+      "Affiche les rapports de generation/import et bloque les faux succes quand l'API signale une regeneration vide.",
+    ],
+  },
+  {
     version: "V1.10.0",
     date: "2026-07-01",
     title: "Calendrier Events Pokémon GO",
