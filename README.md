@@ -101,7 +101,13 @@ des evenements Pokemon GO, avec filtres par type, statut, date et recherche text
 
 Les donnees sont lues par `GET /api/events`. Les actions admin utilisent les routes
 protegees `POST /api/admin/events`, `PATCH /api/admin/events/:id`,
-`DELETE /api/admin/events/:id` et `POST /api/admin/events/import`.
+`DELETE /api/admin/events/:id`, `POST /api/admin/events/scrape` et
+`POST /api/admin/events/import`.
+
+Le bouton `Rescraper Events` lit LeekDuck Events, s'appuie sur ScrapedDuck pour les
+details publics disponibles, matche les Pokemon avec les donnees locales et upsert la
+collection MongoDB `events`. La reponse contient un rapport avec events recuperes,
+events ignores, Pokemon matches/non matches et images recuperees.
 
 Les events sont stockes dans la collection MongoDB `events` du dashboard. Si MongoDB n'est
 pas configure, l'API publique renvoie des seeds de lecture, mais le CRUD admin necessite

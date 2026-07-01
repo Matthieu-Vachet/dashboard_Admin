@@ -27,6 +27,8 @@ Chaque document est global au dashboard et contient :
   },
   "featuredPokemon": [],
   "bonuses": [],
+  "rewards": [],
+  "raw": {},
   "links": []
 }
 ```
@@ -43,8 +45,13 @@ Index créés automatiquement :
 Types acceptés :
 
 - `community_day`
+- `raid_battles`
 - `spotlight_hour`
 - `raid_hour`
+- `go_battle_league`
+- `go_pass`
+- `choose_your_path`
+- `max_monday`
 - `raid_day`
 - `event`
 - `season`
@@ -100,25 +107,54 @@ Routes admin protégées par session dashboard, rate-limit et origine identique 
 POST /api/admin/events
 PATCH /api/admin/events/:id
 DELETE /api/admin/events/:id
+POST /api/admin/events/scrape
 POST /api/admin/events/import
 ```
 
 L'import accepte soit un tableau JSON, soit un objet `{ "events": [...] }`. Les events sont
 upsert par `id`.
 
+`POST /api/admin/events/scrape` lit `https://leekduck.com/feeds/events.json`,
+utilise `https://github.com/bigfoott/ScrapedDuck` comme référence d'enrichissement
+quand le dataset public expose `extraData`, matche les Pokémon avec les JSON locaux
+`pokemon/` et `pokemon-forms/`, puis upsert le résultat dans MongoDB. La réponse contient
+un rapport exploitable :
+
+```json
+{
+  "success": true,
+  "data": {
+    "source": "leekduck-events",
+    "eventsParsed": 54,
+    "eventsSkipped": 0,
+    "pokemonMatched": 104,
+    "pokemonUnmatched": 0,
+    "imagesRecovered": 127,
+    "mongoUpdated": true,
+    "events": []
+  }
+}
+```
+
+Si LeekDuck ne retourne aucun event ou si l'import échoue, la route renvoie
+`success: false` et aucun toast de succès ne doit être affiché.
+
 ## UI Admin
 
 Fonctions disponibles :
 
 - vue mensuelle ;
+- barres continues pour les events multi-jours ;
 - vue liste : Aujourd'hui, En cours, À venir, Passés ;
+- timeline latérale repliable : Today Only, Ongoing Events, Upcoming Events et Past Events ;
 - filtres type, statut, date et recherche texte ;
-- modale détail avec dates, source, type, bonus, Pokémon liés et liens ;
+- modale détail avec dates, source, type, durée, description, image event, bonus, rewards, Pokémon liés cliquables, liens et infos scrapées ;
 - ajout, modification, suppression, archivage, restauration et duplication ;
-- import JSON et export JSON.
+- rescrape LeekDuck, import MongoDB, import JSON et export JSON.
 
 ## Limites Connues
 
-La page ne scrape pas encore automatiquement LeekDuck ou PoGO Calendar. Les seeds servent
-uniquement à éviter une page vide et doivent être remplacés par des documents Mongo via
-CRUD ou import JSON pour une exploitation continue.
+Le scraper s'appuie d'abord sur le feed JSON public LeekDuck Events et utilise ScrapedDuck
+comme source d'enrichissement. Les pages de détail LeekDuck très spécifiques peuvent
+contenir des blocs que ScrapedDuck n'expose pas encore ; dans ce cas le dashboard conserve
+l'event, ses dates, son image et son lien source, mais n'invente pas de bonus ou rewards.

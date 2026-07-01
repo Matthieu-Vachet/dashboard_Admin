@@ -8,6 +8,7 @@ import {
   type PokemonEventStatus,
   type PokemonEventType,
   type PokemonFeaturedPokemon,
+  type PokemonEventReward,
 } from "@/data/pokemon-events";
 
 export type DashboardStoreDocument = {
@@ -73,6 +74,7 @@ export type DashboardPokemonEventDocument = {
   title: string;
   description: string;
   type: PokemonEventType;
+  category?: string;
   startDate: Date;
   endDate: Date;
   timezone: string;
@@ -84,7 +86,9 @@ export type DashboardPokemonEventDocument = {
   };
   featuredPokemon: PokemonFeaturedPokemon[];
   bonuses: string[];
+  rewards?: PokemonEventReward[];
   links: Array<{ label: string; url: string }>;
+  raw?: Record<string, unknown>;
   owner: string;
   createdAt: Date;
   updatedAt: Date;
@@ -488,7 +492,7 @@ function featuredPokemonValue(value: unknown) {
       : [];
 
   return items
-    .map((item) => {
+    .map((item): PokemonFeaturedPokemon => {
       if (typeof item === "string") return { name: item };
       if (item && typeof item === "object") {
         const record = item as Record<string, unknown>;
@@ -499,12 +503,38 @@ function featuredPokemonValue(value: unknown) {
           image: textValue(record.image || record.icon) || undefined,
           dexId: textValue(record.dexId || record.dex) || undefined,
           form: textValue(record.form) || undefined,
+          types: Array.isArray(record.types) ? record.types.map((type) => textValue(type)).filter(Boolean) : undefined,
+          shiny: typeof record.shiny === "boolean" ? record.shiny : undefined,
         };
       }
       return { name: "" };
     })
-    .filter((item): item is PokemonFeaturedPokemon => Boolean(item.name))
+    .filter((item) => Boolean(item.name))
     .slice(0, 60);
+}
+
+function rewardsValue(value: unknown) {
+  const items = Array.isArray(value) ? value : [];
+  return items
+    .map((item): PokemonEventReward => {
+      if (typeof item === "string") return { text: item };
+      if (item && typeof item === "object") {
+        const record = item as Record<string, unknown>;
+        return {
+          text: textValue(record.text || record.name || record.label || record.title),
+          image: nullableUrlValue(record.image || record.icon),
+          type: textValue(record.type) || undefined,
+        };
+      }
+      return { text: "" };
+    })
+    .filter((item) => Boolean(item.text))
+    .slice(0, 240);
+}
+
+function rawValue(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  return value as Record<string, unknown>;
 }
 
 function computedPokemonEventStatus(
@@ -533,6 +563,7 @@ function serializePokemonEventRecord(
     title: event.title,
     description: event.description || "",
     type: event.type,
+    category: event.category || undefined,
     startDate: startDate.toISOString(),
     endDate: endDate.toISOString(),
     timezone: event.timezone || POKEMON_EVENT_TIMEZONE,
@@ -544,7 +575,9 @@ function serializePokemonEventRecord(
     },
     featuredPokemon: Array.isArray(event.featuredPokemon) ? event.featuredPokemon : [],
     bonuses: Array.isArray(event.bonuses) ? event.bonuses : [],
+    rewards: Array.isArray(event.rewards) ? event.rewards : [],
     links: Array.isArray(event.links) ? event.links : [],
+    raw: event.raw,
     createdAt:
       "createdAt" in event && event.createdAt
         ? event.createdAt instanceof Date
@@ -615,6 +648,7 @@ function normalizePokemonEventInput(
     title,
     description: textValue(input.description, existing?.description || ""),
     type: enumValue(input.type, pokemonEventTypes, existing?.type || "event"),
+    category: textValue(input.category, existing?.category || ""),
     startDate,
     endDate,
     timezone: textValue(input.timezone, existing?.timezone || POKEMON_EVENT_TIMEZONE),
@@ -628,7 +662,9 @@ function normalizePokemonEventInput(
       ? featuredPokemonValue(input.featuredPokemon)
       : existing?.featuredPokemon || [],
     bonuses: "bonuses" in input ? stringListValue(input.bonuses) : existing?.bonuses || [],
+    rewards: "rewards" in input ? rewardsValue(input.rewards) : existing?.rewards || [],
     links: "links" in input ? linksValue(input.links) : existing?.links || [],
+    raw: "raw" in input ? rawValue(input.raw) : existing?.raw,
     owner: existing?.owner || owner,
     archivedAt,
   };

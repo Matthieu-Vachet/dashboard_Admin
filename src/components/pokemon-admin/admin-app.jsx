@@ -2144,7 +2144,7 @@ export function AdminApp() {
             ) : null}
 
             {active === "events" ? (
-              <EventsCalendarPanel globalSearch={search} />
+              <EventsCalendarPanel globalSearch={search} onOpenPokemon={openPokemonReference} />
             ) : null}
 
             {active === "assets" ? (

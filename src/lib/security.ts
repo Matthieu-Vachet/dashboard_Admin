@@ -10,7 +10,7 @@ export const securityHeaders = {
     "form-action 'self'",
     "frame-ancestors 'none'",
     "object-src 'none'",
-    "img-src 'self' data: blob: https://raw.githubusercontent.com https://avatars.githubusercontent.com",
+    "img-src 'self' data: blob: https://raw.githubusercontent.com https://avatars.githubusercontent.com https://cdn.leekduck.com https://leekduck.com",
     "connect-src 'self' https://raw.githubusercontent.com https://api.github.com",
     "font-src 'self' data:",
     "style-src 'self' 'unsafe-inline'",

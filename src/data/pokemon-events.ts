@@ -2,6 +2,12 @@ export const POKEMON_EVENT_TIMEZONE = "Europe/Paris";
 
 export const POKEMON_EVENT_TYPES = [
   {
+    id: "raid_battles",
+    label: "Raid Battles",
+    color: "#dc3b2f",
+    icon: "/ui/raids/5_star_raids.png",
+  },
+  {
     id: "community_day",
     label: "Journée communautaire",
     color: "#22c55e",
@@ -16,8 +22,32 @@ export const POKEMON_EVENT_TYPES = [
   {
     id: "raid_hour",
     label: "Heure de raid",
-    color: "#38bdf8",
+    color: "#dc3b2f",
     icon: "/ui/icons/raid.png",
+  },
+  {
+    id: "go_battle_league",
+    label: "GO Battle League",
+    color: "#963fba",
+    icon: "/ui/icons/TodayView_Icon_Battle.webp",
+  },
+  {
+    id: "go_pass",
+    label: "GO Pass",
+    color: "#9a7a12",
+    icon: "/ui/icons/go_logo.png",
+  },
+  {
+    id: "choose_your_path",
+    label: "Choose Your Path",
+    color: "#16a085",
+    icon: "/ui/icons/pokeball.webp",
+  },
+  {
+    id: "max_monday",
+    label: "Max Monday",
+    color: "#9f0b67",
+    icon: "/ui/max_battles/max-battles.webp",
   },
   {
     id: "raid_day",
@@ -104,12 +134,20 @@ export type PokemonEventAsset = {
   icon: string | null;
 };
 
+export type PokemonEventReward = {
+  text: string;
+  image?: string | null;
+  type?: string;
+};
+
 export type PokemonFeaturedPokemon = {
   id?: string;
   name: string;
   image?: string;
   dexId?: string;
   form?: string;
+  types?: string[];
+  shiny?: boolean;
 };
 
 export type PokemonCalendarEvent = {
@@ -117,6 +155,7 @@ export type PokemonCalendarEvent = {
   title: string;
   description: string;
   type: PokemonEventType;
+  category?: string;
   startDate: string;
   endDate: string;
   timezone: string;
@@ -125,7 +164,9 @@ export type PokemonCalendarEvent = {
   assets: PokemonEventAsset;
   featuredPokemon: PokemonFeaturedPokemon[];
   bonuses: string[];
+  rewards?: PokemonEventReward[];
   links: PokemonEventLink[];
+  raw?: Record<string, unknown>;
   createdAt?: string;
   updatedAt?: string;
   archivedAt?: string | null;

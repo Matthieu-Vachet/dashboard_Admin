@@ -1,13 +1,18 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
 import {
+  addDays,
   addMonths,
+  differenceInCalendarDays,
   eachDayOfInterval,
   endOfMonth,
   endOfWeek,
   format,
+  formatDistanceToNowStrict,
   isSameMonth,
   startOfMonth,
+  startOfDay,
   startOfWeek,
   subMonths,
 } from "date-fns";
@@ -16,8 +21,10 @@ import {
   Archive,
   CalendarDays,
   CalendarPlus,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   Clock3,
   Copy,
   Download,
@@ -46,12 +53,13 @@ import { fieldClass, Panel, primaryButtonClass, buttonClass } from "./admin-ui";
 
 const eventsApiPath = "/api/events";
 const adminEventsApiPath = "/api/admin/events";
+const adminEventsScrapePath = "/api/admin/events/scrape";
 const monthFormat = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" });
 const dateTimeFormat = new Intl.DateTimeFormat("fr-FR", {
   dateStyle: "medium",
   timeStyle: "short",
 });
-const dayNames = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+const dayNames = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
 const statusOptions = [
   ["all", "Tous statuts"],
   ["current", "En cours"],
@@ -92,8 +100,8 @@ function dayKey(value) {
 
 function monthDays(cursor) {
   return eachDayOfInterval({
-    start: startOfWeek(startOfMonth(cursor), { weekStartsOn: 1 }),
-    end: endOfWeek(endOfMonth(cursor), { weekStartsOn: 1 }),
+    start: startOfWeek(startOfMonth(cursor), { weekStartsOn: 0 }),
+    end: endOfWeek(endOfMonth(cursor), { weekStartsOn: 0 }),
   });
 }
 
@@ -104,6 +112,90 @@ function eventOnDay(event, date) {
 
 function eventSort(left, right) {
   return `${left.startDate}${left.title}`.localeCompare(`${right.startDate}${right.title}`);
+}
+
+function chunkWeeks(days) {
+  const weeks = [];
+  for (let index = 0; index < days.length; index += 7) {
+    weeks.push(days.slice(index, index + 7));
+  }
+  return weeks;
+}
+
+function eventDurationDays(event) {
+  return Math.max(1, differenceInCalendarDays(new Date(event.endDate), new Date(event.startDate)) + 1);
+}
+
+function isMultiDayEvent(event) {
+  return eventDurationDays(event) > 1;
+}
+
+function eventTimeLabel(event) {
+  const start = new Date(event.startDate);
+  const end = new Date(event.endDate);
+  if (dayKey(start) === dayKey(end)) {
+    return `${format(start, "HH:mm", { locale: fr })} - ${format(end, "HH:mm", { locale: fr })}`;
+  }
+  return `${format(start, "d MMM HH:mm", { locale: fr })} - ${format(end, "d MMM HH:mm", { locale: fr })}`;
+}
+
+function eventRemainingLabel(event) {
+  const now = new Date();
+  const start = new Date(event.startDate);
+  const end = new Date(event.endDate);
+  if (end < now) return `termine depuis ${formatDistanceToNowStrict(end, { locale: fr })}`;
+  if (start > now) return `commence dans ${formatDistanceToNowStrict(start, { locale: fr })}`;
+  return `se termine dans ${formatDistanceToNowStrict(end, { locale: fr })}`;
+}
+
+function eventImages(event, limit = 4) {
+  return (event.featuredPokemon || [])
+    .map((pokemon) => ({
+      src: pokemon.image,
+      name: pokemon.name || pokemon.id,
+    }))
+    .filter((pokemon) => pokemon.src)
+    .slice(0, limit);
+}
+
+function eventRewards(event, limit = 16) {
+  return (event.rewards || [])
+    .map((reward) => ({
+      src: reward.image,
+      text: reward.text,
+    }))
+    .filter((reward) => reward.src || reward.text)
+    .slice(0, limit);
+}
+
+function buildWeekSegments(weekDays, events) {
+  const weekStart = startOfDay(weekDays[0]);
+  const weekEnd = startOfDay(weekDays[6]);
+  const lanes = [];
+  const segments = events
+    .filter(isMultiDayEvent)
+    .filter((event) => startOfDay(new Date(event.startDate)) <= weekEnd && startOfDay(new Date(event.endDate)) >= weekStart)
+    .sort((left, right) => {
+      const leftStart = new Date(left.startDate).getTime();
+      const rightStart = new Date(right.startDate).getTime();
+      if (leftStart !== rightStart) return leftStart - rightStart;
+      return eventDurationDays(right) - eventDurationDays(left);
+    })
+    .map((event) => {
+      const eventStart = startOfDay(new Date(event.startDate));
+      const eventEnd = startOfDay(new Date(event.endDate));
+      const startIndex = Math.max(0, differenceInCalendarDays(eventStart, weekStart));
+      const endIndex = Math.min(6, differenceInCalendarDays(eventEnd, weekStart));
+      let lane = lanes.findIndex((lastEnd) => lastEnd < startIndex);
+      if (lane < 0) {
+        lane = lanes.length;
+        lanes.push(endIndex);
+      } else {
+        lanes[lane] = endIndex;
+      }
+      return { event, startIndex, endIndex, lane };
+    });
+  return { segments, laneCount: Math.min(Math.max(lanes.length, 1), 5) };
 }
 
 function eventType(event) {
@@ -215,7 +307,7 @@ function downloadJson(filename, payload) {
   URL.revokeObjectURL(url);
 }
 
-export function EventsCalendarPanel({ globalSearch = "" }) {
+export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon }) {
   const [events, setEvents] = useState(defaultPokemonEvents);
   const [meta, setMeta] = useState({ configured: false, seeded: true, collection: "events" });
   const [loading, setLoading] = useState(false);
@@ -284,6 +376,7 @@ export function EventsCalendarPanel({ globalSearch = "" }) {
   }, [dateFilter, events, globalSearch, query, statusFilter, typeFilter]);
 
   const days = useMemo(() => monthDays(cursor), [cursor]);
+  const weeks = useMemo(() => chunkWeeks(days), [days]);
   const todayKey = dayKey(new Date());
   const todayEvents = filteredEvents.filter((event) => eventOnDay(event, todayKey)).sort(eventSort);
   const currentEvents = filteredEvents.filter((event) => event.status === "current").sort(eventSort);
@@ -412,11 +505,55 @@ export function EventsCalendarPanel({ globalSearch = "" }) {
     }
   }
 
+  async function importLoadedEvents() {
+    setBusy("import-loaded");
+    try {
+      const response = await fetch(`${adminEventsApiPath}/import`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ events }),
+      });
+      const payload = await response.json();
+      if (!response.ok || payload.success === false) throw new Error(payload.error || "Import MongoDB impossible.");
+      if (Array.isArray(payload.data?.events)) setEvents(payload.data.events);
+      setMeta((current) => ({ ...current, configured: true, seeded: false }));
+      toast.success(`MongoDB mis à jour: ${payload.data?.total || events.length} event(s).`);
+    } catch (error) {
+      toast.error(error.message || "Import MongoDB impossible.");
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function scrapeEvents() {
+    setBusy("scrape");
+    try {
+      const response = await fetch(adminEventsScrapePath, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: "{}",
+      });
+      const payload = await response.json();
+      if (!response.ok || payload.success === false) throw new Error(payload.error || "Scrape LeekDuck impossible.");
+      const nextEvents = Array.isArray(payload.data?.events) ? payload.data.events : [];
+      if (!nextEvents.length) throw new Error("Aucun event récupéré depuis LeekDuck.");
+      setEvents(nextEvents);
+      setMeta((current) => ({ ...current, configured: true, seeded: false }));
+      toast.success(
+        `LeekDuck rescrapé: ${payload.data?.eventsParsed || nextEvents.length} events, ${payload.data?.pokemonMatched || 0} Pokémon matchés.`,
+      );
+    } catch (error) {
+      toast.error(error.message || "Scrape LeekDuck impossible.");
+    } finally {
+      setBusy("");
+    }
+  }
+
   function exportEvents() {
     downloadJson("pokemon-go-events.json", {
       generatedAt: new Date().toISOString(),
       collection: meta.collection,
-      events: filteredEvents,
+      events,
     });
   }
 
@@ -430,13 +567,19 @@ export function EventsCalendarPanel({ globalSearch = "" }) {
             <button className={buttonClass} type="button" onClick={() => loadEvents({ notify: true })} disabled={loading}>
               <RefreshCcw size={17} /> {loading ? "Chargement..." : "Actualiser"}
             </button>
+            <button className={primaryButtonClass} type="button" onClick={scrapeEvents} disabled={busy === "scrape"}>
+              <Sparkles size={17} /> {busy === "scrape" ? "Scrape..." : "Rescraper Events"}
+            </button>
+            <button className={buttonClass} type="button" onClick={importLoadedEvents} disabled={busy === "import-loaded" || !events.length}>
+              <Upload size={17} /> {busy === "import-loaded" ? "Envoi..." : "Envoyer MongoDB"}
+            </button>
             <button className={buttonClass} type="button" onClick={() => setImportOpen(true)}>
               <Upload size={17} /> Import JSON
             </button>
             <button className={buttonClass} type="button" onClick={exportEvents}>
-              <Download size={17} /> Export JSON
+              <Download size={17} /> Télécharger JSON
             </button>
-            <button className={primaryButtonClass} type="button" onClick={() => openCreate(new Date())}>
+            <button className={buttonClass} type="button" onClick={() => openCreate(new Date())}>
               <CalendarPlus size={17} /> Ajouter
             </button>
           </div>
@@ -481,7 +624,7 @@ export function EventsCalendarPanel({ globalSearch = "" }) {
         ) : null}
       </Panel>
 
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+      <section className="grid min-w-0 gap-5 2xl:grid-cols-[minmax(0,1fr)_420px]">
         <div className="min-w-0 rounded-2xl border border-white/10 bg-slate-950/30 p-3 shadow-[0_22px_90px_rgba(0,0,0,.22)] sm:p-4">
           <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-2">
@@ -516,63 +659,31 @@ export function EventsCalendarPanel({ globalSearch = "" }) {
           </div>
 
           {view === "calendar" ? (
-            <div className="overflow-x-auto pb-1">
-              <div className="min-w-[820px]">
-                <div className="grid grid-cols-7 gap-2">
-                  {dayNames.map((day) => (
-                    <span key={day} className="rounded-xl border border-white/10 bg-white/[0.045] px-3 py-2 text-center text-xs font-black uppercase tracking-[0.14em] text-cyan-100/70">
-                      {day}
-                    </span>
-                  ))}
-                </div>
-                <div className="mt-2 grid grid-cols-7 gap-2">
-                  {days.map((day) => {
-                    const key = dayKey(day);
-                    const dayEvents = filteredEvents.filter((event) => eventOnDay(event, key));
-                    const today = key === todayKey;
-                    return (
-                      <article
-                        key={key}
-                        className={`min-h-[145px] rounded-2xl border p-2 transition ${
-                          isSameMonth(day, cursor)
-                            ? "border-white/10 bg-white/[0.04]"
-                            : "border-white/5 bg-slate-950/30 opacity-55"
-                        } ${today ? "ring-2 ring-cyan-300/60" : ""}`}
-                      >
-                        <div className="mb-2 flex items-center justify-between gap-2">
-                          <button
-                            className="rounded-full px-2 py-1 text-left text-xs font-black text-white hover:bg-white/10"
-                            type="button"
-                            onClick={() => {
-                              setDateFilter(key);
-                              setView("list");
-                            }}
-                          >
-                            {format(day, "d", { locale: fr })}
-                          </button>
-                          <button
-                            className="grid h-7 w-7 place-items-center rounded-full border border-white/10 bg-white/[0.055] text-cyan-100 hover:bg-cyan-300/15"
-                            type="button"
-                            onClick={() => openCreate(day)}
-                            aria-label={`Ajouter un event le ${key}`}
-                          >
-                            <CalendarPlus size={14} />
-                          </button>
-                        </div>
-                        <div className="space-y-1.5">
-                          {dayEvents.slice(0, compact ? 2 : 4).map((event) => (
-                            <EventChip key={`${key}-${event.id}`} event={event} onOpen={setSelectedEvent} compact={compact} />
-                          ))}
-                          {dayEvents.length > (compact ? 2 : 4) ? (
-                            <button className="w-full rounded-xl border border-white/10 bg-slate-950/45 px-2 py-1 text-xs font-black text-slate-300" type="button" onClick={() => setView("list")}>
-                              +{dayEvents.length - (compact ? 2 : 4)} autres
-                            </button>
-                          ) : null}
-                        </div>
-                      </article>
-                    );
-                  })}
-                </div>
+            <div className="min-w-0">
+              <div className="grid grid-cols-7 gap-1 sm:gap-2">
+                {dayNames.map((day) => (
+                  <span key={day} className="rounded-xl border border-white/10 bg-white/[0.045] px-1 py-2 text-center text-[10px] font-black uppercase tracking-[0.12em] text-cyan-100/70 sm:text-xs">
+                    {day}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-2 space-y-2">
+                {weeks.map((week) => (
+                  <CalendarWeek
+                    key={week.map(dayKey).join("-")}
+                    week={week}
+                    cursor={cursor}
+                    events={filteredEvents}
+                    todayKey={todayKey}
+                    compact={compact}
+                    onOpen={setSelectedEvent}
+                    onCreate={openCreate}
+                    onOpenDay={(key) => {
+                      setDateFilter(key);
+                      setView("list");
+                    }}
+                  />
+                ))}
               </div>
             </div>
           ) : (
@@ -585,9 +696,18 @@ export function EventsCalendarPanel({ globalSearch = "" }) {
           )}
         </div>
 
-        <aside className="space-y-4">
-          <EventGroup title="Aujourd'hui" events={todayEvents.slice(0, 5)} onOpen={setSelectedEvent} empty="Journée libre." />
-          <EventGroup title="À surveiller" events={[...currentEvents, ...upcomingEvents].slice(0, 8)} onOpen={setSelectedEvent} empty="Rien à surveiller." />
+        <aside className="min-w-0 space-y-3">
+          <TimelineSection title="Today Only" count={todayEvents.length} events={todayEvents.slice(0, 8)} onOpen={setSelectedEvent} defaultOpen empty="Aucun event aujourd'hui." />
+          <TimelineSection title="Ongoing Events" count={currentEvents.length} events={currentEvents.slice(0, 14)} onOpen={setSelectedEvent} defaultOpen empty="Aucun event en cours." />
+          <TimelineSection
+            title="Upcoming Events (Next 2 Weeks)"
+            count={upcomingEvents.filter((event) => new Date(event.startDate) <= addDays(new Date(), 14)).length}
+            events={upcomingEvents.filter((event) => new Date(event.startDate) <= addDays(new Date(), 14)).slice(0, 24)}
+            onOpen={setSelectedEvent}
+            defaultOpen
+            empty="Aucun event dans les 2 semaines."
+          />
+          <TimelineSection title="Past Events" count={pastEvents.length} events={pastEvents.slice(0, 10)} onOpen={setSelectedEvent} empty="Aucun event passé." />
         </aside>
       </section>
 
@@ -601,6 +721,7 @@ export function EventsCalendarPanel({ globalSearch = "" }) {
           onArchive={() => patchEvent(selectedEvent, { status: "archived" }, "Event archivé.")}
           onRestore={() => patchEvent(selectedEvent, { status: eventStatus(selectedEvent) === "past" ? "past" : "upcoming" }, "Event restauré.")}
           onDelete={() => deleteEvent(selectedEvent)}
+          onOpenPokemon={onOpenPokemon}
         />
       ) : null}
 
@@ -644,30 +765,133 @@ function StatTile({ icon, label, value, tone = "cyan" }) {
   );
 }
 
-function EventChip({ event, onOpen, compact }) {
-  const type = eventType(event);
+function CalendarWeek({ week, cursor, events, todayKey, compact, onOpen, onCreate, onOpenDay }) {
+  const { segments, laneCount } = buildWeekSegments(week, events);
+  const visibleSegments = segments.filter((segment) => segment.lane < laneCount);
+  const singleDayByKey = new Map(
+    week.map((day) => {
+      const key = dayKey(day);
+      return [
+        key,
+        events
+          .filter((event) => !isMultiDayEvent(event) && eventOnDay(event, key))
+          .sort(eventSort),
+      ];
+    }),
+  );
+
+  return (
+    <div className="relative min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/25">
+      <div className="grid grid-cols-7">
+        {week.map((day) => (
+          <CalendarDayCell
+            key={dayKey(day)}
+            day={day}
+            cursor={cursor}
+            events={singleDayByKey.get(dayKey(day)) || []}
+            today={dayKey(day) === todayKey}
+            compact={compact}
+            laneCount={laneCount}
+            onOpen={onOpen}
+            onCreate={onCreate}
+            onOpenDay={onOpenDay}
+          />
+        ))}
+      </div>
+      <div
+        className="absolute inset-x-1 top-11 z-20 grid grid-cols-7 gap-x-1"
+        style={{
+          gridTemplateRows: `repeat(${laneCount}, 1.55rem)`,
+        }}
+      >
+        {visibleSegments.map((segment) => (
+          <MultiDaySegment key={`${segment.event.id}-${segment.startIndex}-${segment.lane}`} segment={segment} onOpen={onOpen} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CalendarDayCell({ day, cursor, events, today, compact, laneCount, onOpen, onCreate, onOpenDay }) {
+  const key = dayKey(day);
+  return (
+    <article
+      className={`relative min-h-[166px] min-w-0 border-r border-white/10 p-1.5 last:border-r-0 sm:min-h-[188px] sm:p-2 ${
+        isSameMonth(day, cursor) ? "bg-white/[0.035]" : "bg-slate-950/45 opacity-55"
+      } ${today ? "bg-cyan-300/10 ring-1 ring-inset ring-cyan-300/55" : ""}`}
+      style={{ paddingTop: `${3.25 + laneCount * 1.7}rem` }}
+    >
+      <div className="absolute left-1.5 right-1.5 top-1.5 flex items-center justify-between gap-1">
+        <button
+          className={`grid h-7 min-w-7 place-items-center rounded-full px-1 text-xs font-black ${
+            today ? "bg-cyan-300 text-slate-950" : "text-white hover:bg-white/10"
+          }`}
+          type="button"
+          onClick={() => onOpenDay(key)}
+        >
+          {format(day, "d", { locale: fr })}
+        </button>
+        <button
+          className="hidden h-7 w-7 place-items-center rounded-full border border-white/10 bg-white/[0.055] text-cyan-100 hover:bg-cyan-300/15 sm:grid"
+          type="button"
+          onClick={() => onCreate(day)}
+          aria-label={`Ajouter un event le ${key}`}
+        >
+          <CalendarPlus size={13} />
+        </button>
+      </div>
+      <div className="space-y-2">
+        {events.slice(0, compact ? 2 : 5).map((event) => (
+          <SingleDayEvent key={`${key}-${event.id}`} event={event} onOpen={onOpen} compact={compact} />
+        ))}
+        {events.length > (compact ? 2 : 5) ? (
+          <button className="w-full rounded-lg border border-white/10 bg-slate-950/45 px-2 py-1 text-[10px] font-black text-slate-300" type="button" onClick={() => onOpenDay(key)}>
+            +{events.length - (compact ? 2 : 5)} autres
+          </button>
+        ) : null}
+      </div>
+    </article>
+  );
+}
+
+function MultiDaySegment({ segment, onOpen }) {
+  const type = eventType(segment.event);
   return (
     <button
-      className="group relative w-full overflow-hidden rounded-xl border px-2 py-2 text-left transition hover:-translate-y-0.5"
+      className="min-w-0 truncate rounded-md px-2 text-left text-xs font-black text-white shadow-[0_5px_18px_rgba(0,0,0,.24)] transition hover:brightness-110"
       style={{
-        borderColor: hexToRgba(type.color, 0.38),
-        background: `linear-gradient(135deg, ${hexToRgba(type.color, 0.20)}, rgba(15,23,42,.72))`,
+        gridColumn: `${segment.startIndex + 1} / ${segment.endIndex + 2}`,
+        gridRow: `${segment.lane + 1}`,
+        background: `linear-gradient(90deg, ${type.color}, ${hexToRgba(type.color, 0.78)})`,
       }}
       type="button"
-      onClick={() => onOpen(event)}
+      onClick={() => onOpen(segment.event)}
+      title={segment.event.title}
     >
-      <span className="absolute inset-y-0 left-0 w-1" style={{ backgroundColor: type.color }} />
-      <span className="flex min-w-0 items-center gap-2 pl-1">
-        {type.icon ? <img className="h-5 w-5 shrink-0 object-contain" src={type.icon} alt="" loading="lazy" /> : null}
-        <span className="min-w-0">
-          <strong className="block truncate text-[11px] font-black text-white">{event.title}</strong>
-          {!compact ? (
-            <small className="block truncate text-[10px] font-bold text-slate-300">
-              {format(new Date(event.startDate), "HH:mm", { locale: fr })} · {POKEMON_EVENT_STATUS_LABELS[event.status] || event.status}
-            </small>
-          ) : null}
-        </span>
+      {segment.startIndex === 0 ? "" : "… "}
+      {segment.event.title}
+      {segment.endIndex === 6 ? " …" : ""}
+    </button>
+  );
+}
+
+function SingleDayEvent({ event, onOpen, compact }) {
+  const type = eventType(event);
+  const images = eventImages(event, compact ? 2 : 4);
+  return (
+    <button className="w-full min-w-0 rounded-xl p-1.5 text-left transition hover:bg-white/10" type="button" onClick={() => onOpen(event)}>
+      <span className="block min-w-0 truncate text-xs font-black text-white">{event.title}</span>
+      <span className="mt-0.5 flex items-center gap-1 text-[11px] font-bold text-slate-300">
+        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: type.color }} />
+        {format(new Date(event.startDate), "HH:mm", { locale: fr })}
       </span>
+      {images.length ? (
+        <span className="mt-1.5 flex flex-wrap items-center gap-1">
+          {images.map((image) => (
+            <img key={`${event.id}-${image.name}-${image.src}`} className="h-8 w-8 object-contain sm:h-10 sm:w-10" src={image.src} alt={image.name || ""} loading="lazy" />
+          ))}
+        </span>
+      ) : null}
     </button>
   );
 }
@@ -689,6 +913,66 @@ function EventGroup({ title, events, onOpen, empty }) {
         )}
       </div>
     </section>
+  );
+}
+
+function TimelineSection({ title, count, events, onOpen, empty, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045]">
+      <button
+        className="flex w-full items-center justify-between gap-3 bg-white/[0.055] px-4 py-3 text-left"
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+      >
+        <span className="flex min-w-0 items-center gap-3">
+          <span className="grid h-7 min-w-7 place-items-center rounded-full bg-slate-200/85 px-2 font-mono text-xs font-black text-slate-700">{count}</span>
+          <strong className="truncate text-sm font-black text-white sm:text-base">{title}</strong>
+        </span>
+        {open ? <ChevronUp size={18} className="shrink-0 text-slate-300" /> : <ChevronDown size={18} className="shrink-0 text-slate-300" />}
+      </button>
+      {open ? (
+        <div className="space-y-2 p-2">
+          {events.length ? (
+            events.map((event) => <TimelineCard key={`${title}-${event.id}`} event={event} onOpen={onOpen} />)
+          ) : (
+            <p className="rounded-xl border border-dashed border-white/10 p-4 text-sm font-bold text-slate-400">{empty}</p>
+          )}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function TimelineCard({ event, onOpen }) {
+  const type = eventType(event);
+  const images = eventImages(event, 8);
+  return (
+    <button
+      className="group w-full overflow-hidden rounded-2xl border p-3 text-left transition hover:-translate-y-0.5"
+      style={{
+        borderColor: hexToRgba(type.color, 0.42),
+        background: `linear-gradient(135deg, ${hexToRgba(type.color, 0.12)}, rgba(255,255,255,.035))`,
+      }}
+      type="button"
+      onClick={() => onOpen(event)}
+    >
+      <span className="inline-flex rounded-md px-2 py-1 text-[11px] font-black text-white" style={{ backgroundColor: type.color }}>
+        {event.category || type.label}
+      </span>
+      <strong className="mt-2 block text-lg font-black leading-tight text-white">{event.title}</strong>
+      <span className="mt-2 block text-sm font-bold text-slate-300">{eventTimeLabel(event)}</span>
+      <span className="mt-1 block text-xs font-bold italic text-emerald-200">{eventRemainingLabel(event)}</span>
+      {images.length ? (
+        <span className="mt-3 flex flex-wrap gap-1.5">
+          {images.map((image) => (
+            <img key={`${event.id}-${image.name}-${image.src}`} className="h-9 w-9 object-contain" src={image.src} alt={image.name || ""} loading="lazy" title={image.name} />
+          ))}
+        </span>
+      ) : event.assets?.banner ? (
+        <img className="mt-3 h-24 w-full rounded-xl object-cover" src={event.assets.banner} alt="" loading="lazy" />
+      ) : null}
+    </button>
   );
 }
 
@@ -721,8 +1005,9 @@ function EventRow({ event, onOpen }) {
   );
 }
 
-function EventDetailModal({ event, busy, onClose, onEdit, onDuplicate, onArchive, onRestore, onDelete }) {
+function EventDetailModal({ event, busy, onClose, onEdit, onDuplicate, onArchive, onRestore, onDelete, onOpenPokemon }) {
   const type = eventType(event);
+  const rewards = eventRewards(event, 80);
   return (
     <div className="fixed inset-0 z-[90] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl" onClick={onClose}>
       <article className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#07111f] shadow-[0_30px_120px_rgba(0,0,0,.5)]" onClick={(clickEvent) => clickEvent.stopPropagation()}>
@@ -753,19 +1038,27 @@ function EventDetailModal({ event, busy, onClose, onEdit, onDuplicate, onArchive
         <div className="space-y-4 p-4 sm:p-6">
           <div className="grid gap-3 md:grid-cols-3">
             <InfoPill label="Statut" value={POKEMON_EVENT_STATUS_LABELS[event.status] || event.status} />
+            <InfoPill label="Durée" value={`${eventDurationDays(event)} jour(s)`} />
+            <InfoPill label="Catégorie" value={event.category || type.label} />
             <InfoPill label="Source" value={event.source || "manual"} />
             <InfoPill label="Timezone" value={event.timezone || POKEMON_EVENT_TIMEZONE} />
+            <InfoPill label="Échéance" value={eventRemainingLabel(event)} />
           </div>
+          {event.assets?.banner ? (
+            <img className="max-h-72 w-full rounded-2xl border border-white/10 object-cover" src={event.assets.banner} alt="" loading="lazy" />
+          ) : null}
           {event.description ? (
             <section className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
               <h3 className="mb-2 text-lg font-black text-white">Description</h3>
               <p className="text-sm font-semibold leading-6 text-slate-300">{event.description}</p>
             </section>
           ) : null}
+          <EventPokemonGrid event={event} onOpenPokemon={onOpenPokemon} />
           <div className="grid gap-4 lg:grid-cols-2">
             <DetailList title="Bonus" items={event.bonuses || []} empty="Aucun bonus renseigné." />
-            <DetailList title="Pokémon liés" items={(event.featuredPokemon || []).map((pokemon) => pokemon.name || pokemon.id)} empty="Aucun Pokémon lié." />
+            <RewardGrid rewards={rewards} />
           </div>
+          {event.raw ? <RawEventInfo raw={event.raw} /> : null}
           <section className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
             <h3 className="mb-3 text-lg font-black text-white">Liens sources</h3>
             <div className="grid gap-2">
@@ -813,6 +1106,95 @@ function InfoPill({ label, value }) {
       <strong className="mt-1 block break-words text-sm font-black text-white">{value}</strong>
     </div>
   );
+}
+
+function EventPokemonGrid({ event, onOpenPokemon }) {
+  const pokemon = event.featuredPokemon || [];
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+      <h3 className="mb-3 text-lg font-black text-white">Pokémon liés</h3>
+      {pokemon.length ? (
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {pokemon.map((entry) => {
+            const clickable = Boolean(onOpenPokemon && entry.id);
+            const content = (
+              <>
+                {entry.image ? <img className="h-16 w-16 object-contain" src={entry.image} alt="" loading="lazy" /> : <span className="grid h-16 w-16 place-items-center rounded-2xl bg-slate-950/40 text-xs font-black text-slate-500">?</span>}
+                <span className="min-w-0">
+                  <strong className="block truncate text-sm font-black text-white">{entry.name || entry.id}</strong>
+                  <small className="block truncate text-xs font-bold text-slate-400">{entry.form || entry.dexId || "Pokemon"}</small>
+                  {Array.isArray(entry.types) && entry.types.length ? (
+                    <span className="mt-1 flex flex-wrap gap-1">
+                      {entry.types.map((type) => (
+                        <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-black text-cyan-100" key={`${entry.id}-${type}`}>
+                          {type}
+                        </span>
+                      ))}
+                    </span>
+                  ) : null}
+                </span>
+              </>
+            );
+            return clickable ? (
+              <button
+                key={`${entry.id}-${entry.name}`}
+                className="grid min-w-0 grid-cols-[4rem_minmax(0,1fr)] items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/35 p-3 text-left transition hover:-translate-y-0.5 hover:border-cyan-200/40"
+                type="button"
+                onClick={() => onOpenPokemon(entry)}
+              >
+                {content}
+              </button>
+            ) : (
+              <div key={`${entry.id || entry.name}-${entry.image || ""}`} className="grid min-w-0 grid-cols-[4rem_minmax(0,1fr)] items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/35 p-3">
+                {content}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="text-sm font-bold text-slate-500">Aucun Pokémon lié.</p>
+      )}
+    </section>
+  );
+}
+
+function RewardGrid({ rewards }) {
+  return (
+    <section className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+      <h3 className="mb-3 text-lg font-black text-white">Rewards</h3>
+      {rewards.length ? (
+        <div className="grid gap-2 sm:grid-cols-2">
+          {rewards.map((reward) => (
+            <span className="grid grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-2 rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm font-bold text-slate-200" key={`${reward.text}-${reward.src || ""}`}>
+              {reward.src ? <img className="h-10 w-10 object-contain" src={reward.src} alt="" loading="lazy" /> : <span className="h-10 w-10 rounded-xl bg-white/5" />}
+              <span className="min-w-0 truncate">{reward.text}</span>
+            </span>
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm font-bold text-slate-500">Aucune reward scrapée.</p>
+      )}
+    </section>
+  );
+}
+
+function RawEventInfo({ raw }) {
+  const entries = [
+    ["LeekDuck ID", raw.eventID],
+    ["Type externe", raw.eventType],
+    ["Heading", raw.heading],
+    ["Extra data", raw.extraData ? Object.keys(raw.extraData).join(", ") : ""],
+  ].filter(([, value]) => value);
+  return entries.length ? (
+    <section className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+      <h3 className="mb-3 text-lg font-black text-white">Infos scrapées</h3>
+      <div className="grid gap-2 sm:grid-cols-2">
+        {entries.map(([label, value]) => (
+          <InfoPill key={label} label={label} value={String(value)} />
+        ))}
+      </div>
+    </section>
+  ) : null;
 }
 
 function DetailList({ title, items, empty }) {

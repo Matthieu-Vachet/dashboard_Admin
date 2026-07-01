@@ -241,10 +241,13 @@ ADMIN PROTEGE :
 - `POST /api/admin/events`
 - `PATCH /api/admin/events/:id`
 - `DELETE /api/admin/events/:id`
+- `POST /api/admin/events/scrape`
 - `POST /api/admin/events/import`
 
 Les routes admin exigent la session dashboard, la protection d'origine identique et le
 rate-limit applicatif. Les donnees sont stockees dans la collection Mongo `events`.
+La route `scrape` recupere LeekDuck Events, enrichit avec ScrapedDuck si disponible,
+matche les Pokemon locaux et upsert directement MongoDB avec un rapport de generation.
 
 Exemple :
 
@@ -271,6 +274,8 @@ Payload de creation :
   },
   "featuredPokemon": [],
   "bonuses": [],
+  "rewards": [],
+  "raw": {},
   "links": []
 }
 ```

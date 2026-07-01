@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.11.0",
+    date: "2026-07-01",
+    title: "Event Calendar LeekDuck",
+    changes: [
+      "Ajoute le scraper LeekDuck Events enrichi par ScrapedDuck pour recuperer dates, categories, images, Pokemon lies, bonus et rewards quand disponibles.",
+      "Ajoute `POST /api/admin/events/scrape` pour regenerer les events, importer MongoDB et retourner un rapport sans faux succes.",
+      "Refond le calendrier mensuel avec barres multi-jours continues, couleurs par type, timeline laterale repliable et modal detail enrichie.",
+      "Documente le format JSON events, les routes API, la source LeekDuck et la reference ScrapedDuck.",
+    ],
+  },
+  {
     version: "V1.10.1",
     date: "2026-07-01",
     title: "Pipeline wrappers live",

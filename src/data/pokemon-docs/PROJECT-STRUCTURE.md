@@ -33,6 +33,8 @@ Dans le depot Dashboard Admin, la feature `Pokemon Admin > Calendrier Events` aj
   et seeds de lecture.
 - `src/app/api/events/route.ts` pour la lecture publique.
 - `src/app/api/admin/events/**/route.ts` pour les mutations admin protegees.
+- `src/lib/leekduck-events-scraper.ts` pour le scraper LeekDuck Events enrichi par
+  ScrapedDuck et les donnees Pokemon locales.
 - `src/lib/dashboard-store.ts` pour la collection Mongo `events`.
 
 ## Donnees Protegees
