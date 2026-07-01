@@ -654,7 +654,7 @@ export async function POST(request: NextRequest) {
     rateLimit(request, "pokemon-admin-write", 80, 60_000);
     assertSameOrigin(request);
     const body = (await request.json().catch(() => ({}))) as JsonValue;
-    assertJsonPayloadSize(body, 400_000);
+    assertJsonPayloadSize(body, 1_000_000);
     const session = await requireDashboardSession();
     const authenticated = Boolean(session);
     const action = getAction(request, body);

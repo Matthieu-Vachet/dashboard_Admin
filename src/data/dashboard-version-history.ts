@@ -14,6 +14,7 @@ export const dashboardVersionHistory: DashboardVersionEntry[] = [
       "Recharge Raids, Oeufs, Max Battles, Rocket et Research depuis PokemonGo-API/Mongo avant fallback fichier.",
       "Envoie le JSON actuellement charge lors de l'import Mongo pour eviter les reimports de snapshots obsoletes.",
       "Affiche les rapports de generation/import et bloque les faux succes quand l'API signale une regeneration vide.",
+      "Accepte les imports JSON Research complets dans le proxy Dashboard.",
     ],
   },
   {
