@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.9.1",
+    date: "2026-07-01",
+    title: "Ajustement modale Pokémon",
+    changes: [
+      "Réduit fortement la hauteur de l'entête Pokémon et rend le contenu de la modale scrollable jusqu'en bas.",
+      "Déplace les fonds catchCards au niveau des sections complètes au lieu des micro-informations.",
+      "Retire les fonds catchCards des sections Assets et JSON pour garder une lecture nette.",
+      "Baisse fortement l'opacité des backgrounds pour améliorer la lisibilité.",
+    ],
+  },
+  {
     version: "V1.9.0",
     date: "2026-07-01",
     title: "Refonte modale Pokémon GO",

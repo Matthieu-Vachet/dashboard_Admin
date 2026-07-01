@@ -92,10 +92,15 @@ function valueOrDash(value, suffix = "") {
   return `${value}${suffix}`;
 }
 
-function Section({ title, eyebrow, icon, children, tone = "cyan" }) {
+function Section({ title, eyebrow, icon, children, tone = "cyan", plain = false, backgroundIndex = 0, backgroundType = "" }) {
   const toneClass = sectionTones[tone] || sectionTones.cyan;
+  const sectionBackgroundType =
+    backgroundType || catchCardTypes[(String(title).length + String(tone).length + backgroundIndex) % catchCardTypes.length];
   return (
-    <section className={`relative overflow-hidden rounded-3xl border bg-gradient-to-br to-slate-950/18 p-4 shadow-[0_20px_70px_rgba(0,0,0,.2)] backdrop-blur sm:p-5 ${toneClass}`}>
+    <section
+      className={`relative overflow-hidden rounded-3xl border bg-gradient-to-br to-slate-950/18 p-4 shadow-[0_20px_70px_rgba(0,0,0,.2)] backdrop-blur sm:p-5 ${toneClass}`}
+      style={plain ? undefined : catchCardStyle(backgroundIndex, sectionBackgroundType)}
+    >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,.13),transparent_34%)]" />
       <div className="relative">
       {eyebrow ? (
@@ -140,26 +145,13 @@ function catchCardStyle(index = 0, preferredType = "NORMAL", opacity = "dark") {
   const background = catchCardForIndex(index, preferredType);
   const overlay =
     opacity === "soft"
-      ? "linear-gradient(135deg, rgba(255,255,255,.78), rgba(248,250,252,.6)), linear-gradient(180deg, rgba(15,23,42,.1), rgba(15,23,42,.18))"
-      : "linear-gradient(135deg, rgba(2,6,23,.78), rgba(15,23,42,.62)), linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02))";
+      ? "linear-gradient(135deg, rgba(255,255,255,.9), rgba(248,250,252,.82)), linear-gradient(180deg, rgba(15,23,42,.18), rgba(15,23,42,.24))"
+      : "linear-gradient(135deg, rgba(2,6,23,.93), rgba(15,23,42,.89)), linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.015))";
   return {
     backgroundImage: background ? `${overlay}, url("${background}")` : overlay,
     backgroundSize: "cover",
     backgroundPosition: "center",
   };
-}
-
-function VisualCard({ children, index = 0, cardType = "NORMAL", className = "", as: Tag = "div", ...props }) {
-  return (
-    <Tag
-      className={`relative overflow-hidden rounded-2xl border border-white/12 bg-slate-950/50 shadow-[0_18px_55px_rgba(0,0,0,.22)] backdrop-blur transition ${className}`}
-      style={{ ...catchCardStyle(index, cardType), ...(props.style || {}) }}
-      {...props}
-    >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,.18),transparent_34%)]" />
-      <div className="relative">{children}</div>
-    </Tag>
-  );
 }
 
 function formatForm(value) {
@@ -216,15 +208,13 @@ function TypeBadgeList({ types = [], typeCatalog = [] }) {
   );
 }
 
-function DataGrid({ items, type = "NORMAL" }) {
+function DataGrid({ items }) {
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       {items.map((item, index) => (
-        <VisualCard
-          className={`grid grid-cols-[2.45rem_minmax(0,1fr)] gap-3 p-4 text-left ${cardTones[index % cardTones.length]}`}
+        <div
+          className={`grid min-h-24 grid-cols-[2.45rem_minmax(0,1fr)] gap-3 rounded-2xl border p-4 text-left shadow-[0_12px_38px_rgba(0,0,0,.18)] ${cardTones[index % cardTones.length]}`}
           key={item.label}
-          index={index}
-          cardType={type}
         >
           <span className="grid h-10 w-10 place-items-center rounded-2xl border border-white/10 bg-white/[0.06]">
             {item.icon ? (
@@ -237,11 +227,11 @@ function DataGrid({ items, type = "NORMAL" }) {
             <span className="block text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
               {item.label}
             </span>
-            <strong className="mt-2 block break-words text-base font-black text-white">
+            <strong className="mt-2 block overflow-wrap-anywhere text-base font-black leading-snug text-white [overflow-wrap:anywhere]">
               {item.value}
             </strong>
           </span>
-        </VisualCard>
+        </div>
       ))}
     </div>
   );
@@ -274,7 +264,7 @@ function TranslationGrid({ names = {} }) {
     <Section title="Noms traduits" eyebrow="localisation" icon={uiAssets.icons.pokeball} tone="emerald">
       <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
         {entries.map(([language, value], index) => (
-          <VisualCard className={`grid grid-cols-[2.2rem_minmax(0,1fr)] gap-3 p-3 ${cardTones[index % cardTones.length]}`} cardType={catchCardTypes[index % catchCardTypes.length]} index={index} key={language}>
+          <div className={`grid grid-cols-[2.2rem_minmax(0,1fr)] gap-3 rounded-2xl border p-3 ${cardTones[index % cardTones.length]}`} key={language}>
             <span className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.06] p-1.5 text-xs font-black text-cyan-100">
               <span className="text-lg">{languageFlags[language] || "🏳️"}</span>
             </span>
@@ -284,7 +274,7 @@ function TranslationGrid({ names = {} }) {
               </span>
               <strong className="mt-1 block break-words text-white">{value}</strong>
             </span>
-          </VisualCard>
+          </div>
         ))}
       </div>
     </Section>
@@ -435,14 +425,12 @@ function ReleaseStatusGrid({ shinyAvailability, shadowShinyAvailability }) {
         {items.map(([label, record, icon]) => {
           const released = Boolean(record?.released);
           return (
-            <VisualCard
-              className={`p-4 ${
+            <article
+              className={`rounded-2xl border p-4 ${
                 released
-                  ? "border-emerald-300/25"
-                  : "border-white/10"
+                  ? "border-emerald-300/25 bg-emerald-400/10"
+                  : "border-white/10 bg-white/[0.045]"
               }`}
-              cardType={released ? "FAIRY" : "DARK"}
-              index={released ? 4 : 9}
               key={label}
             >
               <div className="flex items-start gap-3">
@@ -466,7 +454,7 @@ function ReleaseStatusGrid({ shinyAvailability, shadowShinyAvailability }) {
                   <strong className="mt-1 block break-words text-white">{record?.event || "-"}</strong>
                 </span>
               </div>
-            </VisualCard>
+            </article>
           );
         })}
       </div>
@@ -482,14 +470,12 @@ function MoveList({ title, moves, typeCatalog = [], icon, pokemonTypes = [] }) {
     <Section title={title} icon={icon}>
       {list.length ? (
         <div className="grid gap-3">
-          {list.map((move, index) => {
+          {list.map((move) => {
             const energy = move.energy ?? move.combat?.energy;
             const stab = isStab(move.type, pokemonTypes);
             return (
-            <VisualCard
-              className="p-4 text-sm hover:border-cyan-200/35 hover:shadow-[0_22px_70px_rgba(14,165,233,.18)]"
-              cardType={move.type || pokemonTypes[0]}
-              index={index}
+            <div
+              className="rounded-2xl border border-white/10 bg-slate-950/45 p-4 text-sm transition hover:border-cyan-200/35 hover:bg-cyan-400/10"
               key={move.id || move.slug || moveName(move)}
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -525,7 +511,7 @@ function MoveList({ title, moves, typeCatalog = [], icon, pokemonTypes = [] }) {
                 ))}
               </div>
               <BuffGrid buffs={move.combat?.buffs} />
-            </VisualCard>
+            </div>
           );})}
         </div>
       ) : (
@@ -546,16 +532,14 @@ function findEntryByFormId(entries = [], formId) {
   );
 }
 
-function PokemonMiniCard({ item, index = 0, cardType = "NORMAL", onClick, suffix, direction }) {
+function PokemonMiniCard({ item, onClick, suffix, direction }) {
   if (!item) return null;
   const clickable = typeof onClick === "function";
   const image = preferredPokemonImage(item) || item.image || item.homeImage || item.shuffleImage;
+  const Tag = clickable ? "button" : "div";
   return (
-    <VisualCard
-      as={clickable ? "button" : "div"}
-      className={`w-full p-3 text-left ${clickable ? "hover:-translate-y-0.5 hover:border-cyan-200/45" : ""}`}
-      cardType={item.primaryType || cardType}
-      index={index}
+    <Tag
+      className={`w-full rounded-2xl border border-white/10 bg-slate-950/45 p-3 text-left transition ${clickable ? "hover:-translate-y-0.5 hover:border-cyan-200/45 hover:bg-cyan-400/10" : ""}`}
       type={clickable ? "button" : undefined}
       onClick={clickable ? () => onClick(item) : undefined}
     >
@@ -569,11 +553,11 @@ function PokemonMiniCard({ item, index = 0, cardType = "NORMAL", onClick, suffix
           {suffix ? <span className="mt-1 block text-xs font-black text-cyan-100">{suffix}</span> : null}
         </span>
       </div>
-    </VisualCard>
+    </Tag>
   );
 }
 
-function CandyFamilyPanel({ entry, payload, allEntries = [], onOpenRelated, cardType = "NORMAL" }) {
+function CandyFamilyPanel({ entry, payload, allEntries = [], onOpenRelated }) {
   const candy = payload.assets?.candy || payload.sourceData?.assets?.candy || entry.assets?.candy || null;
   if (!candy) return null;
   const familyId = candy.familyId;
@@ -587,7 +571,7 @@ function CandyFamilyPanel({ entry, payload, allEntries = [], onOpenRelated, card
   return (
     <Section title="Famille bonbon" icon={candy.image || uiAssets.icons.candy} tone="amber">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.6fr)]">
-        <VisualCard className="p-4" cardType={cardType} index={0}>
+        <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
           <div className="flex items-center gap-4">
             <span
               className="grid h-20 w-20 shrink-0 place-items-center rounded-3xl border border-white/15 bg-white/10 p-3 shadow-inner"
@@ -601,10 +585,10 @@ function CandyFamilyPanel({ entry, payload, allEntries = [], onOpenRelated, card
               <span className="mt-2 block text-sm font-bold text-slate-200">{familyMembers.length || 1} membre(s) dans la famille</span>
             </span>
           </div>
-        </VisualCard>
+        </div>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {familyMembers.length ? familyMembers.map((item, index) => (
-            <PokemonMiniCard item={item} index={index + 1} cardType={cardType} onClick={onOpenRelated} key={item.key} />
+          {familyMembers.length ? familyMembers.map((item) => (
+            <PokemonMiniCard item={item} onClick={onOpenRelated} key={item.key} />
           )) : (
             <EmptyInline>Aucun membre de famille trouvé dans le catalogue chargé.</EmptyInline>
           )}
@@ -614,7 +598,7 @@ function CandyFamilyPanel({ entry, payload, allEntries = [], onOpenRelated, card
   );
 }
 
-function EvolutionPanel({ evolutions = [], allEntries = [], onOpenRelated, candyIcon, cardType = "NORMAL" }) {
+function EvolutionPanel({ evolutions = [], allEntries = [], onOpenRelated, candyIcon }) {
   return (
     <Section title="Évolutions" icon={uiAssets.icons.megaEnergy} tone="emerald">
       {evolutions.length ? (
@@ -631,8 +615,6 @@ function EvolutionPanel({ evolutions = [], allEntries = [], onOpenRelated, candy
               <div className="space-y-2" key={`${evolution.targetFormId || index}-${index}`}>
                 <PokemonMiniCard
                   item={target || { name: evolution.targetFormId, formId: evolution.targetFormId }}
-                  index={index}
-                  cardType={target?.primaryType || cardType}
                   onClick={target ? onOpenRelated : null}
                   suffix={suffix || "Coût non renseigné"}
                 />
@@ -656,11 +638,11 @@ function EvolutionPanel({ evolutions = [], allEntries = [], onOpenRelated, candy
   );
 }
 
-function DetailNavigation({ previousEntry, nextEntry, onPrevious, onNext, cardType }) {
+function DetailNavigation({ previousEntry, nextEntry, onPrevious, onNext }) {
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-      <PokemonMiniCard item={previousEntry} index={0} cardType={cardType} onClick={onPrevious ? () => onPrevious() : null} suffix="Fiche précédente" direction="previous" />
-      <PokemonMiniCard item={nextEntry} index={1} cardType={cardType} onClick={onNext ? () => onNext() : null} suffix="Fiche suivante" />
+      <PokemonMiniCard item={previousEntry} onClick={onPrevious ? () => onPrevious() : null} suffix="Fiche précédente" direction="previous" />
+      <PokemonMiniCard item={nextEntry} onClick={onNext ? () => onNext() : null} suffix="Fiche suivante" />
     </div>
   );
 }
@@ -702,7 +684,7 @@ function AssetGallery({ entry, payload }) {
   }, new Map()).entries()];
 
   return (
-    <Section title="Galerie liée à la fiche" icon={uiAssets.icons.result}>
+    <Section title="Galerie liée à la fiche" icon={uiAssets.icons.result} plain>
       {assets.length ? (
         <div className="space-y-5">
           {groups.map(([group, groupAssets]) => (
@@ -713,11 +695,8 @@ function AssetGallery({ entry, payload }) {
               </div>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 {groupAssets.map((asset, index) => (
-                  <VisualCard
-                    as="button"
-                    className="text-left hover:-translate-y-0.5 hover:border-cyan-200/40"
-                    cardType={catchCardTypes[index % catchCardTypes.length]}
-                    index={index}
+                  <button
+                    className="overflow-hidden rounded-3xl border border-white/10 bg-slate-950/45 text-left transition hover:-translate-y-0.5 hover:border-cyan-200/40 hover:bg-cyan-400/10"
                     key={`${asset.url}-${index}`}
                     type="button"
                     onClick={() => setPreview(asset)}
@@ -730,7 +709,7 @@ function AssetGallery({ entry, payload }) {
                       <strong className="block truncate text-sm font-black text-white">{asset.label}</strong>
                       <span className="mt-1 block truncate text-xs font-bold text-slate-400">{asset.meta || "standard"}</span>
                     </div>
-                  </VisualCard>
+                  </button>
                 ))}
               </div>
             </div>
@@ -870,7 +849,7 @@ function IssuesPanel({ entry }) {
   );
 }
 
-function PvpPanel({ pvp, moveDetails, cardType = "NORMAL" }) {
+function PvpPanel({ pvp, moveDetails }) {
   const labels = {
     littleCup: "Little Cup",
     greatLeague: "Great League",
@@ -887,24 +866,24 @@ function PvpPanel({ pvp, moveDetails, cardType = "NORMAL" }) {
   return (
     <Section title="Ligues PvP" icon={uiAssets.icons.battle}>
       <div className="grid gap-3 lg:grid-cols-2">
-        {leagues.map(([key, label], index) => {
+        {leagues.map(([key, label]) => {
           const value = pvp?.[key];
           if (!value) {
             return (
-              <VisualCard className="p-4" cardType={cardType} index={index} key={key}>
+              <article className="rounded-2xl border border-white/10 bg-white/[0.035] p-4" key={key}>
                 <div className="flex items-center gap-3">
                   <img className="h-10 w-10 object-contain" src={icons[key]} alt="" />
                   <strong className="block font-black text-white">{label}</strong>
                 </div>
                 <span className="mt-2 block text-sm font-bold text-slate-500">Aucune donnée PvP renseignée.</span>
-              </VisualCard>
+              </article>
             );
           }
           const rank = value.rank1 || {};
           const ivs = rank.ivs || {};
           const moves = value.bestMovesets || {};
           return (
-            <VisualCard className="p-4" cardType={cardType} index={index} key={key}>
+            <article className="rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4" key={key}>
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <span className="inline-flex min-w-0 items-center gap-3">
                   <img className="h-12 w-12 shrink-0 object-contain" src={icons[key]} alt="" />
@@ -933,7 +912,7 @@ function PvpPanel({ pvp, moveDetails, cardType = "NORMAL" }) {
                   {(moves.charged || []).length ? ` + ${(moves.charged || []).map((id) => moveName(id, moveDetails)).join(" / ")}` : ""}
                 </strong>
               </div>
-            </VisualCard>
+            </article>
           );
         })}
       </div>
@@ -941,11 +920,10 @@ function PvpPanel({ pvp, moveDetails, cardType = "NORMAL" }) {
   );
 }
 
-function JsonBlock({ payload, cardType = "NORMAL" }) {
+function JsonBlock({ payload }) {
   return (
     <pre
-      className="max-h-[62dvh] overflow-auto rounded-3xl border border-cyan-300/15 p-4 text-xs leading-6 text-cyan-50 shadow-inner sm:text-sm"
-      style={catchCardStyle(12, cardType)}
+      className="max-h-[62dvh] overflow-auto rounded-3xl border border-cyan-300/15 bg-slate-950 p-4 text-xs leading-6 text-cyan-50 shadow-inner sm:text-sm"
     >
       {JSON.stringify(payload, null, 2)}
     </pre>
@@ -1094,7 +1072,7 @@ export function DetailModal({
     (
     <div className="fixed inset-0 z-[1100] flex items-end justify-center bg-slate-950/75 p-0 backdrop-blur-md sm:items-center sm:p-6" role="presentation" onClick={onClose}>
       <div
-        className="max-h-[96dvh] w-full max-w-6xl overflow-hidden rounded-t-[2rem] border border-white/10 text-white shadow-[0_30px_120px_rgba(0,0,0,.65)] sm:max-h-[92dvh] sm:rounded-[2rem]"
+        className="flex max-h-[96dvh] w-full max-w-6xl flex-col overflow-hidden rounded-t-[2rem] border border-white/10 text-white shadow-[0_30px_120px_rgba(0,0,0,.65)] sm:max-h-[92dvh] sm:rounded-[2rem]"
         style={{
           background: `linear-gradient(180deg, color-mix(in srgb, ${mainTypeColor} 24%, #0d1a2b), #08111f 72%)`,
         }}
@@ -1103,18 +1081,18 @@ export function DetailModal({
         onClick={(event) => event.stopPropagation()}
       >
         <div
-          className="relative overflow-hidden border-b border-white/10 bg-cover bg-center px-4 py-5 sm:px-6 sm:py-6"
+          className="relative shrink-0 overflow-hidden border-b border-white/10 bg-cover bg-center px-4 py-3 sm:px-6 sm:py-4"
           style={{
             backgroundImage: `${
               catchBackground
-                ? `linear-gradient(135deg, rgba(4,10,22,.62), color-mix(in srgb, ${mainTypeColor} 24%, rgba(4,10,22,.32))), url("${catchBackground}"), `
+                ? `linear-gradient(135deg, rgba(4,10,22,.86), color-mix(in srgb, ${mainTypeColor} 13%, rgba(4,10,22,.82))), url("${catchBackground}"), `
                 : ""
             }${typePanelBackground(mainType, typeCatalog)}, radial-gradient(circle_at_8%_0%,${mainTypeColor}88,transparent_36%), radial-gradient(circle_at_92%_15%,rgba(255,255,255,.18),transparent_34%)`,
           }}
         >
-          <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.08)_1px,transparent_1px)] [background-size:34px_34px]" />
-          <div className="relative flex flex-col gap-4 pr-14 sm:flex-row sm:items-center">
-            <div className="grid h-36 w-36 shrink-0 place-items-center sm:h-48 sm:w-48 lg:h-56 lg:w-56">
+          <div className="absolute inset-0 opacity-16 [background-image:linear-gradient(rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.08)_1px,transparent_1px)] [background-size:34px_34px]" />
+          <div className="relative flex items-center gap-4 pr-12 sm:gap-6">
+            <div className="grid h-24 w-24 shrink-0 place-items-center sm:h-32 sm:w-32 lg:h-36 lg:w-36">
               {displayImage ? (
                 <img className="max-h-full object-contain drop-shadow-[0_22px_42px_rgba(0,0,0,.42)]" src={displayImage} alt={entry.name} />
               ) : (
@@ -1122,13 +1100,13 @@ export function DetailModal({
               )}
             </div>
             <div className="min-w-0">
-              <span className="font-mono text-sm font-black uppercase tracking-[0.24em] text-cyan-100/80">
+              <span className="font-mono text-xs font-black uppercase tracking-[0.22em] text-cyan-100/80 sm:text-sm">
                 N° {entry.dexId}
               </span>
-              <h2 className="mt-1 truncate text-3xl font-black tracking-tight text-white sm:text-5xl">
+              <h2 className="mt-1 truncate text-3xl font-black tracking-tight text-white sm:text-4xl">
                 {entry.name}
               </h2>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
+              <div className="mt-2 flex flex-wrap items-center gap-2">
                 <TypeBadgeList types={pokemonTypes} typeCatalog={typeCatalog} />
                 <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-sm font-black text-white">{formatForm(payload.form || entry.form || "normal")}</span>
                 {availability.shinyReleased || shinyAvailability?.released ? (
@@ -1138,12 +1116,12 @@ export function DetailModal({
                   </span>
                 ) : null}
               </div>
-              <p className="mt-3 text-sm font-bold text-slate-200 sm:text-base">
+              <p className="mt-2 text-sm font-bold text-slate-200">
                 {region.names?.French || payload.regionId || "Région inconnue"} · {entry.profile || entry.kind} · Gén. {entry.generation || "?"}
               </p>
             </div>
             <button
-              className="absolute right-0 top-0 grid h-12 w-12 place-items-center rounded-full border border-white/30 bg-white/10 text-3xl font-light text-white transition hover:bg-white/20"
+              className="absolute right-0 top-0 grid h-10 w-10 place-items-center rounded-full border border-white/30 bg-white/10 text-2xl font-light text-white transition hover:bg-white/20"
               type="button"
               onClick={onClose}
               aria-label="Fermer"
@@ -1154,13 +1132,13 @@ export function DetailModal({
         </div>
 
         <div
-          className="max-h-[calc(96dvh-150px)] overflow-auto p-4 sm:max-h-[calc(92dvh-165px)] sm:p-6"
+          className="min-h-0 flex-1 overflow-auto p-4 sm:p-6"
           style={{
             backgroundImage: `linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px), radial-gradient(circle at 8% 0%, ${mainTypeColor}3d, transparent 30%), radial-gradient(circle at 92% 10%, color-mix(in srgb, ${mainTypeColor} 28%, transparent), transparent 28%)`,
             backgroundSize: "30px 30px, 30px 30px, auto, auto",
           }}
         >
-          <DetailNavigation previousEntry={previousEntry} nextEntry={nextEntry} onPrevious={onPrevious} onNext={onNext} cardType={mainType} />
+          <DetailNavigation previousEntry={previousEntry} nextEntry={nextEntry} onPrevious={onPrevious} onNext={onNext} />
 
           <nav className="mt-4 flex flex-wrap gap-2 pb-2" aria-label="Onglets de fiche">
             {tabs.map((tab) => (
@@ -1238,8 +1216,8 @@ export function DetailModal({
                     ]}
                   />
                 </Section>
-                <CandyFamilyPanel entry={entry} payload={payload} allEntries={allEntries} onOpenRelated={onOpenRelated} cardType={mainType} />
-                <EvolutionPanel evolutions={payload.evolutions || []} allEntries={allEntries} onOpenRelated={onOpenRelated} candyIcon={candyIcon} cardType={mainType} />
+                <CandyFamilyPanel entry={entry} payload={payload} allEntries={allEntries} onOpenRelated={onOpenRelated} />
+                <EvolutionPanel evolutions={payload.evolutions || []} allEntries={allEntries} onOpenRelated={onOpenRelated} candyIcon={candyIcon} />
                 <Section title="Disponibilité" icon={uiAssets.icons.shiny} tone="emerald">
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                     {Object.entries(availability).map(([key, value]) => (
@@ -1318,7 +1296,7 @@ export function DetailModal({
             ) : null}
 
             {activeTab === "pvp" ? (
-              <PvpPanel pvp={pvp} moveDetails={moveDetails} cardType={mainType} />
+              <PvpPanel pvp={pvp} moveDetails={moveDetails} />
             ) : null}
 
             {activeTab === "shadow" ? (
@@ -1344,12 +1322,12 @@ export function DetailModal({
             {activeTab === "checks" ? <IssuesPanel entry={entry} /> : null}
             {activeTab === "json" ? (
               <div className="space-y-4">
-                <Section title="JSON principal" icon={uiAssets.icons.copy} tone="cyan">
-                  <JsonBlock payload={payload.sourceData || payload} cardType={mainType} />
+                <Section title="JSON principal" icon={uiAssets.icons.copy} tone="cyan" plain>
+                  <JsonBlock payload={payload.sourceData || payload} />
                 </Section>
-                <Section title="JSON assets" icon={uiAssets.icons.result} tone="cyan">
+                <Section title="JSON assets" icon={uiAssets.icons.result} tone="cyan" plain>
                   {payload.assetSourceData ? (
-                    <JsonBlock payload={payload.assetSourceData} cardType={mainType} />
+                    <JsonBlock payload={payload.assetSourceData} />
                   ) : (
                     <EmptyInline>
                       Aucun fichier asset séparé lié à cette fiche
