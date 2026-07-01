@@ -50,7 +50,27 @@ export function typeName(type, catalog = []) {
 }
 
 export function typeIcon(type, catalog = []) {
-  return catalogItem(catalog, type)?.assets?.icon || null;
+  const icons = {
+    BUG: "/ui/Types/ico_6_bug.png",
+    DARK: "/ui/Types/ico_16_dark.png",
+    DRAGON: "/ui/Types/ico_15_dragon.png",
+    ELECTRIC: "/ui/Types/ico_12_electric.png",
+    FAIRY: "/ui/Types/ico_17_fairy.png",
+    FIGHTING: "/ui/Types/ico_1_fighting.png",
+    FIRE: "/ui/Types/ico_9_fire.png",
+    FLYING: "/ui/Types/ico_2_flying.png",
+    GHOST: "/ui/Types/ico_7_ghost.png",
+    GRASS: "/ui/Types/ico_11_grass.png",
+    GROUND: "/ui/Types/ico_4_ground.png",
+    ICE: "/ui/Types/ico_14_ice.png",
+    NORMAL: "/ui/Types/ico_0_normal.png",
+    POISON: "/ui/Types/ico_3_poison.png",
+    PSYCHIC: "/ui/Types/ico_13_psychic.png",
+    ROCK: "/ui/Types/ico_5_rock.png",
+    STEEL: "/ui/Types/ico_8_steel.png",
+    WATER: "/ui/Types/ico_10_water.png",
+  };
+  return icons[String(type || "").toUpperCase()] || catalogItem(catalog, type)?.assets?.icon || null;
 }
 
 export function typeBackground(type, catalog = []) {

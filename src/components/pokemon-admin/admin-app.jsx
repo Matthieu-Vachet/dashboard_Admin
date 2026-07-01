@@ -1193,6 +1193,13 @@ export function AdminApp() {
     [entries],
   );
   const selected = selectedEntry || (selectedIndex >= 0 ? filtered[selectedIndex] : null);
+  const selectedBaseIndex = selectedIndex >= 0 ? selectedIndex : filtered.findIndex((item) => item.key === selected?.key);
+  const previousSelectedEntry = filtered.length && selectedBaseIndex >= 0
+    ? filtered[(selectedBaseIndex - 1 + filtered.length) % filtered.length]
+    : null;
+  const nextSelectedEntry = filtered.length && selectedBaseIndex >= 0
+    ? filtered[(selectedBaseIndex + 1) % filtered.length]
+    : null;
   const compareLeft = entries.find((entry) => entry.key === compareA);
   const compareRight = entries.find((entry) => entry.key === compareB);
   const bulkEntries = filtered.filter((entry) => !bulkOnlyIssues || entry.issues.length).slice(0, 80);
@@ -2392,6 +2399,10 @@ export function AdminApp() {
         extraPanel={extraPanel}
         onPrevious={() => shiftDetail(-1)}
         onNext={() => shiftDetail(1)}
+        previousEntry={previousSelectedEntry}
+        nextEntry={nextSelectedEntry}
+        allEntries={entries}
+        onOpenRelated={openDetail}
         onClose={() => {
           setSelectedIndex(-1);
           setSelectedEntry(null);

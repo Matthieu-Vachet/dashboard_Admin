@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.9.0",
+    date: "2026-07-01",
+    title: "Refonte modale Pokémon GO",
+    changes: [
+      "Refond l'entête de fiche Pokémon avec image principale agrandie, types illustrés et informations Dex/formes/région.",
+      "Ajoute des fonds catchCards, icônes d'onglets et cartes visuelles dans les sections Aperçu, PC, Attaques, PvP, Shadow, Assets et JSON.",
+      "Affiche la famille bonbon, les évolutions cliquables et enrichit les attaques avec DPS, EPS, barres, données PvP et STAB.",
+      "Remplace les boutons précédent/suivant par des cartes avec miniature du Pokémon lié.",
+    ],
+  },
+  {
     version: "V1.8.1",
     date: "2026-07-01",
     title: "Correctif critique Research",
