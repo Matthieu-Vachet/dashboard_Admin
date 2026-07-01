@@ -112,17 +112,54 @@ function readCurrentRocket() {
   };
 }
 
-function readCurrentResearch() {
-  const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
-  const file = dataPath("research", "currentResearch.json");
-  const data = JSON.parse(fs.readFileSync(file, "utf8"));
+function researchSummary(data: { currentResearchList?: Record<string, unknown> }) {
+  const currentResearchList = data?.currentResearchList || {};
   const buckets = Object.fromEntries(
-    Object.entries(data.currentResearchList || {}).map(([key, tasks]) => [
+    Object.entries(currentResearchList).map(([key, tasks]) => [
       key,
       Array.isArray(tasks) ? tasks.length : 0,
     ]),
   );
-  return { data, meta: { source: "data/research/currentResearch.json", buckets } };
+  return {
+    buckets,
+    tasks: Object.values(buckets).reduce((sum, count) => sum + Number(count || 0), 0),
+  };
+}
+
+function readCurrentResearchLocal() {
+  const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
+  const file = dataPath("research", "currentResearch.json");
+  const data = JSON.parse(fs.readFileSync(file, "utf8"));
+  const summary = researchSummary(data);
+  return { data, meta: { source: "data/research/currentResearch.json", buckets: summary.buckets, summary } };
+}
+
+async function readCurrentResearch() {
+  try {
+    const target = new URL("/api/v1/research?source=mongo", pokemonApiBaseUrl);
+    const response = await fetch(target, {
+      cache: "no-store",
+      headers: { accept: "application/json" },
+      signal: AbortSignal.timeout(12_000),
+    });
+    const payload = await response.json().catch(() => null) as {
+      data?: { currentResearchList?: Record<string, unknown> };
+      meta?: Record<string, unknown>;
+    } | null;
+    if (!response.ok || !payload?.data?.currentResearchList) throw new Error("Research API indisponible.");
+    const summary = researchSummary(payload.data);
+    return {
+      data: payload.data,
+      meta: {
+        ...(payload.meta || {}),
+        source: "pokemon-api-mongo",
+        buckets: summary.buckets,
+        summary,
+      },
+    };
+  } catch {
+    return readCurrentResearchLocal();
+  }
 }
 
 function readItems() {
@@ -151,7 +188,7 @@ function readRocketTexts() {
   };
 }
 
-async function callPokemonApiAdmin(path: string) {
+async function callPokemonApiAdmin(path: string, body?: unknown) {
   const secret = process.env.POKEMON_API_ADMIN_SECRET || process.env.API_ADMIN_SECRET;
   if (!secret) {
     throw requestError("POKEMON_API_ADMIN_SECRET doit être défini côté serveur pour gérer les données Pokémon privées.", 500);
@@ -165,7 +202,9 @@ async function callPokemonApiAdmin(path: string) {
     headers: {
       accept: "application/json",
       "x-api-admin-secret": secret,
+      ...(body ? { "content-type": "application/json" } : {}),
     },
+    body: body ? JSON.stringify(body) : undefined,
   });
   const payload = (await response.json().catch(() => ({}))) as {
     error?: string | { message?: string };
@@ -461,7 +500,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (action === "research") {
-      return json({ data: readCurrentResearch() });
+      return json({ data: await readCurrentResearch() });
     }
 
     if (action === "items") {
@@ -605,7 +644,8 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === "import-research") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/research/import") });
+      const researchPayload = body?.data && typeof body.data === "object" ? body.data : undefined;
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/research/import", researchPayload) });
     }
 
     if (action === "regenerate-research") {

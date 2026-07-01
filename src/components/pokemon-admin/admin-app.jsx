@@ -1537,11 +1537,15 @@ export function AdminApp() {
       const response = await fetch(adminApiPath, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: action === "import" ? "import-research" : "regenerate-research" }),
+        body: JSON.stringify({
+          action: action === "import" ? "import-research" : "regenerate-research",
+        }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Action Research impossible.");
-      toast.success(label);
+      const summary = payload.data?.data?.summary || payload.data?.data?.report || payload.data?.summary || payload.data?.report;
+      const tasks = summary?.tasks;
+      toast.success(tasks ? `${label} ${tasks} quêtes.` : label);
       await loadResearch();
     } catch (error) {
       toast.error(error.message || "Action Research impossible.");

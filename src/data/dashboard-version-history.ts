@@ -7,6 +7,16 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.8.1",
+    date: "2026-07-01",
+    title: "Correctif critique Research",
+    changes: [
+      "Recharge Research depuis l'API Pokémon/Mongo pour afficher les données régénérées au lieu du snapshot local.",
+      "Envoie le JSON Research actuellement chargé lors de l'import Mongo pour éviter de réimporter un ancien fichier.",
+      "Affiche le nombre de quêtes retournées par les actions Research quand l'API fournit un report.",
+    ],
+  },
+  {
     version: "V1.8.0",
     date: "2026-06-30",
     title: "Research, Rocket et référentiels API",
