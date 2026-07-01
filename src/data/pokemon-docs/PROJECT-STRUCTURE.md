@@ -23,6 +23,18 @@ lecture.
 | `docs/` | Documentation technique et guides du projet. |
 | `test/` | Tests automatises. |
 
+## Dashboard Admin Events
+
+Dans le depot Dashboard Admin, la feature `Pokemon Admin > Calendrier Events` ajoute :
+
+- `src/components/pokemon-admin/events-calendar-panel.jsx` pour l'interface calendrier,
+  liste, detail, CRUD et import/export JSON.
+- `src/data/pokemon-events.ts` pour le catalogue de types, labels FR, couleurs, icones
+  et seeds de lecture.
+- `src/app/api/events/route.ts` pour la lecture publique.
+- `src/app/api/admin/events/**/route.ts` pour les mutations admin protegees.
+- `src/lib/dashboard-store.ts` pour la collection Mongo `events`.
+
 ## Donnees Protegees
 
 Le dossier `config/` reste dans ce depot car il décrit les index Atlas Search. Les JSON

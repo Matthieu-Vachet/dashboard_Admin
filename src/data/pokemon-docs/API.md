@@ -226,6 +226,55 @@ INTERNAL :
 | Raid | `/raid/counters/FIRE` |
 | Metadonnees | `/meta/filters`, `/stats/global` |
 
+## Routes Dashboard Admin Events
+
+Ces routes appartiennent au Dashboard Admin Next.js et non au service public
+`PokemonGo-API-`.
+
+PUBLIC :
+
+- `GET /api/events`
+- `GET /api/events?includeArchived=1`
+
+ADMIN PROTEGE :
+
+- `POST /api/admin/events`
+- `PATCH /api/admin/events/:id`
+- `DELETE /api/admin/events/:id`
+- `POST /api/admin/events/import`
+
+Les routes admin exigent la session dashboard, la protection d'origine identique et le
+rate-limit applicatif. Les donnees sont stockees dans la collection Mongo `events`.
+
+Exemple :
+
+```bash
+curl "https://dashboard.example.com/api/events"
+```
+
+Payload de creation :
+
+```json
+{
+  "id": "community-day-example",
+  "title": "Community Day",
+  "description": "Event description",
+  "type": "community_day",
+  "startDate": "2026-07-01T10:00:00.000Z",
+  "endDate": "2026-07-01T17:00:00.000Z",
+  "timezone": "Europe/Paris",
+  "status": "upcoming",
+  "source": "manual",
+  "assets": {
+    "banner": null,
+    "icon": null
+  },
+  "featuredPokemon": [],
+  "bonuses": [],
+  "links": []
+}
+```
+
 ## Filtres Combines
 
 Exemple :

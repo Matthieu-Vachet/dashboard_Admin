@@ -9,6 +9,7 @@ import {
   BarChart3,
   BookOpen,
   Boxes,
+  CalendarDays,
   CircleDot,
   ClipboardCheck,
   Cloud,
@@ -54,6 +55,7 @@ import { CandyPanel } from "./candy-panel";
 import { CatalogPanel } from "./catalog-panel";
 import { CollectionsPanel } from "./collections-panel";
 import { EggsPanel } from "./eggs-panel";
+import { EventsCalendarPanel } from "./events-calendar-panel";
 import { LoginCard } from "./login-card";
 import { MaxBattlesPanel } from "./max-battles-panel";
 import { RaidsPanel } from "./raids-panel";
@@ -81,6 +83,7 @@ const navItems = [
   ["max-battles", "Max Battles", Zap],
   ["rocket", "Rocket", ShieldCheck],
   ["research", "Research", Search],
+  ["events", "Calendrier Events", CalendarDays],
   ["assets", "Assets", Boxes],
   ["checks", "Contrôles", AlertTriangle],
   ["sources", "Veille", Radar],
@@ -2095,6 +2098,10 @@ export function AdminApp() {
                 onImportMongo={() => runResearchAdminAction("import", "Research envoyé vers MongoDB.")}
                 onRegenerate={() => runResearchAdminAction("regenerate", "Research régénéré côté API.")}
               />
+            ) : null}
+
+            {active === "events" ? (
+              <EventsCalendarPanel globalSearch={search} />
             ) : null}
 
             {active === "assets" ? (

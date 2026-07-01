@@ -1,4 +1,14 @@
-import { MongoClient, ObjectId, type Collection } from "mongodb";
+import { MongoClient, ObjectId, type Collection, type Filter } from "mongodb";
+import {
+  defaultPokemonEvents,
+  POKEMON_EVENT_STATUSES,
+  POKEMON_EVENT_TYPES,
+  POKEMON_EVENT_TIMEZONE,
+  type PokemonCalendarEvent,
+  type PokemonEventStatus,
+  type PokemonEventType,
+  type PokemonFeaturedPokemon,
+} from "@/data/pokemon-events";
 
 export type DashboardStoreDocument = {
   owner: string;
@@ -57,15 +67,41 @@ export type DashboardBacklogDocument = {
   history: DashboardBacklogHistoryEntry[];
 };
 
+export type DashboardPokemonEventDocument = {
+  _id?: ObjectId;
+  id: string;
+  title: string;
+  description: string;
+  type: PokemonEventType;
+  startDate: Date;
+  endDate: Date;
+  timezone: string;
+  status: PokemonEventStatus;
+  source: string;
+  assets: {
+    banner: string | null;
+    icon: string | null;
+  };
+  featuredPokemon: PokemonFeaturedPokemon[];
+  bonuses: string[];
+  links: Array<{ label: string; url: string }>;
+  owner: string;
+  createdAt: Date;
+  updatedAt: Date;
+  archivedAt: Date | null;
+};
+
 const dashboardDbName = process.env.DASHBOARD_MONGODB_DB || "matweb-dashboard-admin";
 const collectionName = "dashboard_store";
 const apiMetricsCollectionName = "dashboard_api_metrics";
 const backlogCollectionName = "dashboard_backlog";
+const eventsCollectionName = "events";
 
 let clientPromise: Promise<MongoClient> | null = null;
 let indexReady = false;
 let metricsIndexReady = false;
 let backlogIndexReady = false;
+let eventsIndexReady = false;
 
 function mongoUri() {
   return process.env.DASHBOARD_MONGODB_URI || process.env.MONGODB_URI || "";
@@ -144,6 +180,25 @@ async function getBacklogCollection(): Promise<Collection<DashboardBacklogDocume
       collection.createIndex({ owner: 1, type: 1, page: 1, component: 1 }),
     ]);
     backlogIndexReady = true;
+  }
+
+  return collection;
+}
+
+async function getPokemonEventsCollection(): Promise<Collection<DashboardPokemonEventDocument>> {
+  const client = await getClient();
+  const collection = client
+    .db(dashboardDbName)
+    .collection<DashboardPokemonEventDocument>(eventsCollectionName);
+
+  if (!eventsIndexReady) {
+    await Promise.all([
+      collection.createIndex({ id: 1 }, { unique: true }),
+      collection.createIndex({ status: 1, startDate: 1 }),
+      collection.createIndex({ type: 1, startDate: 1 }),
+      collection.createIndex({ updatedAt: -1 }),
+    ]);
+    eventsIndexReady = true;
   }
 
   return collection;
@@ -327,6 +382,8 @@ const backlogStatuses: DashboardBacklogStatus[] = [
   "ignored",
 ];
 const backlogPriorities: DashboardBacklogPriority[] = ["low", "medium", "high", "critical"];
+const pokemonEventTypes = POKEMON_EVENT_TYPES.map((eventType) => eventType.id) as PokemonEventType[];
+const pokemonEventStatuses = [...POKEMON_EVENT_STATUSES] as PokemonEventStatus[];
 
 function textValue(value: unknown, fallback = "") {
   return String(value ?? fallback).trim();
@@ -348,6 +405,385 @@ function screenshotsValue(value: unknown) {
       .filter(Boolean);
   }
   return [];
+}
+
+function slugValue(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 90);
+}
+
+function dateValue(value: unknown, fallback: Date) {
+  const raw = value instanceof Date ? value : new Date(textValue(value, fallback.toISOString()));
+  if (Number.isNaN(raw.getTime())) {
+    const error = new Error("Date d'event invalide.");
+    (error as Error & { status?: number }).status = 400;
+    throw error;
+  }
+  return raw;
+}
+
+function nullableUrlValue(value: unknown) {
+  const url = textValue(value);
+  return url || null;
+}
+
+function stringListValue(value: unknown) {
+  if (Array.isArray(value)) {
+    return value.map((item) => textValue(item)).filter(Boolean).slice(0, 80);
+  }
+  if (typeof value === "string") {
+    return value
+      .split(/\n|,/)
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .slice(0, 80);
+  }
+  return [];
+}
+
+function linksValue(value: unknown) {
+  const items = Array.isArray(value)
+    ? value
+    : typeof value === "string"
+      ? value
+          .split(/\n/)
+          .map((item) => item.trim())
+          .filter(Boolean)
+      : [];
+
+  return items
+    .map((item) => {
+      if (typeof item === "string") {
+        const [label, url] = item.includes("|")
+          ? item.split("|").map((part) => part.trim())
+          : ["Source", item.trim()];
+        return { label: label || "Source", url: url || "" };
+      }
+      if (item && typeof item === "object") {
+        const record = item as Record<string, unknown>;
+        return {
+          label: textValue(record.label || record.title || record.name, "Source"),
+          url: textValue(record.url || record.href),
+        };
+      }
+      return { label: "", url: "" };
+    })
+    .filter((item) => item.url)
+    .slice(0, 20);
+}
+
+function featuredPokemonValue(value: unknown) {
+  const items = Array.isArray(value)
+    ? value
+    : typeof value === "string"
+      ? value
+          .split(/\n|,/)
+          .map((item) => item.trim())
+          .filter(Boolean)
+      : [];
+
+  return items
+    .map((item) => {
+      if (typeof item === "string") return { name: item };
+      if (item && typeof item === "object") {
+        const record = item as Record<string, unknown>;
+        const name = textValue(record.name || record.title || record.id);
+        return {
+          id: textValue(record.id) || undefined,
+          name,
+          image: textValue(record.image || record.icon) || undefined,
+          dexId: textValue(record.dexId || record.dex) || undefined,
+          form: textValue(record.form) || undefined,
+        };
+      }
+      return { name: "" };
+    })
+    .filter((item): item is PokemonFeaturedPokemon => Boolean(item.name))
+    .slice(0, 60);
+}
+
+function computedPokemonEventStatus(
+  status: PokemonEventStatus,
+  startDate: Date | string,
+  endDate: Date | string,
+): PokemonEventStatus {
+  if (status === "draft" || status === "archived") return status;
+  const now = Date.now();
+  const start = startDate instanceof Date ? startDate.getTime() : new Date(startDate).getTime();
+  const end = endDate instanceof Date ? endDate.getTime() : new Date(endDate).getTime();
+  if (end < now) return "past";
+  if (start <= now && end >= now) return "current";
+  return "upcoming";
+}
+
+function serializePokemonEventRecord(
+  event: DashboardPokemonEventDocument | PokemonCalendarEvent,
+): PokemonCalendarEvent {
+  const startDate = event.startDate instanceof Date ? event.startDate : new Date(event.startDate);
+  const endDate = event.endDate instanceof Date ? event.endDate : new Date(event.endDate);
+  const status = computedPokemonEventStatus(event.status, startDate, endDate);
+
+  return {
+    id: event.id,
+    title: event.title,
+    description: event.description || "",
+    type: event.type,
+    startDate: startDate.toISOString(),
+    endDate: endDate.toISOString(),
+    timezone: event.timezone || POKEMON_EVENT_TIMEZONE,
+    status,
+    source: event.source || "manual",
+    assets: {
+      banner: event.assets?.banner || null,
+      icon: event.assets?.icon || null,
+    },
+    featuredPokemon: Array.isArray(event.featuredPokemon) ? event.featuredPokemon : [],
+    bonuses: Array.isArray(event.bonuses) ? event.bonuses : [],
+    links: Array.isArray(event.links) ? event.links : [],
+    createdAt:
+      "createdAt" in event && event.createdAt
+        ? event.createdAt instanceof Date
+          ? event.createdAt.toISOString()
+          : String(event.createdAt)
+        : undefined,
+    updatedAt:
+      "updatedAt" in event && event.updatedAt
+        ? event.updatedAt instanceof Date
+          ? event.updatedAt.toISOString()
+          : String(event.updatedAt)
+        : undefined,
+    archivedAt:
+      "archivedAt" in event && event.archivedAt
+        ? event.archivedAt instanceof Date
+          ? event.archivedAt.toISOString()
+          : String(event.archivedAt)
+        : null,
+  };
+}
+
+function eventIdentifierFilter(identifier: unknown): Filter<DashboardPokemonEventDocument> {
+  const id = textValue(identifier);
+  if (!id) {
+    const error = new Error("Event introuvable.");
+    (error as Error & { status?: number }).status = 404;
+    throw error;
+  }
+
+  if (ObjectId.isValid(id)) {
+    return { $or: [{ id }, { _id: new ObjectId(id) }] };
+  }
+
+  return { id };
+}
+
+function normalizePokemonEventInput(
+  owner: string,
+  input: Record<string, unknown>,
+  existing?: DashboardPokemonEventDocument | null,
+) {
+  const now = new Date();
+  const title = textValue(input.title, existing?.title || "Nouvel event Pokémon GO");
+  const id = slugValue(textValue(input.id, existing?.id || title || `event-${now.getTime()}`));
+  const startDate = dateValue(input.startDate ?? input.date, existing?.startDate || now);
+  const endDate = dateValue(input.endDate, existing?.endDate || startDate);
+  if (endDate.getTime() < startDate.getTime()) {
+    const error = new Error("La date de fin doit être postérieure à la date de début.");
+    (error as Error & { status?: number }).status = 400;
+    throw error;
+  }
+
+  const status = enumValue(
+    input.status,
+    pokemonEventStatuses,
+    computedPokemonEventStatus(existing?.status || "upcoming", startDate, endDate),
+  );
+  const archivedAt =
+    status === "archived"
+      ? existing?.archivedAt || now
+      : null;
+  const inputAssets = input.assets && typeof input.assets === "object"
+    ? (input.assets as Record<string, unknown>)
+    : {};
+
+  return {
+    id,
+    title,
+    description: textValue(input.description, existing?.description || ""),
+    type: enumValue(input.type, pokemonEventTypes, existing?.type || "event"),
+    startDate,
+    endDate,
+    timezone: textValue(input.timezone, existing?.timezone || POKEMON_EVENT_TIMEZONE),
+    status,
+    source: textValue(input.source, existing?.source || "manual"),
+    assets: {
+      banner: nullableUrlValue(inputAssets.banner ?? input.banner ?? existing?.assets?.banner),
+      icon: nullableUrlValue(inputAssets.icon ?? input.icon ?? existing?.assets?.icon),
+    },
+    featuredPokemon: "featuredPokemon" in input
+      ? featuredPokemonValue(input.featuredPokemon)
+      : existing?.featuredPokemon || [],
+    bonuses: "bonuses" in input ? stringListValue(input.bonuses) : existing?.bonuses || [],
+    links: "links" in input ? linksValue(input.links) : existing?.links || [],
+    owner: existing?.owner || owner,
+    archivedAt,
+  };
+}
+
+export async function listPokemonEvents(options: { includeArchived?: boolean } = {}) {
+  const includeArchived = options.includeArchived === true;
+  const seeded = defaultPokemonEvents.map(serializePokemonEventRecord);
+
+  if (!dashboardStoreConfigured()) {
+    return {
+      configured: false,
+      collection: eventsCollectionName,
+      seeded: true,
+      events: includeArchived ? seeded : seeded.filter((event) => event.status !== "archived"),
+    };
+  }
+
+  const collection = await getPokemonEventsCollection();
+  const query: Filter<DashboardPokemonEventDocument> = includeArchived
+    ? {}
+    : { status: { $ne: "archived" } };
+  const documents = await collection
+    .find(query)
+    .sort({ startDate: 1, title: 1 })
+    .limit(2000)
+    .toArray();
+  const events = documents.map(serializePokemonEventRecord);
+
+  return {
+    configured: true,
+    collection: eventsCollectionName,
+    seeded: events.length === 0,
+    events: events.length ? events : includeArchived ? seeded : seeded.filter((event) => event.status !== "archived"),
+  };
+}
+
+export async function createPokemonEvent(owner: string, input: Record<string, unknown>) {
+  const collection = await getPokemonEventsCollection();
+  const now = new Date();
+  const document: DashboardPokemonEventDocument = {
+    ...normalizePokemonEventInput(owner, input),
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  if (!document.title) {
+    const error = new Error("Le titre de l'event est obligatoire.");
+    (error as Error & { status?: number }).status = 400;
+    throw error;
+  }
+
+  try {
+    const result = await collection.insertOne(document);
+    return serializePokemonEventRecord({ ...document, _id: result.insertedId });
+  } catch (error) {
+    const duplicate = error instanceof Error && error.message.includes("E11000");
+    if (duplicate) {
+      const conflict = new Error("Un event avec cet identifiant existe déjà.");
+      (conflict as Error & { status?: number }).status = 409;
+      throw conflict;
+    }
+    throw error;
+  }
+}
+
+export async function updatePokemonEvent(
+  owner: string,
+  id: string,
+  input: Record<string, unknown>,
+) {
+  const collection = await getPokemonEventsCollection();
+  const filter = eventIdentifierFilter(id);
+  const existing = await collection.findOne(filter);
+  const now = new Date();
+  const normalized = normalizePokemonEventInput(owner, { ...input, id: input.id || existing?.id || id }, existing);
+
+  if (!existing) {
+    const result = await collection.insertOne({
+      ...normalized,
+      createdAt: now,
+      updatedAt: now,
+    });
+    return serializePokemonEventRecord({ ...normalized, _id: result.insertedId, createdAt: now, updatedAt: now });
+  }
+
+  await collection.updateOne(filter, {
+    $set: {
+      ...normalized,
+      updatedAt: now,
+    },
+  });
+
+  const updated = await collection.findOne(eventIdentifierFilter(normalized.id));
+  if (!updated) throw new Error("Event introuvable après mise à jour.");
+  return serializePokemonEventRecord(updated);
+}
+
+export async function deletePokemonEvent(id: string) {
+  const collection = await getPokemonEventsCollection();
+  const result = await collection.deleteOne(eventIdentifierFilter(id));
+  if (!result.deletedCount) {
+    const error = new Error("Event introuvable.");
+    (error as Error & { status?: number }).status = 404;
+    throw error;
+  }
+  return { id };
+}
+
+export async function importPokemonEvents(owner: string, input: Record<string, unknown> | unknown[]) {
+  const events = Array.isArray(input)
+    ? input
+    : Array.isArray(input.events)
+      ? input.events
+      : Array.isArray(input.data)
+        ? input.data
+        : [];
+
+  if (!events.length) {
+    const error = new Error("Aucun event à importer.");
+    (error as Error & { status?: number }).status = 400;
+    throw error;
+  }
+
+  const collection = await getPokemonEventsCollection();
+  const now = new Date();
+  const operations = events.map((event) => {
+    const normalized = normalizePokemonEventInput(owner, event as Record<string, unknown>);
+    return {
+      updateOne: {
+        filter: { id: normalized.id },
+        update: {
+          $set: {
+            ...normalized,
+            updatedAt: now,
+          },
+          $setOnInsert: {
+            createdAt: now,
+          },
+        },
+        upsert: true,
+      },
+    };
+  });
+
+  const result = await collection.bulkWrite(operations, { ordered: false });
+  const list = await listPokemonEvents({ includeArchived: true });
+
+  return {
+    matched: result.matchedCount,
+    modified: result.modifiedCount,
+    inserted: result.upsertedCount,
+    total: events.length,
+    events: list.events,
+  };
 }
 
 function backlogCodexPrompt(

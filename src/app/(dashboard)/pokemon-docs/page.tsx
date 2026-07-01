@@ -9,6 +9,7 @@ const docsOrder = [
   "TEMPLATES.md",
   "DATA-NORMALIZATION.md",
   "API.md",
+  "EVENTS-CALENDAR.md",
   "PROJECT-STRUCTURE.md",
   "JAVASCRIPT-FILES.md",
   "MAINTENANCE.md",

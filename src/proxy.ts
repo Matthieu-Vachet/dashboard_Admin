@@ -3,8 +3,13 @@ import { NextResponse } from "next/server";
 import { sessionCookieName, verifySessionToken } from "@/lib/session-token";
 import { applySecurityHeaders } from "@/lib/security";
 
-const publicPaths = ["/login", "/api/session", "/api/logout"];
-const protectedApiPaths = ["/api/dashboard-store", "/api/pokemon-admin", "/api/dashboard-backlog"];
+const publicPaths = ["/login", "/api/session", "/api/logout", "/api/events"];
+const protectedApiPaths = [
+  "/api/dashboard-store",
+  "/api/pokemon-admin",
+  "/api/dashboard-backlog",
+  "/api/admin/events",
+];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

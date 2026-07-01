@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.10.0",
+    date: "2026-07-01",
+    title: "Calendrier Events Pokémon GO",
+    changes: [
+      "Ajoute l'onglet Pokémon Admin > Calendrier Events avec vue mensuelle, vue liste, filtres type/statut/date/recherche et modale détail.",
+      "Crée la collection Mongo `events` avec CRUD admin protégé, import JSON, export JSON et endpoint public `GET /api/events`.",
+      "Ajoute un catalogue de types d'events Pokémon GO avec couleurs, labels FR, icônes locales et seeds sourcés pour les premiers affichages.",
+      "Documente le format event, les routes API, la collection Mongo et les limites connues.",
+    ],
+  },
+  {
     version: "V1.9.1",
     date: "2026-07-01",
     title: "Ajustement modale Pokémon",

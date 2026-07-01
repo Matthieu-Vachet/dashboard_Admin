@@ -94,6 +94,21 @@ Les boutons `Envoyer MongoDB` et `Regenerer` appellent les routes privees
 `/api/v1/admin/rocket/*` et `/api/v1/admin/research/*` via le serveur
 dashboard. Ils utilisent aussi `POKEMON_API_ADMIN_SECRET`.
 
+## Calendrier Events Pokemon GO
+
+La section `Pokemon Admin > Calendrier Events` ajoute une vue mensuelle et une vue liste
+des evenements Pokemon GO, avec filtres par type, statut, date et recherche texte.
+
+Les donnees sont lues par `GET /api/events`. Les actions admin utilisent les routes
+protegees `POST /api/admin/events`, `PATCH /api/admin/events/:id`,
+`DELETE /api/admin/events/:id` et `POST /api/admin/events/import`.
+
+Les events sont stockes dans la collection MongoDB `events` du dashboard. Si MongoDB n'est
+pas configure, l'API publique renvoie des seeds de lecture, mais le CRUD admin necessite
+`DASHBOARD_MONGODB_URI` ou `MONGODB_URI`.
+
+Le format attendu est documente dans `src/data/pokemon-docs/EVENTS-CALENDAR.md`.
+
 ## Checks
 
 ```bash
