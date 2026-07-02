@@ -50,6 +50,15 @@ function slugify(value: unknown) {
   return normalizeText(value).replace(/\s+/g, "-");
 }
 
+function normalizeImageUrl(value: unknown) {
+  const raw = String(value || "").trim();
+  if (!raw) return null;
+  if (/^(https?:|data:|blob:)/i.test(raw)) return raw;
+  if (raw.startsWith("//")) return `https:${raw}`;
+  if (raw.startsWith("/")) return `https://leekduck.com${raw}`;
+  return `https://leekduck.com/${raw.replace(/^\.?\//, "")}`;
+}
+
 function uniqueBy<T>(items: T[], key: (item: T) => string) {
   const seen = new Set<string>();
   return items.filter((item) => {
@@ -219,23 +228,23 @@ function collectPokemonCandidates(event: RawLeekDuckEvent) {
   for (const boss of Array.isArray(raidBattles?.bosses) ? raidBattles.bosses : []) {
     if (boss && typeof boss === "object") {
       const record = boss as Record<string, unknown>;
-      candidates.push({ name: String(record.name || ""), image: String(record.image || ""), shiny: Boolean(record.canBeShiny) });
+      candidates.push({ name: String(record.name || ""), image: normalizeImageUrl(record.image) || undefined, shiny: Boolean(record.canBeShiny) });
     }
   }
   for (const spawn of Array.isArray(communityDay?.spawns) ? communityDay.spawns : []) {
     if (spawn && typeof spawn === "object") {
       const record = spawn as Record<string, unknown>;
-      candidates.push({ name: String(record.name || ""), image: String(record.image || "") });
+      candidates.push({ name: String(record.name || ""), image: normalizeImageUrl(record.image) || undefined });
     }
   }
   for (const item of Array.isArray(spotlight?.list) ? spotlight.list : []) {
     if (item && typeof item === "object") {
       const record = item as Record<string, unknown>;
-      candidates.push({ name: String(record.name || ""), image: String(record.image || ""), shiny: Boolean(record.canBeShiny) });
+      candidates.push({ name: String(record.name || ""), image: normalizeImageUrl(record.image) || undefined, shiny: Boolean(record.canBeShiny) });
     }
   }
   if (spotlight?.name) {
-    candidates.push({ name: String(spotlight.name), image: String(spotlight.image || ""), shiny: Boolean(spotlight.canBeShiny) });
+    candidates.push({ name: String(spotlight.name), image: normalizeImageUrl(spotlight.image) || undefined, shiny: Boolean(spotlight.canBeShiny) });
   }
 
   return candidates.filter((pokemon) => pokemon.name);
@@ -252,7 +261,7 @@ function matchPokemon(
   for (const candidate of explicit) {
     const local = index.lookup.get(normalizeText(candidate.name));
     if (local) {
-      matched.push({ ...local, shiny: candidate.shiny || local.shiny });
+      matched.push({ ...local, image: local.image || candidate.image, shiny: candidate.shiny || local.shiny });
     } else {
       matched.push({ name: candidate.name, image: candidate.image, shiny: candidate.shiny });
       unmatched.add(candidate.name);
@@ -302,10 +311,10 @@ function collectRewards(event: RawLeekDuckEvent) {
     const record = value as Record<string, unknown>;
     if (record.reward && typeof record.reward === "object") {
       const reward = record.reward as Record<string, unknown>;
-      rewards.push({ text: String(reward.text || ""), image: typeof reward.image === "string" ? reward.image : null, type: "task" });
+      rewards.push({ text: String(reward.text || ""), image: normalizeImageUrl(reward.image), type: "task" });
     }
     if (record.text && record.image) {
-      rewards.push({ text: String(record.text), image: typeof record.image === "string" ? record.image : null, type: "reward" });
+      rewards.push({ text: String(record.text), image: normalizeImageUrl(record.image), type: "reward" });
     }
     Object.values(record).forEach(visit);
   };
@@ -370,7 +379,7 @@ export async function scrapeLeekDuckEvents() {
       status: "upcoming",
       source: "leekduck",
       assets: {
-        banner: typeof enriched.image === "string" ? enriched.image : null,
+        banner: normalizeImageUrl(enriched.image),
         icon: null,
       },
       featuredPokemon: matched.featuredPokemon,
@@ -382,7 +391,7 @@ export async function scrapeLeekDuckEvents() {
         eventType: enriched.eventType,
         heading: enriched.heading,
         link: enriched.link,
-        image: enriched.image,
+        image: normalizeImageUrl(enriched.image),
         extraData: enriched.extraData || null,
       },
     };

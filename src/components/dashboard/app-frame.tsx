@@ -12,7 +12,10 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Search,
+  Settings,
+  ShieldCheck,
   Sun,
+  UserRound,
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -220,12 +223,34 @@ export function AppFrame({
 
       <div className="space-y-3 p-3">
         {!collapsed ? (
-          <div className="dashboard-sidebar-card rounded-lg border border-line p-3">
-            <div className="flex items-center justify-between gap-3">
-              <Badge tone="green">Admin</Badge>
-              <span className="h-2.5 w-2.5 rounded-full bg-brand-3 shadow-[0_0_24px_rgba(88,242,169,0.7)]" />
+          <div className="dashboard-account-zone rounded-lg border border-line p-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <span className="mb-2 flex items-center gap-2 text-[0.65rem] font-black uppercase tracking-[0.18em] text-muted">
+                  <UserRound size={13} className="text-brand-2" />
+                  Compte
+                </span>
+                <Badge tone="green">Admin</Badge>
+              </div>
+              <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-brand-3 shadow-[0_0_24px_rgba(88,242,169,0.7)]" />
             </div>
             <p className="mt-3 truncate text-xs font-bold text-muted">{userEmail}</p>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button
+                className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.055] px-2 text-[0.68rem] font-black text-foreground transition hover:border-cyan-200/35 hover:bg-cyan-400/10"
+                type="button"
+                title="Préférences du compte"
+              >
+                <Settings size={13} /> Réglages
+              </button>
+              <button
+                className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-emerald-300/18 bg-emerald-400/10 px-2 text-[0.68rem] font-black text-emerald-100 transition hover:border-emerald-200/35 hover:bg-emerald-400/16"
+                type="button"
+                title="Session admin protégée"
+              >
+                <ShieldCheck size={13} /> Session
+              </button>
+            </div>
           </div>
         ) : null}
         <form action="/api/logout" method="post">

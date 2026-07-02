@@ -15,7 +15,6 @@ import {
   ClipboardList,
   ScrollText,
   FileText,
-  TerminalSquare,
   Wrench,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -41,7 +40,6 @@ export const navGroups: NavGroup[] = [
       { href: "/analytics", label: "Analytics", icon: LineChart },
       { href: "/tools", label: "Outils", icon: Wrench },
       { href: "/tools/dashboard-backlog", label: "Dashboard Backlog", icon: ClipboardList },
-      { href: "/tools/workspace-scripts", label: "Scripts workspace", icon: TerminalSquare },
     ],
   },
   {

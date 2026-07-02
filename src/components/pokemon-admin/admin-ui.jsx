@@ -124,8 +124,8 @@ export function AssetStatCard({ label, value, icon, tone = "cyan", detail }) {
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.22),transparent_34%),linear-gradient(135deg,rgba(255,255,255,.1),transparent_45%)]" />
       <div className="relative grid min-w-0 grid-cols-[3rem_minmax(0,1fr)] items-center gap-3">
-        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/10 bg-slate-950/45 p-2 shadow-inner">
-          {icon ? <img className="max-h-full object-contain" src={icon} alt="" /> : <Gauge size={21} />}
+        <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 p-2 shadow-inner">
+          {icon ? <img className="h-8 max-h-8 w-8 max-w-8 object-contain" src={icon} alt="" /> : <Gauge size={21} />}
         </span>
         <span className="min-w-0">
           <span className="block truncate text-xs font-black uppercase tracking-[0.18em] text-white/72">

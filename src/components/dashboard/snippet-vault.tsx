@@ -20,6 +20,14 @@ const emptySnippet: Snippet = {
   content: "",
 };
 
+const snippetTones = [
+  "border-cyan-300/24 bg-cyan-400/8",
+  "border-emerald-300/24 bg-emerald-400/8",
+  "border-violet-300/24 bg-violet-400/8",
+  "border-amber-300/24 bg-amber-400/8",
+  "border-rose-300/24 bg-rose-400/8",
+];
+
 export function SnippetVault() {
   const [snippets, setSnippets, ready] = usePersistentState("matweb.tools.snippets", initialSnippets);
   const [query, setQuery] = useState("");
@@ -110,8 +118,8 @@ export function SnippetVault() {
       </Card>
 
       <section className="grid min-w-0 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-        {filtered.map((snippet) => (
-          <Card key={snippet.id} className="min-w-0 overflow-hidden p-4">
+        {filtered.map((snippet, index) => (
+          <Card key={snippet.id} className={`min-w-0 overflow-hidden p-4 ${snippetTones[index % snippetTones.length]}`}>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-2">

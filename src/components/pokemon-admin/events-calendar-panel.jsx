@@ -148,20 +148,41 @@ function eventRemainingLabel(event) {
   return `se termine dans ${formatDistanceToNowStrict(end, { locale: fr })}`;
 }
 
+function normalizeEventImageUrl(src) {
+  const value = String(src || "").trim();
+  if (!value) return null;
+  if (/^(https?:|data:|blob:)/i.test(value)) return value;
+  if (value.startsWith("//")) return `https:${value}`;
+  if (value.startsWith("/ui/") || value.startsWith("/_next/")) return value;
+  if (value.startsWith("/")) return `https://leekduck.com${value}`;
+  return `https://leekduck.com/${value.replace(/^\.?\//, "")}`;
+}
+
 function eventImages(event, limit = 4) {
   return (event.featuredPokemon || [])
     .map((pokemon) => ({
-      src: pokemon.image,
+      src: normalizeEventImageUrl(pokemon.image),
       name: pokemon.name || pokemon.id,
     }))
     .filter((pokemon) => pokemon.src)
     .slice(0, limit);
 }
 
+function eventBanner(event) {
+  return normalizeEventImageUrl(event.assets?.banner || event.assets?.icon);
+}
+
+function EventBannerImage({ src, className }) {
+  const normalized = normalizeEventImageUrl(src);
+  const [failed, setFailed] = useState(false);
+  if (!normalized || failed) return null;
+  return <img className={className} src={normalized} alt="" loading="lazy" onError={() => setFailed(true)} />;
+}
+
 function eventRewards(event, limit = 16) {
   return (event.rewards || [])
     .map((reward) => ({
-      src: reward.image,
+      src: normalizeEventImageUrl(reward.image),
       text: reward.text,
     }))
     .filter((reward) => reward.src || reward.text)
@@ -858,11 +879,13 @@ function MultiDaySegment({ segment, onOpen }) {
   const type = eventType(segment.event);
   return (
     <button
-      className="min-w-0 truncate rounded-md px-2 text-left text-xs font-black text-white shadow-[0_5px_18px_rgba(0,0,0,.24)] transition hover:brightness-110"
+      className="min-w-0 truncate rounded-md border px-2 text-left text-xs font-black text-white shadow-[0_5px_18px_rgba(0,0,0,.16)] transition hover:border-white/35 hover:brightness-110"
       style={{
         gridColumn: `${segment.startIndex + 1} / ${segment.endIndex + 2}`,
         gridRow: `${segment.lane + 1}`,
-        background: `linear-gradient(90deg, ${type.color}, ${hexToRgba(type.color, 0.78)})`,
+        borderColor: hexToRgba(type.color, 0.52),
+        background: `linear-gradient(90deg, ${hexToRgba(type.color, 0.34)}, ${hexToRgba(type.color, 0.18)} 55%, rgba(2,6,23,.54))`,
+        boxShadow: `inset 0 1px 0 ${hexToRgba("#ffffff", 0.18)}, 0 0 18px ${hexToRgba(type.color, 0.14)}`,
       }}
       type="button"
       onClick={() => onOpen(segment.event)}
@@ -879,7 +902,15 @@ function SingleDayEvent({ event, onOpen, compact }) {
   const type = eventType(event);
   const images = eventImages(event, compact ? 2 : 4);
   return (
-    <button className="w-full min-w-0 rounded-xl p-1.5 text-left transition hover:bg-white/10" type="button" onClick={() => onOpen(event)}>
+    <button
+      className="w-full min-w-0 rounded-xl border p-1.5 text-left transition hover:-translate-y-0.5 hover:bg-white/10"
+      style={{
+        borderColor: hexToRgba(type.color, 0.22),
+        background: `linear-gradient(135deg, ${hexToRgba(type.color, 0.08)}, rgba(2,6,23,.18))`,
+      }}
+      type="button"
+      onClick={() => onOpen(event)}
+    >
       <span className="block min-w-0 truncate text-xs font-black text-white">{event.title}</span>
       <span className="mt-0.5 flex items-center gap-1 text-[11px] font-bold text-slate-300">
         <span className="h-2 w-2 rounded-full" style={{ backgroundColor: type.color }} />
@@ -947,17 +978,22 @@ function TimelineSection({ title, count, events, onOpen, empty, defaultOpen = fa
 function TimelineCard({ event, onOpen }) {
   const type = eventType(event);
   const images = eventImages(event, 8);
+  const banner = eventBanner(event);
   return (
     <button
       className="group w-full overflow-hidden rounded-2xl border p-3 text-left transition hover:-translate-y-0.5"
       style={{
-        borderColor: hexToRgba(type.color, 0.42),
-        background: `linear-gradient(135deg, ${hexToRgba(type.color, 0.12)}, rgba(255,255,255,.035))`,
+        borderColor: hexToRgba(type.color, 0.34),
+        background: `linear-gradient(135deg, ${hexToRgba(type.color, 0.10)}, rgba(2,6,23,.32))`,
+        boxShadow: `inset 0 1px 0 ${hexToRgba("#ffffff", 0.08)}, 0 16px 44px rgba(0,0,0,.12)`,
       }}
       type="button"
       onClick={() => onOpen(event)}
     >
-      <span className="inline-flex rounded-md px-2 py-1 text-[11px] font-black text-white" style={{ backgroundColor: type.color }}>
+      <span
+        className="inline-flex rounded-md border px-2 py-1 text-[11px] font-black text-white"
+        style={{ borderColor: hexToRgba(type.color, 0.48), backgroundColor: hexToRgba(type.color, 0.52) }}
+      >
         {event.category || type.label}
       </span>
       <strong className="mt-2 block text-lg font-black leading-tight text-white">{event.title}</strong>
@@ -969,8 +1005,8 @@ function TimelineCard({ event, onOpen }) {
             <img key={`${event.id}-${image.name}-${image.src}`} className="h-9 w-9 object-contain" src={image.src} alt={image.name || ""} loading="lazy" title={image.name} />
           ))}
         </span>
-      ) : event.assets?.banner ? (
-        <img className="mt-3 h-24 w-full rounded-xl object-cover" src={event.assets.banner} alt="" loading="lazy" />
+      ) : banner ? (
+        <EventBannerImage className="mt-3 max-h-36 w-full rounded-xl border border-white/10 object-contain p-2" src={banner} />
       ) : null}
     </button>
   );
@@ -983,7 +1019,7 @@ function EventRow({ event, onOpen }) {
       className="group grid w-full grid-cols-[3rem_minmax(0,1fr)] gap-3 rounded-2xl border p-3 text-left transition hover:-translate-y-0.5"
       style={{
         borderColor: hexToRgba(type.color, 0.30),
-        background: `linear-gradient(135deg, ${hexToRgba(type.color, 0.14)}, rgba(2,6,23,.42))`,
+        background: `linear-gradient(135deg, ${hexToRgba(type.color, 0.10)}, rgba(2,6,23,.42))`,
       }}
       type="button"
       onClick={() => onOpen(event)}
@@ -1044,8 +1080,8 @@ function EventDetailModal({ event, busy, onClose, onEdit, onDuplicate, onArchive
             <InfoPill label="Timezone" value={event.timezone || POKEMON_EVENT_TIMEZONE} />
             <InfoPill label="Échéance" value={eventRemainingLabel(event)} />
           </div>
-          {event.assets?.banner ? (
-            <img className="max-h-72 w-full rounded-2xl border border-white/10 object-cover" src={event.assets.banner} alt="" loading="lazy" />
+          {eventBanner(event) ? (
+            <EventBannerImage className="max-h-72 w-full rounded-2xl border border-white/10 object-contain bg-slate-950/30 p-2" src={eventBanner(event)} />
           ) : null}
           {event.description ? (
             <section className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">

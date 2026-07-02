@@ -175,8 +175,8 @@ function ItemReward({ reward, items }) {
 
   return (
     <article className="grid min-w-0 grid-cols-[64px_minmax(0,1fr)] gap-3 rounded-2xl border border-amber-200/16 bg-amber-400/9 p-3">
-      <span className="grid h-16 w-16 place-items-center rounded-2xl border border-amber-100/18 bg-slate-950/40 p-2">
-        {src ? <img className="max-h-full object-contain" src={src} alt={name} loading="lazy" /> : <Package className="text-amber-100" size={24} />}
+      <span className="grid h-16 w-16 place-items-center overflow-hidden rounded-2xl border border-amber-100/18 bg-slate-950/40 p-2">
+        {src ? <img className="h-11 max-h-11 w-11 max-w-11 object-contain" src={src} alt={name} loading="lazy" /> : <Package className="text-amber-100" size={24} />}
       </span>
       <span className="min-w-0">
         <span className="flex min-w-0 flex-wrap items-center gap-2">

@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.11.2",
+    date: "2026-07-02",
+    title: "Nettoyage UI multi-sections",
+    changes: [
+      "Supprime entierement la section Scripts workspace du menu, de la page et de l'API interne.",
+      "Normalise les images LeekDuck Events et masque les bannieres en erreur pour eviter les grands blocs vides.",
+      "Adoucit les barres et cards du calendrier Events avec des backgrounds translucides et des bordures colorees.",
+      "Corrige les icones Research trop grandes, ajoute des accents aux widgets et enrichit la zone compte du menu lateral.",
+    ],
+  },
+  {
     version: "V1.11.1",
     date: "2026-07-02",
     title: "Correctif raids LeekDuck",
