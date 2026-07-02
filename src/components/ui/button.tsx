@@ -14,7 +14,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    "border-transparent bg-gradient-to-r from-brand via-[#6b8cff] to-brand-2 text-white shadow-[0_16px_42px_rgba(32,211,255,0.18)] hover:brightness-110",
+    "dashboard-primary-button border-transparent text-white hover:brightness-110",
   secondary:
     "border-line bg-white/[0.075] text-foreground hover:border-line-strong hover:bg-white/[0.11]",
   ghost: "border-transparent bg-transparent text-muted hover:bg-white/[0.08] hover:text-foreground",

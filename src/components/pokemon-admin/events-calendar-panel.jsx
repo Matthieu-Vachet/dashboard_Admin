@@ -713,7 +713,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon }) {
                 <ChevronRight size={17} />
               </button>
             </div>
-            <h3 className="text-2xl font-black capitalize text-white">{monthFormat.format(cursor)}</h3>
+            <h3 className="text-2xl font-black capitalize text-foreground">{monthFormat.format(cursor)}</h3>
             <div className="flex rounded-2xl border border-white/10 bg-slate-950/45 p-1">
               {[
                 ["calendar", CalendarDays, "Mois"],
@@ -724,7 +724,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon }) {
                   type="button"
                   onClick={() => setView(id)}
                   className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-black transition ${
-                    view === id ? "bg-cyan-300 text-slate-950" : "text-slate-300 hover:text-white"
+                    view === id ? "bg-brand-2 text-slate-950" : "text-muted hover:text-foreground"
                   }`}
                 >
                   <Icon size={15} /> {label}
@@ -737,7 +737,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon }) {
             <div className="min-w-0">
               <div className="grid grid-cols-7 gap-1 sm:gap-2">
                 {dayNames.map((day) => (
-                  <span key={day} className="rounded-xl border border-white/10 bg-white/[0.045] px-1 py-2 text-center text-[10px] font-black uppercase tracking-[0.12em] text-cyan-100/70 sm:text-xs">
+                  <span key={day} className="rounded-xl border border-white/10 bg-white/[0.045] px-1 py-2 text-center text-[10px] font-black uppercase tracking-[0.12em] text-muted sm:text-xs">
                     {day}
                   </span>
                 ))}
@@ -899,7 +899,7 @@ function CalendarDayCell({ day, cursor, events, today, compact, laneCount, onOpe
       <div className="absolute left-1.5 right-1.5 top-1.5 flex items-center justify-between gap-1">
         <button
           className={`grid h-7 min-w-7 place-items-center rounded-full px-1 text-xs font-black ${
-            today ? "bg-cyan-300 text-slate-950" : "text-white hover:bg-white/10"
+            today ? "bg-brand-2 text-slate-950" : "text-muted hover:bg-white/10 hover:text-foreground"
           }`}
           type="button"
           onClick={() => onOpenDay(key)}
@@ -907,7 +907,7 @@ function CalendarDayCell({ day, cursor, events, today, compact, laneCount, onOpe
           {format(day, "d", { locale: fr })}
         </button>
         <button
-          className="hidden h-7 w-7 place-items-center rounded-full border border-white/10 bg-white/[0.055] text-cyan-100 hover:bg-cyan-300/15 sm:grid"
+          className="hidden h-7 w-7 place-items-center rounded-full border border-white/10 bg-white/[0.055] text-brand-2 hover:bg-brand-2/15 sm:grid"
           type="button"
           onClick={() => onCreate(day)}
           aria-label={`Ajouter un event le ${key}`}
@@ -1300,8 +1300,8 @@ function EventDetailModal({ event, busy, onClose, onEdit, onDuplicate, onArchive
   const sourceLinks = uniqueBy([...(event.links || []), event.sourceUrl ? { label: "Page LeekDuck", url: event.sourceUrl } : null].filter(Boolean), (link) => link.url);
   return (
     <ModalPortal>
-      <div className="fixed inset-0 z-[1200] grid place-items-center overflow-y-auto bg-slate-950/84 p-3 backdrop-blur-xl sm:p-5" onClick={onClose}>
-      <article className="flex max-h-[94dvh] w-full max-w-6xl flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-[#07111f] shadow-[0_30px_120px_rgba(0,0,0,.58)]" onClick={(clickEvent) => clickEvent.stopPropagation()}>
+      <div className="event-detail-overlay fixed inset-0 z-[1200] grid place-items-center overflow-y-auto bg-slate-950/84 p-3 backdrop-blur-xl sm:p-5" onClick={onClose}>
+      <article className="event-detail-modal flex max-h-[94dvh] w-full max-w-6xl flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-[#07111f] shadow-[0_30px_120px_rgba(0,0,0,.58)]" role="dialog" aria-modal="true" aria-label={`Détail event ${event.title}`} onClick={(clickEvent) => clickEvent.stopPropagation()}>
         <header
           className="relative shrink-0 overflow-hidden rounded-t-[2rem] border-b border-cyan-200/20 p-5 sm:p-7"
           style={{
@@ -1332,7 +1332,7 @@ function EventDetailModal({ event, busy, onClose, onEdit, onDuplicate, onArchive
           </div>
         </header>
 
-        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-4 sm:p-6">
+        <div className="event-detail-modal-body min-h-0 flex-1 space-y-5 overflow-y-auto p-4 sm:p-6">
           <div className="flex flex-wrap gap-2">
             <EventBadge label="Durée" value={`${eventDurationDays(event)} jour(s)`} tone="dates" />
             <EventBadge label="Pokémon" value={pokemonCount} tone="pokemon" />

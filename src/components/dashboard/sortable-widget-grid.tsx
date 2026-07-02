@@ -48,6 +48,10 @@ export function SortableWidgetGrid({
   enableHide?: boolean;
 }) {
   const defaultOrder = useMemo(() => items.map((item) => item.id), [items]);
+  const dndContextId = useMemo(
+    () => `dashboard-widgets-${storageKey.replace(/[^a-z0-9_-]/gi, "-")}`,
+    [storageKey],
+  );
   const [widgetOrder, setWidgetOrder] = usePersistentState<string[]>(storageKey, defaultOrder);
   const [hiddenWidgets, setHiddenWidgets] = usePersistentState<string[]>(`${storageKey}.hidden`, []);
   const sensors = useSensors(
@@ -140,7 +144,12 @@ export function SortableWidgetGrid({
         </div>
       ) : null}
 
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <DndContext
+        id={dndContextId}
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
         <SortableContext items={orderedItems.map((item) => item.id)} strategy={rectSortingStrategy}>
           <section className={cn("min-w-0 gap-4", columnsClassName, className)}>
             {orderedItems.map((item, index) => (
@@ -206,6 +215,7 @@ function SortableWidgetFrame({
             aria-label={`Déplacer le widget ${label}`}
             className="widget-frame-button grid h-9 w-9 touch-none place-items-center rounded-xl border border-white/10 bg-white/[0.07] text-slate-100 transition hover:border-cyan-200/40 hover:bg-cyan-400/15"
             type="button"
+            suppressHydrationWarning
             {...attributes}
             {...listeners}
           >

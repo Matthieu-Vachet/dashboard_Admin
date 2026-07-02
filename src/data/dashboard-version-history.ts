@@ -7,6 +7,16 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.14.0",
+    date: "2026-07-02",
+    title: "Palettes et theme clair",
+    changes: [
+      "Ajoute un selecteur de dominance couleur persistant avec palettes Saphir, Rubis, Rouge Feu, Violet, Vert Feuille, Rose, Or et Jaune Electrique.",
+      "Introduit des tokens CSS d'accent globaux pour boutons, bordures, glows, menus actifs, focus et surfaces.",
+      "Refond les variables et surfaces du light mode pour ameliorer le contraste des cards, modales, widgets et pages admin.",
+    ],
+  },
+  {
     version: "V1.13.1",
     date: "2026-07-02",
     title: "Ajustement actions modale event",

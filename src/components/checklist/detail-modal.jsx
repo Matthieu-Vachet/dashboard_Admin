@@ -98,7 +98,7 @@ function Section({ title, eyebrow, icon, children, tone = "cyan", plain = false,
     backgroundType || catchCardTypes[(String(title).length + String(tone).length + backgroundIndex) % catchCardTypes.length];
   return (
     <section
-      className={`relative overflow-hidden rounded-3xl border bg-gradient-to-br to-slate-950/18 p-4 shadow-[0_20px_70px_rgba(0,0,0,.2)] backdrop-blur sm:p-5 ${toneClass}`}
+      className={`pokemon-detail-section relative overflow-hidden rounded-3xl border bg-gradient-to-br to-slate-950/18 p-4 shadow-[0_20px_70px_rgba(0,0,0,.2)] backdrop-blur sm:p-5 ${toneClass}`}
       style={plain ? undefined : catchCardStyle(backgroundIndex, sectionBackgroundType)}
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,.13),transparent_34%)]" />
@@ -1070,9 +1070,9 @@ export function DetailModal({
 
   return createPortal(
     (
-    <div className="fixed inset-0 z-[1100] flex items-end justify-center bg-slate-950/75 p-0 backdrop-blur-md sm:items-center sm:p-6" role="presentation" onClick={onClose}>
+    <div className="pokemon-modal-overlay fixed inset-0 z-[1100] flex items-end justify-center bg-slate-950/75 p-0 backdrop-blur-md sm:items-center sm:p-6" role="presentation" onClick={onClose}>
       <div
-        className="flex max-h-[96dvh] w-full max-w-6xl flex-col overflow-hidden rounded-t-[2rem] border border-white/10 text-white shadow-[0_30px_120px_rgba(0,0,0,.65)] sm:max-h-[92dvh] sm:rounded-[2rem]"
+        className="pokemon-detail-modal flex max-h-[96dvh] w-full max-w-6xl flex-col overflow-hidden rounded-t-[2rem] border border-white/10 text-white shadow-[0_30px_120px_rgba(0,0,0,.65)] sm:max-h-[92dvh] sm:rounded-[2rem]"
         style={{
           background: `linear-gradient(180deg, color-mix(in srgb, ${mainTypeColor} 24%, #0d1a2b), #08111f 72%)`,
         }}
@@ -1081,7 +1081,7 @@ export function DetailModal({
         onClick={(event) => event.stopPropagation()}
       >
         <div
-          className="relative shrink-0 overflow-hidden border-b border-white/10 bg-cover bg-center px-4 py-3 sm:px-6 sm:py-4"
+          className="pokemon-detail-modal-header relative shrink-0 overflow-hidden border-b border-white/10 bg-cover bg-center px-4 py-3 sm:px-6 sm:py-4"
           style={{
             backgroundImage: `${
               catchBackground
@@ -1132,7 +1132,7 @@ export function DetailModal({
         </div>
 
         <div
-          className="min-h-0 flex-1 overflow-auto p-4 sm:p-6"
+          className="pokemon-detail-modal-body min-h-0 flex-1 overflow-auto p-4 sm:p-6"
           style={{
             backgroundImage: `linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px), radial-gradient(circle at 8% 0%, ${mainTypeColor}3d, transparent 30%), radial-gradient(circle at 92% 10%, color-mix(in srgb, ${mainTypeColor} 28%, transparent), transparent 28%)`,
             backgroundSize: "30px 30px, 30px 30px, auto, auto",
