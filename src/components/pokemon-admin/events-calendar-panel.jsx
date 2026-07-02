@@ -42,6 +42,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import {
   defaultPokemonEvents,
@@ -168,10 +169,52 @@ function normalizeEventImageUrl(src) {
   return `https://leekduck.com/${value.replace(/^\.?\//, "")}`;
 }
 
+function normalizedImagePath(src) {
+  const normalized = normalizeEventImageUrl(src);
+  if (!normalized) return "";
+  try {
+    return new URL(normalized, "https://leekduck.com").pathname.toLowerCase();
+  } catch {
+    return normalized.toLowerCase();
+  }
+}
+
+function isLeekDuckLogoImage(src) {
+  const value = normalizedImagePath(src);
+  return /(^|\/)leekduck\.(jpg|jpeg|png|webp|svg)$/.test(value) || value.includes("/leekduck-logo");
+}
+
+function isGenericEventImage(src) {
+  const value = normalizedImagePath(src);
+  return (
+    isLeekDuckLogoImage(src) ||
+    value.includes("/assets/img/events/events-default-img") ||
+    value.includes("/assets/img/events/icons/")
+  );
+}
+
+function usefulEventImage(src) {
+  const normalized = normalizeEventImageUrl(src);
+  if (!normalized || isGenericEventImage(normalized)) return null;
+  return normalized;
+}
+
+function rewardImageUrl(src) {
+  const normalized = normalizeEventImageUrl(src);
+  if (!normalized || isLeekDuckLogoImage(normalized) || normalizedImagePath(normalized).includes("/assets/img/events/events-default-img")) {
+    return null;
+  }
+  return normalized;
+}
+
+function sectionUsefulImages(section, limit = 6) {
+  return uniqueBy((section?.images || []).map(usefulEventImage).filter(Boolean), (src) => src).slice(0, limit);
+}
+
 function eventImages(event, limit = 4) {
   return (event.featuredPokemon || [])
     .map((pokemon) => ({
-      src: normalizeEventImageUrl(pokemon.image),
+      src: usefulEventImage(pokemon.image),
       name: pokemon.name || pokemon.id,
     }))
     .filter((pokemon) => pokemon.src)
@@ -179,11 +222,11 @@ function eventImages(event, limit = 4) {
 }
 
 function eventBanner(event) {
-  return normalizeEventImageUrl(event.assets?.banner || event.assets?.icon);
+  return usefulEventImage(event.assets?.banner || event.assets?.icon || event.images?.banner || event.images?.thumbnail);
 }
 
 function EventBannerImage({ src, className }) {
-  const normalized = normalizeEventImageUrl(src);
+  const normalized = usefulEventImage(src);
   const [failed, setFailed] = useState(false);
   if (!normalized || failed) return null;
   return <img className={className} src={normalized} alt="" loading="lazy" onError={() => setFailed(true)} />;
@@ -193,7 +236,7 @@ function eventRewards(event, limit = 16) {
   return (event.rewards || [])
     .map((reward) => ({
       ...reward,
-      src: normalizeEventImageUrl(reward.image),
+      src: rewardImageUrl(reward.image),
       text: reward.text || reward.name || reward.sourceName,
     }))
     .filter((reward) => reward.src || reward.text)
@@ -1130,17 +1173,137 @@ function TypePills({ types, id }) {
   );
 }
 
+const modalToneMap = {
+  dates: { color: "#22d3ee", icon: CalendarDays },
+  summary: { color: "#38bdf8", icon: Sparkles },
+  pokemon: { color: "#38bdf8", icon: Sparkles },
+  bonus: { color: "#22c55e", icon: Sparkles },
+  rewards: { color: "#f59e0b", icon: Download },
+  raids: { color: "#ef4444", icon: Archive },
+  research: { color: "#a855f7", icon: Search },
+  source: { color: "#94a3b8", icon: ExternalLink },
+  neutral: { color: "#64748b", icon: FileJson },
+};
+
+const sectionGroupConfig = [
+  { title: "Raids / Battles / Max Battles", tone: "raids", categories: ["raids"] },
+  { title: "Research / Tasks", tone: "research", categories: ["researchRewards"] },
+  { title: "Bonus LeekDuck", tone: "bonus", categories: ["bonuses"] },
+  { title: "Pokémon, spawns et œufs", tone: "pokemon", categories: ["featured", "wildSpawns", "eggs"] },
+  { title: "Détails LeekDuck utiles", tone: "source", categories: ["tickets", "other"] },
+];
+
+function ModalPortal({ children }) {
+  if (typeof document === "undefined") return null;
+  return createPortal(children, document.body);
+}
+
+function sectionHasUsefulContent(section) {
+  return Boolean(
+    section?.text?.length ||
+      section?.pokemon?.length ||
+      section?.rewards?.length ||
+      sectionUsefulImages(section).length,
+  );
+}
+
+function visibleScrapedSections(sections) {
+  return (sections || [])
+    .map((section) => ({ ...section, usefulImages: sectionUsefulImages(section) }))
+    .filter(sectionHasUsefulContent);
+}
+
+function EventBadge({ label, value, tone = "neutral" }) {
+  const theme = modalToneMap[tone] || modalToneMap.neutral;
+  return (
+    <span
+      className="inline-flex min-h-9 items-center gap-2 rounded-full border px-3 py-1 text-xs font-black text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.09)]"
+      style={{
+        borderColor: hexToRgba(theme.color, 0.34),
+        background: `linear-gradient(135deg, ${hexToRgba(theme.color, 0.18)}, rgba(2,6,23,.42))`,
+        boxShadow: `0 0 22px ${hexToRgba(theme.color, 0.10)}`,
+      }}
+    >
+      <span className="text-[10px] uppercase tracking-[0.16em] text-white/55">{label}</span>
+      <span>{value}</span>
+    </span>
+  );
+}
+
+function DetailSection({ title, eyebrow, count, tone = "neutral", children, className = "" }) {
+  const theme = modalToneMap[tone] || modalToneMap.neutral;
+  const Icon = theme.icon;
+  return (
+    <section
+      className={`rounded-2xl border p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] ${className}`}
+      style={{
+        borderColor: hexToRgba(theme.color, 0.26),
+        background: `linear-gradient(135deg, ${hexToRgba(theme.color, 0.10)}, rgba(2,6,23,.44) 46%, rgba(2,6,23,.66))`,
+        boxShadow: `inset 0 1px 0 rgba(255,255,255,.055), 0 0 34px ${hexToRgba(theme.color, 0.08)}`,
+      }}
+    >
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        <span className="flex min-w-0 items-start gap-3">
+          <span
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border"
+            style={{
+              borderColor: hexToRgba(theme.color, 0.28),
+              backgroundColor: hexToRgba(theme.color, 0.14),
+            }}
+          >
+            <Icon size={18} className="text-white" />
+          </span>
+          <span className="min-w-0">
+            {eyebrow ? (
+              <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-white/45">
+                {eyebrow}
+              </span>
+            ) : null}
+            <h3 className="text-xl font-black leading-tight text-white">{title}</h3>
+          </span>
+        </span>
+        {typeof count === "number" ? (
+          <span
+            className="rounded-full border px-3 py-1 font-mono text-xs font-black text-white"
+            style={{
+              borderColor: hexToRgba(theme.color, 0.28),
+              backgroundColor: hexToRgba(theme.color, 0.13),
+            }}
+          >
+            {count}
+          </span>
+        ) : null}
+      </div>
+      {children}
+    </section>
+  );
+}
+
 function EventDetailModal({ event, busy, onClose, onEdit, onDuplicate, onArchive, onRestore, onDelete, onOpenPokemon }) {
   const type = eventType(event);
   const rewards = eventRewards(event, 120);
   const pokemonGroups = eventPokemonGroups(event);
   const pokemonCount = pokemonGroups[0]?.pokemon.length || 0;
+  const scrapedSections = visibleScrapedSections(event.sections || []);
+  const sectionGroups = sectionGroupConfig
+    .map((group) => ({
+      ...group,
+      sections: scrapedSections.filter((section) => group.categories.includes(section.category)),
+    }))
+    .filter((group) => group.sections.length);
+  const usefulSectionCount = sectionGroups.reduce((total, group) => total + group.sections.length, 0);
+  const sectionRewardCount = scrapedSections.reduce((total, section) => total + (section.rewards?.length || 0), 0);
+  const bonusCount = (event.bonuses || []).length + (sectionGroups.find((group) => group.tone === "bonus")?.sections.length || 0);
+  const itemCount = rewards.filter((reward) => reward.id || reward.matched || reward.src).length + sectionRewardCount;
+  const status = eventStatus(event);
+  const banner = eventBanner(event);
   const sourceLinks = uniqueBy([...(event.links || []), event.sourceUrl ? { label: "Page LeekDuck", url: event.sourceUrl } : null].filter(Boolean), (link) => link.url);
   return (
-    <div className="fixed inset-0 z-[90] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl" onClick={onClose}>
-      <article className="max-h-[94vh] w-full max-w-6xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#07111f] shadow-[0_30px_120px_rgba(0,0,0,.5)]" onClick={(clickEvent) => clickEvent.stopPropagation()}>
+    <ModalPortal>
+      <div className="fixed inset-0 z-[1200] grid place-items-center overflow-y-auto bg-slate-950/84 p-3 backdrop-blur-xl sm:p-5" onClick={onClose}>
+      <article className="flex max-h-[94dvh] w-full max-w-6xl flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-[#07111f] shadow-[0_30px_120px_rgba(0,0,0,.58)]" onClick={(clickEvent) => clickEvent.stopPropagation()}>
         <header
-          className="relative overflow-hidden rounded-t-[2rem] border-b border-cyan-200/20 p-5 sm:p-7"
+          className="relative shrink-0 overflow-hidden rounded-t-[2rem] border-b border-cyan-200/20 p-5 sm:p-7"
           style={{
             backgroundImage: `linear-gradient(135deg, ${hexToRgba(type.color, 0.24)}, rgba(2,6,23,.90)), url("/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png")`,
             backgroundSize: "cover",
@@ -1157,6 +1320,11 @@ function EventDetailModal({ event, busy, onClose, onEdit, onDuplicate, onArchive
               <h2 className="mt-3 max-w-4xl text-3xl font-black leading-tight tracking-tight text-white sm:text-5xl">{event.title}</h2>
               <p className="mt-3 text-sm font-bold text-slate-200 sm:text-base">{dateRangeLabel(event)}</p>
               <p className="mt-1 text-sm font-black italic text-emerald-200">{eventRemainingLabel(event)}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <EventBadge label="Statut" value={POKEMON_EVENT_STATUS_LABELS[status] || status} tone="dates" />
+                <EventBadge label="Type" value={type.label} tone="summary" />
+                <EventBadge label="Source" value={event.source || "manual"} tone="source" />
+              </div>
             </div>
             <button className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-white/10 bg-white/10 text-white hover:bg-white/20" type="button" onClick={onClose}>
               <X size={22} />
@@ -1164,39 +1332,52 @@ function EventDetailModal({ event, busy, onClose, onEdit, onDuplicate, onArchive
           </div>
         </header>
 
-        <div className="space-y-5 p-4 sm:p-6">
-          <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
-            <InfoPill label="Statut" value={POKEMON_EVENT_STATUS_LABELS[event.status] || event.status} />
-            <InfoPill label="Durée" value={`${eventDurationDays(event)} jour(s)`} />
-            <InfoPill label="Pokémon" value={pokemonCount} />
-            <InfoPill label="Sections" value={(event.sections || []).length} />
-            <InfoPill label="Items" value={rewards.filter((reward) => reward.id || reward.matched).length} />
-            <InfoPill label="Source" value={event.source || "manual"} />
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-4 sm:p-6">
+          <div className="flex flex-wrap gap-2">
+            <EventBadge label="Durée" value={`${eventDurationDays(event)} jour(s)`} tone="dates" />
+            <EventBadge label="Pokémon" value={pokemonCount} tone="pokemon" />
+            <EventBadge label="Sections utiles" value={usefulSectionCount} tone="source" />
+            <EventBadge label="Items" value={itemCount} tone="rewards" />
+            <EventBadge label="Bonus" value={bonusCount} tone="bonus" />
           </div>
 
-          {eventBanner(event) ? (
-            <EventBannerImage className="max-h-72 w-full rounded-2xl border border-white/10 object-contain bg-slate-950/30 p-2" src={eventBanner(event)} />
-          ) : null}
-
-          {event.description ? (
-            <section className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-              <h3 className="mb-2 text-lg font-black text-white">Description</h3>
-              <p className="text-sm font-semibold leading-6 text-slate-300">{event.description}</p>
-            </section>
+          {(event.description || banner) ? (
+            <DetailSection title="Résumé" eyebrow="Infos importantes" tone="summary">
+              <div className={`grid gap-4 ${banner ? "lg:grid-cols-[minmax(0,1fr)_260px]" : ""}`}>
+                {event.description ? (
+                  <p className="rounded-xl border border-white/10 bg-slate-950/42 px-4 py-3 text-sm font-semibold leading-7 text-slate-300">
+                    {event.description}
+                  </p>
+                ) : null}
+                {banner ? (
+                  <EventBannerImage className="max-h-44 w-full rounded-xl border border-white/10 bg-slate-950/35 object-cover" src={banner} />
+                ) : null}
+              </div>
+            </DetailSection>
           ) : null}
 
           <EventPokemonGroups groups={pokemonGroups} onOpenPokemon={onOpenPokemon} />
-          <EventScrapedSections sections={event.sections || []} onOpenPokemon={onOpenPokemon} />
 
-          <div className="grid gap-4 lg:grid-cols-2">
-            <DetailList title="Bonus" items={event.bonuses || []} empty="Aucun bonus renseigné." />
-            <RewardGrid rewards={rewards} />
-          </div>
+          {(event.bonuses || []).length || rewards.length ? (
+            <div className="grid gap-4 lg:grid-cols-2">
+              {(event.bonuses || []).length ? <DetailList title="Bonus" items={event.bonuses || []} tone="bonus" /> : null}
+              {rewards.length ? <RewardGrid rewards={rewards} tone="rewards" /> : null}
+            </div>
+          ) : null}
+
+          {sectionGroups.map((group) => (
+            <EventScrapedSectionGroup
+              key={group.title}
+              title={group.title}
+              tone={group.tone}
+              sections={group.sections}
+              onOpenPokemon={onOpenPokemon}
+            />
+          ))}
 
           {event.raw ? <RawEventInfo raw={event.raw} /> : null}
 
-          <section className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-            <h3 className="mb-3 text-lg font-black text-white">Liens sources</h3>
+          <DetailSection title="Liens sources" eyebrow="Source officielle" tone="source" count={sourceLinks.length}>
             <div className="grid gap-2 sm:grid-cols-2">
               {sourceLinks.length ? (
                 sourceLinks.map((link) => (
@@ -1208,9 +1389,9 @@ function EventDetailModal({ event, busy, onClose, onEdit, onDuplicate, onArchive
                 <p className="text-sm font-bold text-slate-500">Aucun lien source.</p>
               )}
             </div>
-          </section>
+          </DetailSection>
 
-          <div className="flex flex-wrap justify-end gap-2">
+          <div className="sticky bottom-0 -mx-4 -mb-4 flex flex-wrap justify-end gap-2 border-t border-white/10 bg-[#07111f]/92 p-4 backdrop-blur-xl sm:-mx-6 sm:-mb-6 sm:px-6">
             <button className={buttonClass} type="button" onClick={onDuplicate}>
               <Copy size={17} /> Dupliquer
             </button>
@@ -1232,7 +1413,8 @@ function EventDetailModal({ event, busy, onClose, onEdit, onDuplicate, onArchive
           </div>
         </div>
       </article>
-    </div>
+      </div>
+    </ModalPortal>
   );
 }
 
@@ -1246,25 +1428,13 @@ function InfoPill({ label, value }) {
 }
 
 function EventPokemonGroups({ groups, onOpenPokemon }) {
-  if (!groups.length) {
-    return (
-      <section className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-        <h3 className="mb-3 text-lg font-black text-white">Pokémon liés</h3>
-        <p className="text-sm font-bold text-slate-500">Aucun Pokémon lié.</p>
-      </section>
-    );
-  }
+  if (!groups.length) return null;
 
   return (
-    <section className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-lg font-black text-white">Pokémon liés</h3>
-        <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 font-mono text-xs font-black text-cyan-100">
-          {groups[0].pokemon.length}
-        </span>
-      </div>
+    <DetailSection title="Pokémon liés" eyebrow="Featured, spawns, raids et rewards" tone="pokemon" count={groups[0].pokemon.length}>
+      <div className="space-y-3">
       {groups.map((group, index) => (
-        <details key={group.title} className="rounded-2xl border border-white/10 bg-slate-950/35 p-3" open={index < 2}>
+        <details key={group.title} className="rounded-xl border border-cyan-200/12 bg-slate-950/32 p-3" open={index < 2}>
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
             <span className="text-sm font-black text-white">{group.title}</span>
             <span className="rounded-full bg-white/10 px-2 py-0.5 font-mono text-[11px] font-black text-cyan-100">{group.pokemon.length}</span>
@@ -1272,28 +1442,29 @@ function EventPokemonGroups({ groups, onOpenPokemon }) {
           <PokemonCardGrid pokemon={group.pokemon} onOpenPokemon={onOpenPokemon} />
         </details>
       ))}
-    </section>
+      </div>
+    </DetailSection>
   );
 }
 
 function PokemonCardGrid({ pokemon, onOpenPokemon, compact = false }) {
   if (!pokemon?.length) return null;
   return (
-    <div className={`mt-3 grid gap-2 ${compact ? "grid-cols-2 sm:grid-cols-3 xl:grid-cols-6" : "sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
+    <div className={`mt-3 grid gap-2 ${compact ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "sm:grid-cols-2 xl:grid-cols-3"}`}>
       {pokemon.map((entry) => {
         const clickable = Boolean(onOpenPokemon && entry.id);
         const content = (
           <>
-            {entry.image ? <img className={`${compact ? "h-12 w-12" : "h-16 w-16"} object-contain`} src={entry.image} alt="" loading="lazy" /> : <span className={`${compact ? "h-12 w-12" : "h-16 w-16"} grid place-items-center rounded-2xl bg-slate-950/40 text-xs font-black text-slate-500`}>?</span>}
+            {entry.image ? <img className={`${compact ? "h-11 w-11" : "h-14 w-14"} object-contain drop-shadow-[0_0_16px_rgba(56,189,248,.12)]`} src={entry.image} alt="" loading="lazy" /> : <span className={`${compact ? "h-11 w-11" : "h-14 w-14"} grid place-items-center rounded-xl bg-slate-950/40 text-xs font-black text-slate-500`}>?</span>}
             <span className="min-w-0">
-              <strong className="block truncate text-sm font-black text-white">{entry.name || entry.id}</strong>
+              <strong className="block whitespace-normal break-words text-sm font-black leading-tight text-white">{entry.name || entry.id}</strong>
               <small className="block truncate text-xs font-bold text-slate-400">{entry.form || entry.dexId || "Pokemon"}</small>
               <TypePills types={entry.types} id={entry.id || entry.name} />
               {entry.shiny ? <small className="mt-1 inline-flex rounded-full border border-amber-200/20 bg-amber-300/10 px-2 py-0.5 text-[10px] font-black text-amber-100">Shiny</small> : null}
             </span>
           </>
         );
-        const className = "grid min-w-0 grid-cols-[4rem_minmax(0,1fr)] items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/35 p-3 text-left transition hover:-translate-y-0.5 hover:border-cyan-200/40";
+        const className = `${compact ? "grid-cols-[3.25rem_minmax(0,1fr)] p-2.5" : "grid-cols-[3.8rem_minmax(0,1fr)] p-3"} grid min-w-0 items-center gap-3 rounded-xl border border-white/10 bg-slate-950/35 text-left transition hover:-translate-y-0.5 hover:border-cyan-200/40 hover:bg-cyan-300/10`;
         return clickable ? (
           <button key={pokemonKey(entry)} className={className} type="button" onClick={() => onOpenPokemon(entry)}>
             {content}
@@ -1308,59 +1479,70 @@ function PokemonCardGrid({ pokemon, onOpenPokemon, compact = false }) {
   );
 }
 
-function EventScrapedSections({ sections, onOpenPokemon }) {
-  const visibleSections = (sections || []).filter((section) => section.text?.length || section.pokemon?.length || section.rewards?.length || section.images?.length);
-  if (!visibleSections.length) return null;
+function EventScrapedSectionGroup({ title, tone, sections, onOpenPokemon }) {
+  if (!sections.length) return null;
   return (
-    <section className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-lg font-black text-white">Sections LeekDuck enrichies</h3>
-        <span className="rounded-full border border-white/10 bg-slate-950/45 px-3 py-1 font-mono text-xs font-black text-slate-200">{visibleSections.length}</span>
+    <DetailSection title={title} eyebrow="Sections LeekDuck enrichies" tone={tone} count={sections.length}>
+      <div className="space-y-3">
+        {sections.map((section, index) => (
+          <ScrapedSectionCard
+            key={`${section.id || section.title}-${index}`}
+            section={section}
+            tone={tone}
+            open={index < 2}
+            onOpenPokemon={onOpenPokemon}
+          />
+        ))}
       </div>
-      {visibleSections.map((section, index) => (
-        <details key={`${section.id || section.title}-${index}`} className="rounded-2xl border border-white/10 bg-slate-950/35 p-3" open={index < 4}>
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
-            <span className="min-w-0">
-              <strong className="block truncate text-sm font-black text-white">{section.title}</strong>
-              <small className="text-[11px] font-black uppercase tracking-[0.14em] text-cyan-100/60">{section.category}</small>
-            </span>
-            <span className="flex shrink-0 gap-2 text-[11px] font-black text-slate-300">
-              {section.pokemon?.length ? <span>{section.pokemon.length} Pokémon</span> : null}
-              {section.rewards?.length ? <span>{section.rewards.length} items</span> : null}
-            </span>
-          </summary>
-          {section.text?.length ? (
-            <div className="mt-3 grid gap-2">
-              {section.text.slice(0, 8).map((text) => (
-                <p className="rounded-xl border border-white/10 bg-slate-950/45 px-3 py-2 text-sm font-semibold leading-6 text-slate-300" key={`${section.id}-${text}`}>
-                  {text}
-                </p>
-              ))}
-            </div>
-          ) : null}
-          <PokemonCardGrid pokemon={section.pokemon || []} onOpenPokemon={onOpenPokemon} compact />
-          {section.rewards?.length ? <RewardGrid rewards={section.rewards} compact title="Rewards section" /> : null}
-          {section.images?.length ? (
-            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-              {section.images.slice(0, 6).map((image) => (
-                <EventBannerImage key={`${section.id}-${image}`} className="max-h-44 w-full rounded-xl border border-white/10 bg-slate-950/40 object-contain p-2" src={image} />
-              ))}
-            </div>
-          ) : null}
-        </details>
-      ))}
-    </section>
+    </DetailSection>
   );
 }
 
-function RewardGrid({ rewards, compact = false, title = "Rewards" }) {
+function ScrapedSectionCard({ section, tone, open, onOpenPokemon }) {
+  const images = section.usefulImages || sectionUsefulImages(section);
+  const showImages = images.length && !(section.rewards || []).length;
   return (
-    <section className={`${compact ? "mt-3" : ""} rounded-2xl border border-white/10 bg-white/[0.045] p-4`}>
-      <h3 className="mb-3 text-lg font-black text-white">{title}</h3>
+    <details className="rounded-xl border border-white/10 bg-slate-950/32 p-3" open={open}>
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
+        <span className="min-w-0">
+          <strong className="block whitespace-normal break-words text-sm font-black text-white">{section.title}</strong>
+          <small className="text-[11px] font-black uppercase tracking-[0.14em] text-cyan-100/60">{section.category}</small>
+        </span>
+        <span className="flex shrink-0 flex-wrap justify-end gap-2 text-[11px] font-black text-slate-300">
+          {section.pokemon?.length ? <span>{section.pokemon.length} Pokémon</span> : null}
+          {section.rewards?.length ? <span>{section.rewards.length} items</span> : null}
+          {showImages ? <span>{images.length} images</span> : null}
+        </span>
+      </summary>
+      {section.text?.length ? (
+        <div className="mt-3 grid gap-2">
+          {section.text.slice(0, 10).map((text) => (
+            <p className="rounded-xl border border-white/10 bg-slate-950/45 px-3 py-2 text-sm font-semibold leading-6 text-slate-300" key={`${section.id}-${text}`}>
+              {text}
+            </p>
+          ))}
+        </div>
+      ) : null}
+      <PokemonCardGrid pokemon={section.pokemon || []} onOpenPokemon={onOpenPokemon} compact />
+      {section.rewards?.length ? <RewardGrid rewards={section.rewards} compact title="Rewards section" tone={tone === "bonus" ? "bonus" : "rewards"} /> : null}
+      {showImages ? (
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {images.map((image) => (
+            <EventBannerImage key={`${section.id}-${image}`} className="max-h-40 w-full rounded-xl border border-white/10 bg-slate-950/40 object-contain p-2" src={image} />
+          ))}
+        </div>
+      ) : null}
+    </details>
+  );
+}
+
+function RewardGrid({ rewards, compact = false, title = "Rewards", tone = "rewards" }) {
+  return (
+    <DetailSection className={compact ? "mt-3 !p-3" : ""} title={title} tone={tone} count={rewards.length}>
       {rewards.length ? (
         <div className={`grid gap-2 ${compact ? "sm:grid-cols-2 xl:grid-cols-3" : "sm:grid-cols-2"}`}>
           {rewards.map((reward) => {
-            const src = reward.src || normalizeEventImageUrl(reward.image);
+            const src = reward.src || rewardImageUrl(reward.image);
             return (
               <span className="grid grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-2 rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm font-bold text-slate-200" key={`${reward.id || reward.text}-${src || ""}`}>
                 {src ? <img className="h-10 w-10 object-contain" src={src} alt="" loading="lazy" /> : <span className="h-10 w-10 rounded-xl bg-white/5" />}
@@ -1379,7 +1561,7 @@ function RewardGrid({ rewards, compact = false, title = "Rewards" }) {
       ) : (
         <p className="text-sm font-bold text-slate-500">Aucune reward scrapée.</p>
       )}
-    </section>
+    </DetailSection>
   );
 }
 
@@ -1391,25 +1573,24 @@ function RawEventInfo({ raw }) {
     ["Extra data", raw.extraData ? Object.keys(raw.extraData).join(", ") : ""],
   ].filter(([, value]) => value);
   return entries.length ? (
-    <section className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-      <h3 className="mb-3 text-lg font-black text-white">Infos scrapées</h3>
+    <DetailSection title="Infos scrapées" eyebrow="Métadonnées LeekDuck" tone="source">
       <div className="grid gap-2 sm:grid-cols-2">
         {entries.map(([label, value]) => (
           <InfoPill key={label} label={label} value={String(value)} />
         ))}
       </div>
-    </section>
+    </DetailSection>
   ) : null;
 }
 
-function DetailList({ title, items, empty }) {
+function DetailList({ title, items, empty = "", tone = "neutral" }) {
+  if (!items.length && !empty) return null;
   return (
-    <section className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-      <h3 className="mb-3 text-lg font-black text-white">{title}</h3>
+    <DetailSection title={title} tone={tone} count={items.length}>
       <div className="grid gap-2">
         {items.length ? (
           items.map((item) => (
-            <span className="rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm font-bold text-slate-200" key={item}>
+            <span className="rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm font-bold leading-6 text-slate-200" key={item}>
               {item}
             </span>
           ))
@@ -1417,14 +1598,15 @@ function DetailList({ title, items, empty }) {
           <p className="text-sm font-bold text-slate-500">{empty}</p>
         )}
       </div>
-    </section>
+    </DetailSection>
   );
 }
 
 function EventEditorModal({ draft, busy, onChange, onClose, onSave }) {
   const update = (patch) => onChange((current) => ({ ...current, ...patch }));
   return (
-    <div className="fixed inset-0 z-[95] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl" onClick={onClose}>
+    <ModalPortal>
+    <div className="fixed inset-0 z-[1200] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl" onClick={onClose}>
       <article className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#07111f] p-4 shadow-[0_30px_120px_rgba(0,0,0,.5)] sm:p-6" onClick={(event) => event.stopPropagation()}>
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
@@ -1461,12 +1643,14 @@ function EventEditorModal({ draft, busy, onChange, onClose, onSave }) {
         </div>
       </article>
     </div>
+    </ModalPortal>
   );
 }
 
 function ImportModal({ value, busy, onChange, onClose, onImport }) {
   return (
-    <div className="fixed inset-0 z-[95] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl" onClick={onClose}>
+    <ModalPortal>
+    <div className="fixed inset-0 z-[1200] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl" onClick={onClose}>
       <article className="w-full max-w-4xl rounded-[2rem] border border-white/10 bg-[#07111f] p-4 shadow-[0_30px_120px_rgba(0,0,0,.5)] sm:p-6" onClick={(event) => event.stopPropagation()}>
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
@@ -1491,6 +1675,7 @@ function ImportModal({ value, busy, onChange, onClose, onImport }) {
         </div>
       </article>
     </div>
+    </ModalPortal>
   );
 }
 

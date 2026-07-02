@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.13.0",
+    date: "2026-07-02",
+    title: "UX modale Event Calendar",
+    changes: [
+      "Refond la modale detail event avec rendu portal au-dessus de la sidebar, scroll interne et hierarchie par categories.",
+      "Filtre les logos LeekDuck, bannieres generiques et icones de resume pour supprimer les placeholders inutiles.",
+      "Ajoute des sections neon distinctes pour Pokemon, bonus, rewards, raids, research, details LeekDuck et sources.",
+      "Ameliore les badges event, les compteurs utiles et les cards Pokemon compactes avec types, formes et statut shiny.",
+    ],
+  },
+  {
     version: "V1.12.1",
     date: "2026-07-02",
     title: "Footer copyright global",
