@@ -7,6 +7,16 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.12.1",
+    date: "2026-07-02",
+    title: "Footer copyright global",
+    changes: [
+      "Ajoute un footer global visible sur les pages du Dashboard avec copyright MatWeb Innovation et annees automatiques.",
+      "Affiche la version courante dans le footer avec acces direct a l'historique des versions.",
+      "Garde un bloc discret, lisible et compatible desktop, mobile, dark mode et light mode.",
+    ],
+  },
+  {
     version: "V1.12.0",
     date: "2026-07-02",
     title: "Events LeekDuck enrichis",

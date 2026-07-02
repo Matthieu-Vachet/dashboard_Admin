@@ -22,6 +22,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { DashboardFooter } from "@/components/dashboard/dashboard-footer";
 import { DASHBOARD_VERSION } from "@/data/app-version";
 import { dashboardVersionHistory } from "@/data/dashboard-version-history";
 import { navGroups, navItems } from "@/data/dashboard";
@@ -376,6 +377,10 @@ export function AppFrame({
 
         <main id="dashboard-content" tabIndex={-1} className="mx-auto max-w-[1680px] px-4 py-5 outline-none sm:px-6 lg:py-7">
           {children}
+          <DashboardFooter
+            version={DASHBOARD_VERSION}
+            onVersionClick={() => setVersionHistoryOpen(true)}
+          />
         </main>
       </div>
 
