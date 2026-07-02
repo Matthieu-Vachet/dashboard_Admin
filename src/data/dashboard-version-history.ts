@@ -7,6 +7,15 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.11.1",
+    date: "2026-07-02",
+    title: "Correctif raids LeekDuck",
+    changes: [
+      "Rafraichit la version visible apres correction critique du wrapper Raid dans PokemonGo-Data.",
+      "La section Raids lit le JSON/Mongo regenere avec 12 boss actifs et retire les anciens Ultra Beasts obsoletes.",
+    ],
+  },
+  {
     version: "V1.11.0",
     date: "2026-07-01",
     title: "Event Calendar LeekDuck",
