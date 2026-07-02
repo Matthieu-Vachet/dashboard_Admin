@@ -7,6 +7,18 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.12.0",
+    date: "2026-07-02",
+    title: "Events LeekDuck enrichis",
+    changes: [
+      "Corrige les boutons compte du menu lateral avec une page /account protegee et un ancrage session.",
+      "Ajoute le scrape des pages detail LeekDuck Events en s'inspirant de ScrapedDuck pour recuperer sections, Pokemon, rewards, images et sources.",
+      "Enrichit les events avec les catalogues locaux Pokemon et items, incluant les alias LeekDuck d'items.",
+      "Refond la modale event avec groupes Pokemon, sections LeekDuck enrichies, rewards locaux, liens sources et compteurs de donnees.",
+      "Rend le scrape LeekDuck autoritatif sur MongoDB pour supprimer les anciens events LeekDuck absents du dernier feed.",
+    ],
+  },
+  {
     version: "V1.11.2",
     date: "2026-07-02",
     title: "Nettoyage UI multi-sections",

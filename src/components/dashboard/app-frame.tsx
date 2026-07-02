@@ -236,20 +236,20 @@ export function AppFrame({
             </div>
             <p className="mt-3 truncate text-xs font-bold text-muted">{userEmail}</p>
             <div className="mt-3 grid grid-cols-2 gap-2">
-              <button
+              <Link
+                href="/account"
                 className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.055] px-2 text-[0.68rem] font-black text-foreground transition hover:border-cyan-200/35 hover:bg-cyan-400/10"
-                type="button"
                 title="Préférences du compte"
               >
                 <Settings size={13} /> Réglages
-              </button>
-              <button
+              </Link>
+              <Link
+                href="/account#session"
                 className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-emerald-300/18 bg-emerald-400/10 px-2 text-[0.68rem] font-black text-emerald-100 transition hover:border-emerald-200/35 hover:bg-emerald-400/16"
-                type="button"
                 title="Session admin protégée"
               >
                 <ShieldCheck size={13} /> Session
-              </button>
+              </Link>
             </div>
           </div>
         ) : null}

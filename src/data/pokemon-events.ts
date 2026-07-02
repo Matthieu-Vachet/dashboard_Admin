@@ -136,8 +136,13 @@ export type PokemonEventAsset = {
 
 export type PokemonEventReward = {
   text: string;
+  id?: string;
+  name?: string;
+  sourceName?: string;
   image?: string | null;
   type?: string;
+  quantity?: string;
+  matched?: boolean;
 };
 
 export type PokemonFeaturedPokemon = {
@@ -148,6 +153,16 @@ export type PokemonFeaturedPokemon = {
   form?: string;
   types?: string[];
   shiny?: boolean;
+};
+
+export type PokemonEventSection = {
+  id: string;
+  title: string;
+  category: "featured" | "wildSpawns" | "raids" | "eggs" | "researchRewards" | "bonuses" | "tickets" | "other";
+  text?: string[];
+  pokemon?: PokemonFeaturedPokemon[];
+  rewards?: PokemonEventReward[];
+  images?: string[];
 };
 
 export type PokemonCalendarEvent = {
@@ -161,8 +176,18 @@ export type PokemonCalendarEvent = {
   timezone: string;
   status: PokemonEventStatus;
   source: string;
+  sourceUrl?: string;
+  images?: {
+    banner?: string | null;
+    thumbnail?: string | null;
+  };
   assets: PokemonEventAsset;
   featuredPokemon: PokemonFeaturedPokemon[];
+  wildSpawns?: PokemonFeaturedPokemon[];
+  raids?: PokemonFeaturedPokemon[];
+  eggs?: PokemonFeaturedPokemon[];
+  researchRewards?: PokemonFeaturedPokemon[];
+  sections?: PokemonEventSection[];
   bonuses: string[];
   rewards?: PokemonEventReward[];
   links: PokemonEventLink[];

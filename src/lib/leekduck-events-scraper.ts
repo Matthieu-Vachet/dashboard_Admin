@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
+import { load, type Cheerio, type CheerioAPI } from "cheerio";
+import type { AnyNode } from "domhandler";
 import fs from "node:fs";
 import path from "node:path";
 import {
@@ -6,6 +8,7 @@ import {
   POKEMON_EVENT_TYPES,
   type PokemonCalendarEvent,
   type PokemonEventReward,
+  type PokemonEventSection,
   type PokemonEventType,
   type PokemonFeaturedPokemon,
 } from "@/data/pokemon-events";
@@ -30,11 +33,38 @@ type RawLeekDuckEvent = {
 type PokemonIndexEntry = {
   id?: string;
   name: string;
+  englishName?: string;
   image?: string;
   dexId?: string;
   form?: string;
   types?: string[];
   shiny?: boolean;
+};
+
+type ItemIndexEntry = {
+  id: string;
+  name: string;
+  englishName?: string;
+  image?: string;
+  category?: string;
+  aliases: string[];
+};
+
+type PokemonCandidate = {
+  name: string;
+  image?: string;
+  shiny?: boolean;
+  category?: PokemonEventSection["category"];
+};
+
+type ScrapedDetailSection = {
+  id: string;
+  title: string;
+  category: PokemonEventSection["category"];
+  text: string[];
+  pokemon: PokemonCandidate[];
+  rewards: PokemonEventReward[];
+  images: string[];
 };
 
 function normalizeText(value: unknown) {
@@ -130,6 +160,137 @@ async function fetchJson<T>(url: string, optional = false): Promise<T | null> {
   return (await response.json()) as T;
 }
 
+async function fetchText(url: string) {
+  const response = await fetch(url, {
+    cache: "no-store",
+    headers: { accept: "text/html", "user-agent": "DashboardAdminPokemonGO/1.0" },
+    signal: AbortSignal.timeout(22_000),
+  });
+  if (!response.ok) throw new Error(`LeekDuck detail HTTP ${response.status}`);
+  return response.text();
+}
+
+function cleanHtmlText(value: unknown) {
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .replace(/\s+([,.;:!?])/g, "$1")
+    .trim();
+}
+
+function sectionCategory(title: string, current: PokemonEventSection["category"] = "other") {
+  const key = normalizeText(title);
+  if (/raid|boss/.test(key)) return "raids";
+  if (/egg|hatch/.test(key)) return "eggs";
+  if (/research|task|field research|timed research/.test(key)) return "researchRewards";
+  if (/spawn|wild|incense|habitat|costumed|encounter|rotation/.test(key)) return "wildSpawns";
+  if (/bonus|feature|attack|mega evolution/.test(key)) return "bonuses";
+  if (/ticket|sales|shop|paid/.test(key)) return "tickets";
+  if (/shiny|pokemon/.test(key)) return "featured";
+  return current;
+}
+
+function pokemonNameMatchCandidates(name: string) {
+  const raw = cleanHtmlText(name);
+  const withoutCostume = raw
+    .replace(/\s+wearing\s+.*$/i, "")
+    .replace(/\s+with\s+.*$/i, "")
+    .replace(/\s+in\s+a\s+.*$/i, "");
+  const withoutParen = raw.replace(/\s*\([^)]*\)\s*/g, " ").trim();
+  const origin = raw.replace(/^Origin Forme\s+/i, "");
+  const altered = raw.replace(/\s*\((Altered|Origin|White|Black)\)\s*/i, " $1 ").trim();
+  const megaBase = raw.replace(/^Mega\s+/i, "");
+  return uniqueBy([raw, withoutCostume, withoutParen, origin, altered, megaBase], normalizeText).filter(Boolean);
+}
+
+function itemNameMatchCandidates(name: string) {
+  const raw = cleanHtmlText(name)
+    .replace(/^x\s*\d+\s+/i, "")
+    .replace(/\s+x\s*\d+$/i, "")
+    .replace(/\s*\(\s*x\s*\d+\s*\)$/i, "")
+    .replace(/\b\d+\s*(x|×)\s*/i, "")
+    .trim();
+  const withoutQuantity = raw.replace(/\s*(x|×)\s*\d+\s*$/i, "").trim();
+  const withoutCp = raw.replace(/\bcp\s+\d+\s*-\s*\d+\b/gi, "").trim();
+  return uniqueBy([raw, withoutQuantity, withoutCp], normalizeText).filter(Boolean);
+}
+
+function enrichPokemonCandidate(
+  candidate: PokemonCandidate,
+  index: ReturnType<typeof loadPokemonIndex>,
+) {
+  const candidates = pokemonNameMatchCandidates(candidate.name);
+  const local = candidates.map((name) => index.lookup.get(normalizeText(name))).find(Boolean);
+  if (!local) {
+    return {
+      pokemon: {
+        name: candidate.name,
+        image: candidate.image,
+        shiny: candidate.shiny,
+      } satisfies PokemonFeaturedPokemon,
+      matched: false,
+    };
+  }
+
+  return {
+    pokemon: {
+      ...local,
+      image: local.image || candidate.image,
+      shiny: candidate.shiny || local.shiny,
+    } satisfies PokemonFeaturedPokemon,
+    matched: true,
+  };
+}
+
+function enrichReward(
+  reward: PokemonEventReward,
+  index: ReturnType<typeof loadItemIndex>,
+) {
+  const candidates = itemNameMatchCandidates(reward.sourceName || reward.text || reward.name || "");
+  const exact = candidates.map((name) => index.lookup.get(normalizeText(name))).find(Boolean);
+  const fuzzy = exact || (() => {
+    const haystack = normalizeText(reward.sourceName || reward.text || reward.name || "");
+    if (!haystack) return undefined;
+    return index.entries.find((entry) =>
+      entry.aliases.some((alias) => {
+        const key = normalizeText(alias);
+        return key.length >= 4 && haystack.includes(key);
+      }),
+    );
+  })();
+
+  if (!fuzzy) {
+    return {
+      reward: {
+        ...reward,
+        sourceName: reward.sourceName || reward.text,
+        matched: false,
+      },
+      matched: false,
+    };
+  }
+
+  return {
+    reward: {
+      ...reward,
+      id: fuzzy.id,
+      name: fuzzy.name,
+      sourceName: reward.sourceName || reward.text,
+      text: fuzzy.name || reward.text,
+      image: fuzzy.image || reward.image,
+      type: reward.type || fuzzy.category || "item",
+      matched: true,
+    },
+    matched: true,
+  };
+}
+
+function shouldReportUnmatchedReward(reward: PokemonEventReward) {
+  const text = normalizeText(reward.sourceName || reward.text || reward.name || "");
+  if (!text || text.length < 3) return false;
+  if (reward.image) return true;
+  return /\b(ball|berry|candy|stardust|tm|pass|incubator|module|stone|energy|poffin|component)\b/.test(text);
+}
+
 function collectJsonFiles(directory: string): string[] {
   if (!fs.existsSync(directory)) return [];
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -152,11 +313,13 @@ function loadPokemonIndex() {
     try {
       const data = JSON.parse(fs.readFileSync(file, "utf8")) as Record<string, unknown>;
       const names = data.names && typeof data.names === "object" ? data.names as Record<string, unknown> : {};
-      const displayName = String(names.English || names.French || data.slug || data.id || "").trim();
+      const displayName = String(names.French || names.English || data.slug || data.id || "").trim();
+      const englishName = String(names.English || displayName).trim();
       if (!displayName) continue;
       const entry: PokemonIndexEntry = {
         id: String(data.id || ""),
         name: displayName,
+        englishName,
         image: typeof (data.assets as Record<string, unknown> | undefined)?.image === "string"
           ? String((data.assets as Record<string, unknown>).image)
           : undefined,
@@ -170,6 +333,7 @@ function loadPokemonIndex() {
         data.id,
         data.slug,
         displayName,
+        englishName,
         names.English,
         names.French,
         names.German,
@@ -185,6 +349,82 @@ function loadPokemonIndex() {
   }
 
   entries.sort((left, right) => normalizeText(right.name).length - normalizeText(left.name).length);
+  return { entries, lookup };
+}
+
+function loadItemIndex() {
+  const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
+  const entries: ItemIndexEntry[] = [];
+  const lookup = new Map<string, ItemIndexEntry>();
+
+  const itemsFile = dataPath("items", "items.json");
+  const aliasesFile = dataPath("items", "itemAliases.json");
+  const aliasRecords = new Map<string, string[]>();
+
+  try {
+    const aliases = JSON.parse(fs.readFileSync(aliasesFile, "utf8")) as Record<string, unknown>;
+    for (const alias of Array.isArray(aliases.aliases) ? aliases.aliases : []) {
+      if (!alias || typeof alias !== "object") continue;
+      const record = alias as Record<string, unknown>;
+      const itemId = String(record.itemId || "").trim();
+      const leekduckName = String(record.leekduckName || record.leekduckId || "").trim();
+      if (!itemId || !leekduckName) continue;
+      const list = aliasRecords.get(itemId) || [];
+      list.push(leekduckName);
+      aliasRecords.set(itemId, list);
+    }
+  } catch {
+    // Item aliases are helpful but optional; the scraper can still match local item names.
+  }
+
+  try {
+    const data = JSON.parse(fs.readFileSync(itemsFile, "utf8")) as Record<string, unknown>;
+    const items = Array.isArray(data.items) ? data.items : [];
+    for (const item of items) {
+      if (!item || typeof item !== "object") continue;
+      const record = item as Record<string, unknown>;
+      const names = record.names && typeof record.names === "object" ? record.names as Record<string, unknown> : {};
+      const id = String(record.id || record.itemId || record.templateId || "").trim();
+      const englishName = String(names.English || record.name || id).trim();
+      const displayName = String(names.French || names.English || record.name || id).trim();
+      if (!id || !displayName) continue;
+
+      const aliases = uniqueBy(
+        [
+          id,
+          record.itemId,
+          record.templateId,
+          record.assetKey,
+          displayName,
+          englishName,
+          names.English,
+          names.French,
+          names.German,
+          names.Spanish,
+          names.Italian,
+          ...(aliasRecords.get(id) || []),
+        ].map((value) => String(value || "").trim()).filter(Boolean),
+        normalizeText,
+      );
+      const entry: ItemIndexEntry = {
+        id,
+        name: displayName,
+        englishName,
+        image: typeof record.asset === "string" ? String(record.asset) : undefined,
+        category: String(record.category || record.itemType || "").trim() || undefined,
+        aliases,
+      };
+      entries.push(entry);
+      aliases.forEach((alias) => {
+        const key = normalizeText(alias);
+        if (key && !lookup.has(key)) lookup.set(key, entry);
+      });
+    }
+  } catch {
+    // A missing item index should not block event scraping; unmatched rewards are reported.
+  }
+
+  entries.sort((left, right) => Math.max(...right.aliases.map((alias) => normalizeText(alias).length)) - Math.max(...left.aliases.map((alias) => normalizeText(alias).length)));
   return { entries, lookup };
 }
 
@@ -250,22 +490,146 @@ function collectPokemonCandidates(event: RawLeekDuckEvent) {
   return candidates.filter((pokemon) => pokemon.name);
 }
 
-function matchPokemon(
+function parsePokemonItems($: CheerioAPI, scope: Cheerio<AnyNode>, category: PokemonEventSection["category"]) {
+  return scope
+    .find(".pkmn-list-item")
+    .toArray()
+    .map((item): PokemonCandidate => {
+      const node = $(item);
+      return {
+        name: cleanHtmlText(node.find(".pkmn-name").first().text()),
+        image: normalizeImageUrl(node.find(".pkmn-list-img img").first().attr("src")) || undefined,
+        shiny: node.find(".shiny-icon").length > 0,
+        category,
+      };
+    })
+    .filter((pokemon) => pokemon.name);
+}
+
+function parseRewardItems($: CheerioAPI, scope: Cheerio<AnyNode>) {
+  return scope
+    .find(".bonus-item, .reward-item")
+    .toArray()
+    .map((item): PokemonEventReward => {
+      const node = $(item);
+      const text = cleanHtmlText(node.find(".bonus-text, .reward-text, .name").first().text() || node.text());
+      const quantity = text.match(/(?:^|\s)(?:x|×)\s*(\d+)\b/i)?.[1] || text.match(/\b(\d+)\s*(?:x|×)\b/i)?.[1];
+      return {
+        text,
+        sourceName: text,
+        image: normalizeImageUrl(node.find("img").first().attr("src")),
+        type: "detail",
+        quantity,
+      };
+    })
+    .filter((reward) => reward.text);
+}
+
+function detailSectionId(title: string, index: number) {
+  const slug = slugify(title || "section") || "section";
+  return `${slug}-${index}`;
+}
+
+async function scrapeEventDetail(event: RawLeekDuckEvent): Promise<{
+  sourceUrl: string;
+  sections: ScrapedDetailSection[];
+  pokemon: PokemonCandidate[];
+  rewards: PokemonEventReward[];
+  images: string[];
+} | null> {
+  const sourceUrl = String(event.link || "").trim();
+  if (!sourceUrl || !sourceUrl.includes("leekduck.com/events/")) return null;
+
+  const html = await fetchText(sourceUrl);
+  const $ = load(html);
+  const page = $(".page-content").first().length ? $(".page-content").first() : $("main").first();
+  const sections: ScrapedDetailSection[] = [];
+  let currentCategory: PokemonEventSection["category"] = "other";
+  let current: ScrapedDetailSection | null = null;
+
+  function ensureSection(title = "Résumé", category = currentCategory) {
+    if (!current || current.title !== title) {
+      current = {
+        id: detailSectionId(title, sections.length),
+        title,
+        category,
+        text: [],
+        pokemon: [],
+        rewards: [],
+        images: [],
+      };
+      sections.push(current);
+    }
+    return current;
+  }
+
+  page.children().each((_, element) => {
+    const node = $(element);
+    const tag = String(element.type === "tag" && "name" in element ? element.name : "").toLowerCase();
+
+    if (/^h[2-4]$/.test(tag)) {
+      const title = cleanHtmlText(node.text());
+      if (!title || /^(menu|resources|leek duck)$/i.test(title)) return;
+      const category = sectionCategory(title, currentCategory);
+      if (tag === "h2") currentCategory = category;
+      current = ensureSection(title, category);
+      return;
+    }
+
+    const section = current || ensureSection("Résumé", currentCategory);
+    const pokemon = parsePokemonItems($, node, section.category);
+    if (pokemon.length) {
+      section.pokemon.push(...pokemon);
+      return;
+    }
+
+    const rewards = parseRewardItems($, node);
+    if (rewards.length) section.rewards.push(...rewards);
+
+    const images = node
+      .find("img")
+      .toArray()
+      .map((image) => normalizeImageUrl($(image).attr("src")))
+      .filter(Boolean) as string[];
+    if (images.length && !node.find(".shiny-icon").length) section.images.push(...images);
+
+    if (["p", "ul", "ol", "table"].includes(tag) && !node.find(".pkmn-list-item").length) {
+      const text = cleanHtmlText(node.text());
+      if (text && text.length > 2) section.text.push(text.slice(0, 800));
+    }
+  });
+
+  const normalizedSections = sections
+    .map((section) => ({
+      ...section,
+      text: uniqueBy(section.text, (text) => text).slice(0, 24),
+      pokemon: uniqueBy(section.pokemon, (pokemon) => `${normalizeText(pokemon.name)}:${pokemon.image || ""}`).slice(0, 240),
+      rewards: uniqueBy(section.rewards, (reward) => `${reward.text}:${reward.image || ""}`).slice(0, 120),
+      images: uniqueBy(section.images, (image) => image).slice(0, 24),
+    }))
+    .filter((section) => section.text.length || section.pokemon.length || section.rewards.length || section.images.length);
+
+  return {
+    sourceUrl,
+    sections: normalizedSections,
+    pokemon: uniqueBy(normalizedSections.flatMap((section) => section.pokemon), (pokemon) => `${normalizeText(pokemon.name)}:${pokemon.image || ""}`).slice(0, 320),
+    rewards: uniqueBy(normalizedSections.flatMap((section) => section.rewards), (reward) => `${reward.text}:${reward.image || ""}`).slice(0, 240),
+    images: uniqueBy(normalizedSections.flatMap((section) => section.images), (image) => image).slice(0, 80),
+  };
+}
+
+function matchPokemonCandidates(
+  candidates: PokemonCandidate[],
   event: RawLeekDuckEvent,
   index: ReturnType<typeof loadPokemonIndex>,
 ) {
-  const explicit = collectPokemonCandidates(event);
   const matched: PokemonFeaturedPokemon[] = [];
   const unmatched = new Set<string>();
 
-  for (const candidate of explicit) {
-    const local = index.lookup.get(normalizeText(candidate.name));
-    if (local) {
-      matched.push({ ...local, image: local.image || candidate.image, shiny: candidate.shiny || local.shiny });
-    } else {
-      matched.push({ name: candidate.name, image: candidate.image, shiny: candidate.shiny });
-      unmatched.add(candidate.name);
-    }
+  for (const candidate of candidates) {
+    const result = enrichPokemonCandidate(candidate, index);
+    matched.push(result.pokemon);
+    if (!result.matched) unmatched.add(candidate.name);
   }
 
   const haystack = normalizeText(`${event.name || ""} ${event.heading || ""}`);
@@ -278,9 +642,46 @@ function matchPokemon(
   }
 
   return {
-    featuredPokemon: uniqueBy(matched, (pokemon) => pokemon.id || pokemon.name).slice(0, 80),
+    featuredPokemon: uniqueBy(matched, (pokemon) => `${pokemon.id || normalizeText(pokemon.name)}:${pokemon.image || ""}`).slice(0, 240),
     unmatchedPokemon: [...unmatched],
   };
+}
+
+function enrichSections(
+  sections: ScrapedDetailSection[],
+  pokemonIndex: ReturnType<typeof loadPokemonIndex>,
+  itemIndex: ReturnType<typeof loadItemIndex>,
+  unmatchedPokemon: Set<string>,
+  unmatchedItems: Set<string>,
+) {
+  let matchedCount = 0;
+  let itemMatchedCount = 0;
+  const enriched = sections.map((section): PokemonEventSection => {
+    const pokemon = section.pokemon.map((candidate) => {
+      const result = enrichPokemonCandidate(candidate, pokemonIndex);
+      if (result.matched) matchedCount += 1;
+      else unmatchedPokemon.add(candidate.name);
+      return result.pokemon;
+    });
+    const rewards = section.rewards.map((reward) => {
+      const result = enrichReward(reward, itemIndex);
+      if (result.matched) itemMatchedCount += 1;
+      else if (shouldReportUnmatchedReward(reward)) unmatchedItems.add(reward.sourceName || reward.text);
+      return result.reward;
+    });
+
+    return {
+      id: section.id,
+      title: section.title,
+      category: section.category,
+      text: section.text,
+      pokemon: uniqueBy(pokemon, (entry) => `${entry.id || normalizeText(entry.name)}:${entry.image || ""}`).slice(0, 240),
+      rewards,
+      images: section.images,
+    };
+  });
+
+  return { sections: enriched, matchedCount, itemMatchedCount };
 }
 
 function collectBonuses(event: RawLeekDuckEvent) {
@@ -311,10 +712,12 @@ function collectRewards(event: RawLeekDuckEvent) {
     const record = value as Record<string, unknown>;
     if (record.reward && typeof record.reward === "object") {
       const reward = record.reward as Record<string, unknown>;
-      rewards.push({ text: String(reward.text || ""), image: normalizeImageUrl(reward.image), type: "task" });
+      const text = String(reward.text || "");
+      rewards.push({ text, sourceName: text, image: normalizeImageUrl(reward.image), type: "task" });
     }
     if (record.text && record.image) {
-      rewards.push({ text: String(record.text), image: normalizeImageUrl(record.image), type: "reward" });
+      const text = String(record.text);
+      rewards.push({ text, sourceName: text, image: normalizeImageUrl(record.image), type: "reward" });
     }
     Object.values(record).forEach(visit);
   };
@@ -330,6 +733,20 @@ function describeEvent(event: RawLeekDuckEvent) {
   return uniqueBy(parts, (part) => part).join(" - ");
 }
 
+async function mapLimit<T, R>(items: T[], limit: number, mapper: (item: T, index: number) => Promise<R>) {
+  const results: R[] = [];
+  let cursor = 0;
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (cursor < items.length) {
+      const index = cursor;
+      cursor += 1;
+      results[index] = await mapper(items[index], index);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
 export async function scrapeLeekDuckEvents() {
   const [feed, scrapedDuck] = await Promise.all([
     fetchJson<RawLeekDuckEvent[]>(leekDuckEventsFeedUrl),
@@ -340,12 +757,19 @@ export async function scrapeLeekDuckEvents() {
 
   const scrapedDuckById = new Map((Array.isArray(scrapedDuck) ? scrapedDuck : []).map((event) => [event.eventID, event]));
   const pokemonIndex = loadPokemonIndex();
+  const itemIndex = loadItemIndex();
   const unmatchedPokemon = new Set<string>();
+  const unmatchedItems = new Set<string>();
   let pokemonMatched = 0;
+  let itemMatched = 0;
   let eventsSkipped = 0;
   let imagesRecovered = 0;
+  let detailPagesVisited = 0;
+  let detailErrors = 0;
+  let detailPokemonExtracted = 0;
+  let sectionsExtracted = 0;
 
-  const events = sourceEvents.flatMap((feedEvent) => {
+  const eventResults = await mapLimit(sourceEvents, 5, async (feedEvent) => {
     const id = String(feedEvent.eventID || "");
     const scrapedDuckEvent = scrapedDuckById.get(id);
     const enriched = {
@@ -357,20 +781,75 @@ export async function scrapeLeekDuckEvents() {
     const endDate = safeDate(enriched.end);
     if (!id || !enriched.name || !startDate || !endDate) {
       eventsSkipped += 1;
-      return [];
+      return null;
     }
 
-    const matched = matchPokemon(enriched, pokemonIndex);
+    let detail: Awaited<ReturnType<typeof scrapeEventDetail>> = null;
+    try {
+      detail = await scrapeEventDetail(enriched);
+      if (detail) {
+        detailPagesVisited += 1;
+        detailPokemonExtracted += detail.pokemon.length;
+        sectionsExtracted += detail.sections.length;
+      }
+    } catch (error) {
+      detailErrors += 1;
+      console.warn("[events-calendar] Detail scrape failed", {
+        id,
+        url: enriched.link,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+
+    const detailEnriched = detail
+      ? enrichSections(detail.sections, pokemonIndex, itemIndex, unmatchedPokemon, unmatchedItems)
+      : { sections: [] as PokemonEventSection[], matchedCount: 0, itemMatchedCount: 0 };
+    pokemonMatched += detailEnriched.matchedCount;
+    itemMatched += detailEnriched.itemMatchedCount;
+
+    const explicitCandidates = collectPokemonCandidates(enriched);
+    const allCandidates = uniqueBy(
+      [...explicitCandidates, ...(detail?.pokemon || [])],
+      (pokemon) => `${normalizeText(pokemon.name)}:${pokemon.image || ""}`,
+    );
+    const matched = matchPokemonCandidates(allCandidates, enriched, pokemonIndex);
     matched.unmatchedPokemon.forEach((name) => unmatchedPokemon.add(name));
     pokemonMatched += matched.featuredPokemon.filter((pokemon) => pokemon.id).length;
     imagesRecovered += matched.featuredPokemon.filter((pokemon) => pokemon.image).length;
     if (enriched.image) imagesRecovered += 1;
+    if (detail?.images?.length) imagesRecovered += detail.images.length;
 
     const type = normalizeLeekDuckType(enriched.eventType, enriched.heading);
+    const categoryPokemon = (category: PokemonEventSection["category"]) =>
+      uniqueBy(
+        detailEnriched.sections
+          .filter((section) => section.category === category)
+          .flatMap((section) => section.pokemon || []),
+        (pokemon) => `${pokemon.id || normalizeText(pokemon.name)}:${pokemon.image || ""}`,
+      ).slice(0, 240);
+    const feedRewards = collectRewards(enriched).map((reward) => {
+      const result = enrichReward(reward, itemIndex);
+      if (result.matched) itemMatched += 1;
+      else if (shouldReportUnmatchedReward(reward)) unmatchedItems.add(reward.sourceName || reward.text);
+      return result.reward;
+    });
+    const detailRewards = detailEnriched.sections.flatMap((section) => section.rewards || []);
+    const detailBonuses = detailEnriched.sections
+      .filter((section) => section.category === "bonuses" || section.category === "tickets")
+      .flatMap((section) => section.text || [])
+      .slice(0, 80);
+    const description = uniqueBy(
+      [
+        describeEvent(enriched),
+        ...(detailEnriched.sections.find((section) => section.id === "resume")?.text || []),
+      ].filter(Boolean),
+      (part) => part,
+    ).join(" - ");
+
     const event: PokemonCalendarEvent = {
       id,
       title: String(enriched.name),
-      description: describeEvent(enriched),
+      description,
       type,
       category: String(enriched.heading || enriched.eventType || ""),
       startDate,
@@ -378,13 +857,23 @@ export async function scrapeLeekDuckEvents() {
       timezone: POKEMON_EVENT_TIMEZONE,
       status: "upcoming",
       source: "leekduck",
+      sourceUrl: String(enriched.link || detail?.sourceUrl || leekDuckEventsUrl),
+      images: {
+        banner: normalizeImageUrl(enriched.image),
+        thumbnail: normalizeImageUrl(enriched.image),
+      },
       assets: {
         banner: normalizeImageUrl(enriched.image),
         icon: null,
       },
       featuredPokemon: matched.featuredPokemon,
-      bonuses: collectBonuses(enriched),
-      rewards: collectRewards(enriched),
+      wildSpawns: categoryPokemon("wildSpawns"),
+      raids: categoryPokemon("raids"),
+      eggs: categoryPokemon("eggs"),
+      researchRewards: categoryPokemon("researchRewards"),
+      sections: detailEnriched.sections,
+      bonuses: uniqueBy([...collectBonuses(enriched), ...detailBonuses], (bonus) => bonus).slice(0, 120),
+      rewards: uniqueBy([...feedRewards, ...detailRewards], (reward) => `${reward.id || reward.text}:${reward.image || ""}`).slice(0, 240),
       links: [{ label: "LeekDuck", url: String(enriched.link || leekDuckEventsUrl) }],
       raw: {
         eventID: id,
@@ -393,10 +882,17 @@ export async function scrapeLeekDuckEvents() {
         link: enriched.link,
         image: normalizeImageUrl(enriched.image),
         extraData: enriched.extraData || null,
+        detail: detail ? {
+          sections: detail.sections.length,
+          pokemonExtracted: detail.pokemon.length,
+          rewardsExtracted: detail.rewards.length,
+          imagesExtracted: detail.images.length,
+        } : null,
       },
     };
-    return [event];
+    return event;
   });
+  const events = eventResults.filter(Boolean) as PokemonCalendarEvent[];
 
   const report = {
     success: true,
@@ -407,9 +903,16 @@ export async function scrapeLeekDuckEvents() {
     jsonFilename: "pokemon-go-events.json",
     eventsParsed: events.length,
     eventsSkipped,
+    detailPagesVisited,
+    detailErrors,
+    detailPokemonExtracted,
+    sectionsExtracted,
     pokemonMatched,
     pokemonUnmatched: unmatchedPokemon.size,
     unmatchedPokemon: [...unmatchedPokemon].sort(),
+    itemMatched,
+    itemUnmatched: unmatchedItems.size,
+    unmatchedItems: [...unmatchedItems].sort(),
     imagesRecovered,
     scrapedDuckEvents: Array.isArray(scrapedDuck) ? scrapedDuck.length : 0,
     updatedAt: new Date().toISOString(),

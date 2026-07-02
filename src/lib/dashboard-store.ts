@@ -9,6 +9,7 @@ import {
   type PokemonEventType,
   type PokemonFeaturedPokemon,
   type PokemonEventReward,
+  type PokemonEventSection,
 } from "@/data/pokemon-events";
 
 export type DashboardStoreDocument = {
@@ -80,11 +81,21 @@ export type DashboardPokemonEventDocument = {
   timezone: string;
   status: PokemonEventStatus;
   source: string;
+  sourceUrl?: string;
+  images?: {
+    banner?: string | null;
+    thumbnail?: string | null;
+  };
   assets: {
     banner: string | null;
     icon: string | null;
   };
   featuredPokemon: PokemonFeaturedPokemon[];
+  wildSpawns?: PokemonFeaturedPokemon[];
+  raids?: PokemonFeaturedPokemon[];
+  eggs?: PokemonFeaturedPokemon[];
+  researchRewards?: PokemonFeaturedPokemon[];
+  sections?: PokemonEventSection[];
   bonuses: string[];
   rewards?: PokemonEventReward[];
   links: Array<{ label: string; url: string }>;
@@ -510,7 +521,7 @@ function featuredPokemonValue(value: unknown) {
       return { name: "" };
     })
     .filter((item) => Boolean(item.name))
-    .slice(0, 60);
+    .slice(0, 240);
 }
 
 function rewardsValue(value: unknown) {
@@ -522,14 +533,47 @@ function rewardsValue(value: unknown) {
         const record = item as Record<string, unknown>;
         return {
           text: textValue(record.text || record.name || record.label || record.title),
+          id: textValue(record.id || record.itemId) || undefined,
+          name: textValue(record.name || record.label || record.title) || undefined,
+          sourceName: textValue(record.sourceName || record.leekduckName) || undefined,
           image: nullableUrlValue(record.image || record.icon),
           type: textValue(record.type) || undefined,
+          quantity: textValue(record.quantity || record.amount) || undefined,
+          matched: typeof record.matched === "boolean" ? record.matched : undefined,
         };
       }
       return { text: "" };
     })
     .filter((item) => Boolean(item.text))
     .slice(0, 240);
+}
+
+function eventSectionsValue(value: unknown) {
+  const items = Array.isArray(value) ? value : [];
+  return items
+    .map((item, index): PokemonEventSection => {
+      const record = item && typeof item === "object" ? item as Record<string, unknown> : {};
+      const title = textValue(record.title || record.label || record.id);
+      const category = enumValue(
+        record.category,
+        ["featured", "wildSpawns", "raids", "eggs", "researchRewards", "bonuses", "tickets", "other"],
+        "other",
+      ) as PokemonEventSection["category"];
+
+      return {
+        id: slugValue(textValue(record.id, title || `section-${index}`)),
+        title,
+        category,
+        text: stringListValue(record.text).slice(0, 80),
+        pokemon: featuredPokemonValue(record.pokemon),
+        rewards: rewardsValue(record.rewards),
+        images: Array.isArray(record.images)
+          ? record.images.map((image) => nullableUrlValue(image)).filter(Boolean) as string[]
+          : [],
+      };
+    })
+    .filter((section) => Boolean(section.title || section.pokemon?.length || section.text?.length || section.rewards?.length))
+    .slice(0, 120);
 }
 
 function rawValue(value: unknown) {
@@ -569,11 +613,18 @@ function serializePokemonEventRecord(
     timezone: event.timezone || POKEMON_EVENT_TIMEZONE,
     status,
     source: event.source || "manual",
+    sourceUrl: "sourceUrl" in event ? event.sourceUrl : undefined,
+    images: "images" in event ? event.images : undefined,
     assets: {
       banner: event.assets?.banner || null,
       icon: event.assets?.icon || null,
     },
     featuredPokemon: Array.isArray(event.featuredPokemon) ? event.featuredPokemon : [],
+    wildSpawns: "wildSpawns" in event && Array.isArray(event.wildSpawns) ? event.wildSpawns : [],
+    raids: "raids" in event && Array.isArray(event.raids) ? event.raids : [],
+    eggs: "eggs" in event && Array.isArray(event.eggs) ? event.eggs : [],
+    researchRewards: "researchRewards" in event && Array.isArray(event.researchRewards) ? event.researchRewards : [],
+    sections: "sections" in event && Array.isArray(event.sections) ? event.sections : [],
     bonuses: Array.isArray(event.bonuses) ? event.bonuses : [],
     rewards: Array.isArray(event.rewards) ? event.rewards : [],
     links: Array.isArray(event.links) ? event.links : [],
@@ -642,6 +693,9 @@ function normalizePokemonEventInput(
   const inputAssets = input.assets && typeof input.assets === "object"
     ? (input.assets as Record<string, unknown>)
     : {};
+  const inputImages = input.images && typeof input.images === "object"
+    ? (input.images as Record<string, unknown>)
+    : {};
 
   return {
     id,
@@ -654,6 +708,11 @@ function normalizePokemonEventInput(
     timezone: textValue(input.timezone, existing?.timezone || POKEMON_EVENT_TIMEZONE),
     status,
     source: textValue(input.source, existing?.source || "manual"),
+    sourceUrl: nullableUrlValue(input.sourceUrl ?? input.url ?? existing?.sourceUrl) || undefined,
+    images: {
+      banner: nullableUrlValue(inputImages.banner ?? inputAssets.banner ?? input.banner ?? existing?.images?.banner),
+      thumbnail: nullableUrlValue(inputImages.thumbnail ?? inputImages.icon ?? inputAssets.icon ?? input.icon ?? existing?.images?.thumbnail),
+    },
     assets: {
       banner: nullableUrlValue(inputAssets.banner ?? input.banner ?? existing?.assets?.banner),
       icon: nullableUrlValue(inputAssets.icon ?? input.icon ?? existing?.assets?.icon),
@@ -661,6 +720,11 @@ function normalizePokemonEventInput(
     featuredPokemon: "featuredPokemon" in input
       ? featuredPokemonValue(input.featuredPokemon)
       : existing?.featuredPokemon || [],
+    wildSpawns: "wildSpawns" in input ? featuredPokemonValue(input.wildSpawns) : existing?.wildSpawns || [],
+    raids: "raids" in input ? featuredPokemonValue(input.raids) : existing?.raids || [],
+    eggs: "eggs" in input ? featuredPokemonValue(input.eggs) : existing?.eggs || [],
+    researchRewards: "researchRewards" in input ? featuredPokemonValue(input.researchRewards) : existing?.researchRewards || [],
+    sections: "sections" in input ? eventSectionsValue(input.sections) : existing?.sections || [],
     bonuses: "bonuses" in input ? stringListValue(input.bonuses) : existing?.bonuses || [],
     rewards: "rewards" in input ? rewardsValue(input.rewards) : existing?.rewards || [],
     links: "links" in input ? linksValue(input.links) : existing?.links || [],
@@ -791,32 +855,38 @@ export async function importPokemonEvents(owner: string, input: Record<string, u
 
   const collection = await getPokemonEventsCollection();
   const now = new Date();
-  const operations = events.map((event) => {
-    const normalized = normalizePokemonEventInput(owner, event as Record<string, unknown>);
-    return {
-      updateOne: {
-        filter: { id: normalized.id },
-        update: {
-          $set: {
-            ...normalized,
-            updatedAt: now,
-          },
-          $setOnInsert: {
-            createdAt: now,
-          },
+  const normalizedEvents = events.map((event) => normalizePokemonEventInput(owner, event as Record<string, unknown>));
+  const operations = normalizedEvents.map((normalized) => ({
+    updateOne: {
+      filter: { id: normalized.id },
+      update: {
+        $set: {
+          ...normalized,
+          updatedAt: now,
         },
-        upsert: true,
+        $setOnInsert: {
+          createdAt: now,
+        },
       },
-    };
-  });
+      upsert: true,
+    },
+  }));
 
   const result = await collection.bulkWrite(operations, { ordered: false });
+  const replaceSource = !Array.isArray(input) ? textValue(input.replaceSource) : "";
+  const deleted = replaceSource
+    ? await collection.deleteMany({
+        source: replaceSource,
+        id: { $nin: normalizedEvents.map((event) => event.id) },
+      })
+    : { deletedCount: 0 };
   const list = await listPokemonEvents({ includeArchived: true });
 
   return {
     matched: result.matchedCount,
     modified: result.modifiedCount,
     inserted: result.upsertedCount,
+    deleted: deleted.deletedCount || 0,
     total: events.length,
     events: list.events,
   };

@@ -80,6 +80,16 @@ function hexToRgba(hex, alpha) {
   return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 }
 
+function uniqueBy(items, keyFn) {
+  const seen = new Set();
+  return items.filter((item) => {
+    const key = keyFn(item);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function localInputValue(iso) {
   if (!iso) return "";
   const date = new Date(iso);
@@ -182,8 +192,9 @@ function EventBannerImage({ src, className }) {
 function eventRewards(event, limit = 16) {
   return (event.rewards || [])
     .map((reward) => ({
+      ...reward,
       src: normalizeEventImageUrl(reward.image),
-      text: reward.text,
+      text: reward.text || reward.name || reward.sourceName,
     }))
     .filter((reward) => reward.src || reward.text)
     .slice(0, limit);
@@ -1041,65 +1052,154 @@ function EventRow({ event, onOpen }) {
   );
 }
 
+const typeIconMap = {
+  normal: "/ui/Types/ico_0_normal.png",
+  fighting: "/ui/Types/ico_1_fighting.png",
+  flying: "/ui/Types/ico_2_flying.png",
+  poison: "/ui/Types/ico_3_poison.png",
+  ground: "/ui/Types/ico_4_ground.png",
+  rock: "/ui/Types/ico_5_rock.png",
+  bug: "/ui/Types/ico_6_bug.png",
+  ghost: "/ui/Types/ico_7_ghost.png",
+  steel: "/ui/Types/ico_8_steel.png",
+  fire: "/ui/Types/ico_9_fire.png",
+  water: "/ui/Types/ico_10_water.png",
+  grass: "/ui/Types/ico_11_grass.png",
+  electric: "/ui/Types/ico_12_electric.png",
+  psychic: "/ui/Types/ico_13_psychic.png",
+  ice: "/ui/Types/ico_14_ice.png",
+  dragon: "/ui/Types/ico_15_dragon.png",
+  dark: "/ui/Types/ico_16_dark.png",
+  fairy: "/ui/Types/ico_17_fairy.png",
+};
+
+function pokemonKey(entry) {
+  return `${entry?.id || ""}:${entry?.image || ""}:${String(entry?.name || "").toLowerCase()}`;
+}
+
+function uniquePokemon(items) {
+  const seen = new Set();
+  return (items || []).filter((entry) => {
+    if (!entry?.name && !entry?.id) return false;
+    const key = pokemonKey(entry);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function eventPokemonGroups(event) {
+  const sectionPokemon = (event.sections || []).flatMap((section) => section.pokemon || []);
+  const allPokemon = uniquePokemon([
+    ...(event.featuredPokemon || []),
+    ...(event.wildSpawns || []),
+    ...(event.raids || []),
+    ...(event.eggs || []),
+    ...(event.researchRewards || []),
+    ...sectionPokemon,
+  ]);
+  return [
+    ["Tous les Pokémon détectés", allPokemon],
+    ["Spawns sauvages", event.wildSpawns || []],
+    ["Raids", event.raids || []],
+    ["Œufs", event.eggs || []],
+    ["Research rewards", event.researchRewards || []],
+  ]
+    .map(([title, pokemon]) => ({ title, pokemon: uniquePokemon(pokemon) }))
+    .filter((group) => group.pokemon.length);
+}
+
+function typeIconUrl(type) {
+  return typeIconMap[String(type || "").toLowerCase()] || null;
+}
+
+function TypePills({ types, id }) {
+  if (!Array.isArray(types) || !types.length) return null;
+  return (
+    <span className="mt-1 flex flex-wrap gap-1">
+      {types.map((type) => {
+        const icon = typeIconUrl(type);
+        return (
+          <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/10 px-2 py-0.5 text-[10px] font-black text-cyan-50" key={`${id}-${type}`}>
+            {icon ? <img className="h-3.5 w-3.5 object-contain" src={icon} alt="" loading="lazy" /> : null}
+            {String(type).toLowerCase()}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
 function EventDetailModal({ event, busy, onClose, onEdit, onDuplicate, onArchive, onRestore, onDelete, onOpenPokemon }) {
   const type = eventType(event);
-  const rewards = eventRewards(event, 80);
+  const rewards = eventRewards(event, 120);
+  const pokemonGroups = eventPokemonGroups(event);
+  const pokemonCount = pokemonGroups[0]?.pokemon.length || 0;
+  const sourceLinks = uniqueBy([...(event.links || []), event.sourceUrl ? { label: "Page LeekDuck", url: event.sourceUrl } : null].filter(Boolean), (link) => link.url);
   return (
     <div className="fixed inset-0 z-[90] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl" onClick={onClose}>
-      <article className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#07111f] shadow-[0_30px_120px_rgba(0,0,0,.5)]" onClick={(clickEvent) => clickEvent.stopPropagation()}>
+      <article className="max-h-[94vh] w-full max-w-6xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#07111f] shadow-[0_30px_120px_rgba(0,0,0,.5)]" onClick={(clickEvent) => clickEvent.stopPropagation()}>
         <header
-          className="relative overflow-hidden rounded-t-[2rem] border-b border-white/10 p-5 sm:p-7"
+          className="relative overflow-hidden rounded-t-[2rem] border-b border-cyan-200/20 p-5 sm:p-7"
           style={{
-            backgroundImage: `linear-gradient(135deg, ${hexToRgba(type.color, 0.34)}, rgba(2,6,23,.86)), url("/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png")`,
+            backgroundImage: `linear-gradient(135deg, ${hexToRgba(type.color, 0.24)}, rgba(2,6,23,.90)), url("/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
         >
-          <div className="absolute inset-0 bg-slate-950/35" />
-          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="absolute inset-0 bg-slate-950/45" />
+          <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0">
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/45 px-3 py-1 text-xs font-black text-cyan-50">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/55 px-3 py-1 text-xs font-black text-cyan-50">
                 {type.icon ? <img className="h-5 w-5 object-contain" src={type.icon} alt="" /> : null}
-                {type.label}
+                {event.category || type.label}
               </span>
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">{event.title}</h2>
-              <p className="mt-2 text-sm font-bold text-slate-200">{dateRangeLabel(event)}</p>
+              <h2 className="mt-3 max-w-4xl text-3xl font-black leading-tight tracking-tight text-white sm:text-5xl">{event.title}</h2>
+              <p className="mt-3 text-sm font-bold text-slate-200 sm:text-base">{dateRangeLabel(event)}</p>
+              <p className="mt-1 text-sm font-black italic text-emerald-200">{eventRemainingLabel(event)}</p>
             </div>
-            <button className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-white/10 bg-white/10 text-white hover:bg-white/20" type="button" onClick={onClose}>
-              <X size={20} />
+            <button className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-white/10 bg-white/10 text-white hover:bg-white/20" type="button" onClick={onClose}>
+              <X size={22} />
             </button>
           </div>
         </header>
 
-        <div className="space-y-4 p-4 sm:p-6">
-          <div className="grid gap-3 md:grid-cols-3">
+        <div className="space-y-5 p-4 sm:p-6">
+          <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
             <InfoPill label="Statut" value={POKEMON_EVENT_STATUS_LABELS[event.status] || event.status} />
             <InfoPill label="Durée" value={`${eventDurationDays(event)} jour(s)`} />
-            <InfoPill label="Catégorie" value={event.category || type.label} />
+            <InfoPill label="Pokémon" value={pokemonCount} />
+            <InfoPill label="Sections" value={(event.sections || []).length} />
+            <InfoPill label="Items" value={rewards.filter((reward) => reward.id || reward.matched).length} />
             <InfoPill label="Source" value={event.source || "manual"} />
-            <InfoPill label="Timezone" value={event.timezone || POKEMON_EVENT_TIMEZONE} />
-            <InfoPill label="Échéance" value={eventRemainingLabel(event)} />
           </div>
+
           {eventBanner(event) ? (
             <EventBannerImage className="max-h-72 w-full rounded-2xl border border-white/10 object-contain bg-slate-950/30 p-2" src={eventBanner(event)} />
           ) : null}
+
           {event.description ? (
             <section className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
               <h3 className="mb-2 text-lg font-black text-white">Description</h3>
               <p className="text-sm font-semibold leading-6 text-slate-300">{event.description}</p>
             </section>
           ) : null}
-          <EventPokemonGrid event={event} onOpenPokemon={onOpenPokemon} />
+
+          <EventPokemonGroups groups={pokemonGroups} onOpenPokemon={onOpenPokemon} />
+          <EventScrapedSections sections={event.sections || []} onOpenPokemon={onOpenPokemon} />
+
           <div className="grid gap-4 lg:grid-cols-2">
             <DetailList title="Bonus" items={event.bonuses || []} empty="Aucun bonus renseigné." />
             <RewardGrid rewards={rewards} />
           </div>
+
           {event.raw ? <RawEventInfo raw={event.raw} /> : null}
+
           <section className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
             <h3 className="mb-3 text-lg font-black text-white">Liens sources</h3>
-            <div className="grid gap-2">
-              {(event.links || []).length ? (
-                event.links.map((link) => (
+            <div className="grid gap-2 sm:grid-cols-2">
+              {sourceLinks.length ? (
+                sourceLinks.map((link) => (
                   <a className="inline-flex min-w-0 items-center gap-2 rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm font-bold text-cyan-100 hover:bg-cyan-300/10" key={`${link.label}-${link.url}`} href={link.url} target="_blank" rel="noreferrer">
                     <ExternalLink size={15} /> <span className="truncate">{link.label || link.url}</span>
                   </a>
@@ -1109,6 +1209,7 @@ function EventDetailModal({ event, busy, onClose, onEdit, onDuplicate, onArchive
               )}
             </div>
           </section>
+
           <div className="flex flex-wrap justify-end gap-2">
             <button className={buttonClass} type="button" onClick={onDuplicate}>
               <Copy size={17} /> Dupliquer
@@ -1144,68 +1245,136 @@ function InfoPill({ label, value }) {
   );
 }
 
-function EventPokemonGrid({ event, onOpenPokemon }) {
-  const pokemon = event.featuredPokemon || [];
-  return (
-    <section className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-      <h3 className="mb-3 text-lg font-black text-white">Pokémon liés</h3>
-      {pokemon.length ? (
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-          {pokemon.map((entry) => {
-            const clickable = Boolean(onOpenPokemon && entry.id);
-            const content = (
-              <>
-                {entry.image ? <img className="h-16 w-16 object-contain" src={entry.image} alt="" loading="lazy" /> : <span className="grid h-16 w-16 place-items-center rounded-2xl bg-slate-950/40 text-xs font-black text-slate-500">?</span>}
-                <span className="min-w-0">
-                  <strong className="block truncate text-sm font-black text-white">{entry.name || entry.id}</strong>
-                  <small className="block truncate text-xs font-bold text-slate-400">{entry.form || entry.dexId || "Pokemon"}</small>
-                  {Array.isArray(entry.types) && entry.types.length ? (
-                    <span className="mt-1 flex flex-wrap gap-1">
-                      {entry.types.map((type) => (
-                        <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-black text-cyan-100" key={`${entry.id}-${type}`}>
-                          {type}
-                        </span>
-                      ))}
-                    </span>
-                  ) : null}
-                </span>
-              </>
-            );
-            return clickable ? (
-              <button
-                key={`${entry.id}-${entry.name}`}
-                className="grid min-w-0 grid-cols-[4rem_minmax(0,1fr)] items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/35 p-3 text-left transition hover:-translate-y-0.5 hover:border-cyan-200/40"
-                type="button"
-                onClick={() => onOpenPokemon(entry)}
-              >
-                {content}
-              </button>
-            ) : (
-              <div key={`${entry.id || entry.name}-${entry.image || ""}`} className="grid min-w-0 grid-cols-[4rem_minmax(0,1fr)] items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/35 p-3">
-                {content}
-              </div>
-            );
-          })}
-        </div>
-      ) : (
+function EventPokemonGroups({ groups, onOpenPokemon }) {
+  if (!groups.length) {
+    return (
+      <section className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+        <h3 className="mb-3 text-lg font-black text-white">Pokémon liés</h3>
         <p className="text-sm font-bold text-slate-500">Aucun Pokémon lié.</p>
-      )}
+      </section>
+    );
+  }
+
+  return (
+    <section className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3 className="text-lg font-black text-white">Pokémon liés</h3>
+        <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 font-mono text-xs font-black text-cyan-100">
+          {groups[0].pokemon.length}
+        </span>
+      </div>
+      {groups.map((group, index) => (
+        <details key={group.title} className="rounded-2xl border border-white/10 bg-slate-950/35 p-3" open={index < 2}>
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
+            <span className="text-sm font-black text-white">{group.title}</span>
+            <span className="rounded-full bg-white/10 px-2 py-0.5 font-mono text-[11px] font-black text-cyan-100">{group.pokemon.length}</span>
+          </summary>
+          <PokemonCardGrid pokemon={group.pokemon} onOpenPokemon={onOpenPokemon} />
+        </details>
+      ))}
     </section>
   );
 }
 
-function RewardGrid({ rewards }) {
+function PokemonCardGrid({ pokemon, onOpenPokemon, compact = false }) {
+  if (!pokemon?.length) return null;
   return (
-    <section className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-      <h3 className="mb-3 text-lg font-black text-white">Rewards</h3>
-      {rewards.length ? (
-        <div className="grid gap-2 sm:grid-cols-2">
-          {rewards.map((reward) => (
-            <span className="grid grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-2 rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm font-bold text-slate-200" key={`${reward.text}-${reward.src || ""}`}>
-              {reward.src ? <img className="h-10 w-10 object-contain" src={reward.src} alt="" loading="lazy" /> : <span className="h-10 w-10 rounded-xl bg-white/5" />}
-              <span className="min-w-0 truncate">{reward.text}</span>
+    <div className={`mt-3 grid gap-2 ${compact ? "grid-cols-2 sm:grid-cols-3 xl:grid-cols-6" : "sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}`}>
+      {pokemon.map((entry) => {
+        const clickable = Boolean(onOpenPokemon && entry.id);
+        const content = (
+          <>
+            {entry.image ? <img className={`${compact ? "h-12 w-12" : "h-16 w-16"} object-contain`} src={entry.image} alt="" loading="lazy" /> : <span className={`${compact ? "h-12 w-12" : "h-16 w-16"} grid place-items-center rounded-2xl bg-slate-950/40 text-xs font-black text-slate-500`}>?</span>}
+            <span className="min-w-0">
+              <strong className="block truncate text-sm font-black text-white">{entry.name || entry.id}</strong>
+              <small className="block truncate text-xs font-bold text-slate-400">{entry.form || entry.dexId || "Pokemon"}</small>
+              <TypePills types={entry.types} id={entry.id || entry.name} />
+              {entry.shiny ? <small className="mt-1 inline-flex rounded-full border border-amber-200/20 bg-amber-300/10 px-2 py-0.5 text-[10px] font-black text-amber-100">Shiny</small> : null}
             </span>
-          ))}
+          </>
+        );
+        const className = "grid min-w-0 grid-cols-[4rem_minmax(0,1fr)] items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/35 p-3 text-left transition hover:-translate-y-0.5 hover:border-cyan-200/40";
+        return clickable ? (
+          <button key={pokemonKey(entry)} className={className} type="button" onClick={() => onOpenPokemon(entry)}>
+            {content}
+          </button>
+        ) : (
+          <div key={pokemonKey(entry)} className={className}>
+            {content}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function EventScrapedSections({ sections, onOpenPokemon }) {
+  const visibleSections = (sections || []).filter((section) => section.text?.length || section.pokemon?.length || section.rewards?.length || section.images?.length);
+  if (!visibleSections.length) return null;
+  return (
+    <section className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3 className="text-lg font-black text-white">Sections LeekDuck enrichies</h3>
+        <span className="rounded-full border border-white/10 bg-slate-950/45 px-3 py-1 font-mono text-xs font-black text-slate-200">{visibleSections.length}</span>
+      </div>
+      {visibleSections.map((section, index) => (
+        <details key={`${section.id || section.title}-${index}`} className="rounded-2xl border border-white/10 bg-slate-950/35 p-3" open={index < 4}>
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
+            <span className="min-w-0">
+              <strong className="block truncate text-sm font-black text-white">{section.title}</strong>
+              <small className="text-[11px] font-black uppercase tracking-[0.14em] text-cyan-100/60">{section.category}</small>
+            </span>
+            <span className="flex shrink-0 gap-2 text-[11px] font-black text-slate-300">
+              {section.pokemon?.length ? <span>{section.pokemon.length} Pokémon</span> : null}
+              {section.rewards?.length ? <span>{section.rewards.length} items</span> : null}
+            </span>
+          </summary>
+          {section.text?.length ? (
+            <div className="mt-3 grid gap-2">
+              {section.text.slice(0, 8).map((text) => (
+                <p className="rounded-xl border border-white/10 bg-slate-950/45 px-3 py-2 text-sm font-semibold leading-6 text-slate-300" key={`${section.id}-${text}`}>
+                  {text}
+                </p>
+              ))}
+            </div>
+          ) : null}
+          <PokemonCardGrid pokemon={section.pokemon || []} onOpenPokemon={onOpenPokemon} compact />
+          {section.rewards?.length ? <RewardGrid rewards={section.rewards} compact title="Rewards section" /> : null}
+          {section.images?.length ? (
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {section.images.slice(0, 6).map((image) => (
+                <EventBannerImage key={`${section.id}-${image}`} className="max-h-44 w-full rounded-xl border border-white/10 bg-slate-950/40 object-contain p-2" src={image} />
+              ))}
+            </div>
+          ) : null}
+        </details>
+      ))}
+    </section>
+  );
+}
+
+function RewardGrid({ rewards, compact = false, title = "Rewards" }) {
+  return (
+    <section className={`${compact ? "mt-3" : ""} rounded-2xl border border-white/10 bg-white/[0.045] p-4`}>
+      <h3 className="mb-3 text-lg font-black text-white">{title}</h3>
+      {rewards.length ? (
+        <div className={`grid gap-2 ${compact ? "sm:grid-cols-2 xl:grid-cols-3" : "sm:grid-cols-2"}`}>
+          {rewards.map((reward) => {
+            const src = reward.src || normalizeEventImageUrl(reward.image);
+            return (
+              <span className="grid grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-2 rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm font-bold text-slate-200" key={`${reward.id || reward.text}-${src || ""}`}>
+                {src ? <img className="h-10 w-10 object-contain" src={src} alt="" loading="lazy" /> : <span className="h-10 w-10 rounded-xl bg-white/5" />}
+                <span className="min-w-0">
+                  <span className="block truncate">{reward.text}</span>
+                  {reward.id || reward.sourceName ? (
+                    <small className="block truncate text-[10px] font-black uppercase tracking-[0.12em] text-slate-500">
+                      {reward.id || reward.sourceName}
+                    </small>
+                  ) : null}
+                </span>
+              </span>
+            );
+          })}
         </div>
       ) : (
         <p className="text-sm font-bold text-slate-500">Aucune reward scrapée.</p>

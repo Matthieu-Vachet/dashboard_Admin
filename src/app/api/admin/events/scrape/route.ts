@@ -35,7 +35,10 @@ export async function POST(request: NextRequest) {
       return json({ success: false, error: "No events parsed from LeekDuck" }, { status: 502 });
     }
 
-    const imported = await importPokemonEvents(session.email, { events: scraped.events });
+    const imported = await importPokemonEvents(session.email, {
+      events: scraped.events,
+      replaceSource: "leekduck",
+    });
     return json({
       success: true,
       data: {
@@ -45,6 +48,7 @@ export async function POST(request: NextRequest) {
           matched: imported.matched,
           modified: imported.modified,
           inserted: imported.inserted,
+          deleted: imported.deleted,
           total: imported.total,
         },
         events: imported.events,
