@@ -7,6 +7,15 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.13.1",
+    date: "2026-07-02",
+    title: "Ajustement actions modale event",
+    changes: [
+      "Retire la barre d'actions fixe en bas de la modale Event Calendar.",
+      "Replace les actions admin dans le flux normal de la modale pour ne plus masquer le contenu au scroll.",
+    ],
+  },
+  {
     version: "V1.13.0",
     date: "2026-07-02",
     title: "UX modale Event Calendar",

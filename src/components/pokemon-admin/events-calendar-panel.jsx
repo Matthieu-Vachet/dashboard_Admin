@@ -1391,7 +1391,7 @@ function EventDetailModal({ event, busy, onClose, onEdit, onDuplicate, onArchive
             </div>
           </DetailSection>
 
-          <div className="sticky bottom-0 -mx-4 -mb-4 flex flex-wrap justify-end gap-2 border-t border-white/10 bg-[#07111f]/92 p-4 backdrop-blur-xl sm:-mx-6 sm:-mb-6 sm:px-6">
+          <div className="flex flex-wrap justify-end gap-2 rounded-2xl border border-white/10 bg-slate-950/35 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
             <button className={buttonClass} type="button" onClick={onDuplicate}>
               <Copy size={17} /> Dupliquer
             </button>
