@@ -115,6 +115,14 @@ pas configure, l'API publique renvoie des seeds de lecture, mais le CRUD admin n
 
 Le format attendu est documente dans `src/data/pokemon-docs/EVENTS-CALENDAR.md`.
 
+## Architecture Admin
+
+La structure refactorisee du dashboard admin est documentee dans
+`docs/ADMIN-ARCHITECTURE.md`. Les nouveaux composants doivent vivre dans
+`src/components/admin/*`; les anciens chemins `src/components/dashboard/*`,
+`src/components/pokemon-admin/*` et `src/components/checklist/*` servent seulement de
+facades de compatibilite.
+
 ## Checks
 
 ```bash

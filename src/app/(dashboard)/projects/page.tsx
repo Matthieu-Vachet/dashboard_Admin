@@ -2,7 +2,7 @@
 
 import { ArrowUpRight, Code2, Github, ListChecks, Rocket, Save, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { DashboardLoadingState } from "@/components/dashboard/loading-state";
+import { DashboardLoadingState } from "@/components/admin/shared/loading-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";

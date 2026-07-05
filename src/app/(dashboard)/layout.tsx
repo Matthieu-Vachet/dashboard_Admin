@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { AppFrame } from "@/components/dashboard/app-frame";
+import { AdminAppFrame } from "@/components/admin/layout/admin-app-frame";
 import { getSession } from "@/lib/auth";
 
 export default async function DashboardLayout({
@@ -13,5 +13,5 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  return <AppFrame userEmail={session.email}>{children}</AppFrame>;
+  return <AdminAppFrame userEmail={session.email}>{children}</AdminAppFrame>;
 }

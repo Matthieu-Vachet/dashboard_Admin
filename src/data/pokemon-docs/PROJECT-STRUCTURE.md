@@ -27,8 +27,9 @@ lecture.
 
 Dans le depot Dashboard Admin, la feature `Pokemon Admin > Calendrier Events` ajoute :
 
-- `src/components/pokemon-admin/events-calendar-panel.jsx` pour l'interface calendrier,
-  liste, detail, CRUD et import/export JSON.
+- `src/components/admin/events/events-calendar-panel.jsx` pour l'interface calendrier,
+  liste, detail, CRUD et import/export JSON. Les anciens imports
+  `src/components/pokemon-admin/*` restent des façades de compatibilité.
 - `src/data/pokemon-events.ts` pour le catalogue de types, labels FR, couleurs, icones
   et seeds de lecture.
 - `src/app/api/events/route.ts` pour la lecture publique.

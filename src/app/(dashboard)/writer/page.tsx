@@ -1,4 +1,4 @@
-import { WriterStudio } from "@/components/dashboard/writer-studio";
+import { WriterStudio } from "@/components/admin/forms/writer-studio";
 
 export default function WriterPage() {
   return <WriterStudio />;

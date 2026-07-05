@@ -1,4 +1,4 @@
-import { PokemonAdminStudio } from "@/components/pokemon-admin/pokemon-admin-studio";
+import { PokemonAdminStudio } from "@/components/admin/pokemon/pokemon-admin-studio";
 
 export const metadata = {
   title: "Admin Pokémon | Dashboard Admin",

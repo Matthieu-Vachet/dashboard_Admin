@@ -1,4 +1,4 @@
-import { LearningAnalytics } from "@/components/dashboard/learning-analytics";
+import { LearningAnalytics } from "@/components/admin/stats/learning-analytics";
 
 export default function AnalyticsPage() {
   return <LearningAnalytics />;

@@ -1,4 +1,4 @@
-import { JavaScriptExercises } from "@/components/dashboard/javascript-exercises";
+import { JavaScriptExercises } from "@/components/admin/forms/javascript-exercises";
 
 export default function JavaScriptExercisesPage() {
   return <JavaScriptExercises />;

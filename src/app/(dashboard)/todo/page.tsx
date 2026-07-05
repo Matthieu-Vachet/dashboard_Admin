@@ -1,4 +1,4 @@
-import { TodoList } from "@/components/dashboard/todo-list";
+import { TodoList } from "@/components/admin/forms/todo-list";
 
 export default function TodoPage() {
   return <TodoList />;

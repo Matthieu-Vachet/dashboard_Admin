@@ -1,8 +1,8 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { PokemonApiExplorer } from "@/components/dashboard/pokemon-api-explorer";
-import { PokemonApiStatus } from "@/components/dashboard/pokemon-api-status";
-import { PokemonDocsViewer, type PokemonDoc } from "@/components/dashboard/pokemon-docs-viewer";
+import { PokemonApiExplorer } from "@/components/admin/pokemon/pokemon-api-explorer";
+import { PokemonApiStatus } from "@/components/admin/pokemon/pokemon-api-status";
+import { PokemonDocsViewer, type PokemonDoc } from "@/components/admin/pokemon/pokemon-docs-viewer";
 
 const docsOrder = [
   "SCHEMA.md",

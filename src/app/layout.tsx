@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
 import "./globals.css";
-import { Providers } from "@/components/dashboard/providers";
+import { Providers } from "@/components/admin/layout/admin-providers";
 
 export const metadata: Metadata = {
   title: "MatWeb Innovation Dashboard",
