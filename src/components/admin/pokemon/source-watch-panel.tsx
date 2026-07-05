@@ -410,54 +410,50 @@ export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
         </div>
       ) : null}
       {sources.length ? (
-        <div className="grid gap-3 xl:grid-cols-2">
+        <div className="overflow-hidden rounded-3xl border border-white/10 bg-slate-950/30">
           {sources.map((source) => {
             const tone =
               source.changedSinceLastCheck
                 ? {
-                    card: "border-red-300/55 bg-red-500/18 shadow-[0_0_0_1px_rgba(252,165,165,.28),0_24px_90px_rgba(239,68,68,.20)] hover:border-red-200/75 hover:bg-red-500/24",
+                    card: "border-red-300/40 bg-red-500/16 hover:bg-red-500/22",
                     badge: "bg-red-500/20 text-red-50",
                   }
                 : source.status === "ok"
                 ? {
-                    card: "border-emerald-300/20 bg-emerald-400/[0.055] hover:border-emerald-200/40 hover:bg-emerald-400/10",
+                    card: "border-emerald-300/14 bg-emerald-400/[0.045] hover:bg-emerald-400/9",
                     badge: "bg-emerald-400/15 text-emerald-100",
                   }
                 : source.status === "warning"
                   ? {
-                      card: "border-amber-300/25 bg-amber-400/[0.055] hover:border-amber-200/45 hover:bg-amber-400/10",
+                      card: "border-amber-300/18 bg-amber-400/[0.05] hover:bg-amber-400/10",
                       badge: "bg-amber-400/15 text-amber-100",
                     }
                   : {
-                      card: "border-red-300/25 bg-red-500/[0.055] hover:border-red-200/45 hover:bg-red-500/10",
+                      card: "border-red-300/18 bg-red-500/[0.055] hover:bg-red-500/10",
                       badge: "bg-red-500/15 text-red-100",
                     };
 
             return (
               <a
-                className={`flex min-w-0 flex-col gap-3 rounded-3xl border p-4 transition sm:flex-row sm:items-center sm:justify-between ${tone.card}`}
+                className={`grid min-w-0 gap-3 border-b border-white/10 p-3 transition last:border-b-0 md:grid-cols-[minmax(0,1fr)_11rem_10rem_auto] md:items-center ${tone.card}`}
                 href={source.remoteUrl || source.url}
                 key={source.id || source.name}
                 rel="noreferrer"
                 target="_blank"
               >
                 <span className="min-w-0">
-                  <span className="mb-2 inline-flex rounded-full border border-white/10 bg-white/[0.055] px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-slate-300">
-                    {issueLabel(source.category)}
-                  </span>
-                  {source.changedSinceLastCheck ? (
-                    <span className="mb-2 ml-2 inline-flex rounded-full border border-red-200/40 bg-red-500/25 px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-red-50">
-                      source modifiée
-                    </span>
-                  ) : null}
-                  <strong className="block break-words font-black text-white">{source.name || source.repo || source.url}</strong>
-                  <small className="mt-1 block break-words text-xs font-bold leading-5 text-slate-400">{source.message || source.status}</small>
-                  {source.description ? (
-                    <small className="mt-2 block text-xs font-semibold leading-5 text-slate-500">{source.description}</small>
-                  ) : null}
+                  <strong className="block truncate font-black text-white">{source.name || source.repo || source.url}</strong>
+                  <small className="mt-1 block truncate text-xs font-bold text-slate-400">{source.message || source.description || source.status}</small>
                 </span>
-                <span className={`inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-2 text-xs font-black ${tone.badge}`}>
-                  {source.version || source.status || "ouvrir"} <ExternalLink size={14} />
+                <span className="inline-flex w-fit rounded-full border border-white/10 bg-white/[0.055] px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-slate-300">
+                  {issueLabel(source.category)}
+                </span>
+                <span className={`inline-flex w-fit rounded-full px-3 py-1.5 text-xs font-black ${tone.badge}`}>
+                  {source.changedSinceLastCheck ? "modifiée" : source.status || "statut"}
+                </span>
+                <span className="inline-flex items-center justify-end gap-2 text-xs font-black text-cyan-100">
+                  <span className="max-w-32 truncate">{source.version || "ouvrir"}</span>
+                  <ExternalLink size={14} />
                 </span>
               </a>
             );

@@ -22,6 +22,130 @@ function formatBuffValue(value) {
   return String(value);
 }
 
+function normalizeTypeId(value) {
+  return String(value || "").toUpperCase().replace(/[^A-Z0-9]+/g, "_");
+}
+
+function relationList(type, key) {
+  return (Array.isArray(type?.[key]) ? type[key] : []).map(normalizeTypeId).filter(Boolean);
+}
+
+function weatherName(weatherId, weatherCatalog = []) {
+  const target = String(weatherId || "").toLowerCase();
+  const weather = weatherCatalog.find((item) =>
+    [item.id, item.slug, item.weatherId].filter(Boolean).map((value) => String(value).toLowerCase()).includes(target),
+  );
+  return weather?.names?.French || weather?.names?.English || weatherId || "-";
+}
+
+function TypeChip({ type, catalog = [], multiplier }) {
+  const id = normalizeTypeId(type);
+  const color = typeColors[id] || "#64748b";
+  return (
+    <span
+      className="inline-flex min-h-8 items-center gap-2 rounded-full border px-3 py-1 text-xs font-black text-white"
+      style={{
+        borderColor: `color-mix(in srgb, ${color} 45%, rgba(255,255,255,.16))`,
+        background: `color-mix(in srgb, ${color} 38%, rgba(15,23,42,.72))`,
+      }}
+    >
+      {typeIcon(id, catalog) ? (
+        <img className="h-4 w-4 object-contain" src={typeIcon(id, catalog)} alt="" />
+      ) : null}
+      {typeName(id, catalog)}
+      {multiplier ? <span className="opacity-75">x{multiplier}</span> : null}
+    </span>
+  );
+}
+
+function offensiveMultipliers(type, allTypes = []) {
+  const attacker = normalizeTypeId(type.id || type.type || type.slug);
+  return allTypes.map((targetType) => {
+    const target = normalizeTypeId(targetType.id || targetType.type || targetType.slug);
+    const doubleFrom = relationList(targetType, "doubleDamageFrom");
+    const halfFrom = relationList(targetType, "halfDamageFrom");
+    const noFrom = relationList(targetType, "noDamageFrom");
+    let multiplier = "1";
+    if (noFrom.includes(attacker)) multiplier = "0.391";
+    else if (halfFrom.includes(attacker)) multiplier = "0.625";
+    else if (doubleFrom.includes(attacker)) multiplier = "1.6";
+    return { type: target, multiplier };
+  });
+}
+
+function TypeCatalogCard({ item, typeCatalog = [], weatherCatalog = [] }) {
+  const id = normalizeTypeId(item.id || item.type || item.slug);
+  const color = typeColors[id] || "#38bdf8";
+  const icon = typeIcon(id, typeCatalog) || item.assets?.icon;
+  const background = item.assets?.background || typeBackground(id, typeCatalog);
+  const weaknesses = relationList(item, "doubleDamageFrom");
+  const resistances = relationList(item, "halfDamageFrom");
+  const immunities = relationList(item, "noDamageFrom");
+  const multipliers = offensiveMultipliers(item, typeCatalog);
+
+  return (
+    <article
+      className="relative overflow-hidden rounded-3xl border bg-slate-950/45 shadow-[0_20px_80px_rgba(0,0,0,.22)]"
+      style={{
+        borderColor: `color-mix(in srgb, ${color} 34%, rgba(255,255,255,.12))`,
+        backgroundImage: background
+          ? `linear-gradient(135deg, rgba(2,6,23,.82), rgba(15,23,42,.64)), url("${background}")`
+          : `linear-gradient(135deg, rgba(2,6,23,.9), color-mix(in srgb, ${color} 18%, rgba(15,23,42,.82)))`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="absolute inset-0 opacity-18 [background-image:linear-gradient(rgba(255,255,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.1)_1px,transparent_1px)] [background-size:26px_26px]" />
+      <div className="relative p-5">
+        <div className="grid gap-4 sm:grid-cols-[72px_minmax(0,1fr)]">
+          <span className="grid h-[72px] w-[72px] place-items-center rounded-3xl border border-white/12 bg-white/12 p-3 shadow-inner">
+            {icon ? <img className="max-h-full object-contain" src={icon} alt="" /> : null}
+          </span>
+          <span className="min-w-0">
+            <span className="text-xs font-black uppercase tracking-[0.22em] text-cyan-100/70">Type</span>
+            <strong className="mt-1 block text-3xl font-black text-white">{item.names?.French || typeName(id, typeCatalog)}</strong>
+            <span className="mt-1 block font-mono text-sm font-black uppercase text-slate-300">{item.names?.English || id}</span>
+          </span>
+        </div>
+
+        <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.055] p-4">
+          <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">Boost météo</span>
+          <strong className="mt-2 block text-white">{weatherName(item.weatherBoost, weatherCatalog)}</strong>
+        </div>
+
+        <div className="mt-5 grid gap-4 xl:grid-cols-2">
+          <section>
+            <h4 className="text-xs font-black uppercase tracking-[0.18em] text-red-100/78">Faiblesses</h4>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {weaknesses.length ? weaknesses.map((type) => <TypeChip key={type} type={type} catalog={typeCatalog} multiplier="1.6" />) : <span className="text-sm font-bold text-slate-400">Aucune</span>}
+            </div>
+          </section>
+          <section>
+            <h4 className="text-xs font-black uppercase tracking-[0.18em] text-emerald-100/78">Résistances / immunités</h4>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {resistances.map((type) => <TypeChip key={type} type={type} catalog={typeCatalog} multiplier="0.625" />)}
+              {immunities.map((type) => <TypeChip key={type} type={type} catalog={typeCatalog} multiplier="0.391" />)}
+              {!resistances.length && !immunities.length ? <span className="text-sm font-bold text-slate-400">Aucune</span> : null}
+            </div>
+          </section>
+        </div>
+
+        <section className="mt-5">
+          <h4 className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100/78">Multiplicateurs offensifs</h4>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {multipliers.map((row) => (
+              <span className="flex min-w-0 items-center justify-between gap-3 rounded-full border border-white/10 bg-white/[0.06] px-3 py-2" key={row.type}>
+                <TypeChip type={row.type} catalog={typeCatalog} />
+                <strong className="font-mono text-xs text-white">x{row.multiplier}</strong>
+              </span>
+            ))}
+          </div>
+        </section>
+      </div>
+    </article>
+  );
+}
+
 function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
   const [open, setOpen] = useState(false);
   const type = move.type;
@@ -211,6 +335,17 @@ export function CatalogPanel({ catalog = {}, onOpen }) {
         <div className="grid gap-3" key="moves">
           {items.slice(0, 180).map((item, index) => (
             <AdminMoveCard move={item} onOpen={onOpen} typeCatalog={data.types || []} key={`${item.id || item.slug}-${index}`} />
+          ))}
+        </div>
+      ) : tab === "types" ? (
+        <div className="grid gap-4 xl:grid-cols-2" key="types">
+          {items.map((item, index) => (
+            <TypeCatalogCard
+              item={item}
+              typeCatalog={data.types || []}
+              weatherCatalog={data.weather || []}
+              key={`${item.id || item.slug || index}`}
+            />
           ))}
         </div>
       ) : (

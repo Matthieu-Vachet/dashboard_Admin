@@ -3,6 +3,7 @@
 import { CloudUpload, Download, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
 import { TypeIcons, WeatherIcons } from "./asset-icons";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
+import { TierSection } from "./tier-section";
 import { uiAssets } from "@/components/site/ui-assets";
 
 const raidSections = [
@@ -10,10 +11,10 @@ const raidSections = [
   ["mega", "Méga", "/ui/raids/mega_raids.png", "violet"],
   ["lvl5", "5 étoiles", "/ui/raids/5_star_raids.png", "amber"],
   ["lvl3", "3 étoiles", "/ui/raids/3_star_raids.png", "green"],
-  ["lvl1", "1 étoile", "/ui/raids/1_star_raids.png", "cyan"],
-  ["shadow_lvl5", "Shadow 5 étoiles", "/ui/raids/shadow_icon.png", "violet"],
-  ["shadow_lvl3", "Shadow 3 étoiles", "/ui/raids/teamrocket_r.png", "amber"],
-  ["shadow_lvl1", "Shadow 1 étoile", "/ui/raids/teamrocket_r.png", "green"],
+  ["lvl1", "1 étoile", "/ui/raids/1_star_raids.png", "blue"],
+  ["shadow_lvl5", "Shadow 5 étoiles", "/ui/raids/shadow_icon.png", "red"],
+  ["shadow_lvl3", "Shadow 3 étoiles", "/ui/raids/teamrocket_r.png", "red"],
+  ["shadow_lvl1", "Shadow 1 étoile", "/ui/raids/teamrocket_r.png", "red"],
 ];
 
 function values(data) {
@@ -106,24 +107,17 @@ function RaidCard({ boss, onOpenPokemon, typeCatalog = [], weatherCatalog = [] }
   );
 }
 
-function RaidSection({ id, title, image, bosses, onOpenPokemon, typeCatalog = [], weatherCatalog = [] }) {
+function RaidSection({ id, title, image, tone, bosses, onOpenPokemon, typeCatalog = [], weatherCatalog = [] }) {
   return (
-    <section className="rounded-2xl border border-white/10 bg-slate-950/26 p-4">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.06] p-2">
-            <img className="max-h-full object-contain" src={image} alt="" />
-          </span>
-          <div className="min-w-0">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-100/70">{id}</p>
-            <h3 className="truncate text-xl font-black text-white">{title}</h3>
-          </div>
-        </div>
-        <span className="rounded-full border border-cyan-200/25 bg-cyan-400/12 px-3 py-1.5 text-xs font-black text-cyan-50">
-          {bosses.length}
-        </span>
-      </div>
-      {bosses.length ? (
+    <TierSection
+      id={id}
+      title={title}
+      image={image}
+      count={bosses.length}
+      tone={tone}
+      defaultOpen={bosses.length > 0}
+      emptyText="Aucun boss dans cette section."
+    >
         <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
           {bosses.map((boss, index) => (
             <RaidCard
@@ -135,12 +129,7 @@ function RaidSection({ id, title, image, bosses, onOpenPokemon, typeCatalog = []
             />
           ))}
         </div>
-      ) : (
-        <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
-          Aucun boss dans cette section.
-        </p>
-      )}
-    </section>
+    </TierSection>
   );
 }
 
@@ -203,12 +192,13 @@ export function RaidsPanel({
       ) : null}
 
       <div className="space-y-4">
-        {raidSections.map(([id, title, image]) => (
+        {raidSections.map(([id, title, image, tone]) => (
           <RaidSection
             key={id}
             id={id}
             title={title}
             image={image}
+            tone={tone}
             bosses={values(currentList[id])}
             onOpenPokemon={onOpenPokemon}
             typeCatalog={typeCatalog}

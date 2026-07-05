@@ -3,6 +3,7 @@
 import { CloudUpload, Download, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
 import { TypeIcons } from "./asset-icons";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
+import { TierSection } from "./tier-section";
 import { uiAssets } from "@/components/site/ui-assets";
 
 const eggSections = [
@@ -39,7 +40,7 @@ function Rarity({ value }) {
   return (
     <div className="flex items-center gap-1" aria-label={`Rarete ${count}`}>
       {Array.from({ length: count }).map((_, index) => (
-        <img key={index} className="h-5 w-5 object-contain" src="/ui/eggs/rareté.png" alt="" />
+        <img key={index} className="h-5 w-5 object-contain" src="/ui/eggs/rarity.png" alt="" />
       ))}
     </div>
   );
@@ -98,24 +99,17 @@ function EggCard({ pokemon, onOpenPokemon, typeCatalog = [] }) {
   );
 }
 
-function EggSection({ id, title, image, pokemon, onOpenPokemon, typeCatalog = [] }) {
+function EggSection({ id, title, image, tone, pokemon, onOpenPokemon, typeCatalog = [] }) {
   return (
-    <section className="rounded-2xl border border-white/10 bg-slate-950/26 p-4">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.06] p-2">
-            <img className="max-h-full object-contain" src={image} alt="" />
-          </span>
-          <div className="min-w-0">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-100/70">{id}</p>
-            <h3 className="truncate text-xl font-black text-white">{title}</h3>
-          </div>
-        </div>
-        <span className="rounded-full border border-cyan-200/25 bg-cyan-400/12 px-3 py-1.5 text-xs font-black text-cyan-50">
-          {pokemon.length}
-        </span>
-      </div>
-      {pokemon.length ? (
+    <TierSection
+      id={id}
+      title={title}
+      image={image}
+      count={pokemon.length}
+      tone={tone}
+      defaultOpen={pokemon.length > 0}
+      emptyText="Aucun Pokemon dans cette section."
+    >
         <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
           {pokemon.map((item, index) => (
             <EggCard
@@ -126,12 +120,7 @@ function EggSection({ id, title, image, pokemon, onOpenPokemon, typeCatalog = []
             />
           ))}
         </div>
-      ) : (
-        <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
-          Aucun Pokemon dans cette section.
-        </p>
-      )}
-    </section>
+    </TierSection>
   );
 }
 
@@ -193,12 +182,13 @@ export function EggsPanel({
       ) : null}
 
       <div className="space-y-4">
-        {eggSections.map(([id, title, image]) => (
+        {eggSections.map(([id, title, image, tone]) => (
           <EggSection
             key={id}
             id={id}
             title={title}
             image={image}
+            tone={tone}
             pokemon={values(currentEggsList[id])}
             onOpenPokemon={onOpenPokemon}
             typeCatalog={typeCatalog}

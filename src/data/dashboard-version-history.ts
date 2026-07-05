@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.15.0",
+    date: "2026-07-05",
+    title: "Admin Pokemon assets et lisibilite",
+    changes: [
+      "Ajoute une section Backgrounds dans Admin Pokemon avec catchCards, fiches associees, liens manquants et compteurs.",
+      "Stabilise les cards Pokemon, enrichit l'onglet Attaques et detaille le catalogue Types avec relations defensives/offensives.",
+      "Rend les sections Raids, Oeufs et Max Battles pliables avec couleurs par tier et corrige l'icone de rarete des oeufs.",
+      "Compacte la veille sources, renforce les couleurs Research et rend les statuts du Dashboard Backlog plus lisibles.",
+    ],
+  },
+  {
     version: "V1.14.0",
     date: "2026-07-02",
     title: "Palettes et theme clair",

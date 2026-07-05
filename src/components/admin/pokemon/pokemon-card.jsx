@@ -91,7 +91,7 @@ export function PokemonCard({
 
   return (
     <article
-      className={`relative isolate min-h-0 overflow-hidden rounded-[1.65rem] border p-4 shadow-[0_18px_50px_rgba(0,0,0,0.24)] ${
+      className={`relative isolate flex h-full min-h-[430px] flex-col overflow-hidden rounded-[1.65rem] border p-4 shadow-[0_18px_50px_rgba(0,0,0,0.24)] ${
         entry.complete ? "border-emerald-300/25" : "border-amber-300/30"
       } ${assetChecked ? "ring-2 ring-emerald-300/50" : ""}`}
       style={{
@@ -138,7 +138,7 @@ export function PokemonCard({
         </div>
       </div>
 
-      <div className={`mt-4 grid gap-2 ${types.length > 1 ? "grid-cols-2" : ""}`}>
+      <div className={`mt-4 grid min-h-9 gap-2 ${types.length > 1 ? "grid-cols-2" : ""}`}>
         {types.map((type) => (
           <TypeBadge key={type} type={type} catalog={typeCatalog} />
         ))}
@@ -153,7 +153,7 @@ export function PokemonCard({
         </MiniInfo>
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-2 max-[520px]:hidden">
+      <div className="mt-3 grid min-h-[5.5rem] grid-cols-2 content-start gap-2 max-[520px]:hidden">
         {visibleWeather.map((weatherId) => (
           <WeatherBadge key={weatherId} weatherId={weatherId} catalog={weatherCatalog} />
         ))}
@@ -220,7 +220,7 @@ export function PokemonCard({
         </div>
       ) : null}
 
-      <div className="mt-4 grid gap-2">
+      <div className="mt-auto grid gap-2 pt-4">
         {admin ? (
           <label className="flex min-h-10 items-center gap-2 rounded-xl border border-white/10 bg-white/10 px-3 text-sm font-black text-white">
             <input

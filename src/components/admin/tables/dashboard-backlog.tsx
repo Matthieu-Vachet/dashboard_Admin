@@ -110,12 +110,21 @@ const typeClasses: Record<BacklogType, string> = {
 };
 
 const statusClasses: Record<BacklogStatus, string> = {
-  todo: "border-line bg-white/[0.06] text-muted",
-  in_progress: "border-brand-2/40 bg-brand-2/12 text-brand-2",
-  blocked: "border-danger/40 bg-danger/12 text-danger",
-  done: "border-brand-3/40 bg-brand-3/12 text-brand-3",
+  todo: "border-slate-400/35 bg-slate-400/10 text-slate-200",
+  in_progress: "border-brand-2/50 bg-brand-2/16 text-brand-2 shadow-[0_0_24px_rgba(34,211,238,.12)]",
+  blocked: "border-danger/55 bg-danger/16 text-danger shadow-[0_0_24px_rgba(248,113,113,.12)]",
+  done: "border-brand-3/60 bg-brand-3/18 text-brand-3 shadow-[0_0_28px_rgba(52,211,153,.14)]",
   archived: "border-slate-400/25 bg-slate-400/10 text-muted",
-  ignored: "border-warning/35 bg-warning/10 text-warning",
+  ignored: "border-warning/40 bg-warning/12 text-warning",
+};
+
+const statusCardClasses: Record<BacklogStatus, string> = {
+  todo: "border-line",
+  in_progress: "border-brand-2/35 bg-brand-2/[0.045]",
+  blocked: "border-danger/45 bg-danger/[0.055]",
+  done: "border-brand-3/45 bg-brand-3/[0.07]",
+  archived: "border-slate-500/25 opacity-70",
+  ignored: "border-warning/35 bg-warning/[0.045]",
 };
 
 const priorityClasses: Record<BacklogPriority, string> = {
@@ -664,7 +673,7 @@ function TicketCard({
   onMarkDone: () => void;
 }) {
   return (
-    <Card className="p-4 transition hover:border-brand-2/45">
+    <Card className={cn("p-4 transition hover:border-brand-2/45", statusCardClasses[ticket.status])}>
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <button type="button" className="min-w-0 text-left" onClick={onEdit}>
           <div className="flex flex-wrap items-center gap-2">
@@ -675,10 +684,13 @@ function TicketCard({
               {priorityLabel[ticket.priority]}
             </span>
             <span className={cn("rounded-full border px-2.5 py-1 text-xs font-black", statusClasses[ticket.status])}>
+              {ticket.status === "done" ? "✓ " : ""}
               {statusLabel[ticket.status]}
             </span>
           </div>
-          <h3 className="mt-3 text-xl font-black">{ticket.title || "Sans titre"}</h3>
+          <h3 className={cn("mt-3 text-xl font-black", ticket.status === "done" && "text-brand-3")}>
+            {ticket.title || "Sans titre"}
+          </h3>
           <p className="mt-2 line-clamp-2 text-sm font-semibold leading-6 text-muted">
             {ticket.description || ticket.expectedBehavior || "Aucune description."}
           </p>

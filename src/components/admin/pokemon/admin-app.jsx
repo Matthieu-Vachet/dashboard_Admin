@@ -18,6 +18,7 @@ import {
   FileDiff,
   FileJson,
   History,
+  Image as ImageIcon,
   LayoutDashboard,
   ListTodo,
   PenLine,
@@ -52,6 +53,7 @@ import {
   buttonClass,
 } from "./admin-ui";
 import { CandyPanel } from "./candy-panel";
+import { BackgroundPanel } from "./background-panel";
 import { CatalogPanel } from "./catalog-panel";
 import { CollectionsPanel } from "./collections-panel";
 import { EggsPanel } from "./eggs-panel";
@@ -89,6 +91,7 @@ const navItems = [
   ["overview", "Accueil", LayoutDashboard],
   ["pokedex", "Fiches", BookOpen],
   ["candies", "Candies", CircleDot],
+  ["backgrounds", "Background", ImageIcon],
   ["collections", "Collections", ClipboardCheck],
   ["raids", "Raids", Swords],
   ["eggs", "Œufs", Egg],
@@ -1918,7 +1921,7 @@ export function AdminApp() {
                     })}
                   </div>
                 </section>
-                <section className="mt-4 grid items-start gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                <section className="mt-4 grid items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                   {visibleFiches.map((entry) => (
                     <PokemonCard
                       admin
@@ -1945,6 +1948,10 @@ export function AdminApp() {
 
             {active === "candies" ? (
               <CandyPanel entries={entries} search={search} onOpen={openDetail} />
+            ) : null}
+
+            {active === "backgrounds" ? (
+              <BackgroundPanel entries={entries} search={search} onOpen={openDetail} typeCatalog={catalog?.types} />
             ) : null}
 
             {active === "collections" ? (

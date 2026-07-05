@@ -12,10 +12,17 @@ const sectionLabels = {
 };
 
 const sectionTones = {
-  fieldResearch: "border-cyan-200/18 bg-cyan-400/8",
-  eventResearch: "border-orange-200/20 bg-orange-400/9",
-  timedResearch: "border-emerald-200/18 bg-emerald-400/8",
-  specialResearch: "border-violet-200/18 bg-violet-400/8",
+  fieldResearch: "border-cyan-200/24 bg-cyan-400/[0.075] shadow-[inset_0_1px_0_rgba(103,232,249,.16)]",
+  eventResearch: "border-orange-200/28 bg-orange-400/[0.085] shadow-[inset_0_1px_0_rgba(253,186,116,.16)]",
+  timedResearch: "border-emerald-200/24 bg-emerald-400/[0.075] shadow-[inset_0_1px_0_rgba(110,231,183,.15)]",
+  specialResearch: "border-violet-200/26 bg-violet-400/[0.08] shadow-[inset_0_1px_0_rgba(196,181,253,.15)]",
+};
+
+const taskCategoryTones = {
+  fieldResearch: "border-cyan-200/30 bg-cyan-400/16 text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,.1)]",
+  eventResearch: "border-orange-200/32 bg-orange-400/18 text-orange-50 shadow-[0_0_22px_rgba(251,146,60,.1)]",
+  timedResearch: "border-emerald-200/30 bg-emerald-400/16 text-emerald-50 shadow-[0_0_22px_rgba(52,211,153,.1)]",
+  specialResearch: "border-violet-200/30 bg-violet-400/16 text-violet-50 shadow-[0_0_22px_rgba(167,139,250,.1)]",
 };
 
 const typeIconMap = {
@@ -195,7 +202,7 @@ function RewardCard({ entry, items }) {
   return <ItemReward reward={entry.reward || {}} items={items} />;
 }
 
-function ResearchTask({ task, items }) {
+function ResearchTask({ task, items, sectionId }) {
   const rewards = rewardsOf(task);
   const firstReward = rewards[0];
   const summaryReward =
@@ -204,11 +211,11 @@ function ResearchTask({ task, items }) {
       : findItemReference(firstReward?.reward, items)?.names?.French || firstReward?.reward?.name;
 
   return (
-    <details className="group overflow-hidden rounded-2xl border border-white/10 bg-slate-950/28 open:bg-slate-950/38">
+    <details className="group overflow-hidden rounded-2xl border border-white/10 bg-slate-950/36 open:border-cyan-200/18 open:bg-slate-950/48">
       <summary className="grid cursor-pointer list-none gap-3 p-4 marker:hidden sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
         <span className="min-w-0">
           <span className="mb-2 flex flex-wrap items-center gap-2">
-            <Badge>{task.categoryTitle || task.category || "Research"}</Badge>
+            <Badge tone={taskCategoryTones[sectionId] || undefined}>{task.categoryTitle || task.category || "Research"}</Badge>
             {task.event?.name ? <Badge tone="border-orange-200/25 bg-orange-400/14 text-orange-50">{task.event.name}</Badge> : null}
             {rewards.length > 1 ? <Badge tone="border-cyan-200/25 bg-cyan-400/14 text-cyan-50">{rewards.length} rewards</Badge> : null}
           </span>
@@ -220,7 +227,7 @@ function ResearchTask({ task, items }) {
           <ChevronDown className="transition group-open:rotate-180" size={18} />
         </span>
       </summary>
-      <div className="grid gap-3 border-t border-white/10 bg-black/14 p-3 md:grid-cols-2 2xl:grid-cols-3">
+      <div className="grid gap-3 border-t border-white/10 bg-black/18 p-3 md:grid-cols-2 2xl:grid-cols-3">
         {rewards.map((reward, index) => (
           <RewardCard key={`${task.task}-${reward.rewardType}-${index}`} entry={reward} items={items} />
         ))}
@@ -244,7 +251,7 @@ function ResearchSection({ id, title, tasks, items, defaultOpen }) {
       </summary>
       <div className="grid gap-3 border-t border-white/10 p-3 sm:p-4">
         {tasks.length ? (
-          tasks.map((task, index) => <ResearchTask key={`${id}-${task.task}-${index}`} task={task} items={items} />)
+          tasks.map((task, index) => <ResearchTask key={`${id}-${task.task}-${index}`} task={task} items={items} sectionId={id} />)
         ) : (
           <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
             Aucune quête dans cette section.

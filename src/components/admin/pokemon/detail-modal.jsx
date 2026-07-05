@@ -375,6 +375,32 @@ function isStab(moveType, pokemonTypes = []) {
   return Boolean(moveType && pokemonTypes.filter(Boolean).map(String).includes(String(moveType)));
 }
 
+const displayedMoveKeys = new Set([
+  "id",
+  "slug",
+  "names",
+  "type",
+  "power",
+  "energy",
+  "durationMs",
+  "combat",
+]);
+
+function formatMoveExtraValue(value) {
+  if (value === null || value === undefined || value === "") return null;
+  if (Array.isArray(value)) return value.length ? value.join(", ") : null;
+  if (typeof value === "object") return JSON.stringify(value);
+  return String(value);
+}
+
+function moveExtraRows(move) {
+  if (!move || typeof move !== "object") return [];
+  return Object.entries(move)
+    .filter(([key]) => !displayedMoveKeys.has(key))
+    .map(([key, value]) => [key, formatMoveExtraValue(value)])
+    .filter(([, value]) => value);
+}
+
 function formatBuffValue(value) {
   if (value === null || value === undefined) return "-";
   if (typeof value === "number" && value > 0) return `+${value}`;
@@ -511,6 +537,21 @@ function MoveList({ title, moves, typeCatalog = [], icon, pokemonTypes = [] }) {
                 ))}
               </div>
               <BuffGrid buffs={move.combat?.buffs} />
+              {moveExtraRows(move).length ? (
+                <div className="mt-3 rounded-2xl border border-white/10 bg-slate-950/35 p-3">
+                  <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+                    Données avancées JSON
+                  </span>
+                  <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    {moveExtraRows(move).map(([label, value]) => (
+                      <span className="min-w-0 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2" key={label}>
+                        <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">{label}</small>
+                        <strong className="mt-1 block break-words text-xs text-white">{value}</strong>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
           );})}
         </div>
