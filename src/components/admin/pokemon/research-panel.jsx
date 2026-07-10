@@ -279,6 +279,7 @@ export function ResearchPanel({
   const allRewards = allTasks.flatMap(rewardsOf);
   const pokemonRewards = allRewards.filter((reward) => reward.rewardType === "pokemon").length;
   const itemRewards = allRewards.filter((reward) => reward.rewardType === "item").length;
+  const source = research?.meta?.source === "mongo" ? "MongoDB" : "JSON déployé";
   const sections = Object.entries(currentResearchList).map(([id, tasks]) => [
     id,
     sectionLabels[id] || id.replace(/([A-Z])/g, " $1"),
@@ -299,7 +300,7 @@ export function ResearchPanel({
               <Download size={17} /> Télécharger JSON
             </button>
             <button className={buttonClass} type="button" onClick={onImportMongo} disabled={Boolean(busyAction)}>
-              <CloudUpload size={17} /> {busyAction === "import" ? "Envoi..." : "Envoyer MongoDB"}
+              <CloudUpload size={17} /> {busyAction === "import" ? "Synchronisation..." : "Synchroniser MongoDB"}
             </button>
             <button className={primaryButtonClass} type="button" onClick={onRegenerate} disabled={Boolean(busyAction)}>
               <RotateCcw size={17} /> {busyAction === "regenerate" ? "Régénération..." : "Régénérer Research"}
@@ -313,6 +314,9 @@ export function ResearchPanel({
           <AssetStatCard label="Rewards Pokémon" value={pokemonRewards} icon={uiAssets.icons.pokemon} tone="green" detail="Données Pokémon locales" />
           <AssetStatCard label="Rewards items" value={itemRewards} icon="/ui/Items/candy_rgb.png" tone="violet" detail="Match par nom/id" />
         </div>
+        <p className="mt-4 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-50/86">
+          Source active : {source}. Régénérer parse LeekDuck et met MongoDB à jour; télécharger et synchroniser utilisent le même JSON affiché.
+        </p>
       </Panel>
 
       {loading && !total ? (

@@ -21,7 +21,6 @@ import {
   Image as ImageIcon,
   LayoutDashboard,
   ListTodo,
-  PenLine,
   Radar,
   RefreshCcw,
   Search,
@@ -65,6 +64,7 @@ import { ResearchPanel } from "./research-panel";
 import { RocketPanel } from "./rocket-panel";
 import { DataDeployHistoryModal, SourceHistoryModal, SourceRows } from "./source-watch-panel";
 import { UpdateLogPanel } from "./update-log-panel";
+import { AdminTodoPanel } from "./admin-todo-panel";
 import {
   readDashboardStoreValue,
   readLocalJson,
@@ -82,8 +82,6 @@ import { persistSourceSignatures } from "@/utils/admin/source-watch";
 
 const legacyAssetChecksKey = "pokedex-v4-asset-checks";
 const assetChecksStoreKey = "matweb.pokemon.assetChecks";
-const todoKey = "pokedex-v4-admin-todos";
-const editorKey = "pokedex-v4-admin-editor";
 const sourceWatchSignatureKey = "pokedex-v4-source-watch-signatures";
 const collectionsKey = "pokedex-v4-admin-collections";
 
@@ -109,7 +107,6 @@ const navItems = [
   ["bulk", "Corrections", ClipboardCheck],
   ["export", "Export", FileJson],
   ["todo", "Todo-list", ListTodo],
-  ["editor", "Éditeur", PenLine],
 ];
 
 const defaultRuleForm = {
@@ -881,9 +878,6 @@ export function AdminApp() {
   const [search, setSearch] = useState("");
   const [assetChecks, setAssetChecks] = useState({});
   const [collections, setCollections] = useState([]);
-  const [todos, setTodos] = useState([]);
-  const [newTodo, setNewTodo] = useState("");
-  const [editorText, setEditorText] = useState("");
   const [compareA, setCompareA] = useState("");
   const [compareB, setCompareB] = useState("");
   const [bulkOnlyIssues, setBulkOnlyIssues] = useState(true);
@@ -901,8 +895,6 @@ export function AdminApp() {
   useEffect(() => {
     setAssetChecks(readLocalJson(legacyAssetChecksKey, {}));
     setCollections(readLocalJson(collectionsKey, []));
-    setTodos(readLocalJson(todoKey, []));
-    setEditorText(localStorage.getItem(editorKey) || "");
   }, []);
 
   useEffect(() => {
@@ -1725,15 +1717,6 @@ export function AdminApp() {
     await loadAdminData();
   }
 
-  function addTodo() {
-    if (!newTodo.trim()) return;
-    const next = [{ id: Date.now(), text: newTodo.trim(), done: false }, ...todos];
-    setTodos(next);
-    setNewTodo("");
-    localStorage.setItem(todoKey, JSON.stringify(next));
-    toast.success("Tâche ajoutée.");
-  }
-
   if (session.loading && !session.authenticated) {
     return (
       <main className="grid min-h-screen place-items-center bg-[radial-gradient(circle_at_20%_0%,rgba(14,165,233,.28),transparent_35%),#060914] p-4 text-white">
@@ -1951,7 +1934,13 @@ export function AdminApp() {
             ) : null}
 
             {active === "backgrounds" ? (
-              <BackgroundPanel entries={entries} search={search} onOpen={openDetail} typeCatalog={catalog?.types} />
+              <BackgroundPanel
+                entries={entries}
+                library={assetAudit?.locationCards || []}
+                loading={!assetAudit}
+                search={search}
+                onOpen={openDetail}
+              />
             ) : null}
 
             {active === "collections" ? (
@@ -2272,45 +2261,7 @@ export function AdminApp() {
               </Panel>
             ) : null}
 
-            {active === "todo" ? (
-              <Panel title="Todo-list">
-                <div className="mb-4 grid gap-3 sm:grid-cols-[1fr_auto]">
-                  <input className={fieldClass} value={newTodo} placeholder="Ajouter une tâche" onChange={(event) => setNewTodo(event.target.value)} />
-                  <button className={primaryButtonClass} type="button" onClick={addTodo}>Ajouter</button>
-                </div>
-                <div className="grid gap-3">
-                  {todos.map((todo) => (
-                    <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/35 p-4" key={todo.id}>
-                      <input
-                        className="h-6 w-6 accent-cyan-400"
-                        type="checkbox"
-                        checked={todo.done}
-                        onChange={(event) => {
-                          const next = todos.map((item) => (item.id === todo.id ? { ...item, done: event.target.checked } : item));
-                          setTodos(next);
-                          localStorage.setItem(todoKey, JSON.stringify(next));
-                        }}
-                      />
-                      <span className={`font-bold ${todo.done ? "text-slate-500 line-through" : "text-white"}`}>{todo.text}</span>
-                    </label>
-                  ))}
-                </div>
-              </Panel>
-            ) : null}
-
-            {active === "editor" ? (
-              <Panel title="Éditeur de texte" eyebrow="notes privées">
-                <textarea
-                  className={`${fieldClass} min-h-[620px] resize-y font-mono text-sm leading-7`}
-                  value={editorText}
-                  onChange={(event) => {
-                    setEditorText(event.target.value);
-                    localStorage.setItem(editorKey, event.target.value);
-                  }}
-                  placeholder="Notes, brouillons JSON, idées de corrections..."
-                />
-              </Panel>
-            ) : null}
+            {active === "todo" ? <AdminTodoPanel /> : null}
 
           </div>
         </section>

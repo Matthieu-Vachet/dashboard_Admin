@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.16.0",
+    date: "2026-07-10",
+    title: "Resolution du backlog Admin Pokemon",
+    changes: [
+      "Remplace les catchCards de la section Background par la bibliotheque LocationCards de PokemonGo-Assets-API et les fiches qui les referencent.",
+      "Migre la Todo Admin Pokemon vers MongoDB, avec migration locale, edition et suppression des taches; retire l'editeur local inutilise.",
+      "Clarifie le cycle JSON/Mongo des wrappers et affiche la source active pour Raids, Oeufs, Max Battles, Rocket et Research.",
+      "Accentue la lecture des statuts Todo, en cours, bloque et termine dans le Dashboard Backlog.",
+    ],
+  },
+  {
     version: "V1.15.0",
     date: "2026-07-05",
     title: "Admin Pokemon assets et lisibilite",

@@ -119,12 +119,12 @@ const statusClasses: Record<BacklogStatus, string> = {
 };
 
 const statusCardClasses: Record<BacklogStatus, string> = {
-  todo: "border-line",
-  in_progress: "border-brand-2/35 bg-brand-2/[0.045]",
-  blocked: "border-danger/45 bg-danger/[0.055]",
-  done: "border-brand-3/45 bg-brand-3/[0.07]",
-  archived: "border-slate-500/25 opacity-70",
-  ignored: "border-warning/35 bg-warning/[0.045]",
+  todo: "border-l-4 border-l-slate-400/80 bg-slate-400/[0.035]",
+  in_progress: "border-l-4 border-l-brand-2 bg-brand-2/[0.07] shadow-[inset_0_0_28px_rgba(34,211,238,.07)]",
+  blocked: "border-l-4 border-l-danger bg-danger/[0.08] shadow-[inset_0_0_28px_rgba(248,113,113,.08)]",
+  done: "border-l-4 border-l-brand-3 bg-brand-3/[0.09] shadow-[inset_0_0_28px_rgba(52,211,153,.08)]",
+  archived: "border-l-4 border-l-slate-500/50 bg-slate-500/[0.035] opacity-70",
+  ignored: "border-l-4 border-l-warning bg-warning/[0.065]",
 };
 
 const priorityClasses: Record<BacklogPriority, string> = {

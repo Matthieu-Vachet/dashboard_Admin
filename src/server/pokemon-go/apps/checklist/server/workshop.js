@@ -32,10 +32,13 @@ const remoteHd =
   "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/PokemonHd";
 const remoteShuffle =
   "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/pokemonShuffle";
+const remoteLocationCards =
+  "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/LocationCards";
 const filenamePattern =
   /^poke_capture_(\d{4})_(\d{3})_([^_]+)_([^_]+)_(\d{8})_([^_]+)_([nr])\.png$/;
 let remoteHdCache = null;
 let remoteShuffleCache = null;
+let remoteLocationCardsCache = null;
 
 function readJson(file, fallback = null) {
   try {
@@ -244,8 +247,41 @@ async function allShuffleAssets() {
     );
 }
 
+function locationCardLabel(filename) {
+  return path
+    .basename(filename, path.extname(filename))
+    .replace(/^(lc|sb)_/i, "")
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+async function allLocationCardAssets() {
+  if (remoteLocationCardsCache) return remoteLocationCardsCache;
+
+  const response = await fetch(
+    "https://api.github.com/repos/Matthieu-Vachet/PokemonGo-Assets-API/git/trees/main?recursive=1",
+    { headers: { "user-agent": "PokemonGo-API-checklist" } },
+  );
+  if (!response.ok) throw new Error(`GitHub assets: HTTP ${response.status}`);
+
+  const tree = await response.json();
+  remoteLocationCardsCache = (tree.tree || [])
+    .filter((item) => item.type === "blob" && item.path.startsWith("LocationCards/"))
+    .map((item) => {
+      const filename = path.basename(item.path);
+      return {
+        filename,
+        label: locationCardLabel(filename),
+        url: `${remoteLocationCards}/${encodeURIComponent(filename)}`,
+      };
+    })
+    .sort((left, right) => left.label.localeCompare(right.label, "fr"));
+
+  return remoteLocationCardsCache;
+}
+
 async function assetAudit(dexId = "") {
-  const assets = await allHdAssets();
+  const [assets, locationCards] = await Promise.all([allHdAssets(), allLocationCardAssets()]);
   const goAssets = allGoAssets();
   const shuffleAssets = await allShuffleAssets();
   const used = usedAssetUrls();
@@ -266,6 +302,7 @@ async function assetAudit(dexId = "") {
       homeFiles: countLinkedType("home"),
       portraitFiles: countLinkedType("portrait"),
       backgroundFiles: countLinkedType("background"),
+      locationCardLibraryFiles: locationCards.length,
       candyFiles: countLinkedType("candy"),
       linkedShuffleFiles: countLinkedType("shuffle"),
       shuffleFiles: shuffleAssets.length,
@@ -279,6 +316,7 @@ async function assetAudit(dexId = "") {
           left.filename.localeCompare(right.filename),
       ),
     goAssets: goAssets.filter((asset) => !dexId || asset.dexId === filterDex),
+    locationCards,
     shuffleAssets: shuffleAssets.filter(
       (asset) => !dexId || asset.dexId === filterDex,
     ),

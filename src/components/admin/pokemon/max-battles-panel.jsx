@@ -135,6 +135,7 @@ export function MaxBattlesPanel({
   );
   const total = totalBattles(currentMaxBattle);
   const tierEntries = sortedTierEntries(currentMaxBattle);
+  const source = maxBattles?.meta?.source === "mongo" ? "MongoDB" : "JSON déployé";
 
   return (
     <div className="space-y-5">
@@ -150,7 +151,7 @@ export function MaxBattlesPanel({
               <Download size={17} /> Télécharger JSON
             </button>
             <button className={buttonClass} type="button" onClick={onImportMongo} disabled={Boolean(busyAction)}>
-              <CloudUpload size={17} /> {busyAction === "import" ? "Envoi..." : "Envoyer MongoDB"}
+              <CloudUpload size={17} /> {busyAction === "import" ? "Synchronisation..." : "Synchroniser MongoDB"}
             </button>
             <button className={primaryButtonClass} type="button" onClick={onRegenerate} disabled={Boolean(busyAction)}>
               <RotateCcw size={17} /> {busyAction === "regenerate" ? "Régénération..." : "Régénérer Max"}
@@ -165,7 +166,7 @@ export function MaxBattlesPanel({
           <AssetStatCard label="Tier 3+" value={Object.entries(buckets).reduce((sum, [key, value]) => sum + (Number(key.match(/\d+/)?.[0] || 0) >= 3 ? value : 0), 0)} icon="/ui/max_battles/ic_shiny.png" tone="amber" detail="Tiers élevés" />
         </div>
         <p className="mt-4 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-50/86">
-          Données lues depuis `max-battles/currentsMaxBattle.json`, générées depuis Snacknap puis enrichies par les formes Dynamax/Gigantamax locales.
+          Source active : {source}. Régénérer parse Snacknap et met MongoDB à jour; télécharger et synchroniser utilisent le même JSON affiché.
         </p>
       </Panel>
 

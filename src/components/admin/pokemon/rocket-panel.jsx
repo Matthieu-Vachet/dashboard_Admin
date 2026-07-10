@@ -339,6 +339,7 @@ export function RocketPanel({
   const totalTrainers = profiles.length;
   const totalEntries = totalPokemon(profiles);
   const translatedProfiles = profiles.filter((profile) => findRocketText(profile, texts)).length;
+  const source = rocket?.meta?.source === "mongo" ? "MongoDB" : "JSON déployé";
 
   return (
     <div className="space-y-5">
@@ -354,7 +355,7 @@ export function RocketPanel({
               <Download size={17} /> Télécharger JSON
             </button>
             <button className={buttonClass} type="button" onClick={onImportMongo} disabled={Boolean(busyAction)}>
-              <CloudUpload size={17} /> {busyAction === "import" ? "Envoi..." : "Envoyer MongoDB"}
+              <CloudUpload size={17} /> {busyAction === "import" ? "Synchronisation..." : "Synchroniser MongoDB"}
             </button>
             <button className={primaryButtonClass} type="button" onClick={onRegenerate} disabled={Boolean(busyAction)}>
               <RotateCcw size={17} /> {busyAction === "regenerate" ? "Régénération..." : "Régénérer Rocket"}
@@ -368,6 +369,9 @@ export function RocketPanel({
           <AssetStatCard label="Leaders" value={groups.find(([title]) => title === "Leaders")?.[1]?.length || 0} icon={rocketTrainerAssets.sierra} tone="amber" detail="Arlo, Cliff, Sierra" />
           <AssetStatCard label="Pokémon slots" value={totalEntries} icon="/ui/icons/shadow.png" tone="green" detail="Entrées Rocket" />
         </div>
+        <p className="mt-4 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-50/86">
+          Source active : {source}. Régénérer parse LeekDuck et met MongoDB à jour; télécharger et synchroniser utilisent le même JSON affiché.
+        </p>
       </Panel>
 
       {loading && !totalTrainers ? (

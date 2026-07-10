@@ -264,7 +264,7 @@ async function readCurrentResearch() {
       data: payload.data,
       meta: {
         ...(payload.meta || {}),
-        source: "pokemon-api-mongo",
+        source: sourceLabel(payload.meta || {}, "data/research/currentResearch.json"),
         buckets: summary.buckets,
         summary,
       },

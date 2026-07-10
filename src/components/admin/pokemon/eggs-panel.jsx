@@ -141,6 +141,7 @@ export function EggsPanel({
   );
   const total = totalEggs(currentEggsList);
   const adventureTotal = (buckets["5km_adventure_sync"] || 0) + (buckets["10km_adventure_sync"] || 0);
+  const source = eggs?.meta?.source === "mongo" ? "MongoDB" : "JSON déployé";
 
   return (
     <div className="space-y-5">
@@ -156,7 +157,7 @@ export function EggsPanel({
               <Download size={17} /> Télécharger JSON
             </button>
             <button className={buttonClass} type="button" onClick={onImportMongo} disabled={Boolean(busyAction)}>
-              <CloudUpload size={17} /> {busyAction === "import" ? "Envoi..." : "Envoyer MongoDB"}
+              <CloudUpload size={17} /> {busyAction === "import" ? "Synchronisation..." : "Synchroniser MongoDB"}
             </button>
             <button className={primaryButtonClass} type="button" onClick={onRegenerate} disabled={Boolean(busyAction)}>
               <RotateCcw size={17} /> {busyAction === "regenerate" ? "Régénération..." : "Régénérer oeufs"}
@@ -171,7 +172,7 @@ export function EggsPanel({
           <AssetStatCard label="12 km" value={buckets["12km"] || 0} icon="/ui/eggs/12_km.png" tone="amber" detail="Oeufs Rocket" />
         </div>
         <p className="mt-4 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-50/86">
-          Données lues depuis `eggs/currentEggs.json`, générées depuis LeekDuck puis enrichies par les fiches Pokémon locales.
+          Source active : {source}. Régénérer parse LeekDuck et met MongoDB à jour; télécharger et synchroniser utilisent le même JSON affiché.
         </p>
       </Panel>
 

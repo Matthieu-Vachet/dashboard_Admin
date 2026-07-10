@@ -151,6 +151,7 @@ export function RaidsPanel({
   );
   const total = totalRaids(currentList);
   const openBugs = values(currentList.shadow_lvl5).length + values(currentList.shadow_lvl3).length + values(currentList.shadow_lvl1).length;
+  const source = raids?.meta?.source === "mongo" ? "MongoDB" : "JSON déployé";
 
   return (
     <div className="space-y-5">
@@ -166,7 +167,7 @@ export function RaidsPanel({
               <Download size={17} /> Télécharger JSON
             </button>
             <button className={buttonClass} type="button" onClick={onImportMongo} disabled={Boolean(busyAction)}>
-              <CloudUpload size={17} /> {busyAction === "import" ? "Envoi..." : "Envoyer MongoDB"}
+              <CloudUpload size={17} /> {busyAction === "import" ? "Synchronisation..." : "Synchroniser MongoDB"}
             </button>
             <button className={primaryButtonClass} type="button" onClick={onRegenerate} disabled={Boolean(busyAction)}>
               <RotateCcw size={17} /> {busyAction === "regenerate" ? "Régénération..." : "Régénérer raids"}
@@ -181,7 +182,7 @@ export function RaidsPanel({
           <AssetStatCard label="Ultra Beast" value={buckets.ultra_beast || 0} icon="/ui/raids/ultra_breche_raids.png" tone="green" detail="Ultra-brèches" />
         </div>
         <p className="mt-4 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-50/86">
-          Données lues depuis `raids/currentRaids.json`, générées à partir de LeekDuck puis enrichies par les fiches Pokémon locales.
+          Source active : {source}. Régénérer parse LeekDuck et met MongoDB à jour; télécharger et synchroniser utilisent le même JSON affiché.
         </p>
       </Panel>
 
