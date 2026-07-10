@@ -1,0 +1,34 @@
+{
+  "id": "javascript",
+  "title": "Fondamentaux JavaScript",
+  "category": "Fondamentaux",
+  "difficulty": "Facile",
+  "status": "in_progress",
+  "description": "Construire une base solide pour lire, écrire et raisonner avec du JavaScript moderne.",
+  "book": { "chapter": "1-2", "pages": "12-48" },
+  "resources": {
+    "mdn": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Guide",
+    "roadmap": "https://roadmap.sh/javascript"
+  },
+  "prerequisites": [],
+  "theory": { "status": "completed", "xp": 10 },
+  "exercises": [
+    { "id": "javascript-001", "title": "Variables et types", "description": "Déclarer des valeurs et identifier leur type.", "difficulty": "Facile", "status": "completed", "xp": 20 },
+    { "id": "javascript-002", "title": "Conditions de validation", "description": "Retourner un message selon une valeur et ses limites.", "difficulty": "Facile", "status": "completed", "xp": 20 },
+    { "id": "javascript-003", "title": "Boucle de lecture", "description": "Parcourir une liste et calculer un résultat.", "difficulty": "Facile", "status": "in_progress", "xp": 20 }
+  ],
+  "pseudocode": [
+    { "id": "javascript-pseudo-001", "title": "Décrire un algorithme de moyenne", "difficulty": "Facile", "status": "completed", "xp": 15 },
+    { "id": "javascript-pseudo-002", "title": "Décrire un validateur", "difficulty": "Facile", "status": "in_progress", "xp": 15 }
+  ],
+  "challenges": [
+    { "id": "javascript-challenge-001", "title": "Calculateur de notes", "difficulty": "Moyen", "status": "in_progress", "xp": 50 }
+  ],
+  "projects": [
+    { "id": "javascript-project-001", "title": "Mini tableau de bord", "description": "Assembler variables, conditions et boucles dans une interface de suivi.", "difficulty": "Moyen", "status": "not_started", "xp": 200 }
+  ],
+  "achievements": [
+    { "id": "first-javascript-exercise", "title": "Premier pas", "description": "Terminer un premier exercice JavaScript.", "metric": "completedExercises", "target": 1 },
+    { "id": "javascript-basics", "title": "Base solide", "description": "Terminer la théorie des fondamentaux.", "metric": "completedTheory", "target": 1 }
+  ]
+}

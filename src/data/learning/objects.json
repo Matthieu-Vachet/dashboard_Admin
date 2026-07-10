@@ -1,0 +1,31 @@
+{
+  "id": "objects",
+  "title": "Objets",
+  "category": "Données",
+  "difficulty": "Moyen",
+  "status": "in_progress",
+  "description": "Modéliser des données métier et les transformer sans perdre en lisibilité.",
+  "book": { "chapter": "4.5", "pages": "104-128" },
+  "resources": {
+    "mdn": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Guide/Working_with_objects",
+    "roadmap": "https://roadmap.sh/javascript"
+  },
+  "prerequisites": ["javascript", "functions"],
+  "theory": { "status": "in_progress", "xp": 10 },
+  "exercises": [
+    { "id": "objects-001", "title": "Créer une fiche profil", "description": "Décrire un utilisateur avec un objet et une fonction.", "difficulty": "Facile", "status": "completed", "xp": 20 },
+    { "id": "objects-002", "title": "Déstructurer une carte", "description": "Extraire les propriétés utiles d’une fiche Pokémon.", "difficulty": "Moyen", "status": "not_started", "xp": 20 }
+  ],
+  "pseudocode": [
+    { "id": "objects-pseudo-001", "title": "Décrire une fiche métier", "difficulty": "Facile", "status": "completed", "xp": 15 }
+  ],
+  "challenges": [
+    { "id": "objects-challenge-001", "title": "Normaliser des fiches", "description": "Construire un objet de sortie stable depuis plusieurs formats.", "difficulty": "Difficile", "status": "not_started", "xp": 50 }
+  ],
+  "projects": [
+    { "id": "objects-catalog", "title": "Catalogue de fiches", "description": "Afficher et rechercher des objets métier dans une interface.", "difficulty": "Moyen", "status": "not_started", "xp": 200 }
+  ],
+  "achievements": [
+    { "id": "object-modeler", "title": "Modéliste", "description": "Terminer un challenge de modélisation d’objets.", "metric": "completedChallenges", "target": 2 }
+  ]
+}

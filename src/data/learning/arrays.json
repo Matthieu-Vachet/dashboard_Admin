@@ -1,0 +1,33 @@
+{
+  "id": "arrays",
+  "title": "Tableaux",
+  "category": "Données",
+  "difficulty": "Moyen",
+  "status": "in_progress",
+  "description": "Manipuler des collections avec map, filter, reduce, find et les méthodes modernes.",
+  "book": { "chapter": "4.2", "pages": "74-102" },
+  "resources": {
+    "mdn": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Global_Objects/Array",
+    "roadmap": "https://roadmap.sh/javascript"
+  },
+  "prerequisites": ["javascript", "functions"],
+  "theory": { "status": "in_progress", "xp": 10 },
+  "exercises": [
+    { "id": "arrays-001", "title": "Additionner un tableau", "description": "Calculer une somme avec une boucle puis avec reduce.", "difficulty": "Facile", "status": "completed", "xp": 20 },
+    { "id": "arrays-002", "title": "Filtrer les notes réussies", "description": "Retourner uniquement les valeurs supérieures ou égales à 10.", "difficulty": "Moyen", "status": "completed", "xp": 20 },
+    { "id": "arrays-003", "title": "Trouver un Pokémon", "description": "Retrouver une fiche dans une collection avec find.", "difficulty": "Moyen", "status": "not_started", "xp": 20 }
+  ],
+  "pseudocode": [
+    { "id": "arrays-pseudo-001", "title": "Décrire un filtre", "difficulty": "Facile", "status": "completed", "xp": 15 },
+    { "id": "arrays-pseudo-002", "title": "Décrire un regroupement", "difficulty": "Moyen", "status": "not_started", "xp": 15 }
+  ],
+  "challenges": [
+    { "id": "arrays-challenge-001", "title": "Statistiques d’une collection", "description": "Combiner filter, map et reduce pour produire des indicateurs.", "difficulty": "Difficile", "status": "in_progress", "xp": 50 }
+  ],
+  "projects": [
+    { "id": "array-explorer", "title": "Explorateur de collection", "description": "Rechercher, filtrer et trier une liste de données.", "difficulty": "Moyen", "status": "in_progress", "xp": 200 }
+  ],
+  "achievements": [
+    { "id": "array-master", "title": "Maître des tableaux", "description": "Terminer trois exercices de tableaux.", "metric": "completedExercises", "target": 5 }
+  ]
+}

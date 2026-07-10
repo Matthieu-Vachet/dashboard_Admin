@@ -1,0 +1,32 @@
+{
+  "id": "async",
+  "title": "Asynchrone et Fetch",
+  "category": "APIs",
+  "difficulty": "Difficile",
+  "status": "not_started",
+  "description": "Comprendre les Promises, async/await et les erreurs quand une application parle à une API.",
+  "book": { "chapter": "7.3", "pages": "204-248" },
+  "resources": {
+    "mdn": "https://developer.mozilla.org/fr/docs/Learn/JavaScript/Asynchronous",
+    "roadmap": "https://roadmap.sh/javascript"
+  },
+  "prerequisites": ["functions", "arrays", "dom"],
+  "theory": { "status": "not_started", "xp": 10 },
+  "exercises": [
+    { "id": "async-001", "title": "Créer une Promise", "description": "Retourner une Promise qui se résout après un délai.", "difficulty": "Difficile", "status": "not_started", "xp": 20 },
+    { "id": "async-002", "title": "Récupérer un Pokémon", "description": "Utiliser fetch, response.ok et response.json.", "difficulty": "Difficile", "status": "not_started", "xp": 20 }
+  ],
+  "pseudocode": [
+    { "id": "async-pseudo-001", "title": "Décrire un appel API", "difficulty": "Moyen", "status": "not_started", "xp": 15 }
+  ],
+  "challenges": [
+    { "id": "async-challenge-001", "title": "Fetch robuste", "description": "Gérer loading, succès, timeout et erreur réseau.", "difficulty": "Difficile", "status": "not_started", "xp": 50 }
+  ],
+  "projects": [
+    { "id": "async-pokedex", "title": "Mini Pokédex API", "description": "Chercher un Pokémon et afficher ses données depuis une API.", "difficulty": "Difficile", "status": "not_started", "xp": 200 }
+  ],
+  "achievements": [
+    { "id": "first-fetch", "title": "Premier Fetch API", "description": "Terminer le premier exercice asynchrone.", "metric": "completedExercises", "target": 11 },
+    { "id": "async-project", "title": "Client API", "description": "Terminer un projet qui consomme une API.", "metric": "completedProjects", "target": 1 }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "id": "functions",
+  "title": "Fonctions",
+  "category": "Fondamentaux",
+  "difficulty": "Facile",
+  "status": "in_progress",
+  "description": "Créer des fonctions lisibles, réutilisables et capables de recevoir des paramètres.",
+  "book": { "chapter": "3.7", "pages": "52-68" },
+  "resources": {
+    "mdn": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Guide/Functions",
+    "roadmap": "https://roadmap.sh/javascript"
+  },
+  "prerequisites": ["javascript"],
+  "theory": { "status": "completed", "xp": 10 },
+  "exercises": [
+    { "id": "functions-001", "title": "Créer une fonction simple", "description": "Retourner une valeur depuis une fonction nommée.", "difficulty": "Facile", "status": "completed", "xp": 20 },
+    { "id": "functions-002", "title": "Paramètres et valeur par défaut", "description": "Gérer un paramètre absent sans dupliquer le code.", "difficulty": "Facile", "status": "in_progress", "xp": 20 }
+  ],
+  "pseudocode": [
+    { "id": "functions-pseudo-001", "title": "Décrire une fonction en pseudo-code", "difficulty": "Facile", "status": "completed", "xp": 15 },
+    { "id": "functions-pseudo-002", "title": "Décrire une fonction de moyenne", "difficulty": "Moyen", "status": "in_progress", "xp": 15 }
+  ],
+  "challenges": [
+    { "id": "functions-challenge-001", "title": "Créer une fonction de moyenne", "description": "Calculer une moyenne avec une fonction réutilisable.", "difficulty": "Moyen", "status": "in_progress", "xp": 50 },
+    { "id": "functions-challenge-002", "title": "Composer des fonctions", "description": "Enchaîner deux fonctions sans rendre le code opaque.", "difficulty": "Difficile", "status": "not_started", "xp": 75 }
+  ],
+  "projects": [
+    { "id": "grade-dashboard", "title": "Dashboard de Notes", "description": "Afficher des notes, une moyenne et un statut de réussite.", "difficulty": "Moyen", "status": "not_started", "xp": 200 }
+  ],
+  "achievements": [
+    { "id": "first-function", "title": "Première fonction", "description": "Terminer son premier exercice sur les fonctions.", "metric": "completedExercises", "target": 2 },
+    { "id": "function-challenger", "title": "Fonctionnaire", "description": "Terminer un challenge de fonctions.", "metric": "completedChallenges", "target": 1 }
+  ]
+}

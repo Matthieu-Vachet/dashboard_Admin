@@ -1,0 +1,33 @@
+{
+  "id": "dom",
+  "title": "DOM",
+  "category": "Navigateur",
+  "difficulty": "Moyen",
+  "status": "in_progress",
+  "description": "Sélectionner, créer et mettre à jour des éléments dans une page interactive.",
+  "book": { "chapter": "6.1", "pages": "148-190" },
+  "resources": {
+    "mdn": "https://developer.mozilla.org/fr/docs/Web/API/Document_Object_Model",
+    "roadmap": "https://roadmap.sh/javascript"
+  },
+  "prerequisites": ["javascript", "arrays"],
+  "theory": { "status": "in_progress", "xp": 10 },
+  "exercises": [
+    { "id": "dom-001", "title": "Ajouter un élément", "description": "Créer un li et l’ajouter à une liste.", "difficulty": "Facile", "status": "completed", "xp": 20 },
+    { "id": "dom-002", "title": "Écouter un clic", "description": "Brancher un event listener et modifier une classe.", "difficulty": "Moyen", "status": "not_started", "xp": 20 },
+    { "id": "dom-003", "title": "Valider un formulaire", "description": "Empêcher un envoi invalide avec un retour lisible.", "difficulty": "Moyen", "status": "not_started", "xp": 20 }
+  ],
+  "pseudocode": [
+    { "id": "dom-pseudo-001", "title": "Décrire un rendu de liste", "difficulty": "Facile", "status": "in_progress", "xp": 15 },
+    { "id": "dom-pseudo-002", "title": "Décrire une modale accessible", "difficulty": "Moyen", "status": "not_started", "xp": 15 }
+  ],
+  "challenges": [
+    { "id": "dom-challenge-001", "title": "Recherche instantanée", "description": "Filtrer les cards dès que l’utilisateur saisit du texte.", "difficulty": "Difficile", "status": "not_started", "xp": 50 }
+  ],
+  "projects": [
+    { "id": "dom-kanban", "title": "Mini Kanban DOM", "description": "Créer des colonnes et déplacer des cartes dans le navigateur.", "difficulty": "Difficile", "status": "not_started", "xp": 200 }
+  ],
+  "achievements": [
+    { "id": "dom-builder", "title": "Constructeur DOM", "description": "Terminer deux exercices DOM.", "metric": "completedExercises", "target": 8 }
+  ]
+}

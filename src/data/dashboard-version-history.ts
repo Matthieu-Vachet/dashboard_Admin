@@ -7,6 +7,19 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.17.0",
+    date: "2026-07-10",
+    title: "JS Progress dynamique",
+    changes: [
+      "Remplace la roadmap JS statique par six fichiers JSON de notions, exercices, pseudo-codes, challenges, projets et achievements.",
+      "Calcule automatiquement progression, compteurs, XP, niveau et achievements depuis les statuts des données.",
+      "Ajoute les cartes de notions, le détail avec ressources MDN/roadmap.sh et les actions Commencer/Terminer persistantes.",
+      "Supprime définitivement les traces du dossier design-lab inutilisé.",
+      "Corrige les actions du backlog sur mobile et ajoute le preview plein écran des LocationCards avec leurs liaisons Pokémon réelles.",
+      "Utilise la source JSON courante pour les imports wrappers afin d’éviter de réimporter des données Mongo obsolètes.",
+    ],
+  },
+  {
     version: "V1.16.0",
     date: "2026-07-10",
     title: "Resolution du backlog Admin Pokemon",

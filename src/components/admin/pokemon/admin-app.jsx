@@ -1937,6 +1937,7 @@ export function AdminApp() {
               <BackgroundPanel
                 entries={entries}
                 library={assetAudit?.locationCards || []}
+                linkedAssets={(assetAudit?.goAssets || []).filter((item) => item.assetType === "background")}
                 loading={!assetAudit}
                 search={search}
                 onOpen={openDetail}

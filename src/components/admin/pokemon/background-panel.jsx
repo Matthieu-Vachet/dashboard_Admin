@@ -1,7 +1,9 @@
 "use client";
 
 import { AlertTriangle, CheckCircle2, Image as ImageIcon, Link2 } from "lucide-react";
+import { useState } from "react";
 import { preferredPokemonImage } from "@/components/site/pokemon-style";
+import { Modal } from "@/components/ui/modal";
 import { AssetStatCard, Panel } from "./admin-ui";
 
 function assetKey(value) {
@@ -23,6 +25,12 @@ function locationCardsForEntry(entry) {
     .filter((asset) => asset.image);
 }
 
+function hasLocationCardReference(entry) {
+  const locationCards = entry?.assets?.locationCards;
+  if (Array.isArray(locationCards)) return locationCards.length > 0;
+  return Number(locationCards || 0) > 0;
+}
+
 function libraryCard(asset) {
   return {
     image: asset.url,
@@ -32,13 +40,16 @@ function libraryCard(asset) {
   };
 }
 
-function BackgroundPreview({ background, onOpen }) {
+function BackgroundPreview({ background, onOpen, onPreview }) {
   const linked = background.entries || [];
   return (
     <article className="relative overflow-hidden rounded-3xl border border-white/10 bg-slate-950/42 shadow-[0_18px_70px_rgba(0,0,0,.2)]">
-      <div
+      <button
+        aria-label={`Agrandir ${background.label}`}
         className="relative min-h-[180px] overflow-hidden bg-cover bg-center p-4"
+        type="button"
         style={{ backgroundImage: `linear-gradient(135deg, rgba(2,6,23,.26), rgba(2,6,23,.72)), url("${background.image}")` }}
+        onClick={() => onPreview?.(background)}
       >
         <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.14)_1px,transparent_1px)] [background-size:24px_24px]" />
         <div className="relative flex min-h-[148px] flex-col justify-between">
@@ -56,7 +67,7 @@ function BackgroundPreview({ background, onOpen }) {
             </span>
           </div>
         </div>
-      </div>
+      </button>
 
       <div className="border-t border-white/10 p-4">
         {linked.length ? (
@@ -88,7 +99,9 @@ function BackgroundPreview({ background, onOpen }) {
   );
 }
 
-export function BackgroundPanel({ entries = [], library = [], loading = false, search = "", onOpen }) {
+export function BackgroundPanel({ entries = [], library = [], linkedAssets = [], loading = false, search = "", onOpen }) {
+  const [preview, setPreview] = useState(null);
+
   if (loading) {
     return (
       <Panel title="Backgrounds Pokémon" eyebrow="LocationCards + liens fiches">
@@ -105,11 +118,27 @@ export function BackgroundPanel({ entries = [], library = [], loading = false, s
       return [assetKey(card.filename || card.image), card];
     }),
   );
+  for (const asset of linkedAssets) {
+    const key = assetKey(asset.filename || asset.url);
+    if (!key) continue;
+    const group = groups.get(key) || {
+      image: asset.url,
+      filename: key,
+      label: asset.details || key.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " "),
+      entries: [],
+    };
+    group.entries.push({
+      ...asset,
+      key: `pokemon:${asset.file || asset.filename || key}`,
+      image: asset.url,
+    });
+    groups.set(key, group);
+  }
   const withoutBackground = [];
 
   for (const entry of entries) {
     const cards = locationCardsForEntry(entry);
-    if (!cards.length) {
+    if (!cards.length && !hasLocationCardReference(entry)) {
       withoutBackground.push(entry);
       continue;
     }
@@ -133,7 +162,6 @@ export function BackgroundPanel({ entries = [], library = [], loading = false, s
     .sort((left, right) => right.entries.length - left.entries.length || left.label.localeCompare(right.label, "fr"));
   const linkedEntries = backgrounds.reduce((total, background) => total + background.entries.length, 0);
   const emptyCount = backgrounds.filter((background) => !background.entries.length).length;
-
   return (
     <div className="space-y-5">
       <Panel title="Backgrounds Pokémon" eyebrow="LocationCards + liens fiches">
@@ -161,8 +189,22 @@ export function BackgroundPanel({ entries = [], library = [], loading = false, s
       ) : null}
 
       <section className="grid items-stretch gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-        {backgrounds.map((background) => <BackgroundPreview key={background.filename || background.image} background={background} onOpen={onOpen} />)}
+        {backgrounds.map((background) => <BackgroundPreview key={background.filename || background.image} background={background} onOpen={onOpen} onPreview={setPreview} />)}
       </section>
+
+      <Modal
+        open={Boolean(preview)}
+        title={preview?.label || "Location card"}
+        description={preview ? `${preview.entries.length} Pokémon associé(s)` : undefined}
+        className="max-w-6xl"
+        onClose={() => setPreview(null)}
+      >
+        {preview ? (
+          <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/40 p-2">
+            <img className="mx-auto max-h-[72dvh] w-full object-contain" src={preview.image} alt={preview.label || "Location card"} />
+          </div>
+        ) : null}
+      </Modal>
     </div>
   );
 }

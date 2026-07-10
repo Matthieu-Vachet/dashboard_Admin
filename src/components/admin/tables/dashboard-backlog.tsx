@@ -517,7 +517,7 @@ export function DashboardBacklog() {
       </Card>
 
       <section className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="grid gap-3">
+        <div className="grid min-w-0 gap-3">
           {filteredTickets.map((ticket) => (
             <TicketCard
               key={ticket.id}
@@ -673,7 +673,7 @@ function TicketCard({
   onMarkDone: () => void;
 }) {
   return (
-    <Card className={cn("p-4 transition hover:border-brand-2/45", statusCardClasses[ticket.status])}>
+    <Card className={cn("min-w-0 p-4 transition hover:border-brand-2/45", statusCardClasses[ticket.status])}>
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <button type="button" className="min-w-0 text-left" onClick={onEdit}>
           <div className="flex flex-wrap items-center gap-2">
@@ -695,14 +695,14 @@ function TicketCard({
             {ticket.description || ticket.expectedBehavior || "Aucune description."}
           </p>
         </button>
-        <div className="flex flex-wrap gap-2">
-          <Button size="sm" icon={<ClipboardCopy size={15} />} type="button" onClick={onCopy}>
+        <div className="grid w-full gap-2 sm:flex sm:w-auto sm:flex-wrap">
+          <Button className="w-full sm:w-auto" size="sm" icon={<ClipboardCopy size={15} />} type="button" onClick={onCopy}>
             {copied ? "Copié" : "Contexte Codex"}
           </Button>
-          <Button size="sm" type="button" onClick={onMarkDone}>
+          <Button className="w-full sm:w-auto" size="sm" type="button" onClick={onMarkDone}>
             Done
           </Button>
-          <Button size="sm" icon={<Archive size={15} />} type="button" onClick={onArchive}>
+          <Button className="w-full sm:w-auto" size="sm" icon={<Archive size={15} />} type="button" onClick={onArchive}>
             Archive
           </Button>
         </div>

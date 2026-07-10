@@ -48,6 +48,9 @@ export function Modal({
           "relative max-h-[92dvh] w-full max-w-2xl overflow-hidden rounded-lg border border-line-strong bg-panel-strong shadow-[0_30px_120px_rgba(0,0,0,0.46)]",
           className,
         )}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
       >
         <header className="flex items-start justify-between gap-4 border-b border-line p-4 sm:p-5">
           <div className="min-w-0">

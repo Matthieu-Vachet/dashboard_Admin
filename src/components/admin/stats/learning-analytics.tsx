@@ -13,50 +13,39 @@ import {
 import { SortableWidgetGrid } from "@/components/admin/shared/sortable-widget-grid";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { initialProjects, initialTodos } from "@/data/personal-dashboard-defaults";
-import {
-  initialJsExerciseState,
-  initialJsRoadmap,
-  jsRoadmapLevels,
-  type JsExerciseState,
-  type JsRoadmapItem,
-} from "@/data/javascript-learning";
+import { getLearningSummary, getTopicStats } from "@/lib/learning/javascript";
+import { useJavascriptLearning } from "@/hooks/admin/use-javascript-learning";
 import { usePersistentState } from "@/lib/use-persistent-state";
 
 type PomodoroStats = { sessions: number; focusMinutes: number };
 
 const colors = ["#20d3ff", "#58f2a9", "#905bf4"];
 
-function mergeRoadmap(stored: JsRoadmapItem[]) {
-  const storedMap = new Map(stored.map((item) => [item.id, item]));
-  return initialJsRoadmap.map((item) => ({ ...item, ...storedMap.get(item.id) }));
-}
-
 export function LearningAnalytics() {
   const [todos] = usePersistentState("matweb.todos", initialTodos);
   const [projects] = usePersistentState("matweb.projects", initialProjects);
-  const [roadmap] = usePersistentState<JsRoadmapItem[]>("matweb.js.progress", initialJsRoadmap);
-  const [exercises] = usePersistentState<JsExerciseState>("matweb.js.exercises", initialJsExerciseState);
   const [pomodoro] = usePersistentState<PomodoroStats>("matweb.pomodoro", { sessions: 0, focusMinutes: 0 });
+  const { topics } = useJavascriptLearning();
 
-  const items = useMemo(() => mergeRoadmap(roadmap), [roadmap]);
+  const summary = useMemo(() => getLearningSummary(topics), [topics]);
   const totalTasks = todos.length;
   const doneTasks = todos.filter((todo) => todo.done).length;
   const activeProjects = projects.filter((project) => !["Archive", "Pause"].includes(project.status)).length;
-  const understoodConcepts = items.filter((item) => item.status === "Compris").length;
-  const completedExercises = Object.values(exercises).filter((exercise) => exercise.completed).length;
-  const jsProgress = Math.round(items.reduce((sum, item) => sum + item.progress, 0) / Math.max(items.length, 1));
-  const levelData = jsRoadmapLevels.map((level) => {
-    const levelItems = items.filter((item) => item.level === level.level);
+  const understoodConcepts = summary.completedTheory;
+  const completedExercises = summary.completedExercises;
+  const jsProgress = summary.progress;
+  const levelData = topics.map((topic) => {
+    const topicStats = getTopicStats(topic);
     return {
-      name: `N${level.level}`,
-      progression: Math.round(levelItems.reduce((sum, item) => sum + item.progress, 0) / Math.max(levelItems.length, 1)),
-      compris: levelItems.filter((item) => item.status === "Compris").length,
+      name: topic.title,
+      progression: topicStats.progress,
+      accompli: topicStats.completedExercises + topicStats.completedProjects,
     };
   });
   const statusData = [
-    { name: "Compris", value: understoodConcepts },
-    { name: "En cours", value: items.filter((item) => item.status === "En cours").length },
-    { name: "À apprendre", value: items.filter((item) => item.status === "À apprendre").length },
+    { name: "Terminées", value: summary.topicsCompleted },
+    { name: "En cours", value: topics.filter((topic) => topic.status === "in_progress").length },
+    { name: "À commencer", value: topics.filter((topic) => topic.status === "not_started").length },
   ];
   const analyticsWidgets = [
     {
@@ -126,7 +115,7 @@ export function LearningAnalytics() {
   );
 }
 
-function LevelProgressGrid({ items }: { items: Array<{ name: string; progression: number; compris: number }> }) {
+function LevelProgressGrid({ items }: { items: Array<{ name: string; progression: number; accompli: number }> }) {
   return (
     <div className="mt-5 grid gap-3">
       {items.map((item, index) => (
@@ -144,7 +133,7 @@ function LevelProgressGrid({ items }: { items: Array<{ name: string; progression
               transition={{ duration: 0.45, delay: index * 0.035 }}
             />
           </span>
-          <span className="mt-2 block text-xs font-bold text-muted">{item.compris} notion(s) comprises</span>
+          <span className="mt-2 block text-xs font-bold text-muted">{item.accompli} élément(s) terminé(s)</span>
         </div>
       ))}
     </div>
