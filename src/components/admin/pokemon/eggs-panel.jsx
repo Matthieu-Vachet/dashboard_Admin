@@ -234,7 +234,7 @@ export function EggsPanel({
       <div className="space-y-4">
         {filteredSections.map(([id, title, image, tone, pokemon]) => (
           <EggSection
-            key={id}
+            key={`${id}-${pokemon.length > 0 ? "active" : "empty"}`}
             id={id}
             title={title}
             image={image}

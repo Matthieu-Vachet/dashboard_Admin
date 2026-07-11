@@ -271,7 +271,7 @@ export function RaidsPanel({
       <div className="space-y-4">
         {filteredSections.map(([id, title, image, tone, bosses]) => (
           <RaidSection
-            key={id}
+            key={`${id}-${bosses.length > 0 ? "active" : "empty"}`}
             id={id}
             title={title}
             image={image}

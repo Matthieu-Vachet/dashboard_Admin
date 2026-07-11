@@ -204,7 +204,7 @@ export function MaxBattlesPanel({
       <div className="space-y-4">
         {filteredTierEntries.map(([id, pokemon]) => (
           <MaxBattleSection
-            key={id}
+            key={`${id}-${pokemon.length > 0 ? "active" : "empty"}`}
             id={id}
             pokemon={values(pokemon)}
             onOpenPokemon={onOpenPokemon}
