@@ -1,8 +1,9 @@
 "use client";
 
-import { CloudUpload, Download, RefreshCcw, RotateCcw, Sparkles, Zap } from "lucide-react";
+import { Download, RefreshCcw, RotateCcw, Sparkles, Zap } from "lucide-react";
 import { TypeIcons } from "./asset-icons";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
+import { CurrentDatasetDiagnostics } from "./current-dataset-diagnostics";
 import { TierSection } from "./tier-section";
 import { uiAssets } from "@/components/site/ui-assets";
 
@@ -105,9 +106,9 @@ function MaxBattleSection({ id, pokemon, onOpenPokemon, typeCatalog = [] }) {
       emptyText="Aucun boss dans ce tier."
     >
         <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
-          {pokemon.map((item, index) => (
+          {pokemon.map((item) => (
             <MaxBattleCard
-              key={`${id}-${item.form || item.id || item.sourceName}-${index}`}
+              key={`${id}-${item.form || item.id || item.sourceName}-${item.costume || "standard"}`}
               pokemon={item}
               onOpenPokemon={onOpenPokemon}
               typeCatalog={typeCatalog}
@@ -121,10 +122,10 @@ function MaxBattleSection({ id, pokemon, onOpenPokemon, typeCatalog = [] }) {
 export function MaxBattlesPanel({
   maxBattles,
   loading = false,
-  busyAction = "",
+  regenerating = false,
+  refreshError = "",
   onRefresh,
   onDownload,
-  onImportMongo,
   onRegenerate,
   onOpenPokemon,
   typeCatalog = [],
@@ -135,26 +136,22 @@ export function MaxBattlesPanel({
   );
   const total = totalBattles(currentMaxBattle);
   const tierEntries = sortedTierEntries(currentMaxBattle);
-  const source = maxBattles?.meta?.source === "mongo" ? "MongoDB" : "JSON déployé";
 
   return (
     <div className="space-y-5">
       <Panel
         title="Max Battles Pokémon GO"
-        eyebrow="Snacknap + JSON local"
+        eyebrow="MongoDB + Snacknap"
         action={
           <div className="flex flex-wrap gap-2">
-            <button className={buttonClass} type="button" onClick={onRefresh} disabled={loading}>
+            <button className={buttonClass} type="button" onClick={onRefresh} disabled={loading || regenerating}>
               <RefreshCcw size={17} /> {loading ? "Chargement..." : "Actualiser"}
             </button>
-            <button className={buttonClass} type="button" onClick={onDownload} disabled={!total}>
+            <button className={buttonClass} type="button" onClick={onDownload} disabled={!maxBattles?.current || !total || loading || regenerating}>
               <Download size={17} /> Télécharger JSON
             </button>
-            <button className={buttonClass} type="button" onClick={onImportMongo} disabled={Boolean(busyAction)}>
-              <CloudUpload size={17} /> {busyAction === "import" ? "Synchronisation..." : "Synchroniser MongoDB"}
-            </button>
-            <button className={primaryButtonClass} type="button" onClick={onRegenerate} disabled={Boolean(busyAction)}>
-              <RotateCcw size={17} /> {busyAction === "regenerate" ? "Régénération..." : "Régénérer Max"}
+            <button className={primaryButtonClass} type="button" onClick={onRegenerate} disabled={loading || regenerating}>
+              <RotateCcw size={17} /> {regenerating ? "Régénération..." : "Régénérer Max"}
             </button>
           </div>
         }
@@ -165,14 +162,12 @@ export function MaxBattlesPanel({
           <AssetStatCard label="Tier 2" value={buckets.Tier2 || 0} icon="/ui/max_battles/max-battles.webp" tone="violet" detail="Difficulté 2" />
           <AssetStatCard label="Tier 3+" value={Object.entries(buckets).reduce((sum, [key, value]) => sum + (Number(key.match(/\d+/)?.[0] || 0) >= 3 ? value : 0), 0)} icon="/ui/max_battles/ic_shiny.png" tone="amber" detail="Tiers élevés" />
         </div>
-        <p className="mt-4 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-50/86">
-          Source active : {source}. Régénérer parse Snacknap et met MongoDB à jour; télécharger et synchroniser utilisent le même JSON affiché.
-        </p>
+        <CurrentDatasetDiagnostics dataset={maxBattles} total={total} refreshError={refreshError} />
       </Panel>
 
       {loading && !total ? (
         <Panel title="Chargement des Max Battles">
-          <p className="font-bold text-slate-300">Lecture du JSON Max Battles en cours.</p>
+          <p className="font-bold text-slate-300">Lecture des Max Battles MongoDB en cours.</p>
         </Panel>
       ) : null}
 

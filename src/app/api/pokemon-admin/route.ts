@@ -11,7 +11,11 @@ import {
 import { assertJsonPayloadSize, assertSameOrigin, rateLimit } from "@/lib/security";
 
 type JsonValue = Record<string, unknown>;
-type CurrentPayload = { data: Record<string, unknown>; meta: Record<string, unknown> };
+type CurrentPayload = {
+  data: Record<string, unknown>;
+  meta: Record<string, unknown>;
+  current: Record<string, unknown>;
+};
 type RuleRecord = Record<string, unknown> & {
   id?: string;
   enabled?: boolean;
@@ -22,7 +26,10 @@ type RuleRecord = Record<string, unknown> & {
 const customRulesStoreKey = "matweb.pokemon.customRules";
 const sourceHistoryStoreKey = "matweb.pokemon.sourceHistory";
 const pokemonModulePattern = `${process.cwd()}/src/server/pokemon-go/`;
-const pokemonApiBaseUrl = process.env.POKEMON_API_PUBLIC_URL || "https://pokemon-go-api.vercel.app";
+const pokemonApiBaseUrl =
+  process.env.POKEMON_API_URL
+  || process.env.POKEMON_API_PUBLIC_URL
+  || "https://pokemon-go-api.vercel.app";
 
 function json(data: unknown, init?: ResponseInit) {
   const response = NextResponse.json(data, init);
@@ -54,8 +61,11 @@ function loadAdminModules() {
 async function readPokemonApiCurrent(
   path: string,
   validate: (data: Record<string, unknown>) => boolean,
-  normalize: (data: Record<string, unknown>, meta: Record<string, unknown>) => CurrentPayload,
-  fallback: () => CurrentPayload,
+  normalize: (
+    data: Record<string, unknown>,
+    meta: Record<string, unknown>,
+    current: Record<string, unknown>,
+  ) => CurrentPayload,
 ) {
   try {
     const target = new URL(path, pokemonApiBaseUrl);
@@ -65,46 +75,53 @@ async function readPokemonApiCurrent(
       signal: AbortSignal.timeout(12_000),
     });
     const payload = await response.json().catch(() => null) as {
+      success?: boolean;
       data?: Record<string, unknown>;
       meta?: Record<string, unknown>;
+      current?: Record<string, unknown>;
+      error?: string;
+      message?: string;
     } | null;
-    if (!response.ok || !payload?.data || !validate(payload.data)) {
-      throw new Error("PokemonGo-API indisponible.");
+    if (
+      !response.ok
+      || !payload?.data
+      || !validate(payload.data)
+      || !payload.current
+      || payload.current.key !== "current"
+    ) {
+      throw requestError(
+        payload?.message || payload?.error || "PokemonGo-API n'a pas retourne le dataset MongoDB courant.",
+        response.ok ? 502 : response.status,
+      );
     }
-    return normalize(payload.data, payload.meta || {});
-  } catch {
-    return fallback();
+    if (!isMongoSource(payload.meta || {})) {
+      throw requestError("PokemonGo-API a retourne une source non MongoDB pour un dataset courant.", 502);
+    }
+    return normalize(payload.data, payload.meta || {}, payload.current);
+  } catch (error) {
+    if (error && typeof error === "object" && "status" in error) throw error;
+    const message = error instanceof Error ? error.message : "PokemonGo-API indisponible.";
+    throw requestError(message, 502);
   }
 }
 
-function sourceLabel(meta: Record<string, unknown>, fileSource: string) {
-  if (meta.source === "mongo") return "pokemon-api-mongo";
-  if (meta.source === "file") return "pokemon-api-file";
-  return fileSource;
+function isMongoSource(meta: Record<string, unknown>) {
+  return meta.source === "mongo" || meta.source === "mongodb";
+}
+
+function normalizeCurrentMeta(meta: Record<string, unknown>) {
+  return { ...meta, source: "mongodb" };
 }
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" ? (value as Record<string, unknown>) : {};
 }
 
-function readCurrentRaidsLocal() {
-  const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
-  const file = dataPath("raids", "currentRaids.json");
-  const data = JSON.parse(fs.readFileSync(file, "utf8"));
-  const buckets = Object.fromEntries(
-    Object.entries(data.currentList || {}).map(([key, bosses]) => [
-      key,
-      Array.isArray(bosses) ? bosses.length : 0,
-    ]),
-  );
-  return { data, meta: { source: "data/raids/currentRaids.json", buckets } };
-}
-
 async function readCurrentRaids() {
   return readPokemonApiCurrent(
-    "/api/v1/raids?source=mongo",
+    "/api/v1/raids",
     (data) => Boolean(data.currentList && typeof data.currentList === "object"),
-    (data, meta) => {
+    (data, meta, current) => {
       const currentList = asRecord(data.currentList);
       const buckets = Object.fromEntries(
         Object.entries(currentList).map(([key, bosses]) => [
@@ -112,30 +129,16 @@ async function readCurrentRaids() {
           Array.isArray(bosses) ? bosses.length : 0,
         ]),
       );
-      return { data, meta: { ...meta, source: sourceLabel(meta, "data/raids/currentRaids.json"), buckets } };
+      return { data, meta: { ...normalizeCurrentMeta(meta), buckets }, current };
     },
-    readCurrentRaidsLocal,
   );
-}
-
-function readCurrentEggsLocal() {
-  const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
-  const file = dataPath("eggs", "currentEggs.json");
-  const data = JSON.parse(fs.readFileSync(file, "utf8"));
-  const buckets = Object.fromEntries(
-    Object.entries(data.currentEggsList || {}).map(([key, pokemon]) => [
-      key,
-      Array.isArray(pokemon) ? pokemon.length : 0,
-    ]),
-  );
-  return { data, meta: { source: "data/eggs/currentEggs.json", buckets } };
 }
 
 async function readCurrentEggs() {
   return readPokemonApiCurrent(
-    "/api/v1/eggs?source=mongo",
+    "/api/v1/eggs",
     (data) => Boolean(data.currentEggsList && typeof data.currentEggsList === "object"),
-    (data, meta) => {
+    (data, meta, current) => {
       const currentEggsList = asRecord(data.currentEggsList);
       const buckets = Object.fromEntries(
         Object.entries(currentEggsList).map(([key, pokemon]) => [
@@ -143,30 +146,16 @@ async function readCurrentEggs() {
           Array.isArray(pokemon) ? pokemon.length : 0,
         ]),
       );
-      return { data, meta: { ...meta, source: sourceLabel(meta, "data/eggs/currentEggs.json"), buckets } };
+      return { data, meta: { ...normalizeCurrentMeta(meta), buckets }, current };
     },
-    readCurrentEggsLocal,
   );
-}
-
-function readCurrentMaxBattlesLocal() {
-  const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
-  const file = dataPath("max-battles", "currentsMaxBattle.json");
-  const data = JSON.parse(fs.readFileSync(file, "utf8"));
-  const buckets = Object.fromEntries(
-    Object.entries(data.currentMaxBattle || {}).map(([key, pokemon]) => [
-      key,
-      Array.isArray(pokemon) ? pokemon.length : 0,
-    ]),
-  );
-  return { data, meta: { source: "data/max-battles/currentsMaxBattle.json", buckets } };
 }
 
 async function readCurrentMaxBattles() {
   return readPokemonApiCurrent(
-    "/api/v1/max-battles?source=mongo",
+    "/api/v1/max-battles",
     (data) => Boolean(data.currentMaxBattle && typeof data.currentMaxBattle === "object"),
-    (data, meta) => {
+    (data, meta, current) => {
       const currentMaxBattle = asRecord(data.currentMaxBattle);
       const buckets = Object.fromEntries(
         Object.entries(currentMaxBattle).map(([key, pokemon]) => [
@@ -174,9 +163,8 @@ async function readCurrentMaxBattles() {
           Array.isArray(pokemon) ? pokemon.length : 0,
         ]),
       );
-      return { data, meta: { ...meta, source: sourceLabel(meta, "data/max-battles/currentsMaxBattle.json"), buckets } };
+      return { data, meta: { ...normalizeCurrentMeta(meta), buckets }, current };
     },
-    readCurrentMaxBattlesLocal,
   );
 }
 
@@ -187,40 +175,28 @@ function rocketSummary(data: { currentRocketList?: Record<string, unknown> }) {
   );
   const giovanni = Array.isArray(currentRocketList.giovanni) ? currentRocketList.giovanni : [];
   const grunts = Array.isArray(currentRocketList.grunts) ? currentRocketList.grunts : [];
+  const others = Array.isArray(currentRocketList.others) ? currentRocketList.others : [];
   return {
     giovanni: giovanni.length,
     leaders: leaders.length,
     grunts: grunts.length,
-    trainers: giovanni.length + leaders.length + grunts.length,
-  };
-}
-
-function readCurrentRocketLocal() {
-  const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
-  const file = dataPath("rocket", "currentRocket.json");
-  const data = JSON.parse(fs.readFileSync(file, "utf8"));
-  return {
-    data,
-    meta: {
-      source: "data/rocket/currentRocket.json",
-      summary: rocketSummary(data),
-    },
+    others: others.length,
+    trainers: giovanni.length + leaders.length + grunts.length + others.length,
   };
 }
 
 async function readCurrentRocket() {
   return readPokemonApiCurrent(
-    "/api/v1/rocket?source=mongo",
+    "/api/v1/rocket",
     (data) => Boolean(data.currentRocketList && typeof data.currentRocketList === "object"),
-    (data, meta) => ({
+    (data, meta, current) => ({
       data,
       meta: {
-        ...meta,
-        source: sourceLabel(meta, "data/rocket/currentRocket.json"),
+        ...normalizeCurrentMeta(meta),
         summary: rocketSummary(data),
       },
+      current,
     }),
-    readCurrentRocketLocal,
   );
 }
 
@@ -238,40 +214,23 @@ function researchSummary(data: { currentResearchList?: Record<string, unknown> }
   };
 }
 
-function readCurrentResearchLocal() {
-  const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
-  const file = dataPath("research", "currentResearch.json");
-  const data = JSON.parse(fs.readFileSync(file, "utf8"));
-  const summary = researchSummary(data);
-  return { data, meta: { source: "data/research/currentResearch.json", buckets: summary.buckets, summary } };
-}
-
 async function readCurrentResearch() {
-  try {
-    const target = new URL("/api/v1/research?source=mongo", pokemonApiBaseUrl);
-    const response = await fetch(target, {
-      cache: "no-store",
-      headers: { accept: "application/json" },
-      signal: AbortSignal.timeout(12_000),
-    });
-    const payload = await response.json().catch(() => null) as {
-      data?: { currentResearchList?: Record<string, unknown> };
-      meta?: Record<string, unknown>;
-    } | null;
-    if (!response.ok || !payload?.data?.currentResearchList) throw new Error("Research API indisponible.");
-    const summary = researchSummary(payload.data);
-    return {
-      data: payload.data,
-      meta: {
-        ...(payload.meta || {}),
-        source: sourceLabel(payload.meta || {}, "data/research/currentResearch.json"),
-        buckets: summary.buckets,
-        summary,
-      },
-    };
-  } catch {
-    return readCurrentResearchLocal();
-  }
+  return readPokemonApiCurrent(
+    "/api/v1/research",
+    (data) => Boolean(data.currentResearchList && typeof data.currentResearchList === "object"),
+    (data, meta, current) => {
+      const summary = researchSummary(data);
+      return {
+        data,
+        meta: {
+          ...normalizeCurrentMeta(meta),
+          buckets: summary.buckets,
+          summary,
+        },
+        current,
+      };
+    },
+  );
 }
 
 function readItems() {
@@ -310,7 +269,7 @@ async function callPokemonApiAdmin(path: string, body?: unknown) {
   const response = await fetch(target, {
     method: "POST",
     cache: "no-store",
-    signal: AbortSignal.timeout(30_000),
+    signal: AbortSignal.timeout(120_000),
     headers: {
       accept: "application/json",
       "x-api-admin-secret": secret,
@@ -723,45 +682,20 @@ export async function POST(request: NextRequest) {
       return json({ data: workshop.saveImageReview(body) });
     }
 
-    if (action === "import-raids") {
-      const raidsPayload = body?.data && typeof body.data === "object" ? body.data : undefined;
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/raids/import", raidsPayload) });
-    }
-
     if (action === "regenerate-raids") {
       return json({ data: await callPokemonApiAdmin("/api/v1/admin/raids/regenerate") });
-    }
-
-    if (action === "import-eggs") {
-      const eggsPayload = body?.data && typeof body.data === "object" ? body.data : undefined;
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/eggs/import", eggsPayload) });
     }
 
     if (action === "regenerate-eggs") {
       return json({ data: await callPokemonApiAdmin("/api/v1/admin/eggs/regenerate") });
     }
 
-    if (action === "import-max-battles") {
-      const maxBattlesPayload = body?.data && typeof body.data === "object" ? body.data : undefined;
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/max-battles/import", maxBattlesPayload) });
-    }
-
     if (action === "regenerate-max-battles") {
       return json({ data: await callPokemonApiAdmin("/api/v1/admin/max-battles/regenerate") });
     }
 
-    if (action === "import-rocket") {
-      const rocketPayload = body?.data && typeof body.data === "object" ? body.data : undefined;
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/rocket/import", rocketPayload) });
-    }
-
     if (action === "regenerate-rocket") {
       return json({ data: await callPokemonApiAdmin("/api/v1/admin/rocket/regenerate") });
-    }
-
-    if (action === "import-research") {
-      const researchPayload = body?.data && typeof body.data === "object" ? body.data : undefined;
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/research/import", researchPayload) });
     }
 
     if (action === "regenerate-research") {

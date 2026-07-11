@@ -440,6 +440,81 @@ async function copyToClipboard(value, label = "Copié dans le presse-papier") {
   }
 }
 
+function errorMessage(error, fallback) {
+  return error instanceof Error && error.message ? error.message : fallback;
+}
+
+function markCurrentDatasetFailure(resource, message) {
+  if (!resource) return null;
+  return {
+    ...resource,
+    meta: {
+      ...(resource.meta || {}),
+      refreshError: `Affichage de la dernière version MongoDB connue — la nouvelle récupération a échoué. ${message}`,
+    },
+  };
+}
+
+function downloadCurrentDataset(resource, baseName) {
+  const current = resource?.current;
+  const requiredFields = ["source", "generatedAt", "savedAt", "count", "sourceHash", "diagnostics", "data"];
+  if (
+    resource?.meta?.source !== "mongodb"
+    || current?.key !== "current"
+    || requiredFields.some((field) => current[field] === undefined)
+  ) {
+    toast.error("Le document MongoDB courant confirmé n’est pas disponible au téléchargement.");
+    return;
+  }
+
+  const savedDate = new Date(current.savedAt);
+  const dateLabel = Number.isNaN(savedDate.getTime())
+    ? new Date().toISOString().slice(0, 10)
+    : savedDate.toISOString().slice(0, 10);
+  const blob = new Blob([JSON.stringify(current, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${baseName}-${dateLabel}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function regenerationMessage(report) {
+  const diff = report?.diff || report?.current?.diagnostics?.diff;
+  if (!diff?.changed) {
+    return "Données récupérées avec succès — aucun changement détecté.";
+  }
+  return `Données mises à jour : ${Number(diff.added || 0)} ajoutées, ${Number(diff.removed || 0)} retirées, ${Number(diff.modified || 0)} modifiées.`;
+}
+
+function currentResourceFromReport(report, metaKey) {
+  const current = report?.current;
+  if (current?.key !== "current" || !current.data) return null;
+  return {
+    data: current.data,
+    current,
+    meta: {
+      source: "mongodb",
+      domain: current.domain,
+      provider: current.source?.provider || null,
+      url: current.source?.url || null,
+      mode: current.source?.mode || null,
+      event: current.source?.event || null,
+      fetchedAt: current.source?.fetchedAt || null,
+      generatedAt: current.generatedAt || null,
+      savedAt: current.savedAt || current.updatedAt || null,
+      count: current.count,
+      sourceHash: current.sourceHash,
+      status: current.status,
+      diagnostics: current.diagnostics,
+      [metaKey]: report?.[metaKey] || null,
+    },
+  };
+}
+
 function LoadMoreButton({ shown, total, onClick }) {
   const remaining = Math.max(0, total - shown);
   return (
@@ -855,21 +930,21 @@ export function AdminApp() {
   const [redeployingDashboard, setRedeployingDashboard] = useState(false);
   const [raids, setRaids] = useState(null);
   const [raidsLoading, setRaidsLoading] = useState(false);
-  const [raidsBusyAction, setRaidsBusyAction] = useState("");
+  const [raidsRegenerating, setRaidsRegenerating] = useState(false);
   const [eggs, setEggs] = useState(null);
   const [eggsLoading, setEggsLoading] = useState(false);
-  const [eggsBusyAction, setEggsBusyAction] = useState("");
+  const [eggsRegenerating, setEggsRegenerating] = useState(false);
   const [maxBattles, setMaxBattles] = useState(null);
   const [maxBattlesLoading, setMaxBattlesLoading] = useState(false);
-  const [maxBattlesBusyAction, setMaxBattlesBusyAction] = useState("");
+  const [maxBattlesRegenerating, setMaxBattlesRegenerating] = useState(false);
   const [rocket, setRocket] = useState(null);
   const [rocketTexts, setRocketTexts] = useState(null);
   const [rocketLoading, setRocketLoading] = useState(false);
-  const [rocketBusyAction, setRocketBusyAction] = useState("");
+  const [rocketRegenerating, setRocketRegenerating] = useState(false);
   const [research, setResearch] = useState(null);
   const [itemsReference, setItemsReference] = useState(null);
   const [researchLoading, setResearchLoading] = useState(false);
-  const [researchBusyAction, setResearchBusyAction] = useState("");
+  const [researchRegenerating, setResearchRegenerating] = useState(false);
   const [history, setHistory] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [selectedEntry, setSelectedEntry] = useState(null);
@@ -1211,15 +1286,6 @@ export function AdminApp() {
     return report;
   }
 
-  function adminActionLabel(label, report) {
-    const count = report?.itemsParsed ?? report?.summary?.tasks ?? null;
-    return Number.isFinite(Number(count)) ? `${label} ${Number(count)} éléments.` : label;
-  }
-
-  function currentDataEnvelope(resource) {
-    return resource?.data || resource || undefined;
-  }
-
   async function loadRaids({ notify = false } = {}) {
     setRaidsLoading(true);
     try {
@@ -1229,45 +1295,39 @@ export function AdminApp() {
       setRaids(payload.data || null);
       if (notify) toast.success("Raids actualisés.");
     } catch (error) {
-      toast.error(error.message || "Erreur de chargement des raids.");
+      const message = errorMessage(error, "Erreur de chargement des raids.");
+      setRaids((current) => markCurrentDatasetFailure(current, message));
+      toast.error(message);
     } finally {
       setRaidsLoading(false);
     }
   }
 
   function downloadRaidsJson() {
-    const data = raids?.data || raids;
-    if (!data) return;
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "currentRaids.json";
-    link.click();
-    URL.revokeObjectURL(url);
+    downloadCurrentDataset(raids, "current-raids");
   }
 
-  async function runRaidsAdminAction(action, label) {
-    setRaidsBusyAction(action);
+  async function regenerateRaids() {
+    setRaidsRegenerating(true);
     try {
-      const data = action === "import" ? currentDataEnvelope(raids) : undefined;
       const response = await fetch(adminApiPath, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          action: action === "import" ? "import-raids" : "regenerate-raids",
-          ...(data ? { data } : {}),
-        }),
+        body: JSON.stringify({ action: "regenerate-raids" }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Action raids impossible.");
       const report = assertSuccessfulAdminAction(payload, "Action raids impossible.");
-      toast.success(adminActionLabel(label, report));
+      const refreshed = currentResourceFromReport(report, "buckets");
+      if (refreshed) setRaids(refreshed);
+      toast.success(regenerationMessage(report));
       await loadRaids();
     } catch (error) {
-      toast.error(error.message || "Action raids impossible.");
+      const message = errorMessage(error, "Action raids impossible.");
+      setRaids((current) => markCurrentDatasetFailure(current, message));
+      toast.error(message);
     } finally {
-      setRaidsBusyAction("");
+      setRaidsRegenerating(false);
     }
   }
 
@@ -1280,45 +1340,39 @@ export function AdminApp() {
       setEggs(payload.data || null);
       if (notify) toast.success("Oeufs actualisés.");
     } catch (error) {
-      toast.error(error.message || "Erreur de chargement des oeufs.");
+      const message = errorMessage(error, "Erreur de chargement des oeufs.");
+      setEggs((current) => markCurrentDatasetFailure(current, message));
+      toast.error(message);
     } finally {
       setEggsLoading(false);
     }
   }
 
   function downloadEggsJson() {
-    const data = eggs?.data || eggs;
-    if (!data) return;
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "currentEggs.json";
-    link.click();
-    URL.revokeObjectURL(url);
+    downloadCurrentDataset(eggs, "current-eggs");
   }
 
-  async function runEggsAdminAction(action, label) {
-    setEggsBusyAction(action);
+  async function regenerateEggs() {
+    setEggsRegenerating(true);
     try {
-      const data = action === "import" ? currentDataEnvelope(eggs) : undefined;
       const response = await fetch(adminApiPath, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          action: action === "import" ? "import-eggs" : "regenerate-eggs",
-          ...(data ? { data } : {}),
-        }),
+        body: JSON.stringify({ action: "regenerate-eggs" }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Action oeufs impossible.");
       const report = assertSuccessfulAdminAction(payload, "Action oeufs impossible.");
-      toast.success(adminActionLabel(label, report));
+      const refreshed = currentResourceFromReport(report, "buckets");
+      if (refreshed) setEggs(refreshed);
+      toast.success(regenerationMessage(report));
       await loadEggs();
     } catch (error) {
-      toast.error(error.message || "Action oeufs impossible.");
+      const message = errorMessage(error, "Action oeufs impossible.");
+      setEggs((current) => markCurrentDatasetFailure(current, message));
+      toast.error(message);
     } finally {
-      setEggsBusyAction("");
+      setEggsRegenerating(false);
     }
   }
 
@@ -1331,45 +1385,39 @@ export function AdminApp() {
       setMaxBattles(payload.data || null);
       if (notify) toast.success("Max Battles actualisées.");
     } catch (error) {
-      toast.error(error.message || "Erreur de chargement des Max Battles.");
+      const message = errorMessage(error, "Erreur de chargement des Max Battles.");
+      setMaxBattles((current) => markCurrentDatasetFailure(current, message));
+      toast.error(message);
     } finally {
       setMaxBattlesLoading(false);
     }
   }
 
   function downloadMaxBattlesJson() {
-    const data = maxBattles?.data || maxBattles;
-    if (!data) return;
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "currentsMaxBattle.json";
-    link.click();
-    URL.revokeObjectURL(url);
+    downloadCurrentDataset(maxBattles, "current-max-battles");
   }
 
-  async function runMaxBattlesAdminAction(action, label) {
-    setMaxBattlesBusyAction(action);
+  async function regenerateMaxBattles() {
+    setMaxBattlesRegenerating(true);
     try {
-      const data = action === "import" ? currentDataEnvelope(maxBattles) : undefined;
       const response = await fetch(adminApiPath, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          action: action === "import" ? "import-max-battles" : "regenerate-max-battles",
-          ...(data ? { data } : {}),
-        }),
+        body: JSON.stringify({ action: "regenerate-max-battles" }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Action Max Battles impossible.");
       const report = assertSuccessfulAdminAction(payload, "Action Max Battles impossible.");
-      toast.success(adminActionLabel(label, report));
+      const refreshed = currentResourceFromReport(report, "buckets");
+      if (refreshed) setMaxBattles(refreshed);
+      toast.success(regenerationMessage(report));
       await loadMaxBattles();
     } catch (error) {
-      toast.error(error.message || "Action Max Battles impossible.");
+      const message = errorMessage(error, "Action Max Battles impossible.");
+      setMaxBattles((current) => markCurrentDatasetFailure(current, message));
+      toast.error(message);
     } finally {
-      setMaxBattlesBusyAction("");
+      setMaxBattlesRegenerating(false);
     }
   }
 
@@ -1387,45 +1435,39 @@ export function AdminApp() {
       setRocketTexts(textsPayload.data || null);
       if (notify) toast.success("Rocket actualisé.");
     } catch (error) {
-      toast.error(error.message || "Erreur de chargement Rocket.");
+      const message = errorMessage(error, "Erreur de chargement Rocket.");
+      setRocket((current) => markCurrentDatasetFailure(current, message));
+      toast.error(message);
     } finally {
       setRocketLoading(false);
     }
   }
 
   function downloadRocketJson() {
-    const data = rocket?.data || rocket;
-    if (!data) return;
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "currentRocket.json";
-    link.click();
-    URL.revokeObjectURL(url);
+    downloadCurrentDataset(rocket, "current-rocket");
   }
 
-  async function runRocketAdminAction(action, label) {
-    setRocketBusyAction(action);
+  async function regenerateRocket() {
+    setRocketRegenerating(true);
     try {
-      const data = action === "import" ? currentDataEnvelope(rocket) : undefined;
       const response = await fetch(adminApiPath, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          action: action === "import" ? "import-rocket" : "regenerate-rocket",
-          ...(data ? { data } : {}),
-        }),
+        body: JSON.stringify({ action: "regenerate-rocket" }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Action Rocket impossible.");
       const report = assertSuccessfulAdminAction(payload, "Action Rocket impossible.");
-      toast.success(adminActionLabel(label, report));
+      const refreshed = currentResourceFromReport(report, "summary");
+      if (refreshed) setRocket(refreshed);
+      toast.success(regenerationMessage(report));
       await loadRocket();
     } catch (error) {
-      toast.error(error.message || "Action Rocket impossible.");
+      const message = errorMessage(error, "Action Rocket impossible.");
+      setRocket((current) => markCurrentDatasetFailure(current, message));
+      toast.error(message);
     } finally {
-      setRocketBusyAction("");
+      setRocketRegenerating(false);
     }
   }
 
@@ -1443,46 +1485,39 @@ export function AdminApp() {
       setItemsReference(itemsPayload.data || null);
       if (notify) toast.success("Research actualisé.");
     } catch (error) {
-      toast.error(error.message || "Erreur de chargement Research.");
+      const message = errorMessage(error, "Erreur de chargement Research.");
+      setResearch((current) => markCurrentDatasetFailure(current, message));
+      toast.error(message);
     } finally {
       setResearchLoading(false);
     }
   }
 
   function downloadResearchJson() {
-    const data = research?.data || research;
-    if (!data) return;
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "currentResearch.json";
-    link.click();
-    URL.revokeObjectURL(url);
+    downloadCurrentDataset(research, "current-research");
   }
 
-  async function runResearchAdminAction(action, label) {
-    setResearchBusyAction(action);
+  async function regenerateResearch() {
+    setResearchRegenerating(true);
     try {
-      const data = action === "import" ? currentDataEnvelope(research) : undefined;
       const response = await fetch(adminApiPath, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          action: action === "import" ? "import-research" : "regenerate-research",
-          ...(data ? { data } : {}),
-        }),
+        body: JSON.stringify({ action: "regenerate-research" }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Action Research impossible.");
       const report = assertSuccessfulAdminAction(payload, "Action Research impossible.");
-      const tasks = report?.summary?.tasks ?? report?.itemsParsed;
-      toast.success(tasks ? `${label} ${tasks} quêtes.` : adminActionLabel(label, report));
+      const refreshed = currentResourceFromReport(report, "summary");
+      if (refreshed) setResearch(refreshed);
+      toast.success(regenerationMessage(report));
       await loadResearch();
     } catch (error) {
-      toast.error(error.message || "Action Research impossible.");
+      const message = errorMessage(error, "Action Research impossible.");
+      setResearch((current) => markCurrentDatasetFailure(current, message));
+      toast.error(message);
     } finally {
-      setResearchBusyAction("");
+      setResearchRegenerating(false);
     }
   }
 
@@ -1958,11 +1993,10 @@ export function AdminApp() {
               <RaidsPanel
                 raids={raids}
                 loading={raidsLoading}
-                busyAction={raidsBusyAction}
+                regenerating={raidsRegenerating}
                 onRefresh={() => loadRaids({ notify: true })}
                 onDownload={downloadRaidsJson}
-                onImportMongo={() => runRaidsAdminAction("import", "Raids envoyés vers MongoDB.")}
-                onRegenerate={() => runRaidsAdminAction("regenerate", "Raids régénérés côté API.")}
+                onRegenerate={regenerateRaids}
                 onOpenPokemon={openPokemonReference}
                 typeCatalog={catalog?.types}
                 weatherCatalog={catalog?.weather}
@@ -1973,11 +2007,10 @@ export function AdminApp() {
               <EggsPanel
                 eggs={eggs}
                 loading={eggsLoading}
-                busyAction={eggsBusyAction}
+                regenerating={eggsRegenerating}
                 onRefresh={() => loadEggs({ notify: true })}
                 onDownload={downloadEggsJson}
-                onImportMongo={() => runEggsAdminAction("import", "Oeufs envoyés vers MongoDB.")}
-                onRegenerate={() => runEggsAdminAction("regenerate", "Oeufs régénérés côté API.")}
+                onRegenerate={regenerateEggs}
                 onOpenPokemon={openPokemonReference}
                 typeCatalog={catalog?.types}
               />
@@ -1987,11 +2020,10 @@ export function AdminApp() {
               <MaxBattlesPanel
                 maxBattles={maxBattles}
                 loading={maxBattlesLoading}
-                busyAction={maxBattlesBusyAction}
+                regenerating={maxBattlesRegenerating}
                 onRefresh={() => loadMaxBattles({ notify: true })}
                 onDownload={downloadMaxBattlesJson}
-                onImportMongo={() => runMaxBattlesAdminAction("import", "Max Battles envoyées vers MongoDB.")}
-                onRegenerate={() => runMaxBattlesAdminAction("regenerate", "Max Battles régénérées côté API.")}
+                onRegenerate={regenerateMaxBattles}
                 onOpenPokemon={openPokemonReference}
                 typeCatalog={catalog?.types}
               />
@@ -2002,11 +2034,10 @@ export function AdminApp() {
                 rocket={rocket}
                 rocketTexts={rocketTexts}
                 loading={rocketLoading}
-                busyAction={rocketBusyAction}
+                regenerating={rocketRegenerating}
                 onRefresh={() => loadRocket({ notify: true })}
                 onDownload={downloadRocketJson}
-                onImportMongo={() => runRocketAdminAction("import", "Rocket envoyé vers MongoDB.")}
-                onRegenerate={() => runRocketAdminAction("regenerate", "Rocket régénéré côté API.")}
+                onRegenerate={regenerateRocket}
                 onOpenPokemon={openPokemonReference}
               />
             ) : null}
@@ -2016,11 +2047,10 @@ export function AdminApp() {
                 research={research}
                 itemsReference={itemsReference}
                 loading={researchLoading}
-                busyAction={researchBusyAction}
+                regenerating={researchRegenerating}
                 onRefresh={() => loadResearch({ notify: true })}
                 onDownload={downloadResearchJson}
-                onImportMongo={() => runResearchAdminAction("import", "Research envoyé vers MongoDB.")}
-                onRegenerate={() => runResearchAdminAction("regenerate", "Research régénéré côté API.")}
+                onRegenerate={regenerateResearch}
               />
             ) : null}
 

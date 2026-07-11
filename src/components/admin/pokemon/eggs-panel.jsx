@@ -1,8 +1,9 @@
 "use client";
 
-import { CloudUpload, Download, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
+import { Download, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
 import { TypeIcons } from "./asset-icons";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
+import { CurrentDatasetDiagnostics } from "./current-dataset-diagnostics";
 import { TierSection } from "./tier-section";
 import { uiAssets } from "@/components/site/ui-assets";
 
@@ -18,12 +19,32 @@ const eggSections = [
   ["12km", "12 km", "/ui/eggs/12_km.png", "cyan"],
 ];
 
+const knownEggSections = new Set(eggSections.map(([id]) => id));
+
 function values(data) {
   return Array.isArray(data) ? data : [];
 }
 
 function totalEggs(currentEggsList) {
   return Object.values(currentEggsList || {}).reduce((total, pokemon) => total + values(pokemon).length, 0);
+}
+
+function titleFromKey(key) {
+  return String(key)
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function allEggSections(currentEggsList) {
+  const unknown = Object.entries(currentEggsList || {})
+    .filter(([id]) => !knownEggSections.has(id))
+    .map(([id, pokemon]) => [
+      id,
+      values(pokemon)[0]?.sourceCategory || values(pokemon)[0]?.sectionTitle || titleFromKey(id),
+      "/ui/eggs/2_km.png",
+      "cyan",
+    ]);
+  return [...eggSections, ...unknown];
 }
 
 function EggPill({ children, tone = "" }) {
@@ -111,9 +132,9 @@ function EggSection({ id, title, image, tone, pokemon, onOpenPokemon, typeCatalo
       emptyText="Aucun Pokemon dans cette section."
     >
         <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
-          {pokemon.map((item, index) => (
+          {pokemon.map((item) => (
             <EggCard
-              key={`${id}-${item.form || item.id || item.sourceName}-${index}`}
+              key={`${id}-${item.form || item.id || item.sourceName}-${item.costume || "standard"}-${item.rarity || ""}`}
               pokemon={item}
               onOpenPokemon={onOpenPokemon}
               typeCatalog={typeCatalog}
@@ -127,10 +148,10 @@ function EggSection({ id, title, image, tone, pokemon, onOpenPokemon, typeCatalo
 export function EggsPanel({
   eggs,
   loading = false,
-  busyAction = "",
+  regenerating = false,
+  refreshError = "",
   onRefresh,
   onDownload,
-  onImportMongo,
   onRegenerate,
   onOpenPokemon,
   typeCatalog = [],
@@ -141,26 +162,23 @@ export function EggsPanel({
   );
   const total = totalEggs(currentEggsList);
   const adventureTotal = (buckets["5km_adventure_sync"] || 0) + (buckets["10km_adventure_sync"] || 0);
-  const source = eggs?.meta?.source === "mongo" ? "MongoDB" : "JSON déployé";
+  const sections = allEggSections(currentEggsList);
 
   return (
     <div className="space-y-5">
       <Panel
         title="Oeufs Pokémon GO"
-        eyebrow="LeekDuck + JSON local"
+        eyebrow="MongoDB + LeekDuck"
         action={
           <div className="flex flex-wrap gap-2">
-            <button className={buttonClass} type="button" onClick={onRefresh} disabled={loading}>
+            <button className={buttonClass} type="button" onClick={onRefresh} disabled={loading || regenerating}>
               <RefreshCcw size={17} /> {loading ? "Chargement..." : "Actualiser"}
             </button>
-            <button className={buttonClass} type="button" onClick={onDownload} disabled={!total}>
+            <button className={buttonClass} type="button" onClick={onDownload} disabled={!eggs?.current || !total || loading || regenerating}>
               <Download size={17} /> Télécharger JSON
             </button>
-            <button className={buttonClass} type="button" onClick={onImportMongo} disabled={Boolean(busyAction)}>
-              <CloudUpload size={17} /> {busyAction === "import" ? "Synchronisation..." : "Synchroniser MongoDB"}
-            </button>
-            <button className={primaryButtonClass} type="button" onClick={onRegenerate} disabled={Boolean(busyAction)}>
-              <RotateCcw size={17} /> {busyAction === "regenerate" ? "Régénération..." : "Régénérer oeufs"}
+            <button className={primaryButtonClass} type="button" onClick={onRegenerate} disabled={loading || regenerating}>
+              <RotateCcw size={17} /> {regenerating ? "Régénération..." : "Régénérer oeufs"}
             </button>
           </div>
         }
@@ -171,19 +189,17 @@ export function EggsPanel({
           <AssetStatCard label="Cadeaux route" value={buckets["7km_route_gift"] || 0} icon="/ui/eggs/7_km.png" tone="green" detail="Oeufs de routes" />
           <AssetStatCard label="12 km" value={buckets["12km"] || 0} icon="/ui/eggs/12_km.png" tone="amber" detail="Oeufs Rocket" />
         </div>
-        <p className="mt-4 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-50/86">
-          Source active : {source}. Régénérer parse LeekDuck et met MongoDB à jour; télécharger et synchroniser utilisent le même JSON affiché.
-        </p>
+        <CurrentDatasetDiagnostics dataset={eggs} total={total} refreshError={refreshError} />
       </Panel>
 
       {loading && !total ? (
         <Panel title="Chargement des oeufs">
-          <p className="font-bold text-slate-300">Lecture du JSON oeufs en cours.</p>
+          <p className="font-bold text-slate-300">Lecture des oeufs MongoDB en cours.</p>
         </Panel>
       ) : null}
 
       <div className="space-y-4">
-        {eggSections.map(([id, title, image, tone]) => (
+        {sections.map(([id, title, image, tone]) => (
           <EggSection
             key={id}
             id={id}

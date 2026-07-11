@@ -1,8 +1,10 @@
 # Pokemon GO API REST
 
 L'API publique vit dans `src/` et reste separee des outils de controle du Dashboard Admin.
-Les fichiers du depot prive `PokemonGo-Data` restent la source de verite et ne sont
-jamais modifies par la synchronisation. Les details des attaques vivent dans
+Les fichiers du depot prive `PokemonGo-Data` restent la source de verite des
+referentiels statiques et ne sont jamais modifies par la synchronisation. Pour les
+datasets courants raids, oeufs, Max Battles, Rocket et Research, MongoDB est l'unique
+source lue par le Dashboard. Les details des attaques vivent dans
 `PokemonGo-Data/moves/`; les Pokemon ne conservent que leurs identifiants.
 
 ## Architecture
@@ -28,14 +30,16 @@ Chaque document MongoDB conserve :
 
 - les champs normalises et indexes necessaires aux recherches rapides ;
 - le JSON complet dans `data` ;
-- son hash et ses fichiers sources ;
+- son hash et ses metadonnees de provenance ;
 - des metadonnees de synchronisation.
 
 Depuis la refonte du modele Pokemon, MongoDB separe les donnees en deux collections :
 
 - `pokemons` contient le gameplay, les stats, les attaques, le PvP, les disponibilites, les images principales, les bonbons et `data.assets.assetsRef`.
 - `pokemonAssets` contient les assets lourds : Home, portraits, portraits shiny, location cards, Shuffle et variantes visuelles.
-- `raids`, `eggs`, `maxbattles`, `rockets` et `researches` contiennent chacun un document courant `current` importe depuis les JSON live du depot data.
+- `raids`, `eggs`, `maxbattles`, `rockets` et `researches` contiennent chacun le
+  document `{ key: "current" }` produit par le pipeline de regeneration externe.
+  Les JSON locaux correspondants sont uniquement des references, fixtures ou exports.
 
 Les routes publiques joignent automatiquement `pokemons.formId` avec `pokemonAssets.formId`
 sur les fiches de detail et les routes d'assets. La liste `/pokemon` reste legere pour
@@ -68,8 +72,8 @@ Valider toutes les sources sans MongoDB et sans ecriture :
 npm run sync:dry
 ```
 
-Synchroniser MongoDB, supprimer les documents devenus obsoletes, reconstruire les
-indexes et regenerer les statistiques globales :
+Synchroniser uniquement les référentiels statiques MongoDB, supprimer leurs documents
+devenus obsolètes, reconstruire leurs index et régénérer les statistiques globales :
 
 ```bash
 npm run sync
@@ -84,6 +88,9 @@ npm run sync:watch
 La synchronisation compare les hashes, n'ecrit que les documents nouveaux ou modifies,
 utilise des upserts et des cles uniques pour eviter les doublons. Une collection source
 vide ne provoque jamais une suppression massive automatique.
+
+`npm run sync` exclut les cinq collections courantes `raids`, `eggs`, `maxbattles`,
+`rockets` et `researches`. Elles sont ecrites uniquement par leur pipeline dedie.
 
 Depuis la séparation des assets, `npm run ensure:data` et la synchronisation doivent
 récupérer aussi `PokemonGo-Data/pokemon-assets/`. Après l'import, les champs lourds
@@ -144,14 +151,30 @@ curl "https://domain.com/api/v1/research"
 curl -X POST "https://domain.com/api/v1/pokemon" \
   -H "x-api-admin-secret: $API_ADMIN_SECRET"
 
+curl -X POST "https://domain.com/api/v1/admin/raids/import" \
+  -H "x-api-admin-secret: $API_ADMIN_SECRET" \
+  -H "Content-Type: application/json" \
+  --data-binary @/chemin/raids-maintenance.json
+
 curl -X POST "https://domain.com/api/v1/admin/eggs/import" \
-  -H "x-api-admin-secret: $API_ADMIN_SECRET"
+  -H "x-api-admin-secret: $API_ADMIN_SECRET" \
+  -H "Content-Type: application/json" \
+  --data-binary @/chemin/eggs-maintenance.json
+
+curl -X POST "https://domain.com/api/v1/admin/max-battles/import" \
+  -H "x-api-admin-secret: $API_ADMIN_SECRET" \
+  -H "Content-Type: application/json" \
+  --data-binary @/chemin/max-battles-maintenance.json
 
 curl -X POST "https://domain.com/api/v1/admin/rocket/import" \
-  -H "x-api-admin-secret: $API_ADMIN_SECRET"
+  -H "x-api-admin-secret: $API_ADMIN_SECRET" \
+  -H "Content-Type: application/json" \
+  --data-binary @/chemin/rocket-maintenance.json
 
 curl -X POST "https://domain.com/api/v1/admin/research/import" \
-  -H "x-api-admin-secret: $API_ADMIN_SECRET"
+  -H "x-api-admin-secret: $API_ADMIN_SECRET" \
+  -H "Content-Type: application/json" \
+  --data-binary @/chemin/research-maintenance.json
 
 curl "https://domain.com/api/checklist-v3?action=history" \
   -H "x-api-admin-secret: $API_ADMIN_SECRET"
@@ -191,6 +214,30 @@ INTERNAL :
 - Le serveur local checklist dans `apps/checklist/server/`.
 - Les actions checklist legacy `source-watch`, `history` et `url-audit`, conservees
   uniquement pour compatibilite et maintenant protegees avant leur reponse `410 Gone`.
+
+## Contrat Des Datasets Courants
+
+Les `GET` `/api/v1/raids`, `/api/v1/eggs`, `/api/v1/max-battles`,
+`/api/v1/rocket` et `/api/v1/research` relisent strictement MongoDB avec
+`{ key: "current" }`. Ils renvoient `data`, `meta` et `current`. Aucun parametre ne
+bascule vers un fichier local et une erreur MongoDB reste explicite.
+
+Les routes `POST /api/v1/admin/*/regenerate` executent le pipeline source externe,
+parsing, enrichissement, validation, hash canonique, diff, `upsert`, invalidation du
+cache, puis relecture et verification MongoDB. La reponse contient le document
+`current`, les diagnostics, `changed`, `diff`, les compteurs et le rapport source ;
+elle n'expose plus d'ancien `jsonPath` de production.
+
+Les routes `POST /api/v1/admin/*/import` sont des operations de maintenance
+protegees. Elles exigent un body JSON explicite contenant `currentList`,
+`currentEggsList`, `currentMaxBattle`, `currentRocketList` ou `currentResearchList`
+selon le domaine. Un body absent retourne `400 CURRENT_IMPORT_PAYLOAD_REQUIRED` et
+ne declenche aucune lecture locale.
+
+Pour les raids, la seule source de regeneration est
+`https://leekduck.com/raid-bosses/`. Le mode evenement est detecte dans le contenu
+de cette page, par exemple via `SELECTED EVENT`. Le pipeline ne consulte jamais
+`/gofest/raids/` et ne force aucune activation, date, liste de Pokemon ou taille.
 
 ## Routes Principales
 

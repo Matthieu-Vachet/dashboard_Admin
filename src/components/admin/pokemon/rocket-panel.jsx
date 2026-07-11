@@ -1,7 +1,9 @@
 "use client";
 
-import { ChevronDown, CloudUpload, Download, RefreshCcw, RotateCcw } from "lucide-react";
+import { useState } from "react";
+import { ChevronDown, Download, RefreshCcw, RotateCcw } from "lucide-react";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
+import { CurrentDatasetDiagnostics } from "./current-dataset-diagnostics";
 import { uiAssets } from "@/components/site/ui-assets";
 
 const rocketTrainerAssets = {
@@ -38,6 +40,7 @@ const fallbackAccents = {
   giovanni: "#ef4444",
   leader: "#8b5cf6",
   grunt: "#06b6d4",
+  other: "#10b981",
 };
 
 function values(data) {
@@ -113,10 +116,14 @@ function findRocketText(profile, texts) {
 
 function trainerGroups(currentRocketList) {
   const leaders = currentRocketList?.leaders || {};
+  const others = Array.isArray(currentRocketList?.others)
+    ? currentRocketList.others
+    : Object.values(currentRocketList?.others || {}).flatMap(values);
   return [
     ["Giovanni", values(currentRocketList?.giovanni), "giovanni"],
     ["Leaders", Object.values(leaders).flatMap(values), "leader"],
     ["Grunts", values(currentRocketList?.grunts), "grunt"],
+    ["Autres", others, "other"],
   ];
 }
 
@@ -246,6 +253,7 @@ function SlotBlock({ label, pokemon, onOpenPokemon }) {
 }
 
 function TrainerCard({ profile, group, rocketText, onOpenPokemon, defaultOpen = false }) {
+  const [open, setOpen] = useState(Boolean(defaultOpen));
   const accent = profile.color?.primary || fallbackAccents[profile.trainerType] || fallbackAccents.grunt;
   const name = profile.trainer || "Rocket";
   const isGrunt = group === "grunt";
@@ -256,7 +264,8 @@ function TrainerCard({ profile, group, rocketText, onOpenPokemon, defaultOpen = 
   return (
     <details
       className="group min-w-0 overflow-hidden rounded-3xl border bg-slate-950/34 shadow-[0_20px_80px_rgba(0,0,0,.24)]"
-      defaultOpen={defaultOpen}
+      open={open}
+      onToggle={(event) => setOpen(event.currentTarget.open)}
       style={{
         borderColor: alpha(accent, 0.42),
         boxShadow: `0 20px 90px ${alpha(accent, 0.14)}`,
@@ -325,10 +334,10 @@ export function RocketPanel({
   rocket,
   rocketTexts,
   loading = false,
-  busyAction = "",
+  regenerating = false,
+  refreshError = "",
   onRefresh,
   onDownload,
-  onImportMongo,
   onRegenerate,
   onOpenPokemon,
 }) {
@@ -339,26 +348,22 @@ export function RocketPanel({
   const totalTrainers = profiles.length;
   const totalEntries = totalPokemon(profiles);
   const translatedProfiles = profiles.filter((profile) => findRocketText(profile, texts)).length;
-  const source = rocket?.meta?.source === "mongo" ? "MongoDB" : "JSON déployé";
 
   return (
     <div className="space-y-5">
       <Panel
         title="Team GO Rocket"
-        eyebrow="lineups + phrases FR"
+        eyebrow="MongoDB + LeekDuck"
         action={
           <div className="flex flex-wrap gap-2">
-            <button className={buttonClass} type="button" onClick={onRefresh} disabled={loading}>
+            <button className={buttonClass} type="button" onClick={onRefresh} disabled={loading || regenerating}>
               <RefreshCcw size={17} /> {loading ? "Chargement..." : "Actualiser"}
             </button>
-            <button className={buttonClass} type="button" onClick={onDownload} disabled={!totalTrainers}>
+            <button className={buttonClass} type="button" onClick={onDownload} disabled={!rocket?.current || !totalTrainers || loading || regenerating}>
               <Download size={17} /> Télécharger JSON
             </button>
-            <button className={buttonClass} type="button" onClick={onImportMongo} disabled={Boolean(busyAction)}>
-              <CloudUpload size={17} /> {busyAction === "import" ? "Synchronisation..." : "Synchroniser MongoDB"}
-            </button>
-            <button className={primaryButtonClass} type="button" onClick={onRegenerate} disabled={Boolean(busyAction)}>
-              <RotateCcw size={17} /> {busyAction === "regenerate" ? "Régénération..." : "Régénérer Rocket"}
+            <button className={primaryButtonClass} type="button" onClick={onRegenerate} disabled={loading || regenerating}>
+              <RotateCcw size={17} /> {regenerating ? "Régénération..." : "Régénérer Rocket"}
             </button>
           </div>
         }
@@ -369,14 +374,12 @@ export function RocketPanel({
           <AssetStatCard label="Leaders" value={groups.find(([title]) => title === "Leaders")?.[1]?.length || 0} icon={rocketTrainerAssets.sierra} tone="amber" detail="Arlo, Cliff, Sierra" />
           <AssetStatCard label="Pokémon slots" value={totalEntries} icon="/ui/icons/shadow.png" tone="green" detail="Entrées Rocket" />
         </div>
-        <p className="mt-4 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-50/86">
-          Source active : {source}. Régénérer parse LeekDuck et met MongoDB à jour; télécharger et synchroniser utilisent le même JSON affiché.
-        </p>
+        <CurrentDatasetDiagnostics dataset={rocket} total={totalTrainers} refreshError={refreshError} />
       </Panel>
 
       {loading && !totalTrainers ? (
         <Panel title="Chargement Rocket">
-          <p className="font-bold text-slate-300">Lecture du JSON Rocket en cours.</p>
+          <p className="font-bold text-slate-300">Lecture des lineups MongoDB en cours.</p>
         </Panel>
       ) : null}
 
@@ -395,7 +398,7 @@ export function RocketPanel({
             <div className={`grid gap-5 ${group === "grunt" ? "2xl:grid-cols-2" : ""}`}>
               {items.map((profile, index) => (
                 <TrainerCard
-                  key={`${profile.trainerSlug || profile.trainer}-${index}`}
+                  key={`${profile.trainerSlug || profile.trainer}-${textKey(profile.quote) || index}`}
                   profile={profile}
                   group={group}
                   rocketText={findRocketText(profile, texts)}

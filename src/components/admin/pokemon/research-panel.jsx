@@ -1,7 +1,9 @@
 "use client";
 
-import { ChevronDown, CloudUpload, Download, Package, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
+import { useState } from "react";
+import { ChevronDown, Download, Package, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
+import { CurrentDatasetDiagnostics } from "./current-dataset-diagnostics";
 import { uiAssets } from "@/components/site/ui-assets";
 
 const sectionLabels = {
@@ -237,8 +239,13 @@ function ResearchTask({ task, items, sectionId }) {
 }
 
 function ResearchSection({ id, title, tasks, items, defaultOpen }) {
+  const [open, setOpen] = useState(Boolean(defaultOpen));
   return (
-    <details className={`group overflow-hidden rounded-3xl border ${sectionTones[id] || "border-white/10 bg-white/[0.04]"}`} defaultOpen={defaultOpen}>
+    <details
+      className={`group overflow-hidden rounded-3xl border ${sectionTones[id] || "border-white/10 bg-white/[0.04]"}`}
+      open={open}
+      onToggle={(event) => setOpen(event.currentTarget.open)}
+    >
       <summary className="grid cursor-pointer list-none gap-3 p-4 marker:hidden sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
         <span>
           <span className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-100/62">{id}</span>
@@ -266,10 +273,10 @@ export function ResearchPanel({
   research,
   itemsReference,
   loading = false,
-  busyAction = "",
+  regenerating = false,
+  refreshError = "",
   onRefresh,
   onDownload,
-  onImportMongo,
   onRegenerate,
 }) {
   const currentResearchList = research?.data?.currentResearchList || research?.currentResearchList || {};
@@ -279,7 +286,6 @@ export function ResearchPanel({
   const allRewards = allTasks.flatMap(rewardsOf);
   const pokemonRewards = allRewards.filter((reward) => reward.rewardType === "pokemon").length;
   const itemRewards = allRewards.filter((reward) => reward.rewardType === "item").length;
-  const source = research?.meta?.source === "mongo" ? "MongoDB" : "JSON déployé";
   const sections = Object.entries(currentResearchList).map(([id, tasks]) => [
     id,
     sectionLabels[id] || id.replace(/([A-Z])/g, " $1"),
@@ -290,38 +296,33 @@ export function ResearchPanel({
     <div className="space-y-5">
       <Panel
         title="Research Pokémon GO"
-        eyebrow="quêtes compactes"
+        eyebrow="MongoDB + LeekDuck"
         action={
           <div className="flex flex-wrap gap-2">
-            <button className={buttonClass} type="button" onClick={onRefresh} disabled={loading}>
+            <button className={buttonClass} type="button" onClick={onRefresh} disabled={loading || regenerating}>
               <RefreshCcw size={17} /> {loading ? "Chargement..." : "Actualiser"}
             </button>
-            <button className={buttonClass} type="button" onClick={onDownload} disabled={!total}>
+            <button className={buttonClass} type="button" onClick={onDownload} disabled={!research?.current || !total || loading || regenerating}>
               <Download size={17} /> Télécharger JSON
             </button>
-            <button className={buttonClass} type="button" onClick={onImportMongo} disabled={Boolean(busyAction)}>
-              <CloudUpload size={17} /> {busyAction === "import" ? "Synchronisation..." : "Synchroniser MongoDB"}
-            </button>
-            <button className={primaryButtonClass} type="button" onClick={onRegenerate} disabled={Boolean(busyAction)}>
-              <RotateCcw size={17} /> {busyAction === "regenerate" ? "Régénération..." : "Régénérer Research"}
+            <button className={primaryButtonClass} type="button" onClick={onRegenerate} disabled={loading || regenerating}>
+              <RotateCcw size={17} /> {regenerating ? "Régénération..." : "Régénérer Research"}
             </button>
           </div>
         }
       >
         <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <AssetStatCard label="Quêtes" value={total} icon="/ui/Items/Item_1201.png" tone="cyan" detail="Toutes catégories" />
-          <AssetStatCard label="Référentiel items" value={items.length} icon="/ui/Items/stardust_painted.png" tone="amber" detail="items.json" />
-          <AssetStatCard label="Rewards Pokémon" value={pokemonRewards} icon={uiAssets.icons.pokemon} tone="green" detail="Données Pokémon locales" />
+          <AssetStatCard label="Référentiel items" value={items.length} icon="/ui/Items/stardust_painted.png" tone="amber" detail="Catalogue des items" />
+          <AssetStatCard label="Rewards Pokémon" value={pokemonRewards} icon={uiAssets.icons.pokemon} tone="green" detail="Référentiel Pokémon" />
           <AssetStatCard label="Rewards items" value={itemRewards} icon="/ui/Items/candy_rgb.png" tone="violet" detail="Match par nom/id" />
         </div>
-        <p className="mt-4 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-50/86">
-          Source active : {source}. Régénérer parse LeekDuck et met MongoDB à jour; télécharger et synchroniser utilisent le même JSON affiché.
-        </p>
+        <CurrentDatasetDiagnostics dataset={research} total={total} refreshError={refreshError} />
       </Panel>
 
       {loading && !total ? (
         <Panel title="Chargement Research">
-          <p className="font-bold text-slate-300">Lecture du JSON Research en cours.</p>
+          <p className="font-bold text-slate-300">Lecture des quêtes MongoDB en cours.</p>
         </Panel>
       ) : null}
 

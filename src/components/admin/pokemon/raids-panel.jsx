@@ -1,21 +1,27 @@
 "use client";
 
-import { CloudUpload, Download, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
+import { Download, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
 import { TypeIcons, WeatherIcons } from "./asset-icons";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
+import { CurrentDatasetDiagnostics } from "./current-dataset-diagnostics";
 import { TierSection } from "./tier-section";
 import { uiAssets } from "@/components/site/ui-assets";
 
 const raidSections = [
+  ["super_mega", "Super Méga", "/ui/raids/mega_raids_legendaire_raids.png", "violet"],
   ["ultra_beast", "Ultra Beast", "/ui/raids/ultra_breche_raids.png", "cyan"],
   ["mega", "Méga", "/ui/raids/mega_raids.png", "violet"],
+  ["primal", "Primal", "/ui/raids/primal_raids.png", "red"],
   ["lvl5", "5 étoiles", "/ui/raids/5_star_raids.png", "amber"],
   ["lvl3", "3 étoiles", "/ui/raids/3_star_raids.png", "green"],
   ["lvl1", "1 étoile", "/ui/raids/1_star_raids.png", "blue"],
   ["shadow_lvl5", "Shadow 5 étoiles", "/ui/raids/shadow_icon.png", "red"],
   ["shadow_lvl3", "Shadow 3 étoiles", "/ui/raids/teamrocket_r.png", "red"],
   ["shadow_lvl1", "Shadow 1 étoile", "/ui/raids/teamrocket_r.png", "red"],
+  ["special", "Raids spéciaux", "/ui/raids/elite_raids.png", "green"],
 ];
+
+const knownRaidSections = new Set(raidSections.map(([id]) => id));
 
 function values(data) {
   return Array.isArray(data) ? data : [];
@@ -23,6 +29,25 @@ function values(data) {
 
 function totalRaids(currentList) {
   return Object.values(currentList || {}).reduce((total, bosses) => total + values(bosses).length, 0);
+}
+
+function titleFromKey(key) {
+  return String(key)
+    .replace(/_/g, " ")
+    .replace(/\blvl\b/gi, "niveau")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function allRaidSections(currentList) {
+  const unknown = Object.entries(currentList || {})
+    .filter(([id]) => !knownRaidSections.has(id))
+    .map(([id, bosses]) => [
+      id,
+      values(bosses)[0]?.sectionTitle || titleFromKey(id),
+      "/ui/raids/elite_raids.png",
+      "cyan",
+    ]);
+  return [...raidSections, ...unknown];
 }
 
 function RaidPill({ children, tone = "" }) {
@@ -40,6 +65,14 @@ function RaidCard({ boss, onOpenPokemon, typeCatalog = [], weatherCatalog = [] }
   const boosted = boss.cpRangeBoost?.length === 2 ? `${boss.cpRangeBoost[0]} - ${boss.cpRangeBoost[1]}` : "n/a";
   const counters = Object.entries(boss.counter || {}).slice(0, 4);
   const canOpen = Boolean(onOpenPokemon && !boss.unmatched);
+  const habitat = typeof boss.habitat === "string"
+    ? boss.habitat
+    : boss.habitat?.name || boss.rotation?.name;
+  const rotation = boss.rotation?.label || (
+    boss.rotation?.startsAt || boss.rotation?.endsAt
+      ? `${boss.rotation?.startsAt || "?"} – ${boss.rotation?.endsAt || "?"}${boss.rotation?.timezoneMode ? ` (${boss.rotation.timezoneMode})` : ""}`
+      : null
+  );
 
   return (
     <button
@@ -101,6 +134,13 @@ function RaidCard({ boss, onOpenPokemon, typeCatalog = [], weatherCatalog = [] }
             </span>
           )) : <span>n/a</span>}
         </div>
+        {habitat || rotation ? (
+          <div className="rounded-2xl border border-violet-200/18 bg-violet-400/10 p-3 text-xs font-bold leading-5 text-violet-50">
+            <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-violet-100/60">Habitat / rotation</span>
+            {habitat ? <span className="block">{habitat}</span> : null}
+            {rotation && rotation !== habitat ? <span className="block text-violet-100/68">{rotation}</span> : null}
+          </div>
+        ) : null}
         {boss.note ? <p className="text-xs font-bold leading-5 text-cyan-100/80">{boss.note}</p> : null}
       </div>
     </button>
@@ -119,9 +159,9 @@ function RaidSection({ id, title, image, tone, bosses, onOpenPokemon, typeCatalo
       emptyText="Aucun boss dans cette section."
     >
         <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
-          {bosses.map((boss, index) => (
+          {bosses.map((boss) => (
             <RaidCard
-              key={`${id}-${boss.form || boss.id || boss.sourceName}-${index}`}
+              key={`${id}-${boss.form || boss.id || boss.sourceName}-${boss.rotation?.name || "current"}-${boss.rotation?.startsAt || ""}`}
               boss={boss}
               onOpenPokemon={onOpenPokemon}
               typeCatalog={typeCatalog}
@@ -136,10 +176,10 @@ function RaidSection({ id, title, image, tone, bosses, onOpenPokemon, typeCatalo
 export function RaidsPanel({
   raids,
   loading = false,
-  busyAction = "",
+  regenerating = false,
+  refreshError = "",
   onRefresh,
   onDownload,
-  onImportMongo,
   onRegenerate,
   onOpenPokemon,
   typeCatalog = [],
@@ -151,26 +191,23 @@ export function RaidsPanel({
   );
   const total = totalRaids(currentList);
   const openBugs = values(currentList.shadow_lvl5).length + values(currentList.shadow_lvl3).length + values(currentList.shadow_lvl1).length;
-  const source = raids?.meta?.source === "mongo" ? "MongoDB" : "JSON déployé";
+  const sections = allRaidSections(currentList);
 
   return (
     <div className="space-y-5">
       <Panel
         title="Raids Pokémon GO"
-        eyebrow="LeekDuck + JSON local"
+        eyebrow="MongoDB + LeekDuck"
         action={
           <div className="flex flex-wrap gap-2">
-            <button className={buttonClass} type="button" onClick={onRefresh} disabled={loading}>
+            <button className={buttonClass} type="button" onClick={onRefresh} disabled={loading || regenerating}>
               <RefreshCcw size={17} /> {loading ? "Chargement..." : "Actualiser"}
             </button>
-            <button className={buttonClass} type="button" onClick={onDownload} disabled={!total}>
+            <button className={buttonClass} type="button" onClick={onDownload} disabled={!raids?.current || !total || loading || regenerating}>
               <Download size={17} /> Télécharger JSON
             </button>
-            <button className={buttonClass} type="button" onClick={onImportMongo} disabled={Boolean(busyAction)}>
-              <CloudUpload size={17} /> {busyAction === "import" ? "Synchronisation..." : "Synchroniser MongoDB"}
-            </button>
-            <button className={primaryButtonClass} type="button" onClick={onRegenerate} disabled={Boolean(busyAction)}>
-              <RotateCcw size={17} /> {busyAction === "regenerate" ? "Régénération..." : "Régénérer raids"}
+            <button className={primaryButtonClass} type="button" onClick={onRegenerate} disabled={loading || regenerating}>
+              <RotateCcw size={17} /> {regenerating ? "Régénération..." : "Régénérer raids"}
             </button>
           </div>
         }
@@ -181,19 +218,17 @@ export function RaidsPanel({
           <AssetStatCard label="Shadow" value={openBugs} icon="/ui/raids/teamrocket_r.png" tone="amber" detail="Raids obscurs" />
           <AssetStatCard label="Ultra Beast" value={buckets.ultra_beast || 0} icon="/ui/raids/ultra_breche_raids.png" tone="green" detail="Ultra-brèches" />
         </div>
-        <p className="mt-4 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-50/86">
-          Source active : {source}. Régénérer parse LeekDuck et met MongoDB à jour; télécharger et synchroniser utilisent le même JSON affiché.
-        </p>
+        <CurrentDatasetDiagnostics dataset={raids} total={total} refreshError={refreshError} />
       </Panel>
 
       {loading && !total ? (
         <Panel title="Chargement des raids">
-          <p className="font-bold text-slate-300">Lecture du JSON raids en cours.</p>
+          <p className="font-bold text-slate-300">Lecture des raids MongoDB en cours.</p>
         </Panel>
       ) : null}
 
       <div className="space-y-4">
-        {raidSections.map(([id, title, image, tone]) => (
+        {sections.map(([id, title, image, tone]) => (
           <RaidSection
             key={id}
             id={id}
