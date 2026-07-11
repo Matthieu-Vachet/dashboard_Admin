@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown, Download, RefreshCcw, RotateCcw } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ChevronDown, Crown, Download, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
 import { CurrentDatasetDiagnostics } from "./current-dataset-diagnostics";
+import { DatasetFilterBar } from "./dataset-filter-bar";
 import { uiAssets } from "@/components/site/ui-assets";
 
 const rocketTrainerAssets = {
@@ -195,6 +196,9 @@ function StatusIcons({ pokemon }) {
 function PokemonCard({ pokemon, onOpenPokemon, compact = false }) {
   const name = pokemonName(pokemon);
   const canOpen = Boolean(onOpenPokemon && !pokemon.unmatched);
+  const sourceName = pokemon.sourceName && pokemon.sourceName !== name ? pokemon.sourceName : null;
+  const doubleWeaknesses = values(pokemon.weaknesses?.double);
+  const singleWeaknesses = values(pokemon.weaknesses?.single);
 
   return (
     <button
@@ -218,12 +222,19 @@ function PokemonCard({ pokemon, onOpenPokemon, compact = false }) {
             {!compact && pokemon.names?.English && pokemon.names.English !== name ? (
               <span className="block truncate text-xs font-bold text-slate-400">{pokemon.names.English}</span>
             ) : null}
+            {sourceName ? <span className="block truncate text-[11px] font-bold text-cyan-100/65">Source : {sourceName}</span> : null}
           </span>
           <StatusIcons pokemon={pokemon} />
         </span>
         <span className="flex min-w-0 items-center justify-between gap-2">
           <TypeIcons types={pokemon.types} />
           {canOpen ? <span className="text-[10px] font-black uppercase tracking-[0.14em] text-cyan-100/60">Ouvrir</span> : null}
+        </span>
+        <span className="flex flex-wrap items-center gap-1.5 text-[10px] font-black text-slate-400">
+          {pokemon.form ? <span className="rounded-full border border-cyan-200/20 bg-cyan-400/10 px-2 py-1 text-cyan-50">{pokemon.form}</span> : null}
+          {pokemon.assets?.sourceImage ? <span className="rounded-full border border-emerald-200/20 bg-emerald-400/10 px-2 py-1 text-emerald-50">Asset source</span> : null}
+          {doubleWeaknesses.length ? <span>Double faiblesse : {doubleWeaknesses.join(" · ")}</span> : null}
+          {singleWeaknesses.length ? <span>Faiblesses : {singleWeaknesses.join(" · ")}</span> : null}
         </span>
       </span>
     </button>
@@ -341,13 +352,36 @@ export function RocketPanel({
   onRegenerate,
   onOpenPokemon,
 }) {
-  const currentRocketList = rocket?.data?.currentRocketList || rocket?.currentRocketList || {};
+  const [query, setQuery] = useState("");
+  const [shinyOnly, setShinyOnly] = useState(false);
+  const [bossOnly, setBossOnly] = useState(false);
+  const currentRocketList = useMemo(() => rocket?.data?.currentRocketList || rocket?.currentRocketList || {}, [rocket]);
   const texts = rocketTextList(rocketTexts);
-  const groups = trainerGroups(currentRocketList);
+  const groups = useMemo(() => trainerGroups(currentRocketList), [currentRocketList]);
   const profiles = groups.flatMap(([, items]) => items);
   const totalTrainers = profiles.length;
   const totalEntries = totalPokemon(profiles);
   const translatedProfiles = profiles.filter((profile) => findRocketText(profile, texts)).length;
+  const normalizedQuery = textKey(query);
+  const filteredGroups = useMemo(() => groups.map(([title, items, group]) => [
+    title,
+    items.filter((profile) => {
+      const pokemon = [...Object.values(profile.slots || {}).flatMap(values), ...values(profile.rewards)];
+      if (shinyOnly && !pokemon.some((entry) => entry.shiny)) return false;
+      if (bossOnly && !["giovanni", "leader"].includes(group)) return false;
+      if (!normalizedQuery) return true;
+      return textKey([
+        profile.trainer,
+        profile.trainerSlug,
+        profile.trainerType,
+        profile.rocketType,
+        profile.quote,
+        ...pokemon.flatMap((entry) => [entry.sourceName, entry.id, entry.form, ...Object.values(entry.names || {}), ...values(entry.types)]),
+      ].filter(Boolean).join(" ")).includes(normalizedQuery);
+    }),
+    group,
+  ]), [bossOnly, groups, normalizedQuery, shinyOnly]);
+  const visibleProfiles = filteredGroups.reduce((sum, group) => sum + group[1].length, 0);
 
   return (
     <div className="space-y-5">
@@ -377,13 +411,25 @@ export function RocketPanel({
         <CurrentDatasetDiagnostics dataset={rocket} total={totalTrainers} refreshError={refreshError} />
       </Panel>
 
+      <DatasetFilterBar
+        query={query}
+        onQueryChange={setQuery}
+        placeholder="Rechercher trainer, phrase, type ou Pokémon..."
+        resultCount={visibleProfiles}
+        totalCount={totalTrainers}
+        toggles={[
+          { id: "shiny", label: "Lineup Shiny", active: shinyOnly, onClick: () => setShinyOnly((value) => !value), icon: <Sparkles size={15} /> },
+          { id: "boss", label: "Boss & Leaders", active: bossOnly, onClick: () => setBossOnly((value) => !value), icon: <Crown size={15} /> },
+        ]}
+      />
+
       {loading && !totalTrainers ? (
         <Panel title="Chargement Rocket">
           <p className="font-bold text-slate-300">Lecture des lineups MongoDB en cours.</p>
         </Panel>
       ) : null}
 
-      {groups.map(([title, items, group]) => (
+      {filteredGroups.map(([title, items, group]) => (
         <section key={title} className="space-y-3">
           <div className="flex items-center justify-between gap-3">
             <div>

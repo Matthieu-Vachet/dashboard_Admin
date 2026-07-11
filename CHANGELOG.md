@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.19.0 - 2026-07-11
+
+- Corrige l'affichage des raids autour de la rotation dynamique reelle choisie par LeekDuck et relie l'evenement au calendrier.
+- Revoit les cinq panneaux Raids, Oeufs, Max Battles, Research et Rocket avec recherche, filtres, resultats et informations metier enrichies.
+- Affiche systematiquement les images Pokemon, leurs noms localises et source, ainsi que les formes, costumes et badges d'assets exacts.
+- Enrichit les diagnostics de provenance et la couverture du calendrier Events.
+
 ## 1.18.1 - 2026-07-11
 
 - Corrige la cible du proxy Pokemon en production en utilisant l'alias public stable de PokemonGo-API.

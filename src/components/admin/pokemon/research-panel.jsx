@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown, Download, Package, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
+import { useMemo, useState } from "react";
+import { CalendarDays, ChevronDown, Download, Eye, Package, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
 import { CurrentDatasetDiagnostics } from "./current-dataset-diagnostics";
+import { DatasetEventBanner } from "./dataset-event-banner";
+import { DatasetFilterBar } from "./dataset-filter-bar";
 import { uiAssets } from "@/components/site/ui-assets";
 
 const sectionLabels = {
@@ -146,6 +148,7 @@ function Badge({ children, tone = "border-white/10 bg-white/[0.07] text-white" }
 function PokemonReward({ reward }) {
   const name = reward.names?.French || reward.names?.English || reward.sourceName || reward.id || "Pokemon";
   const cp = reward.cpRange?.length === 2 ? `${reward.cpRange[0]} - ${reward.cpRange[1]}` : null;
+  const sourceName = reward.sourceName && reward.sourceName !== name ? reward.sourceName : null;
 
   return (
     <article className="grid min-w-0 grid-cols-[72px_minmax(0,1fr)] gap-3 rounded-2xl border border-cyan-200/14 bg-cyan-400/8 p-3">
@@ -166,10 +169,12 @@ function PokemonReward({ reward }) {
             </Badge>
           ) : null}
         </span>
+        {sourceName ? <span className="block truncate text-[11px] font-bold text-cyan-100/65">Source : {sourceName}</span> : null}
         <span className="flex flex-wrap items-center gap-2">
           <TypeIcons types={reward.types} />
           {cp ? <Badge tone="border-cyan-200/25 bg-cyan-400/14 text-cyan-50">CP {cp}</Badge> : null}
           {reward.unmatched ? <Badge tone="border-red-200/30 bg-red-400/16 text-red-50">Non matché</Badge> : null}
+          {reward.assets?.sourceImage ? <Badge tone="border-emerald-200/25 bg-emerald-400/12 text-emerald-50">Asset source</Badge> : null}
         </span>
       </span>
     </article>
@@ -181,6 +186,7 @@ function ItemReward({ reward, items }) {
   const name = item?.names?.French || item?.names?.English || reward.name || reward.id || "Item";
   const english = item?.names?.English && item.names.English !== name ? item.names.English : null;
   const src = item?.asset || reward.asset || null;
+  const sourceName = reward.sourceName && reward.sourceName !== name ? reward.sourceName : null;
 
   return (
     <article className="grid min-w-0 grid-cols-[64px_minmax(0,1fr)] gap-3 rounded-2xl border border-amber-200/16 bg-amber-400/9 p-3">
@@ -193,7 +199,9 @@ function ItemReward({ reward, items }) {
           {reward.quantity ? <Badge tone="border-amber-200/25 bg-amber-300/16 text-amber-50">x{reward.quantity}</Badge> : null}
         </span>
         {english ? <span className="mt-1 block truncate text-xs font-bold text-slate-400">{english}</span> : null}
+        {sourceName ? <span className="mt-1 block truncate text-[11px] font-bold text-cyan-100/65">Source : {sourceName}</span> : null}
         {item?.id ? <span className="mt-1 block truncate font-mono text-[10px] font-black uppercase text-amber-100/62">{item.id}</span> : null}
+        {reward.sourceAsset ? <Badge tone="mt-2 border-emerald-200/25 bg-emerald-400/12 text-emerald-50">Asset source</Badge> : null}
       </span>
     </article>
   );
@@ -279,18 +287,54 @@ export function ResearchPanel({
   onDownload,
   onRegenerate,
 }) {
-  const currentResearchList = research?.data?.currentResearchList || research?.currentResearchList || {};
+  const [query, setQuery] = useState("");
+  const [eventOnly, setEventOnly] = useState(false);
+  const [pokemonOnly, setPokemonOnly] = useState(false);
+  const [unmatchedOnly, setUnmatchedOnly] = useState(false);
+  const currentResearchList = useMemo(() => research?.data?.currentResearchList || research?.currentResearchList || {}, [research]);
   const items = itemList(itemsReference);
   const total = totalTasks(currentResearchList);
   const allTasks = Object.values(currentResearchList).flatMap(values);
   const allRewards = allTasks.flatMap(rewardsOf);
   const pokemonRewards = allRewards.filter((reward) => reward.rewardType === "pokemon").length;
   const itemRewards = allRewards.filter((reward) => reward.rewardType === "item").length;
-  const sections = Object.entries(currentResearchList).map(([id, tasks]) => [
+  const sections = useMemo(() => Object.entries(currentResearchList).map(([id, tasks]) => [
     id,
     sectionLabels[id] || id.replace(/([A-Z])/g, " $1"),
     values(tasks),
-  ]);
+  ]), [currentResearchList]);
+  const normalizedQuery = textKey(query);
+  const filteredSections = useMemo(() => sections.map(([id, title, tasks]) => [
+    id,
+    title,
+    tasks.filter((task) => {
+      const rewards = rewardsOf(task);
+      if (eventOnly && id !== "eventResearch" && !task.event?.name) return false;
+      if (pokemonOnly && !rewards.some((entry) => entry.rewardType === "pokemon")) return false;
+      if (unmatchedOnly && !rewards.some((entry) => entry.reward?.unmatched)) return false;
+      if (!normalizedQuery) return true;
+      return textKey([
+        task.task,
+        task.category,
+        task.categoryTitle,
+        task.event?.name,
+        ...rewards.flatMap((entry) => [
+          entry.rewardType,
+          entry.reward?.sourceName,
+          entry.reward?.name,
+          entry.reward?.id,
+          ...Object.values(entry.reward?.names || {}),
+        ]),
+      ].filter(Boolean).join(" ")).includes(normalizedQuery);
+    }),
+  ]), [eventOnly, normalizedQuery, pokemonOnly, sections, unmatchedOnly]);
+  const visibleTotal = filteredSections.reduce((sum, section) => sum + section[2].length, 0);
+  const firstEventTask = allTasks.find((task) => task.event?.name);
+  const sourceEvent = research?.meta?.event || research?.current?.source?.event || (firstEventTask?.event?.name ? {
+    name: firstEventTask.event.name,
+    endsAt: firstEventTask.event.endsAt,
+    status: "event research",
+  } : null);
 
   return (
     <div className="space-y-5">
@@ -320,6 +364,21 @@ export function ResearchPanel({
         <CurrentDatasetDiagnostics dataset={research} total={total} refreshError={refreshError} />
       </Panel>
 
+      <DatasetEventBanner event={sourceEvent} />
+
+      <DatasetFilterBar
+        query={query}
+        onQueryChange={setQuery}
+        placeholder="Rechercher une tâche, un Pokémon, un item ou un événement..."
+        resultCount={visibleTotal}
+        totalCount={total}
+        toggles={[
+          { id: "event", label: "Événement", active: eventOnly, onClick: () => setEventOnly((value) => !value), icon: <CalendarDays size={15} /> },
+          { id: "pokemon", label: "Récompense Pokémon", active: pokemonOnly, onClick: () => setPokemonOnly((value) => !value), icon: <Sparkles size={15} /> },
+          { id: "unmatched", label: "Non matchés", active: unmatchedOnly, onClick: () => setUnmatchedOnly((value) => !value), icon: <Eye size={15} /> },
+        ]}
+      />
+
       {loading && !total ? (
         <Panel title="Chargement Research">
           <p className="font-bold text-slate-300">Lecture des quêtes MongoDB en cours.</p>
@@ -327,7 +386,7 @@ export function ResearchPanel({
       ) : null}
 
       <div className="space-y-4">
-        {sections.map(([id, title, tasks], index) => (
+        {filteredSections.map(([id, title, tasks], index) => (
           <ResearchSection key={id} id={id} title={title} tasks={tasks} items={items} defaultOpen={index < 2} />
         ))}
       </div>

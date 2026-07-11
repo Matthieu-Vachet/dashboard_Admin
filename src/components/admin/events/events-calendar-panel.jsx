@@ -28,14 +28,17 @@ import {
   Clock3,
   Copy,
   Download,
+  Egg,
   ExternalLink,
   FileJson,
   Filter,
+  FlaskConical,
   List,
   Pencil,
   RefreshCcw,
   Search,
   Sparkles,
+  Swords,
   Trash2,
   Upload,
   X,
@@ -462,6 +465,12 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon }) {
   const activeCount = events.filter((event) => eventStatus(event) === "current").length;
   const upcomingCount = events.filter((event) => eventStatus(event) === "upcoming").length;
   const archivedCount = events.filter((event) => event.status === "archived").length;
+  const coverage = useMemo(() => filteredEvents.reduce((total, event) => ({
+    pokemon: total.pokemon + (event.featuredPokemon?.length || 0),
+    raids: total.raids + (event.raids?.length || 0),
+    research: total.research + (event.research?.length || event.researchTasks?.length || 0),
+    eggs: total.eggs + (event.eggs?.length || 0),
+  }), { pokemon: 0, raids: 0, research: 0, eggs: 0 }), [filteredEvents]);
 
   function openCreate(date) {
     setDraft(emptyDraft(date || new Date()));
@@ -662,11 +671,14 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon }) {
           </div>
         }
       >
-        <div className="grid gap-3 md:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7">
           <StatTile icon={<CalendarDays size={19} />} label="Events visibles" value={filteredEvents.length} />
           <StatTile icon={<Sparkles size={19} />} label="En cours" value={activeCount} tone="green" />
           <StatTile icon={<Clock3 size={19} />} label="À venir" value={upcomingCount} tone="cyan" />
           <StatTile icon={<Archive size={19} />} label="Archivés" value={archivedCount} tone="amber" />
+          <StatTile icon={<Swords size={19} />} label="Raids liés" value={coverage.raids} tone="violet" />
+          <StatTile icon={<FlaskConical size={19} />} label="Research liées" value={coverage.research} tone="green" />
+          <StatTile icon={<Egg size={19} />} label="Pokémon illustrés" value={coverage.pokemon} tone="amber" />
         </div>
         <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_180px_180px_170px_auto]">
           <label className="relative block">
@@ -831,6 +843,7 @@ function StatTile({ icon, label, value, tone = "cyan" }) {
     cyan: "border-cyan-200/20 bg-cyan-400/10 text-cyan-100",
     green: "border-emerald-200/20 bg-emerald-400/10 text-emerald-100",
     amber: "border-amber-200/20 bg-amber-400/10 text-amber-100",
+    violet: "border-violet-200/20 bg-violet-400/10 text-violet-100",
   }[tone];
   return (
     <article className={`rounded-2xl border p-4 ${toneClass}`}>

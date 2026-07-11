@@ -1,9 +1,11 @@
 "use client";
 
 import { Download, RefreshCcw, RotateCcw, Sparkles, Zap } from "lucide-react";
+import { useMemo, useState } from "react";
 import { TypeIcons } from "./asset-icons";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
 import { CurrentDatasetDiagnostics } from "./current-dataset-diagnostics";
+import { DatasetFilterBar } from "./dataset-filter-bar";
 import { TierSection } from "./tier-section";
 import { uiAssets } from "@/components/site/ui-assets";
 
@@ -43,6 +45,7 @@ function MaxPill({ children, tone = "" }) {
 function MaxBattleCard({ pokemon, onOpenPokemon, typeCatalog = [] }) {
   const name = pokemon.names?.French || pokemon.names?.English || pokemon.sourceName || pokemon.id || "Pokemon inconnu";
   const english = pokemon.names?.English && pokemon.names.English !== name ? pokemon.names.English : null;
+  const sourceName = pokemon.sourceName && ![name, english].filter(Boolean).includes(pokemon.sourceName) ? pokemon.sourceName : null;
   const cp = pokemon.cpRange?.length === 2 ? `${pokemon.cpRange[0]} - ${pokemon.cpRange[1]}` : pokemon.cpRange?.[0] || "n/a";
   const canOpen = Boolean(onOpenPokemon && !pokemon.unmatched);
 
@@ -79,11 +82,14 @@ function MaxBattleCard({ pokemon, onOpenPokemon, typeCatalog = [] }) {
         <div className="min-w-0">
           <h3 className="truncate text-lg font-black text-white">{name}</h3>
           {english ? <p className="truncate text-xs font-bold text-slate-400">{english}</p> : null}
+          {sourceName ? <p className="mt-1 truncate text-[11px] font-bold text-cyan-100/65">Source : {sourceName}</p> : null}
         </div>
         <div className="flex flex-wrap gap-1.5">
           <TypeIcons types={pokemon.types} catalog={typeCatalog} />
           {pokemon.form ? <MaxPill tone="border-cyan-200/25 bg-cyan-400/12 text-cyan-50">{pokemon.form}</MaxPill> : null}
           {pokemon.costume ? <MaxPill tone="border-fuchsia-200/25 bg-fuchsia-400/12 text-fuchsia-50">{pokemon.costume}</MaxPill> : null}
+          {pokemon.maxForm ? <MaxPill tone="border-violet-200/25 bg-violet-400/12 text-violet-50">{pokemon.maxForm}</MaxPill> : null}
+          {pokemon.assets?.sourceImage ? <MaxPill tone="border-emerald-200/20 bg-emerald-400/10 text-emerald-50">Asset source</MaxPill> : null}
         </div>
         <p className="rounded-2xl border border-white/10 bg-white/[0.055] p-3 text-sm font-black text-slate-200">
           <small className="block text-[10px] uppercase tracking-[0.16em] text-slate-500">CP Max Battle</small>
@@ -130,12 +136,24 @@ export function MaxBattlesPanel({
   onOpenPokemon,
   typeCatalog = [],
 }) {
-  const currentMaxBattle = maxBattles?.data?.currentMaxBattle || maxBattles?.currentMaxBattle || {};
+  const [query, setQuery] = useState("");
+  const [shinyOnly, setShinyOnly] = useState(false);
+  const [gigantamaxOnly, setGigantamaxOnly] = useState(false);
+  const currentMaxBattle = useMemo(() => maxBattles?.data?.currentMaxBattle || maxBattles?.currentMaxBattle || {}, [maxBattles]);
   const buckets = maxBattles?.meta?.buckets || Object.fromEntries(
     Object.entries(currentMaxBattle).map(([key, pokemon]) => [key, values(pokemon).length]),
   );
   const total = totalBattles(currentMaxBattle);
-  const tierEntries = sortedTierEntries(currentMaxBattle);
+  const tierEntries = useMemo(() => sortedTierEntries(currentMaxBattle), [currentMaxBattle]);
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredTierEntries = useMemo(() => tierEntries.map(([id, pokemon]) => [id, values(pokemon).filter((entry) => {
+    if (shinyOnly && !entry.shiny) return false;
+    if (gigantamaxOnly && !String(entry.maxForm || entry.form || "").toLowerCase().includes("gigantamax")) return false;
+    if (!normalizedQuery) return true;
+    return [entry.sourceName, entry.id, entry.form, entry.maxForm, id, ...Object.values(entry.names || {}), ...values(entry.types)]
+      .filter(Boolean).join(" ").toLowerCase().includes(normalizedQuery);
+  })]), [gigantamaxOnly, normalizedQuery, shinyOnly, tierEntries]);
+  const visibleTotal = filteredTierEntries.reduce((sum, [, pokemon]) => sum + pokemon.length, 0);
 
   return (
     <div className="space-y-5">
@@ -165,6 +183,18 @@ export function MaxBattlesPanel({
         <CurrentDatasetDiagnostics dataset={maxBattles} total={total} refreshError={refreshError} />
       </Panel>
 
+      <DatasetFilterBar
+        query={query}
+        onQueryChange={setQuery}
+        placeholder="Rechercher Pokémon, type, forme Max ou tier..."
+        resultCount={visibleTotal}
+        totalCount={total}
+        toggles={[
+          { id: "shiny", label: "Shiny", active: shinyOnly, onClick: () => setShinyOnly((value) => !value), icon: <Sparkles size={15} /> },
+          { id: "gigantamax", label: "Gigamax", active: gigantamaxOnly, onClick: () => setGigantamaxOnly((value) => !value), icon: <Zap size={15} /> },
+        ]}
+      />
+
       {loading && !total ? (
         <Panel title="Chargement des Max Battles">
           <p className="font-bold text-slate-300">Lecture des Max Battles MongoDB en cours.</p>
@@ -172,7 +202,7 @@ export function MaxBattlesPanel({
       ) : null}
 
       <div className="space-y-4">
-        {tierEntries.map(([id, pokemon]) => (
+        {filteredTierEntries.map(([id, pokemon]) => (
           <MaxBattleSection
             key={id}
             id={id}

@@ -1,1 +1,1 @@
-export const DASHBOARD_VERSION = "V1.18.1";
+export const DASHBOARD_VERSION = "V1.19.0";

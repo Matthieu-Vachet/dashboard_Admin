@@ -1,9 +1,12 @@
 "use client";
 
-import { Download, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
+import { Download, Eye, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
+import { useMemo, useState } from "react";
 import { TypeIcons, WeatherIcons } from "./asset-icons";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
 import { CurrentDatasetDiagnostics } from "./current-dataset-diagnostics";
+import { DatasetEventBanner } from "./dataset-event-banner";
+import { DatasetFilterBar } from "./dataset-filter-bar";
 import { TierSection } from "./tier-section";
 import { uiAssets } from "@/components/site/ui-assets";
 
@@ -65,6 +68,7 @@ function RaidCard({ boss, onOpenPokemon, typeCatalog = [], weatherCatalog = [] }
   const boosted = boss.cpRangeBoost?.length === 2 ? `${boss.cpRangeBoost[0]} - ${boss.cpRangeBoost[1]}` : "n/a";
   const counters = Object.entries(boss.counter || {}).slice(0, 4);
   const canOpen = Boolean(onOpenPokemon && !boss.unmatched);
+  const sourceName = boss.sourceName && ![name, english].filter(Boolean).includes(boss.sourceName) ? boss.sourceName : null;
   const habitat = typeof boss.habitat === "string"
     ? boss.habitat
     : boss.habitat?.name || boss.rotation?.name;
@@ -104,11 +108,14 @@ function RaidCard({ boss, onOpenPokemon, typeCatalog = [], weatherCatalog = [] }
         <div className="min-w-0">
           <h3 className="truncate text-lg font-black text-white">{name}</h3>
           {english ? <p className="truncate text-xs font-bold text-slate-400">{english}</p> : null}
+          {sourceName ? <p className="mt-1 line-clamp-2 text-[11px] font-bold text-cyan-100/65">Source : {sourceName}</p> : null}
         </div>
         <div className="flex flex-wrap gap-1.5">
           <TypeIcons types={boss.types} catalog={typeCatalog} />
           {boss.form ? <RaidPill tone="border-cyan-200/25 bg-cyan-400/12 text-cyan-50">{boss.form}</RaidPill> : null}
           {boss.costume ? <RaidPill tone="border-fuchsia-200/25 bg-fuchsia-400/12 text-fuchsia-50">{boss.costume}</RaidPill> : null}
+          {boss.assets?.sourceImage ? <RaidPill tone="border-emerald-200/20 bg-emerald-400/10 text-emerald-50">Asset source</RaidPill> : null}
+          {boss.raidType ? <RaidPill tone="border-white/10 bg-white/[0.06] text-slate-200">{boss.raidType}</RaidPill> : null}
         </div>
         <div className="grid gap-2 text-xs font-bold text-slate-300 sm:grid-cols-2">
           <span className="rounded-2xl border border-white/10 bg-white/[0.055] p-3">
@@ -185,13 +192,33 @@ export function RaidsPanel({
   typeCatalog = [],
   weatherCatalog = [],
 }) {
-  const currentList = raids?.data?.currentList || raids?.currentList || {};
+  const [query, setQuery] = useState("");
+  const [shinyOnly, setShinyOnly] = useState(false);
+  const [unmatchedOnly, setUnmatchedOnly] = useState(false);
+  const currentList = useMemo(() => raids?.data?.currentList || raids?.currentList || {}, [raids]);
   const buckets = raids?.meta?.buckets || Object.fromEntries(
     Object.entries(currentList).map(([key, bosses]) => [key, values(bosses).length]),
   );
   const total = totalRaids(currentList);
   const openBugs = values(currentList.shadow_lvl5).length + values(currentList.shadow_lvl3).length + values(currentList.shadow_lvl1).length;
-  const sections = allRaidSections(currentList);
+  const sections = useMemo(() => allRaidSections(currentList), [currentList]);
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredSections = useMemo(() => sections.map((section) => {
+    const [id] = section;
+    const bosses = values(currentList[id]).filter((boss) => {
+      if (shinyOnly && !boss.shiny) return false;
+      if (unmatchedOnly && !boss.unmatched) return false;
+      if (!normalizedQuery) return true;
+      return [boss.sourceName, boss.id, boss.form, boss.costume, boss.sectionTitle, boss.rotation?.name, ...Object.values(boss.names || {}), ...values(boss.types)]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(normalizedQuery);
+    });
+    return [...section, bosses];
+  }), [currentList, normalizedQuery, sections, shinyOnly, unmatchedOnly]);
+  const visibleTotal = filteredSections.reduce((sum, section) => sum + section[4].length, 0);
+  const sourceEvent = raids?.meta?.event || raids?.current?.source?.event;
 
   return (
     <div className="space-y-5">
@@ -221,6 +248,20 @@ export function RaidsPanel({
         <CurrentDatasetDiagnostics dataset={raids} total={total} refreshError={refreshError} />
       </Panel>
 
+      <DatasetEventBanner event={sourceEvent} />
+
+      <DatasetFilterBar
+        query={query}
+        onQueryChange={setQuery}
+        placeholder="Rechercher boss, type, forme, costume ou habitat..."
+        resultCount={visibleTotal}
+        totalCount={total}
+        toggles={[
+          { id: "shiny", label: "Shiny", active: shinyOnly, onClick: () => setShinyOnly((value) => !value), icon: <Sparkles size={15} /> },
+          { id: "unmatched", label: "Non matchés", active: unmatchedOnly, onClick: () => setUnmatchedOnly((value) => !value), icon: <Eye size={15} /> },
+        ]}
+      />
+
       {loading && !total ? (
         <Panel title="Chargement des raids">
           <p className="font-bold text-slate-300">Lecture des raids MongoDB en cours.</p>
@@ -228,14 +269,14 @@ export function RaidsPanel({
       ) : null}
 
       <div className="space-y-4">
-        {sections.map(([id, title, image, tone]) => (
+        {filteredSections.map(([id, title, image, tone, bosses]) => (
           <RaidSection
             key={id}
             id={id}
             title={title}
             image={image}
             tone={tone}
-            bosses={values(currentList[id])}
+            bosses={bosses}
             onOpenPokemon={onOpenPokemon}
             typeCatalog={typeCatalog}
             weatherCatalog={weatherCatalog}

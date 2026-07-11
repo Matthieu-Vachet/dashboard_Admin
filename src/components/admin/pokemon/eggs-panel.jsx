@@ -1,9 +1,11 @@
 "use client";
 
 import { Download, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
+import { useMemo, useState } from "react";
 import { TypeIcons } from "./asset-icons";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
 import { CurrentDatasetDiagnostics } from "./current-dataset-diagnostics";
+import { DatasetFilterBar } from "./dataset-filter-bar";
 import { TierSection } from "./tier-section";
 import { uiAssets } from "@/components/site/ui-assets";
 
@@ -70,6 +72,7 @@ function Rarity({ value }) {
 function EggCard({ pokemon, onOpenPokemon, typeCatalog = [] }) {
   const name = pokemon.names?.French || pokemon.names?.English || pokemon.sourceName || pokemon.id || "Pokemon inconnu";
   const english = pokemon.names?.English && pokemon.names.English !== name ? pokemon.names.English : null;
+  const sourceName = pokemon.sourceName && ![name, english].filter(Boolean).includes(pokemon.sourceName) ? pokemon.sourceName : null;
   const canOpen = Boolean(onOpenPokemon && !pokemon.unmatched);
 
   return (
@@ -103,6 +106,7 @@ function EggCard({ pokemon, onOpenPokemon, typeCatalog = [] }) {
           <div className="min-w-0">
             <h3 className="truncate text-lg font-black text-white">{name}</h3>
             {english ? <p className="truncate text-xs font-bold text-slate-400">{english}</p> : null}
+            {sourceName ? <p className="mt-1 truncate text-[11px] font-bold text-cyan-100/65">Source : {sourceName}</p> : null}
           </div>
           <Rarity value={pokemon.rarity} />
         </div>
@@ -110,6 +114,7 @@ function EggCard({ pokemon, onOpenPokemon, typeCatalog = [] }) {
           <TypeIcons types={pokemon.types} catalog={typeCatalog} />
           {pokemon.form ? <EggPill tone="border-cyan-200/25 bg-cyan-400/12 text-cyan-50">{pokemon.form}</EggPill> : null}
           {pokemon.costume ? <EggPill tone="border-fuchsia-200/25 bg-fuchsia-400/12 text-fuchsia-50">{pokemon.costume}</EggPill> : null}
+          {pokemon.assets?.sourceImage ? <EggPill tone="border-emerald-200/20 bg-emerald-400/10 text-emerald-50">Asset source</EggPill> : null}
         </div>
         <p className="rounded-2xl border border-white/10 bg-white/[0.055] p-3 text-sm font-black text-slate-200">
           <small className="block text-[10px] uppercase tracking-[0.16em] text-slate-500">CP oeuf</small>
@@ -156,13 +161,29 @@ export function EggsPanel({
   onOpenPokemon,
   typeCatalog = [],
 }) {
-  const currentEggsList = eggs?.data?.currentEggsList || eggs?.currentEggsList || {};
+  const [query, setQuery] = useState("");
+  const [shinyOnly, setShinyOnly] = useState(false);
+  const [rareOnly, setRareOnly] = useState(false);
+  const currentEggsList = useMemo(() => eggs?.data?.currentEggsList || eggs?.currentEggsList || {}, [eggs]);
   const buckets = eggs?.meta?.buckets || Object.fromEntries(
     Object.entries(currentEggsList).map(([key, pokemon]) => [key, values(pokemon).length]),
   );
   const total = totalEggs(currentEggsList);
   const adventureTotal = (buckets["5km_adventure_sync"] || 0) + (buckets["10km_adventure_sync"] || 0);
-  const sections = allEggSections(currentEggsList);
+  const sections = useMemo(() => allEggSections(currentEggsList), [currentEggsList]);
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredSections = useMemo(() => sections.map((section) => {
+    const [id] = section;
+    const pokemon = values(currentEggsList[id]).filter((entry) => {
+      if (shinyOnly && !entry.shiny) return false;
+      if (rareOnly && Number(entry.rarity || 0) < 4) return false;
+      if (!normalizedQuery) return true;
+      return [entry.sourceName, entry.id, entry.form, entry.costume, entry.sourceCategory, ...Object.values(entry.names || {}), ...values(entry.types)]
+        .filter(Boolean).join(" ").toLowerCase().includes(normalizedQuery);
+    });
+    return [...section, pokemon];
+  }), [currentEggsList, normalizedQuery, rareOnly, sections, shinyOnly]);
+  const visibleTotal = filteredSections.reduce((sum, section) => sum + section[4].length, 0);
 
   return (
     <div className="space-y-5">
@@ -192,6 +213,18 @@ export function EggsPanel({
         <CurrentDatasetDiagnostics dataset={eggs} total={total} refreshError={refreshError} />
       </Panel>
 
+      <DatasetFilterBar
+        query={query}
+        onQueryChange={setQuery}
+        placeholder="Rechercher Pokémon, type, forme ou catégorie d'œuf..."
+        resultCount={visibleTotal}
+        totalCount={total}
+        toggles={[
+          { id: "shiny", label: "Shiny", active: shinyOnly, onClick: () => setShinyOnly((value) => !value), icon: <Sparkles size={15} /> },
+          { id: "rare", label: "Rareté 4+", active: rareOnly, onClick: () => setRareOnly((value) => !value) },
+        ]}
+      />
+
       {loading && !total ? (
         <Panel title="Chargement des oeufs">
           <p className="font-bold text-slate-300">Lecture des oeufs MongoDB en cours.</p>
@@ -199,14 +232,14 @@ export function EggsPanel({
       ) : null}
 
       <div className="space-y-4">
-        {sections.map(([id, title, image, tone]) => (
+        {filteredSections.map(([id, title, image, tone, pokemon]) => (
           <EggSection
             key={id}
             id={id}
             title={title}
             image={image}
             tone={tone}
-            pokemon={values(currentEggsList[id])}
+            pokemon={pokemon}
             onOpenPokemon={onOpenPokemon}
             typeCatalog={typeCatalog}
           />

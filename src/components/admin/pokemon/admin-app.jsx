@@ -970,6 +970,10 @@ export function AdminApp() {
   useEffect(() => {
     setAssetChecks(readLocalJson(legacyAssetChecksKey, {}));
     setCollections(readLocalJson(collectionsKey, []));
+    const requestedSection = new URLSearchParams(window.location.search).get("section");
+    if (requestedSection && navItems.some(([id]) => id === requestedSection)) {
+      setActive(requestedSection);
+    }
   }, []);
 
   useEffect(() => {

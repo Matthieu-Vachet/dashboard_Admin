@@ -68,6 +68,13 @@ export function CurrentDatasetDiagnostics({ dataset, total = 0, refreshError = "
   const sourceHash = firstDefined(meta.sourceHash, current.sourceHash, "Indisponible");
   const shortHash = sourceHash === "Indisponible" ? sourceHash : String(sourceHash).slice(0, 12);
   const status = firstDefined(meta.status, current.status, "inconnu");
+  const timezone = firstDefined(meta.timezone, sourceDetails.timezone, diagnostics.details?.timezone);
+  const selection = firstDefined(meta.selection, sourceDetails.selection, diagnostics.details?.selectedRaids);
+  const dynamicShellDetected = Boolean(firstDefined(
+    meta.dynamicShellDetected,
+    sourceDetails.dynamicShellDetected,
+    diagnostics.details?.dynamicShellDetected,
+  ));
   const error = refreshError || meta.refreshError || "";
   const hasDiff = typeof diff.changed === "boolean";
   const changed = diff.changed === true;
@@ -120,7 +127,26 @@ export function CurrentDatasetDiagnostics({ dataset, total = 0, refreshError = "
         <span>Retirés : {Number(diff.removed) || 0}</span>
         <span>Modifiés : {Number(diff.modified) || 0}</span>
         <span>Avertissements : {warningCount}</span>
+        {timezone ? <span>Fuseau : {timezone}</span> : null}
+        {dynamicShellDetected ? <span className="text-violet-100">Page dynamique résolue</span> : null}
       </div>
+
+      {selection ? (
+        <div className="grid gap-2 rounded-xl border border-violet-200/18 bg-violet-400/9 p-3 sm:grid-cols-2">
+          {selection.regular ? (
+            <div className="min-w-0">
+              <span className="text-[9px] font-black uppercase tracking-[0.16em] text-violet-100/55">Rotation raids normale</span>
+              <strong className="mt-1 block truncate text-xs text-violet-50">{formatEvent(selection.regular)}</strong>
+            </div>
+          ) : null}
+          {selection.shadow ? (
+            <div className="min-w-0">
+              <span className="text-[9px] font-black uppercase tracking-[0.16em] text-red-100/55">Rotation raids obscurs</span>
+              <strong className="mt-1 block truncate text-xs text-red-50">{formatEvent(selection.shadow)}</strong>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
 
       {warnings.length ? (
         <ul className="space-y-1 rounded-xl border border-amber-200/20 bg-amber-300/10 p-3 text-xs font-bold leading-5 text-amber-50">

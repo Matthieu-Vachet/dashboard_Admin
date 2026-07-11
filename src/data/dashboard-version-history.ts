@@ -7,6 +7,16 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.19.0",
+    date: "2026-07-11",
+    title: "Flux Pokemon dynamiques et panneaux enrichis",
+    changes: [
+      "Affiche la vraie rotation LeekDuck selectionnee en heure locale et relie son evenement au calendrier Pokemon GO.",
+      "Enrichit Raids, Oeufs, Max Battles, Research et Rocket avec recherche, filtres, noms source, images, formes, costumes, types, CP et diagnostics.",
+      "Conserve les assets Pokemon exacts et ajoute au calendrier les compteurs de couverture raids, research et Pokemon illustres.",
+    ],
+  },
+  {
     version: "V1.18.1",
     date: "2026-07-11",
     title: "Correctif du proxy Pokemon en production",
