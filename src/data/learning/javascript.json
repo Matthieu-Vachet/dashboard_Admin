@@ -10,7 +10,10 @@
   "curriculum": { "levelId": "level-1", "order": 1 },
   "book": {
     "references": [
-      { "chapter": "1-2", "title": "Premiers pas et bases du langage", "pages": "12-48" }
+      { "chapter": "3.1", "title": "Intégrer du JavaScript", "pages": "31-34" },
+      { "chapter": "3.2", "title": "Les variables", "pages": "35-38" },
+      { "chapter": "3.4-3.5", "title": "Tests conditionnels et conditions", "pages": "40-46" },
+      { "chapter": "3.6", "title": "Les boucles", "pages": "47-51" }
     ]
   },
   "resources": [

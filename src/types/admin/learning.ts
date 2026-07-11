@@ -1,4 +1,4 @@
-export type LearningStatus = "not_started" | "in_progress" | "completed";
+export type LearningStatus = "not_started" | "in_progress" | "completed" | "reviewing";
 export type LearningDifficulty = "Facile" | "Moyen" | "Difficile";
 export type LearningItemType = "theory" | "exercise" | "pseudocode" | "challenge" | "project";
 export type LearningMetric =
@@ -23,6 +23,28 @@ export type LearningLink = {
   description?: string;
 };
 
+export type LearningCodeExample = {
+  language: string;
+  code: string;
+  explanation?: string;
+};
+
+export type LearningTheorySection = {
+  id: string;
+  type?: string;
+  title: string;
+  content: string;
+  code?: string;
+  language?: string;
+  warning?: string | string[];
+  tips?: string[];
+  questions?: string[];
+  codeExamples?: LearningCodeExample[];
+  warnings?: string[];
+  comprehensionQuestions?: string[];
+  summary?: string;
+};
+
 export type LearningTheory = {
   id: string;
   title: string;
@@ -30,10 +52,12 @@ export type LearningTheory = {
   description: string;
   objectives: string[];
   estimatedMinutes: number;
+  duration?: number;
   level: LearningDifficulty;
   commonMistakes: string[];
   bestPractices: string[];
   finalSummary: string;
+  sections?: LearningTheorySection[];
   xp: number;
 };
 
@@ -171,6 +195,9 @@ export type LearningProgressRecord = {
   earnedXp: number;
   studySeconds: number;
   answer?: string;
+  savedAt?: string;
+  correctionViewed?: boolean;
+  correctionViewedAt?: string;
   updatedAt: string;
   migratedFrom?: string;
 };
@@ -185,6 +212,22 @@ export type LearningRuntimeFields = {
   earnedXp: number;
   studySeconds: number;
   answer?: string;
+  savedAt?: string;
+  correctionViewed: boolean;
+  correctionViewedAt?: string;
+};
+
+export type LearningProgressPatch = {
+  status?: LearningStatus;
+  answer?: string;
+  correctionViewed?: boolean;
+};
+
+export type LearningProgressMutationResult = {
+  progress: LearningProgressRecord;
+  messages: string[];
+  activityRecorded: boolean;
+  xpAwarded: number;
 };
 
 export type RuntimeLearningTheory = LearningTheory & LearningRuntimeFields;

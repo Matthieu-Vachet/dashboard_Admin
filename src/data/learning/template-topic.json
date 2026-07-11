@@ -26,6 +26,19 @@
     "commonMistakes": ["Erreur fréquente"],
     "bestPractices": ["Bonne pratique"],
     "finalSummary": "Résumé final à retenir.",
+    "sections": [
+      {
+        "id": "definition",
+        "title": "Définition",
+        "content": "Contenu pédagogique au format texte ou **Markdown**.",
+        "codeExamples": [
+          { "language": "javascript", "code": "const example = true;", "explanation": "Explication de cet exemple." }
+        ],
+        "warnings": ["Avertissement facultatif."],
+        "comprehensionQuestions": ["Question de compréhension facultative ?"],
+        "summary": "Résumé intermédiaire facultatif."
+      }
+    ],
     "xp": 10
   },
   "exercises": [

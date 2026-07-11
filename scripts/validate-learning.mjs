@@ -17,6 +17,37 @@ if (!templateResult.success) {
   templateResult.issues.forEach((issue) => catalog.issues.push({ ...issue, path: `template-topic.${issue.path}` }));
 }
 
+const legacyTemplate = structuredClone(template);
+delete legacyTemplate.theory.sections;
+const legacyResult = validateLearningTopic(legacyTemplate);
+if (!legacyResult.success) {
+  legacyResult.issues.forEach((issue) => catalog.issues.push({ ...issue, path: `compatibility.legacy-theory.${issue.path}` }));
+}
+
+const enrichedTemplate = structuredClone(template);
+enrichedTemplate.theory = {
+  title: "Cours enrichi compatible",
+  description: "Vérifie le contrat compact de théorie enrichie.",
+  duration: 20,
+  xp: 10,
+  sections: [{
+    id: "topic-id-section-enriched",
+    type: "lesson",
+    title: "Section enrichie",
+    content: "Contenu Markdown.",
+    code: "const compatible = true;",
+    language: "javascript",
+    warning: "Avertissement de test.",
+    tips: ["Conseil de test."],
+    questions: ["Question de compréhension ?"],
+    summary: "Résumé intermédiaire.",
+  }],
+};
+const enrichedResult = validateLearningTopic(enrichedTemplate);
+if (!enrichedResult.success) {
+  enrichedResult.issues.forEach((issue) => catalog.issues.push({ ...issue, path: `compatibility.enriched-theory.${issue.path}` }));
+}
+
 for (const issue of catalog.issues) {
   const prefix = issue.severity === "error" ? "ERREUR" : "AVERTISSEMENT";
   console.log(`${prefix} ${issue.path} : ${issue.message}`);

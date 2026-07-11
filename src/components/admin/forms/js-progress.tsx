@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BookOpenCheck, Database, Download, HardDrive, Sparkles, UploadCloud } from "lucide-react";
+import { AlertTriangle, BookOpenCheck, CheckCircle2, Database, Download, HardDrive, Sparkles, UploadCloud, X } from "lucide-react";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ import { useJavascriptLearning } from "@/hooks/admin/use-javascript-learning";
 export function JsProgress() {
   const {
     topics, curriculum, progress, activity, stats, ready, saving, databaseConfigured,
-    source, warning, error, setItemProgress, refresh,
+    source, warning, error, notice, notify, clearNotice, setItemProgress, refresh,
   } = useJavascriptLearning();
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
   const [importOpen, setImportOpen] = useState(false);
@@ -59,6 +59,12 @@ export function JsProgress() {
 
       {warning ? <div className="flex items-start gap-2 rounded-lg border border-warning/25 bg-warning/[0.06] p-3 text-sm font-bold text-warning"><HardDrive className="mt-0.5 shrink-0" size={16} /><span>{warning}</span></div> : null}
       {error ? <div className="rounded-lg border border-danger/25 bg-danger/[0.06] p-3 text-sm font-bold text-danger">{error}</div> : null}
+      {notice ? (
+        <div className={notice.tone === "error" ? "flex items-start justify-between gap-3 rounded-lg border border-danger/25 bg-danger/[0.06] p-3 text-sm font-bold text-danger" : notice.tone === "warning" ? "flex items-start justify-between gap-3 rounded-lg border border-warning/25 bg-warning/[0.06] p-3 text-sm font-bold text-warning" : "flex items-start justify-between gap-3 rounded-lg border border-brand-3/25 bg-brand-3/[0.06] p-3 text-sm font-bold text-brand-3"} role="status" aria-live="polite">
+          <span className="flex items-start gap-2">{notice.tone === "success" ? <CheckCircle2 className="mt-0.5 shrink-0" size={16} /> : <AlertTriangle className="mt-0.5 shrink-0" size={16} />}{notice.message}</span>
+          <button className="shrink-0 rounded p-1 hover:bg-white/10" type="button" aria-label="Masquer le message" onClick={clearNotice}><X size={15} /></button>
+        </div>
+      ) : null}
 
       <LearningSummary summary={summary} level={level} unlockedAchievements={achievements.filter((achievement) => achievement.unlocked).length} />
       <LearningAdvancedStats stats={stats} />
@@ -86,7 +92,7 @@ export function JsProgress() {
       <LearningAchievementGrid achievements={achievements} />
       <LearningActivityTimeline activity={activity} />
 
-      <LearningDetailModal topic={selectedTopic} saving={saving} onClose={() => setSelectedTopicId(null)} onSetProgress={setItemProgress} />
+      <LearningDetailModal topic={selectedTopic} saving={saving} onClose={() => setSelectedTopicId(null)} onSetProgress={setItemProgress} onNotify={notify} />
       <LearningImportModal open={importOpen} topics={topics} onClose={() => setImportOpen(false)} onChanged={refresh} />
       <span className="sr-only" aria-live="polite">{Object.keys(progress).length} progressions chargées.</span>
     </div>

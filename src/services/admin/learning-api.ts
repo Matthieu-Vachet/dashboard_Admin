@@ -3,9 +3,9 @@ import type {
   LearningAdvancedStats,
   LearningCurriculum,
   LearningImportStrategy,
-  LearningProgressRecord,
+  LearningProgressMutationResult,
+  LearningProgressPatch,
   LearningProgressState,
-  LearningStatus,
   LearningTopic,
   LearningValidationIssue,
 } from "@/types/admin/learning";
@@ -37,13 +37,13 @@ export async function fetchLearningCatalog() {
   return parseResponse<LearningCatalogPayload>(response);
 }
 
-export async function saveLearningProgress(input: { itemId: string; status?: LearningStatus; answer?: string }) {
+export async function saveLearningProgress(input: { itemId: string } & LearningProgressPatch) {
   const response = await fetch("/api/learning/progress", {
     method: "PUT",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(input),
   });
-  return parseResponse<{ progress: LearningProgressRecord }>(response);
+  return parseResponse<LearningProgressMutationResult>(response);
 }
 
 export async function migrateBrowserLearningProgress(progress: unknown) {

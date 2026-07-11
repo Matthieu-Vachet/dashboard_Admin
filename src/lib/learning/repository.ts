@@ -6,6 +6,8 @@ import type {
   LearningAdvancedStats,
   LearningCurriculum,
   LearningImportStrategy,
+  LearningProgressMutationResult,
+  LearningProgressPatch,
   LearningProgressRecord,
   LearningProgressState,
   LearningStatus,
@@ -25,10 +27,12 @@ type LearningCurriculumDocument = LearningCurriculum & {
   importedBy: string;
 };
 
-type LearningProgressDocument = Omit<LearningProgressRecord, "startedAt" | "completedAt" | "updatedAt"> & {
+type LearningProgressDocument = Omit<LearningProgressRecord, "startedAt" | "completedAt" | "savedAt" | "correctionViewedAt" | "updatedAt"> & {
   owner: string;
   startedAt: Date | null;
   completedAt: Date | null;
+  savedAt?: Date;
+  correctionViewedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -36,6 +40,7 @@ type LearningProgressDocument = Omit<LearningProgressRecord, "startedAt" | "comp
 type LearningActivityDocument = Omit<LearningActivity, "id" | "occurredAt"> & {
   _id?: ObjectId;
   owner: string;
+  eventKey?: string;
   occurredAt: Date;
 };
 
@@ -104,6 +109,7 @@ async function ensureIndexes(db: Db) {
     db.collection("learning_progress").createIndex({ owner: 1, itemId: 1 }, { unique: true }),
     db.collection("learning_progress").createIndex({ owner: 1, completedAt: -1 }),
     db.collection("learning_activity").createIndex({ owner: 1, occurredAt: -1 }),
+    db.collection("learning_activity").createIndex({ eventKey: 1 }, { unique: true, sparse: true }),
     db.collection("learning_imports").createIndex({ owner: 1, createdAt: -1 }),
     db.collection("learning_topic_versions").createIndex({ topicId: 1, createdAt: -1 }),
   ]);
@@ -285,6 +291,9 @@ function serializeProgress(document: LearningProgressDocument): LearningProgress
     earnedXp: document.earnedXp,
     studySeconds: document.studySeconds,
     answer: document.answer,
+    savedAt: document.savedAt?.toISOString(),
+    correctionViewed: Boolean(document.correctionViewed),
+    correctionViewedAt: document.correctionViewedAt?.toISOString(),
     updatedAt: document.updatedAt.toISOString(),
     migratedFrom: document.migratedFrom,
   };
@@ -301,7 +310,7 @@ async function migrateLegacyDashboardProgress(db: Db, owner: string, topics: Lea
 
   const now = legacy.updatedAt instanceof Date ? legacy.updatedAt : new Date();
   const operations = Object.entries(legacy.value as Record<string, unknown>).flatMap(([itemId, statusValue]) => {
-    if (!["not_started", "in_progress", "completed"].includes(String(statusValue))) return [];
+    if (!["not_started", "in_progress", "completed", "reviewing"].includes(String(statusValue))) return [];
     const found = findLearningItem(topics, itemId === "javascript:theory" ? "javascript-theory" : itemId.replace(":theory", "-theory"));
     if (!found) return [];
     const status = statusValue as LearningStatus;
@@ -318,7 +327,7 @@ async function migrateLegacyDashboardProgress(db: Db, owner: string, topics: Lea
             startedAt: status === "not_started" ? null : now,
             completedAt: null,
             attempts: status === "not_started" ? 0 : 1,
-            earnedXp: status === "completed" ? found.item.xp : 0,
+            earnedXp: status === "completed" || status === "reviewing" ? found.item.xp : 0,
             studySeconds: 0,
             createdAt: now,
             updatedAt: now,
@@ -355,13 +364,15 @@ export async function migrateLearningStatusMap(owner: string, value: unknown, to
       ? statusValue as Partial<LearningProgressRecord>
       : null;
     const rawStatus = saved?.status || statusValue;
-    if (!["not_started", "in_progress", "completed"].includes(String(rawStatus))) return [];
+    if (!["not_started", "in_progress", "completed", "reviewing"].includes(String(rawStatus))) return [];
     const normalizedId = legacyId.replace(":theory", "-theory");
     const found = findLearningItem(topics, normalizedId);
     if (!found) return [];
     const status = rawStatus as LearningStatus;
     const savedStartedAt = saved?.startedAt ? new Date(saved.startedAt) : null;
     const savedCompletedAt = saved?.completedAt ? new Date(saved.completedAt) : null;
+    const savedAnswerAt = saved?.savedAt ? new Date(saved.savedAt) : null;
+    const savedCorrectionAt = saved?.correctionViewedAt ? new Date(saved.correctionViewedAt) : null;
     const startedAt = savedStartedAt && !Number.isNaN(savedStartedAt.getTime()) ? savedStartedAt : status === "not_started" ? null : now;
     const completedAt = savedCompletedAt && !Number.isNaN(savedCompletedAt.getTime()) ? savedCompletedAt : null;
     return [{ updateOne: {
@@ -370,9 +381,12 @@ export async function migrateLearningStatusMap(owner: string, value: unknown, to
         owner, itemId: found.item.id, topicId: found.topic.id, itemType: found.itemType, status,
         startedAt, completedAt,
         attempts: Math.max(0, Math.min(10_000, saved?.attempts ?? (status === "not_started" ? 0 : 1))),
-        earnedXp: status === "completed" ? Math.min(found.item.xp, Math.max(0, saved?.earnedXp || found.item.xp)) : 0,
+        earnedXp: status === "completed" || status === "reviewing" ? Math.min(found.item.xp, Math.max(0, saved?.earnedXp || found.item.xp)) : 0,
         studySeconds: Math.max(0, Math.min(10_000_000, saved?.studySeconds || 0)),
         ...(typeof saved?.answer === "string" ? { answer: saved.answer.slice(0, 100_000) } : {}),
+        ...(savedAnswerAt && !Number.isNaN(savedAnswerAt.getTime()) ? { savedAt: savedAnswerAt } : {}),
+        correctionViewed: Boolean(saved?.correctionViewed),
+        ...(savedCorrectionAt && !Number.isNaN(savedCorrectionAt.getTime()) ? { correctionViewedAt: savedCorrectionAt } : {}),
         createdAt: now, updatedAt: now, migratedFrom: "browser:matweb.js.learning.progress",
       } },
       upsert: true,
@@ -382,9 +396,70 @@ export async function migrateLearningStatusMap(owner: string, value: unknown, to
   return operations.length;
 }
 
+async function ensureProgressDocument(
+  db: Db,
+  owner: string,
+  found: NonNullable<ReturnType<typeof findLearningItem>>,
+  now: Date,
+) {
+  try {
+    await progressCollection(db).updateOne(
+      { owner, itemId: found.item.id },
+      {
+        $setOnInsert: {
+          owner,
+          itemId: found.item.id,
+          topicId: found.topic.id,
+          itemType: found.itemType,
+          status: "not_started",
+          startedAt: null,
+          completedAt: null,
+          attempts: 0,
+          earnedXp: 0,
+          studySeconds: 0,
+          correctionViewed: false,
+          createdAt: now,
+          updatedAt: now,
+        },
+      },
+      { upsert: true },
+    );
+  } catch (error) {
+    if (!(error && typeof error === "object" && "code" in error && Number((error as { code?: unknown }).code) === 11_000)) throw error;
+  }
+  const document = await progressCollection(db).findOne({ owner, itemId: found.item.id });
+  if (!document) throw errorWithStatus("Progression non enregistrée.", 500);
+  return document;
+}
+
+async function recordLearningActivity(
+  db: Db,
+  activity: LearningActivityDocument,
+) {
+  if (activity.eventKey) {
+    const result = await activityCollection(db).updateOne(
+      { eventKey: activity.eventKey },
+      { $setOnInsert: activity },
+      { upsert: true },
+    );
+    return Boolean(result.upsertedCount);
+  }
+  await activityCollection(db).insertOne(activity);
+  return true;
+}
+
+function progressResult(
+  document: LearningProgressDocument,
+  messages: string[],
+  activityRecorded = false,
+  xpAwarded = 0,
+): LearningProgressMutationResult {
+  return { progress: serializeProgress(document), messages, activityRecorded, xpAwarded };
+}
+
 export async function updateLearningProgress(
   owner: string,
-  input: { itemId: string; status?: LearningStatus; answer?: string },
+  input: { itemId: string } & LearningProgressPatch,
 ) {
   const db = await getDb();
   const catalog = await readLearningCatalog();
@@ -392,55 +467,156 @@ export async function updateLearningProgress(
   if (!found) throw errorWithStatus("Unité pédagogique introuvable.", 404);
 
   const collection = progressCollection(db);
-  const current = await collection.findOne({ owner, itemId: input.itemId });
   const now = new Date();
-  const nextStatus = input.status || current?.status || "not_started";
-  const firstStart = nextStatus === "in_progress" && current?.status !== "in_progress" && current?.status !== "completed";
-  const firstCompletion = nextStatus === "completed" && current?.status !== "completed";
-  const startedAt = current?.startedAt || (nextStatus !== "not_started" ? now : null);
-  const elapsed = firstCompletion && startedAt
-    ? Math.max(0, Math.min(6 * 60 * 60, Math.floor((now.getTime() - startedAt.getTime()) / 1_000)))
-    : 0;
-  const earnedXp = current?.earnedXp || (firstCompletion ? found.item.xp : 0);
+  const requestedActions = [input.status !== undefined, input.answer !== undefined, input.correctionViewed === true].filter(Boolean).length;
+  if (requestedActions !== 1) throw errorWithStatus("Une seule action de progression est autorisée par requête.", 400);
 
-  await collection.updateOne(
-    { owner, itemId: input.itemId },
-    {
-      $set: {
-        topicId: found.topic.id,
-        itemType: found.itemType,
-        status: current?.status === "completed" ? "completed" : nextStatus,
-        startedAt,
-        completedAt: current?.completedAt || (firstCompletion ? now : null),
-        attempts: (current?.attempts || 0) + (firstStart ? 1 : 0),
-        earnedXp,
-        studySeconds: (current?.studySeconds || 0) + elapsed,
-        ...(input.answer !== undefined ? { answer: input.answer.slice(0, 100_000) } : {}),
-        updatedAt: now,
+  if (input.answer !== undefined) {
+    if (found.itemType !== "pseudocode") throw errorWithStatus("Une réponse textuelle est réservée au pseudo-code.", 400);
+    if (!input.answer.trim()) throw errorWithStatus("Réponse vide : écris une tentative avant de sauvegarder.", 400);
+    const current = await collection.findOne({ owner, itemId: input.itemId });
+    if (!current || !["in_progress", "reviewing"].includes(current.status)) {
+      if (current?.status === "completed") throw errorWithStatus("Progression déjà terminée : passe en révision pour modifier la réponse.", 409);
+      throw errorWithStatus("Commence le pseudo-code avant d’enregistrer une réponse.", 409);
+    }
+    const updated = await collection.findOneAndUpdate(
+      { owner, itemId: input.itemId, status: { $in: ["in_progress", "reviewing"] } },
+      {
+        $set: { answer: input.answer.slice(0, 100_000), savedAt: now, updatedAt: now },
+        $max: { attempts: 1 },
       },
-      $setOnInsert: { owner, itemId: input.itemId, createdAt: now },
-    },
-    { upsert: true },
-  );
-
-  const action = firstCompletion ? "completed" : firstStart ? "started" : input.answer !== undefined ? "answer_saved" : null;
-  if (action) {
-    await activityCollection(db).insertOne({
+      { returnDocument: "after" },
+    );
+    if (!updated) throw errorWithStatus("La progression a changé pendant la sauvegarde. Réessaie.", 409);
+    const activityRecorded = await recordLearningActivity(db, {
       owner,
       itemId: input.itemId,
       topicId: found.topic.id,
       itemType: found.itemType,
-      action,
+      action: "answer_saved",
       title: found.item.title,
-      xp: firstCompletion ? found.item.xp : 0,
-      studySeconds: elapsed,
+      xp: 0,
+      studySeconds: 0,
       occurredAt: now,
     });
+    return progressResult(updated, ["Sauvegarde réussie.", "Activité enregistrée."], activityRecorded);
   }
 
-  const updated = await collection.findOne({ owner, itemId: input.itemId });
-  if (!updated) throw errorWithStatus("Progression non enregistrée.", 500);
-  return serializeProgress(updated);
+  if (input.correctionViewed) {
+    if (found.itemType !== "pseudocode") throw errorWithStatus("Cette unité ne possède pas de correction de pseudo-code.", 400);
+    await ensureProgressDocument(db, owner, found, now);
+    const updated = await collection.findOneAndUpdate(
+      { owner, itemId: input.itemId, correctionViewed: { $ne: true } },
+      { $set: { correctionViewed: true, correctionViewedAt: now, updatedAt: now } },
+      { returnDocument: "after" },
+    );
+    const current = updated || await collection.findOne({ owner, itemId: input.itemId });
+    if (!current) throw errorWithStatus("Consultation de correction non enregistrée.", 500);
+    return progressResult(current, ["Correction consultée."], false, 0);
+  }
+
+  if (input.status === "not_started") throw errorWithStatus("Le retour à À commencer est réservé aux migrations explicites.", 400);
+
+  if (input.status === "in_progress") {
+    const current = await ensureProgressDocument(db, owner, found, now);
+    if (current.status === "completed" || current.status === "reviewing") {
+      return progressResult(current, ["Progression déjà terminée.", "XP déjà attribuée."], false, 0);
+    }
+    if (current.status === "in_progress") return progressResult(current, ["Progression déjà en cours."], false, 0);
+    const updated = await collection.findOneAndUpdate(
+      { owner, itemId: input.itemId, status: "not_started" },
+      { $set: { status: "in_progress", startedAt: now, updatedAt: now }, $inc: { attempts: 1 } },
+      { returnDocument: "after" },
+    );
+    if (!updated) {
+      const latest = await collection.findOne({ owner, itemId: input.itemId });
+      if (!latest) throw errorWithStatus("Démarrage non enregistré.", 500);
+      return progressResult(latest, ["Progression déjà en cours."], false, 0);
+    }
+    const activityRecorded = await recordLearningActivity(db, {
+      owner,
+      eventKey: `${owner}:${input.itemId}:started`,
+      itemId: input.itemId,
+      topicId: found.topic.id,
+      itemType: found.itemType,
+      action: "started",
+      title: found.item.title,
+      xp: 0,
+      studySeconds: 0,
+      occurredAt: now,
+    });
+    return progressResult(updated, ["Progression démarrée sans attribution d’XP.", "Activité enregistrée."], activityRecorded, 0);
+  }
+
+  if (input.status === "reviewing") {
+    const current = await collection.findOne({ owner, itemId: input.itemId });
+    if (!current || !["completed", "reviewing"].includes(current.status)) throw errorWithStatus("Seule une progression terminée peut passer en révision.", 409);
+    if (current.status === "reviewing") return progressResult(current, ["Progression déjà en révision.", "XP déjà attribuée."], false, 0);
+    const updated = await collection.findOneAndUpdate(
+      { owner, itemId: input.itemId, status: "completed" },
+      { $set: { status: "reviewing", updatedAt: now } },
+      { returnDocument: "after" },
+    );
+    if (!updated) throw errorWithStatus("Passage en révision non enregistré.", 409);
+    return progressResult(updated, ["Progression passée en révision.", "XP déjà attribuée."], false, 0);
+  }
+
+  if (input.status === "completed") {
+    const current = await collection.findOne({ owner, itemId: input.itemId });
+    if (!current || current.status === "not_started") throw errorWithStatus("Commence cette unité avant de la terminer.", 409);
+    if (current.status === "completed" || current.status === "reviewing") {
+      await recordLearningActivity(db, {
+        owner,
+        eventKey: `${owner}:${input.itemId}:completed`,
+        itemId: input.itemId,
+        topicId: found.topic.id,
+        itemType: found.itemType,
+        action: "completed",
+        title: found.item.title,
+        xp: current.earnedXp,
+        studySeconds: current.studySeconds,
+        occurredAt: current.completedAt || now,
+      });
+      return progressResult(current, ["Progression déjà terminée.", "XP déjà attribuée."], false, 0);
+    }
+    const startedAt = current.startedAt || now;
+    const elapsed = Math.max(0, Math.min(6 * 60 * 60, Math.floor((now.getTime() - startedAt.getTime()) / 1_000)));
+    const xpAwarded = current.earnedXp > 0 ? 0 : found.item.xp;
+    const updated = await collection.findOneAndUpdate(
+      { owner, itemId: input.itemId, status: "in_progress" },
+      {
+        $set: {
+          status: "completed",
+          completedAt: current.completedAt || now,
+          earnedXp: current.earnedXp || found.item.xp,
+          studySeconds: current.studySeconds + elapsed,
+          updatedAt: now,
+        },
+      },
+      { returnDocument: "after" },
+    );
+    if (!updated) {
+      const latest = await collection.findOne({ owner, itemId: input.itemId });
+      if (!latest) throw errorWithStatus("Achèvement non enregistré.", 500);
+      return progressResult(latest, ["Progression déjà terminée.", "XP déjà attribuée."], false, 0);
+    }
+    const activityRecorded = await recordLearningActivity(db, {
+      owner,
+      eventKey: `${owner}:${input.itemId}:completed`,
+      itemId: input.itemId,
+      topicId: found.topic.id,
+      itemType: found.itemType,
+      action: "completed",
+      title: found.item.title,
+      xp: xpAwarded,
+      studySeconds: elapsed,
+      occurredAt: updated.completedAt || now,
+    });
+    const xpMessage = xpAwarded ? `+${xpAwarded} XP attribuée une seule fois.` : "XP déjà attribuée.";
+    return progressResult(updated, ["Progression terminée.", xpMessage, "Activité enregistrée."], activityRecorded, xpAwarded);
+  }
+
+  throw errorWithStatus("Action de progression invalide.", 400);
 }
 
 function localDay(date: Date, timezone = "Europe/Paris") {
@@ -524,9 +700,9 @@ function buildAdvancedStats(activities: LearningActivityDocument[], progress: Le
     xpToday: completed.filter((item) => localDay(item.occurredAt) === today).reduce((sum, item) => sum + item.xp, 0),
     xpWeek: completed.filter((item) => item.occurredAt >= weekStart).reduce((sum, item) => sum + item.xp, 0),
     xpMonth: completed.filter((item) => item.occurredAt >= monthStart).reduce((sum, item) => sum + item.xp, 0),
-    completedExercises: progress.filter((item) => item.itemType === "exercise" && item.status === "completed").length,
-    completedChallenges: progress.filter((item) => item.itemType === "challenge" && item.status === "completed").length,
-    completedProjects: progress.filter((item) => item.itemType === "project" && item.status === "completed").length,
+    completedExercises: progress.filter((item) => item.itemType === "exercise" && ["completed", "reviewing"].includes(item.status)).length,
+    completedChallenges: progress.filter((item) => item.itemType === "challenge" && ["completed", "reviewing"].includes(item.status)).length,
+    completedProjects: progress.filter((item) => item.itemType === "project" && ["completed", "reviewing"].includes(item.status)).length,
     currentStreak: streak.current,
     bestStreak: streak.best,
     lastActivity: activities[0]?.occurredAt.toISOString() || null,

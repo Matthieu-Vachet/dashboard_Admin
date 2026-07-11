@@ -99,7 +99,8 @@ export function LearningImportModal({ open, topics, onClose, onChanged }: {
     setMessage(null);
     try {
       const result = await importLearningTopic({ topic, strategy, fileName: file.name });
-      setMessage({ tone: "success", text: `Import réussi : ${result.added} élément(s) ajouté(s), ${result.updated} mis à jour.` });
+      const preservation = strategy === "create" ? "Nouveau contenu disponible immédiatement." : "Contenu mis à jour sans perte de progression.";
+      setMessage({ tone: "success", text: `Import réussi : ${result.added} élément(s) ajouté(s), ${result.updated} mis à jour. ${preservation}` });
       await Promise.all([onChanged(), refreshHistory()]);
     } catch (error) {
       const validationIssues = error && typeof error === "object" && "issues" in error ? (error as { issues?: LearningValidationIssue[] }).issues : undefined;
@@ -115,7 +116,7 @@ export function LearningImportModal({ open, topics, onClose, onChanged }: {
     setMessage(null);
     try {
       await rollbackLearningImport(id);
-      setMessage({ tone: "success", text: "Rollback réussi. La version précédente a été restaurée." });
+      setMessage({ tone: "success", text: "Rollback réussi. La version précédente a été restaurée et la progression personnelle est préservée." });
       await Promise.all([onChanged(), refreshHistory()]);
     } catch (error) {
       setMessage({ tone: "error", text: error instanceof Error ? error.message : "Rollback impossible." });

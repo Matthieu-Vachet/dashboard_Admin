@@ -41,12 +41,16 @@ export const javascriptLearningTopics = [...importedTopics].sort(
   (left, right) => (curriculumOrder.get(left.id) ?? Number.MAX_SAFE_INTEGER) - (curriculumOrder.get(right.id) ?? Number.MAX_SAFE_INTEGER),
 );
 
+export function isCompletedLearningStatus(status: LearningStatus) {
+  return status === "completed" || status === "reviewing";
+}
+
 export function getCompletedCount(items: Array<{ status: LearningStatus }>) {
-  return items.filter((item) => item.status === "completed").length;
+  return items.filter((item) => isCompletedLearningStatus(item.status)).length;
 }
 
 export function getStatusScore(status: LearningStatus) {
-  if (status === "completed") return 1;
+  if (isCompletedLearningStatus(status)) return 1;
   if (status === "in_progress") return 0.5;
   return 0;
 }
@@ -145,6 +149,7 @@ function emptyProgress(itemId: string, topicId: string, itemType: LearningItemTy
     attempts: 0,
     earnedXp: 0,
     studySeconds: 0,
+    correctionViewed: false,
     updatedAt: "",
   };
 }
@@ -160,6 +165,9 @@ function runtimeItem<T extends { id: string }>(item: T, topicId: string, itemTyp
     earnedXp: state.earnedXp,
     studySeconds: state.studySeconds,
     answer: state.answer,
+    savedAt: state.savedAt,
+    correctionViewed: Boolean(state.correctionViewed),
+    correctionViewedAt: state.correctionViewedAt,
   };
 }
 
@@ -211,10 +219,10 @@ function achievementValue(
     }, 0);
   }
   if ("projectId" in scope) {
-    return allRuntimeItems(topics).some((item) => item.id === scope.projectId && item.status === "completed") ? 1 : 0;
+    return allRuntimeItems(topics).some((item) => item.id === scope.projectId && isCompletedLearningStatus(item.status)) ? 1 : 0;
   }
   const ids = new Set(scope.itemIds);
-  return allRuntimeItems(topics).filter((item) => ids.has(item.id) && item.status === "completed").length;
+  return allRuntimeItems(topics).filter((item) => ids.has(item.id) && isCompletedLearningStatus(item.status)).length;
 }
 
 export function getAchievements(

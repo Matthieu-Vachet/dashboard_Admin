@@ -34,6 +34,18 @@ Les IDs utilisent uniquement des minuscules ASCII, des chiffres et des tirets : 
 - portée d’achievement : exactement une de `global`, `levelId`, `topicId`, `projectId`, `itemIds`
 - XP et temps estimés : entiers strictement positifs
 
+## Cours détaillés optionnels
+
+`theory.sections` est optionnel : les anciens thèmes sans section restent valides et conservent leur fiche synthétique. Une section possède un `id` stable et un `title`, puis peut fournir `content` (Markdown), `codeExamples`, `warnings`, `questions` et `summary`.
+
+Le Markdown pris en charge dans l’interface couvre les titres, paragraphes, listes, texte en gras et code en ligne. Les blocs de code pédagogiques doivent utiliser `codeExamples` afin de conserver leur langage et leur explication.
+
+## Progression personnelle
+
+Les statuts persistés sont `not_started`, `in_progress`, `completed` et `reviewing`. Ils sont affichés en français dans l’interface. Les réponses de pseudo-code, `savedAt`, `attempts`, `correctionViewed` et `correctionViewedAt` appartiennent exclusivement à `learning_progress`.
+
+Un démarrage ne donne aucun XP. Une fin exige une progression `in_progress` et l’attribution d’XP est idempotente côté serveur. Les activités de démarrage et de fin utilisent une clé d’événement unique afin qu’une nouvelle requête ne crée pas de doublon.
+
 ## Import
 
 Le navigateur effectue une première validation. Le serveur recommence toujours la validation stricte, contrôle la taille, l’autorisation admin, les références et les conflits.
@@ -51,3 +63,5 @@ Les dix dernières versions d’un thème sont conservées. Le rollback restaure
 ## Compatibilité future
 
 Toute évolution du contrat passe par une nouvelle version du schéma et une migration centralisée. Les composants React ne doivent contenir aucune adaptation spécifique à un thème.
+
+Le scénario de non-régression complet se lance avec `npm run test:learning-flow`. Il utilise une base MongoDB temporaire isolée, puis la supprime, sans écrire dans la base pédagogique réelle.

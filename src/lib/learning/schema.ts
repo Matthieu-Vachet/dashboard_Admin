@@ -29,17 +29,41 @@ export const learningLinkSchema = z.object({
   description: nonEmpty.optional(),
 }).strict();
 
+const learningCodeExampleSchema = z.object({
+  language: nonEmpty,
+  code: nonEmpty,
+  explanation: nonEmpty.optional(),
+}).strict();
+
+const learningTheorySectionSchema = z.object({
+  id,
+  type: nonEmpty.optional(),
+  title: nonEmpty,
+  content: nonEmpty,
+  code: nonEmpty.optional(),
+  language: nonEmpty.optional(),
+  warning: z.union([nonEmpty, z.array(nonEmpty)]).optional(),
+  tips: z.array(nonEmpty).optional(),
+  questions: z.array(nonEmpty).optional(),
+  codeExamples: z.array(learningCodeExampleSchema).optional(),
+  warnings: z.array(nonEmpty).optional(),
+  comprehensionQuestions: z.array(nonEmpty).optional(),
+  summary: nonEmpty.optional(),
+}).strict();
+
 export const learningTheorySchema = z.object({
   id,
   title: nonEmpty,
   summary: nonEmpty,
   description: nonEmpty,
-  objectives: stringList.pipe(z.array(nonEmpty).min(1)),
+  objectives: stringList,
   estimatedMinutes: positiveMinutes,
+  duration: positiveMinutes.optional(),
   level: difficulty,
   commonMistakes: stringList,
   bestPractices: stringList,
   finalSummary: nonEmpty,
+  sections: z.array(learningTheorySectionSchema).optional(),
   xp: positiveXp,
 }).strict();
 
@@ -128,7 +152,30 @@ export const learningAchievementSchema = z.object({
   target: z.number().int().positive(),
 }).strict();
 
-export const learningTopicSchema = z.object({
+function normalizeTheoryInput(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return value;
+  const topic = value as Record<string, unknown>;
+  if (!topic.theory || typeof topic.theory !== "object" || Array.isArray(topic.theory)) return value;
+  const theory = topic.theory as Record<string, unknown>;
+  const description = typeof theory.description === "string" ? theory.description : "";
+  const summary = typeof theory.summary === "string" ? theory.summary : description;
+  return {
+    ...topic,
+    theory: {
+      ...theory,
+      id: theory.id ?? (typeof topic.id === "string" ? `${topic.id}-theory` : undefined),
+      summary,
+      objectives: theory.objectives ?? [],
+      estimatedMinutes: theory.estimatedMinutes ?? theory.duration,
+      level: theory.level ?? topic.difficulty,
+      commonMistakes: theory.commonMistakes ?? [],
+      bestPractices: theory.bestPractices ?? [],
+      finalSummary: theory.finalSummary ?? summary,
+    },
+  };
+}
+
+export const learningTopicSchema = z.preprocess(normalizeTheoryInput, z.object({
   schemaVersion: z.literal(1),
   id,
   title: nonEmpty,
@@ -148,7 +195,7 @@ export const learningTopicSchema = z.object({
   challenges: z.array(learningChallengeSchema),
   projects: z.array(learningProjectSchema),
   achievements: z.array(learningAchievementSchema),
-}).strict();
+}).strict());
 
 export const learningCurriculumSchema = z.object({
   schemaVersion: z.literal(1),
@@ -208,6 +255,14 @@ function pushDuplicateIssues(topic: LearningTopic, issues: LearningValidationIss
       issues.push({ path: `achievements.${index}.id`, message: "Identifiant d'achievement dupliqué.", severity: "error" });
     }
     achievements.add(achievement.id);
+  });
+
+  const sectionIds = new Set<string>();
+  topic.theory.sections?.forEach((section, index) => {
+    if (sectionIds.has(section.id)) {
+      issues.push({ path: `theory.sections.${index}.id`, message: "Identifiant de section théorique dupliqué.", severity: "error" });
+    }
+    sectionIds.add(section.id);
   });
 }
 
