@@ -1,32 +1,55 @@
 {
+  "schemaVersion": 1,
   "id": "async",
   "title": "Asynchrone et Fetch",
   "category": "APIs",
   "difficulty": "Difficile",
-  "status": "not_started",
   "description": "Comprendre les Promises, async/await et les erreurs quand une application parle à une API.",
-  "book": { "chapter": "7.3", "pages": "204-248" },
-  "resources": {
-    "mdn": "https://developer.mozilla.org/fr/docs/Learn/JavaScript/Asynchronous",
-    "roadmap": "https://roadmap.sh/javascript"
+  "chapterNumber": 6,
+  "required": true,
+  "curriculum": { "levelId": "level-5", "order": 1 },
+  "book": {
+    "references": [
+      { "chapter": "14", "title": "AJAX", "pages": "235-241" },
+      { "chapter": "15", "title": "Promises", "pages": "245-248" },
+      { "chapter": "16", "title": "Gestion des erreurs", "pages": "251-253" }
+    ]
   },
+  "resources": [
+    { "id": "async-mdn", "label": "JavaScript asynchrone MDN", "url": "https://developer.mozilla.org/fr/docs/Learn_web_development/Extensions/Async_JS", "kind": "mdn" },
+    { "id": "async-roadmap", "label": "Roadmap JavaScript", "url": "https://roadmap.sh/javascript", "kind": "roadmap" },
+    { "id": "async-notes", "label": "Notes personnelles", "url": "/notes", "kind": "notes" }
+  ],
   "prerequisites": ["functions", "arrays", "dom"],
-  "theory": { "status": "not_started", "xp": 10 },
+  "relatedTopics": [],
+  "theory": {
+    "id": "async-theory",
+    "title": "Raisonner avec le temps et le réseau",
+    "summary": "Une Promise représente un résultat futur ; async/await permet de l’orchestrer avec une gestion explicite des erreurs.",
+    "description": "Cette fiche couvre file d’événements, Promises, async/await, Fetch, response.ok, AbortController et appels parallèles.",
+    "objectives": ["Attendre une Promise", "Gérer succès, erreur et annulation", "Exécuter des appels indépendants en parallèle"],
+    "estimatedMinutes": 40,
+    "level": "Difficile",
+    "commonMistakes": ["Oublier await", "Croire que fetch rejette sur une erreur HTTP", "Lancer séquentiellement des appels indépendants"],
+    "bestPractices": ["Tester response.ok", "Afficher des états loading et error", "Annuler une requête devenue inutile"],
+    "finalSummary": "Un flux asynchrone robuste rend visibles ses états et traite séparément réseau, HTTP et parsing.",
+    "xp": 10
+  },
   "exercises": [
-    { "id": "async-001", "title": "Créer une Promise", "description": "Retourner une Promise qui se résout après un délai.", "difficulty": "Difficile", "status": "not_started", "xp": 20 },
-    { "id": "async-002", "title": "Récupérer un Pokémon", "description": "Utiliser fetch, response.ok et response.json.", "difficulty": "Difficile", "status": "not_started", "xp": 20 }
+    { "id": "async-001", "title": "Créer une Promise", "description": "Retourner une Promise qui se résout après un délai.", "objective": "Comprendre la création et l’attente d’un résultat futur.", "difficulty": "Difficile", "estimatedMinutes": 20, "xp": 20, "skills": ["Promise", "Timer"], "prerequisites": ["functions-001"], "hint": "Résous la Promise depuis le callback du timer.", "validation": ["La fonction retourne une Promise", "La valeur arrive après le délai"] },
+    { "id": "async-002", "title": "Récupérer un Pokémon", "description": "Utiliser fetch, response.ok et response.json.", "objective": "Distinguer erreur réseau, erreur HTTP et parsing JSON.", "difficulty": "Difficile", "estimatedMinutes": 25, "xp": 20, "skills": ["Fetch", "Gestion des erreurs"], "prerequisites": ["async-001"], "hint": "Teste response.ok avant response.json().", "validation": ["Une erreur HTTP est signalée", "Le JSON n’est lu qu’après validation de la réponse"] }
   ],
   "pseudocode": [
-    { "id": "async-pseudo-001", "title": "Décrire un appel API", "difficulty": "Moyen", "status": "not_started", "xp": 15 }
+    { "id": "async-pseudo-001", "title": "Décrire un appel API", "objective": "Formaliser tous les états d’une requête.", "situation": "Une page charge une fiche distante et doit rester compréhensible en cas d’échec.", "description": "Décris loading, succès, erreur et nettoyage.", "difficulty": "Moyen", "estimatedMinutes": 15, "xp": 15, "skills": ["États asynchrones", "Gestion d’erreur"], "correction": "Afficher le chargement. Tenter la requête. Vérifier le statut HTTP. Lire et valider les données. Afficher le succès. En cas d’erreur afficher un message. Dans tous les cas retirer le chargement.", "validation": ["Les trois états sont présents", "Le chargement est toujours retiré"] }
   ],
   "challenges": [
-    { "id": "async-challenge-001", "title": "Fetch robuste", "description": "Gérer loading, succès, timeout et erreur réseau.", "difficulty": "Difficile", "status": "not_started", "xp": 50 }
+    { "id": "async-challenge-001", "title": "Fetch robuste", "description": "Gérer loading, succès, timeout et erreur réseau.", "objective": "Construire un client HTTP prévisible et annulable.", "constraints": ["Distinguer erreur HTTP et réseau", "Nettoyer le timeout"], "requiredFeatures": ["fetch()", "try/catch/finally", "AbortController"], "bonusFeatures": ["Relance limitée après une erreur temporaire"], "forbidden": ["Erreur silencieuse"], "concepts": ["Fetch", "Promise", "Annulation"], "difficulty": "Difficile", "estimatedMinutes": 60, "xp": 50, "validation": ["Le timeout annule la requête", "Chaque état possède un retour utilisateur"] }
   ],
   "projects": [
-    { "id": "async-pokedex", "title": "Mini Pokédex API", "description": "Chercher un Pokémon et afficher ses données depuis une API.", "difficulty": "Difficile", "status": "not_started", "xp": 200 }
+    { "id": "async-pokedex", "title": "Mini Pokédex API", "context": "Un utilisateur recherche une créature depuis une API distante.", "objective": "Construire une expérience complète autour d’un appel réseau.", "description": "Chercher un Pokémon et afficher ses données depuis une API.", "features": ["Recherche", "Chargement", "Fiche résultat", "Gestion d’erreur"], "constraints": ["Annuler une recherche remplacée", "Valider les données reçues"], "bonusFeatures": ["Historique des recherches", "Cache en mémoire"], "suggestedPseudocode": ["Valider la saisie", "Annuler l’appel précédent", "Charger", "Valider la réponse", "Afficher ou signaler l’erreur"], "concepts": ["Fetch", "DOM", "Objets", "Gestion des erreurs"], "validatedSkills": ["Intégration API", "États asynchrones"], "difficulty": "Difficile", "estimatedMinutes": 240, "xp": 200, "validation": ["Les recherches obsolètes sont annulées", "Les erreurs sont compréhensibles", "Les données externes sont validées"] }
   ],
   "achievements": [
-    { "id": "first-fetch", "title": "Premier Fetch API", "description": "Terminer le premier exercice asynchrone.", "metric": "completedExercises", "target": 11 },
-    { "id": "async-project", "title": "Client API", "description": "Terminer un projet qui consomme une API.", "metric": "completedProjects", "target": 1 }
+    { "id": "first-fetch", "title": "Premier Fetch API", "description": "Terminer un exercice asynchrone.", "metric": "completedExercises", "scope": { "topicId": "async" }, "target": 1 },
+    { "id": "async-project", "title": "Client API", "description": "Terminer le projet qui consomme une API.", "metric": "completedProjects", "scope": { "projectId": "async-pokedex" }, "target": 1 }
   ]
 }

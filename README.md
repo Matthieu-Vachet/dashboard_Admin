@@ -126,6 +126,13 @@ facades de compatibilite.
 ## Checks
 
 ```bash
+npm run validate:learning
 npm run lint
 npm run build
 ```
+
+## JS Progress V2
+
+Le parcours JavaScript est décrit par `src/data/learning/curriculum.json` et des thèmes conformes au schéma V1. En production, le contenu peut être importé dans MongoDB depuis la page JS Progress ; progression, activité et imports utilisent des collections séparées.
+
+Le modèle officiel, les règles d’identifiants, les stratégies d’import et le rollback sont documentés dans `CONTRIBUTING-LEARNING.md`.

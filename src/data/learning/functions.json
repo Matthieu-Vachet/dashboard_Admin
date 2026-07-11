@@ -1,34 +1,51 @@
 {
+  "schemaVersion": 1,
   "id": "functions",
   "title": "Fonctions",
   "category": "Fondamentaux",
   "difficulty": "Facile",
-  "status": "in_progress",
   "description": "Créer des fonctions lisibles, réutilisables et capables de recevoir des paramètres.",
-  "book": { "chapter": "3.7", "pages": "52-68" },
-  "resources": {
-    "mdn": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Guide/Functions",
-    "roadmap": "https://roadmap.sh/javascript"
-  },
+  "chapterNumber": 2,
+  "required": true,
+  "curriculum": { "levelId": "level-1", "order": 2 },
+  "book": { "references": [{ "chapter": "3.7", "title": "Les fonctions", "pages": "52-58" }] },
+  "resources": [
+    { "id": "functions-mdn", "label": "Guide des fonctions MDN", "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Guide/Functions", "kind": "mdn" },
+    { "id": "functions-roadmap", "label": "Roadmap JavaScript", "url": "https://roadmap.sh/javascript", "kind": "roadmap" },
+    { "id": "functions-notes", "label": "Notes personnelles", "url": "/notes", "kind": "notes" }
+  ],
   "prerequisites": ["javascript"],
-  "theory": { "status": "completed", "xp": 10 },
+  "relatedTopics": ["arrays", "objects"],
+  "theory": {
+    "id": "functions-theory",
+    "title": "Concevoir une fonction",
+    "summary": "Une fonction reçoit des données, réalise une responsabilité précise et retourne éventuellement un résultat.",
+    "description": "Cette fiche couvre déclaration, paramètres, valeurs par défaut, return et portée locale.",
+    "objectives": ["Déclarer une fonction nommée", "Utiliser paramètres et valeurs par défaut", "Retourner une valeur sans effet de bord inutile"],
+    "estimatedMinutes": 20,
+    "level": "Facile",
+    "commonMistakes": ["Oublier return", "Dépendre de variables globales", "Donner plusieurs responsabilités à une fonction"],
+    "bestPractices": ["Nommer la fonction avec un verbe", "Limiter le nombre de paramètres", "Retourner des valeurs prévisibles"],
+    "finalSummary": "Une petite fonction explicite est plus facile à tester, réutiliser et combiner.",
+    "xp": 10
+  },
   "exercises": [
-    { "id": "functions-001", "title": "Créer une fonction simple", "description": "Retourner une valeur depuis une fonction nommée.", "difficulty": "Facile", "status": "completed", "xp": 20 },
-    { "id": "functions-002", "title": "Paramètres et valeur par défaut", "description": "Gérer un paramètre absent sans dupliquer le code.", "difficulty": "Facile", "status": "in_progress", "xp": 20 }
+    { "id": "functions-001", "title": "Créer une fonction simple", "description": "Retourner une valeur depuis une fonction nommée.", "objective": "Comprendre le flux d’appel et de retour.", "difficulty": "Facile", "estimatedMinutes": 10, "xp": 20, "skills": ["Déclaration", "return"], "prerequisites": ["javascript-001"], "hint": "Le résultat doit être retourné, pas seulement affiché.", "validation": ["La fonction possède un nom explicite", "La valeur est retournée"] },
+    { "id": "functions-002", "title": "Paramètres et valeur par défaut", "description": "Gérer un paramètre absent sans dupliquer le code.", "objective": "Rendre une fonction robuste avec une valeur par défaut.", "difficulty": "Facile", "estimatedMinutes": 15, "xp": 20, "skills": ["Paramètres", "Valeurs par défaut"], "prerequisites": ["functions-001"], "hint": "Déclare la valeur de secours dans la signature.", "validation": ["Le cas sans argument fonctionne", "Un argument explicite reste prioritaire"] }
   ],
   "pseudocode": [
-    { "id": "functions-pseudo-001", "title": "Décrire une fonction en pseudo-code", "difficulty": "Facile", "status": "completed", "xp": 15 },
-    { "id": "functions-pseudo-002", "title": "Décrire une fonction de moyenne", "difficulty": "Moyen", "status": "in_progress", "xp": 15 }
+    { "id": "functions-pseudo-001", "title": "Décrire une fonction en pseudo-code", "objective": "Isoler entrées, traitement et sortie.", "situation": "Une fonction doit convertir un prix hors taxe en prix TTC.", "description": "Décris le contrat de la fonction puis ses étapes.", "difficulty": "Facile", "estimatedMinutes": 10, "xp": 15, "skills": ["Contrat de fonction"], "correction": "FONCTION calculerTtc(prixHt, taux): vérifier les entrées, calculer prixHt multiplié par 1 + taux, RETOURNER le résultat.", "validation": ["Les entrées sont nommées", "La sortie est retournée"] },
+    { "id": "functions-pseudo-002", "title": "Décrire une fonction de moyenne", "objective": "Décomposer une fonction avec un cas limite.", "situation": "Une fonction reçoit une liste de valeurs.", "description": "Prévois le cas vide puis le calcul.", "difficulty": "Moyen", "estimatedMinutes": 10, "xp": 15, "skills": ["Cas limites", "Retour"], "correction": "FONCTION moyenne(valeurs): SI vide RETOURNER null; calculer la somme; RETOURNER somme divisée par longueur.", "validation": ["Le cas vide est explicite", "Un seul résultat est retourné"] }
   ],
   "challenges": [
-    { "id": "functions-challenge-001", "title": "Créer une fonction de moyenne", "description": "Calculer une moyenne avec une fonction réutilisable.", "difficulty": "Moyen", "status": "in_progress", "xp": 50 },
-    { "id": "functions-challenge-002", "title": "Composer des fonctions", "description": "Enchaîner deux fonctions sans rendre le code opaque.", "difficulty": "Difficile", "status": "not_started", "xp": 75 }
+    { "id": "functions-challenge-001", "title": "Créer une fonction de moyenne", "description": "Calculer une moyenne avec une fonction réutilisable.", "objective": "Écrire une fonction pure qui gère les cas limites.", "constraints": ["Ne pas modifier le tableau"], "requiredFeatures": ["function", "return", "if"], "bonusFeatures": ["Ignorer les valeurs non numériques"], "forbidden": [], "concepts": ["Fonctions", "Validation"], "difficulty": "Moyen", "estimatedMinutes": 30, "xp": 50, "validation": ["Le cas vide est géré", "Le tableau d’entrée reste intact"] },
+    { "id": "functions-challenge-002", "title": "Composer des fonctions", "description": "Enchaîner deux fonctions sans rendre le code opaque.", "objective": "Construire un résultat complexe à partir de petites fonctions.", "constraints": ["Une responsabilité par fonction"], "requiredFeatures": ["Au moins deux fonctions", "Une composition explicite"], "bonusFeatures": ["Ajouter des tests de cas limites"], "forbidden": ["Variable globale mutable"], "concepts": ["Composition", "Fonctions pures"], "difficulty": "Difficile", "estimatedMinutes": 45, "xp": 75, "validation": ["Chaque fonction peut être testée seule", "La composition produit le résultat attendu"] }
   ],
   "projects": [
-    { "id": "grade-dashboard", "title": "Dashboard de Notes", "description": "Afficher des notes, une moyenne et un statut de réussite.", "difficulty": "Moyen", "status": "not_started", "xp": 200 }
+    { "id": "grade-dashboard", "title": "Dashboard de Notes", "context": "Un professeur veut synthétiser les résultats d’une classe.", "objective": "Structurer calculs et affichage autour de fonctions dédiées.", "description": "Afficher des notes, une moyenne et un statut de réussite.", "features": ["Calcul de moyenne", "Appréciation", "Résumé de classe"], "constraints": ["Aucun calcul dans le rendu", "Fonctions testables séparément"], "bonusFeatures": ["Médiane", "Tri des résultats"], "suggestedPseudocode": ["Valider les données", "Calculer les métriques", "Construire le modèle d’affichage"], "concepts": ["Fonctions", "Conditions", "Tableaux"], "validatedSkills": ["Décomposition", "Réutilisabilité"], "difficulty": "Moyen", "estimatedMinutes": 150, "xp": 200, "validation": ["Les calculs sont centralisés", "Les cas limites sont couverts", "Le rendu consomme uniquement des résultats préparés"] }
   ],
   "achievements": [
-    { "id": "first-function", "title": "Première fonction", "description": "Terminer son premier exercice sur les fonctions.", "metric": "completedExercises", "target": 2 },
-    { "id": "function-challenger", "title": "Fonctionnaire", "description": "Terminer un challenge de fonctions.", "metric": "completedChallenges", "target": 1 }
+    { "id": "first-function", "title": "Première fonction", "description": "Terminer son premier exercice sur les fonctions.", "metric": "completedExercises", "scope": { "topicId": "functions" }, "target": 1 },
+    { "id": "function-challenger", "title": "Fonctionnaire", "description": "Terminer un challenge de fonctions.", "metric": "completedChallenges", "scope": { "topicId": "functions" }, "target": 1 }
   ]
 }

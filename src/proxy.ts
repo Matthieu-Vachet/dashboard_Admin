@@ -9,6 +9,7 @@ const protectedApiPaths = [
   "/api/pokemon-admin",
   "/api/dashboard-backlog",
   "/api/admin/events",
+  "/api/learning",
 ];
 
 export function proxy(request: NextRequest) {

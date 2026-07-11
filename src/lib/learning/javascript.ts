@@ -4,27 +4,42 @@ import arraysTopic from "@/data/learning/arrays.json";
 import objectsTopic from "@/data/learning/objects.json";
 import domTopic from "@/data/learning/dom.json";
 import asyncTopic from "@/data/learning/async.json";
+import curriculumData from "@/data/learning/curriculum.json";
 import { LEARNING_XP_PER_LEVEL } from "@/constants/admin/learning";
 import type {
   LearningAchievement,
-  LearningItem,
+  LearningCurriculum,
+  LearningItemType,
   LearningMetric,
+  LearningProgressRecord,
   LearningProgressState,
   LearningStatus,
   LearningSummary,
   LearningTopic,
   LearningTopicStats,
+  RuntimeLearningTopic,
 } from "@/types/admin/learning";
 
-// Les fichiers JSON restent la source d'autorité; ce cast décrit leur contrat partagé côté TypeScript.
-export const javascriptLearningTopics = [
+export const learningCurriculum = curriculumData as LearningCurriculum;
+const importedTopics = [
   javascriptTopic,
   functionsTopic,
   arraysTopic,
   objectsTopic,
   domTopic,
   asyncTopic,
-] as unknown as LearningTopic[];
+] as LearningTopic[];
+
+const curriculumOrder = new Map(
+  [...learningCurriculum.levels]
+    .sort((left, right) => left.order - right.order)
+    .flatMap((level) => level.topics)
+    .map((topicId, index) => [topicId, index]),
+);
+
+export const javascriptLearningTopics = [...importedTopics].sort(
+  (left, right) => (curriculumOrder.get(left.id) ?? Number.MAX_SAFE_INTEGER) - (curriculumOrder.get(right.id) ?? Number.MAX_SAFE_INTEGER),
+);
 
 export function getCompletedCount(items: Array<{ status: LearningStatus }>) {
   return items.filter((item) => item.status === "completed").length;
@@ -36,32 +51,26 @@ export function getStatusScore(status: LearningStatus) {
   return 0;
 }
 
-function getTopicUnits(topic: LearningTopic) {
-  return [
-    topic.theory,
-    ...topic.exercises,
-    ...topic.pseudocode,
-    ...topic.challenges,
-    ...topic.projects,
-  ];
+function getTopicUnits(topic: RuntimeLearningTopic) {
+  return [topic.theory, ...topic.exercises, ...topic.pseudocode, ...topic.challenges, ...topic.projects];
 }
 
-function getEarnedXP(items: Array<{ status: LearningStatus; xp: number }>) {
-  return items.reduce((total, item) => total + (item.status === "completed" ? item.xp : 0), 0);
+function getEarnedXP(items: Array<{ earnedXp: number }>) {
+  return items.reduce((total, item) => total + item.earnedXp, 0);
 }
 
 function getTotalXP(items: Array<{ xp: number }>) {
   return items.reduce((total, item) => total + item.xp, 0);
 }
 
-export function getTopicProgress(topic: LearningTopic) {
+export function getTopicProgress(topic: RuntimeLearningTopic) {
   const units = getTopicUnits(topic);
   if (!units.length) return 0;
   const score = units.reduce((total, unit) => total + getStatusScore(unit.status), 0);
   return Math.round((score / units.length) * 100);
 }
 
-export function getTopicStats(topic: LearningTopic): LearningTopicStats {
+export function getTopicStats(topic: RuntimeLearningTopic): LearningTopicStats {
   const units = getTopicUnits(topic);
   return {
     progress: getTopicProgress(topic),
@@ -79,7 +88,7 @@ export function getTopicStats(topic: LearningTopic): LearningTopicStats {
   };
 }
 
-export function getLearningSummary(topics: LearningTopic[]): LearningSummary {
+export function getLearningSummary(topics: RuntimeLearningTopic[]): LearningSummary {
   const stats = topics.map(getTopicStats);
   const totalUnits = topics.reduce((total, topic) => total + getTopicUnits(topic).length, 0);
   const scoredUnits = topics.reduce(
@@ -105,69 +114,130 @@ export function getLearningSummary(topics: LearningTopic[]): LearningSummary {
   };
 }
 
+const levelTitles = [
+  { level: 20, title: "Maître JavaScript" },
+  { level: 10, title: "Artisan JavaScript" },
+  { level: 5, title: "Développeur Junior" },
+  { level: 1, title: "Apprenti JavaScript" },
+];
+
 export function getCurrentLevel(xp: number) {
   const safeXP = Math.max(0, xp);
   const level = Math.floor(safeXP / LEARNING_XP_PER_LEVEL) + 1;
   const currentXP = safeXP % LEARNING_XP_PER_LEVEL;
   return {
     level,
+    title: levelTitles.find((item) => level >= item.level)?.title || levelTitles.at(-1)!.title,
     currentXP,
     nextLevelXP: LEARNING_XP_PER_LEVEL,
     progress: Math.round((currentXP / LEARNING_XP_PER_LEVEL) * 100),
   };
 }
 
-export function getAchievementProgress(
-  achievement: LearningAchievement,
-  summary: LearningSummary,
-) {
-  const value = summary[achievement.metric];
+function emptyProgress(itemId: string, topicId: string, itemType: LearningItemType): LearningProgressRecord {
   return {
-    value,
-    target: achievement.target,
-    progress: Math.min(100, Math.round((value / Math.max(achievement.target, 1)) * 100)),
-    unlocked: Boolean(achievement.unlocked) || value >= achievement.target,
+    itemId,
+    topicId,
+    itemType,
+    status: "not_started",
+    startedAt: null,
+    completedAt: null,
+    attempts: 0,
+    earnedXp: 0,
+    studySeconds: 0,
+    updatedAt: "",
   };
 }
 
-export function getAchievements(topics: LearningTopic[], summary: LearningSummary) {
-  const seen = new Set<string>();
-  return topics.flatMap((topic) => topic.achievements).filter((achievement) => {
-    if (seen.has(achievement.id)) return false;
-    seen.add(achievement.id);
-    return true;
-  }).map((achievement) => ({
-    ...achievement,
-    ...getAchievementProgress(achievement, summary),
-  }));
+function runtimeItem<T extends { id: string }>(item: T, topicId: string, itemType: LearningItemType, progress: LearningProgressState) {
+  const state = progress[item.id] || emptyProgress(item.id, topicId, itemType);
+  return {
+    ...item,
+    status: state.status,
+    startedAt: state.startedAt,
+    completedAt: state.completedAt,
+    attempts: state.attempts,
+    earnedXp: state.earnedXp,
+    studySeconds: state.studySeconds,
+    answer: state.answer,
+  };
 }
 
-function applyStatus(item: LearningItem, progress: LearningProgressState) {
-  const status = progress[item.id];
-  return status ? { ...item, status } : item;
-}
-
-export function mergeLearningTopics(
-  topics: LearningTopic[],
-  progress: LearningProgressState,
-) {
+export function mergeLearningTopics(topics: LearningTopic[], progress: LearningProgressState): RuntimeLearningTopic[] {
   return topics.map((topic) => {
     const nextTopic = {
       ...topic,
-      theory: progress[`${topic.id}:theory`]
-        ? { ...topic.theory, status: progress[`${topic.id}:theory`] }
-        : topic.theory,
-      exercises: topic.exercises.map((item) => applyStatus(item, progress)),
-      pseudocode: topic.pseudocode.map((item) => applyStatus(item, progress)),
-      challenges: topic.challenges.map((item) => applyStatus(item, progress)),
-      projects: topic.projects.map((item) => applyStatus(item, progress)),
+      theory: runtimeItem(topic.theory, topic.id, "theory", progress),
+      exercises: topic.exercises.map((item) => runtimeItem(item, topic.id, "exercise", progress)),
+      pseudocode: topic.pseudocode.map((item) => runtimeItem(item, topic.id, "pseudocode", progress)),
+      challenges: topic.challenges.map((item) => runtimeItem(item, topic.id, "challenge", progress)),
+      projects: topic.projects.map((item) => runtimeItem(item, topic.id, "project", progress)),
     };
-    const progressValue = getTopicProgress(nextTopic);
+    const progressValue = getTopicProgress({ ...nextTopic, status: "not_started" });
     return {
       ...nextTopic,
       status: progressValue === 100 ? "completed" : progressValue > 0 ? "in_progress" : "not_started",
-    } satisfies LearningTopic;
+    };
   });
+}
+
+function metricValue(topic: RuntimeLearningTopic, metric: LearningMetric) {
+  const stats = getTopicStats(topic);
+  return stats[metric];
+}
+
+function allRuntimeItems(topics: RuntimeLearningTopic[]) {
+  return topics.flatMap((topic) => [topic.theory, ...topic.exercises, ...topic.pseudocode, ...topic.challenges, ...topic.projects]);
+}
+
+function achievementValue(
+  achievement: LearningAchievement,
+  hostTopic: RuntimeLearningTopic,
+  topics: RuntimeLearningTopic[],
+  summary: LearningSummary,
+  curriculum: LearningCurriculum,
+) {
+  const scope = achievement.scope;
+  if ("global" in scope) return summary[achievement.metric];
+  if ("topicId" in scope) {
+    const topic = topics.find((item) => item.id === scope.topicId) || hostTopic;
+    return metricValue(topic, achievement.metric);
+  }
+  if ("levelId" in scope) {
+    const topicIds = curriculum.levels.find((level) => level.id === scope.levelId)?.topics || [];
+    return topicIds.reduce((total, topicId) => {
+      const topic = topics.find((item) => item.id === topicId);
+      return total + (topic ? metricValue(topic, achievement.metric) : 0);
+    }, 0);
+  }
+  if ("projectId" in scope) {
+    return allRuntimeItems(topics).some((item) => item.id === scope.projectId && item.status === "completed") ? 1 : 0;
+  }
+  const ids = new Set(scope.itemIds);
+  return allRuntimeItems(topics).filter((item) => ids.has(item.id) && item.status === "completed").length;
+}
+
+export function getAchievements(
+  topics: RuntimeLearningTopic[],
+  summary: LearningSummary,
+  curriculum: LearningCurriculum = learningCurriculum,
+) {
+  const seen = new Set<string>();
+  return topics.flatMap((topic) => topic.achievements.map((achievement) => ({ achievement, topic })))
+    .filter(({ achievement }) => {
+      if (seen.has(achievement.id)) return false;
+      seen.add(achievement.id);
+      return true;
+    })
+    .map(({ achievement, topic }) => {
+      const value = achievementValue(achievement, topic, topics, summary, curriculum);
+      return {
+        ...achievement,
+        value,
+        progress: Math.min(100, Math.round((value / Math.max(achievement.target, 1)) * 100)),
+        unlocked: value >= achievement.target,
+      };
+    });
 }
 
 export function getLearningMetricLabel(metric: LearningMetric) {
@@ -178,4 +248,21 @@ export function getLearningMetricLabel(metric: LearningMetric) {
     completedChallenges: "challenges terminés",
     completedProjects: "projets terminés",
   }[metric];
+}
+
+export function findLearningItem(topics: LearningTopic[], itemId: string) {
+  for (const topic of topics) {
+    const typedGroups = [
+      ["theory", [topic.theory]],
+      ["exercise", topic.exercises],
+      ["pseudocode", topic.pseudocode],
+      ["challenge", topic.challenges],
+      ["project", topic.projects],
+    ] as const;
+    for (const [itemType, items] of typedGroups) {
+      const item = items.find((candidate) => candidate.id === itemId);
+      if (item) return { item, itemType, topic };
+    }
+  }
+  return null;
 }

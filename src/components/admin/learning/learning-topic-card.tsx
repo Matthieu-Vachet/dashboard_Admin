@@ -1,16 +1,16 @@
-import { ArrowUpRight, BookOpenCheck, Code2, Rocket, ScrollText, Target } from "lucide-react";
+import { ArrowUpRight, BookMarked, BookOpenCheck, Code2, Download, ExternalLink, Rocket, ScrollText, Target } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { LEARNING_DIFFICULTY_CLASS, LEARNING_STATUS_CLASS, LEARNING_STATUS_LABEL } from "@/constants/admin/learning";
 import { LearningProgressBar } from "@/components/admin/learning/learning-progress-bar";
 import { getTopicStats } from "@/lib/learning/javascript";
-import type { LearningTopic } from "@/types/admin/learning";
+import type { RuntimeLearningTopic } from "@/types/admin/learning";
 
 export function LearningTopicCard({
   topic,
   onOpen,
 }: {
-  topic: LearningTopic;
+  topic: RuntimeLearningTopic;
   onOpen: () => void;
 }) {
   const stats = getTopicStats(topic);
@@ -22,6 +22,7 @@ export function LearningTopicCard({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
+              <Badge>Chapitre {topic.chapterNumber}</Badge>
               <Badge className={LEARNING_STATUS_CLASS[topic.status]}>{LEARNING_STATUS_LABEL[topic.status]}</Badge>
               <Badge className={LEARNING_DIFFICULTY_CLASS[topic.difficulty]}>{topic.difficulty}</Badge>
             </div>
@@ -39,6 +40,19 @@ export function LearningTopicCard({
         </div>
         <LearningProgressBar className="mt-2" value={stats.progress} />
 
+        <div className="mt-3 flex flex-wrap gap-2 text-xs font-bold text-muted">
+          {topic.book.references.map((reference) => (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-black/15 px-2.5 py-1.5" key={`${reference.chapter}-${reference.pages}`}>
+              <BookMarked size={13} /> Chap. {reference.chapter} · p. {reference.pages}
+            </span>
+          ))}
+          {topic.resources.filter((resource) => resource.kind === "mdn" || resource.kind === "roadmap").map((resource) => (
+            <a className="inline-flex items-center gap-1.5 rounded-full border border-brand-2/20 bg-brand-2/[0.06] px-2.5 py-1.5 text-brand-2 transition hover:bg-brand-2/15" href={resource.url} key={resource.id} target={resource.url.startsWith("/") ? undefined : "_blank"} rel="noreferrer">
+              {resource.kind === "mdn" ? "MDN" : "roadmap.sh"} <ExternalLink size={12} />
+            </a>
+          ))}
+        </div>
+
         <div className="mt-5 grid gap-2 sm:grid-cols-2">
           <TopicMetric icon={BookOpenCheck} label="Théorie" value={stats.completedTheory ? "Terminée" : "À commencer"} />
           <TopicMetric icon={Code2} label="Exercices" value={`${stats.completedExercises} / ${stats.totalExercises}`} />
@@ -47,14 +61,19 @@ export function LearningTopicCard({
           <TopicMetric icon={Rocket} label="Projets" value={`${stats.completedProjects} / ${stats.totalProjects}`} />
         </div>
 
-        <button
-          className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-brand-2/30 bg-brand-2/10 px-4 py-2.5 text-sm font-black text-brand-2 transition hover:bg-brand-2/20 focus:outline-none focus:ring-4 focus:ring-brand-2/15"
-          type="button"
-          onClick={onOpen}
-        >
-          Voir le détail
-          <ArrowUpRight size={16} />
-        </button>
+        <div className="mt-5 grid gap-2 sm:grid-cols-[1fr_auto]">
+          <button
+            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-brand-2/30 bg-brand-2/10 px-4 py-2.5 text-sm font-black text-brand-2 transition hover:bg-brand-2/20 focus:outline-none focus:ring-4 focus:ring-brand-2/15"
+            type="button"
+            onClick={onOpen}
+          >
+            Voir le détail
+            <ArrowUpRight size={16} />
+          </button>
+          <a className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-line bg-white/[0.045] px-3 py-2.5 text-xs font-black text-muted transition hover:text-foreground" href={`/api/learning/export?scope=topic&id=${encodeURIComponent(topic.id)}`}>
+            <Download size={14} /> Exporter JSON
+          </a>
+        </div>
       </div>
     </Card>
   );
@@ -78,4 +97,3 @@ function TopicMetric({
     </div>
   );
 }
-

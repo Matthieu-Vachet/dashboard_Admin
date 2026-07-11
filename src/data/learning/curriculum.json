@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "id": "javascript-complete",
+  "title": "Parcours JavaScript complet",
+  "levels": [
+    {
+      "id": "level-1",
+      "title": "Fondamentaux",
+      "order": 1,
+      "description": "Syntaxe, données simples, contrôle du flux et fonctions.",
+      "topics": ["javascript", "functions"],
+      "plannedTopics": [
+        { "id": "conditions-loops", "title": "Conditions et boucles", "category": "Fondamentaux", "required": true },
+        { "id": "scope-basics", "title": "Portée des variables", "category": "Fondamentaux", "required": true }
+      ]
+    },
+    {
+      "id": "level-2",
+      "title": "Données",
+      "order": 2,
+      "description": "Chaînes, nombres, dates, collections, objets et JSON.",
+      "topics": ["arrays", "objects"],
+      "plannedTopics": [
+        { "id": "strings-numbers", "title": "Chaînes, nombres et Math", "category": "Données", "required": true },
+        { "id": "dates", "title": "Dates", "category": "Données", "required": true },
+        { "id": "collections", "title": "Set et Map", "category": "Données", "required": true },
+        { "id": "modern-data-syntax", "title": "Destructuring, spread et rest", "category": "Données", "required": true }
+      ]
+    },
+    {
+      "id": "level-3",
+      "title": "DOM et navigateur",
+      "order": 3,
+      "description": "Document, événements, formulaires et stockage local.",
+      "topics": ["dom"],
+      "plannedTopics": [
+        { "id": "events-forms", "title": "Événements et formulaires", "category": "Navigateur", "required": true },
+        { "id": "storage", "title": "LocalStorage et SessionStorage", "category": "Navigateur", "required": true }
+      ]
+    },
+    {
+      "id": "level-4",
+      "title": "JavaScript moderne et interne",
+      "order": 4,
+      "description": "Closures, this, prototypes, classes, modules et expressions régulières.",
+      "topics": [],
+      "plannedTopics": [
+        { "id": "modern-syntax", "title": "Syntaxe moderne", "category": "JavaScript moderne", "required": true },
+        { "id": "scope-closures", "title": "Scope et closures", "category": "Fonctionnement interne", "required": true },
+        { "id": "objects-internals", "title": "this, prototypes et classes", "category": "Fonctionnement interne", "required": true },
+        { "id": "modules", "title": "Modules import/export", "category": "Architecture", "required": true },
+        { "id": "errors-regex", "title": "Erreurs et expressions régulières", "category": "Qualité", "required": true }
+      ]
+    },
+    {
+      "id": "level-5",
+      "title": "Asynchrone et APIs",
+      "order": 5,
+      "description": "Timers, Promises, async/await, Fetch et APIs du navigateur.",
+      "topics": ["async"],
+      "plannedTopics": [
+        { "id": "browser-apis", "title": "APIs du navigateur", "category": "APIs", "required": true }
+      ]
+    },
+    {
+      "id": "level-6",
+      "title": "Qualité et architecture",
+      "order": 6,
+      "description": "Débogage, code propre, immutabilité, documentation et tests.",
+      "topics": [],
+      "plannedTopics": [
+        { "id": "errors-debugging", "title": "Débogage et gestion des erreurs", "category": "Qualité", "required": true },
+        { "id": "code-quality", "title": "Code propre et fonctions pures", "category": "Qualité", "required": true },
+        { "id": "testing-architecture", "title": "Tests et architecture modulaire", "category": "Architecture", "required": true }
+      ]
+    },
+    {
+      "id": "level-7",
+      "title": "Projets pratiques",
+      "order": 7,
+      "description": "Applications progressives mobilisant plusieurs notions.",
+      "topics": [],
+      "plannedTopics": [
+        { "id": "projects-foundations", "title": "Calculatrice, notes, Todo et Pomodoro", "category": "Projets", "required": true },
+        { "id": "projects-api", "title": "Météo, Pokédex, quiz et budget", "category": "Projets", "required": true },
+        { "id": "projects-advanced", "title": "Discord et Three.js", "category": "Projets", "required": false }
+      ]
+    }
+  ]
+}

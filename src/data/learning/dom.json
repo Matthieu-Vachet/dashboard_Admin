@@ -1,33 +1,56 @@
 {
+  "schemaVersion": 1,
   "id": "dom",
-  "title": "DOM",
+  "title": "DOM, événements et formulaires",
   "category": "Navigateur",
   "difficulty": "Moyen",
-  "status": "in_progress",
   "description": "Sélectionner, créer et mettre à jour des éléments dans une page interactive.",
-  "book": { "chapter": "6.1", "pages": "148-190" },
-  "resources": {
-    "mdn": "https://developer.mozilla.org/fr/docs/Web/API/Document_Object_Model",
-    "roadmap": "https://roadmap.sh/javascript"
+  "chapterNumber": 5,
+  "required": true,
+  "curriculum": { "levelId": "level-3", "order": 1 },
+  "book": {
+    "references": [
+      { "chapter": "11", "title": "La programmation événementielle", "pages": "163-166" },
+      { "chapter": "12", "title": "Manipuler le document", "pages": "177-202" },
+      { "chapter": "13", "title": "Les formulaires", "pages": "209-231" }
+    ]
   },
+  "resources": [
+    { "id": "dom-mdn", "label": "DOM MDN", "url": "https://developer.mozilla.org/fr/docs/Web/API/Document_Object_Model", "kind": "mdn" },
+    { "id": "dom-roadmap", "label": "Roadmap JavaScript", "url": "https://roadmap.sh/javascript", "kind": "roadmap" },
+    { "id": "dom-notes", "label": "Notes personnelles", "url": "/notes", "kind": "notes" }
+  ],
   "prerequisites": ["javascript", "arrays"],
-  "theory": { "status": "in_progress", "xp": 10 },
+  "relatedTopics": ["async"],
+  "theory": {
+    "id": "dom-theory",
+    "title": "Construire une interface avec le DOM",
+    "summary": "Le DOM représente la page comme un arbre que JavaScript peut lire, modifier et écouter.",
+    "description": "Cette fiche relie sélection, création d’éléments, classList, événements, propagation et formulaires.",
+    "objectives": ["Sélectionner et modifier un élément", "Créer un rendu depuis des données", "Gérer un événement et valider un formulaire"],
+    "estimatedMinutes": 35,
+    "level": "Moyen",
+    "commonMistakes": ["Attacher plusieurs fois le même listener", "Injecter du HTML non fiable", "Oublier preventDefault sur un formulaire"],
+    "bestPractices": ["Conserver les références DOM utiles", "Utiliser textContent pour le texte", "Séparer données, logique et rendu"],
+    "finalSummary": "Une interface DOM robuste dérive son affichage des données et traite clairement les interactions.",
+    "xp": 10
+  },
   "exercises": [
-    { "id": "dom-001", "title": "Ajouter un élément", "description": "Créer un li et l’ajouter à une liste.", "difficulty": "Facile", "status": "completed", "xp": 20 },
-    { "id": "dom-002", "title": "Écouter un clic", "description": "Brancher un event listener et modifier une classe.", "difficulty": "Moyen", "status": "not_started", "xp": 20 },
-    { "id": "dom-003", "title": "Valider un formulaire", "description": "Empêcher un envoi invalide avec un retour lisible.", "difficulty": "Moyen", "status": "not_started", "xp": 20 }
+    { "id": "dom-001", "title": "Ajouter un élément", "description": "Créer un li et l’ajouter à une liste.", "objective": "Utiliser createElement, textContent et append.", "difficulty": "Facile", "estimatedMinutes": 15, "xp": 20, "skills": ["Création DOM", "Insertion"], "prerequisites": ["javascript-001"], "hint": "Crée et configure l’élément avant de l’insérer.", "validation": ["Le texte est ajouté avec textContent", "L’élément apparaît dans la bonne liste"] },
+    { "id": "dom-002", "title": "Écouter un clic", "description": "Brancher un event listener et modifier une classe.", "objective": "Réagir à une interaction sans modifier directement les styles.", "difficulty": "Moyen", "estimatedMinutes": 20, "xp": 20, "skills": ["Événements", "classList"], "prerequisites": ["dom-001"], "hint": "Utilise classList.toggle pour un état binaire.", "validation": ["Le listener est attaché une seule fois", "La classe reflète chaque clic"] },
+    { "id": "dom-003", "title": "Valider un formulaire", "description": "Empêcher un envoi invalide avec un retour lisible.", "objective": "Lire FormData, valider et afficher une erreur accessible.", "difficulty": "Moyen", "estimatedMinutes": 25, "xp": 20, "skills": ["Formulaires", "Validation"], "prerequisites": ["dom-002"], "hint": "Empêche l’envoi avant de lire les champs.", "validation": ["Les valeurs invalides sont refusées", "Le message d’erreur est associé au champ"] }
   ],
   "pseudocode": [
-    { "id": "dom-pseudo-001", "title": "Décrire un rendu de liste", "difficulty": "Facile", "status": "in_progress", "xp": 15 },
-    { "id": "dom-pseudo-002", "title": "Décrire une modale accessible", "difficulty": "Moyen", "status": "not_started", "xp": 15 }
+    { "id": "dom-pseudo-001", "title": "Décrire un rendu de liste", "objective": "Séparer transformation des données et construction du DOM.", "situation": "Une liste filtrée doit être réaffichée après chaque recherche.", "description": "Décris le nettoyage, le parcours et l’état vide.", "difficulty": "Facile", "estimatedMinutes": 10, "xp": 15, "skills": ["Rendu", "État vide"], "correction": "Vider le conteneur. Si la liste est vide, afficher un message. Sinon créer un élément par donnée, le remplir avec du texte sûr et l’ajouter au fragment, puis insérer le fragment.", "validation": ["L’ancien rendu est nettoyé", "Le cas vide est prévu", "Un fragment limite les insertions"] },
+    { "id": "dom-pseudo-002", "title": "Décrire une modale accessible", "objective": "Planifier ouverture, focus et fermeture.", "situation": "Une fiche de détail s’ouvre au-dessus du dashboard.", "description": "Rédige le cycle complet d’une modale clavier et souris.", "difficulty": "Moyen", "estimatedMinutes": 15, "xp": 15, "skills": ["Accessibilité", "Événements"], "correction": "Mémoriser le focus. Ouvrir et placer le focus dans la modale. Bloquer l’arrière-plan. Fermer sur bouton ou Échap. Restaurer le focus initial.", "validation": ["Le focus est géré", "Échap ferme la modale", "Le focus initial est restauré"] }
   ],
   "challenges": [
-    { "id": "dom-challenge-001", "title": "Recherche instantanée", "description": "Filtrer les cards dès que l’utilisateur saisit du texte.", "difficulty": "Difficile", "status": "not_started", "xp": 50 }
+    { "id": "dom-challenge-001", "title": "Recherche instantanée", "description": "Filtrer les cartes dès que l’utilisateur saisit du texte.", "objective": "Synchroniser données, saisie et rendu sans dupliquer l’état.", "constraints": ["La recherche est insensible à la casse", "Un état vide est affiché"], "requiredFeatures": ["input event", "filter()", "Fonction de rendu"], "bonusFeatures": ["Surligner le texte trouvé"], "forbidden": ["innerHTML avec une saisie utilisateur"], "concepts": ["DOM", "Événements", "Tableaux"], "difficulty": "Difficile", "estimatedMinutes": 50, "xp": 50, "validation": ["Le résultat se met à jour à chaque saisie", "Aucune injection HTML n’est possible"] }
   ],
   "projects": [
-    { "id": "dom-kanban", "title": "Mini Kanban DOM", "description": "Créer des colonnes et déplacer des cartes dans le navigateur.", "difficulty": "Difficile", "status": "not_started", "xp": 200 }
+    { "id": "dom-kanban", "title": "Mini Kanban DOM", "context": "Une équipe veut visualiser ses tâches par statut.", "objective": "Créer une interface DOM interactive à partir d’un état central.", "description": "Créer des colonnes et déplacer des cartes dans le navigateur.", "features": ["Création de tâche", "Colonnes par statut", "Déplacement de cartes"], "constraints": ["Une source de données unique", "Rendu entièrement dérivé de l’état"], "bonusFeatures": ["Persistance locale", "Filtres"], "suggestedPseudocode": ["Définir l’état", "Créer une fonction de rendu", "Traiter les actions", "Mettre à jour puis rendre"], "concepts": ["DOM", "Événements", "Objets", "Tableaux"], "validatedSkills": ["Gestion d’état", "Rendu d’interface"], "difficulty": "Difficile", "estimatedMinutes": 240, "xp": 200, "validation": ["Les actions modifient d’abord les données", "Le rendu reste cohérent", "Le clavier permet les actions principales"] }
   ],
   "achievements": [
-    { "id": "dom-builder", "title": "Constructeur DOM", "description": "Terminer deux exercices DOM.", "metric": "completedExercises", "target": 8 }
+    { "id": "dom-builder", "title": "Constructeur DOM", "description": "Terminer deux exercices DOM.", "metric": "completedExercises", "scope": { "topicId": "dom" }, "target": 2 }
   ]
 }

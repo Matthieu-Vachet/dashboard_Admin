@@ -1,31 +1,48 @@
 {
+  "schemaVersion": 1,
   "id": "objects",
-  "title": "Objets",
+  "title": "Objets et JSON",
   "category": "Données",
   "difficulty": "Moyen",
-  "status": "in_progress",
   "description": "Modéliser des données métier et les transformer sans perdre en lisibilité.",
-  "book": { "chapter": "4.5", "pages": "104-128" },
-  "resources": {
-    "mdn": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Guide/Working_with_objects",
-    "roadmap": "https://roadmap.sh/javascript"
-  },
+  "chapterNumber": 4,
+  "required": true,
+  "curriculum": { "levelId": "level-2", "order": 2 },
+  "book": { "references": [{ "chapter": "8", "title": "Objets et JSON", "pages": "117-136" }] },
+  "resources": [
+    { "id": "objects-mdn", "label": "Objets JavaScript MDN", "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Guide/Working_with_objects", "kind": "mdn" },
+    { "id": "objects-roadmap", "label": "Roadmap JavaScript", "url": "https://roadmap.sh/javascript", "kind": "roadmap" },
+    { "id": "objects-notes", "label": "Notes personnelles", "url": "/notes", "kind": "notes" }
+  ],
   "prerequisites": ["javascript", "functions"],
-  "theory": { "status": "in_progress", "xp": 10 },
+  "relatedTopics": ["arrays"],
+  "theory": {
+    "id": "objects-theory",
+    "title": "Modéliser avec des objets",
+    "summary": "Un objet regroupe des propriétés cohérentes ; JSON fournit un format d’échange textuel.",
+    "description": "Cette fiche couvre création, lecture, déstructuration, copie, sérialisation et normalisation.",
+    "objectives": ["Créer un modèle de données stable", "Utiliser la déstructuration", "Convertir correctement entre objet et JSON"],
+    "estimatedMinutes": 30,
+    "level": "Moyen",
+    "commonMistakes": ["Muter un objet partagé", "Confondre objet et JSON", "Accéder sans vérifier une propriété optionnelle"],
+    "bestPractices": ["Choisir des clés explicites", "Créer de nouveaux objets lors d’une transformation", "Valider les données externes"],
+    "finalSummary": "Un modèle d’objet stable simplifie les transformations, le rendu et les échanges de données.",
+    "xp": 10
+  },
   "exercises": [
-    { "id": "objects-001", "title": "Créer une fiche profil", "description": "Décrire un utilisateur avec un objet et une fonction.", "difficulty": "Facile", "status": "completed", "xp": 20 },
-    { "id": "objects-002", "title": "Déstructurer une carte", "description": "Extraire les propriétés utiles d’une fiche Pokémon.", "difficulty": "Moyen", "status": "not_started", "xp": 20 }
+    { "id": "objects-001", "title": "Créer une fiche profil", "description": "Décrire un utilisateur avec un objet et une fonction.", "objective": "Construire un objet cohérent depuis plusieurs paramètres.", "difficulty": "Facile", "estimatedMinutes": 15, "xp": 20, "skills": ["Objet", "Propriétés"], "prerequisites": ["functions-001"], "hint": "La fonction peut retourner directement un littéral objet.", "validation": ["Toutes les propriétés attendues existent", "Aucune variable globale n’est nécessaire"] },
+    { "id": "objects-002", "title": "Déstructurer une carte", "description": "Extraire les propriétés utiles d’une fiche Pokémon.", "objective": "Utiliser la déstructuration et une valeur par défaut.", "difficulty": "Moyen", "estimatedMinutes": 15, "xp": 20, "skills": ["Destructuring", "Valeur par défaut"], "prerequisites": ["objects-001"], "hint": "Place la valeur de secours dans le motif de déstructuration.", "validation": ["Seules les propriétés utiles sont extraites", "La propriété optionnelle a une valeur de secours"] }
   ],
   "pseudocode": [
-    { "id": "objects-pseudo-001", "title": "Décrire une fiche métier", "difficulty": "Facile", "status": "completed", "xp": 15 }
+    { "id": "objects-pseudo-001", "title": "Décrire une fiche métier", "objective": "Définir un modèle avant son implémentation.", "situation": "Une boutique doit représenter un produit et son stock.", "description": "Liste les champs, leurs règles et la transformation attendue.", "difficulty": "Facile", "estimatedMinutes": 10, "xp": 15, "skills": ["Modélisation", "Validation"], "correction": "Définir id, nom, prix et stock. Vérifier les types. Calculer disponible depuis stock. Retourner une nouvelle fiche normalisée.", "validation": ["Les propriétés sont définies", "Les champs calculés sont distingués des entrées"] }
   ],
   "challenges": [
-    { "id": "objects-challenge-001", "title": "Normaliser des fiches", "description": "Construire un objet de sortie stable depuis plusieurs formats.", "difficulty": "Difficile", "status": "not_started", "xp": 50 }
+    { "id": "objects-challenge-001", "title": "Normaliser des fiches", "description": "Construire un objet de sortie stable depuis plusieurs formats.", "objective": "Isoler les différences de sources derrière un modèle unique.", "constraints": ["Ne pas modifier les objets entrants", "Gérer les champs absents"], "requiredFeatures": ["Destructuring", "Spread operator", "Valeurs par défaut"], "bonusFeatures": ["Signaler les données invalides"], "forbidden": [], "concepts": ["Objets", "Normalisation", "Immutabilité"], "difficulty": "Difficile", "estimatedMinutes": 45, "xp": 50, "validation": ["Le format de sortie est stable", "Les entrées restent intactes"] }
   ],
   "projects": [
-    { "id": "objects-catalog", "title": "Catalogue de fiches", "description": "Afficher et rechercher des objets métier dans une interface.", "difficulty": "Moyen", "status": "not_started", "xp": 200 }
+    { "id": "objects-catalog", "title": "Catalogue de fiches", "context": "Plusieurs sources fournissent des produits de formats différents.", "objective": "Normaliser puis afficher un catalogue métier.", "description": "Afficher et rechercher des objets métier dans une interface.", "features": ["Normalisation", "Recherche", "Fiche de détail"], "constraints": ["Un modèle de sortie unique", "Validation des données externes"], "bonusFeatures": ["Export JSON"], "suggestedPseudocode": ["Valider la source", "Normaliser chaque fiche", "Indexer le catalogue", "Afficher"], "concepts": ["Objets", "JSON", "Tableaux"], "validatedSkills": ["Modélisation", "Normalisation"], "difficulty": "Moyen", "estimatedMinutes": 180, "xp": 200, "validation": ["Toutes les sources produisent le même modèle", "Une donnée invalide ne fait pas planter l’interface"] }
   ],
   "achievements": [
-    { "id": "object-modeler", "title": "Modéliste", "description": "Terminer un challenge de modélisation d’objets.", "metric": "completedChallenges", "target": 2 }
+    { "id": "object-modeler", "title": "Modéliste", "description": "Terminer le challenge de modélisation d’objets.", "metric": "completedChallenges", "scope": { "topicId": "objects" }, "target": 1 }
   ]
 }

@@ -1,0 +1,13 @@
+{
+  "snapshotVersion": 1,
+  "sourceCommit": "413ec62",
+  "purpose": "Sauvegarde des statuts de démonstration retirés du contenu pédagogique. Ce fichier ne doit jamais être importé automatiquement comme progression réelle.",
+  "topics": {
+    "javascript": { "topic": "in_progress", "javascript:theory": "completed", "javascript-001": "completed", "javascript-002": "completed", "javascript-003": "in_progress", "javascript-pseudo-001": "completed", "javascript-pseudo-002": "in_progress", "javascript-challenge-001": "in_progress", "javascript-project-001": "not_started" },
+    "functions": { "topic": "in_progress", "functions:theory": "completed", "functions-001": "completed", "functions-002": "in_progress", "functions-pseudo-001": "completed", "functions-pseudo-002": "in_progress", "functions-challenge-001": "in_progress", "functions-challenge-002": "not_started", "grade-dashboard": "not_started" },
+    "arrays": { "topic": "in_progress", "arrays:theory": "in_progress", "arrays-001": "completed", "arrays-002": "completed", "arrays-003": "not_started", "arrays-pseudo-001": "completed", "arrays-pseudo-002": "not_started", "arrays-challenge-001": "in_progress", "array-explorer": "in_progress" },
+    "objects": { "topic": "in_progress", "objects:theory": "in_progress", "objects-001": "completed", "objects-002": "not_started", "objects-pseudo-001": "completed", "objects-challenge-001": "not_started", "objects-catalog": "not_started" },
+    "dom": { "topic": "in_progress", "dom:theory": "in_progress", "dom-001": "completed", "dom-002": "not_started", "dom-003": "not_started", "dom-pseudo-001": "in_progress", "dom-pseudo-002": "not_started", "dom-challenge-001": "not_started", "dom-kanban": "not_started" },
+    "async": { "topic": "not_started", "async:theory": "not_started", "async-001": "not_started", "async-002": "not_started", "async-pseudo-001": "not_started", "async-challenge-001": "not_started", "async-pokedex": "not_started" }
+  }
+}

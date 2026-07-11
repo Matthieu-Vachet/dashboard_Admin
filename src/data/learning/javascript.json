@@ -1,34 +1,145 @@
 {
+  "schemaVersion": 1,
   "id": "javascript",
   "title": "Fondamentaux JavaScript",
   "category": "Fondamentaux",
   "difficulty": "Facile",
-  "status": "in_progress",
   "description": "Construire une base solide pour lire, écrire et raisonner avec du JavaScript moderne.",
-  "book": { "chapter": "1-2", "pages": "12-48" },
-  "resources": {
-    "mdn": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Guide",
-    "roadmap": "https://roadmap.sh/javascript"
+  "chapterNumber": 1,
+  "required": true,
+  "curriculum": { "levelId": "level-1", "order": 1 },
+  "book": {
+    "references": [
+      { "chapter": "1-2", "title": "Premiers pas et bases du langage", "pages": "12-48" }
+    ]
   },
+  "resources": [
+    { "id": "javascript-mdn", "label": "Guide JavaScript MDN", "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Guide", "kind": "mdn" },
+    { "id": "javascript-roadmap", "label": "Roadmap JavaScript", "url": "https://roadmap.sh/javascript", "kind": "roadmap" },
+    { "id": "javascript-notes", "label": "Notes personnelles", "url": "/notes", "kind": "notes" }
+  ],
   "prerequisites": [],
-  "theory": { "status": "completed", "xp": 10 },
+  "relatedTopics": ["functions"],
+  "theory": {
+    "id": "javascript-theory",
+    "title": "Comprendre les bases du langage",
+    "summary": "Variables, types, opérateurs, conditions et boucles forment le socle du raisonnement JavaScript.",
+    "description": "Cette fiche présente la syntaxe essentielle et les mécanismes nécessaires pour transformer un problème simple en instructions JavaScript.",
+    "objectives": ["Déclarer des valeurs avec let et const", "Choisir une condition adaptée", "Parcourir une collection avec une boucle"],
+    "estimatedMinutes": 25,
+    "level": "Facile",
+    "commonMistakes": ["Confondre affectation et comparaison", "Modifier une constante", "Créer une boucle infinie"],
+    "bestPractices": ["Préférer const tant qu’une réaffectation n’est pas nécessaire", "Nommer les variables selon leur rôle", "Garder les conditions lisibles"],
+    "finalSummary": "Tu peux désormais représenter des données simples, décider avec des conditions et répéter une action de façon contrôlée.",
+    "xp": 10
+  },
   "exercises": [
-    { "id": "javascript-001", "title": "Variables et types", "description": "Déclarer des valeurs et identifier leur type.", "difficulty": "Facile", "status": "completed", "xp": 20 },
-    { "id": "javascript-002", "title": "Conditions de validation", "description": "Retourner un message selon une valeur et ses limites.", "difficulty": "Facile", "status": "completed", "xp": 20 },
-    { "id": "javascript-003", "title": "Boucle de lecture", "description": "Parcourir une liste et calculer un résultat.", "difficulty": "Facile", "status": "in_progress", "xp": 20 }
+    {
+      "id": "javascript-001",
+      "title": "Variables et types",
+      "description": "Déclarer des valeurs et identifier leur type.",
+      "objective": "Savoir choisir let ou const et vérifier un type avec typeof.",
+      "difficulty": "Facile",
+      "estimatedMinutes": 10,
+      "xp": 20,
+      "skills": ["Variables", "Types primitifs"],
+      "prerequisites": [],
+      "hint": "Commence par les valeurs qui ne changeront pas.",
+      "validation": ["Les variables sont correctement déclarées", "Chaque type est identifié sans erreur"]
+    },
+    {
+      "id": "javascript-002",
+      "title": "Conditions de validation",
+      "description": "Retourner un message selon une valeur et ses limites.",
+      "objective": "Combiner comparaisons et opérateurs logiques dans une condition claire.",
+      "difficulty": "Facile",
+      "estimatedMinutes": 15,
+      "xp": 20,
+      "skills": ["Conditions", "Comparaisons"],
+      "prerequisites": ["javascript-001"],
+      "hint": "Traite d’abord les bornes invalides.",
+      "validation": ["Tous les cas limites sont couverts", "La fonction retourne toujours un message"]
+    },
+    {
+      "id": "javascript-003",
+      "title": "Boucle de lecture",
+      "description": "Parcourir une liste et calculer un résultat.",
+      "objective": "Utiliser une boucle et un accumulateur sans modifier les données d’entrée.",
+      "difficulty": "Facile",
+      "estimatedMinutes": 15,
+      "xp": 20,
+      "skills": ["Boucles", "Accumulateur"],
+      "prerequisites": ["javascript-001"],
+      "hint": "Initialise le total avant la boucle.",
+      "validation": ["Chaque valeur est parcourue une seule fois", "Le résultat est correct pour une liste vide"]
+    }
   ],
   "pseudocode": [
-    { "id": "javascript-pseudo-001", "title": "Décrire un algorithme de moyenne", "difficulty": "Facile", "status": "completed", "xp": 15 },
-    { "id": "javascript-pseudo-002", "title": "Décrire un validateur", "difficulty": "Facile", "status": "in_progress", "xp": 15 }
+    {
+      "id": "javascript-pseudo-001",
+      "title": "Décrire un algorithme de moyenne",
+      "objective": "Décomposer le calcul d’une moyenne avant de coder.",
+      "situation": "Une liste de notes doit produire une moyenne ou un message si elle est vide.",
+      "description": "Rédige les étapes, de la vérification des données au retour du résultat.",
+      "difficulty": "Facile",
+      "estimatedMinutes": 10,
+      "xp": 15,
+      "skills": ["Décomposition", "Cas limites"],
+      "correction": "SI la liste est vide, retourner un message. SINON initialiser total à 0, parcourir les notes, ajouter chaque note au total, puis retourner total divisé par le nombre de notes.",
+      "validation": ["Le cas vide est traité", "L’accumulateur est initialisé", "La division a lieu après la boucle"]
+    },
+    {
+      "id": "javascript-pseudo-002",
+      "title": "Décrire un validateur",
+      "objective": "Ordonner plusieurs règles de validation.",
+      "situation": "Un âge doit être numérique, positif et respecter une limite minimale.",
+      "description": "Rédige un pseudo-code qui retourne une erreur précise pour chaque règle.",
+      "difficulty": "Facile",
+      "estimatedMinutes": 10,
+      "xp": 15,
+      "skills": ["Conditions", "Ordre des règles"],
+      "correction": "SI la valeur n’est pas un nombre, retourner l’erreur de type. SINON SI elle est négative, retourner l’erreur de domaine. SINON SI elle est sous la limite, retourner le refus. SINON retourner la validation.",
+      "validation": ["Chaque erreur est distincte", "Les règles vont du plus général au plus précis"]
+    }
   ],
   "challenges": [
-    { "id": "javascript-challenge-001", "title": "Calculateur de notes", "difficulty": "Moyen", "status": "in_progress", "xp": 50 }
+    {
+      "id": "javascript-challenge-001",
+      "title": "Calculateur de notes",
+      "description": "Calculer une moyenne et produire une appréciation.",
+      "objective": "Assembler variables, boucle et conditions dans une solution complète.",
+      "constraints": ["Gérer une liste vide", "Ne pas modifier le tableau reçu"],
+      "requiredFeatures": ["Une boucle for", "Une condition if", "Une valeur retournée"],
+      "bonusFeatures": ["Afficher la note minimale et maximale"],
+      "forbidden": ["reduce()"],
+      "concepts": ["Variables", "Boucles", "Conditions"],
+      "difficulty": "Moyen",
+      "estimatedMinutes": 35,
+      "xp": 50,
+      "validation": ["La moyenne est exacte", "Les cas limites ne provoquent pas d’erreur"]
+    }
   ],
   "projects": [
-    { "id": "javascript-project-001", "title": "Mini tableau de bord", "description": "Assembler variables, conditions et boucles dans une interface de suivi.", "difficulty": "Moyen", "status": "not_started", "xp": 200 }
+    {
+      "id": "javascript-project-001",
+      "title": "Mini tableau de bord",
+      "context": "Un élève veut suivre ses notes dans une interface simple.",
+      "objective": "Assembler les fondamentaux dans une petite application lisible.",
+      "description": "Afficher des notes, calculer une moyenne et présenter un statut de réussite.",
+      "features": ["Liste des notes", "Moyenne automatique", "Statut de réussite"],
+      "constraints": ["Séparer les données du rendu", "Gérer l’absence de notes"],
+      "bonusFeatures": ["Ajouter un filtre par matière"],
+      "suggestedPseudocode": ["Valider les notes", "Calculer les indicateurs", "Construire l’affichage"],
+      "concepts": ["Variables", "Conditions", "Boucles"],
+      "validatedSkills": ["Raisonnement algorithmique", "Organisation du code"],
+      "difficulty": "Moyen",
+      "estimatedMinutes": 120,
+      "xp": 200,
+      "validation": ["Les calculs restent automatiques", "Une liste vide est correctement affichée", "Le code est séparé en responsabilités claires"]
+    }
   ],
   "achievements": [
-    { "id": "first-javascript-exercise", "title": "Premier pas", "description": "Terminer un premier exercice JavaScript.", "metric": "completedExercises", "target": 1 },
-    { "id": "javascript-basics", "title": "Base solide", "description": "Terminer la théorie des fondamentaux.", "metric": "completedTheory", "target": 1 }
+    { "id": "first-javascript-exercise", "title": "Premier pas", "description": "Terminer un premier exercice JavaScript.", "metric": "completedExercises", "scope": { "topicId": "javascript" }, "target": 1 },
+    { "id": "javascript-basics", "title": "Base solide", "description": "Terminer la théorie des fondamentaux.", "metric": "completedTheory", "scope": { "topicId": "javascript" }, "target": 1 }
   ]
 }

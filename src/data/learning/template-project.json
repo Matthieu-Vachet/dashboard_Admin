@@ -1,0 +1,17 @@
+{
+  "id": "topic-id-project-001",
+  "title": "Titre du projet",
+  "context": "Contexte métier du projet.",
+  "objective": "Résultat principal attendu.",
+  "description": "Cahier des charges synthétique.",
+  "features": ["Fonctionnalité obligatoire"],
+  "constraints": ["Contrainte technique ou fonctionnelle"],
+  "bonusFeatures": ["Bonus facultatif"],
+  "suggestedPseudocode": ["Première étape de conception"],
+  "concepts": ["Notion utilisée"],
+  "validatedSkills": ["Compétence validée"],
+  "difficulty": "Moyen",
+  "estimatedMinutes": 180,
+  "xp": 200,
+  "validation": ["Critère de validation vérifiable"]
+}

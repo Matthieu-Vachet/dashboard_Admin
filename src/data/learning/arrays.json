@@ -1,33 +1,50 @@
 {
+  "schemaVersion": 1,
   "id": "arrays",
   "title": "Tableaux",
   "category": "Données",
   "difficulty": "Moyen",
-  "status": "in_progress",
-  "description": "Manipuler des collections avec map, filter, reduce, find et les méthodes modernes.",
-  "book": { "chapter": "4.2", "pages": "74-102" },
-  "resources": {
-    "mdn": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Global_Objects/Array",
-    "roadmap": "https://roadmap.sh/javascript"
-  },
+  "description": "Manipuler des collections avec les boucles et les méthodes modernes de tableaux.",
+  "chapterNumber": 3,
+  "required": true,
+  "curriculum": { "levelId": "level-2", "order": 1 },
+  "book": { "references": [{ "chapter": "7", "title": "Tableaux, Set et Map", "pages": "97-115" }] },
+  "resources": [
+    { "id": "arrays-mdn", "label": "Référence Array MDN", "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Global_Objects/Array", "kind": "mdn" },
+    { "id": "arrays-roadmap", "label": "Roadmap JavaScript", "url": "https://roadmap.sh/javascript", "kind": "roadmap" },
+    { "id": "arrays-notes", "label": "Notes personnelles", "url": "/notes", "kind": "notes" }
+  ],
   "prerequisites": ["javascript", "functions"],
-  "theory": { "status": "in_progress", "xp": 10 },
+  "relatedTopics": ["objects"],
+  "theory": {
+    "id": "arrays-theory",
+    "title": "Transformer des collections",
+    "summary": "Un tableau ordonne des valeurs et propose des opérations adaptées à la recherche, au filtrage et à la transformation.",
+    "description": "Cette fiche compare boucles, map, filter, find et reduce tout en insistant sur l’immutabilité.",
+    "objectives": ["Choisir la bonne méthode de tableau", "Éviter les mutations accidentelles", "Combiner plusieurs transformations lisibles"],
+    "estimatedMinutes": 30,
+    "level": "Moyen",
+    "commonMistakes": ["Confondre map et forEach", "Oublier le return d’un callback", "Modifier le tableau d’entrée"],
+    "bestPractices": ["Choisir une méthode selon l’intention", "Nommer les callbacks", "Séparer les transformations complexes"],
+    "finalSummary": "Les méthodes de tableau expriment l’intention du traitement et facilitent une approche immutable.",
+    "xp": 10
+  },
   "exercises": [
-    { "id": "arrays-001", "title": "Additionner un tableau", "description": "Calculer une somme avec une boucle puis avec reduce.", "difficulty": "Facile", "status": "completed", "xp": 20 },
-    { "id": "arrays-002", "title": "Filtrer les notes réussies", "description": "Retourner uniquement les valeurs supérieures ou égales à 10.", "difficulty": "Moyen", "status": "completed", "xp": 20 },
-    { "id": "arrays-003", "title": "Trouver un Pokémon", "description": "Retrouver une fiche dans une collection avec find.", "difficulty": "Moyen", "status": "not_started", "xp": 20 }
+    { "id": "arrays-001", "title": "Additionner un tableau", "description": "Calculer une somme avec une boucle puis avec reduce.", "objective": "Comparer une accumulation impérative et déclarative.", "difficulty": "Facile", "estimatedMinutes": 15, "xp": 20, "skills": ["Boucle", "reduce"], "prerequisites": ["javascript-003"], "hint": "L’accumulateur de reduce a besoin d’une valeur initiale.", "validation": ["Les deux versions donnent le même résultat", "Le cas vide retourne zéro"] },
+    { "id": "arrays-002", "title": "Filtrer les notes réussies", "description": "Retourner uniquement les valeurs supérieures ou égales à 10.", "objective": "Utiliser filter sans modifier la collection originale.", "difficulty": "Moyen", "estimatedMinutes": 15, "xp": 20, "skills": ["filter", "Callback"], "prerequisites": ["functions-001"], "hint": "Le callback doit retourner un booléen.", "validation": ["Seules les notes réussies sont présentes", "Le tableau original reste intact"] },
+    { "id": "arrays-003", "title": "Trouver un Pokémon", "description": "Retrouver une fiche dans une collection avec find.", "objective": "Distinguer recherche d’un élément et filtrage d’une liste.", "difficulty": "Moyen", "estimatedMinutes": 15, "xp": 20, "skills": ["find", "Prédicat"], "prerequisites": ["arrays-002"], "hint": "Prévois le cas où aucun élément ne correspond.", "validation": ["Le premier élément correspondant est retourné", "L’absence de résultat est gérée"] }
   ],
   "pseudocode": [
-    { "id": "arrays-pseudo-001", "title": "Décrire un filtre", "difficulty": "Facile", "status": "completed", "xp": 15 },
-    { "id": "arrays-pseudo-002", "title": "Décrire un regroupement", "difficulty": "Moyen", "status": "not_started", "xp": 15 }
+    { "id": "arrays-pseudo-001", "title": "Décrire un filtre", "objective": "Formaliser un prédicat de sélection.", "situation": "Une liste de produits doit conserver uniquement les articles disponibles.", "description": "Rédige les étapes sans utiliser de syntaxe JavaScript.", "difficulty": "Facile", "estimatedMinutes": 10, "xp": 15, "skills": ["Prédicat", "Sélection"], "correction": "Créer une liste résultat vide. Pour chaque produit, si son stock est supérieur à zéro, l’ajouter au résultat. Retourner le résultat.", "validation": ["La condition de sélection est explicite", "Une nouvelle liste est retournée"] },
+    { "id": "arrays-pseudo-002", "title": "Décrire un regroupement", "objective": "Organiser des éléments selon une propriété commune.", "situation": "Des tâches doivent être regroupées par statut.", "description": "Décris l’initialisation, le parcours et l’ajout dans chaque groupe.", "difficulty": "Moyen", "estimatedMinutes": 15, "xp": 15, "skills": ["Regroupement", "Accumulateur"], "correction": "Créer un dictionnaire de groupes. Pour chaque tâche, créer le groupe de son statut s’il manque, puis ajouter la tâche. Retourner les groupes.", "validation": ["Chaque statut possède un groupe", "Chaque tâche apparaît une seule fois"] }
   ],
   "challenges": [
-    { "id": "arrays-challenge-001", "title": "Statistiques d’une collection", "description": "Combiner filter, map et reduce pour produire des indicateurs.", "difficulty": "Difficile", "status": "in_progress", "xp": 50 }
+    { "id": "arrays-challenge-001", "title": "Statistiques d’une collection", "description": "Combiner filter, map et reduce pour produire des indicateurs.", "objective": "Construire une chaîne de transformations claire.", "constraints": ["Ne pas modifier les entrées", "Gérer la collection vide"], "requiredFeatures": ["filter()", "map()", "reduce()"], "bonusFeatures": ["Produire la médiane"], "forbidden": ["Boucle for"], "concepts": ["Callbacks", "Immutabilité", "Agrégation"], "difficulty": "Difficile", "estimatedMinutes": 50, "xp": 50, "validation": ["Chaque étape a une responsabilité", "Les indicateurs sont exacts"] }
   ],
   "projects": [
-    { "id": "array-explorer", "title": "Explorateur de collection", "description": "Rechercher, filtrer et trier une liste de données.", "difficulty": "Moyen", "status": "in_progress", "xp": 200 }
+    { "id": "array-explorer", "title": "Explorateur de collection", "context": "Une équipe doit explorer un catalogue volumineux.", "objective": "Créer une interface de recherche, filtre et tri pilotée par les données.", "description": "Rechercher, filtrer et trier une liste sans mutation.", "features": ["Recherche textuelle", "Filtres combinables", "Tri configurable"], "constraints": ["Conserver les données sources intactes", "Afficher un état vide"], "bonusFeatures": ["Pagination", "Filtres enregistrés"], "suggestedPseudocode": ["Normaliser la recherche", "Appliquer les filtres", "Appliquer le tri", "Rendre le résultat"], "concepts": ["Tableaux", "Fonctions", "DOM"], "validatedSkills": ["Transformation de données", "État dérivé"], "difficulty": "Moyen", "estimatedMinutes": 180, "xp": 200, "validation": ["Les filtres se combinent", "Le tri est stable", "Aucune mutation des données sources"] }
   ],
   "achievements": [
-    { "id": "array-master", "title": "Maître des tableaux", "description": "Terminer trois exercices de tableaux.", "metric": "completedExercises", "target": 5 }
+    { "id": "array-master", "title": "Maître des tableaux", "description": "Terminer les trois exercices du thème Tableaux.", "metric": "completedExercises", "scope": { "topicId": "arrays" }, "target": 3 }
   ]
 }

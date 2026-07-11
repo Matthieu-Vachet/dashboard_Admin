@@ -1,5 +1,6 @@
 export type LearningStatus = "not_started" | "in_progress" | "completed";
 export type LearningDifficulty = "Facile" | "Moyen" | "Difficile";
+export type LearningItemType = "theory" | "exercise" | "pseudocode" | "challenge" | "project";
 export type LearningMetric =
   | "completedTheory"
   | "completedExercises"
@@ -7,48 +8,202 @@ export type LearningMetric =
   | "completedChallenges"
   | "completedProjects";
 
-export type LearningItem = {
-  id: string;
+export type LearningBookReference = {
+  chapter: string;
   title: string;
+  pages: string;
+  url?: string;
+};
+
+export type LearningLink = {
+  id: string;
+  label: string;
+  url: string;
+  kind: "book" | "mdn" | "roadmap" | "video" | "notes" | "other";
   description?: string;
-  difficulty?: LearningDifficulty;
-  status: LearningStatus;
-  xp: number;
 };
 
 export type LearningTheory = {
-  status: LearningStatus;
+  id: string;
+  title: string;
+  summary: string;
+  description: string;
+  objectives: string[];
+  estimatedMinutes: number;
+  level: LearningDifficulty;
+  commonMistakes: string[];
+  bestPractices: string[];
+  finalSummary: string;
   xp: number;
 };
+
+export type LearningExercise = {
+  id: string;
+  title: string;
+  description: string;
+  objective: string;
+  difficulty: LearningDifficulty;
+  estimatedMinutes: number;
+  xp: number;
+  skills: string[];
+  prerequisites: string[];
+  hint?: string;
+  validation: string[];
+};
+
+export type LearningPseudocode = {
+  id: string;
+  title: string;
+  objective: string;
+  situation: string;
+  description: string;
+  difficulty: LearningDifficulty;
+  estimatedMinutes: number;
+  xp: number;
+  skills: string[];
+  correction: string;
+  validation: string[];
+};
+
+export type LearningChallenge = {
+  id: string;
+  title: string;
+  description: string;
+  objective: string;
+  constraints: string[];
+  requiredFeatures: string[];
+  bonusFeatures: string[];
+  forbidden: string[];
+  concepts: string[];
+  difficulty: LearningDifficulty;
+  estimatedMinutes: number;
+  xp: number;
+  validation: string[];
+};
+
+export type LearningProject = {
+  id: string;
+  title: string;
+  context: string;
+  objective: string;
+  description: string;
+  features: string[];
+  constraints: string[];
+  bonusFeatures: string[];
+  suggestedPseudocode: string[];
+  concepts: string[];
+  validatedSkills: string[];
+  difficulty: LearningDifficulty;
+  estimatedMinutes: number;
+  xp: number;
+  validation: string[];
+};
+
+export type LearningAchievementScope =
+  | { global: true }
+  | { levelId: string }
+  | { topicId: string }
+  | { projectId: string }
+  | { itemIds: string[] };
 
 export type LearningAchievement = {
   id: string;
   title: string;
   description: string;
   metric: LearningMetric;
+  scope: LearningAchievementScope;
   target: number;
-  unlocked?: boolean;
 };
 
 export type LearningTopic = {
+  schemaVersion: 1;
   id: string;
   title: string;
   category: string;
   difficulty: LearningDifficulty;
-  status: LearningStatus;
   description: string;
-  book: { chapter: string; pages: string };
-  resources: { mdn: string; roadmap: string };
+  chapterNumber: number;
+  required: boolean;
+  curriculum: { levelId: string; order: number };
+  book: { references: LearningBookReference[] };
+  resources: LearningLink[];
   prerequisites: string[];
+  relatedTopics: string[];
   theory: LearningTheory;
-  exercises: LearningItem[];
-  pseudocode: LearningItem[];
-  challenges: LearningItem[];
-  projects: LearningItem[];
+  exercises: LearningExercise[];
+  pseudocode: LearningPseudocode[];
+  challenges: LearningChallenge[];
+  projects: LearningProject[];
   achievements: LearningAchievement[];
 };
 
-export type LearningProgressState = Record<string, LearningStatus>;
+export type LearningPlannedTopic = {
+  id: string;
+  title: string;
+  category: string;
+  required: boolean;
+};
+
+export type LearningCurriculumLevel = {
+  id: string;
+  title: string;
+  order: number;
+  description: string;
+  topics: string[];
+  plannedTopics: LearningPlannedTopic[];
+};
+
+export type LearningCurriculum = {
+  schemaVersion: 1;
+  id: string;
+  title: string;
+  levels: LearningCurriculumLevel[];
+};
+
+export type LearningProgressRecord = {
+  itemId: string;
+  topicId: string;
+  itemType: LearningItemType;
+  status: LearningStatus;
+  startedAt: string | null;
+  completedAt: string | null;
+  attempts: number;
+  earnedXp: number;
+  studySeconds: number;
+  answer?: string;
+  updatedAt: string;
+  migratedFrom?: string;
+};
+
+export type LearningProgressState = Record<string, LearningProgressRecord>;
+
+export type LearningRuntimeFields = {
+  status: LearningStatus;
+  startedAt: string | null;
+  completedAt: string | null;
+  attempts: number;
+  earnedXp: number;
+  studySeconds: number;
+  answer?: string;
+};
+
+export type RuntimeLearningTheory = LearningTheory & LearningRuntimeFields;
+export type RuntimeLearningExercise = LearningExercise & LearningRuntimeFields;
+export type RuntimeLearningPseudocode = LearningPseudocode & LearningRuntimeFields;
+export type RuntimeLearningChallenge = LearningChallenge & LearningRuntimeFields;
+export type RuntimeLearningProject = LearningProject & LearningRuntimeFields;
+
+export type RuntimeLearningTopic = Omit<
+  LearningTopic,
+  "theory" | "exercises" | "pseudocode" | "challenges" | "projects"
+> & {
+  status: LearningStatus;
+  theory: RuntimeLearningTheory;
+  exercises: RuntimeLearningExercise[];
+  pseudocode: RuntimeLearningPseudocode[];
+  challenges: RuntimeLearningChallenge[];
+  projects: RuntimeLearningProject[];
+};
 
 export type LearningTopicStats = {
   progress: number;
@@ -82,3 +237,37 @@ export type LearningSummary = {
   topicsCompleted: number;
 };
 
+export type LearningActivity = {
+  id: string;
+  itemId: string;
+  topicId: string;
+  itemType: LearningItemType;
+  action: "started" | "completed" | "answer_saved";
+  title: string;
+  xp: number;
+  studySeconds: number;
+  occurredAt: string;
+};
+
+export type LearningAdvancedStats = {
+  totalStudySeconds: number;
+  weekStudySeconds: number;
+  todayStudySeconds: number;
+  xpToday: number;
+  xpWeek: number;
+  xpMonth: number;
+  completedExercises: number;
+  completedChallenges: number;
+  completedProjects: number;
+  currentStreak: number;
+  bestStreak: number;
+  lastActivity: string | null;
+};
+
+export type LearningImportStrategy = "create" | "replace" | "merge";
+
+export type LearningValidationIssue = {
+  path: string;
+  message: string;
+  severity: "error" | "warning";
+};

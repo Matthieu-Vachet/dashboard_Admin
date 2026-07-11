@@ -18,5 +18,4 @@ export const LEARNING_DIFFICULTY_CLASS: Record<LearningDifficulty, string> = {
   Difficile: "border-danger/30 bg-danger/10 text-danger",
 };
 
-export const LEARNING_XP_PER_LEVEL = 1000;
-
+export const LEARNING_XP_PER_LEVEL = 250;

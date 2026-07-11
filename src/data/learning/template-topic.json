@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "id": "topic-id",
+  "title": "Titre du thème",
+  "category": "Catégorie",
+  "difficulty": "Facile",
+  "description": "Description générale du bloc pédagogique.",
+  "chapterNumber": 99,
+  "required": true,
+  "curriculum": { "levelId": "level-1", "order": 99 },
+  "book": { "references": [{ "chapter": "0", "title": "Titre du chapitre", "pages": "0-0" }] },
+  "resources": [
+    { "id": "topic-id-mdn", "label": "Documentation MDN", "url": "https://developer.mozilla.org/fr/docs/Web/JavaScript", "kind": "mdn" },
+    { "id": "topic-id-notes", "label": "Notes personnelles", "url": "/notes", "kind": "notes" }
+  ],
+  "prerequisites": [],
+  "relatedTopics": [],
+  "theory": {
+    "id": "topic-id-theory",
+    "title": "Titre de la théorie",
+    "summary": "Résumé court de la notion.",
+    "description": "Présentation complète de la théorie.",
+    "objectives": ["Objectif pédagogique mesurable"],
+    "estimatedMinutes": 20,
+    "level": "Facile",
+    "commonMistakes": ["Erreur fréquente"],
+    "bestPractices": ["Bonne pratique"],
+    "finalSummary": "Résumé final à retenir.",
+    "xp": 10
+  },
+  "exercises": [
+    {
+      "id": "topic-id-exercise-001",
+      "title": "Titre de l’exercice",
+      "description": "Consigne générale.",
+      "objective": "Résultat attendu.",
+      "difficulty": "Facile",
+      "estimatedMinutes": 15,
+      "xp": 20,
+      "skills": ["Compétence"],
+      "prerequisites": [],
+      "hint": "Indice facultatif.",
+      "validation": ["Critère vérifiable"]
+    }
+  ],
+  "pseudocode": [
+    {
+      "id": "topic-id-pseudocode-001",
+      "title": "Titre du pseudo-code",
+      "objective": "Objectif algorithmique.",
+      "situation": "Situation à analyser.",
+      "description": "Travail demandé.",
+      "difficulty": "Facile",
+      "estimatedMinutes": 10,
+      "xp": 15,
+      "skills": ["Décomposition"],
+      "correction": "Correction de référence.",
+      "validation": ["Critère vérifiable"]
+    }
+  ],
+  "challenges": [
+    {
+      "id": "topic-id-challenge-001",
+      "title": "Titre du challenge",
+      "description": "Description du challenge.",
+      "objective": "Objectif du challenge.",
+      "constraints": ["Contrainte"],
+      "requiredFeatures": ["Fonctionnalité obligatoire"],
+      "bonusFeatures": [],
+      "forbidden": [],
+      "concepts": ["Notion utilisée"],
+      "difficulty": "Moyen",
+      "estimatedMinutes": 45,
+      "xp": 50,
+      "validation": ["Critère vérifiable"]
+    }
+  ],
+  "projects": [
+    {
+      "id": "topic-id-project-001",
+      "title": "Titre du projet",
+      "context": "Contexte métier.",
+      "objective": "Objectif principal.",
+      "description": "Cahier des charges synthétique.",
+      "features": ["Fonctionnalité"],
+      "constraints": ["Contrainte"],
+      "bonusFeatures": [],
+      "suggestedPseudocode": ["Étape conseillée"],
+      "concepts": ["Notion utilisée"],
+      "validatedSkills": ["Compétence validée"],
+      "difficulty": "Moyen",
+      "estimatedMinutes": 180,
+      "xp": 200,
+      "validation": ["Critère vérifiable"]
+    }
+  ],
+  "achievements": [
+    { "id": "topic-id-first-exercise", "title": "Premier exercice", "description": "Terminer un exercice de ce thème.", "metric": "completedExercises", "scope": { "topicId": "topic-id" }, "target": 1 }
+  ]
+}

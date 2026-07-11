@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "prebuild": "node scripts/data/ensure-data.js",
+    "validate:learning": "node --no-warnings --experimental-strip-types scripts/validate-learning.mjs",
+    "prebuild": "npm run validate:learning && node scripts/data/ensure-data.js",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -28,7 +29,8 @@
     "react-dom": "latest",
     "recharts": "^3.5.1",
     "sonner": "^2.0.7",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.18",

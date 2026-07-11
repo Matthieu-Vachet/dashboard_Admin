@@ -10,7 +10,7 @@ export function LearningSummary({
   unlockedAchievements,
 }: {
   summary: LearningSummaryData;
-  level: { level: number; currentXP: number; nextLevelXP: number; progress: number };
+  level: { level: number; title: string; currentXP: number; nextLevelXP: number; progress: number };
   unlockedAchievements: number;
 }) {
   const metrics = [
@@ -29,6 +29,7 @@ export function LearningSummary({
           <div>
             <span className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">Niveau actuel</span>
             <strong className="mt-2 block text-4xl font-black">Niveau {level.level}</strong>
+            <span className="mt-1 block text-sm font-black text-brand-3">{level.title}</span>
             <p className="mt-1 text-sm font-semibold text-muted">
               {level.currentXP} / {LEARNING_XP_PER_LEVEL} XP
             </p>
@@ -68,4 +69,3 @@ export function LearningSummary({
     </section>
   );
 }
-
