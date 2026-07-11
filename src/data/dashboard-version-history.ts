@@ -7,6 +7,26 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.18.1",
+    date: "2026-07-11",
+    title: "Correctif du proxy Pokemon en production",
+    changes: [
+      "Utilise l'alias public stable de PokemonGo-API dans les fonctions Vercel tout en conservant la cible locale en developpement.",
+      "Affiche le vrai message des erreurs structurees de l'API au lieu de [object Object].",
+      "Aligne la version visible du Dashboard sur la livraison MongoDB dynamique.",
+    ],
+  },
+  {
+    version: "V1.18.0",
+    date: "2026-07-11",
+    title: "Datasets Pokemon courants pilotes par MongoDB",
+    changes: [
+      "Branche Raids, Oeufs, Max Battles, Research et Rocket exclusivement sur leurs documents MongoDB current.",
+      "Separe strictement Actualiser, Regenerer et Telecharger JSON, avec diagnostics complets et categories dynamiques.",
+      "Supprime la synchronisation MongoDB redondante et tout fallback JSON silencieux pour ces cinq panneaux.",
+    ],
+  },
+  {
     version: "V1.17.0",
     date: "2026-07-10",
     title: "JS Progress dynamique",

@@ -26,10 +26,11 @@ type RuleRecord = Record<string, unknown> & {
 const customRulesStoreKey = "matweb.pokemon.customRules";
 const sourceHistoryStoreKey = "matweb.pokemon.sourceHistory";
 const pokemonModulePattern = `${process.cwd()}/src/server/pokemon-go/`;
+const defaultPokemonApiPublicUrl = "https://pokemon-go-api.vercel.app";
 const pokemonApiBaseUrl =
-  process.env.POKEMON_API_URL
-  || process.env.POKEMON_API_PUBLIC_URL
-  || "https://pokemon-go-api.vercel.app";
+  process.env.POKEMON_API_PUBLIC_URL
+  || (process.env.VERCEL === "1" ? undefined : process.env.POKEMON_API_URL)
+  || defaultPokemonApiPublicUrl;
 
 function json(data: unknown, init?: ResponseInit) {
   const response = NextResponse.json(data, init);
@@ -79,7 +80,7 @@ async function readPokemonApiCurrent(
       data?: Record<string, unknown>;
       meta?: Record<string, unknown>;
       current?: Record<string, unknown>;
-      error?: string;
+      error?: string | { message?: string };
       message?: string;
     } | null;
     if (
@@ -90,7 +91,10 @@ async function readPokemonApiCurrent(
       || payload.current.key !== "current"
     ) {
       throw requestError(
-        payload?.message || payload?.error || "PokemonGo-API n'a pas retourne le dataset MongoDB courant.",
+        pokemonApiErrorMessage(
+          payload,
+          "PokemonGo-API n'a pas retourne le dataset MongoDB courant.",
+        ),
         response.ok ? 502 : response.status,
       );
     }
@@ -103,6 +107,27 @@ async function readPokemonApiCurrent(
     const message = error instanceof Error ? error.message : "PokemonGo-API indisponible.";
     throw requestError(message, 502);
   }
+}
+
+function pokemonApiErrorMessage(
+  payload: { message?: string; error?: string | { message?: string } } | null,
+  fallback: string,
+) {
+  if (typeof payload?.message === "string" && payload.message.trim()) {
+    return payload.message;
+  }
+  if (typeof payload?.error === "string" && payload.error.trim()) {
+    return payload.error;
+  }
+  if (
+    payload?.error
+    && typeof payload.error === "object"
+    && typeof payload.error.message === "string"
+    && payload.error.message.trim()
+  ) {
+    return payload.error.message;
+  }
+  return fallback;
 }
 
 function isMongoSource(meta: Record<string, unknown>) {

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.18.1 - 2026-07-11
+
+- Corrige la cible du proxy Pokemon en production en utilisant l'alias public stable de PokemonGo-API.
+- Conserve `POKEMON_API_URL` pour le developpement local sans laisser une ancienne variable Vercel detourner les lectures MongoDB.
+- Affiche les messages d'erreur structures de l'API au lieu de `[object Object]`.
+- Aligne la version visible et son historique sur la livraison courante.
+
 ## 1.18.0 - 2026-07-11
 
 - Branche les cinq panneaux dynamiques exclusivement sur les documents MongoDB `current` confirmes par PokemonGo-API.
