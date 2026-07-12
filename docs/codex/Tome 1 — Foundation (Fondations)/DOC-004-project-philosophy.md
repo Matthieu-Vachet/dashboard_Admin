@@ -1,0 +1,246 @@
+---
+id: DOC-004
+titre: Philosophie du projet
+version: 1.0.0
+statut: Actif
+derniere_mise_a_jour: 2026-07-12
+auteur: Matthieu Vachet
+categorie: Fondation
+tome: 1
+ordre: 04
+projets_concernes:
+  - Dashboard Admin
+  - PokemonGo-API
+  - PokemonGo-Data
+  - PokemonGo-Assets-API
+  - Landing Page Pokémon GO
+references:
+  - DOC-001
+  - DOC-002
+  - DOC-003
+  - DOC-006
+---
+
+# Philosophie du projet
+
+> La philosophie de la plateforme définit **la manière de concevoir chaque fonctionnalité**, bien avant d'écrire la moindre ligne de code. Elle sert de fil conducteur à toutes les décisions techniques.
+
+---
+
+# Pourquoi ce projet existe
+
+L'objectif n'est pas simplement de créer une API Pokémon GO ou un Dashboard.
+
+Le projet vise à construire une **plateforme complète**, capable de durer plusieurs années, où chaque évolution reste cohérente avec l'architecture initiale.
+
+Chaque décision doit privilégier la qualité, la maintenabilité et la compréhension du projet.
+
+---
+
+# Les valeurs fondamentales
+
+## 1. La qualité avant la quantité
+
+Une fonctionnalité incomplète ou mal intégrée n'apporte pas de valeur.
+
+Nous préférons :
+- une fonctionnalité robuste ;
+- correctement documentée ;
+- testée ;
+- réutilisable.
+
+Plutôt que plusieurs fonctionnalités ajoutées rapidement.
+
+---
+
+## 2. La documentation fait partie du développement
+
+Le code n'est jamais considéré comme terminé tant que :
+
+- la documentation est absente ;
+- le versionnage n'est pas mis à jour ;
+- les références croisées ne sont pas complètes.
+
+Chaque évolution doit laisser une trace.
+
+---
+
+## 3. Une architecture avant tout
+
+Chaque nouveauté doit s'intégrer dans l'architecture existante.
+
+Avant de développer, il faut toujours se demander :
+
+- Existe-t-il déjà un composant ?
+- Existe-t-il déjà un Provider ?
+- Existe-t-il déjà un pipeline ?
+- Existe-t-il déjà un dataset ?
+- Existe-t-il déjà une route API adaptée ?
+
+Si la réponse est oui, il faut réutiliser ou étendre l'existant.
+
+---
+
+## 4. Une seule source de vérité
+
+Les données locales validées constituent la référence officielle.
+
+Les sources externes enrichissent les données mais ne remplacent jamais les informations maîtrisées par la plateforme.
+
+---
+
+## 5. Les erreurs doivent être visibles
+
+Une erreur ne doit jamais être cachée.
+
+Le système doit produire :
+
+- un diagnostic ;
+- un message clair ;
+- un historique si nécessaire.
+
+Les faux positifs et les corrections silencieuses sont à éviter.
+
+---
+
+## 6. Les composants avant les pages
+
+Le Dashboard est construit à partir d'un Design System.
+
+Les pages ne doivent pas inventer leur propre interface.
+
+Chaque nouvel élément visuel doit renforcer le Design System plutôt que le contourner.
+
+---
+
+## 7. Une évolution progressive
+
+Le projet est pensé pour évoluer.
+
+Chaque nouvelle fonctionnalité doit :
+
+- limiter la dette technique ;
+- respecter les conventions ;
+- conserver la compatibilité ;
+- préparer les évolutions futures.
+
+---
+
+# Ce que nous refusons
+
+Le projet refuse volontairement :
+
+- les duplications de logique ;
+- les composants copiés-collés ;
+- les pipelines concurrents ;
+- les données fictives en production ;
+- les routes API non documentées ;
+- les décisions non justifiées ;
+- les modifications impossibles à retracer.
+
+---
+
+# La philosophie de développement
+
+Chaque tâche suit le même raisonnement :
+
+```text
+Comprendre
+      ↓
+Auditer
+      ↓
+Concevoir
+      ↓
+Développer
+      ↓
+Tester
+      ↓
+Documenter
+      ↓
+Versionner
+      ↓
+Publier
+```
+
+Aucune étape ne doit être ignorée.
+
+---
+
+# La philosophie du Dashboard
+
+Le Dashboard n'est pas seulement une interface.
+
+Il doit devenir :
+
+- un centre de supervision ;
+- un outil d'administration ;
+- un environnement de diagnostic ;
+- un laboratoire de validation ;
+- un poste de contrôle de toute la plateforme.
+
+---
+
+# La philosophie des données
+
+Chaque dataset doit être :
+
+- fiable ;
+- traçable ;
+- versionné ;
+- validé ;
+- documenté ;
+- identifiable.
+
+La qualité des données est plus importante que leur quantité.
+
+---
+
+# La philosophie de Codex
+
+Codex est considéré comme un collaborateur technique.
+
+Avant toute implémentation importante, il doit :
+
+1. auditer ;
+2. proposer un plan ;
+3. réutiliser l'existant ;
+4. documenter les impacts ;
+5. produire un rapport final.
+
+---
+
+# Citation fondatrice
+
+> « Une fonctionnalité n'est pas terminée lorsqu'elle fonctionne. Elle est terminée lorsqu'elle est comprise, documentée, testée et prête à évoluer. »
+
+---
+
+# Conformité
+
+Ce document applique notamment :
+
+- RULE-001 — Ne jamais casser l'existant.
+- RULE-003 — Auditer avant de développer.
+- RULE-006 — Réutiliser avant de créer.
+- RULE-008 — Architecture orientée Providers.
+- RULE-012 — Source de vérité unique.
+- RULE-037 — Documentation obligatoire.
+- RULE-039 — Identifiants permanents.
+
+---
+
+# Documents associés
+
+- DOC-001 — Règles générales du projet
+- DOC-002 — Vision du projet
+- DOC-003 — Objectifs du projet
+- DOC-006 — Architecture générale
+
+---
+
+# Historique
+
+## Version 1.0.0 — 2026-07-12
+
+- Création du document.
+- Définition des principes et valeurs fondamentales du projet.
