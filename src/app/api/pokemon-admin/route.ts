@@ -258,6 +258,44 @@ async function readCurrentResearch() {
   );
 }
 
+function forwardedRankedQuery(request: NextRequest, allowed: string[]) {
+  const params = new URLSearchParams();
+  for (const key of allowed) {
+    const value = request.nextUrl.searchParams.get(key);
+    if (value !== null && value !== "") params.set(key, value);
+  }
+  return params.toString();
+}
+
+async function readCurrentShiny(request: NextRequest) {
+  const query = forwardedRankedQuery(request, ["board", "search", "type", "generation", "trend", "oddsMin", "oddsMax", "page", "limit"]);
+  return readPokemonApiCurrent(
+    `/api/v1/shiny${query ? `?${query}` : ""}`,
+    (data) => Array.isArray(data.rankings) && Boolean(data.summary),
+    (data, meta, current) => ({ data, meta: normalizeCurrentMeta(meta), current }),
+  );
+}
+
+async function readCurrentPvpRankings(request: NextRequest) {
+  const query = forwardedRankedQuery(request, ["league", "search", "role", "page", "limit"]);
+  return readPokemonApiCurrent(
+    `/api/v1/pvp-rankings${query ? `?${query}` : ""}`,
+    (data) => Array.isArray(data.rankings) && Array.isArray(data.formats),
+    (data, meta, current) => ({ data, meta: normalizeCurrentMeta(meta), current }),
+  );
+}
+
+async function readShinyHistory(request: NextRequest) {
+  const identity = String(request.nextUrl.searchParams.get("identity") || "").trim();
+  const days = Math.min(365, Math.max(1, Number(request.nextUrl.searchParams.get("days")) || 30));
+  if (!identity) throw requestError("Identité Shiny requise.", 400);
+  const target = new URL(`/api/v1/shiny/${encodeURIComponent(identity)}/history?days=${days}`, pokemonApiBaseUrl);
+  const response = await fetch(target, { cache: "no-store", headers: { accept: "application/json" }, signal: AbortSignal.timeout(12_000) });
+  const payload = await response.json().catch(() => null);
+  if (!response.ok || !payload) throw requestError("Historique Shiny indisponible.", response.status || 502);
+  return payload;
+}
+
 function readItems() {
   const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
   const file = dataPath("items", "items.json");
@@ -599,6 +637,18 @@ export async function GET(request: NextRequest) {
       return json({ data: await readCurrentResearch() });
     }
 
+    if (action === "shiny") {
+      return json({ data: await readCurrentShiny(request) });
+    }
+
+    if (action === "shiny-history") {
+      return json({ data: await readShinyHistory(request) });
+    }
+
+    if (action === "pvp-rankings") {
+      return json({ data: await readCurrentPvpRankings(request) });
+    }
+
     if (action === "items") {
       return json({ data: readItems() });
     }
@@ -725,6 +775,14 @@ export async function POST(request: NextRequest) {
 
     if (action === "regenerate-research") {
       return json({ data: await callPokemonApiAdmin("/api/v1/admin/research/regenerate") });
+    }
+
+    if (action === "regenerate-shiny") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/shiny/regenerate") });
+    }
+
+    if (action === "regenerate-pvp-rankings") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/pvp-rankings/regenerate") });
     }
 
     if (action === "open-file") {

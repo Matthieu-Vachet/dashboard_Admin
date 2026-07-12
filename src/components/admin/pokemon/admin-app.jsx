@@ -1,6 +1,7 @@
 "use client";
 
 /* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable react-hooks/exhaustive-deps */
 
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -59,9 +60,11 @@ import { EggsPanel } from "./eggs-panel";
 import { EventsCalendarPanel } from "./events-calendar-panel";
 import { LoginCard } from "./login-card";
 import { MaxBattlesPanel } from "./max-battles-panel";
+import { PvpRankingsPanel } from "./pvp-rankings-panel";
 import { RaidsPanel } from "./raids-panel";
 import { ResearchPanel } from "./research-panel";
 import { RocketPanel } from "./rocket-panel";
+import { ShinyTrackerPanel } from "./shiny-tracker-panel";
 import { DataDeployHistoryModal, SourceHistoryModal, SourceRows } from "./source-watch-panel";
 import { UpdateLogPanel } from "./update-log-panel";
 import { AdminTodoPanel } from "./admin-todo-panel";
@@ -96,6 +99,8 @@ const navItems = [
   ["max-battles", "Max Battles", Zap],
   ["rocket", "Rocket", ShieldCheck],
   ["research", "Research", Search],
+  ["shiny", "Shiny Tracker", Sparkles],
+  ["pvp-rankings", "PvP Rankings", Swords],
   ["events", "Calendrier Events", CalendarDays],
   ["assets", "Assets", Boxes],
   ["checks", "Contrôles", AlertTriangle],
@@ -131,6 +136,9 @@ const defaultRuleForm = {
   }
 }`,
 };
+
+const initialShinyOptions = { board: "today", search: "", type: "", generation: "", trend: "", page: 1, limit: 50 };
+const initialPvpOptions = { league: "great", search: "", role: "", page: 1, limit: 50 };
 
 const rulePresets = [
   {
@@ -945,6 +953,14 @@ export function AdminApp() {
   const [itemsReference, setItemsReference] = useState(null);
   const [researchLoading, setResearchLoading] = useState(false);
   const [researchRegenerating, setResearchRegenerating] = useState(false);
+  const [shiny, setShiny] = useState(null);
+  const [shinyLoading, setShinyLoading] = useState(false);
+  const [shinyRegenerating, setShinyRegenerating] = useState(false);
+  const [shinyOptions, setShinyOptions] = useState(initialShinyOptions);
+  const [pvpRankings, setPvpRankings] = useState(null);
+  const [pvpRankingsLoading, setPvpRankingsLoading] = useState(false);
+  const [pvpRankingsRegenerating, setPvpRankingsRegenerating] = useState(false);
+  const [pvpOptions, setPvpOptions] = useState(initialPvpOptions);
   const [history, setHistory] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [selectedEntry, setSelectedEntry] = useState(null);
@@ -1113,6 +1129,14 @@ export function AdminApp() {
       loadResearch();
     }
   }, [active, session.authenticated, research, researchLoading]);
+
+  useEffect(() => {
+    if (session.authenticated && active === "shiny") loadShiny();
+  }, [active, session.authenticated, shinyOptions]);
+
+  useEffect(() => {
+    if (session.authenticated && active === "pvp-rankings") loadPvpRankings();
+  }, [active, session.authenticated, pvpOptions]);
 
   const entries = useMemo(() => bootstrap.payload?.entries || [], [bootstrap.payload]);
   const customRuleEntries = useMemo(() => bootstrap.payload?.customRuleEntries || [], [bootstrap.payload]);
@@ -1304,6 +1328,71 @@ export function AdminApp() {
       toast.error(message);
     } finally {
       setRaidsLoading(false);
+    }
+  }
+
+  function rankedQuery(action, options) {
+    const params = new URLSearchParams({ action });
+    for (const [key, value] of Object.entries(options)) {
+      if (value !== "" && value !== null && value !== undefined) params.set(key, String(value));
+    }
+    return `${adminApiPath}?${params}`;
+  }
+
+  async function loadRankedDataset({ action, options, setData, setLoading, label, notify = false }) {
+    setLoading(true);
+    try {
+      const response = await fetch(rankedQuery(action, options), { cache: "no-store" });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || `Impossible de charger ${label}.`);
+      setData(payload.data || null);
+      if (notify) toast.success(`${label} actualisé.`);
+    } catch (error) {
+      const message = errorMessage(error, `Erreur de chargement ${label}.`);
+      setData((current) => markCurrentDatasetFailure(current, message));
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function regenerateRankedDataset({ action, setRegenerating, reload, label }) {
+    setRegenerating(true);
+    try {
+      const response = await fetch(adminApiPath, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || `Régénération ${label} impossible.`);
+      const report = assertSuccessfulAdminAction(payload, `Régénération ${label} impossible.`);
+      toast.success(regenerationMessage(report));
+      await reload();
+    } catch (error) {
+      toast.error(errorMessage(error, `Régénération ${label} impossible.`));
+    } finally {
+      setRegenerating(false);
+    }
+  }
+
+  function loadShiny({ notify = false } = {}) {
+    return loadRankedDataset({ action: "shiny", options: shinyOptions, setData: setShiny, setLoading: setShinyLoading, label: "Shiny Tracker", notify });
+  }
+
+  function loadPvpRankings({ notify = false } = {}) {
+    return loadRankedDataset({ action: "pvp-rankings", options: pvpOptions, setData: setPvpRankings, setLoading: setPvpRankingsLoading, label: "PvP Rankings", notify });
+  }
+
+  async function loadShinyHistory(identity) {
+    try {
+      const response = await fetch(`${adminApiPath}?action=shiny-history&identity=${encodeURIComponent(identity)}&days=30`, { cache: "no-store" });
+      const payload = await response.json();
+      return response.ok && Array.isArray(payload.data?.data)
+        ? { points: payload.data.data, statistics: payload.data.meta?.statistics || null }
+        : { points: [], statistics: null };
+    } catch {
+      return { points: [], statistics: null };
     }
   }
 
@@ -2055,6 +2144,35 @@ export function AdminApp() {
                 onRefresh={() => loadResearch({ notify: true })}
                 onDownload={downloadResearchJson}
                 onRegenerate={regenerateResearch}
+              />
+            ) : null}
+
+            {active === "shiny" ? (
+              <ShinyTrackerPanel
+                dataset={shiny}
+                loading={shinyLoading}
+                regenerating={shinyRegenerating}
+                options={shinyOptions}
+                onOptionsChange={setShinyOptions}
+                onRefresh={() => loadShiny({ notify: true })}
+                onDownload={() => downloadCurrentDataset(shiny, "shiny-tracker")}
+                onRegenerate={() => regenerateRankedDataset({ action: "regenerate-shiny", setRegenerating: setShinyRegenerating, reload: loadShiny, label: "Shiny Tracker" })}
+                onLoadHistory={loadShinyHistory}
+                onOpenPokemon={openPokemonReference}
+              />
+            ) : null}
+
+            {active === "pvp-rankings" ? (
+              <PvpRankingsPanel
+                dataset={pvpRankings}
+                loading={pvpRankingsLoading}
+                regenerating={pvpRankingsRegenerating}
+                options={pvpOptions}
+                onOptionsChange={setPvpOptions}
+                onRefresh={() => loadPvpRankings({ notify: true })}
+                onDownload={() => downloadCurrentDataset(pvpRankings, "pvp-rankings")}
+                onRegenerate={() => regenerateRankedDataset({ action: "regenerate-pvp-rankings", setRegenerating: setPvpRankingsRegenerating, reload: loadPvpRankings, label: "PvP Rankings" })}
+                onOpenPokemon={openPokemonReference}
               />
             ) : null}
 
