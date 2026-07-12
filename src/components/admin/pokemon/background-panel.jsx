@@ -46,13 +46,15 @@ function BackgroundPreview({ background, onOpen, onPreview }) {
     <article className="relative overflow-hidden rounded-3xl border border-white/10 bg-slate-950/42 shadow-[0_18px_70px_rgba(0,0,0,.2)]">
       <button
         aria-label={`Agrandir ${background.label}`}
-        className="relative min-h-[180px] overflow-hidden bg-cover bg-center p-4"
+        className="relative block aspect-[16/7] min-h-[180px] w-full overflow-hidden bg-slate-950 p-4"
         type="button"
-        style={{ backgroundImage: `linear-gradient(135deg, rgba(2,6,23,.26), rgba(2,6,23,.72)), url("${background.image}")` }}
         onClick={() => onPreview?.(background)}
       >
+        <span className="absolute inset-0 scale-110 bg-cover bg-center opacity-45 blur-xl" style={{ backgroundImage: `url("${background.image}")` }} />
+        <img className="absolute inset-0 h-full w-full object-contain" src={background.image} alt="" loading="lazy" />
+        <span className="absolute inset-0 bg-gradient-to-b from-slate-950/25 via-transparent to-slate-950/85" />
         <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.14)_1px,transparent_1px)] [background-size:24px_24px]" />
-        <div className="relative flex min-h-[148px] flex-col justify-between">
+        <div className="relative flex h-full min-h-[148px] flex-col justify-between">
           <div className="flex items-start justify-between gap-3">
             <span className="rounded-full border border-white/12 bg-slate-950/58 px-3 py-1 text-xs font-black text-white">Location card</span>
             <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-black ${linked.length ? "border-emerald-200/30 bg-emerald-400/16 text-emerald-50" : "border-amber-200/30 bg-amber-400/16 text-amber-50"}`}>
@@ -80,7 +82,11 @@ function BackgroundPreview({ background, onOpen, onPreview }) {
                 onClick={() => onOpen?.(entry)}
               >
                 <span className="grid h-10 w-10 place-items-center rounded-xl bg-slate-950/40 p-1">
-                  {preferredPokemonImage(entry) ? <img className="max-h-full object-contain" src={preferredPokemonImage(entry)} alt="" loading="lazy" /> : null}
+                  {preferredPokemonImage(entry) ? (
+                    <img className="h-full w-full object-contain" src={preferredPokemonImage(entry)} alt={entry.name || "Pokémon"} loading="lazy" />
+                  ) : (
+                    <ImageIcon className="text-amber-200/75" size={18} aria-label="Asset Pokémon absent" />
+                  )}
                 </span>
                 <span className="min-w-0">
                   <strong className="block truncate text-sm font-black text-white">{entry.name}</strong>
@@ -127,21 +133,12 @@ export function BackgroundPanel({ entries = [], library = [], linkedAssets = [],
       label: asset.details || key.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " "),
       entries: [],
     };
-    group.entries.push({
-      ...asset,
-      key: `pokemon:${asset.file || asset.filename || key}`,
-      image: asset.url,
-    });
     groups.set(key, group);
   }
-  const withoutBackground = [];
 
   for (const entry of entries) {
     const cards = locationCardsForEntry(entry);
-    if (!cards.length && !hasLocationCardReference(entry)) {
-      withoutBackground.push(entry);
-      continue;
-    }
+    if (!cards.length && !hasLocationCardReference(entry)) continue;
     for (const card of cards) {
       const key = assetKey(card.image);
       if (!key) continue;
@@ -169,24 +166,12 @@ export function BackgroundPanel({ entries = [], library = [], linkedAssets = [],
           <AssetStatCard label="Location cards" value={backgrounds.length} icon="/ui/backgrounds/catchCards/ic_catch_card.png" tone="cyan" detail="Bibliothèque Assets API" />
           <AssetStatCard label="Liens Pokémon" value={linkedEntries} icon="/ui/backgrounds/catchCards/ic_catch_card_notification.png" tone="green" detail="Fiches associées" />
           <AssetStatCard label="Sans Pokémon" value={emptyCount} icon="/ui/backgrounds/catchCards/ic_catch_card.png" tone="amber" detail="À rattacher" />
-          <AssetStatCard label="Fiches sans fond" value={withoutBackground.length} icon="/ui/backgrounds/catchCards/ic_catch_card_notification.png" tone="violet" detail="Location card absente" />
+          <AssetStatCard label="Avec Pokémon" value={backgrounds.length - emptyCount} icon="/ui/backgrounds/catchCards/ic_catch_card_notification.png" tone="violet" detail="Location cards reliées" />
         </div>
         <p className="mt-4 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-50/86">
           Cette section lit la bibliothèque <code>LocationCards</code> de PokemonGo-Assets-API et rapproche chaque image des fiches qui la référencent dans <code>assets.locationCards</code>. Les catchCards de capture ne sont pas utilisées ici.
         </p>
       </Panel>
-
-      {withoutBackground.length ? (
-        <Panel title="Pokémon sans location card" eyebrow={`${withoutBackground.length} fiche(s)`}>
-          <div className="flex max-h-72 flex-wrap gap-2 overflow-auto pr-1">
-            {withoutBackground.slice(0, 80).map((entry) => (
-              <button className="inline-flex items-center gap-2 rounded-full border border-amber-200/20 bg-amber-400/10 px-3 py-2 text-xs font-black text-amber-50" key={entry.key} type="button" onClick={() => onOpen?.(entry)}>
-                <ImageIcon size={14} /> {entry.dexId} · {entry.name}
-              </button>
-            ))}
-          </div>
-        </Panel>
-      ) : null}
 
       <section className="grid items-stretch gap-4 lg:grid-cols-2 2xl:grid-cols-3">
         {backgrounds.map((background) => <BackgroundPreview key={background.filename || background.image} background={background} onOpen={onOpen} onPreview={setPreview} />)}

@@ -31,3 +31,10 @@ ancien import peut encore exister.
 Les nouveaux composants admin doivent etre crees dans `components/admin/*`.
 Un ancien chemin ne doit etre modifie que pour maintenir une facade d'export, pas pour
 ajouter de nouvelle logique metier.
+
+## Navigation Et Datasets
+
+- `AdminSectionNavigation` porte la recherche, les groupes repliables, l'état actif et les icônes officielles Pokémon GO. Ajouter une section consiste à enrichir sa configuration, sans recopier le rendu.
+- `DatasetSourceHeader` est l'en-tête commun des sources dynamiques. Il expose provenance, visibilité, statut et diagnostics dans une structure stable.
+- Tous les accordéons métier sont fermés par défaut. Seul le groupe de navigation contenant la section active est ouvert automatiquement.
+- La confidentialité est décidée par le dataset et contrôlée côté serveur. Le client n'obtient jamais le secret de l'API Pokémon.

@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.20.0",
+    date: "2026-07-12",
+    title: "Admin Pokémon, Shiny privé et PvP complet",
+    changes: [
+      "Réorganise les sections Admin Pokémon en groupes compacts, recherchables et extensibles avec les icônes Pokémon GO.",
+      "Refond Background et le Shiny Tracker privé avec assets locaux fiables, podium, détail responsive et historique issu uniquement de nos snapshots.",
+      "Étend PvP Rankings à tous les formats PvPoke disponibles, tous les rôles et des lignes détaillées avec attaques, stats, matchups et diagnostics explicites.",
+      "Centralise les métadonnées de source et construit l'API Explorer depuis OpenAPI tout en gardant les actions privées côté serveur.",
+    ],
+  },
+  {
     version: "V1.19.0",
     date: "2026-07-11",
     title: "Flux Pokemon dynamiques et panneaux enrichis",

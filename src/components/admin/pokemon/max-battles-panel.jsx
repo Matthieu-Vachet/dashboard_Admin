@@ -4,7 +4,7 @@ import { Download, RefreshCcw, RotateCcw, Sparkles, Zap } from "lucide-react";
 import { useMemo, useState } from "react";
 import { TypeIcons } from "./asset-icons";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
-import { CurrentDatasetDiagnostics } from "./current-dataset-diagnostics";
+import { DatasetSourceHeader } from "./dataset-source-header";
 import { DatasetFilterBar } from "./dataset-filter-bar";
 import { TierSection } from "./tier-section";
 import { uiAssets } from "@/components/site/ui-assets";
@@ -108,7 +108,7 @@ function MaxBattleSection({ id, pokemon, onOpenPokemon, typeCatalog = [] }) {
       image="/ui/max_battles/max-battles.webp"
       count={pokemon.length}
       tone={toneForTier(id)}
-      defaultOpen={pokemon.length > 0}
+      defaultOpen={false}
       emptyText="Aucun boss dans ce tier."
     >
         <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
@@ -180,7 +180,7 @@ export function MaxBattlesPanel({
           <AssetStatCard label="Tier 2" value={buckets.Tier2 || 0} icon="/ui/max_battles/max-battles.webp" tone="violet" detail="Difficulté 2" />
           <AssetStatCard label="Tier 3+" value={Object.entries(buckets).reduce((sum, [key, value]) => sum + (Number(key.match(/\d+/)?.[0] || 0) >= 3 ? value : 0), 0)} icon="/ui/max_battles/ic_shiny.png" tone="amber" detail="Tiers élevés" />
         </div>
-        <CurrentDatasetDiagnostics dataset={maxBattles} total={total} refreshError={refreshError} />
+        <DatasetSourceHeader dataset={maxBattles} total={total} refreshError={refreshError} />
       </Panel>
 
       <DatasetFilterBar

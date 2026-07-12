@@ -4,7 +4,7 @@ import { Download, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import { TypeIcons } from "./asset-icons";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
-import { CurrentDatasetDiagnostics } from "./current-dataset-diagnostics";
+import { DatasetSourceHeader } from "./dataset-source-header";
 import { DatasetFilterBar } from "./dataset-filter-bar";
 import { TierSection } from "./tier-section";
 import { uiAssets } from "@/components/site/ui-assets";
@@ -133,7 +133,7 @@ function EggSection({ id, title, image, tone, pokemon, onOpenPokemon, typeCatalo
       image={image}
       count={pokemon.length}
       tone={tone}
-      defaultOpen={pokemon.length > 0}
+      defaultOpen={false}
       emptyText="Aucun Pokemon dans cette section."
     >
         <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-4">
@@ -210,7 +210,7 @@ export function EggsPanel({
           <AssetStatCard label="Cadeaux route" value={buckets["7km_route_gift"] || 0} icon="/ui/eggs/7_km.png" tone="green" detail="Oeufs de routes" />
           <AssetStatCard label="12 km" value={buckets["12km"] || 0} icon="/ui/eggs/12_km.png" tone="amber" detail="Oeufs Rocket" />
         </div>
-        <CurrentDatasetDiagnostics dataset={eggs} total={total} refreshError={refreshError} />
+        <DatasetSourceHeader dataset={eggs} total={total} refreshError={refreshError} />
       </Panel>
 
       <DatasetFilterBar

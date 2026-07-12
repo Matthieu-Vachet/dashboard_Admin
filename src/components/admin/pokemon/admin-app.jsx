@@ -8,28 +8,19 @@ import {
   AlertTriangle,
   Archive,
   BarChart3,
-  BookOpen,
-  Boxes,
-  CalendarDays,
-  CircleDot,
   ClipboardCheck,
   Cloud,
   Copy,
-  Egg,
   FileDiff,
   FileJson,
   History,
-  Image as ImageIcon,
-  LayoutDashboard,
   ListTodo,
   Radar,
   RefreshCcw,
   Search,
   ShieldCheck,
   Sparkles,
-  Swords,
   Wand2,
-  Zap,
 } from "lucide-react";
 import { toast } from "sonner";
 import { DetailModal } from "@/components/admin/pokemon/detail-modal";
@@ -68,6 +59,7 @@ import { ShinyTrackerPanel } from "./shiny-tracker-panel";
 import { DataDeployHistoryModal, SourceHistoryModal, SourceRows } from "./source-watch-panel";
 import { UpdateLogPanel } from "./update-log-panel";
 import { AdminTodoPanel } from "./admin-todo-panel";
+import { AdminSectionNavigation } from "./admin-section-navigation";
 import {
   readDashboardStoreValue,
   readLocalJson,
@@ -88,30 +80,32 @@ const assetChecksStoreKey = "matweb.pokemon.assetChecks";
 const sourceWatchSignatureKey = "pokedex-v4-source-watch-signatures";
 const collectionsKey = "pokedex-v4-admin-collections";
 
+const filtersAssetBase = "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers/Filters";
+const pokemonAssetBase = "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers";
 const navItems = [
-  ["overview", "Accueil", LayoutDashboard],
-  ["pokedex", "Fiches", BookOpen],
-  ["candies", "Candies", CircleDot],
-  ["backgrounds", "Background", ImageIcon],
-  ["collections", "Collections", ClipboardCheck],
-  ["raids", "Raids", Swords],
-  ["eggs", "Œufs", Egg],
-  ["max-battles", "Max Battles", Zap],
-  ["rocket", "Rocket", ShieldCheck],
-  ["research", "Research", Search],
-  ["shiny", "Shiny Tracker", Sparkles],
-  ["pvp-rankings", "PvP Rankings", Swords],
-  ["events", "Calendrier Events", CalendarDays],
-  ["assets", "Assets", Boxes],
-  ["checks", "Contrôles", AlertTriangle],
-  ["sources", "Veille", Radar],
-  ["logs", "Logs & MAJ", History],
-  ["catalogs", "Catalogues", Archive],
-  ["compare", "Comparaison", FileDiff],
-  ["rules", "Règles JSON", Sparkles],
-  ["bulk", "Corrections", ClipboardCheck],
-  ["export", "Export", FileJson],
-  ["todo", "Todo-list", ListTodo],
+  { id: "overview", label: "Accueil", icon: `${pokemonAssetBase}/btn_pokeball_white_shadow.png`, group: "data" },
+  { id: "pokedex", label: "Fiches", icon: `${filtersAssetBase}/ic_alola.png`, group: "data" },
+  { id: "candies", label: "Candies", icon: `${filtersAssetBase}/TodayView_Icon_CandyXL.png`, group: "data" },
+  { id: "backgrounds", label: "Background", icon: `${filtersAssetBase}/TodayView_Icon_PostCard.png`, group: "data" },
+  { id: "collections", label: "Collections", icon: `${filtersAssetBase}/ic_galar.png`, group: "data" },
+  { id: "assets", label: "Assets", icon: `${filtersAssetBase}/TodayView_Icon_Photobomb.png`, group: "data" },
+  { id: "catalogs", label: "Catalogues", icon: Archive, group: "data" },
+  { id: "raids", label: "Raids", icon: `${filtersAssetBase}/TodayView_Icon_Raid.png`, group: "combat" },
+  { id: "max-battles", label: "Max Battles", icon: `${filtersAssetBase}/TodayView_Icon_Evolve.png`, group: "combat" },
+  { id: "rocket", label: "Rocket", icon: `${filtersAssetBase}/TodayView_Icon_TeamRocket.png`, group: "combat" },
+  { id: "pvp-rankings", label: "PvP Rankings", icon: `${filtersAssetBase}/TodayView_Icon_Battle.png`, group: "combat" },
+  { id: "eggs", label: "Œufs", icon: `${filtersAssetBase}/TodayView_Icon_LuckyEgg.png`, group: "events" },
+  { id: "research", label: "Research", icon: `${filtersAssetBase}/TodayView_Icon_Research.png`, group: "events" },
+  { id: "events", label: "Calendrier Events", icon: `${filtersAssetBase}/TodayView_Icon_Event.png`, group: "events" },
+  { id: "shiny", label: "Shiny Tracker", icon: `${filtersAssetBase}/ic_shiny_white.png`, group: "quality" },
+  { id: "checks", label: "Contrôles", icon: AlertTriangle, group: "quality" },
+  { id: "sources", label: "Veille", icon: Radar, group: "quality" },
+  { id: "compare", label: "Comparaison", icon: FileDiff, group: "quality" },
+  { id: "todo", label: "Todo-list", icon: ListTodo, group: "quality" },
+  { id: "logs", label: "Logs & MAJ", icon: History, group: "maintenance" },
+  { id: "rules", label: "Règles JSON", icon: Sparkles, group: "maintenance" },
+  { id: "bulk", label: "Corrections", icon: ClipboardCheck, group: "maintenance" },
+  { id: "export", label: "Export", icon: FileJson, group: "maintenance" },
 ];
 
 const defaultRuleForm = {
@@ -987,7 +981,7 @@ export function AdminApp() {
     setAssetChecks(readLocalJson(legacyAssetChecksKey, {}));
     setCollections(readLocalJson(collectionsKey, []));
     const requestedSection = new URLSearchParams(window.location.search).get("section");
-    if (requestedSection && navItems.some(([id]) => id === requestedSection)) {
+    if (requestedSection && navItems.some((item) => item.id === requestedSection)) {
       setActive(requestedSection);
     }
   }, []);
@@ -1891,7 +1885,7 @@ export function AdminApp() {
                   Dashboard sécurisé
                 </p>
                 <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
-                  {navItems.find(([id]) => id === active)?.[1]}
+                  {navItems.find((item) => item.id === active)?.label}
                 </h1>
               </div>
               <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] xl:w-[780px]">
@@ -1917,23 +1911,7 @@ export function AdminApp() {
                 </button>
               </div>
             </div>
-            <nav className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
-              {navItems.map(([id, label, Icon]) => (
-                <button
-                  className={`group inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-2xl border px-3 py-2 text-xs font-black tracking-normal transition ${
-                    active === id
-                      ? "border-cyan-200/55 bg-cyan-400/22 text-cyan-50 shadow-[0_12px_36px_rgba(34,211,238,.16)]"
-                      : "border-white/10 bg-slate-950/35 text-slate-300 hover:border-cyan-200/35 hover:bg-white/[0.09]"
-                  }`}
-                  key={id}
-                  type="button"
-                  onClick={() => setActive(id)}
-                >
-                  <Icon className="shrink-0 transition group-hover:scale-110" size={16} />
-                  <span className="min-w-0 truncate">{label}</span>
-                </button>
-              ))}
-            </nav>
+            <AdminSectionNavigation items={navItems} active={active} onSelect={setActive} />
             </div>
           </header>
 

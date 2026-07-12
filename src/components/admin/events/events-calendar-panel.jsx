@@ -59,6 +59,7 @@ import {
   eventsApiPath,
 } from "@/services/admin/events-api";
 import { fieldClass, Panel, primaryButtonClass, buttonClass } from "@/components/admin/pokemon/admin-ui";
+import { DatasetSourceHeader } from "@/components/admin/pokemon/dataset-source-header";
 
 const monthFormat = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" });
 const dateTimeFormat = new Intl.DateTimeFormat("fr-FR", {
@@ -680,6 +681,21 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon }) {
           <StatTile icon={<FlaskConical size={19} />} label="Research liées" value={coverage.research} tone="green" />
           <StatTile icon={<Egg size={19} />} label="Pokémon illustrés" value={coverage.pokemon} tone="amber" />
         </div>
+        <DatasetSourceHeader
+          dataset={{
+            meta: {
+              source: meta.configured ? "mongodb" : "seed",
+              provider: "leekduck-events",
+              mode: meta.seeded ? "seed" : "scraped",
+              visibility: "public",
+              status: meta.configured ? "success" : "warning",
+              count: events.length,
+              url: "https://leekduck.com/events/",
+            },
+            current: { visibility: "public", diagnostics: { warnings: meta.seeded ? ["Lecture sur données seed : MongoDB non configuré."] : [] } },
+          }}
+          total={events.length}
+        />
         <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_180px_180px_170px_auto]">
           <label className="relative block">
             <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={17} />
@@ -786,14 +802,13 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon }) {
         </div>
 
         <aside className="min-w-0 space-y-3">
-          <TimelineSection title="Today Only" count={todayEvents.length} events={todayEvents.slice(0, 8)} onOpen={setSelectedEvent} defaultOpen empty="Aucun event aujourd'hui." />
-          <TimelineSection title="Ongoing Events" count={currentEvents.length} events={currentEvents.slice(0, 14)} onOpen={setSelectedEvent} defaultOpen empty="Aucun event en cours." />
+          <TimelineSection title="Today Only" count={todayEvents.length} events={todayEvents.slice(0, 8)} onOpen={setSelectedEvent} empty="Aucun event aujourd'hui." />
+          <TimelineSection title="Ongoing Events" count={currentEvents.length} events={currentEvents.slice(0, 14)} onOpen={setSelectedEvent} empty="Aucun event en cours." />
           <TimelineSection
             title="Upcoming Events (Next 2 Weeks)"
             count={upcomingEvents.filter((event) => new Date(event.startDate) <= addDays(new Date(), 14)).length}
             events={upcomingEvents.filter((event) => new Date(event.startDate) <= addDays(new Date(), 14)).slice(0, 24)}
             onOpen={setSelectedEvent}
-            defaultOpen
             empty="Aucun event dans les 2 semaines."
           />
           <TimelineSection title="Past Events" count={pastEvents.length} events={pastEvents.slice(0, 10)} onOpen={setSelectedEvent} empty="Aucun event passé." />
@@ -1444,8 +1459,8 @@ function EventPokemonGroups({ groups, onOpenPokemon }) {
   return (
     <DetailSection title="Pokémon liés" eyebrow="Featured, spawns, raids et rewards" tone="pokemon" count={groups[0].pokemon.length}>
       <div className="space-y-3">
-      {groups.map((group, index) => (
-        <details key={group.title} className="rounded-xl border border-cyan-200/12 bg-slate-950/32 p-3" open={index < 2}>
+      {groups.map((group) => (
+        <details key={group.title} className="rounded-xl border border-cyan-200/12 bg-slate-950/32 p-3">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
             <span className="text-sm font-black text-white">{group.title}</span>
             <span className="rounded-full bg-white/10 px-2 py-0.5 font-mono text-[11px] font-black text-cyan-100">{group.pokemon.length}</span>

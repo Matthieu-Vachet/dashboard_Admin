@@ -4,25 +4,12 @@ import { recordDashboardApiCall } from "@/lib/dashboard-store";
 import { rateLimit } from "@/lib/security";
 
 const baseUrl = process.env.POKEMON_API_PUBLIC_URL || "https://pokemon-go-api.vercel.app";
-const allowedPaths = [
-  "/health",
-  "/api-docs.json",
-  "/api/checklist-v3",
-  "/api/v1",
-  "/api/v1/pokemon",
-  "/api/v1/moves",
-  "/api/v1/types",
-  "/api/v1/weather",
-  "/api/v1/raids",
-  "/api/v1/eggs",
-  "/api/v1/max-battles",
-  "/api/v1/items",
-  "/api/v1/rocket",
-  "/api/v1/rocket-texts",
-  "/api/v1/research",
-  "/api/v1/regions",
-  "/api/v1/meta/filters",
-];
+const systemPaths = new Set(["/health", "/api-docs.json", "/api/checklist-v3", "/api/v1"]);
+const adminPaths = new Set([
+  "/api/v1/admin/raids/regenerate", "/api/v1/admin/eggs/regenerate", "/api/v1/admin/max-battles/regenerate",
+  "/api/v1/admin/rocket/regenerate", "/api/v1/admin/research/regenerate", "/api/v1/admin/shiny/regenerate",
+  "/api/v1/admin/pvp-rankings/regenerate",
+]);
 const privateChecklistActions = new Set(["source-watch", "history", "url-audit"]);
 
 function json(data: unknown, init?: ResponseInit) {
@@ -31,13 +18,24 @@ function json(data: unknown, init?: ResponseInit) {
   return response;
 }
 
-function safePath(value: string) {
+function pathPattern(path: string) {
+  return new RegExp(`^${path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\\\{[^}]+\\\}/g, "[^/]+")}$`);
+}
+
+async function publicOpenApiPaths() {
+  const response = await fetch(new URL("/api-docs.json", baseUrl), { cache: "no-store", signal: AbortSignal.timeout(8_000) });
+  const specification = await response.json() as { paths?: Record<string, unknown> };
+  return Object.keys(specification.paths || {});
+}
+
+async function safePath(value: string) {
   const path = value.trim() || "/health";
   const normalized = path.startsWith("/") ? path : `/${path}`;
   const pathname = new URL(normalized, baseUrl).pathname;
-  const allowed = allowedPaths.some((allowedPath) => {
-    return pathname === allowedPath || pathname.startsWith(`${allowedPath}/`);
-  });
+  const publicPaths = await publicOpenApiPaths();
+  const allowed = systemPaths.has(pathname)
+    || adminPaths.has(pathname)
+    || publicPaths.some((allowedPath) => pathPattern(allowedPath).test(pathname));
 
   if (!allowed) {
     const error = new Error("Endpoint Pokémon non autorisé dans le testeur.");
@@ -50,6 +48,7 @@ function safePath(value: string) {
 
 function shouldAttachAdminSecret(path: string) {
   const target = new URL(path, baseUrl);
+  if (target.pathname.startsWith("/api/v1/admin/")) return true;
   if (target.pathname !== "/api/checklist-v3") return false;
   return privateChecklistActions.has(target.searchParams.get("action") || "");
 }
@@ -71,20 +70,23 @@ function pokemonApiHeaders(path: string) {
   return headers;
 }
 
-export async function GET(request: NextRequest) {
+async function execute(request: NextRequest, method: "GET" | "POST") {
   try {
     rateLimit(request, "pokemon-api-proxy", 60, 60_000);
     const session = await getSession();
     if (!session) return json({ error: "Accès dashboard requis." }, { status: 401 });
     await recordDashboardApiCall(session.email, "/api/pokemon-api-proxy", "GET");
 
-    const path = safePath(request.nextUrl.searchParams.get("path") || "/health");
+    const requestBody = method === "POST" ? await request.json().catch(() => ({})) as { path?: string; body?: unknown } : null;
+    const path = await safePath(requestBody?.path || request.nextUrl.searchParams.get("path") || "/health");
     const target = new URL(path, baseUrl);
     const startedAt = Date.now();
     const response = await fetch(target, {
+      method,
       cache: "no-store",
       signal: AbortSignal.timeout(12000),
-      headers: pokemonApiHeaders(path),
+      headers: { ...pokemonApiHeaders(path), ...(method === "POST" ? { "content-type": "application/json" } : {}) },
+      body: method === "POST" ? JSON.stringify(requestBody?.body || {}) : undefined,
     });
     const contentType = response.headers.get("content-type") || "";
     const body = contentType.includes("application/json")
@@ -115,4 +117,12 @@ export async function GET(request: NextRequest) {
       { status },
     );
   }
+}
+
+export async function GET(request: NextRequest) {
+  return execute(request, "GET");
+}
+
+export async function POST(request: NextRequest) {
+  return execute(request, "POST");
 }

@@ -4,7 +4,7 @@ import { Download, Eye, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import { TypeIcons, WeatherIcons } from "./asset-icons";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
-import { CurrentDatasetDiagnostics } from "./current-dataset-diagnostics";
+import { DatasetSourceHeader } from "./dataset-source-header";
 import { DatasetEventBanner } from "./dataset-event-banner";
 import { DatasetFilterBar } from "./dataset-filter-bar";
 import { TierSection } from "./tier-section";
@@ -162,7 +162,7 @@ function RaidSection({ id, title, image, tone, bosses, onOpenPokemon, typeCatalo
       image={image}
       count={bosses.length}
       tone={tone}
-      defaultOpen={bosses.length > 0}
+      defaultOpen={false}
       emptyText="Aucun boss dans cette section."
     >
         <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
@@ -245,7 +245,7 @@ export function RaidsPanel({
           <AssetStatCard label="Shadow" value={openBugs} icon="/ui/raids/teamrocket_r.png" tone="amber" detail="Raids obscurs" />
           <AssetStatCard label="Ultra Beast" value={buckets.ultra_beast || 0} icon="/ui/raids/ultra_breche_raids.png" tone="green" detail="Ultra-brèches" />
         </div>
-        <CurrentDatasetDiagnostics dataset={raids} total={total} refreshError={refreshError} />
+        <DatasetSourceHeader dataset={raids} total={total} refreshError={refreshError} />
       </Panel>
 
       <DatasetEventBanner event={sourceEvent} />

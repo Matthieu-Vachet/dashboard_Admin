@@ -70,9 +70,15 @@ async function readPokemonApiCurrent(
 ) {
   try {
     const target = new URL(path, pokemonApiBaseUrl);
+    const headers: Record<string, string> = { accept: "application/json" };
+    if (target.pathname.startsWith("/api/v1/shiny")) {
+      const secret = process.env.POKEMON_API_ADMIN_SECRET || process.env.API_ADMIN_SECRET;
+      if (!secret) throw requestError("POKEMON_API_ADMIN_SECRET est requis pour le Shiny Tracker prive.", 500);
+      headers["x-api-admin-secret"] = secret;
+    }
     const response = await fetch(target, {
       cache: "no-store",
-      headers: { accept: "application/json" },
+      headers,
       signal: AbortSignal.timeout(12_000),
     });
     const payload = await response.json().catch(() => null) as {
@@ -290,7 +296,9 @@ async function readShinyHistory(request: NextRequest) {
   const days = Math.min(365, Math.max(1, Number(request.nextUrl.searchParams.get("days")) || 30));
   if (!identity) throw requestError("Identité Shiny requise.", 400);
   const target = new URL(`/api/v1/shiny/${encodeURIComponent(identity)}/history?days=${days}`, pokemonApiBaseUrl);
-  const response = await fetch(target, { cache: "no-store", headers: { accept: "application/json" }, signal: AbortSignal.timeout(12_000) });
+  const secret = process.env.POKEMON_API_ADMIN_SECRET || process.env.API_ADMIN_SECRET;
+  if (!secret) throw requestError("POKEMON_API_ADMIN_SECRET est requis pour l'historique Shiny prive.", 500);
+  const response = await fetch(target, { cache: "no-store", headers: { accept: "application/json", "x-api-admin-secret": secret }, signal: AbortSignal.timeout(12_000) });
   const payload = await response.json().catch(() => null);
   if (!response.ok || !payload) throw requestError("Historique Shiny indisponible.", response.status || 502);
   return payload;

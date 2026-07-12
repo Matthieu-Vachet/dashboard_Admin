@@ -54,7 +54,7 @@ export function TierSection({
   image,
   count = 0,
   tone = "cyan",
-  defaultOpen = true,
+  defaultOpen = false,
   emptyText = "Aucune donnée dans cette section.",
   children,
 }) {

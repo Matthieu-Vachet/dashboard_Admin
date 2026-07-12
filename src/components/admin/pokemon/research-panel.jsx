@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { CalendarDays, ChevronDown, Download, Eye, Package, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
-import { CurrentDatasetDiagnostics } from "./current-dataset-diagnostics";
+import { DatasetSourceHeader } from "./dataset-source-header";
 import { DatasetEventBanner } from "./dataset-event-banner";
 import { DatasetFilterBar } from "./dataset-filter-bar";
 import { uiAssets } from "@/components/site/ui-assets";
@@ -361,7 +361,7 @@ export function ResearchPanel({
           <AssetStatCard label="Rewards Pokémon" value={pokemonRewards} icon={uiAssets.icons.pokemon} tone="green" detail="Référentiel Pokémon" />
           <AssetStatCard label="Rewards items" value={itemRewards} icon="/ui/Items/candy_rgb.png" tone="violet" detail="Match par nom/id" />
         </div>
-        <CurrentDatasetDiagnostics dataset={research} total={total} refreshError={refreshError} />
+        <DatasetSourceHeader dataset={research} total={total} refreshError={refreshError} />
       </Panel>
 
       <DatasetEventBanner event={sourceEvent} />
@@ -386,8 +386,8 @@ export function ResearchPanel({
       ) : null}
 
       <div className="space-y-4">
-        {filteredSections.map(([id, title, tasks], index) => (
-          <ResearchSection key={id} id={id} title={title} tasks={tasks} items={items} defaultOpen={index < 2} />
+        {filteredSections.map(([id, title, tasks]) => (
+          <ResearchSection key={id} id={id} title={title} tasks={tasks} items={items} defaultOpen={false} />
         ))}
       </div>
     </div>

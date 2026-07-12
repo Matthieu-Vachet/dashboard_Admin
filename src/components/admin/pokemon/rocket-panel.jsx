@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { ChevronDown, Crown, Download, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
-import { CurrentDatasetDiagnostics } from "./current-dataset-diagnostics";
+import { DatasetSourceHeader } from "./dataset-source-header";
 import { DatasetFilterBar } from "./dataset-filter-bar";
 import { uiAssets } from "@/components/site/ui-assets";
 
@@ -408,7 +408,7 @@ export function RocketPanel({
           <AssetStatCard label="Leaders" value={groups.find(([title]) => title === "Leaders")?.[1]?.length || 0} icon={rocketTrainerAssets.sierra} tone="amber" detail="Arlo, Cliff, Sierra" />
           <AssetStatCard label="Pokémon slots" value={totalEntries} icon="/ui/icons/shadow.png" tone="green" detail="Entrées Rocket" />
         </div>
-        <CurrentDatasetDiagnostics dataset={rocket} total={totalTrainers} refreshError={refreshError} />
+        <DatasetSourceHeader dataset={rocket} total={totalTrainers} refreshError={refreshError} />
       </Panel>
 
       <DatasetFilterBar
@@ -449,7 +449,7 @@ export function RocketPanel({
                   group={group}
                   rocketText={findRocketText(profile, texts)}
                   onOpenPokemon={onOpenPokemon}
-                  defaultOpen={group !== "grunt" && index === 0}
+                  defaultOpen={false}
                 />
               ))}
             </div>

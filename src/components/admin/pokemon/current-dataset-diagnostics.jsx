@@ -46,7 +46,7 @@ function Metric({ label, value, mono = false }) {
   );
 }
 
-export function CurrentDatasetDiagnostics({ dataset, total = 0, refreshError = "" }) {
+export function DatasetSourceHeader({ dataset, total = 0, refreshError = "" }) {
   const meta = dataset?.meta || {};
   const current = dataset?.current || {};
   const sourceDetails = meta.sourceDetails || current.source || {};
@@ -68,6 +68,7 @@ export function CurrentDatasetDiagnostics({ dataset, total = 0, refreshError = "
   const sourceHash = firstDefined(meta.sourceHash, current.sourceHash, "Indisponible");
   const shortHash = sourceHash === "Indisponible" ? sourceHash : String(sourceHash).slice(0, 12);
   const status = firstDefined(meta.status, current.status, "inconnu");
+  const visibility = firstDefined(meta.visibility, current.visibility, dataset?.data?.meta?.visibility, "public");
   const timezone = firstDefined(meta.timezone, sourceDetails.timezone, diagnostics.details?.timezone);
   const selection = firstDefined(meta.selection, sourceDetails.selection, diagnostics.details?.selectedRaids);
   const dynamicShellDetected = Boolean(firstDefined(
@@ -97,6 +98,9 @@ export function CurrentDatasetDiagnostics({ dataset, total = 0, refreshError = "
           <span>Source active : {sourceLabel}</span>
           <span className="rounded-full border border-white/10 bg-white/[0.07] px-2 py-1 text-[10px] uppercase tracking-[0.12em] text-cyan-100/70">
             {status}
+          </span>
+          <span className={`rounded-full border px-2 py-1 text-[10px] uppercase tracking-[0.12em] ${visibility === "private" ? "border-violet-200/25 bg-violet-300/14 text-violet-50" : "border-emerald-200/25 bg-emerald-300/14 text-emerald-50"}`}>
+            {visibility === "private" ? "Privé · Admin" : "Public · API"}
           </span>
         </div>
         <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] ${changed ? "border-amber-200/25 bg-amber-300/14 text-amber-50" : "border-emerald-200/25 bg-emerald-300/14 text-emerald-50"}`}>
@@ -149,12 +153,18 @@ export function CurrentDatasetDiagnostics({ dataset, total = 0, refreshError = "
       ) : null}
 
       {warnings.length ? (
-        <ul className="space-y-1 rounded-xl border border-amber-200/20 bg-amber-300/10 p-3 text-xs font-bold leading-5 text-amber-50">
-          {warnings.map((warning) => (
-            <li key={formatWarning(warning)}>• {formatWarning(warning)}</li>
-          ))}
-        </ul>
+        <details className="group rounded-xl border border-amber-200/20 bg-amber-300/10 text-xs font-bold leading-5 text-amber-50">
+          <summary className="cursor-pointer list-none px-3 py-2.5">Afficher les {warnings.length} diagnostic(s)</summary>
+          <ul className="space-y-1 border-t border-amber-100/10 p-3">
+            {warnings.map((warning) => (
+              <li key={formatWarning(warning)}>• {formatWarning(warning)}</li>
+            ))}
+          </ul>
+        </details>
       ) : null}
     </section>
   );
 }
+
+// Façade de compatibilité pour les panels existants.
+export const CurrentDatasetDiagnostics = DatasetSourceHeader;
