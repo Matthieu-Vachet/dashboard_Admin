@@ -6,6 +6,7 @@ import { DashboardLoadingState } from "@/components/admin/shared/loading-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Field } from "@/components/ui/field";
 import { Input, Textarea } from "@/components/ui/input";
 import { initialNotes, type Note } from "@/data/personal-dashboard-defaults";
 import { cn } from "@/lib/cn";
@@ -276,27 +277,21 @@ export function NotesBoard() {
                   {selectedNote.favorite ? "Favori" : "Marquer favori"}
                 </Button>
               </div>
-              <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">
-                  Titre
-                </span>
+              <Field label="Titre">
                 <Input
                   className="mt-2 text-lg font-black"
                   value={selectedNote.title}
                   onChange={(event) => updateSelected({ title: event.target.value })}
                 />
-              </label>
-              <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">
-                  Contenu
-                </span>
+              </Field>
+              <Field label="Contenu">
                 <Textarea
                   className="mt-2 min-h-[48dvh] resize-y text-base leading-7"
                   value={selectedNote.body}
                   onChange={(event) => updateSelected({ body: event.target.value })}
                   placeholder="Écris une note exploitable : contexte, décision, prochain pas..."
                 />
-              </label>
+              </Field>
             </div>
 
             <aside className="space-y-4">

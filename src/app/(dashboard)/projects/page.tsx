@@ -6,6 +6,7 @@ import { DashboardLoadingState } from "@/components/admin/shared/loading-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Field } from "@/components/ui/field";
 import { Input, Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import {
@@ -256,41 +257,36 @@ export default function ProjectsPage() {
       >
         {selectedProject ? (
           <div className="space-y-4">
-            <label className="block">
-              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Nom</span>
+            <Field label="Nom">
               <Input
                 className="mt-2"
                 value={selectedProject.name}
                 onChange={(event) => updateProject(selectedProject.id, { name: event.target.value })}
               />
-            </label>
-            <label className="block">
-              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Type</span>
+            </Field>
+            <Field label="Type">
               <Input
                 className="mt-2"
                 value={selectedProject.type}
                 onChange={(event) => updateProject(selectedProject.id, { type: event.target.value })}
               />
-            </label>
-            <label className="block">
-              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Description</span>
+            </Field>
+            <Field label="Description">
               <Textarea
                 className="mt-2 min-h-28"
                 value={selectedProject.detail}
                 onChange={(event) => updateProject(selectedProject.id, { detail: event.target.value })}
               />
-            </label>
-            <label className="block">
-              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Prochaine action</span>
+            </Field>
+            <Field label="Prochaine action">
               <Input
                 className="mt-2"
                 value={selectedProject.nextStep}
                 onChange={(event) => updateProject(selectedProject.id, { nextStep: event.target.value })}
               />
-            </label>
+            </Field>
             <div className="grid grid-cols-2 gap-3">
-              <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Progression</span>
+              <Field label="Progression">
                 <Input
                   className="mt-2"
                   type="number"
@@ -303,7 +299,7 @@ export default function ProjectsPage() {
                     })
                   }
                 />
-              </label>
+              </Field>
               <label className="block">
                 <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Statut</span>
                 <select
@@ -323,24 +319,22 @@ export default function ProjectsPage() {
                 </select>
               </label>
             </div>
-            <label className="block">
-              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">GitHub</span>
+            <Field label="GitHub">
               <Input
                 className="mt-2"
                 value={selectedProject.repoUrl}
                 onChange={(event) => updateProject(selectedProject.id, { repoUrl: event.target.value })}
                 placeholder="https://github.com/..."
               />
-            </label>
-            <label className="block">
-              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Site / Vercel</span>
+            </Field>
+            <Field label="Site / Vercel">
               <Input
                 className="mt-2"
                 value={selectedProject.siteUrl}
                 onChange={(event) => updateProject(selectedProject.id, { siteUrl: event.target.value })}
                 placeholder="https://..."
               />
-            </label>
+            </Field>
             <div className="grid grid-cols-2 gap-2">
               <Button variant="secondary" icon={<Github size={16} />} type="button" disabled={!selectedProject.repoUrl} onClick={() => openUrl(selectedProject.repoUrl)}>
                 GitHub

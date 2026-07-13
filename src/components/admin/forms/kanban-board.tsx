@@ -34,6 +34,7 @@ import { DashboardLoadingState } from "@/components/admin/shared/loading-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Field } from "@/components/ui/field";
 import { Input, Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import {
@@ -352,26 +353,23 @@ export function KanbanBoard() {
         {selectedTask ? (
           <div className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-[1fr_160px]">
-              <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Titre</span>
+              <Field label="Titre">
                 <Input
                   className="mt-2"
                   value={selectedTask.title}
                   onChange={(event) => updateTask(selectedTask.id, { title: event.target.value })}
                 />
-              </label>
-              <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Échéance</span>
+              </Field>
+              <Field label="Échéance">
                 <Input
                   className="mt-2"
                   type="date"
                   value={selectedTask.dueDate}
                   onChange={(event) => updateTask(selectedTask.id, { dueDate: event.target.value })}
                 />
-              </label>
+              </Field>
             </div>
-            <label className="block">
-              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Description enrichie</span>
+            <Field label="Description enrichie">
               <Textarea
                 className="mt-2 min-h-32 resize-y"
                 value={selectedTask.description}
@@ -383,10 +381,9 @@ export function KanbanBoard() {
                 }
                 placeholder="Contexte, objectifs, décisions, critères de sortie..."
               />
-            </label>
+            </Field>
             <div className="grid grid-cols-2 gap-3">
-              <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Points</span>
+              <Field label="Points">
                 <Input
                   className="mt-2"
                   type="number"
@@ -395,27 +392,25 @@ export function KanbanBoard() {
                   value={selectedTask.points}
                   onChange={(event) => updateTask(selectedTask.id, { points: Number(event.target.value) || 1 })}
                 />
-              </label>
-              <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Owner</span>
+              </Field>
+              <Field label="Owner">
                 <Input
                   className="mt-2"
                   maxLength={3}
                   value={selectedTask.owner}
                   onChange={(event) => updateTask(selectedTask.id, { owner: event.target.value.toUpperCase() })}
                 />
-              </label>
+              </Field>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Tags</span>
+              <Field label="Tags">
                 <Input
                   className="mt-2"
                   value={selectedTask.tags.join(", ")}
                   onChange={(event) => updateTask(selectedTask.id, { tags: normalizeList(event.target.value) })}
                   placeholder="ui, bug, pokemon"
                 />
-              </label>
+              </Field>
               <label className="block">
                 <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Statut</span>
                 <select
@@ -432,24 +427,22 @@ export function KanbanBoard() {
               </label>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Liens</span>
+              <Field label="Liens">
                 <Textarea
                   className="mt-2 min-h-24 font-mono text-xs"
                   value={selectedTask.links.join("\n")}
                   onChange={(event) => updateTask(selectedTask.id, { links: splitLines(event.target.value) })}
                   placeholder="https://github.com/..."
                 />
-              </label>
-              <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Images</span>
+              </Field>
+              <Field label="Images">
                 <Textarea
                   className="mt-2 min-h-24 font-mono text-xs"
                   value={selectedTask.images.join("\n")}
                   onChange={(event) => updateTask(selectedTask.id, { images: splitLines(event.target.value) })}
                   placeholder="URL image ou asset"
                 />
-              </label>
+              </Field>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>

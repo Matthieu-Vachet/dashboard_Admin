@@ -16,6 +16,7 @@ import { DashboardLoadingState } from "@/components/admin/shared/loading-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Field } from "@/components/ui/field";
 import { Input, Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import {
@@ -389,17 +390,15 @@ export function CalendarPlanner() {
       >
         {selectedEvent ? (
           <div className="space-y-4">
-            <label className="block">
-              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Titre</span>
+            <Field label="Titre">
               <Input
                 className="mt-2"
                 value={selectedEvent.title}
                 onChange={(event) => updateEvent(selectedEvent.id, { title: event.target.value })}
               />
-            </label>
+            </Field>
             <div className="grid grid-cols-2 gap-3">
-              <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Début</span>
+              <Field label="Début">
                 <Input
                   className="mt-2"
                   type="date"
@@ -412,27 +411,25 @@ export function CalendarPlanner() {
                     setSelectedDate(dateFromKey(event.target.value));
                   }}
                 />
-              </label>
-              <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Fin</span>
+              </Field>
+              <Field label="Fin">
                 <Input
                   className="mt-2"
                   type="date"
                   value={selectedEvent.endDate}
                   onChange={(event) => updateEvent(selectedEvent.id, { endDate: event.target.value })}
                 />
-              </label>
+              </Field>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Heure</span>
+              <Field label="Heure">
                 <Input
                   className="mt-2"
                   type="time"
                   value={selectedEvent.time}
                   onChange={(event) => updateEvent(selectedEvent.id, { time: event.target.value })}
                 />
-              </label>
+              </Field>
               <label className="block">
                 <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Statut</span>
                 <select
@@ -483,15 +480,14 @@ export function CalendarPlanner() {
                 ))}
               </div>
             </div>
-            <label className="block">
-              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Description</span>
+            <Field label="Description">
               <Textarea
                 className="mt-2 min-h-32"
                 value={selectedEvent.description}
                 onChange={(event) => updateEvent(selectedEvent.id, { description: event.target.value, note: event.target.value })}
                 placeholder="Bonus, Pokémon mis en avant, tâches à préparer, liens utiles..."
               />
-            </label>
+            </Field>
             <Button className="w-full" variant="primary" icon={<Save size={17} />} type="button" onClick={() => setModalOpen(false)}>
               Sauvegarde locale active
             </Button>

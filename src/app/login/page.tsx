@@ -2,6 +2,7 @@ import { LockKeyhole, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
 export default async function LoginPage({
@@ -53,10 +54,7 @@ export default async function LoginPage({
 
           <form action="/api/session" method="post" className="mt-6 space-y-4">
             <input type="hidden" name="next" value={next} />
-            <label className="block">
-              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">
-                Email
-              </span>
+            <Field label="Email">
               <Input
                 className="mt-2"
                 name="email"
@@ -65,11 +63,8 @@ export default async function LoginPage({
                 placeholder="matthieu@example.com"
                 required
               />
-            </label>
-            <label className="block">
-              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">
-                Mot de passe
-              </span>
+            </Field>
+            <Field label="Mot de passe">
               <Input
                 className="mt-2"
                 name="password"
@@ -78,7 +73,7 @@ export default async function LoginPage({
                 placeholder="••••••••"
                 required
               />
-            </label>
+            </Field>
             <Button className="w-full" variant="primary" type="submit">
               Entrer dans le dashboard
             </Button>

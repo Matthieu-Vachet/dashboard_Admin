@@ -4,6 +4,7 @@ import { FileJson, Save, X } from "lucide-react";
 import { POKEMON_EVENT_TYPES } from "@/data/pokemon-events";
 import { buttonClass, fieldClass, primaryButtonClass } from "@/components/admin/pokemon/admin-ui";
 import { ModalPortal } from "@/components/admin/shared/modal-portal";
+import { Field as FieldRoot } from "@/components/ui/field";
 
 export function EventEditorModal({ draft, busy, statusOptions, onChange, onClose, onSave }) {
   const update = (patch) => onChange((current) => ({ ...current, ...patch }));
@@ -84,10 +85,13 @@ export function ImportModal({ value, busy, onChange, onClose, onImport }) {
 
 function Field({ label, value, onChange, type = "text", placeholder = "" }) {
   return (
-    <label className="grid gap-1.5">
-      <span className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">{label}</span>
+    <FieldRoot
+      className="grid gap-1.5"
+      label={label}
+      labelClassName="text-xs font-black uppercase tracking-[0.16em] text-slate-500"
+    >
       <input className={fieldClass} type={type} value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
-    </label>
+    </FieldRoot>
   );
 }
 
@@ -106,9 +110,12 @@ function SelectField({ label, value, options, onChange }) {
 
 function Area({ label, value, onChange }) {
   return (
-    <label className="grid gap-1.5">
-      <span className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">{label}</span>
+    <FieldRoot
+      className="grid gap-1.5"
+      label={label}
+      labelClassName="text-xs font-black uppercase tracking-[0.16em] text-slate-500"
+    >
       <textarea className={`${fieldClass} min-h-36 py-3 leading-6`} value={value} onChange={(event) => onChange(event.target.value)} />
-    </label>
+    </FieldRoot>
   );
 }

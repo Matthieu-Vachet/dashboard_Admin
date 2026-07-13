@@ -14,6 +14,7 @@ import { DashboardLoadingState } from "@/components/admin/shared/loading-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Field as FieldRoot } from "@/components/ui/field";
 import { Input, Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { cn } from "@/lib/cn";
@@ -736,10 +737,9 @@ function TicketForm({
 }) {
   return (
     <div className="space-y-4">
-      <label className="block">
-        <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Titre</span>
+      <FieldRoot label="Titre">
         <Input className="mt-2 text-lg font-black" value={draft.title} onChange={(event) => onUpdate({ title: event.target.value })} />
-      </label>
+      </FieldRoot>
       <div className="grid gap-3 md:grid-cols-3">
         <SelectField label="Type" value={draft.type} values={ticketTypes} labels={typeLabel} onChange={(value) => onUpdate({ type: value as BacklogType })} />
         <SelectField label="Statut" value={draft.status} values={statuses} labels={statusLabel} onChange={(value) => onUpdate({ status: value as BacklogStatus })} />
@@ -828,10 +828,9 @@ function Field({
   placeholder?: string;
 }) {
   return (
-    <label className="block">
-      <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">{label}</span>
+    <FieldRoot label={label}>
       <Input className="mt-2" value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} />
-    </label>
+    </FieldRoot>
   );
 }
 
@@ -847,9 +846,8 @@ function Area({
   placeholder?: string;
 }) {
   return (
-    <label className="block">
-      <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">{label}</span>
+    <FieldRoot label={label}>
       <Textarea className="mt-2 min-h-28 resize-y" value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} />
-    </label>
+    </FieldRoot>
   );
 }
