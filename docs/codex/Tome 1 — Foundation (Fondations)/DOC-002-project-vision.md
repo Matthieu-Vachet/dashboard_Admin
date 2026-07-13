@@ -1,25 +1,25 @@
 ---
 id: DOC-002
 titre: Vision du projet
-version: 1.0.0
+version: 1.1.0
 statut: Actif
-derniere_mise_a_jour: 2026-07-12
+derniere_mise_a_jour: 2026-07-13
 auteur: Matthieu Vachet
 categorie: Fondation
 tome: 1
 ordre: 02
 projets_concernes:
   - Dashboard Admin
-  - PokemonGo-API
+  - PokemonGo-API-
   - PokemonGo-Data
   - PokemonGo-Assets-API
-  - Landing Page Pokémon GO
+  - Landing-Page-PogoApi
 references:
   - DOC-001
   - DOC-003
   - DOC-006
   - DOC-010
-  - DOC-011
+  - DOC-019
 ---
 
 # Vision du projet
@@ -47,11 +47,14 @@ Elle vise à créer un **écosystème complet** permettant de :
 
 ## 1. Une source de vérité unique
 
-Les données locales sont la référence principale.
+Chaque domaine possède une autorité explicite, mais l'audit ne confirme pas une source locale unique pour toute la plateforme.
 
-Les sources externes viennent uniquement compléter les informations lorsqu'elles sont nécessaires.
+- les référentiels statiques Pokémon, formes, attaques et types proviennent de `PokemonGo-Data`, puis sont matérialisés dans MongoDB par la synchronisation API ;
+- les datasets courants (raids, œufs, Max Battles, Rocket, Research, PvP et Shiny privé) ont MongoDB comme vérité de lecture en production ;
+- les assets sont servis depuis `PokemonGo-Assets-API` via GitHub raw ;
+- Events, Learning et les données propres au Dashboard utilisent leurs collections ou stockages dédiés.
 
-Cette philosophie garantit la cohérence des noms, des identifiants, des assets et des relations entre les Pokémon.
+Les sources externes alimentent les Providers de leur domaine. Le snapshot `.data` reste une copie dérivée de build et non une source canonique.
 
 ---
 
@@ -82,6 +85,8 @@ Il permet notamment :
 - de tester les routes API ;
 - de surveiller les sources externes ;
 - d'administrer les modules privés.
+
+L'état observé comprend également des outils personnels et d'apprentissage (notes, kanban, calendrier, todo, writer, snippets, pomodoro, projets et progression JavaScript). Le Dashboard expose 20 routes applicatives et 23 sections intégrées dans l'administration Pokémon.
 
 ---
 
@@ -151,6 +156,8 @@ La vision sera considérée comme atteinte si la plateforme :
 - garantit des données fiables ;
 - offre une expérience cohérente aux utilisateurs et aux développeurs.
 
+L'audit code-only établit la base mesurable suivante : cinq repositories actifs, 48 pages/sections, 156 routes, 29 collections MongoDB déclarées, 18 Providers, 19 datasets et 17 familles d'assets. Il identifie aussi des écarts de tests, d'atomicité, de documentation opérationnelle et de cohérence Design System qui empêchent de considérer tous ces indicateurs comme entièrement atteints.
+
 ---
 
 # Documents associés
@@ -158,12 +165,18 @@ La vision sera considérée comme atteinte si la plateforme :
 - DOC-001 — Règles générales du projet
 - DOC-003 — Objectifs du projet
 - DOC-006 — Vue d'ensemble de l'architecture
-- DOC-010 — Vue d'ensemble du Dashboard
-- DOC-011 — Vue d'ensemble de l'API
+- DOC-010 — Vue d'ensemble du Design System
+- DOC-019 — Référence API
 
 ---
 
 # Historique
+
+## Version 1.1.0 — 2026-07-13
+
+- Réconciliation avec le méga-audit code-only.
+- Remplacement de la source de vérité locale unique par les autorités réellement observées par domaine.
+- Ajout du périmètre fonctionnel et des inventaires confirmés.
 
 ## Version 1.0.0 — 2026-07-12
 

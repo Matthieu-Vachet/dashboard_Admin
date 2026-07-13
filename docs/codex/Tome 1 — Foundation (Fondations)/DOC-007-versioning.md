@@ -1,28 +1,27 @@
 ---
 id: DOC-007
 titre: Versionnage
-version: 1.0.0
+version: 1.1.0
 statut: Actif
-derniere_mise_a_jour: 2026-07-12
+derniere_mise_a_jour: 2026-07-13
 auteur: Matthieu Vachet
 categorie: Fondation
 tome: 1
 ordre: 07
 projets_concernes:
   - Dashboard Admin
-  - PokemonGo-API
+  - PokemonGo-API-
   - PokemonGo-Data
   - PokemonGo-Assets-API
-  - Landing Page Pokémon GO
+  - Landing-Page-PogoApi
 references:
   - DOC-001
   - DOC-006
-  - ADR-003
 ---
 
 # Versionnage
 
-> Ce document définit la stratégie de versionnage commune à l'ensemble de la plateforme. Toutes les applications, datasets, schémas et providers suivent des conventions homogènes afin de garantir la traçabilité des évolutions.
+> Ce document définit la stratégie de versionnage commune visée pour l'ensemble de la plateforme. L'audit montre que les applications utilisent plusieurs marqueurs SemVer, tandis que les datasets, schémas et Providers ne suivent pas encore un contrat homogène.
 
 ## Objectifs
 
@@ -36,7 +35,7 @@ references:
 
 # Semantic Versioning
 
-Toutes les applications utilisent la convention :
+La convention cible est :
 
 ```text
 MAJOR.MINOR.PATCH
@@ -47,6 +46,8 @@ MAJOR.MINOR.PATCH
 | MAJOR | Rupture de compatibilité | 2.0.0 |
 | MINOR | Nouvelle fonctionnalité compatible | 1.5.0 |
 | PATCH | Correction compatible | 1.5.3 |
+
+État observé : Dashboard Admin, `PokemonGo-API-` et `PokemonGo-Data` utilisent des versions SemVer dans leur `package.json`. La Landing possède un package `1.0.0`. `PokemonGo-Assets-API` n'a pas de package ni de version applicative trouvée. Aucun outil de release automatisée ou règle SemVer exécutable n'a été trouvé.
 
 ---
 
@@ -61,16 +62,24 @@ appVersion
 Concerne :
 
 - Dashboard Admin
-- PokemonGo-API
+- PokemonGo-API-
 - PokemonGo-Data
 - PokemonGo-Assets-API
-- Landing Page
+- Landing-Page-PogoApi
+
+| Projet | Package | Autre marqueur observé |
+|--------|---------|-------------------------|
+| Dashboard Admin | `1.21.0` | UI `V1.21.0`, changelog `1.21.0` |
+| PokemonGo-API- | `1.7.0` | OpenAPI `1.4.1`, changelog `1.6.1`, chemin REST `/api/v1` |
+| PokemonGo-Data | `1.8.0` | changelog `1.7.0` |
+| Landing-Page-PogoApi | `1.0.0` | aucun changelog trouvé |
+| PokemonGo-Assets-API | Non trouvé | aucun marqueur trouvé |
 
 ---
 
 ## Datasets
 
-Chaque dataset possède sa propre version.
+Les datasets peuvent porter des marqueurs de version, mais l'audit ne trouve pas de contrat global appliqué aux 19 datasets.
 
 Exemples :
 
@@ -82,13 +91,13 @@ sourceVersion
 hash
 ```
 
-Les datasets ne dépendent pas directement de la version de l'application.
+Les datasets courants utilisent principalement `generatedAt`, `savedAt`, `sourceHash`, diagnostics et parfois `schemaVersion`. `datasetVersion` n'est pas uniformément présent.
 
 ---
 
 ## Providers
 
-Chaque Provider possède son propre cycle d'évolution.
+Les Providers évoluent indépendamment, mais aucun champ `providerVersion` commun n'est observé.
 
 ```text
 providerVersion
@@ -96,15 +105,19 @@ providerVersion
 
 Une modification d'un Provider n'entraîne pas automatiquement une nouvelle version majeure de l'application.
 
+Les versions parfois présentes dans des User-Agent ne constituent pas un contrat partagé.
+
 ---
 
 ## Schémas
 
-Toute modification de structure entraîne une évolution de :
+Le marqueur cible est :
 
 ```text
 schemaVersion
 ```
+
+État observé : Learning utilise `schemaVersion: 1`, Shiny/PvP utilisent `schemaVersion: 2` et plusieurs datasets reprennent une valeur de métadonnées ou `1`. Les JSON statiques ne portent pas tous un marqueur uniforme.
 
 ---
 
@@ -161,19 +174,23 @@ Avant toute publication, vérifier :
 - compatibilité MongoDB ;
 - compatibilité documentation.
 
+Ces vérifications sont des exigences. L'audit ne trouve pas de gate automatisé commun prouvant qu'elles sont toutes exécutées avant chaque release.
+
 ---
 
 # Workflow de publication
 
 ```mermaid
 flowchart LR
-A[Développement]
--->B[Tests]
--->C[Documentation]
--->D[Version]
--->E[Changelog]
--->F[Publication]
+  A[Modification locale] --> B[Commit / push]
+  B --> C[Vercel ou GitHub Actions]
+  C --> D[Build / sync]
+  V[Versions incrémentées manuellement] -.-> B
+  T[Tags et releases automatisées non trouvés] -.-> B
+  G[Gate tests commun non trouvé] -.-> C
 ```
+
+Le workflow idéal Tests → Documentation → Version → Changelog → Publication reste la politique à atteindre. Le processus observé repose sur des incréments manuels, des changelogs partiels et des déclenchements Vercel/GitHub Actions sans tag local ni gate de promotion confirmé.
 
 ---
 
@@ -184,6 +201,8 @@ A[Développement]
 - Documenter toute rupture de compatibilité.
 - Versionner les schémas indépendamment des applications.
 - Conserver l'historique des versions.
+- Aligner package, UI, OpenAPI et changelog avant publication.
+- Créer des tags/releases formels si ce processus est adopté.
 
 ---
 
@@ -205,11 +224,17 @@ Ce document applique notamment :
 - DOC-001 — Règles générales
 - DOC-006 — Architecture générale
 - DOC-008 — Changelog
-- ADR-003 — Versionnage
 
 ---
 
 # Historique
+
+## Version 1.1.0 — 2026-07-13
+
+- Ajout des versions réellement déclarées dans les cinq repositories.
+- Distinction entre politique SemVer et processus manuel observé.
+- Retrait des contrats globaux supposés pour datasets, Providers et schémas.
+- Mise à jour du workflow de publication et des divergences package/UI/OpenAPI/changelog.
 
 ## Version 1.0.0 — 2026-07-12
 

@@ -1,19 +1,19 @@
 ---
 id: DOC-005
 titre: Référentiels (Repositories)
-version: 1.0.0
+version: 1.1.0
 statut: Actif
-derniere_mise_a_jour: 2026-07-12
+derniere_mise_a_jour: 2026-07-13
 auteur: Matthieu Vachet
 categorie: Fondation
 tome: 1
 ordre: 05
 projets_concernes:
   - Dashboard Admin
-  - PokemonGo-API
+  - PokemonGo-API-
   - PokemonGo-Data
   - PokemonGo-Assets-API
-  - Landing Page Pokémon GO
+  - Landing-Page-PogoApi
 references:
   - DOC-001
   - DOC-002
@@ -29,33 +29,31 @@ references:
 
 L'architecture repose sur plusieurs dépôts indépendants afin de séparer les responsabilités et de faciliter la maintenance.
 
-```text
-                 +----------------------+
-                 | PokemonGo-Data       |
-                 | Génération datasets  |
-                 +----------+-----------+
-                            |
-                            v
-                 +----------------------+
-                 | PokemonGo-API        |
-                 | MongoDB + API REST   |
-                 +----------+-----------+
-                            |
-             +--------------+--------------+
-             |                             |
-             v                             v
-+--------------------------+     +-------------------------+
-| Dashboard Admin          |     | Landing Page            |
-| Administration privée    |     | Documentation publique  |
-+--------------------------+     +-------------------------+
+```mermaid
+flowchart LR
+  EXT[Sources externes]
+  DATA[REPO-005 PokemonGo-Data]
+  ASSETS[REPO-004 PokemonGo-Assets-API]
+  API[REPO-003 PokemonGo-API-]
+  MONGO[(MongoDB)]
+  DASH[REPO-001 Dashboard Admin]
+  LAND[REPO-002 Landing-Page-PogoApi]
 
-                ^
-                |
-      +-----------------------+
-      | PokemonGo-Assets-API  |
-      | Images / Icônes       |
-      +-----------------------+
+  EXT --> DATA
+  EXT --> ASSETS
+  ASSETS --> DATA
+  DATA --> API
+  DATA --> DASH
+  API <--> MONGO
+  DASH <--> MONGO
+  API --> DASH
+  API --> LAND
+  ASSETS --> API
+  ASSETS --> DASH
+  ASSETS --> LAND
 ```
+
+L'audit confirme cinq repositories actifs. `PokemonGo-API-` est une application hybride Express/Vercel/Next.js ; `PokemonGo-Assets-API` est un dépôt de fichiers consommés via GitHub raw et non un serveur API autonome.
 
 ## REPO-001 — Dashboard Admin
 
@@ -72,19 +70,22 @@ Interface privée d'administration et de supervision.
 - Veille des sources
 - Tests visuels
 - Modules privés (Shiny Tracker, etc.)
+- Outils personnels et Learning
+- Routes BFF Next.js, sessions et proxies serveur
 
 ### Dépendances
 
-- PokemonGo-API
+- PokemonGo-API-
 - PokemonGo-Assets-API
+- MongoDB pour les domaines propres au Dashboard
 
 ---
 
-## REPO-002 — PokemonGo-API
+## REPO-003 — PokemonGo-API-
 
 ### Rôle
 
-Expose les données publiques et privées via des routes REST.
+Expose les données publiques et privées via Express et des fonctions Vercel, tout en hébergeant des pages publiques Next.js pour l'accueil, les assets et la checklist.
 
 ### Responsabilités
 
@@ -94,19 +95,22 @@ Expose les données publiques et privées via des routes REST.
 - Cache
 - MongoDB
 - Versionnement des routes
+- Synchronisation statique et pipelines courants
 
 ### Dépendances
 
 - MongoDB
 - Datasets générés par PokemonGo-Data
 
+L'audit recense 122 routes API et 19 collections MongoDB côté API. Les entrées Express locale, Vercel et UI Next.js coexistent et doivent rester distinguées.
+
 ---
 
-## REPO-003 — PokemonGo-Data
+## REPO-005 — PokemonGo-Data
 
 ### Rôle
 
-Génère tous les jeux de données.
+Maintient les référentiels statiques et les générateurs/provider modules de données Pokémon GO.
 
 ### Responsabilités
 
@@ -117,7 +121,7 @@ Génère tous les jeux de données.
 - Génération JSON
 - Hash et diagnostics
 
-Ce dépôt est la porte d'entrée des données externes.
+Ce dépôt est une porte d'entrée majeure des données externes. En production, les datasets courants sont lus depuis MongoDB après synchronisation ; les fichiers `.data` du Dashboard et de l'API restent des snapshots dérivés.
 
 ---
 
@@ -140,31 +144,34 @@ Centraliser toutes les ressources graphiques.
 
 Tous les projets utilisent ce dépôt comme référence graphique.
 
+Interface observée : arborescence Git et URLs GitHub raw. Licence, version package, serveur HTTP propre et contrat d'API : non trouvés dans le dépôt audité.
+
 ---
 
-## REPO-005 — Landing Page
+## REPO-002 — Landing-Page-PogoApi
 
 ### Rôle
 
-Présenter publiquement l'écosystème.
+Présenter publiquement l'écosystème et orienter vers le site/API public.
 
 ### Objectifs
 
 - Présentation de l'API
-- Documentation
-- Exemples
-- Mise en avant des datasets publics
+- Présentation marketing de l'API
+- Liens vers le site public
+- Mise en avant de statistiques et d'assets actuellement codés dans le composant Landing
 
 ---
 
 # Flux entre les dépôts
 
-1. PokemonGo-Data récupère et génère les datasets.
-2. Les datasets sont validés puis publiés.
-3. PokemonGo-API les expose.
-4. Dashboard Admin les administre.
-5. La Landing Page présente les fonctionnalités publiques.
-6. Les assets sont partagés par l'ensemble des projets.
+1. `PokemonGo-Data` maintient les référentiels et exécute les générateurs/provider modules.
+2. Le push de certaines familles statiques déclenche un `repository_dispatch` vers `PokemonGo-API-`, qui synchronise MongoDB.
+3. Les pipelines courants valident, calculent hash/diff, upsertent la version `current`, invalident le cache et effectuent un read-back, sans transaction globale confirmée.
+4. `PokemonGo-API-` expose les routes REST et les pages publiques.
+5. `Dashboard Admin` consomme l'API, MongoDB et son snapshot Data via des routes serveur privées.
+6. `Landing-Page-PogoApi` consomme l'URL publique et les assets raw.
+7. `PokemonGo-Assets-API` fournit les fichiers graphiques aux consommateurs.
 
 ---
 
@@ -199,6 +206,12 @@ Ce document applique notamment :
 ---
 
 # Historique
+
+## Version 1.1.0 — 2026-07-13
+
+- Alignement des IDs et noms exacts des cinq repositories.
+- Remplacement du schéma supposé par les flux inter-repositories observés.
+- Ajout des responsabilités hybrides de l'API, du statut réel des assets et de `.data`.
 
 ## Version 1.0.0 — 2026-07-12
 

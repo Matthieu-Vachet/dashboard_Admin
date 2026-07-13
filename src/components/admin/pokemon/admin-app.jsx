@@ -4,6 +4,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import {
   AlertTriangle,
   Archive,
@@ -20,6 +21,7 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  PackageOpen,
   Wand2,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -80,6 +82,11 @@ const assetChecksStoreKey = "matweb.pokemon.assetChecks";
 const sourceWatchSignatureKey = "pokedex-v4-source-watch-signatures";
 const collectionsKey = "pokedex-v4-admin-collections";
 
+const TrainerPokemonCollectionPanel = dynamic(
+  () => import("./trainer-pokemon-collection-panel").then((module) => module.TrainerPokemonCollectionPanel),
+  { loading: () => <div className={`${panelClass} min-h-64 animate-pulse`} aria-label="Chargement de Ma collection" /> },
+);
+
 const filtersAssetBase = "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers/Filters";
 const pokemonAssetBase = "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers";
 const navItems = [
@@ -88,6 +95,7 @@ const navItems = [
   { id: "candies", label: "Candies", icon: `${filtersAssetBase}/TodayView_Icon_CandyXL.png`, group: "data" },
   { id: "backgrounds", label: "Background", icon: `${filtersAssetBase}/TodayView_Icon_PostCard.png`, group: "data" },
   { id: "collections", label: "Collections", icon: `${filtersAssetBase}/ic_galar.png`, group: "data" },
+  { id: "my-collection", label: "Ma collection", icon: PackageOpen, group: "data" },
   { id: "assets", label: "Assets", icon: `${filtersAssetBase}/TodayView_Icon_Photobomb.png`, group: "data" },
   { id: "catalogs", label: "Catalogues", icon: Archive, group: "data" },
   { id: "raids", label: "Raids", icon: `${filtersAssetBase}/TodayView_Icon_Raid.png`, group: "combat" },
@@ -2059,6 +2067,8 @@ export function AdminApp() {
                 globalSearch={search}
               />
             ) : null}
+
+            {active === "my-collection" ? <TrainerPokemonCollectionPanel /> : null}
 
             {active === "raids" ? (
               <RaidsPanel

@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.21.0",
+    date: "2026-07-13",
+    title: "Ma collection Pokémon GO privée et versionnée",
+    changes: [
+      "Ajoute une section privée Admin Pokémon pour prévisualiser, importer et consulter plusieurs milliers de Pokémon avec recherche, filtres, tri et pagination serveur.",
+      "Valide entièrement l’export, normalise noms français, IV, formes, costumes, attaques et assets, puis active le nouveau snapshot par pointeur MongoDB atomique après read-back.",
+      "Conserve l’historique et le rollback, protège toutes les routes par session propriétaire et exclut la collection de l’OpenAPI et de l’API Explorer publics.",
+      "Ajoute les tests du fichier réel de 4 838 entrées et les vérifications responsive desktop, tablette et mobile.",
+    ],
+  },
+  {
     version: "V1.20.0",
     date: "2026-07-12",
     title: "Admin Pokémon, Shiny privé et PvP complet",

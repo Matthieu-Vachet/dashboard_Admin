@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.21.0 - 2026-07-13
+
+- Ajoute PAGE-049 « Ma collection Pokémon GO » dans Admin Pokémon avec aperçu d'import, statistiques, recherche, filtres, tri, pagination et vues responsive.
+- Introduit un stockage MongoDB privé par propriétaire avec snapshots staging/active/archived/failed, read-back, activation atomique par pointeur et rollback.
+- Normalise les 4 838 entrées du fichier réel à partir des référentiels canoniques sans fallback silencieux d'attaque, forme ou asset.
+- Ajoute quatre routes Dashboard privées absentes de l'OpenAPI public, neuf tests ciblés et la documentation post-audit associée.
+
 ## 1.19.0 - 2026-07-11
 
 - Corrige l'affichage des raids autour de la rotation dynamique reelle choisie par LeekDuck et relie l'evenement au calendrier.

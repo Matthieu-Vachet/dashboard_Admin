@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/cn";
 
@@ -22,19 +22,35 @@ export function Modal({
   className?: string;
   onClose: () => void;
 }) {
+  const dialogRef = useRef<HTMLElement>(null);
   useEffect(() => {
     if (!open) return;
     const previous = document.body.style.overflow;
+    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     document.body.style.overflow = "hidden";
+
+    const focusableSelector = "button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex='-1'])";
+    window.requestAnimationFrame(() => {
+      dialogRef.current?.querySelector<HTMLElement>(focusableSelector)?.focus();
+    });
 
     function closeOnEscape(event: KeyboardEvent) {
       if (event.key === "Escape") onClose();
+      if (event.key === "Tab" && dialogRef.current) {
+        const focusable = [...dialogRef.current.querySelectorAll<HTMLElement>(focusableSelector)];
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
     }
 
     window.addEventListener("keydown", closeOnEscape);
     return () => {
       document.body.style.overflow = previous;
       window.removeEventListener("keydown", closeOnEscape);
+      previouslyFocused?.focus();
     };
   }, [open, onClose]);
 
@@ -44,6 +60,7 @@ export function Modal({
     <div className="fixed inset-0 z-[1100] grid place-items-center bg-black/65 p-3 backdrop-blur-xl sm:p-5">
       <button className="absolute inset-0 cursor-default" type="button" aria-label="Fermer" onClick={onClose} />
       <section
+        ref={dialogRef}
         className={cn(
           "relative max-h-[92dvh] w-full max-w-2xl overflow-hidden rounded-lg border border-line-strong bg-panel-strong shadow-[0_30px_120px_rgba(0,0,0,0.46)]",
           className,
@@ -60,6 +77,7 @@ export function Modal({
             ) : null}
           </div>
           <button
+            autoFocus
             className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-line bg-white/[0.06] text-muted transition hover:text-foreground"
             type="button"
             onClick={onClose}

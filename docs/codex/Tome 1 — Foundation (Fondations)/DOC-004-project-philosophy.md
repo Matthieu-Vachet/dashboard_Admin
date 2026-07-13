@@ -1,19 +1,19 @@
 ---
 id: DOC-004
 titre: Philosophie du projet
-version: 1.0.0
+version: 1.1.0
 statut: Actif
-derniere_mise_a_jour: 2026-07-12
+derniere_mise_a_jour: 2026-07-13
 auteur: Matthieu Vachet
 categorie: Fondation
 tome: 1
 ordre: 04
 projets_concernes:
   - Dashboard Admin
-  - PokemonGo-API
+  - PokemonGo-API-
   - PokemonGo-Data
   - PokemonGo-Assets-API
-  - Landing Page Pokémon GO
+  - Landing-Page-PogoApi
 references:
   - DOC-001
   - DOC-002
@@ -83,9 +83,9 @@ Si la réponse est oui, il faut réutiliser ou étendre l'existant.
 
 ## 4. Une seule source de vérité
 
-Les données locales validées constituent la référence officielle.
+Une donnée doit avoir une autorité clairement définie dans son domaine.
 
-Les sources externes enrichissent les données mais ne remplacent jamais les informations maîtrisées par la plateforme.
+L'audit observe plusieurs autorités complémentaires : `PokemonGo-Data` pour les référentiels statiques, MongoDB pour les datasets courants lus en production, `PokemonGo-Assets-API` pour les médias et les collections propres au Dashboard pour Events/Learning. Les sources externes alimentent ces autorités via leurs Providers. Le snapshot `.data` est dérivé et ne doit pas être présenté comme source canonique.
 
 ---
 
@@ -101,6 +101,8 @@ Le système doit produire :
 
 Les faux positifs et les corrections silencieuses sont à éviter.
 
+L'audit confirme des diagnostics, historiques et read-backs dans plusieurs pipelines, mais relève aussi des fallbacks, des échecs de dispatch volontairement non bloquants et une observabilité incomplète. Ce principe reste donc une exigence à appliquer, pas un état uniformément atteint.
+
 ---
 
 ## 6. Les composants avant les pages
@@ -110,6 +112,8 @@ Le Dashboard est construit à partir d'un Design System.
 Les pages ne doivent pas inventer leur propre interface.
 
 Chaque nouvel élément visuel doit renforcer le Design System plutôt que le contourner.
+
+État observé : cinq fichiers UI atomiques partagés fournissent Badge, Button, Card, Input/Textarea et Modal, tandis que de nombreux composants métier reconstruisent localement boutons, filtres, cartes, modales et styles. Les spécifications Atomic/Composite/Complex/Template décrivent une cible future et non une bibliothèque React/Figma déjà réalisée.
 
 ---
 
@@ -178,6 +182,8 @@ Il doit devenir :
 - un laboratoire de validation ;
 - un poste de contrôle de toute la plateforme.
 
+Il sert déjà de poste de contrôle Pokémon, mais aussi d'espace privé de productivité et d'apprentissage. L'audit compte 20 pages routées et 23 sections Pokémon intégrées.
+
 ---
 
 # La philosophie des données
@@ -190,6 +196,8 @@ Chaque dataset doit être :
 - validé ;
 - documenté ;
 - identifiable.
+
+Ces propriétés ne sont pas encore uniformes : `datasetVersion`, `providerVersion` et `sourceVersion` ne forment pas un contrat partagé par les 19 datasets. Les implémentations utilisent selon les domaines `schemaVersion`, timestamps, hash, commit SHA, ETag ou snapshots.
 
 La qualité des données est plus importante que leur quantité.
 
@@ -239,6 +247,12 @@ Ce document applique notamment :
 ---
 
 # Historique
+
+## Version 1.1.0 — 2026-07-13
+
+- Alignement de la philosophie avec les autorités de données réellement observées.
+- Distinction entre principes cibles et couverture actuelle des erreurs, versions et composants.
+- Ajout du périmètre réel du Dashboard et du statut des spécifications Design System.
 
 ## Version 1.0.0 — 2026-07-12
 

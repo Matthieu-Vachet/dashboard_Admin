@@ -2,10 +2,10 @@
 id: DOC-010
 title: Vue d'ensemble du Design System
 slug: design-system-overview
-version: 1.0.0
+version: 1.1.0
 status: Active
 created: 2026-07-12
-last_updated: 2026-07-12
+last_updated: 2026-07-13
 author: Matthieu Vachet
 owner: MatWeb Innovation
 
@@ -24,17 +24,17 @@ tags:
 
 projects:
   - Dashboard Admin
-  - PokemonGo-API
+  - PokemonGo-API-
   - PokemonGo-Data
   - PokemonGo-Assets-API
-  - Landing Page Pokémon GO
+  - Landing-Page-PogoApi
 
 related:
   - DOC-001
   - DOC-006
   - PAGE-001
   - DS-001
-  - COMP-001
+  - COMP-120
 
 rules:
   - RULE-006
@@ -53,6 +53,12 @@ rules:
 > Décrire l'architecture complète du Design System de la plateforme Pokémon GO, sa philosophie, son organisation, ses conventions et son rôle dans l'ensemble de l'écosystème.
 >
 > Ce document constitue la **porte d'entrée officielle** du Tome 3 — Design System.
+
+> **État officiel après audit :**
+>
+> Les couches Atomic, Composite, Complex et Templates décrites dans ce document constituent la **cible de gouvernance et de reconstruction Figma**. Elles ne doivent pas être confondues avec l'implémentation React actuelle.
+>
+> L'implémentation confirmée du Dashboard repose sur les variables CSS/Tailwind, deux thèmes, huit palettes, cinq fichiers UI atomiques partagés et de nombreux composants métier avec styles locaux. Les documents Phase 3C/3D/3E/4A annoncent respectivement 401, 520, 895 variantes futures et six templates cibles ; aucune preuve locale ne confirme leur génération dans Figma ou leur réalisation complète dans React.
 
 ---
 
@@ -94,10 +100,10 @@ rules:
 La plateforme Pokémon GO est composée de plusieurs projets indépendants :
 
 - Dashboard Admin
-- PokemonGo-API
+- PokemonGo-API-
 - PokemonGo-Data
 - PokemonGo-Assets-API
-- Landing Page
+- Landing-Page-PogoApi
 - futurs outils internes
 
 Tous ces projets évoluent continuellement.
@@ -137,6 +143,8 @@ Cela garantit :
 - une maintenance simplifiée ;
 - une réduction du code.
 
+État observé : ce principe n'est pas encore uniformément atteint. Le Dashboard contient 123 fichiers de composants, dont 46 façades de compatibilité courtes, et plusieurs familles de boutons, cartes, filtres et modales sont reconstruites dans les composants métier.
+
 ---
 
 ## 2. Les composants sont indépendants
@@ -151,6 +159,8 @@ Chaque composant possède :
 Un composant ne dépend jamais d'une page spécifique.
 
 Il peut être utilisé dans n'importe quel projet.
+
+État observé : les primitives sous `src/components/ui` sont génériques, mais la majorité des composants Pokémon, Events, Learning et outils sont liés à leur domaine ou à une page. L'indépendance totale décrite ici reste une règle cible.
 
 ---
 
@@ -303,6 +313,8 @@ Le Design System évolue en même temps que le projet.
 
 Une modification d'un composant entraîne automatiquement une mise à jour de sa documentation.
 
+État observé : le méga-audit a créé le mapping de 555 documents futurs, mais il n'existe pas de mécanisme automatique reliant une modification React à la régénération de sa fiche documentaire.
+
 ---
 
 # La vision à long terme
@@ -338,6 +350,8 @@ Toutes les décisions visuelles doivent partir de lui.
 
 Aucune interface ne doit être conçue en dehors de ce cadre.
 
+L'audit constate une couverture partielle : les primitives et le shell utilisent les tokens globaux, tandis que les composants métier conservent un vocabulaire visuel local important. Les affirmations de cohérence parfaite dans ce document expriment donc la gouvernance attendue et non une certification de l'état actuel.
+
 ---
 
 # 2. Architecture générale
@@ -356,7 +370,7 @@ L'ensemble du Design System repose sur une architecture hiérarchique permettant
 ```mermaid
 flowchart TD
 
-A[🎨 Foundations]
+A[🎨 Foundations cible]
 
 A --> B[🧩 Design Tokens]
 
@@ -366,7 +380,7 @@ C --> D[🧱 Composite Components]
 
 D --> E[🏗️ Complex Components]
 
-E --> F[📄 Page Templates]
+E --> F[📄 Page Templates cibles]
 
 F --> G[🖥️ Dashboard Admin]
 
@@ -377,6 +391,19 @@ F --> I[📱 Futurs projets]
 
 Chaque étage dépend uniquement de l'étage inférieur.
 
+Dans l'implémentation observée, cette hiérarchie n'est pas matérialisée comme six packages/couches React distincts :
+
+```mermaid
+flowchart LR
+  CSS[Variables CSS + Tailwind] --> UI[5 fichiers UI partagés]
+  CSS --> BIZ[Composants métier et styles locaux]
+  UI --> BIZ
+  BIZ --> SHELL[Shell + pages composées ad hoc]
+  THEMES[2 thèmes × 8 palettes] --> CSS
+  SPEC[Specs Figma futures] -. cible de convergence .-> UI
+  SPEC -. cible de convergence .-> BIZ
+```
+
 Aucun composant complexe ne doit définir lui-même :
 
 - une couleur ;
@@ -385,7 +412,7 @@ Aucun composant complexe ne doit définir lui-même :
 - un rayon ;
 - une typographie.
 
-Toutes ces informations proviennent exclusivement des Foundations.
+Dans la cible, toutes ces informations proviennent des Foundations. Le code actuel contient aussi des couleurs, rayons, ombres, z-index et valeurs arbitraires locales ; l'audit relève environ 617 lignes visuelles potentiellement concurrentes sous `src`.
 
 ---
 
@@ -486,7 +513,7 @@ Un composant atomique :
 - ne dépend d'aucune page ;
 - est entièrement réutilisable.
 
-Les audits réalisés sur le Design System recensent plus de **400 variantes atomiques**, couvrant l'ensemble des états et styles nécessaires. phase-3c-prep-atomic-component-spec.md
+La spécification Phase 3C décrit **401 variantes atomiques futures**. L'implémentation React confirmée contient cinq fichiers UI partagés : Badge, Button, Card, Input/Textarea et Modal, soit six familles approximatives. IconButton, Select, Checkbox, Switch, Chip, Label, Divider, ProgressBar, Tooltip et Tabs ne possèdent pas de primitive partagée dédiée.
 
 ---
 
@@ -510,7 +537,7 @@ Exemples :
 
 Ils restent totalement indépendants d'une page spécifique.
 
-Les audits du Design System recensent plus de **500 variantes composites**, organisées pour couvrir les principaux cas d'usage de la plateforme. phase-3d-prep-composite-component-spec.md
+La spécification Phase 3D décrit **520 variantes composites futures**. Plusieurs composites métier existent dans React, mais aucune couche canonique de dix familles ni génération Figma n'est confirmée.
 
 ---
 
@@ -534,7 +561,7 @@ Exemples :
 
 Ils constituent les principaux blocs utilisés dans les pages du Dashboard.
 
-Le Design System comporte près de **900 variantes de composants complexes**, ce qui en fait le cœur fonctionnel de l'interface. phase-3e-prep-complex-component-spec.md
+La spécification Phase 3E décrit **895 variantes complexes futures**. Les modules fonctionnels existent sous des noms métier, mais cette quantité ne doit pas être comptée comme variantes React ou Figma réalisées.
 
 ---
 
@@ -553,7 +580,7 @@ Ils ne contiennent aucune donnée.
 
 Ils servent uniquement de structure.
 
-Les pages du Dashboard sont construites à partir de ces Templates.
+La spécification Phase 4A propose six Templates. Le code confirmé possède un shell global et des pages composées ad hoc ; aucune couche React formalisée de six Templates n'est trouvée.
 
 ---
 
@@ -639,11 +666,13 @@ Le Design System évolue selon plusieurs règles :
 
 - aucun composant ne doit casser les composants existants ;
 - toute nouvelle variante doit être documentée ;
-- les Tokens restent la seule source de vérité graphique ;
+- les Tokens restent la source de vérité graphique cible ;
 - les composants doivent rester indépendants de l'application ;
 - toute évolution importante doit être accompagnée d'une mise à jour des documents `COMP-xxx`, `DS-xxx` et des références concernées.
 
 Ainsi, le Design System reste cohérent, évolutif et capable d'accompagner l'ensemble des projets de la plateforme sur le long terme.
+
+L'audit montre que cette convergence n'est pas terminée : la nomenclature Figma `primitive.*`, `semantic.*` et `component.*` n'est pas présente dans le code, et les composants métier utilisent encore de nombreuses valeurs directes.
 
 ---
 
@@ -687,9 +716,7 @@ A --> L[Elevation]
 A --> M[Blur]
 ```
 
-Les Foundations ne sont jamais utilisées directement dans les composants.
-
-Elles sont exposées via les **Design Tokens**.
+Dans l'architecture cible, les Foundations ne sont jamais utilisées directement et sont exposées via les **Design Tokens**. Dans le code actuel, les composants consomment à la fois des variables CSS/Tailwind, des utilitaires globaux et des valeurs locales.
 
 ---
 
@@ -726,6 +753,20 @@ Le Design System repose sur plusieurs familles de Foundations.
 | Breakpoints | Responsive |
 | Icons | Taille des icônes |
 | Glass Effects | Effets de verre |
+
+## Implémentation confirmée
+
+| Groupe | Éléments observés |
+|--------|-------------------|
+| Couleurs | `--background`, `--foreground`, `--muted`, `--panel`, `--panel-strong`, `--line`, `--line-strong`, `--brand`, `--brand-2`, `--brand-3`, accents, `--warning`, `--danger` |
+| Thèmes | `.dark` et `.light`, dark par défaut, huit palettes (`sapphire`, `ruby`, `fire-red`, `violet`, `leaf-green`, `pink`, `gold`, `electric`) |
+| Typographie | `--font-sans` = Geist/Inter/system ; `--font-mono` = Geist Mono/SFMono ; chargement explicite de Geist non trouvé |
+| Radius | `--radius: 8px`, Tailwind `sm: 6px`, `md` à `2xl: 8px`, plus rayons arbitraires fréquents |
+| Effets | `glass-panel`, `glass-panel-strong`, glows, scanline, sheen, motion-border, widget glow |
+| Breakpoints | préfixes Tailwind `sm`, `md`, `lg`, `xl`, `2xl` ; aucune configuration personnalisée trouvée |
+| Motion | 200/220/300 ms, `energy-scan` 5,5 s, `sheen` 6 s, Framer Motion et transitions Tailwind |
+
+Les noms conceptuels `Neutral-900`, `Surface Primary`, `primitive.spacing.*`, `semantic.color.*` et `component.*` ci-dessous décrivent la cible documentaire. Ils ne sont pas des identifiants présents dans `src`.
 
 ---
 
@@ -791,7 +832,7 @@ Info
 Accent
 ```
 
-Les composants utilisent exclusivement ces couleurs.
+Dans la cible, les composants utilisent exclusivement ces couleurs. L'implémentation actuelle comporte aussi des couleurs Tailwind et littérales locales, en particulier dans les surfaces Pokémon.
 
 Ainsi, modifier un thème devient extrêmement simple.
 
@@ -868,7 +909,7 @@ Exemple :
 
 Cette grille garantit une interface harmonieuse.
 
-Les composants utilisent uniquement ces valeurs.
+La cible limite les composants à ces valeurs. Le code utilise également des espacements et dimensions arbitraires.
 
 ---
 
@@ -960,7 +1001,7 @@ Ease In
 Ease Out
 ```
 
-Toutes les animations utilisent ces durées.
+Ces noms sont la cible. Aucun token global `Fast/Normal/Slow` n'est trouvé dans le code ; plusieurs durées explicites coexistent.
 
 ---
 
@@ -1011,7 +1052,7 @@ Desktop
 Ultra Wide
 ```
 
-Toutes les pages utilisent les mêmes seuils.
+Les pages utilisent les préfixes Tailwind standards `sm`, `md`, `lg`, `xl` et `2xl`. Les catégories conceptuelles ne constituent pas des breakpoints personnalisés déclarés.
 
 ---
 
@@ -1037,7 +1078,7 @@ Exemple :
 64
 ```
 
-Les icônes ne sont jamais redimensionnées arbitrairement.
+Cette normalisation est une règle cible. Les composants actuels passent plusieurs valeurs numériques directement aux icônes Lucide et utilisent aussi des assets d'icônes locaux.
 
 ---
 
@@ -1081,7 +1122,7 @@ Ils sont définis une seule fois dans les Foundations.
 
 # Relations avec les Design Tokens
 
-Les Foundations ne sont jamais utilisées directement.
+Dans l'architecture cible, les Foundations ne sont jamais utilisées directement.
 
 Le chemin est toujours le suivant :
 
@@ -1122,6 +1163,8 @@ Les Foundations doivent respecter plusieurs principes.
 ❌ Aucun composant ne doit contourner les Foundations.
 
 ❌ Aucune valeur "magique" ne doit apparaître dans un composant.
+
+État observé : cette règle n'est pas uniformément respectée. Les hardcodes, rayons, shadows, z-index et sélecteurs correctifs du thème light sont inventoriés dans l'audit et doivent rester documentés comme dette existante, non comme tokens officiels réalisés.
 
 ---
 
@@ -1168,9 +1211,9 @@ Les Foundations définissent les règles.
 
 Les Tokens rendent ces règles exploitables.
 
-Les composants utilisent ensuite exclusivement les Tokens.
+Dans la cible, les composants utilisent exclusivement les Tokens et n'accèdent pas directement aux Foundations.
 
-Aucun composant ne doit accéder directement aux Foundations.
+État observé : le code implémente des variables CSS sémantiques (`--background`, `--panel`, `--line`, `--brand`, accents, états), un mapping `@theme inline` vers Tailwind et huit palettes dark/light. Les collections Figma Primitive/Semantic/Component et leur export vers React ne sont pas trouvés dans le workspace.
 
 ---
 
@@ -1184,7 +1227,7 @@ Les Design Tokens permettent de :
 - maintenir une cohérence parfaite ;
 - connecter Figma et React avec les mêmes valeurs.
 
-Grâce aux Tokens, une modification effectuée dans Figma peut être répercutée sur toute l'application sans modifier chaque composant individuellement.
+Ce flux Figma → React décrit l'objectif. Aucun fichier exporté de variables Figma Phase 3A/3B ni synchronisation automatique n'est trouvé.
 
 ---
 
@@ -1222,6 +1265,8 @@ Le Design System distingue trois catégories principales.
 | Primitive Tokens | Valeurs brutes |
 | Semantic Tokens | Signification métier |
 | Component Tokens | Personnalisation d'un composant |
+
+Ces trois catégories structurent la spécification cible. Dans le code, les niveaux confirmés sont les variables CSS racine/light, les alias `@theme inline`, les variables de palettes et les classes/utilitaires de composants. Aucun registre `component.button.*` n'est implémenté.
 
 ---
 
@@ -1439,6 +1484,8 @@ Ils ne doivent jamais utiliser directement :
 
 Toutes les propriétés proviennent des Variables.
 
+Statut local : les preuves de collections/pages Figma et de variables exportées ne sont pas trouvées. Cette section reste le workflow requis pour leur future reconstruction.
+
 ---
 
 # Utilisation dans React
@@ -1453,6 +1500,8 @@ Un composant React ne connaît jamais :
 - 32px
 
 Il consomme uniquement les Tokens exportés.
+
+Le composant d'exemple ci-dessous est conceptuel. Les composants réels consomment des classes Tailwind/CSS et, selon les domaines, des valeurs arbitraires ou littérales.
 
 Exemple :
 
@@ -1488,6 +1537,8 @@ A[Création Figma]
 ```
 
 Chaque Token possède donc un véritable cycle de vie.
+
+Ce cycle n'est pas automatisé dans l'état audité ; validation, export et déploiement des variables Figma restent non trouvés.
 
 ---
 
@@ -1537,7 +1588,7 @@ Le composant n'a alors besoin d'aucune modification.
 
 # Impact sur les performances
 
-Les Design Tokens améliorent également les performances.
+La factorisation par Tokens peut réduire la duplication. Aucun benchmark ne démontre un gain de performance attribuable aux Tokens dans l'état audité.
 
 Ils permettent :
 
@@ -1590,7 +1641,7 @@ Cette section est approfondie dans :
 - DS-006 — Shadows
 - DS-007 — Glass Effects
 - DS-008 — Animation Guidelines
-- COMP-001 à COMP-021
+- COMP-119 à COMP-123 — primitives UI confirmées par le registre audité
 
 ---
 
@@ -1988,7 +2039,7 @@ Chaque composant possède :
 
 # Les Atomic Components dans le projet
 
-D'après les audits du Design System, la bibliothèque comporte actuellement **plus de 400 variantes atomiques**, couvrant les différents états, tailles et styles utilisés dans la plateforme. phase-3c-prep-atomic-component-spec.md
+D'après l'audit code-only, la bibliothèque React partagée comporte six familles approximatives : Badge, Button, Card, Input, Textarea et Modal. Les **401 variantes** de `phase-3c-prep-atomic-component-spec.md` sont une spécification future, pas un inventaire de variantes réalisées.
 
 Ces composants servent de base à tous les composants composites et complexes.
 
@@ -2000,15 +2051,13 @@ Ils constituent donc le socle technique et graphique du Dashboard Admin.
 
 Chaque composant atomique possède son propre document.
 
-Exemples :
+Entrées réelles du registre :
 
-- COMP-001 — Buttons
-- COMP-002 — Badges
-- COMP-003 — Chips
-- COMP-004 — Tags
-- COMP-008 — Inputs
-- COMP-009 — Filters
-- COMP-021 — Pokémon Type Badge
+- COMP-119 — Badge
+- COMP-120 — Button
+- COMP-121 — Card / CardHeader / CardTitle / CardDescription
+- COMP-122 — Input / Textarea
+- COMP-123 — Modal
 
 Les détails d'implémentation, les variantes et les exemples sont décrits dans ces documents.
 
@@ -2398,7 +2447,7 @@ Le développeur assemble uniquement des composants existants.
 
 # Les Composite Components dans le projet
 
-Les audits du Design System recensent actuellement **plus de 520 variantes de composants composites**, organisées pour répondre aux besoins des différents modules de la plateforme. phase-3d-prep-composite-component-spec.md
+`phase-3d-prep-composite-component-spec.md` spécifie **520 variantes composites futures**. Le code contient plusieurs composants métier composites, mais aucune bibliothèque canonique complète ni preuve de génération Figma correspondante.
 
 Ils constituent la couche de réutilisation principale du Dashboard Admin.
 
@@ -2408,16 +2457,15 @@ Ils constituent la couche de réutilisation principale du Dashboard Admin.
 
 Les composants composites disposent chacun de leur documentation dédiée.
 
-Exemples :
+Exemples confirmés dans le registre :
 
-- COMP-030 — Dataset Filter Bar
-- COMP-031 — Source Header
-- COMP-032 — Search Bar
-- COMP-033 — Stat Card
-- COMP-034 — Empty State
-- COMP-035 — Accordion Header
-- COMP-036 — Tabs
-- COMP-037 — Toolbar
+- COMP-040 — DatasetSourceHeader / CurrentDatasetDiagnostics
+- COMP-042 — DatasetFilterBar
+- COMP-043 — DatasetSourceHeader (façade)
+- COMP-063 — DashboardLoadingState
+- COMP-116 — MetricCard
+
+Search Bar, Pagination, Tabs et Accordion Header ne possèdent pas de famille partagée canonique confirmée.
 
 Chaque document décrit :
 
@@ -2866,7 +2914,7 @@ A[Besoin métier]
 
 # Les Complex Components dans le projet
 
-Les audits du Design System recensent actuellement **près de 900 variantes de composants complexes**, couvrant l'ensemble des modules du Dashboard Admin. phase-3e-prep-complex-component-spec.md
+`phase-3e-prep-complex-component-spec.md` spécifie **895 variantes complexes futures**. Les modules Dashboard existent, mais ces variantes ne sont pas confirmées comme composants React/Figma réalisés.
 
 Ils constituent la couche principale de l'expérience utilisateur.
 
@@ -2878,16 +2926,16 @@ Toutes les pages du Dashboard sont construites à partir de ces modules.
 
 Les composants complexes disposent chacun de leur documentation dédiée.
 
-Exemples :
+Exemples confirmés dans le registre :
 
-- COMP-100 — Pokemon Details
-- COMP-101 — Raid Card
-- COMP-102 — PvP Details
-- COMP-103 — Shiny Details Modal
-- COMP-104 — Dataset Diagnostics
-- COMP-105 — API Explorer
-- COMP-106 — Source Watch
-- COMP-107 — Event Calendar
+- COMP-009 — EventsCalendarPanel
+- COMP-031 — AdminApp
+- COMP-044 — DetailModal
+- COMP-050 — PokemonApiExplorer
+- COMP-053 — PokemonDocsViewer
+- COMP-058 — ShinyTrackerPanel
+- COMP-059 — SourceHistoryModal / DataDeployHistoryModal / SourceRows
+- COMP-070 — DashboardBacklog
 
 Chaque document décrit :
 
@@ -3323,7 +3371,7 @@ Le Template organise uniquement les composants.
 
 # Les Templates dans le projet
 
-Les audits du Design System montrent que les pages du Dashboard sont construites à partir d'un ensemble cohérent de Templates couvrant les principaux cas d'usage (Dashboard, Datasets, Pokémon, Analytics, API, Monitoring). Ces Templates assurent une expérience homogène sur toute la plateforme. phase-4a-prep-template-architecture.md
+`phase-4a-prep-template-architecture.md` décrit six Templates cibles (Dashboard, Datasets, Pokémon, Analytics, API, Monitoring). L'implémentation observée utilise un shell global et des pages composées ad hoc ; aucune couche React de Templates formalisés n'est trouvée.
 
 Ils constituent le dernier niveau du Design System avant les pages React.
 
@@ -3333,7 +3381,7 @@ Ils constituent le dernier niveau du Design System avant les pages React.
 
 Les Templates possèdent chacun leur documentation dédiée.
 
-Exemples :
+Documents cibles proposés par la spécification Phase 4A :
 
 - TEMPLATE-001 — Dashboard Layout
 - TEMPLATE-002 — Dataset Layout
@@ -3355,11 +3403,9 @@ Chaque document décrit :
 
 # 9. Workflow Figma
 
-Le Design System est entièrement piloté depuis **Figma**.
+Le workflow cible pilote le Design System depuis **Figma** : aucune nouvelle interface ne devrait être développée dans React sans conception, validation et documentation.
 
-Aucune interface ne doit être développée directement dans React sans avoir été conçue, validée et documentée dans Figma.
-
-Figma constitue la **source de vérité graphique** de la plateforme.
+État observé : aucun fichier de variables exportées ni preuve des pages/composants Figma attendus n'est présent dans le workspace. Pour l'état implémenté, le code React/CSS audité reste la preuve vérifiable ; Figma est la future source de vérité graphique à reconstruire et gouverner.
 
 React est uniquement responsable de son implémentation.
 
@@ -3406,7 +3452,7 @@ Figma permet de :
 - partager facilement les maquettes ;
 - préparer le travail de Codex.
 
-Toutes les décisions visuelles doivent être prises dans Figma.
+Toutes les nouvelles décisions visuelles devraient être prises dans Figma une fois cette source reconstruite et reliée au code.
 
 ---
 
@@ -3694,7 +3740,7 @@ Tests
 Publication
 ```
 
-Ce processus garantit une parfaite cohérence entre la conception, le développement et la documentation.
+Ce processus vise une cohérence entre la conception, le développement et la documentation. L'audit ne confirme pas encore cette synchronisation automatique.
 
 ---
 
@@ -3703,7 +3749,7 @@ Ce processus garantit une parfaite cohérence entre la conception, le développe
 - DOC-001 — Règles du projet
 - DOC-006 — Architecture générale
 - DOC-010 — Design System Overview
-- DOC-024 — Coding Guidelines
+- DOC-014 — Catalogue des composants
 - PAGE-xxx — Pages du Dashboard
 - COMP-xxx — Documentation des composants
 
@@ -3711,7 +3757,7 @@ Ce processus garantit une parfaite cohérence entre la conception, le développe
 
 # 10. Workflow React
 
-Le Dashboard Admin est développé avec **React** en suivant une architecture **Component First**, entièrement pilotée par le Design System.
+Le Dashboard Admin est développé avec **React** et vise une architecture **Component First**. L'audit confirme un pilotage partiel par le Design System : primitives et shell partagés d'un côté, nombreux composants métier avec styles et responsabilités locales de l'autre.
 
 React n'est pas utilisé pour créer librement des interfaces.
 
@@ -4145,8 +4191,8 @@ Avant qu'un composant soit considéré comme terminé :
 - DOC-001 — Project Rules
 - DOC-006 — Architecture Overview
 - DOC-010 — Design System Overview
-- DOC-024 — Folder Structure
-- DOC-025 — Coding Guidelines
+- DOC-011 — Structure des dossiers
+- DOC-014 — Catalogue des composants
 - COMP-xxx — Documentation des composants
 - PAGE-xxx — Documentation des pages
 
@@ -4174,7 +4220,7 @@ Le Dashboard est donc l'interface principale utilisée pour piloter toute la pla
 
 # Philosophie
 
-Le Dashboard suit un principe simple :
+Le principe cible du Dashboard est :
 
 > **Une action utilisateur ne doit jamais modifier directement les données.**
 
@@ -4218,7 +4264,7 @@ Publication
 Retour Dashboard
 ```
 
-Le Dashboard reste une interface de pilotage.
+Le client React reste une interface de pilotage. Les routes serveur Dashboard jouent aussi le rôle de BFF et accèdent directement à certaines collections MongoDB propres au Dashboard ; toutes les opérations ne transitent donc pas par `PokemonGo-API-`.
 
 ---
 
@@ -4297,7 +4343,7 @@ A[Dashboard]
 -->H[Dashboard]
 ```
 
-Le Dashboard ne scrape jamais directement une source.
+Le client Dashboard ne scrape pas directement une source. Les routes serveur/API peuvent orchestrer des Providers ou générateurs qui récupèrent les sources externes.
 
 ---
 
@@ -4312,22 +4358,20 @@ Workflow :
 ```mermaid
 flowchart LR
 
-A[Mongo Temporaire]
+A[Payload validé]
 
 -->B[Validation]
 
--->C[Hash]
+-->C[Hash / diff]
 
--->D[Publication atomique]
+-->D[Upsert current]
 
--->E[Dataset actif]
+-->E[Cache invalidation + read-back]
 
 -->F[Dashboard]
 ```
 
-La publication est atomique.
-
-Aucune donnée incomplète ne peut être visible.
+Le pipeline courant vérifie hash et nombre après relecture. Aucune transaction globale ni restauration automatique n'est trouvée entre current, snapshot et collections liées ; la synchronisation statique multi-collections peut être partiellement appliquée avant un échec.
 
 ---
 
@@ -4347,7 +4391,7 @@ Le Dashboard affiche ces informations sans les modifier.
 
 ## 5. API Explorer
 
-Le Dashboard permet également de tester l'ensemble des endpoints de l'API.
+Le Dashboard fournit un Explorer basé sur l'OpenAPI/proxy. L'audit ne démontre pas qu'il couvre et teste automatiquement l'ensemble des 156 routes ni toutes les variantes privées.
 
 Workflow :
 
@@ -4403,9 +4447,7 @@ Une alerte est générée lorsqu'une anomalie est détectée.
 
 ## 7. Synchronisation MongoDB
 
-Le Dashboard ne modifie jamais directement MongoDB.
-
-Toutes les opérations passent par l'API.
+Le client React ne modifie jamais directement MongoDB. Les routes serveur Dashboard utilisent toutefois le driver MongoDB pour les domaines Dashboard ; les opérations Pokémon distantes passent par les handlers/proxies vers `PokemonGo-API-`.
 
 Exemple :
 
@@ -4478,6 +4520,8 @@ Le Dashboard est organisé en plusieurs grands modules.
 - Source Watch
 - Paramètres
 
+L'inventaire complet comprend 23 sections Pokémon : overview, pokedex, candies, backgrounds, collections, assets, catalogs, raids, max-battles, rocket, pvp-rankings, eggs, research, events, shiny, checks, sources, compare, todo, logs, rules, bulk et export. Le Dashboard possède aussi 20 pages routées, dont les outils personnels et Learning.
+
 Chaque module est indépendant.
 
 ---
@@ -4504,15 +4548,13 @@ A[Clic utilisateur]
 -->G[Mise à jour de l'interface]
 ```
 
-Le Dashboard ne réalise jamais d'action silencieuse.
-
-Toutes les opérations importantes sont confirmées.
+La confirmation et la notification sont les comportements attendus. L'audit relève encore des actions/fallbacks dont la visibilité et la journalisation ne sont pas homogènes.
 
 ---
 
 # Gestion des états
 
-Toutes les pages utilisent les mêmes états.
+Les états ci-dessous constituent la nomenclature cible. Leur implémentation n'est pas homogène sur toutes les pages et tous les panneaux.
 
 | État | Description |
 |-------|-------------|
@@ -4530,7 +4572,7 @@ Cette homogénéité améliore l'expérience utilisateur.
 
 # Notifications
 
-Le Dashboard informe systématiquement l'utilisateur.
+Le Dashboard utilise notamment Sonner et des états locaux pour informer l'utilisateur, sans preuve d'une couverture systématique de chaque opération.
 
 Exemples :
 
@@ -4564,9 +4606,9 @@ L'expérience utilisateur doit rester cohérente.
 
 Le Dashboard applique les principes suivants :
 
-✔ Toujours utiliser l'API.
+✔ Depuis React, toujours utiliser une route serveur ou un service explicite.
 
-✔ Ne jamais accéder directement à MongoDB.
+✔ Réserver l'accès MongoDB aux handlers/services serveur autorisés.
 
 ✔ Afficher les diagnostics.
 
@@ -4630,7 +4672,7 @@ A[Utilisateur]
 -->K[Utilisateur]
 ```
 
-Ce workflow garantit une architecture claire, sécurisée et évolutive.
+Ce workflow représente le chemin cible des mutations Pokémon. Events, Learning, backlog, stores Dashboard, référentiels statiques et datasets courants possèdent des variantes documentées dans l'audit.
 
 ---
 
@@ -4654,13 +4696,13 @@ Sans remettre en cause l'architecture existante.
 # Documents liés
 
 - DOC-006 — Architecture Overview
-- DOC-011 — Dashboard Overview
-- DOC-012 — API Overview
-- DOC-015 — Provider Overview
-- DOC-016 — Dataset Overview
+- DOC-013 — Catalogue des pages
+- DOC-019 — Référence API
+- DOC-016 — Providers externes
+- DOC-017 — Datasets et vérités
 - ARCH-001 — Provider Architecture
 - ARCH-002 — Dataset Lifecycle
-- PAGE-001 à PAGE-017
+- PAGE-001 à PAGE-043 pour le Dashboard ; PAGE-044 à PAGE-048 pour les interfaces publiques
 
 ---
 
@@ -4674,7 +4716,7 @@ Le Responsive ne consiste pas uniquement à adapter une interface à une taille 
 
 Il garantit une expérience cohérente quel que soit le support utilisé.
 
-Le Responsive est pensé **dès la conception dans Figma** et validé avant toute intégration React.
+Le Responsive doit être pensé dès la conception. L'audit ne trouve pas de preuve locale que chaque interface a été conçue/validée dans Figma avant React.
 
 ---
 
@@ -4711,13 +4753,15 @@ Le Responsive poursuit plusieurs objectifs.
 
 Le Dashboard distingue plusieurs catégories.
 
-| Type | Largeur |
-|--------|---------|
-| Mobile | < 768 px |
-| Tablet | 768 à 1023 px |
-| Laptop | 1024 à 1439 px |
-| Desktop | 1440 à 1919 px |
-| Ultra Wide | ≥ 1920 px |
+| Type observé | Largeur / seuil |
+|--------------|-----------------|
+| Petit mobile personnalisé | 480 px sur quelques grilles |
+| `sm` | ≥ 640 px |
+| `md` | ≥ 768 px |
+| `lg` | ≥ 1024 px ; apparition de la sidebar desktop |
+| `xl` | ≥ 1280 px |
+| `2xl` | ≥ 1536 px |
+| Ultra Wide | aucun breakpoint dédié ; contenu plafonné à 1680 px |
 
 Toutes les interfaces doivent être testées sur ces formats.
 
@@ -4725,7 +4769,7 @@ Toutes les interfaces doivent être testées sur ces formats.
 
 # Mobile First
 
-Le Dashboard adopte une approche **Mobile First**.
+Les classes Tailwind suivent majoritairement une approche Mobile First. Plusieurs composants utilisent toutefois des dimensions, hauteurs minimales et grilles denses qui nécessitent une validation spécifique sur petits écrans.
 
 Chaque nouvelle interface est pensée pour fonctionner sur un petit écran avant d'être enrichie pour les résolutions supérieures.
 
@@ -4809,7 +4853,7 @@ Mobile
 Content
 ```
 
-La navigation reste disponible sur tous les appareils.
+Implémentation observée : sidebar fixe 236 px, 286 px en `2xl`, repliée à 84 px à partir de `lg` ; drawer mobile 286 px sous `lg`. La navigation reste disponible, mais le drawer n'a pas de `max-width: 100vw` explicite.
 
 ---
 
@@ -4843,7 +4887,7 @@ Mobile
 1 colonne
 ```
 
-Les Cards conservent leurs proportions.
+Cette progression est une règle cible. Certaines sous-grilles restent à deux ou trois colonnes dès le mobile.
 
 ---
 
@@ -4851,7 +4895,7 @@ Les Cards conservent leurs proportions.
 
 Les tableaux sont l'un des éléments les plus sensibles.
 
-Le Dashboard privilégie plusieurs stratégies.
+Le Dashboard privilégie les cards/grilles pour la majorité des données. Une table JSX explicite est confirmée dans le viewer documentaire et utilise un conteneur horizontal scrollable.
 
 Desktop
 
@@ -4887,9 +4931,9 @@ Largeur maximale.
 
 Mobile
 
-Plein écran.
+Plein écran ou bottom-sheet selon l'implémentation.
 
-L'expérience reste cohérente.
+Le composant Modal commun est responsive, mais les modales Event, Collections, Source Watch et détails utilisent des implémentations indépendantes avec risques de scrolls imbriqués.
 
 ---
 
@@ -4980,13 +5024,13 @@ Mobile
 [ Icône ]
 ```
 
-Lorsque le texte disparaît, un Tooltip reste disponible.
+Cette transformation n'est pas appliquée uniformément. Les Tooltips ne constituent pas une primitive partagée confirmée.
 
 ---
 
 # Images
 
-Les images utilisent toujours :
+Les images utilisent majoritairement :
 
 - object-fit ;
 - lazy loading ;
@@ -5024,7 +5068,7 @@ Chaque page doit être validée sur :
 
 ✅ Ultra Wide
 
-Les tests doivent vérifier :
+Les tests devraient vérifier :
 
 - la navigation ;
 - les modales ;
@@ -5039,6 +5083,8 @@ Les tests doivent vérifier :
 # Checklist
 
 Avant validation :
+
+État de l'audit : les captures 320/375/768/1024/1440/1920, les tests iOS/Android, le zoom 200/400 %, le clavier virtuel et le parcours tactile complet ne sont pas trouvés. Les éléments ci-dessous restent donc une checklist à exécuter, pas des validations acquises.
 
 ✅ Aucun débordement horizontal
 
@@ -5096,13 +5142,13 @@ A[Figma]
 -->H[Publication]
 ```
 
-Le Responsive est validé avant toute mise en production.
+Ce workflow reste la cible. Aucun gate automatisé ne prouve une validation de tous ces viewports avant chaque mise en production.
 
 ---
 
 # Résumé
 
-Le Responsive du Dashboard garantit que :
+Le Responsive du Dashboard vise à garantir que :
 
 - toutes les fonctionnalités restent disponibles ;
 - l'expérience utilisateur reste cohérente ;
@@ -5117,10 +5163,10 @@ Il constitue un élément central du Design System et doit être pris en compte 
 # Documents liés
 
 - DOC-010 — Design System Overview
-- DOC-011 — Dashboard Overview
-- DOC-023 — Responsive
+- DOC-013 — Catalogue des pages
+- DOC-025 — Responsive
 - TEMPLATE-001 à TEMPLATE-006
-- COMP-001 à COMP-150
+- COMP-001 à COMP-136 dans le registre global audité
 
 ---
 
@@ -5133,9 +5179,7 @@ Le Dashboard Admin prend en charge deux thèmes officiels :
 
 Ces deux thèmes utilisent exactement les mêmes composants, la même architecture et les mêmes interactions.
 
-Seuls les **Design Tokens** changent.
-
-Le changement de thème ne nécessite donc aucune modification des composants React.
+Les variables CSS principales changent. Le mode light utilise aussi des sélecteurs correctifs globaux ciblant des fragments de classes Tailwind et plusieurs `!important`, car de nombreux composants métier conservent des couleurs dark locales.
 
 ---
 
@@ -5181,9 +5225,7 @@ Le système de thèmes poursuit plusieurs objectifs.
 
 # Architecture
 
-Les thèmes reposent exclusivement sur les **Semantic Tokens**.
-
-Les composants ne connaissent jamais directement les couleurs.
+La cible repose exclusivement sur les **Semantic Tokens**. L'implémentation réelle combine variables CSS, classes Tailwind, huit palettes et couleurs littérales locales.
 
 ```mermaid
 flowchart TD
@@ -5201,7 +5243,7 @@ C --> E[Components]
 D --> E
 ```
 
-Cette architecture permet de modifier complètement un thème sans toucher au code React.
+Cette architecture décrit la direction cible. La couverture light actuelle dépend aussi de règles CSS correctives, donc une évolution de thème peut exiger une adaptation des styles métier.
 
 ---
 
@@ -5243,7 +5285,7 @@ L'objectif est de conserver la même expérience utilisateur.
 
 # Les Tokens
 
-Tous les composants utilisent uniquement des Tokens.
+Les primitives et le shell utilisent largement les Tokens. Les composants métier ne les utilisent pas exclusivement.
 
 Exemple :
 
@@ -5310,7 +5352,7 @@ Light Theme
 - ombres douces ;
 - contraste renforcé.
 
-Les paramètres sont définis dans les Tokens.
+Les classes `glass-panel` et `glass-panel-strong` centralisent les paramètres principaux. D'autres surfaces utilisent des backgrounds, blurs et shadows locaux.
 
 ---
 
@@ -5340,7 +5382,7 @@ Text Primary
 
 Noir
 
-Aucune icône ne définit sa propre couleur.
+Les icônes Lucide héritent souvent de `currentColor`, mais des couleurs locales et des assets raster/SVG fixes existent également.
 
 ---
 
@@ -5377,22 +5419,7 @@ Le thème sélectionné est sauvegardé.
 
 # Détection système
 
-Le Dashboard peut utiliser :
-
-```text
-Auto
-
-↓
-
-prefers-color-scheme
-```
-
-Lorsque ce mode est activé :
-
-- thème sombre du système → Dashboard sombre ;
-- thème clair du système → Dashboard clair.
-
-L'utilisateur peut toujours forcer son propre choix.
+Le mode système automatique n'est pas actif dans l'implémentation auditée : `enableSystem={false}`. `ThemeProvider` expose uniquement `dark` et `light`, utilise `dark` par défaut, applique le thème via la classe HTML et persiste le choix sous `matweb-theme`.
 
 ---
 
@@ -5429,6 +5456,8 @@ Chaque nouvelle interface est testée dans :
 
 Les captures Figma doivent également être validées dans les deux thèmes.
 
+État observé : tests visuels systématiques light/dark, contrastes automatisés des huit palettes et captures Figma exhaustives non trouvés.
+
 ---
 
 # Bonnes pratiques
@@ -5449,7 +5478,7 @@ Les captures Figma doivent également être validées dans les deux thèmes.
 
 # Ce qu'il ne faut jamais faire
 
-❌ Utiliser une couleur HEX.
+❌ Ajouter une nouvelle couleur HEX sans documenter la dette et son intention.
 
 ❌ Créer deux composants différents.
 
@@ -5481,7 +5510,7 @@ C --> D
 D --> E[Dashboard]
 ```
 
-Le changement de thème ne modifie jamais la structure des composants.
+Le changement de thème ne modifie pas la structure React, mais il active actuellement des variables et sélecteurs CSS correctifs en plus des tokens.
 
 ---
 
@@ -5489,9 +5518,7 @@ Le changement de thème ne modifie jamais la structure des composants.
 
 Le système Dark / Light repose sur un principe simple :
 
-Les composants restent identiques.
-
-Seuls les Design Tokens changent.
+Les composants React restent identiques. Les variables CSS, palettes et règles light spécifiques changent leur rendu.
 
 Cette approche garantit :
 
@@ -5507,7 +5534,7 @@ Cette approche garantit :
 - DS-002 — Token System
 - DS-003 — Colors
 - DS-007 — Glass Effects
-- DOC-023 — Responsive
+- DOC-025 — Responsive
 
 ---
 
@@ -5902,10 +5929,11 @@ Le Design System doit permettre de développer de nouveaux modules sans jamais p
 # Documents liés
 
 - DOC-010 — Design System Overview
-- DOC-013 — Assets Overview
+- DOC-021 — Assets et conventions
 - DS-003 — Colors
 - DS-007 — Glass Effects
-- COMP-021 — Pokémon Type Badge
+- COMP-052 — PokemonCard, qui contient les badges de type observés
+- COMP-117 — PokemonStyle, source des styles Pokémon partagés
 - ASSET-001 — Asset Architecture
 
 ---
@@ -6266,9 +6294,9 @@ Ils doivent cependant rester cohérents, performants et toujours au service de l
 - DS-003 — Colors
 - DS-006 — Shadows
 - DS-008 — Animations
-- COMP-004 — Cards
-- COMP-006 — Panels
-- COMP-011 — Modals
+- COMP-121 — Card / CardHeader / CardTitle / CardDescription
+- COMP-034 — Panel et sous-composants d'administration Pokémon
+- COMP-123 — Modal
 
 ---
 
@@ -6379,23 +6407,23 @@ Le Design System distingue plusieurs catégories.
 
 Chaque catégorie possède ses propres règles.
 
+État observé : CSS, Tailwind, Framer Motion et DnD coexistent. GSAP est déclaré dans les dépendances du Dashboard, tandis que l'audit Design System confirme surtout les animations CSS/Tailwind/Framer dans le Dashboard.
+
 ---
 
 # Les durées
 
-Toutes les animations utilisent les Tokens.
+La nomenclature XS/SM/MD/LG/XL reste la cible ; aucun token de durée portant ces noms n'est trouvé dans le code.
 
-| Durée | Utilisation |
-|--------|-------------|
-| XS | Hover |
-| SM | Boutons |
-| MD | Cards |
-| LG | Modales |
-| XL | Pages |
+| Durée observée | Utilisation confirmée |
+|----------------|-----------------------|
+| 200 ms | transitions de composants |
+| 220 ms | opacités d'effets globaux |
+| 300 ms | transitions de layout/navigation |
+| 5,5 s linéaire infinie | `energy-scan` |
+| 6 s ease-in-out infinie | `sheen` |
 
-Les valeurs exactes sont définies dans les Design Tokens.
-
-Aucune durée ne doit être codée directement dans les composants.
+Les durées sont actuellement encodées dans les utilitaires/classes CSS ou composants.
 
 ---
 
@@ -6411,7 +6439,7 @@ Exemples :
 - Ease In Out
 - Spring
 
-Les animations linéaires sont réservées aux barres de progression.
+L'animation linéaire est notamment utilisée par `energy-scan`, pas uniquement par les barres de progression.
 
 ---
 
@@ -6628,13 +6656,13 @@ Si l'utilisateur active :
 prefers-reduced-motion
 ```
 
-Le Dashboard réduit automatiquement :
+Le Dashboard devrait réduire automatiquement :
 
 - les déplacements ;
 - les rotations ;
 - les zooms.
 
-Les transitions essentielles sont conservées.
+État observé : la media query `prefers-reduced-motion` désactive `.energy-scan` uniquement. Elle ne couvre pas `animated-sheen`, loaders pulse/spin, Framer Motion, DnD ou l'ensemble des transitions.
 
 ---
 
@@ -6676,7 +6704,7 @@ Ces propriétés provoquent davantage de recalculs.
 
 ❌ Animations trop longues.
 
-❌ Animations permanentes.
+❌ Ajouter de nouvelles animations permanentes ; `energy-scan` et `sheen` sont des exceptions existantes à traiter explicitement.
 
 ❌ Clignotements.
 
@@ -6730,10 +6758,11 @@ Elles doivent cependant rester discrètes, performantes et toujours au service d
 - DOC-010 — Design System Overview
 - DS-002 — Token System
 - DS-007 — Glass Effects
-- COMP-001 — Buttons
-- COMP-004 — Cards
-- COMP-011 — Modals
-- COMP-012 — Accordions
+- COMP-120 — Button
+- COMP-121 — Card / CardHeader / CardTitle / CardDescription
+- COMP-123 — Modal
+
+Le registre audité ne contient pas de primitive Accordion autonome.
 
 ---
 
@@ -6748,6 +6777,8 @@ L'accessibilité n'est pas une fonctionnalité ajoutée en fin de développement
 Elle fait partie intégrante du processus de conception.
 
 Chaque composant, chaque page et chaque interaction doivent être pensés dès leur création pour offrir une expérience claire, cohérente et inclusive.
+
+**État observé : conformité partielle ; niveau WCAG 2.2 AA non démontré.** Les landmarks, skip link Dashboard, contrôles natifs, textes alternatifs et focus du Button commun constituent des bases positives. Les focus traps/restaurations des modales, certains labels, les alternatives clavier au DnD, les live regions, les cibles tactiles, le contraste des huit palettes et le reduced-motion restent incomplets ou non testés.
 
 ---
 
@@ -6786,7 +6817,7 @@ Le Dashboard suit les quatre grands principes des recommandations WCAG.
 
 # Navigation clavier
 
-Toutes les fonctionnalités du Dashboard doivent pouvoir être utilisées sans souris.
+Toutes les fonctionnalités du Dashboard doivent pouvoir être utilisées sans souris. L'audit ne confirme pas cette couverture pour Kanban, widgets triables et plusieurs overlays.
 
 L'utilisateur doit pouvoir :
 
@@ -6797,6 +6828,8 @@ L'utilisateur doit pouvoir :
 - naviguer dans les menus avec les flèches lorsque cela est pertinent.
 
 Aucun composant ne doit bloquer la navigation clavier.
+
+État observé : aucun `KeyboardSensor` DnD n'est détecté et plusieurs modales métier ne gèrent ni Escape ni cycle de focus complet.
 
 ---
 
@@ -6854,6 +6887,8 @@ Le Dashboard doit garantir un contraste suffisant entre :
 Les deux thèmes (Dark et Light) doivent respecter les recommandations WCAG.
 
 Les Glass Effects ne doivent jamais réduire la lisibilité.
+
+Les ratios de contraste des huit palettes et overlays ne sont pas mesurés. Des textes 9/10 px, opacités faibles et `text-slate-500` constituent des risques confirmés.
 
 ---
 
@@ -6920,6 +6955,8 @@ Les formulaires doivent toujours comporter :
 
 Les messages d'erreur doivent expliquer clairement comment corriger le problème.
 
+L'audit relève des champs sans label/ARIA dans Events, Calendar, Todo et plusieurs zones admin, ainsi que des erreurs dynamiques rarement annoncées par `aria-live`.
+
 ---
 
 # Modales
@@ -6932,6 +6969,8 @@ Une modale doit :
 
 L'utilisateur ne doit jamais "perdre" le focus.
 
+État observé : la modale commune gère Escape et le rôle `dialog`, mais aucune focus trap/restauration systématique n'est détectée. Plusieurs modales métier possèdent une sémantique ou un nom accessible incomplet.
+
 ---
 
 # Notifications
@@ -6939,6 +6978,8 @@ L'utilisateur ne doit jamais "perdre" le focus.
 Les notifications importantes doivent être annoncées correctement aux technologies d'assistance.
 
 Les notifications temporaires ne doivent jamais disparaître avant d'avoir pu être lues.
+
+Deux zones `aria-live`, un `role=status` et un `role=alert` sont trouvés ; la majorité des retours réseau/sauvegarde restent du texte conditionnel sans annonce dynamique.
 
 ---
 
@@ -6974,9 +7015,7 @@ Lorsque l'utilisateur active :
 prefers-reduced-motion
 ```
 
-Les animations non essentielles sont automatiquement réduites ou supprimées.
-
-Les transitions nécessaires restent présentes.
+La règle cible est de réduire les animations non essentielles. L'implémentation actuelle ne désactive explicitement que `.energy-scan` et ne couvre pas uniformément sheen, loaders, Framer Motion ou DnD.
 
 ---
 
@@ -7065,7 +7104,7 @@ A[Conception Figma]
 -->G[Publication]
 ```
 
-L'accessibilité est vérifiée tout au long du cycle de développement.
+Ce workflow reste requis. Aucun résultat axe/Lighthouse/WAVE, lecteur d'écran, clavier exhaustif, zoom 200/400 % ou contraste automatisé n'est trouvé dans l'audit.
 
 ---
 
@@ -7089,11 +7128,11 @@ Toutes les nouvelles fonctionnalités doivent respecter ces principes dès leur 
 # Documents liés
 
 - DOC-010 — Design System Overview
-- DOC-012 — Responsive Design
-- DOC-013 — Dark / Light Theme
-- DOC-016 — Animations
-- DOC-020 — Security
-- COMP-001 à COMP-999 — Documentation des composants
+- DOC-025 — Responsive
+- DOC-026 — Accessibilité
+- DOC-023 — Authentification et sécurité
+- DOC-027 — Performance
+- COMP-001 à COMP-136 — Registre des composants audités et cibles documentaires
 
 ---
 
@@ -7112,6 +7151,8 @@ Une interface performante améliore :
 Le Dashboard est conçu pour manipuler des milliers de données Pokémon tout en conservant une interface fluide.
 
 Les performances sont donc intégrées dès la conception.
+
+**État observé : performance non mesurée en runtime.** L'audit trouve 113 fichiers clients sur le périmètre Dashboard/site API, aucun import UI dynamique, un `admin-app.jsx` de 103 Ko important statiquement les 23 panneaux, 97 images JSX brutes contre trois fichiers utilisant `next/image`, et aucune virtualisation générale. Les tailles de chunks, Core Web Vitals, latences p95/p99 et volumes production ne sont pas trouvés.
 
 ---
 
@@ -7170,14 +7211,14 @@ La lisibilité du code reste prioritaire.
 
 Chaque page doit afficher rapidement son contenu principal.
 
-Le Dashboard privilégie :
+La cible privilégie :
 
 - Skeleton Loaders ;
 - Lazy Loading ;
 - Chargement progressif ;
 - Streaming lorsque cela est pertinent.
 
-Les écrans vides doivent être évités.
+Les écrans vides doivent être évités. Dans l'implémentation auditée, aucun `next/dynamic`, `React.lazy` ou import dynamique UI n'est trouvé.
 
 ---
 
@@ -7185,7 +7226,7 @@ Les écrans vides doivent être évités.
 
 Les images représentent une part importante du Dashboard.
 
-Toutes les images doivent :
+Les images devraient :
 
 - être optimisées ;
 - être adaptées à leur affichage ;
@@ -7193,6 +7234,8 @@ Toutes les images doivent :
 - conserver leur qualité.
 
 Les images Pokémon ne doivent jamais être agrandies artificiellement.
+
+État observé : plusieurs listes utilisent `loading="lazy"`, mais ce n'est pas systématique et la majorité des images brutes ne bénéficie pas automatiquement de l'optimiseur Next.
 
 ---
 
@@ -7221,7 +7264,7 @@ Navigateur
 
 ↓
 
-React Query / Cache applicatif
+localStorage / état React
 
 ↓
 
@@ -7233,10 +7276,10 @@ MongoDB
 
 ↓
 
-Providers
+Providers / snapshots Data
 ```
 
-Chaque niveau réduit les accès inutiles.
+Les caches confirmés sont notamment : cache mémoire GET API (TTL 60 s, 5000 entrées), cache navigateur/localStorage, snapshots `.data`, cache PokeMiners et réponses Events `max-age=60, stale-while-revalidate=300`. React Query n'est pas présent dans l'implémentation auditée.
 
 ---
 
@@ -7251,7 +7294,7 @@ Objectifs :
 - utiliser la pagination lorsque nécessaire ;
 - renvoyer uniquement les données utiles.
 
-Le Dashboard ne doit jamais télécharger des données inutiles.
+Le Dashboard devrait éviter les données inutiles. Le bootstrap Admin reste complet, plusieurs catalogues sont non paginés et le proxy recharge l'OpenAPI en `no-store` avant chaque appel.
 
 ---
 
@@ -7278,7 +7321,7 @@ Ils doivent :
 - produire des données validées ;
 - limiter les appels externes.
 
-Le Dashboard ne communique jamais directement avec les Providers.
+Le client Dashboard ne communique pas directement avec les Providers. Les routes serveur/API peuvent les orchestrer avec des timeouts variables et sans retry centralisé uniforme.
 
 ---
 
@@ -7297,7 +7340,7 @@ Bonnes pratiques :
 
 # Virtualisation
 
-Les listes volumineuses doivent utiliser la virtualisation.
+Les listes volumineuses devraient utiliser la virtualisation lorsque la mesure le justifie.
 
 Exemples :
 
@@ -7306,7 +7349,7 @@ Exemples :
 - Shiny Tracker ;
 - Assets.
 
-Seuls les éléments visibles sont rendus.
+Aucune virtualisation générale n'est trouvée. Shiny/PvP disposent d'une pagination serveur, tandis que plusieurs autres listes filtrent ou limitent après un transfert complet.
 
 ---
 
@@ -7357,6 +7400,8 @@ Le Lazy Loading est recommandé pour :
 
 Il permet de réduire le temps de chargement initial.
 
+État observé : les routes Next fractionnent une partie du code, mais les gros composants internes — notamment Admin Pokémon et ses panneaux — sont importés statiquement.
+
 ---
 
 # Bundle
@@ -7391,7 +7436,7 @@ Ces propriétés entraînent davantage de recalculs.
 
 # Mesure des performances
 
-Les performances doivent être mesurées régulièrement.
+Les performances doivent être mesurées régulièrement. Aucun tableau de bord Web Vitals, budget bundle ou instrumentation p95/p99 n'est trouvé.
 
 Les indicateurs suivis sont notamment :
 
@@ -7441,6 +7486,8 @@ Les régressions doivent être détectées rapidement.
 # Checklist Performance
 
 Avant toute mise en production :
+
+Cette checklist reste à exécuter : l'audit code-only n'a pas lancé Lighthouse, build de mesure, profilage React, `explain()` Mongo ni collecte de métriques production.
 
 - [ ] Rerenders vérifiés.
 - [ ] Bundle contrôlé.
@@ -7502,12 +7549,12 @@ Chaque nouvelle fonctionnalité doit préserver cet équilibre afin de garantir 
 
 - DOC-006 — Architecture Overview
 - DOC-010 — Design System Overview
-- DOC-011 — Dashboard Overview
-- DOC-015 — Provider Overview
-- DOC-016 — Dataset Overview
-- DOC-018 — Cache Overview
-- DOC-021 — Testing
-- DOC-022 — Responsive
+- DOC-013 — Catalogue des pages
+- DOC-016 — Providers externes
+- DOC-017 — Datasets et vérités
+- DOC-022 — Cache et persistance locale
+- DOC-030 — Stratégie de tests
+- DOC-025 — Responsive
 
 ---
 
@@ -7523,7 +7570,7 @@ Cette convention garantit :
 - une documentation cohérente ;
 - une architecture évolutive.
 
-Tous les éléments du projet doivent respecter cette nomenclature.
+Tous les nouveaux éléments devraient respecter cette nomenclature. L'audit observe plusieurs conventions historiques coexistantes ; les exemples ci-dessous distinguent donc la règle cible des faits actuels.
 
 ---
 
@@ -7637,7 +7684,7 @@ useShinyTracker()
 
 # Providers
 
-Les Providers utilisent toujours le suffixe **Provider**.
+Le suffixe **Provider** est la convention documentaire cible. Les 18 Providers audités sont implémentés selon les domaines comme scripts, adapters, clients, services ou sources nommées ; le suffixe n'est pas uniforme.
 
 Exemples :
 
@@ -7657,7 +7704,7 @@ ShinyRatesProvider
 
 # Services
 
-Les Services utilisent toujours le suffixe **Service**.
+Le suffixe **Service** est recommandé pour les objets/classes de service. Les quatre services Dashboard audités utilisent surtout des fichiers `*-api` ou utilitaires et ne suivent pas tous ce suffixe.
 
 Exemples :
 
@@ -7675,7 +7722,7 @@ SyncService
 
 # Contexts
 
-Les Contexts utilisent toujours le suffixe **Context**.
+Le suffixe **Context** reste la convention cible. L'audit ne trouve pas de contexte React custom Dashboard ; le thème repose sur `ThemeProvider` de `next-themes`.
 
 Exemples :
 
@@ -7723,7 +7770,7 @@ ShinyStatistics
 
 # Collections MongoDB
 
-Les collections utilisent le **snake_case**.
+Le **snake_case** est la convention cible, mais les 29 collections déclarées ne sont pas uniformes (`pokemonAssets`, `globalstats`, `maxbattles`, `dashboard_store`, `shiny_rankings`, etc.). Les noms existants sont des contrats persistants et ne doivent pas être renommés sans migration.
 
 Exemples :
 
@@ -7763,7 +7810,7 @@ selectedProvider
 
 # Constantes
 
-Les constantes utilisent le **SCREAMING_SNAKE_CASE**.
+Le **SCREAMING_SNAKE_CASE** est recommandé pour les constantes globales. Le code actuel utilise aussi de nombreux `const` camelCase pour maps, styles et configurations locales.
 
 Exemples :
 
@@ -7781,22 +7828,22 @@ API_TIMEOUT
 
 # Fichiers React
 
-Les composants utilisent :
+Les fichiers React actuels utilisent majoritairement le **kebab-case** :
+
+```text
+pokemon-card.jsx
+
+raids-panel.jsx
+
+dataset-source-header.jsx
+```
+
+Les noms PascalCase suivants ne correspondent pas à la convention de fichiers réellement observée :
 
 ```text
 PokemonCard.tsx
 
 RaidCard.tsx
-
-SourceHeader.tsx
-```
-
-Jamais :
-
-```text
-pokemoncard.tsx
-
-pokemon-card.tsx
 
 Pokemon_Card.tsx
 ```
@@ -7856,7 +7903,7 @@ DOC-001-project-rules.md
 
 PAGE-003-candies.md
 
-COMP-021-pokemon-type-badge.md
+COMP-120-button.md
 
 API-007-pokemon-routes.md
 
@@ -7864,7 +7911,7 @@ DATASET-004-current-raids.md
 
 PROVIDER-003-pvpoke.md
 
-ADR-005-design-system.md
+ADR-005-dashboard-proxies.md
 ```
 
 L'identifiant est obligatoire.
@@ -7891,7 +7938,7 @@ glass-overlay.png
 
 # Icônes
 
-Les icônes suivent une convention simple.
+Les nouvelles icônes devraient suivre une convention simple. Les assets existants conservent aussi des noms upstream/officiels hétérogènes (`ico_*`, `ic_*`, casse mixte et formats variés).
 
 Exemples :
 
@@ -7943,13 +7990,13 @@ Border Default
 Glass MD
 ```
 
-Les noms restent identiques entre Figma et React.
+L'identité de nom Figma/React est une cible. Aucun export de variables Figma ni nomenclature identique vérifiable n'est trouvé.
 
 ---
 
 # Branches Git
 
-Les branches utilisent le format suivant.
+Le format suivant est recommandé. L'état local audité montre `main` pour Dashboard/API/Data/Assets et `develop` pour la Landing ; aucune politique de branches automatisée n'est trouvée.
 
 ```text
 feature/pvp-ranking
@@ -7967,7 +8014,7 @@ refactor/providers
 
 # Commits
 
-Les commits suivent la convention **Conventional Commits**.
+Les commits utilisent souvent des préfixes proches de **Conventional Commits**, sans règle ou enforcement trouvé.
 
 Exemples :
 
@@ -8085,10 +8132,9 @@ Elle constitue l'un des fondements de la qualité du projet.
 
 - DOC-001 — Project Rules
 - DOC-006 — Architecture Overview
-- DOC-021 — Folder Structure
-- DOC-024 — Coding Guidelines
+- DOC-011 — Structure des dossiers
+- DOC-014 — Catalogue des composants
 - ARCH-001 — Provider Architecture
-- ADR-005 — Design System
 
 ---
 
@@ -8472,10 +8518,9 @@ Cette méthodologie permet de conserver un Design System cohérent malgré l'év
 
 - DOC-001 — Project Rules
 - DOC-010 — Design System Overview
-- DOC-024 — Folder Structure
-- DOC-025 — Coding Guidelines
+- DOC-011 — Structure des dossiers
+- DOC-014 — Catalogue des composants
 - COMP-xxx — Documentation des composants
-- ADR-008 — Component First
 
 ---
 
@@ -8491,7 +8536,7 @@ Il évolue en même temps que :
 - les nouveaux Datasets ;
 - les évolutions de Pokémon GO.
 
-Son objectif est de rester la **source de vérité graphique** de l'ensemble de la plateforme.
+Son objectif est de devenir et rester la **source de vérité graphique** de l'ensemble de la plateforme. À la date de l'audit, l'implémentation React/CSS est la seule preuve locale complète du rendu.
 
 Chaque évolution doit être maîtrisée, documentée et validée.
 
@@ -8930,9 +8975,7 @@ Le Design System demeure ainsi la référence officielle de toute la plateforme.
 - DOC-008 — Changelog
 - DOC-009 — Roadmap
 - DOC-010 — Design System Overview
-- DOC-024 — Coding Guidelines
-- ADR-005 — Design System
-- ADR-008 — Component First
+- DOC-014 — Catalogue des composants
 
 ---
 
@@ -8965,6 +9008,7 @@ Documents principaux :
 - DOC-002 — Project Vision
 - DOC-003 — Project Goals
 - DOC-004 — Project Philosophy
+- DOC-005 — Repositories
 - DOC-006 — Architecture Overview
 - DOC-007 — Versioning
 - DOC-008 — Changelog
@@ -8974,33 +9018,20 @@ Documents principaux :
 
 # Documentation Dashboard
 
-Chaque page du Dashboard possède sa propre documentation.
+Le registre d'audit attribue une cible documentaire à chaque page/section :
 
-Exemples :
+- PAGE-001 à PAGE-020 — routes Dashboard ;
+- PAGE-021 à PAGE-043 — sections intégrées de l'administration Pokémon ;
+- PAGE-044 — Landing publique ;
+- PAGE-045 à PAGE-048 — pages publiques `PokemonGo-API-`.
 
-- PAGE-001 — Home
-- PAGE-002 — Pokémon
-- PAGE-003 — Candies
-- PAGE-004 — Backgrounds
-- PAGE-005 — Collections
-- PAGE-006 — Raids
-- PAGE-007 — Eggs
-- PAGE-008 — Max Battles
-- PAGE-009 — Rockets
-- PAGE-010 — Research
-- PAGE-011 — Event Calendar
-- PAGE-012 — Shiny Tracker
-- PAGE-013 — PvP Rankings
-- PAGE-014 — Assets
-- PAGE-015 — API Explorer
-- PAGE-016 — Source Watch
-- PAGE-017 — Settings
+Ces IDs sont cartographiés dans `audit-documentation/registries/pages.json` et `documentation-map.json`. Leur présence dans le mapping ne signifie pas que les 48 fiches Markdown futures sont déjà matérialisées.
 
 ---
 
 # Documentation Components
 
-Chaque composant possède un document dédié.
+Chaque composant doit posséder un document dédié. L'audit fournit 136 entrées de fichiers composants sur les trois interfaces et leur cible documentaire ; les fiches futures ne sont pas toutes présentes dans la documentation Foundation.
 
 Ces documents décrivent :
 
@@ -9021,7 +9052,7 @@ COMP-XXX-component-name.md
 
 # Documentation Templates
 
-Les Templates possèdent leur propre documentation.
+Les six Templates cibles possèdent un mapping documentaire proposé. Ils ne sont pas confirmés comme composants React formalisés ni comme fichiers Figma générés.
 
 Ils décrivent :
 
@@ -9061,7 +9092,7 @@ API-XXX-topic.md
 
 # Documentation Datasets
 
-Chaque Dataset possède une documentation dédiée.
+La convention cible impose une documentation dédiée pour chaque Dataset. L'audit recense 19 datasets, mais ne confirme pas une couverture documentaire dédiée complète pour chacun d'eux.
 
 Elle décrit :
 
@@ -9242,20 +9273,23 @@ Cette organisation facilite la navigation et la maintenance.
 
 # Source de vérité
 
-Chaque domaine possède une source de vérité unique.
+Chaque domaine doit déclarer une autorité explicite. L'audit observe les autorités suivantes :
 
 | Domaine | Source officielle |
 |----------|-------------------|
-| Design | Figma |
-| Documentation | Markdown |
-| Code | GitHub |
-| Données | MongoDB |
-| Assets | PokemonGo-Assets |
-| Datasets | PokemonGo-Data |
-| API | PokemonGo-API |
-| Déploiement | Vercel |
+| Design implémenté | `globals.css`, Tailwind, composants React et palettes ; fichier Figma source non trouvé |
+| Documentation | Markdown existant + registres d'audit JSON |
+| Code | cinq repositories Git locaux/GitHub |
+| Référentiels statiques | `PokemonGo-Data`, puis collections synchronisées |
+| Datasets courants | MongoDB `current` après génération/validation |
+| Données Dashboard | collections MongoDB et localStorage selon le module |
+| Assets | `PokemonGo-Assets-API` via GitHub raw |
+| API | `PokemonGo-API-` Express/Vercel et routes BFF Dashboard |
+| Déploiement | Vercel/GitHub Actions observés ; état runtime non vérifié |
 
 Toute modification doit être effectuée dans cette source de référence avant d'être propagée au reste du projet.
+
+Références d'audit principales : `01-executive-summary.md`, `03-architecture-overview.md`, `08-components-registry.md`, `09-design-system.md`, `19-responsive-audit.md`, `20-accessibility-audit.md`, `21-performance-audit.md`, `25-versioning-and-release.md`, `27-dependencies-map.md` et `31-gaps-and-technical-debt.md` sous `audit-documentation/`.
 
 ---
 
@@ -9297,11 +9331,11 @@ Cette organisation garantit une documentation cohérente, évolutive et durable.
 
 **Document :** DOC-010 — Design System Overview
 
-**Version :** 1.0.0
+**Version :** 1.1.0
 
-**Statut :** Stable
+**Statut :** Actif — état implémenté distingué de la cible Figma
 
-**Dernière mise à jour :** À compléter
+**Dernière mise à jour :** 2026-07-13 — réconciliation avec le méga-audit code-only
 
 **Auteur :** Matthieu Vachet
 

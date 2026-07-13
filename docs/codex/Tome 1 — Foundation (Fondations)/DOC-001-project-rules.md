@@ -1,19 +1,19 @@
 ---
 id: DOC-001
 titre: Règles générales du projet
-version: 1.0.0
+version: 1.1.0
 statut: Actif
-derniere_mise_a_jour: 2026-07-12
+derniere_mise_a_jour: 2026-07-13
 auteur: Matthieu Vachet
 categorie: Fondation
 tome: 1
 ordre: 00
 projets_concernes:
   - Dashboard Admin
-  - PokemonGo-API
+  - PokemonGo-API-
   - PokemonGo-Data
   - PokemonGo-Assets-API
-  - Landing Page Pokémon GO
+  - Landing-Page-PogoApi
   - Futurs dépôts de la plateforme
 references:
   - README.md
@@ -23,10 +23,12 @@ references:
   - DOC-010
   - DOC-011
   - DOC-014
-  - DOC-015
   - DOC-016
+  - DOC-017
   - DOC-020
-  - DOC-022
+  - DOC-023
+  - DOC-025
+  - DOC-030
   - DOC-034
 ---
 
@@ -64,10 +66,10 @@ Ce document sert de référence commune pour :
 Ces règles s’appliquent à :
 
 - Dashboard Admin ;
-- PokemonGo-API ;
+- PokemonGo-API- ;
 - PokemonGo-Data ;
 - PokemonGo-Assets-API ;
-- Landing Page Pokémon GO ;
+- Landing-Page-PogoApi ;
 - tout futur dépôt ajouté à l’écosystème.
 
 ## Philosophie générale
@@ -93,6 +95,19 @@ Le projet privilégie toujours :
 5. la documentation avant l’oubli ;
 6. l’évolution progressive avant la réécriture brutale ;
 7. les données locales validées avant les informations externes non contrôlées.
+
+**État d'application observé par le méga-audit code-only :** ce document reste normatif ; il ne décrit pas automatiquement l'état atteint. L'audit confirme notamment la confidentialité Shiny de bout en bout et l'existence de validations/hash/read-back sur les pipelines courants. Il relève toutefois les écarts prioritaires suivants :
+
+| Règles concernées | Écart observé |
+|--------------------|---------------|
+| RULE-008, RULE-009 | plusieurs pipelines spécialisés, architecture API Express/Vercel/Next.js et deux implémentations `ensure-data` coexistent |
+| RULE-010, RULE-021, RULE-022 | 561 occurrences visuelles potentiellement hardcodées sur 136 fichiers de composants ; primitives partagées incomplètes et contrôles reconstruits localement |
+| RULE-012 | les autorités sont hybrides par domaine : Data statique, MongoDB current, Assets raw et collections Dashboard |
+| RULE-015, RULE-028 | read-back présent, mais transaction globale et rollback automatique non trouvés pour les synchronisations multi-collections/current |
+| RULE-030 à RULE-032 | tests existants mais couverture UI/runtime incomplète et absence de gate CI commun avant mutation/déploiement |
+| RULE-034 | conformité partielle : focus de modales, labels, DnD clavier, contrastes et reduced-motion restent non démontrés ou incomplets |
+| RULE-035 à RULE-038 | packages, UI, OpenAPI et changelogs divergent ; aucun tag/release automatisé n'est confirmé |
+| RULE-020 | un credential Git potentiel a été détecté dans la configuration d'un snapshot `.data` et doit être vérifié/révoqué sans l'exposer dans la documentation |
 
 ---
 
@@ -123,7 +138,7 @@ Avant toute modification importante, créer une archive horodatée distincte de 
 ```text
 Dashboard-Admin_2026-07-12_20-45.zip
 PokemonGo-Data_2026-07-12_20-45.zip
-PokemonGo-API_2026-07-12_20-45.zip
+PokemonGo-API-_2026-07-12_20-45.zip
 ```
 
 ### Exigences
@@ -227,7 +242,7 @@ Source externe
 → API / Dashboard
 ```
 
-Le Dashboard ne dépend jamais directement d’un site externe.
+Le client Dashboard ne dépend jamais directement d’un site externe. Toute récupération externe doit rester côté serveur dans un Provider/générateur identifié, même lorsqu'elle est orchestrée par une route Dashboard ou API.
 
 
 ## RULE-009 — Aucune architecture concurrente
@@ -273,7 +288,7 @@ Utiliser TypeScript lorsque le projet le permet.
 
 ## RULE-012 — Les données locales sont la source de vérité
 
-Les données locales validées sont prioritaires pour :
+Une autorité unique doit être déclarée par domaine. Les référentiels locaux validés sont prioritaires pour :
 - identifiants Pokémon ;
 - noms ;
 - formes ;
@@ -288,6 +303,8 @@ Les données locales validées sont prioritaires pour :
 - régions.
 
 Les sources externes fournissent uniquement les informations propres à leur domaine.
+
+Pour les datasets courants, MongoDB est la vérité de lecture en production après génération/validation. Pour les assets, l'autorité observée est `PokemonGo-Assets-API`. `.data` est un snapshot dérivé.
 
 
 ## RULE-013 — Aucun fallback silencieux
@@ -501,6 +518,8 @@ Les opérations MongoDB doivent utiliser :
 - diagnostics ;
 - read-back ;
 - rollback.
+
+Le read-back et les métadonnées sont observés sur plusieurs pipelines. La transaction multi-collections et le rollback automatique ne sont pas implémentés uniformément et restent des exigences ouvertes.
 
 
 ## RULE-029 — Le cache ne masque jamais l’état réel
@@ -855,26 +874,28 @@ Une tâche est terminée uniquement si :
 ## Documents
 
 - `README.md`
-- `DOC-005` — Architecture générale
-- `DOC-006` — Versionnage
-- `DOC-009` — Design System
-- `DOC-010` — Dashboard
-- `DOC-011` — API
-- `DOC-014` — Providers
-- `DOC-015` — Datasets
-- `DOC-016` — MongoDB
-- `DOC-020` — Tests
-- `DOC-022` — Responsive
-- `DOC-034` — Index ADR
+- `DOC-005` — Référentiels
+- `DOC-006` — Architecture générale
+- `DOC-009` — Roadmap
+- `DOC-010` — Design System
+- `DOC-011` — Structure des dossiers
+- `DOC-014` — Catalogue des composants
+- `DOC-016` — Providers externes
+- `DOC-017` — Datasets et vérités
+- `DOC-020` — MongoDB et collections
+- `DOC-023` — Authentification et sécurité
+- `DOC-025` — Responsive
+- `DOC-030` — Stratégie de tests
+- `DOC-034` — Gaps et dette technique
 
 ## ADR
 
-- `ADR-001` — Architecture Providers
-- `ADR-002` — Datasets publics et privés
-- `ADR-003` — Versionnage
-- `ADR-008` — Component First
-- `ADR-009` — Source de vérité unique
-- `ADR-010` — Interface commune des Providers
+- `ADR-001` — Source de vérité statique/current
+- `ADR-002` — Mongo-only current
+- `ADR-003` — Shiny privé
+- `ADR-006` — Contrat Provider
+- `ADR-007` — Read-back et hash
+- `ADR-010` — Distribution des assets
 
 ---
 
@@ -897,6 +918,13 @@ Mettre à jour ce document lorsqu’une évolution modifie :
 ---
 
 # Historique
+
+## Version 1.1.0 — 2026-07-13
+
+- Réconciliation des règles avec l'état observé par le méga-audit.
+- Distinction explicite entre constitution normative et conformité actuelle.
+- Mise à jour des autorités de données, pipelines, atomicité, Design System, tests, versionnage et sécurité.
+- Correction des références DOC-005 à DOC-010.
 
 ## Version 1.0.0 — 2026-07-12
 

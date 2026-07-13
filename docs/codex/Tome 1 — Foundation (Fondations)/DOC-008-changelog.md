@@ -1,24 +1,23 @@
 ---
 id: DOC-008
 titre: Changelog
-version: 1.0.0
+version: 1.1.0
 statut: Actif
-derniere_mise_a_jour: 2026-07-12
+derniere_mise_a_jour: 2026-07-13
 auteur: Matthieu Vachet
 categorie: Fondation
 tome: 1
 ordre: 08
 projets_concernes:
   - Dashboard Admin
-  - PokemonGo-API
+  - PokemonGo-API-
   - PokemonGo-Data
   - PokemonGo-Assets-API
-  - Landing Page Pokémon GO
+  - Landing-Page-PogoApi
 references:
   - DOC-001
   - DOC-007
   - DOC-009
-  - ADR-003
 ---
 
 # Changelog
@@ -43,6 +42,18 @@ Chaque publication doit posséder un changelog.
 Un changement ne doit jamais être publié sans être documenté.
 
 Le changelog est indépendant du code : il explique **ce qui change**, pas **comment** cela a été implémenté.
+
+État observé par l'audit :
+
+| Projet | Version package | Dernière version du changelog | Écart |
+|--------|-----------------|-------------------------------|------|
+| Dashboard Admin | `1.21.0` | `1.21.0` | aligné post-audit |
+| PokemonGo-API- | `1.7.0` | `1.6.1` | une version de retard |
+| PokemonGo-Data | `1.8.0` | `1.7.0` | une version de retard |
+| Landing-Page-PogoApi | `1.0.0` | Non trouvé | changelog absent |
+| PokemonGo-Assets-API | Non trouvé | Non trouvé | historique absent |
+
+Le Dashboard maintient en plus un historique UI allant jusqu'à `V1.21.0`. La livraison PAGE-049 réconcilie `package.json`, l'UI et `CHANGELOG.md`; aucun mécanisme automatique ne garantit encore leur synchronisation future.
 
 ---
 
@@ -137,6 +148,8 @@ Le changelog complète le document `DOC-007`.
 2. mettre à jour le changelog ;
 3. mettre à jour la documentation concernée.
 
+L'audit confirme que ces opérations sont actuellement manuelles et qu'aucun tag Git local, générateur de release notes ou workflow de release formel n'est présent.
+
 ---
 
 # Conformité
@@ -155,11 +168,16 @@ Ce document applique notamment :
 - DOC-001 — Règles générales
 - DOC-007 — Versionnage
 - DOC-009 — Roadmap
-- ADR-003 — Versionnage
 
 ---
 
 # Historique
+
+## Version 1.1.0 — 2026-07-13
+
+- Ajout de l'état réel des changelogs et de leurs écarts avec les packages.
+- Documentation du double historique Dashboard et de l'absence d'automatisation/tags.
+- Mise à jour des noms exacts des repositories.
 
 ## Version 1.0.0 — 2026-07-12
 
