@@ -45,8 +45,8 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | --- | --- |
 | PokemonGo-API- | 10 fichiers, 66 tests node:test |
 | PokemonGo-Data | 4 fichiers, 32 tests node:test |
-| Dashboard structure | 7 tests |
-| Dashboard trainer | 13 tests déclarés |
+| Dashboard Admin Pokémon | 11 tests |
+| Dashboard trainer | 14 tests déclarés |
 | Dashboard Learning | 1 scénario E2E séquentiel Playwright + Mongo temporaire |
 | Landing et Assets | 0 test |
 
@@ -56,7 +56,8 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - Les tests API couvrent routes de base, read-only, secret Shiny, cache, adapters current, hash, modèles, pipeline, corruption et indisponibilité Mongo.
 - PokemonGo-Data sépare test:pokemon:refactor, test:current-generators et test:ranked-datasets.
 - Dashboard expose test:admin-pokemon, test:trainer-pokemon et test:learning-flow; npm run check ne les appelle pas.
-- test-trainer-pokemon valide le contrat, les limites IV, la normalisation, le read-back, l’absence de deleteMany, la session, l’absence OpenAPI et les états responsive.
+- test-trainer-pokemon valide le contrat, les limites IV, la normalisation, les assets exacts et fallback, le read-back, l’absence de deleteMany, la session, l’absence OpenAPI et les états responsive.
+- test:admin-pokemon couvre désormais navigation, modale clavier, Background, Shiny, agenda mobile, diagnostics compacts, API Explorer et types d’attaques.
 - Le workflow sync-mongodb exécute npm ci puis npm run sync sans tests; le workflow Data dispatch ne lance aucune suite.
 
 ## 4. Relations et dépendances
@@ -73,7 +74,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 ```mermaid
 flowchart LR
   DATA["32 tests Data"] --> API["66 tests API"]
-  DASH["16 tests Dashboard + E2E"] --> UI["Dashboard"]
+  DASH["25 tests Dashboard + E2E"] --> UI["Dashboard"]
   API -.-> SYNC["Workflow sync Mongo"]
   LAND["Landing: 0"]
   ASSETS["Assets: 0"]

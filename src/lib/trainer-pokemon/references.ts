@@ -1,4 +1,15 @@
+import fs from "node:fs";
+import path from "node:path";
+
 type ApiNames = { French?: string; English?: string };
+
+export type TrainerPokemonAssetFormReference = {
+  form?: string | null;
+  costume?: string | null;
+  image?: string | null;
+  shinyImage?: string | null;
+  isFemale?: boolean;
+};
 
 export type TrainerPokemonSpeciesReference = {
   key?: string;
@@ -9,7 +20,10 @@ export type TrainerPokemonSpeciesReference = {
   names?: ApiNames;
   data?: {
     names?: ApiNames;
-    assets?: { image?: string | null; shinyImage?: string | null };
+    primaryType?: string | null;
+    secondaryType?: string | null;
+    assetForms?: TrainerPokemonAssetFormReference[];
+    assets?: { image?: string | null; shinyImage?: string | null; assetsRef?: string | null };
   };
 };
 
@@ -83,6 +97,38 @@ async function fetchPaginated<T>(pathname: string, extra: Record<string, string>
   return [first, ...remaining].flatMap((payload) => Array.isArray(payload.data) ? payload.data : []);
 }
 
+function localDataRoots() {
+  return [
+    process.env.POKEMON_GO_DATA_DIR,
+    process.env.DATA_REPOSITORY_DIR,
+    path.join(process.cwd(), ".data", "PokemonGo-Data"),
+    path.resolve(process.cwd(), "..", "PokemonGo-Data"),
+  ].filter((value): value is string => Boolean(value));
+}
+
+function hydrateLocalAssetForms(reference: TrainerPokemonSpeciesReference) {
+  if (reference.data?.assetForms?.length) return reference;
+  const assetRef = reference.data?.assets?.assetsRef;
+  if (!assetRef || assetRef.includes("..") || !assetRef.startsWith("pokemon-assets/")) return reference;
+  for (const root of localDataRoots()) {
+    const file = path.join(root, assetRef);
+    if (!fs.existsSync(file)) continue;
+    try {
+      const payload = JSON.parse(fs.readFileSync(file, "utf8")) as { assets?: { assetForms?: TrainerPokemonAssetFormReference[] } };
+      return {
+        ...reference,
+        data: {
+          ...reference.data,
+          assetForms: Array.isArray(payload.assets?.assetForms) ? payload.assets.assetForms : [],
+        },
+      };
+    } catch {
+      return reference;
+    }
+  }
+  return reference;
+}
+
 async function loadReferences(): Promise<TrainerPokemonReferences> {
   const [pokemon, moves, typesPayload] = await Promise.all([
     fetchPaginated<TrainerPokemonSpeciesReference>("/api/v1/pokemon", { include: "data" }),
@@ -96,7 +142,7 @@ async function loadReferences(): Promise<TrainerPokemonReferences> {
     throw error;
   }
   return {
-    pokemon,
+    pokemon: pokemon.map(hydrateLocalAssetForms),
     moves,
     types: typesPayload.data,
     fetchedAt: new Date().toISOString(),

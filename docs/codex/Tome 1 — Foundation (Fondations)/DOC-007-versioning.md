@@ -69,7 +69,7 @@ Concerne :
 
 | Projet | Package | Autre marqueur observé |
 |--------|---------|-------------------------|
-| Dashboard Admin | `1.21.0` | UI `V1.21.0`, changelog `1.21.0` |
+| Dashboard Admin | `1.21.1` | UI `V1.21.1`, changelog `1.21.1` |
 | PokemonGo-API- | `1.7.0` | OpenAPI `1.4.1`, changelog `1.6.1`, chemin REST `/api/v1` |
 | PokemonGo-Data | `1.8.0` | changelog `1.7.0` |
 | Landing-Page-PogoApi | `1.0.0` | aucun changelog trouvé |

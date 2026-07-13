@@ -124,6 +124,11 @@ export function BackgroundPanel({ entries = [], library = [], linkedAssets = [],
       return [assetKey(card.filename || card.image), card];
     }),
   );
+  const entriesByFile = new Map(entries.map((entry) => [String(entry.file || ""), entry]));
+  const entriesByVariant = new Map(entries.map((entry) => [
+    `${String(entry.dexId || "").padStart(4, "0")}:${String(entry.form || "normal").toLowerCase()}`,
+    entry,
+  ]));
   for (const asset of linkedAssets) {
     const key = assetKey(asset.filename || asset.url);
     if (!key) continue;
@@ -133,6 +138,11 @@ export function BackgroundPanel({ entries = [], library = [], linkedAssets = [],
       label: asset.details || key.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " "),
       entries: [],
     };
+    const linkedEntry = entriesByFile.get(String(asset.file || ""))
+      || entriesByVariant.get(`${String(asset.dexId || "").padStart(4, "0")}:${String(asset.form || "normal").toLowerCase()}`);
+    if (linkedEntry && !group.entries.some((entry) => entry.key === linkedEntry.key)) {
+      group.entries.push(linkedEntry);
+    }
     groups.set(key, group);
   }
 
@@ -148,7 +158,7 @@ export function BackgroundPanel({ entries = [], library = [], linkedAssets = [],
         label: card.label || key.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " "),
         entries: [],
       };
-      group.entries.push(entry);
+      if (!group.entries.some((linkedEntry) => linkedEntry.key === entry.key)) group.entries.push(entry);
       groups.set(key, group);
     }
   }

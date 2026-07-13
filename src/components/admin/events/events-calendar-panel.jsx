@@ -753,7 +753,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon }) {
                   key={id}
                   type="button"
                   onClick={() => setView(id)}
-                  className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-black transition ${
+                  className={`${id === "calendar" ? "hidden sm:inline-flex" : "inline-flex"} items-center gap-2 rounded-xl px-3 py-2 text-xs font-black transition ${
                     view === id ? "bg-brand-2 text-slate-950" : "text-muted hover:text-foreground"
                   }`}
                 >
@@ -765,30 +765,37 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon }) {
 
           {view === "calendar" ? (
             <div className="min-w-0">
-              <div className="grid grid-cols-7 gap-1 sm:gap-2">
-                {dayNames.map((day) => (
-                  <span key={day} className="rounded-xl border border-white/10 bg-white/[0.045] px-1 py-2 text-center text-[10px] font-black uppercase tracking-[0.12em] text-muted sm:text-xs">
-                    {day}
-                  </span>
-                ))}
+              <div className="grid gap-4 sm:hidden" aria-label="Agenda mobile">
+                <EventGroup title="Aujourd'hui" events={todayEvents} onOpen={setSelectedEvent} empty="Aucun event aujourd'hui." />
+                <EventGroup title="En cours" events={currentEvents} onOpen={setSelectedEvent} empty="Aucun event en cours." />
+                <EventGroup title="À venir" events={upcomingEvents.slice(0, 40)} onOpen={setSelectedEvent} empty="Aucun event à venir." />
               </div>
-              <div className="mt-2 space-y-2">
-                {weeks.map((week) => (
-                  <CalendarWeek
-                    key={week.map(dayKey).join("-")}
-                    week={week}
-                    cursor={cursor}
-                    events={filteredEvents}
-                    todayKey={todayKey}
-                    compact={compact}
-                    onOpen={setSelectedEvent}
-                    onCreate={openCreate}
-                    onOpenDay={(key) => {
-                      setDateFilter(key);
-                      setView("list");
-                    }}
-                  />
-                ))}
+              <div className="hidden sm:block">
+                <div className="grid grid-cols-7 gap-2">
+                  {dayNames.map((day) => (
+                    <span key={day} className="rounded-xl border border-white/10 bg-white/[0.045] px-1 py-2 text-center text-xs font-black uppercase tracking-[0.12em] text-muted">
+                      {day}
+                    </span>
+                  ))}
+                </div>
+                <div className="mt-2 space-y-2">
+                  {weeks.map((week) => (
+                    <CalendarWeek
+                      key={week.map(dayKey).join("-")}
+                      week={week}
+                      cursor={cursor}
+                      events={filteredEvents}
+                      todayKey={todayKey}
+                      compact={compact}
+                      onOpen={setSelectedEvent}
+                      onCreate={openCreate}
+                      onOpenDay={(key) => {
+                        setDateFilter(key);
+                        setView("list");
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           ) : (

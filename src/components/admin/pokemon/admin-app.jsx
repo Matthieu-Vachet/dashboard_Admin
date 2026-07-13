@@ -21,6 +21,7 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  Boxes,
   PackageOpen,
   Wand2,
 } from "lucide-react";
@@ -94,7 +95,7 @@ const navItems = [
   { id: "pokedex", label: "Fiches", icon: `${filtersAssetBase}/ic_alola.png`, group: "data" },
   { id: "candies", label: "Candies", icon: `${filtersAssetBase}/TodayView_Icon_CandyXL.png`, group: "data" },
   { id: "backgrounds", label: "Background", icon: `${filtersAssetBase}/TodayView_Icon_PostCard.png`, group: "data" },
-  { id: "collections", label: "Collections", icon: `${filtersAssetBase}/ic_galar.png`, group: "data" },
+  { id: "collections", label: "Collections", icon: Boxes, group: "data" },
   { id: "my-collection", label: "Ma collection", icon: PackageOpen, group: "data" },
   { id: "assets", label: "Assets", icon: `${filtersAssetBase}/TodayView_Icon_Photobomb.png`, group: "data" },
   { id: "catalogs", label: "Catalogues", icon: Archive, group: "data" },

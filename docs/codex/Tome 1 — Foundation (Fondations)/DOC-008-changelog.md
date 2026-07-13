@@ -47,13 +47,13 @@ Le changelog est indépendant du code : il explique **ce qui change**, pas **com
 
 | Projet | Version package | Dernière version du changelog | Écart |
 |--------|-----------------|-------------------------------|------|
-| Dashboard Admin | `1.21.0` | `1.21.0` | aligné post-audit |
+| Dashboard Admin | `1.21.1` | `1.21.1` | aligné post-audit |
 | PokemonGo-API- | `1.7.0` | `1.6.1` | une version de retard |
 | PokemonGo-Data | `1.8.0` | `1.7.0` | une version de retard |
 | Landing-Page-PogoApi | `1.0.0` | Non trouvé | changelog absent |
 | PokemonGo-Assets-API | Non trouvé | Non trouvé | historique absent |
 
-Le Dashboard maintient en plus un historique UI allant jusqu'à `V1.21.0`. La livraison PAGE-049 réconcilie `package.json`, l'UI et `CHANGELOG.md`; aucun mécanisme automatique ne garantit encore leur synchronisation future.
+Le Dashboard maintient en plus un historique UI allant jusqu'à `V1.21.1`. La livraison corrective Admin Pokémon réconcilie `package.json`, l'UI et `CHANGELOG.md`; aucun mécanisme automatique ne garantit encore leur synchronisation future.
 
 ---
 

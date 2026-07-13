@@ -1,12 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Swords, Zap } from "lucide-react";
 import { fieldClass, Panel } from "./admin-ui";
 import { typeBackground, typeColors, typeIcon, typeName } from "@/components/site/pokemon-style";
 
 function moveTitle(move) {
   return move.names?.French || move.names?.English || move.name || move.id;
+}
+
+function moveKind(move) {
+  const value = String(move.kind || move.category || move.moveType || "").toLowerCase();
+  return value.includes("fast") || value.includes("quick") ? "fast" : "charged";
 }
 
 function typePanelBackground(type, typeCatalog = []) {
@@ -148,7 +153,9 @@ function TypeCatalogCard({ item, typeCatalog = [], weatherCatalog = [] }) {
 
 function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
   const [open, setOpen] = useState(false);
-  const type = move.type;
+  const type = normalizeTypeId(move.type);
+  const kind = moveKind(move);
+  const color = typeColors[type] || "#64748b";
   const linkedPokemon = Array.isArray(move.pokemon) ? move.pokemon : [];
   const rows = [
     ["Puissance arène/raid", move.power ?? "-"],
@@ -173,13 +180,14 @@ function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
 
   return (
     <article
-      className="overflow-hidden rounded-3xl border border-white/10 bg-cover bg-center"
-      style={{ backgroundImage: typePanelBackground(type, typeCatalog) }}
+      className={`overflow-hidden rounded-3xl border bg-cover bg-center transition ${open ? "shadow-[0_18px_70px_rgba(0,0,0,.28)]" : ""}`}
+      style={{ backgroundImage: typePanelBackground(type, typeCatalog), borderColor: `color-mix(in srgb, ${color} ${open ? "68%" : "34%"}, rgba(255,255,255,.14))` }}
     >
       <button
-        className="grid w-full gap-3 p-4 text-left sm:grid-cols-[minmax(0,1fr)_auto_auto]"
+        className={`grid w-full gap-3 p-4 text-left transition sm:grid-cols-[minmax(0,1fr)_auto_auto_auto] ${open ? "bg-white/[0.07]" : "hover:bg-white/[0.04]"}`}
         type="button"
         onClick={() => setOpen((value) => !value)}
+        aria-expanded={open}
       >
         <span className="min-w-0">
           <strong className="block truncate text-base font-black text-white">{moveTitle(move)}</strong>
@@ -187,12 +195,16 @@ function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
         </span>
         <span
           className="inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-xs font-black text-white"
-          style={{ background: `color-mix(in srgb, ${typeColors[type] || "#64748b"} 52%, rgba(255,255,255,.12))` }}
+          style={{ background: `color-mix(in srgb, ${color} 52%, rgba(255,255,255,.12))` }}
         >
           {typeIcon(type, typeCatalog) ? (
             <img className="h-4 w-4 shrink-0 object-contain" src={typeIcon(type, typeCatalog)} alt="" />
           ) : null}
           {typeName(type, typeCatalog)}
+        </span>
+        <span className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-xs font-black ${kind === "fast" ? "border-cyan-200/25 bg-cyan-400/14 text-cyan-50" : "border-violet-200/25 bg-violet-400/14 text-violet-50"}`}>
+          {kind === "fast" ? <Zap size={14} aria-hidden="true" /> : <Swords size={14} aria-hidden="true" />}
+          {kind === "fast" ? "Rapide" : "Chargée"}
         </span>
         <span className="inline-flex items-center justify-end gap-2 text-xs font-black text-cyan-100">
           {linkedPokemon.length} Pokémon <ChevronDown className={open ? "rotate-180 transition" : "transition"} size={15} />

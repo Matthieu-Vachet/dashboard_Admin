@@ -58,6 +58,8 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - Les routes principales Pokémon, moves, items, forms, PvP et textes Rocket utilisent skip, limit, countDocuments et lean.
 - Les images mélangent next/image et img; la Landing utilise next/image pour ses visuels et hydrate LandingExperience pour GSAP.
 - Le repository trainer partage la connexion Mongo par Promise, crée les index au premier accès et exécute pagination, projection, distincts et agrégation de plages en parallèle.
+- Les références trainer lourdes sont hydratées et mises en cache côté serveur, puis enrichissent les lectures existantes en mémoire sans réécriture MongoDB.
+- Les filtres poids et taille restent paginés et indexés comme les plages IV/CP.
 
 ## 4. Relations et dépendances
 

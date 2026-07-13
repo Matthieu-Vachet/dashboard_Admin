@@ -23,10 +23,17 @@ export function Modal({
   onClose: () => void;
 }) {
   const dialogRef = useRef<HTMLElement>(null);
+  const onCloseRef = useRef(onClose);
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
   useEffect(() => {
     if (!open) return;
     const previous = document.body.style.overflow;
-    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    previouslyFocusedRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     document.body.style.overflow = "hidden";
 
     const focusableSelector = "button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex='-1'])";
@@ -35,7 +42,7 @@ export function Modal({
     });
 
     function closeOnEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") onCloseRef.current();
       if (event.key === "Tab" && dialogRef.current) {
         const focusable = [...dialogRef.current.querySelectorAll<HTMLElement>(focusableSelector)];
         if (!focusable.length) return;
@@ -50,9 +57,10 @@ export function Modal({
     return () => {
       document.body.style.overflow = previous;
       window.removeEventListener("keydown", closeOnEscape);
-      previouslyFocused?.focus();
+      previouslyFocusedRef.current?.focus();
+      previouslyFocusedRef.current = null;
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open || typeof document === "undefined") return null;
 
@@ -77,7 +85,6 @@ export function Modal({
             ) : null}
           </div>
           <button
-            autoFocus
             className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-line bg-white/[0.06] text-muted transition hover:text-foreground"
             type="button"
             onClick={onClose}

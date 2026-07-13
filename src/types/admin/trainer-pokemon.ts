@@ -6,6 +6,7 @@ export type TrainerPokemonDiagnosticCode =
   | "UNKNOWN_GENDER"
   | "UNKNOWN_ALIGNMENT"
   | "PARTIAL_FORM_MATCH"
+  | "ASSET_FALLBACK"
   | "UNKNOWN_MOVE"
   | "MISSING_ASSET";
 
@@ -54,8 +55,10 @@ export type TrainerPokemon = {
   heightM: number;
   fastMove: NormalizedTrainerPokemonMove;
   chargedMoves: NormalizedTrainerPokemonMove[];
+  primaryType: string | null;
+  secondaryType: string | null;
   image: string | null;
-  imageMatch: "exact" | "missing";
+  imageMatch: "exact" | "form" | "normal" | "base" | "missing";
   searchText: string;
 };
 
@@ -134,6 +137,8 @@ export type TrainerPokemonListResponse = {
     costumes: string[];
     cp: { min: number; max: number };
     ivPercent: { min: number; max: number };
+    weightKg: { min: number; max: number };
+    heightM: { min: number; max: number };
   };
   pagination: { page: number; limit: number; total: number; pages: number };
 };

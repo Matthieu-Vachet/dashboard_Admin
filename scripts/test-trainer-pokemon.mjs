@@ -25,10 +25,20 @@ function filesUnder(directory, extension = ".json") {
 function localReferences() {
   const pokemon = [...filesUnder(path.join(dataRoot, "pokemon")), ...filesUnder(path.join(dataRoot, "pokemon-forms"))]
     .map(json)
-    .map((item) => ({
-      id: item.id, formId: item.formId, key: item.formId, dexNr: item.dexNr, form: item.form, names: item.names,
-      data: { names: item.names, assets: item.assets },
-    }));
+    .map((item) => {
+      const assetFile = item.assets?.assetsRef ? path.join(dataRoot, item.assets.assetsRef) : null;
+      const heavyAssets = assetFile && fs.existsSync(assetFile) ? json(assetFile).assets : {};
+      return {
+        id: item.id, formId: item.formId, key: item.formId, dexNr: item.dexNr, form: item.form, names: item.names,
+        data: {
+          names: item.names,
+          primaryType: item.primaryType,
+          secondaryType: item.secondaryType,
+          assets: item.assets,
+          assetForms: heavyAssets.assetForms || [],
+        },
+      };
+    });
   const moves = filesUnder(path.join(dataRoot, "moves")).map((file) => {
     const item = json(file);
     return { ...item, kind: file.includes(`${path.sep}fast${path.sep}`) ? "fast" : "charged" };
@@ -78,7 +88,7 @@ test("accepte les champs facultatifs, inconnus, la troisième attaque et le surn
   assert.equal(file.pokemonCount, 1);
 });
 
-test("normalise les noms français, IV, attaques, shiny et diagnostics sans fallback d’asset", () => {
+test("normalise les noms français, IV, attaques, shiny et diagnostics d’asset", () => {
   const references = localReferences();
   const file = validateTrainerPokemonImport(validFile());
   const { entries, preview } = normalizeTrainerPokemonImport(file, references);
@@ -94,9 +104,38 @@ test("normalise les noms français, IV, attaques, shiny et diagnostics sans fall
     references,
   );
   assert.equal(unresolved.entries[0].fastMove.resolved, false);
-  assert.equal(unresolved.entries[0].image, null);
+  assert.match(unresolved.entries[0].image || "", /\.s\.icon\.png$/i);
   assert.equal(unresolved.preview.diagnosticCounts.UNKNOWN_MOVE, 1);
-  assert.equal(unresolved.preview.diagnosticCounts.MISSING_ASSET, 1);
+  assert.equal(unresolved.preview.diagnosticCounts.ASSET_FALLBACK, 1);
+  assert.equal(unresolved.preview.diagnosticCounts.MISSING_ASSET, 0);
+});
+
+test("résout le costume exact et ne présente jamais une image normale comme shiny", () => {
+  const references = localReferences();
+  const costume = normalizeTrainerPokemonImport(
+    validateTrainerPokemonImport(validFile(validEntry({
+      mon_number: 25,
+      mon_name: "Pikachu",
+      mon_form: "PIKACHU_NORMAL",
+      mon_costume: "JAN_2020_NOEVOLVE",
+    }))),
+    references,
+  );
+  assert.match(costume.entries[0].image || "", /cJAN_2020_NOEVOLVE(?:\.g\d+)?\.s\.icon\.png$/);
+  assert.equal(costume.entries[0].imageMatch, "exact");
+
+  const withoutShiny = {
+    ...references,
+    pokemon: [{
+      id: "CUBCHOO", formId: "CUBCHOO", key: "CUBCHOO", dexNr: 613, form: "normal",
+      names: { French: "Polarhume" },
+      data: { names: { French: "Polarhume" }, primaryType: "ICE", assets: { image: "https://assets.example/normal.png" }, assetForms: [] },
+    }],
+  };
+  const shiny = normalizeTrainerPokemonImport(validateTrainerPokemonImport(validFile()), withoutShiny);
+  assert.equal(shiny.entries[0].image, null);
+  assert.equal(shiny.entries[0].imageMatch, "missing");
+  assert.equal(shiny.preview.diagnosticCounts.MISSING_ASSET, 1);
 });
 
 test("le fichier réel de 4 838 Pokémon est entièrement validé et normalisé", { skip: !fs.existsSync(samplePath) }, () => {
@@ -195,7 +234,7 @@ test("les routes privées vérifient la session et restent absentes de l’OpenA
 
 test("l’interface couvre recherche, filtres, tri, pagination, états vides et responsive", () => {
   const panel = fs.readFileSync(path.join(root, "Dashboard Admin/src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx"), "utf8");
-  for (const evidence of ["debouncedSearch", "Forme spéciale", "IV 100 % uniquement", "Trier par", "Pagination", "Aucune collection importée", "Aucun résultat", "lg:hidden", "hidden overflow-x-auto"]) {
+  for (const evidence of ["debouncedSearch", "Plus de filtres", "Forme spéciale", "Poids (kg)", "Taille (m)", "IV 100 % uniquement", "Trier par", "Pagination", "Aucune collection importée", "Aucun résultat", "lg:hidden", "hidden overflow-x-auto"]) {
     assert.match(panel, new RegExp(evidence.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
 });

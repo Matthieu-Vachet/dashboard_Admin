@@ -56,6 +56,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - Le middleware Express masque le message des erreurs 500 en production et inclut requestId dans la réponse.
 - Les handlers Dashboard historiques emploient plusieurs formats JSON; securityError et les helpers learning/trainer conservent des statuts contrôlés.
 - trainerPokemonServerError masque les 5xx, transforme 502 et 503 en messages fixes et conserve les issues de validation 400.
+- La résolution d’asset trainer distingue désormais un fallback canonique (`ASSET_FALLBACK`) d’un asset réellement absent (`MISSING_ASSET`) et interdit tout remplacement d’un shiny par une image normale.
 - Le pipeline current refuse les datasets vides ou invalides avant l’upsert et vérifie le read-back après écriture.
 - Les composants affichent les erreurs via toast.error, role=alert ou états inline; aucune stratégie retry UI centrale n’est présente.
 

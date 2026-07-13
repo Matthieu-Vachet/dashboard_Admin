@@ -56,7 +56,11 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - La modale commune fixe un corps scrollable et ferme sur Escape; les modales Pokémon et Events ont aussi des implémentations locales.
 - COMP-137 rend PokemonMobileCard avec lg:hidden et PokemonTable avec hidden lg:block; le tableau est placé dans overflow-x-auto.
 - La checklist API passe de une à quatre colonnes; son détail devient bottom-sheet sur mobile puis modal centré à partir de sm.
+- Le calendrier Events remplace la grille mensuelle dense par des groupes d’agenda sur mobile; la grille complète reste disponible à partir de `sm`.
+- Navigation Admin Pokémon, diagnostics source et API Explorer emploient `min-w-0`, retours à la ligne et zones de scroll locales sans masquer les débordements globaux.
 - La Landing passe son hero de une à deux colonnes; sa navigation principale est masquée sous md.
+
+Matrice locale vérifiée pour la livraison V1.21.1 : 375×812, 390×844, 430×932, 768×1024, 1440×900 et 1920×1080, en thèmes sombre et clair, sans débordement horizontal global.
 
 ## 4. Relations et dépendances
 

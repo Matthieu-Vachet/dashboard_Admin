@@ -54,6 +54,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - Le prebuild Dashboard exécute validate:learning et ensure-data avant next build.
 - Le typecheck Dashboard utilise tsc --noEmit mais n’est pas inclus dans check.
 - Le test trainer couvre validation, normalisation, confidentialité, activation par pointeur et responsive source-level.
+- La livraison V1.21.1 exécute en plus 11 tests Admin Pokémon, 14 tests trainer, la validation Learning, le typecheck, le lint, le build et une matrice Playwright de 375 à 1 920 px.
 - API check exécute une chaîne complète locale; le workflow sync-mongodb n’appelle pas check.
 - Data fournit des modes check pour raids, eggs, max-battles, rocket, research, shiny, pvp-rankings, assets et GameMaster selon package.json.
 - Aucun workflow Dashboard, Landing ou Assets n’exécute ces contrôles dans le workspace.

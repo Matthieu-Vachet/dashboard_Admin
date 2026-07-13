@@ -30,6 +30,8 @@ export async function GET(request: NextRequest) {
       perfect: params.get("perfect") === "true",
       ivMin: optionalNumber(params.get("ivMin")), ivMax: optionalNumber(params.get("ivMax")),
       cpMin: optionalNumber(params.get("cpMin")), cpMax: optionalNumber(params.get("cpMax")),
+      weightMin: optionalNumber(params.get("weightMin")), weightMax: optionalNumber(params.get("weightMax")),
+      heightMin: optionalNumber(params.get("heightMin")), heightMax: optionalNumber(params.get("heightMax")),
       sort: (params.get("sort") || "dexNumber") as TrainerPokemonSortField,
       order: params.get("order") === "desc" ? "desc" : "asc",
     };

@@ -75,6 +75,16 @@ function ShinyDetail({ entry, history, onOpenPokemon }) {
   const types = entry.pokemon?.types || [];
   const shinyRate = entry.shiny?.ratePercent;
   const shinyProgress = shinyRate == null ? 0 : Math.min(100, Math.max(1, Number(shinyRate) * 10));
+  const catchCpMin = Number(entry.catchCpRange?.min);
+  const catchCpMax = Number(entry.catchCpRange?.max);
+  const detailMetrics = [
+    ["Weekly", entry.stats?.weekly, "cyan"],
+    ["Monthly", entry.stats?.monthly, "violet"],
+    ["All-Time", entry.stats?.allTime, "amber"],
+    ...(Number.isFinite(catchCpMin) && Number.isFinite(catchCpMax)
+      ? [["Catch CP", `${formatNumber(catchCpMin)} – ${formatNumber(catchCpMax)}`, "green"]]
+      : []),
+  ];
 
   return (
     <div className="space-y-4">
@@ -104,10 +114,9 @@ function ShinyDetail({ entry, history, onOpenPokemon }) {
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <AssetStatCard label="Weekly" value={entry.stats?.weekly} tone="cyan" />
-        <AssetStatCard label="Monthly" value={entry.stats?.monthly} tone="violet" />
-        <AssetStatCard label="All-Time" value={entry.stats?.allTime} tone="amber" />
-        <AssetStatCard label="Catch CP" value={entry.catchCpRange ? `${entry.catchCpRange.min} – ${entry.catchCpRange.max}` : null} tone="green" />
+        {detailMetrics.map(([label, value, tone]) => (
+          <AssetStatCard key={label} label={label} value={typeof value === "number" ? formatNumber(value, true) : value} tone={tone} />
+        ))}
       </section>
 
       <section className="rounded-2xl border p-4" style={{ borderColor: `${typeColors[primaryType(entry)] || typeColors.NORMAL}66`, ...typeSurface(entry, 0.2) }}>
@@ -149,15 +158,15 @@ function Podium({ entries, board, onOpen }) {
   if (!entries.length) return null;
   const order = entries.length >= 3 ? [entries[1], entries[0], entries[2]] : entries;
   return (
-    <section className={`grid items-end gap-3 ${entries.length >= 3 ? "sm:grid-cols-3" : "sm:grid-cols-2"}`} aria-label="Podium Shiny">
+    <section className={`grid auto-cols-[minmax(9rem,1fr)] grid-flow-col items-end gap-3 overflow-x-auto pb-1 sm:grid-flow-row sm:auto-cols-auto sm:overflow-visible ${entries.length >= 3 ? "sm:grid-cols-3" : "sm:grid-cols-2"}`} aria-label="Podium Shiny">
       {order.map((entry) => {
         const place = entry.rank <= 3 ? entry.rank : entries.indexOf(entry) + 1;
         const tone = place === 1 ? "border-amber-300/55 shadow-[0_20px_70px_rgba(251,191,36,.16)] sm:min-h-[19rem]" : place === 2 ? "border-slate-300/35 sm:min-h-[17rem]" : "border-orange-300/35 sm:min-h-[16rem]";
         const metric = board === "today" ? entry.stats?.daily : board === "rare" ? entry.shiny?.odds?.raw : entry.stats?.allTime;
         return (
-          <button className={`relative flex min-h-[14rem] flex-col items-center justify-end overflow-hidden rounded-2xl border p-4 text-center ${tone}`} style={typeSurface(entry, 0.15)} key={`${place}-${entry.sourceIdentity?.variantKey || entry.sourceIdentity?.id}`} type="button" onClick={() => onOpen(entry)}>
+          <button className={`relative flex min-h-[11rem] flex-col items-center justify-end overflow-hidden rounded-2xl border p-3 text-center sm:min-h-[14rem] sm:p-4 ${tone}`} style={typeSurface(entry, 0.15)} key={`${place}-${entry.sourceIdentity?.variantKey || entry.sourceIdentity?.id}`} type="button" onClick={() => onOpen(entry)}>
             <span className={`absolute top-3 grid h-9 w-9 place-items-center rounded-full font-mono font-black ${place === 1 ? "bg-amber-400 text-slate-950" : place === 2 ? "bg-slate-300 text-slate-950" : "bg-orange-400 text-slate-950"}`}>{place}</span>
-            <img className="mb-3 h-24 w-24 object-contain drop-shadow-[0_18px_30px_rgba(0,0,0,.45)]" src={entry.pokemon?.assets?.shinyImage || entry.pokemon?.assets?.image} alt="" />
+            <img className="mb-2 h-16 w-16 object-contain drop-shadow-[0_18px_30px_rgba(0,0,0,.45)] sm:mb-3 sm:h-24 sm:w-24" src={entry.pokemon?.assets?.shinyImage || entry.pokemon?.assets?.image} alt="" />
             <strong className="line-clamp-2 text-base text-white">#{entry.pokemon?.dexNr} {pokemonName(entry)}</strong>
             <span className="mt-3 rounded-xl border border-white/10 bg-black/25 px-3 py-2 font-mono text-lg font-black text-white">{typeof metric === "number" ? formatNumber(metric, true) : metric || "—"}</span>
             <small className="mt-2 font-mono font-black text-amber-100">{entry.shiny?.odds?.raw || "—"}</small>
@@ -173,6 +182,7 @@ export function ShinyTrackerPanel({ dataset, loading, regenerating, options, onO
   const [history, setHistory] = useState({ points: [], statistics: null });
   const entries = dataset?.data?.rankings || [];
   const podium = dataset?.data?.podium || entries.slice(0, 3);
+  const rankedEntries = entries.filter((entry) => Number(entry.rank) > 3);
   const summary = dataset?.data?.summary || {};
   const meta = dataset?.meta || {};
 
@@ -200,21 +210,27 @@ export function ShinyTrackerPanel({ dataset, loading, regenerating, options, onO
       <Podium entries={podium} board={options.board} onOpen={openEntry} />
 
       <section className="space-y-2" aria-label="Classement Shiny">
-        {entries.map((entry) => (
-          <button className="grid w-full min-w-0 gap-3 rounded-2xl border border-white/10 p-3 text-left transition hover:border-cyan-200/35 sm:grid-cols-[3rem_4rem_minmax(0,1fr)_repeat(4,minmax(5rem,auto))] sm:items-center" style={typeSurface(entry, 0.1)} type="button" key={`${entry.rank}-${entry.sourceIdentity?.variantKey}`} onClick={() => openEntry(entry)}>
+        {rankedEntries.map((entry) => (
+          <button className="grid w-full min-w-0 grid-cols-[2rem_3.5rem_minmax(0,1fr)] gap-2 rounded-2xl border border-white/10 p-3 text-left transition hover:border-cyan-200/35 sm:grid-cols-[3rem_4rem_minmax(0,1fr)_repeat(4,minmax(5rem,auto))] sm:items-center sm:gap-3" style={typeSurface(entry, 0.1)} type="button" key={`${entry.rank}-${entry.sourceIdentity?.variantKey}`} onClick={() => openEntry(entry)}>
             <span className="font-mono text-sm font-black text-slate-400">#{entry.rank}</span>
-            <img className="h-14 w-14 object-contain" src={entry.pokemon?.assets?.shinyImage || entry.pokemon?.assets?.image} alt="" loading="lazy" />
+            <img className="h-12 w-12 object-contain sm:h-14 sm:w-14" src={entry.pokemon?.assets?.shinyImage || entry.pokemon?.assets?.image} alt="" loading="lazy" />
             <span className="min-w-0"><strong className="block truncate text-sm text-white">#{entry.pokemon?.dexNr} {pokemonName(entry)}</strong><span className="mt-1 flex flex-wrap items-center gap-2"><TypeIcons types={entry.pokemon?.types} size="sm" /><small className="truncate text-xs font-bold text-slate-400">Dernière : {formatDate(entry.lastSeenAt)}</small></span></span>
-            <span><small className="block text-[9px] font-black uppercase text-slate-500">Daily</small><strong className="font-mono text-sm text-white">{formatNumber(entry.stats?.daily, true)}</strong></span>
-            <span><small className="block text-[9px] font-black uppercase text-slate-500">Monthly</small><strong className="font-mono text-sm text-white">{formatNumber(entry.stats?.monthly, true)}</strong></span>
-            <span><small className="block text-[9px] font-black uppercase text-slate-500">Total</small><strong className="font-mono text-sm text-white">{formatNumber(entry.stats?.allTime, true)}</strong></span>
-            <span><small className="block text-[9px] font-black uppercase text-slate-500">Odds</small><strong className="font-mono text-sm text-amber-100">{entry.shiny?.odds?.raw || "—"}</strong><Trend value={entry.source?.trend} /></span>
+            <span className="col-span-3 grid grid-cols-4 gap-2 border-t border-white/10 pt-2 sm:hidden">
+              <span><small className="block text-[9px] font-black uppercase text-slate-500">Daily</small><strong className="font-mono text-xs text-white">{formatNumber(entry.stats?.daily, true)}</strong></span>
+              <span><small className="block text-[9px] font-black uppercase text-slate-500">Mois</small><strong className="font-mono text-xs text-white">{formatNumber(entry.stats?.monthly, true)}</strong></span>
+              <span><small className="block text-[9px] font-black uppercase text-slate-500">Total</small><strong className="font-mono text-xs text-white">{formatNumber(entry.stats?.allTime, true)}</strong></span>
+              <span><small className="block text-[9px] font-black uppercase text-slate-500">Odds</small><strong className="font-mono text-xs text-amber-100">{entry.shiny?.odds?.raw || "—"}</strong></span>
+            </span>
+            <span className="hidden sm:block"><small className="block text-[9px] font-black uppercase text-slate-500">Daily</small><strong className="font-mono text-sm text-white">{formatNumber(entry.stats?.daily, true)}</strong></span>
+            <span className="hidden sm:block"><small className="block text-[9px] font-black uppercase text-slate-500">Monthly</small><strong className="font-mono text-sm text-white">{formatNumber(entry.stats?.monthly, true)}</strong></span>
+            <span className="hidden sm:block"><small className="block text-[9px] font-black uppercase text-slate-500">Total</small><strong className="font-mono text-sm text-white">{formatNumber(entry.stats?.allTime, true)}</strong></span>
+            <span className="hidden sm:block"><small className="block text-[9px] font-black uppercase text-slate-500">Odds</small><strong className="font-mono text-sm text-amber-100">{entry.shiny?.odds?.raw || "—"}</strong><Trend value={entry.source?.trend} /></span>
           </button>
         ))}
-        {!entries.length ? <p className="rounded-2xl border border-dashed border-white/12 p-8 text-center font-bold text-slate-400">Aucun résultat Shiny pour ces filtres.</p> : null}
+        {!rankedEntries.length ? <p className="rounded-2xl border border-dashed border-white/12 p-5 text-center text-sm font-bold text-slate-400">{entries.length ? "Le classement détaillé commence au rang 4 après le podium." : "Aucun résultat Shiny pour ces filtres."}</p> : null}
       </section>
       <div className="flex flex-wrap items-center justify-between gap-3"><span className="font-mono text-xs font-black text-slate-400">Affichés {entries.length} sur {meta.total || entries.length}</span><div className="flex items-center gap-3"><button className={buttonClass} type="button" disabled={options.page <= 1} onClick={() => onOptionsChange({ ...options, page: options.page - 1 })}>Précédent</button><span className="font-mono text-sm font-black text-slate-300">Page {meta.page || options.page} / {meta.pages || 1}</span><button className={buttonClass} type="button" disabled={(meta.page || options.page) >= (meta.pages || 1)} onClick={() => onOptionsChange({ ...options, page: options.page + 1 })}>Suivant</button></div></div>
-      <Modal open={Boolean(selected)} title={selected ? pokemonName(selected) : "Shiny"} description={selected ? `${selected.shiny?.odds?.raw || 'Odds indisponibles'}${selected.shiny?.rarity ? ` · ${selected.shiny.rarity}` : ''}` : ""} onClose={() => setSelected(null)} className="max-w-5xl max-sm:h-[calc(100dvh-1.5rem)] max-sm:max-h-none max-sm:rounded-none"><ShinyDetail entry={selected} history={history} onOpenPokemon={onOpenPokemon} /></Modal>
+      <Modal open={Boolean(selected)} title={selected ? pokemonName(selected) : "Shiny"} description={selected ? `${selected.shiny?.odds?.raw || 'Odds indisponibles'}${selected.shiny?.rarity ? ` · ${selected.shiny.rarity}` : ''}` : ""} onClose={() => setSelected(null)} className="max-w-5xl"><ShinyDetail entry={selected} history={history} onOpenPokemon={onOpenPokemon} /></Modal>
     </div>
   );
 }

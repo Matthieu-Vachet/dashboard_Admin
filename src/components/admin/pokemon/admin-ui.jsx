@@ -53,7 +53,9 @@ const categoryLabels = {
 };
 
 export function formatCount(value) {
-  return Number(value || 0).toLocaleString("fr-FR");
+  if (value === null || value === undefined || value === "") return "—";
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric.toLocaleString("fr-FR") : String(value);
 }
 
 export function issueLabel(value) {
@@ -131,7 +133,7 @@ export function AssetStatCard({ label, value, icon, tone = "cyan", detail }) {
           <span className="block truncate text-xs font-black uppercase tracking-[0.18em] text-white/72">
             {label}
           </span>
-          <strong className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[clamp(1.6rem,3vw,2.75rem)] font-black leading-none text-white drop-shadow-[0_0_18px_rgba(255,255,255,.16)]">
+          <strong className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[clamp(1.35rem,2.4vw,2.35rem)] font-black leading-none text-white drop-shadow-[0_0_18px_rgba(255,255,255,.16)]" title={String(value ?? "—")}>
             {formatCount(value)}
           </strong>
         </span>

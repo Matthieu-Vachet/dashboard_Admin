@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.21.1 - 2026-07-13
+
+- Corrige les débordements et les hiérarchies visuelles d’Admin Pokémon sur mobile, tablette et bureau sans changer son identité graphique.
+- Fiabilise les associations Background et la résolution des assets de collection par forme, costume, genre et état shiny, avec diagnostics de fallback explicites.
+- Ajoute les filtres poids/taille, un agenda mobile, des attaques rapides/chargées plus lisibles et des états compacts pour les diagnostics et l’API Explorer.
+- Étend les suites ciblées à 25 tests et vérifie les thèmes sombre/clair de 375 à 1 920 px sans mutation MongoDB.
+
 ## 1.21.0 - 2026-07-13
 
 - Ajoute PAGE-049 « Ma collection Pokémon GO » dans Admin Pokémon avec aperçu d'import, statistiques, recherche, filtres, tri, pagination et vues responsive.

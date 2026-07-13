@@ -187,6 +187,16 @@ a {
   opacity: 0.98;
 }
 
+.metric-interface-icon {
+  filter: brightness(0) invert(1) drop-shadow(0 0 10px var(--accent-glow));
+  opacity: 0.92;
+}
+
+.light .metric-interface-icon {
+  filter: saturate(0.85) contrast(1.25) drop-shadow(0 0 8px var(--accent-glow));
+  opacity: 0.88;
+}
+
 .dashboard-sidebar {
   background: rgba(6, 8, 18, 0.78);
   color: var(--foreground);

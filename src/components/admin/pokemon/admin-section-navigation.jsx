@@ -48,6 +48,16 @@ export function AdminSectionNavigation({ items, active, onSelect }) {
       : [...current, groupId]);
   }
 
+  function selectItem(item) {
+    setQuery("");
+    setOpenGroups([item.group]);
+    onSelect(item.id);
+  }
+
+  const shortcuts = ["overview", "my-collection", "shiny"]
+    .map((id) => items.find((item) => item.id === id))
+    .filter(Boolean);
+
   return (
     <nav className="mt-4 rounded-2xl border border-white/10 bg-slate-950/38 p-3" aria-label="Sections Admin Pokémon">
       <label className="relative mb-3 block">
@@ -60,7 +70,19 @@ export function AdminSectionNavigation({ items, active, onSelect }) {
           aria-label="Rechercher une section Admin Pokémon"
         />
       </label>
-      <div className="grid gap-2 lg:grid-cols-2 2xl:grid-cols-5">
+      <div className="mb-3 flex gap-2 overflow-x-auto pb-1 lg:hidden" aria-label="Accès rapides">
+        {shortcuts.map((item) => (
+          <button
+            className={`shrink-0 rounded-xl border px-3 py-2 text-xs font-black ${item.id === active ? "border-cyan-200/40 bg-cyan-300/15 text-white" : "border-white/10 bg-white/[0.05] text-slate-300"}`}
+            key={item.id}
+            type="button"
+            onClick={() => selectItem(item)}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+      <div className="grid items-start gap-2 lg:grid-cols-2 2xl:grid-cols-5">
         {grouped.map((group) => {
           const isOpen = Boolean(query) || group.id === activeGroup || openGroups.includes(group.id);
           const containsActive = group.items.some((item) => item.id === active);
@@ -84,7 +106,7 @@ export function AdminSectionNavigation({ items, active, onSelect }) {
                         className={`flex min-h-11 min-w-0 items-center gap-2 rounded-xl border px-2.5 text-left text-xs font-black transition ${selected ? "border-cyan-200/40 bg-cyan-300/15 text-white" : "border-transparent text-slate-300 hover:border-white/10 hover:bg-white/[0.06] hover:text-white"}`}
                         key={item.id}
                         type="button"
-                        onClick={() => onSelect(item.id)}
+                        onClick={() => selectItem(item)}
                         aria-current={selected ? "page" : undefined}
                       >
                         <SectionIcon icon={item.icon} active={selected} />

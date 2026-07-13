@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.21.1",
+    date: "2026-07-13",
+    title: "Correctifs responsive et fiabilisation Admin Pokémon",
+    changes: [
+      "Corrige les débordements mobile de la navigation, des diagnostics, de l’API Explorer, du calendrier et des panneaux de collection.",
+      "Fiabilise les associations Background et les assets de la collection avec une résolution canonique explicite, sans présenter une image normale comme shiny.",
+      "Enrichit les filtres de la collection, le catalogue d’attaques, le Shiny Tracker et l’agenda mobile sans modifier les données MongoDB.",
+      "Valide les rendus sombre et clair de 375 à 1 920 px ainsi que les tests TypeScript, Learning, Admin Pokémon et collection trainer.",
+    ],
+  },
+  {
     version: "V1.21.0",
     date: "2026-07-13",
     title: "Ma collection Pokémon GO privée et versionnée",

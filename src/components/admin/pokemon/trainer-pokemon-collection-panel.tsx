@@ -6,12 +6,14 @@ import {
   AlertTriangle,
   ArrowLeft,
   ArrowRight,
+  ChevronDown,
   FileJson,
   History,
   LoaderCircle,
   RefreshCcw,
   RotateCcw,
   Search,
+  SlidersHorizontal,
   Upload,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -56,6 +58,10 @@ type QueryState = {
   ivMax: string;
   cpMin: string;
   cpMax: string;
+  weightMin: string;
+  weightMax: string;
+  heightMin: string;
+  heightMax: string;
   sort: TrainerPokemonSortField;
   order: "asc" | "desc";
   page: number;
@@ -65,7 +71,15 @@ type QueryState = {
 const initialQuery: QueryState = {
   search: "", shiny: "all", lucky: "all", gender: "", alignment: "", costume: "all",
   specialForm: "all", perfect: false, ivMin: "", ivMax: "", cpMin: "", cpMax: "",
+  weightMin: "", weightMax: "", heightMin: "", heightMax: "",
   sort: "dexNumber", order: "asc", page: 1, limit: 50,
+};
+
+const typeColors: Record<string, string> = {
+  BUG: "#91c12f", DARK: "#5a5465", DRAGON: "#0b6dc3", ELECTRIC: "#f4d23c", FAIRY: "#ec8fe6",
+  FIGHTING: "#ce416b", FIRE: "#ff9d55", FLYING: "#89aae3", GHOST: "#5269ad", GRASS: "#63bc5a",
+  GROUND: "#d97845", ICE: "#73cec0", NORMAL: "#919aa2", POISON: "#aa6bc8", PSYCHIC: "#fa7179",
+  ROCK: "#c5b78c", STEEL: "#5a8ea2", WATER: "#5090d6",
 };
 
 const genderLabels = { MALE: "Mâle", FEMALE: "Femelle", GENDERLESS: "Sans genre", UNKNOWN: "Inconnu" } as const;
@@ -88,8 +102,17 @@ function queryParams(query: QueryState, debouncedSearch: string) {
   if (query.gender) params.set("gender", query.gender);
   if (query.alignment) params.set("alignment", query.alignment);
   if (query.perfect) params.set("perfect", "true");
-  for (const key of ["ivMin", "ivMax", "cpMin", "cpMax"] as const) if (query[key] !== "") params.set(key, query[key]);
+  for (const key of ["ivMin", "ivMax", "cpMin", "cpMax", "weightMin", "weightMax", "heightMin", "heightMax"] as const) if (query[key] !== "") params.set(key, query[key]);
   return params;
+}
+
+function pokemonSurface(pokemon: TrainerPokemon) {
+  const primary = typeColors[pokemon.primaryType || ""] || typeColors.NORMAL;
+  const secondary = typeColors[pokemon.secondaryType || ""] || primary;
+  return {
+    borderColor: `color-mix(in srgb, ${primary} 28%, var(--line))`,
+    backgroundImage: `linear-gradient(115deg, color-mix(in srgb, ${primary} 13%, transparent), color-mix(in srgb, ${secondary} 8%, transparent) 55%, transparent)`,
+  };
 }
 
 function Move({ move }: { move: NormalizedTrainerPokemonMove }) {
@@ -104,13 +127,13 @@ function Move({ move }: { move: NormalizedTrainerPokemonMove }) {
 
 function PokemonImage({ pokemon }: { pokemon: TrainerPokemon }) {
   return (
-    <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-lg border border-line bg-white/[0.05] p-1">
+    <span className="grid h-[4.5rem] w-[4.5rem] shrink-0 place-items-center overflow-hidden rounded-lg border border-line bg-white/[0.05] p-1.5 lg:h-20 lg:w-20">
       <Image
         className={pokemon.image ? "h-full w-full object-contain" : "h-8 w-8 object-contain opacity-45"}
         src={pokemon.image || placeholderImage}
         alt={pokemon.image ? `${pokemon.frenchName}${pokemon.shiny ? " chromatique" : ""}` : `Image indisponible pour ${pokemon.frenchName}`}
-        width={56}
-        height={56}
+        width={80}
+        height={80}
       />
     </span>
   );
@@ -122,13 +145,14 @@ function StatusBadges({ pokemon }: { pokemon: TrainerPokemon }) {
       {pokemon.shiny ? <Badge tone="amber">Chromatique</Badge> : null}
       {pokemon.lucky ? <Badge tone="green">Chanceux</Badge> : null}
       <Badge tone={pokemon.alignment === "SHADOW" ? "red" : pokemon.alignment === "PURIFIED" ? "cyan" : "neutral"}>{alignmentLabels[pokemon.alignment]}</Badge>
+      {pokemon.imageMatch !== "exact" ? <Badge tone={pokemon.imageMatch === "missing" ? "red" : "neutral"}>{pokemon.imageMatch === "missing" ? "Asset indisponible" : `Fallback ${pokemon.imageMatch}`}</Badge> : null}
     </span>
   );
 }
 
 function PokemonMobileCard({ pokemon }: { pokemon: TrainerPokemon }) {
   return (
-    <Card className="p-3 lg:hidden">
+    <Card className="p-3 lg:hidden" style={pokemonSurface(pokemon)}>
       <div className="flex gap-3">
         <PokemonImage pokemon={pokemon} />
         <div className="min-w-0 flex-1">
@@ -158,7 +182,7 @@ function PokemonTable({ items }: { items: TrainerPokemon[] }) {
           {['Pokémon', 'Nom et surnom', 'Forme / costume', 'CP', 'IV', 'Attaques', 'Poids', 'Taille', 'Genre', 'États'].map((label) => <th className="border-b border-line px-3 py-3 font-black uppercase tracking-wider" key={label}>{label}</th>)}
         </tr></thead>
         <tbody>{items.map((pokemon) => (
-          <tr className="border-b border-line/70 align-middle last:border-0 hover:bg-white/[0.035]" key={pokemon.sourceId}>
+          <tr className="border-b border-line/70 align-middle last:border-0 hover:bg-white/[0.055]" style={pokemonSurface(pokemon)} key={pokemon.sourceId}>
             <td className="px-3 py-2"><div className="flex items-center gap-2"><PokemonImage pokemon={pokemon} /><strong className="font-mono">#{pokemon.dexNumber}</strong></div></td>
             <td className="max-w-56 px-3 py-2"><strong className="block truncate text-sm">{pokemon.frenchName}</strong><span className="block truncate font-semibold text-muted">{pokemon.nickname || "Aucun surnom"}</span><span className="block truncate text-[10px] text-muted/70">{pokemon.sourceName}</span></td>
             <td className="max-w-48 px-3 py-2"><div className="flex flex-wrap gap-1">{pokemon.form ? <Badge>{pokemon.form}</Badge> : <span className="text-muted">—</span>}{pokemon.costume ? <Badge tone="violet">{pokemon.costume}</Badge> : null}</div></td>
@@ -230,6 +254,7 @@ export function TrainerPokemonCollectionPanel() {
   const [history, setHistory] = useState<TrainerPokemonSnapshotSummary[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [announcement, setAnnouncement] = useState("");
+  const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
   const requestIdRef = useRef(0);
 
   useEffect(() => {
@@ -306,6 +331,11 @@ export function TrainerPokemonCollectionPanel() {
     ["Total", data.stats.total, "neutral"], ["Chromatiques", data.stats.shiny, "amber"], ["Chanceux", data.stats.lucky, "green"],
     ["IV 100 %", data.stats.perfect, "violet"], ["Obscurs", data.stats.shadow, "red"], ["Purifiés", data.stats.purified, "cyan"], ["Costumes", data.stats.costume, "violet"],
   ] as const : [], [data]);
+  const activeFilterCount = [
+    Boolean(query.search), query.shiny !== "all", query.lucky !== "all", Boolean(query.gender), Boolean(query.alignment),
+    query.costume !== "all", query.specialForm !== "all", query.perfect, query.sort !== "dexNumber", query.order !== "asc",
+    ...[query.ivMin, query.ivMax, query.cpMin, query.cpMax, query.weightMin, query.weightMax, query.heightMin, query.heightMax].map(Boolean),
+  ].filter(Boolean).length;
 
   return (
     <section className="grid gap-4" aria-labelledby="trainer-pokemon-title">
@@ -323,19 +353,26 @@ export function TrainerPokemonCollectionPanel() {
       <Card className="p-3 sm:p-4">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <label className="relative block md:col-span-2"><span className="sr-only">Rechercher dans la collection</span><Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={17} /><Input className="pl-10" value={query.search} onChange={(event) => updateQuery({ search: event.target.value })} placeholder="Nom, surnom, numéro, forme, costume ou attaque…" /></label>
+          <FilterSelect label="Trier par" value={query.sort} onChange={(value) => updateQuery({ sort: value as TrainerPokemonSortField })} options={[["dexNumber", "Numéro Pokédex"], ["frenchName", "Nom"], ["nickname", "Surnom"], ["cp", "CP"], ["ivPercent", "IV %"], ["attackIv", "Attaque IV"], ["defenseIv", "Défense IV"], ["staminaIv", "Endurance IV"], ["weightKg", "Poids"], ["heightM", "Taille"], ["shiny", "Chromatique"], ["lucky", "Chanceux"]]} />
+          <FilterSelect label="Ordre" value={query.order} onChange={(value) => updateQuery({ order: value as QueryState["order"] })} options={[["asc", "Ascendant"], ["desc", "Descendant"]]} />
           <FilterSelect label="Chromatique" value={query.shiny} onChange={(value) => updateQuery({ shiny: value as QueryState["shiny"] })} options={[["all", "Tous"], ["yes", "Oui"], ["no", "Non"]]} />
           <FilterSelect label="Chanceux" value={query.lucky} onChange={(value) => updateQuery({ lucky: value as QueryState["lucky"] })} options={[["all", "Tous"], ["yes", "Oui"], ["no", "Non"]]} />
           <FilterSelect label="Genre" value={query.gender} onChange={(value) => updateQuery({ gender: value })} options={[["", "Tous"], ...Object.entries(genderLabels)]} />
           <FilterSelect label="Alignement" value={query.alignment} onChange={(value) => updateQuery({ alignment: value })} options={[["", "Tous"], ["NORMAL", "Normal"], ["SHADOW", "Obscur"], ["PURIFIED", "Purifié"], ["UNKNOWN", "Inconnu"]]} />
-          <FilterSelect label="Costume" value={query.costume} onChange={(value) => updateQuery({ costume: value as QueryState["costume"] })} options={[["all", "Tous"], ["yes", "Avec"], ["no", "Sans"]]} />
-          <FilterSelect label="Forme spéciale" value={query.specialForm} onChange={(value) => updateQuery({ specialForm: value as QueryState["specialForm"] })} options={[["all", "Toutes"], ["yes", "Avec"], ["no", "Sans"]]} />
-          <RangeFields label="IV %" min={query.ivMin} max={query.ivMax} onMin={(value) => updateQuery({ ivMin: value })} onMax={(value) => updateQuery({ ivMax: value })} maxValue={100} />
-          <RangeFields label="CP" min={query.cpMin} max={query.cpMax} onMin={(value) => updateQuery({ cpMin: value })} onMax={(value) => updateQuery({ cpMax: value })} />
-          <FilterSelect label="Trier par" value={query.sort} onChange={(value) => updateQuery({ sort: value as TrainerPokemonSortField })} options={[["dexNumber", "Numéro Pokédex"], ["frenchName", "Nom"], ["nickname", "Surnom"], ["cp", "CP"], ["ivPercent", "IV %"], ["attackIv", "Attaque IV"], ["defenseIv", "Défense IV"], ["staminaIv", "Endurance IV"], ["weightKg", "Poids"], ["heightM", "Taille"], ["shiny", "Chromatique"], ["lucky", "Chanceux"]]} />
-          <FilterSelect label="Ordre" value={query.order} onChange={(value) => updateQuery({ order: value as QueryState["order"] })} options={[["asc", "Ascendant"], ["desc", "Descendant"]]} />
           <label className="flex min-h-11 items-center gap-2 rounded-lg border border-line bg-white/[0.04] px-3 text-sm font-bold"><input type="checkbox" checked={query.perfect} onChange={(event) => updateQuery({ perfect: event.target.checked })} /> IV 100 % uniquement</label>
-          <Button icon={<RotateCcw size={15} />} onClick={() => setQuery(initialQuery)}>Réinitialiser les filtres</Button>
+          <Button icon={<SlidersHorizontal size={15} />} onClick={() => setMoreFiltersOpen((open) => !open)} aria-expanded={moreFiltersOpen}>Plus de filtres <Badge tone={activeFilterCount ? "cyan" : "neutral"}>{activeFilterCount}</Badge><ChevronDown className={moreFiltersOpen ? "rotate-180 transition" : "transition"} size={15} /></Button>
+          <Button icon={<RotateCcw size={15} />} onClick={() => { setQuery(initialQuery); setMoreFiltersOpen(false); }}>Réinitialiser les filtres</Button>
         </div>
+        {moreFiltersOpen ? (
+          <div className="mt-4 grid gap-3 border-t border-line pt-4 md:grid-cols-2 xl:grid-cols-4">
+            <FilterSelect label="Costume" value={query.costume} onChange={(value) => updateQuery({ costume: value as QueryState["costume"] })} options={[["all", "Tous"], ["yes", "Avec"], ["no", "Sans"]]} />
+            <FilterSelect label="Forme spéciale" value={query.specialForm} onChange={(value) => updateQuery({ specialForm: value as QueryState["specialForm"] })} options={[["all", "Toutes"], ["yes", "Avec"], ["no", "Sans"]]} />
+            <RangeFields label="IV %" min={query.ivMin} max={query.ivMax} onMin={(value) => updateQuery({ ivMin: value })} onMax={(value) => updateQuery({ ivMax: value })} maxValue={100} />
+            <RangeFields label="CP" min={query.cpMin} max={query.cpMax} onMin={(value) => updateQuery({ cpMin: value })} onMax={(value) => updateQuery({ cpMax: value })} />
+            <RangeFields label="Poids (kg)" min={query.weightMin} max={query.weightMax} onMin={(value) => updateQuery({ weightMin: value })} onMax={(value) => updateQuery({ weightMax: value })} step="0.01" />
+            <RangeFields label="Taille (m)" min={query.heightMin} max={query.heightMax} onMin={(value) => updateQuery({ heightMin: value })} onMax={(value) => updateQuery({ heightMax: value })} step="0.01" />
+          </div>
+        ) : null}
       </Card>
 
       {loading ? <Card className="grid min-h-52 place-items-center p-6"><div className="text-center"><LoaderCircle className="mx-auto animate-spin text-brand-2" size={30} /><p className="mt-3 font-bold">Chargement de la collection…</p></div></Card> : null}
@@ -356,8 +393,8 @@ function FilterSelect({ label, value, options, onChange }: { label: string; valu
   return <label className="grid gap-1 text-xs font-black text-muted"><span>{label}</span><select className={selectClass} value={value} onChange={(event) => onChange(event.target.value)}>{options.map(([id, name]) => <option key={id || "all"} value={id}>{name}</option>)}</select></label>;
 }
 
-function RangeFields({ label, min, max, maxValue, onMin, onMax }: { label: string; min: string; max: string; maxValue?: number; onMin: (value: string) => void; onMax: (value: string) => void }) {
-  return <fieldset><legend className="mb-1 text-xs font-black text-muted">{label}</legend><div className="grid grid-cols-2 gap-2"><Input type="number" min="0" max={maxValue} value={min} onChange={(event) => onMin(event.target.value)} placeholder="Min" aria-label={`${label} minimum`} /><Input type="number" min="0" max={maxValue} value={max} onChange={(event) => onMax(event.target.value)} placeholder="Max" aria-label={`${label} maximum`} /></div></fieldset>;
+function RangeFields({ label, min, max, maxValue, step = "1", onMin, onMax }: { label: string; min: string; max: string; maxValue?: number; step?: string; onMin: (value: string) => void; onMax: (value: string) => void }) {
+  return <fieldset><legend className="mb-1 text-xs font-black text-muted">{label}</legend><div className="grid grid-cols-2 gap-2"><Input type="number" min="0" max={maxValue} step={step} value={min} onChange={(event) => onMin(event.target.value)} placeholder="Min" aria-label={`${label} minimum`} /><Input type="number" min="0" max={maxValue} step={step} value={max} onChange={(event) => onMax(event.target.value)} placeholder="Max" aria-label={`${label} maximum`} /></div></fieldset>;
 }
 
 function Pagination({ query, data, onPage, onLimit }: { query: QueryState; data: TrainerPokemonListResponse; onPage: (page: number) => void; onLimit: (limit: number) => void }) {

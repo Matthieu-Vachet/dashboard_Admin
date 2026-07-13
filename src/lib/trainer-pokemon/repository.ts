@@ -1,6 +1,6 @@
 import { MongoClient, ObjectId, type Db, type Filter, type Sort } from "mongodb";
 import { executeAtomicSnapshotImport, executeAtomicSnapshotRollback, trainerPokemonEntryChecksum } from "@/lib/trainer-pokemon/atomic";
-import { normalizeTrainerPokemonImport, normalizeSearchValue, emptyTrainerPokemonStats } from "@/lib/trainer-pokemon/normalize";
+import { enrichTrainerPokemonEntries, normalizeTrainerPokemonImport, normalizeSearchValue, emptyTrainerPokemonStats } from "@/lib/trainer-pokemon/normalize";
 import { fetchTrainerPokemonReferences, type TrainerPokemonReferences } from "@/lib/trainer-pokemon/references";
 import { validateTrainerPokemonImport } from "@/lib/trainer-pokemon/schema";
 import type {
@@ -60,6 +60,10 @@ export type TrainerPokemonQuery = {
   ivMax?: number;
   cpMin?: number;
   cpMax?: number;
+  weightMin?: number;
+  weightMax?: number;
+  heightMin?: number;
+  heightMax?: number;
   sort?: TrainerPokemonSortField;
   order?: "asc" | "desc";
 };
@@ -107,6 +111,7 @@ async function ensureIndexes(db: Db) {
     db.collection(entriesName).createIndex({ owner: 1, snapshotId: 1, frenchName: 1 }),
     db.collection(entriesName).createIndex({ owner: 1, snapshotId: 1, cp: -1 }),
     db.collection(entriesName).createIndex({ owner: 1, snapshotId: 1, ivPercent: -1 }),
+    db.collection(entriesName).createIndex({ owner: 1, snapshotId: 1, weightKg: 1, heightM: 1 }),
     db.collection(entriesName).createIndex({ owner: 1, snapshotId: 1, shiny: 1, lucky: 1 }),
     db.collection(entriesName).createIndex({ owner: 1, snapshotId: 1, gender: 1, alignment: 1 }),
     db.collection(entriesName).createIndex({ owner: 1, snapshotId: 1, form: 1, costume: 1 }),
@@ -256,6 +261,10 @@ function queryFilter(owner: string, snapshotId: ObjectId, query: TrainerPokemonQ
   if (ivRange) filter.ivPercent = ivRange;
   const cpRange = finiteRange(query.cpMin, query.cpMax);
   if (cpRange) filter.cp = cpRange;
+  const weightRange = finiteRange(query.weightMin, query.weightMax);
+  if (weightRange) filter.weightKg = weightRange;
+  const heightRange = finiteRange(query.heightMin, query.heightMax);
+  if (heightRange) filter.heightM = heightRange;
   return filter;
 }
 
@@ -265,7 +274,7 @@ export async function readTrainerPokemon(owner: string, query: TrainerPokemonQue
   if (!ownerDocument?.activeSnapshotId) {
     return {
       items: [], snapshot: null, stats: emptyTrainerPokemonStats(),
-      filters: { genders: [], alignments: [], forms: [], costumes: [], cp: { min: 0, max: 0 }, ivPercent: { min: 0, max: 100 } },
+      filters: { genders: [], alignments: [], forms: [], costumes: [], cp: { min: 0, max: 0 }, ivPercent: { min: 0, max: 100 }, weightKg: { min: 0, max: 0 }, heightM: { min: 0, max: 0 } },
       pagination: { page: 1, limit: 50, total: 0, pages: 0 },
     };
   }
@@ -285,14 +294,23 @@ export async function readTrainerPokemon(owner: string, query: TrainerPokemonQue
     entries(db).distinct("alignment", baseFilter),
     entries(db).distinct("form", { ...baseFilter, form: { $ne: null } }),
     entries(db).distinct("costume", { ...baseFilter, costume: { $ne: null } }),
-    entries(db).aggregate<{ cpMin: number; cpMax: number; ivMin: number; ivMax: number }>([
+    entries(db).aggregate<{ cpMin: number; cpMax: number; ivMin: number; ivMax: number; weightMin: number; weightMax: number; heightMin: number; heightMax: number }>([
       { $match: baseFilter },
-      { $group: { _id: null, cpMin: { $min: "$cp" }, cpMax: { $max: "$cp" }, ivMin: { $min: "$ivPercent" }, ivMax: { $max: "$ivPercent" } } },
+      { $group: { _id: null, cpMin: { $min: "$cp" }, cpMax: { $max: "$cp" }, ivMin: { $min: "$ivPercent" }, ivMax: { $max: "$ivPercent" }, weightMin: { $min: "$weightKg" }, weightMax: { $max: "$weightKg" }, heightMin: { $min: "$heightM" }, heightMax: { $max: "$heightM" } } },
       { $project: { _id: 0 } },
     ]).next(),
   ]);
+  let presentedDocuments = documents as TrainerPokemon[];
+  try {
+    presentedDocuments = enrichTrainerPokemonEntries(presentedDocuments, await fetchTrainerPokemonReferences());
+  } catch (error) {
+    console.error("[trainer-pokemon] presentation enrichment unavailable", {
+      owner,
+      message: error instanceof Error ? error.message : "unknown",
+    });
+  }
   return {
-    items: documents as TrainerPokemon[],
+    items: presentedDocuments,
     snapshot: snapshotSummary(snapshot, ownerDocument.activeSnapshotId),
     stats: snapshot.stats,
     filters: {
@@ -302,6 +320,8 @@ export async function readTrainerPokemon(owner: string, query: TrainerPokemonQue
       costumes: costumes.filter((value): value is string => typeof value === "string").sort(),
       cp: { min: ranges?.cpMin || 0, max: ranges?.cpMax || 0 },
       ivPercent: { min: ranges?.ivMin || 0, max: ranges?.ivMax || 100 },
+      weightKg: { min: ranges?.weightMin || 0, max: ranges?.weightMax || 0 },
+      heightM: { min: ranges?.heightMin || 0, max: ranges?.heightMax || 0 },
     },
     pagination: { page, limit, total, pages: Math.ceil(total / limit) },
   };

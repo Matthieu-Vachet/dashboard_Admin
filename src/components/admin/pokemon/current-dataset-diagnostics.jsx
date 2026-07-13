@@ -82,9 +82,19 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "" }) {
   const errorMessage = error && String(error).startsWith("Affichage de la dernière version MongoDB connue")
     ? String(error)
     : `Affichage de la dernière version MongoDB connue — la nouvelle récupération a échoué. ${error}`;
+  const metrics = [
+    ["Provider", provider, false],
+    ["Mode", mode, false],
+    ["Événement", formatEvent(event), false],
+    ["Total", count, true],
+    ["Récupéré le", formatDate(fetchedAt), false],
+    ["Enregistré le", formatDate(savedAt), false],
+    ["Hash", shortHash, true],
+    ["Matchés / non matchés", `${Number(diagnostics.matchedCount) || 0} / ${Number(diagnostics.unmatchedCount) || 0}`, true],
+  ];
 
   return (
-    <section className="mt-4 space-y-3 rounded-2xl border border-cyan-300/15 bg-cyan-400/[0.075] p-4" aria-label="État de la source de données">
+    <section className="mt-4 min-w-0 space-y-3 rounded-2xl border border-cyan-300/15 bg-cyan-400/[0.075] p-3 sm:p-4" aria-label="État de la source de données">
       {error ? (
         <div className="flex items-start gap-2 rounded-xl border border-red-200/25 bg-red-400/12 p-3 text-sm font-bold leading-5 text-red-50" role="alert">
           <AlertTriangle className="mt-0.5 shrink-0" size={17} aria-hidden="true" />
@@ -93,7 +103,7 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "" }) {
       ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2 text-sm font-black text-cyan-50">
+        <div className="flex min-w-0 flex-wrap items-center gap-2 text-sm font-black text-cyan-50">
           <Database size={18} aria-hidden="true" />
           <span>Source active : {sourceLabel}</span>
           <span className="rounded-full border border-white/10 bg-white/[0.07] px-2 py-1 text-[10px] uppercase tracking-[0.12em] text-cyan-100/70">
@@ -109,21 +119,20 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "" }) {
         </span>
       </div>
 
-      <dl className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-        <Metric label="Provider" value={provider} />
-        <Metric label="Mode" value={mode} />
-        <Metric label="Événement" value={formatEvent(event)} />
-        <Metric label="Total" value={count} mono />
-        <Metric label="Récupéré le" value={formatDate(fetchedAt)} />
-        <Metric label="Enregistré le" value={formatDate(savedAt)} />
-        <Metric label="Hash" value={shortHash} mono />
-        <Metric label="Matchés / non matchés" value={`${Number(diagnostics.matchedCount) || 0} / ${Number(diagnostics.unmatchedCount) || 0}`} mono />
+      <dl className="hidden gap-2 sm:grid sm:grid-cols-2 xl:grid-cols-4">
+        {metrics.map(([label, value, mono]) => <Metric key={label} label={label} value={value} mono={mono} />)}
       </dl>
+      <details className="rounded-xl border border-white/10 bg-slate-950/25 text-xs sm:hidden">
+        <summary className="cursor-pointer px-3 py-2.5 font-black text-cyan-50">Afficher les détails de la source</summary>
+        <dl className="grid gap-2 border-t border-white/10 p-2">
+          {metrics.map(([label, value, mono]) => <Metric key={label} label={label} value={value} mono={mono} />)}
+        </dl>
+      </details>
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold text-slate-300">
         {sourceUrl ? (
           <a className="inline-flex min-w-0 items-center gap-1 text-cyan-100 underline decoration-cyan-200/30 underline-offset-4 hover:text-white" href={sourceUrl} target="_blank" rel="noreferrer">
-            <span className="max-w-[36rem] truncate">{sourceUrl}</span>
+            <span className="max-w-full break-all sm:max-w-[36rem] sm:truncate">{sourceUrl}</span>
             <ExternalLink className="shrink-0" size={13} aria-hidden="true" />
           </a>
         ) : <span>URL source indisponible</span>}

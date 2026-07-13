@@ -39,6 +39,79 @@ function referenceAssets(reference: TrainerPokemonSpeciesReference) {
   return reference.data?.assets || {};
 }
 
+function referenceTypes(reference?: TrainerPokemonSpeciesReference) {
+  return {
+    primaryType: reference?.data?.primaryType ? String(reference.data.primaryType).toUpperCase() : null,
+    secondaryType: reference?.data?.secondaryType ? String(reference.data.secondaryType).toUpperCase() : null,
+  };
+}
+
+function normalizedAssetToken(value: unknown) {
+  return String(value || "").trim().toUpperCase();
+}
+
+function assetUrl(reference: TrainerPokemonSpeciesReference | undefined, shiny: boolean) {
+  if (!reference) return null;
+  const assets = referenceAssets(reference);
+  return shiny ? assets.shinyImage || null : assets.image || null;
+}
+
+function costumeAsset(
+  reference: TrainerPokemonSpeciesReference | undefined,
+  rawForm: string | null,
+  costume: string,
+  gender: TrainerPokemonGender,
+  shiny: boolean,
+) {
+  const costumeToken = normalizedAssetToken(costume);
+  const formToken = normalizedAssetToken(rawForm).replace(/_NORMAL$/, "");
+  const variants = (reference?.data?.assetForms || []).filter((asset) => {
+    if (normalizedAssetToken(asset.costume) !== costumeToken) return false;
+    const assetForm = normalizedAssetToken(asset.form);
+    return !assetForm || !formToken || assetForm === formToken || formToken.endsWith(`_${assetForm}`);
+  });
+  const ordered = [...variants].sort((left, right) => {
+    const leftGender = gender === "FEMALE" ? left.isFemale === true : left.isFemale !== true;
+    const rightGender = gender === "FEMALE" ? right.isFemale === true : right.isFemale !== true;
+    return Number(rightGender) - Number(leftGender);
+  });
+  const selected = ordered.find((asset) => shiny ? Boolean(asset.shinyImage) : Boolean(asset.image));
+  return shiny ? selected?.shinyImage || null : selected?.image || null;
+}
+
+function resolvePokemonAsset(
+  candidates: TrainerPokemonSpeciesReference[],
+  reference: TrainerPokemonSpeciesReference | undefined,
+  exactReference: boolean,
+  rawForm: string | null,
+  costume: string | null,
+  gender: TrainerPokemonGender,
+  shiny: boolean,
+) {
+  if (costume && reference) {
+    const exact = costumeAsset(reference, rawForm, costume, gender, shiny);
+    if (exact) return { image: exact, imageMatch: "exact" as const };
+  }
+
+  const formImage = assetUrl(reference, shiny);
+  if (formImage) {
+    return {
+      image: formImage,
+      imageMatch: exactReference && !costume ? "exact" as const : "form" as const,
+    };
+  }
+
+  const normal = candidates.find((candidate) => String(candidate.form || "").toLowerCase() === "normal");
+  const normalImage = assetUrl(normal, shiny);
+  if (normalImage) return { image: normalImage, imageMatch: "normal" as const };
+
+  const base = candidates.find((candidate) => candidate.id && candidate.formId === candidate.id) || candidates[0];
+  const baseImage = assetUrl(base, shiny);
+  if (baseImage) return { image: baseImage, imageMatch: "base" as const };
+
+  return { image: null, imageMatch: "missing" as const };
+}
+
 function typeData(reference: TrainerPokemonTypeReference) {
   return {
     names: reference.names || reference.data?.names || {},
@@ -136,6 +209,7 @@ export function normalizeTrainerPokemonImport(
     UNKNOWN_GENDER: 0,
     UNKNOWN_ALIGNMENT: 0,
     PARTIAL_FORM_MATCH: 0,
+    ASSET_FALLBACK: 0,
     UNKNOWN_MOVE: 0,
     MISSING_ASSET: 0,
   } satisfies Record<TrainerPokemonDiagnosticCode, number>;
@@ -172,9 +246,16 @@ export function normalizeTrainerPokemonImport(
     if (alignment === "UNKNOWN") addDiagnostic({ code: "UNKNOWN_ALIGNMENT", path: `${basePath}.mon_alignment`, sourceId, message: `Alignement inconnu : ${String(raw.mon_alignment)}.` });
 
     const shiny = raw.mon_isShiny === "YES";
-    const assets = match.reference ? referenceAssets(match.reference) : {};
-    const image = costume ? null : shiny ? assets.shinyImage || null : assets.image || null;
-    if (!image) {
+    const resolvedAsset = resolvePokemonAsset(candidates, match.reference, match.exact, form, costume, gender, shiny);
+    if (resolvedAsset.image && resolvedAsset.imageMatch !== "exact") {
+      addDiagnostic({
+        code: "ASSET_FALLBACK",
+        path: `${basePath}.${costume ? "mon_costume" : "mon_form"}`,
+        sourceId,
+        message: `Asset exact introuvable; fallback ${resolvedAsset.imageMatch} utilisé pour ${shiny ? "la variante chromatique" : "la variante normale"}.`,
+      });
+    }
+    if (!resolvedAsset.image) {
       addDiagnostic({
         code: "MISSING_ASSET",
         path: `${basePath}.${costume ? "mon_costume" : "mon_form"}`,
@@ -222,8 +303,9 @@ export function normalizeTrainerPokemonImport(
       heightM: Number(raw.mon_height),
       fastMove,
       chargedMoves,
-      image,
-      imageMatch: image ? "exact" : "missing",
+      ...referenceTypes(match.reference),
+      image: resolvedAsset.image,
+      imageMatch: resolvedAsset.imageMatch,
       searchText,
     } satisfies TrainerPokemon;
   });
@@ -255,4 +337,30 @@ export function normalizeTrainerPokemonImport(
       stats,
     },
   };
+}
+
+export function enrichTrainerPokemonEntries(
+  entries: TrainerPokemon[],
+  references: TrainerPokemonReferences,
+) {
+  const indexes = buildReferenceIndexes(references);
+  return entries.map((entry) => {
+    const candidates = indexes.pokemonByDex.get(entry.dexNumber) || [];
+    const match = exactPokemonReference(candidates, entry.form);
+    const resolvedAsset = resolvePokemonAsset(
+      candidates,
+      match.reference,
+      match.exact,
+      entry.form,
+      entry.costume,
+      entry.gender,
+      entry.shiny,
+    );
+    return {
+      ...entry,
+      ...referenceTypes(match.reference),
+      image: resolvedAsset.image,
+      imageMatch: resolvedAsset.imageMatch,
+    };
+  });
 }

@@ -14,6 +14,17 @@ test("la navigation Admin Pokémon reste groupée, recherchable et accessible", 
   }
   assert.match(source, /alt=""/);
   assert.match(source, /aria-expanded=/);
+  assert.match(source, /grid items-start/);
+  assert.match(source, /Accès rapides/);
+});
+
+test("la modale commune conserve le callback courant et restaure le focus", () => {
+  const source = read("src/components/ui/modal.tsx");
+  assert.match(source, /const onCloseRef = useRef\(onClose\)/);
+  assert.match(source, /onCloseRef\.current = onClose/);
+  assert.match(source, /previouslyFocusedRef\.current\?\.focus\(\)/);
+  assert.match(source, /\}, \[open\]\);/);
+  assert.doesNotMatch(source, /autoFocus/);
 });
 
 test("les accordéons de contenu sont fermés par défaut", () => {
@@ -30,6 +41,9 @@ test("Background sépare la preview Location Card de l'asset Pokémon", () => {
   assert.match(source, /blur-/);
   assert.match(source, /ASSET ABSENT|Asset Pokémon absent/);
   assert.doesNotMatch(source, /Pokémon sans location card/);
+  assert.match(source, /entriesByFile/);
+  assert.match(source, /entriesByVariant/);
+  assert.match(source, /linkedEntry/);
 });
 
 test("Shiny conserve son podium, son détail responsive et son historique interne", () => {
@@ -38,6 +52,31 @@ test("Shiny conserve son podium, son détail responsive et son historique intern
   assert.match(source, /Historique de nos snapshots/);
   assert.match(source, /sm:|md:|lg:/);
   assert.match(source, /points\.length >= 2/);
+  assert.match(source, /rankedEntries = entries\.filter/);
+  assert.doesNotMatch(source, /max-sm:h-\[calc\(100dvh/);
+});
+
+test("le calendrier remplace la grille mensuelle par un agenda sur mobile", () => {
+  const source = read("src/components/admin/events/events-calendar-panel.jsx");
+  assert.match(source, /aria-label="Agenda mobile"/);
+  assert.match(source, /hidden sm:block/);
+  assert.match(source, /id === "calendar" \? "hidden sm:inline-flex"/);
+});
+
+test("les diagnostics source et l'API Explorer restent contenus sur mobile", () => {
+  const diagnostics = read("src/components/admin/pokemon/current-dataset-diagnostics.jsx");
+  const explorer = read("src/components/admin/pokemon/pokemon-api-explorer.tsx");
+  assert.match(diagnostics, /Afficher les détails de la source/);
+  assert.match(diagnostics, /sm:hidden/);
+  assert.match(explorer, /min-w-0 overflow-hidden/);
+  assert.match(explorer, /xl:grid-cols-\[minmax\(16rem,23rem\)_minmax\(0,1fr\)_auto\]/);
+});
+
+test("le catalogue distingue visuellement les attaques rapides et chargées", () => {
+  const source = read("src/components/admin/pokemon/catalog-panel.jsx");
+  assert.match(source, /Rapide/);
+  assert.match(source, /Chargée/);
+  assert.match(source, /aria-expanded=/);
 });
 
 test("PvP expose tous les rôles et développe les lignes en accordéon", () => {
