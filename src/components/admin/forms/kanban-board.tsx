@@ -671,9 +671,9 @@ function KanbanTaskCard({
       )}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className={cn("inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black", categoryStyles[task.category])}>
+        <Badge className={categoryStyles[task.category]}>
           {task.category}
-        </span>
+        </Badge>
         <div className="flex items-center gap-1">
           <button
             type="button"
@@ -754,9 +754,9 @@ function KanbanTaskCard({
 function KanbanTaskPreview({ task }: { task: Task }) {
   return (
     <article className="w-[320px] rounded-lg border border-brand-2/55 bg-[#101522] p-3 shadow-[0_28px_90px_rgba(32,211,255,0.24)]">
-      <span className={cn("inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black", categoryStyles[task.category])}>
+      <Badge className={categoryStyles[task.category]}>
         {task.category}
-      </span>
+      </Badge>
       <h4 className="mt-4 text-sm font-black leading-6">{task.title}</h4>
       <p className="mt-2 line-clamp-2 text-xs font-semibold leading-5 text-muted">{task.description}</p>
       <div className="mt-5 flex items-center justify-between gap-3">

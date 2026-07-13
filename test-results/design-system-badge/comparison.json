@@ -1,0 +1,6 @@
+{
+  "status": "passed",
+  "differences": [],
+  "baseline": "test-results/design-system-badge/baseline.json",
+  "current": "test-results/design-system-badge/after.json"
+}

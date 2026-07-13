@@ -1,0 +1,2185 @@
+{
+  "stage": "after",
+  "baseUrl": "http://localhost:3020",
+  "createdAt": "2026-07-13T18:13:50.804Z",
+  "runs": [
+    {
+      "theme": "dark",
+      "viewport": {
+        "name": "mobile",
+        "width": 375,
+        "height": 812
+      },
+      "overflow": 0,
+      "screenshots": {
+        "loaded": {
+          "file": "test-results/design-system-badge/after/dark-mobile-loaded.png",
+          "sha256": "89acc8606ca52765dffe8d59b31860e7045e7d942c8024329d05ff3ebf72118b"
+        },
+        "modal": {
+          "file": "test-results/design-system-badge/after/dark-mobile-modal.png",
+          "sha256": "c81c4d3bac16b37357b5f8137395d5fa6ed9244efbdbdf15365c918c76048294"
+        }
+      },
+      "styles": {
+        "Produit": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.803866 -0.107988 -0.093248 / 0.3)",
+          "backgroundColor": "oklab(0.803866 -0.107988 -0.093248 / 0.1)",
+          "color": "lab(95.3146 -13.8285 -6.84732)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "Design": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.607547 0.0923267 -0.197615 / 0.3)",
+          "backgroundColor": "oklab(0.607547 0.0923267 -0.197615 / 0.1)",
+          "color": "lab(93.0838 4.35197 -9.88284)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "API": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.861434 -0.155314 0.0596801 / 0.3)",
+          "backgroundColor": "oklab(0.861434 -0.155314 0.0596801 / 0.1)",
+          "color": "lab(94.9004 -17.0769 5.63836)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "Ops": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.880304 0.00929835 0.134472 / 0.35)",
+          "backgroundColor": "oklab(0.880304 0.00929835 0.134472 / 0.1)",
+          "color": "lab(95.916 -1.21653 23.111)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "Urgent": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.700858 0.190084 0.041913 / 0.35)",
+          "backgroundColor": "oklab(0.700858 0.190084 0.041913 / 0.1)",
+          "color": "lab(92.8221 9.86832 2.60075)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        }
+      },
+      "labelClasses": {
+        "Produit": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-brand-2/30 bg-brand-2/10 text-cyan-100",
+        "Design": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-brand/30 bg-brand/10 text-violet-100",
+        "API": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-brand-3/30 bg-brand-3/10 text-emerald-100",
+        "Ops": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-warning/35 bg-warning/10 text-amber-100",
+        "Urgent": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-danger/35 bg-danger/10 text-rose-100"
+      },
+      "labelTags": {
+        "Produit": "span",
+        "Design": "span",
+        "API": "span",
+        "Ops": "span",
+        "Urgent": "span"
+      },
+      "focusables": [
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Aller au contenu principal",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ouvrir le menu",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ouvrir l'historique des versions du Dashboard",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Palette dominante : Saphir",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Changer le thème",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ajouter une carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Finaliser les tokens UICréer les variantes utiles pour Button, Badge, Card et St",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Brancher les stats Pokémon détailléesAfficher live/fallback, générations et cata",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Créer le dashboard personnelRendre chaque module utilisable, pas seulement joli.",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Vérifier le parcours loginTester mobile, tablette et prod Vercel.",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Architecture Next + TailwindSocle Next.js, auth et design system intégré.",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ouvrir l'historique des versions du Dashboard",
+          "tabIndex": 0
+        }
+      ],
+      "checks": {
+        "modalOpens": true,
+        "selectedCard": true,
+        "editAction": true,
+        "deleteAction": true,
+        "categoryKeyboard": true,
+        "categoryButtonTags": {
+          "Produit": "button",
+          "Design": "button",
+          "API": "button",
+          "Ops": "button",
+          "Urgent": "button"
+        },
+        "dragPreview": {
+          "tested": false,
+          "visible": false,
+          "screenshot": null,
+          "reason": null
+        },
+        "dragMove": {
+          "tested": false,
+          "moved": false,
+          "reason": null
+        },
+        "deleteConfirmed": false
+      },
+      "consoleErrors": [],
+      "pageErrors": []
+    },
+    {
+      "theme": "dark",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "overflow": 0,
+      "screenshots": {
+        "loaded": {
+          "file": "test-results/design-system-badge/after/dark-tablet-loaded.png",
+          "sha256": "8973a986bc6ab2dca92325e9e04bd558320dc791e0e35f5845536c8d535172e6"
+        },
+        "modal": {
+          "file": "test-results/design-system-badge/after/dark-tablet-modal.png",
+          "sha256": "b06b5114ca9ca12b92137eec1e7dd4bd5a8ed60c2ec77c07110fbe685eed024d"
+        }
+      },
+      "styles": {
+        "Produit": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.803866 -0.107988 -0.093248 / 0.3)",
+          "backgroundColor": "oklab(0.803866 -0.107988 -0.093248 / 0.1)",
+          "color": "lab(95.3146 -13.8285 -6.84732)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "Design": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.607547 0.0923267 -0.197615 / 0.3)",
+          "backgroundColor": "oklab(0.607547 0.0923267 -0.197615 / 0.1)",
+          "color": "lab(93.0838 4.35197 -9.88284)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "API": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.861434 -0.155314 0.0596801 / 0.3)",
+          "backgroundColor": "oklab(0.861434 -0.155314 0.0596801 / 0.1)",
+          "color": "lab(94.9004 -17.0769 5.63836)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "Ops": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.880304 0.00929835 0.134472 / 0.35)",
+          "backgroundColor": "oklab(0.880304 0.00929835 0.134472 / 0.1)",
+          "color": "lab(95.916 -1.21653 23.111)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "Urgent": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.700858 0.190084 0.041913 / 0.35)",
+          "backgroundColor": "oklab(0.700858 0.190084 0.041913 / 0.1)",
+          "color": "lab(92.8221 9.86832 2.60075)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        }
+      },
+      "labelClasses": {
+        "Produit": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-brand-2/30 bg-brand-2/10 text-cyan-100",
+        "Design": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-brand/30 bg-brand/10 text-violet-100",
+        "API": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-brand-3/30 bg-brand-3/10 text-emerald-100",
+        "Ops": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-warning/35 bg-warning/10 text-amber-100",
+        "Urgent": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-danger/35 bg-danger/10 text-rose-100"
+      },
+      "labelTags": {
+        "Produit": "span",
+        "Design": "span",
+        "API": "span",
+        "Ops": "span",
+        "Urgent": "span"
+      },
+      "focusables": [
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Aller au contenu principal",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ouvrir le menu",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ouvrir l'historique des versions du Dashboard",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Palette dominante : Saphir",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Changer le thème",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ajouter une carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Finaliser les tokens UICréer les variantes utiles pour Button, Badge, Card et St",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Brancher les stats Pokémon détailléesAfficher live/fallback, générations et cata",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Créer le dashboard personnelRendre chaque module utilisable, pas seulement joli.",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Vérifier le parcours loginTester mobile, tablette et prod Vercel.",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Architecture Next + TailwindSocle Next.js, auth et design system intégré.",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ouvrir l'historique des versions du Dashboard",
+          "tabIndex": 0
+        }
+      ],
+      "checks": {
+        "modalOpens": true,
+        "selectedCard": true,
+        "editAction": true,
+        "deleteAction": true,
+        "categoryKeyboard": true,
+        "categoryButtonTags": {
+          "Produit": "button",
+          "Design": "button",
+          "API": "button",
+          "Ops": "button",
+          "Urgent": "button"
+        },
+        "dragPreview": {
+          "tested": false,
+          "visible": false,
+          "screenshot": null,
+          "reason": null
+        },
+        "dragMove": {
+          "tested": false,
+          "moved": false,
+          "reason": null
+        },
+        "deleteConfirmed": false
+      },
+      "consoleErrors": [],
+      "pageErrors": []
+    },
+    {
+      "theme": "dark",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": 0,
+      "screenshots": {
+        "loaded": {
+          "file": "test-results/design-system-badge/after/dark-desktop-loaded.png",
+          "sha256": "2747eacc90ea22e89be6fdf9d204278210bddad36df259961dd7594c21d1dad7"
+        },
+        "modal": {
+          "file": "test-results/design-system-badge/after/dark-desktop-modal.png",
+          "sha256": "63c628358fc2666480d192e7fe440f8d6e87dfab1892e0908e878696ea6774ee"
+        }
+      },
+      "styles": {
+        "Produit": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.803866 -0.107988 -0.093248 / 0.3)",
+          "backgroundColor": "oklab(0.803866 -0.107988 -0.093248 / 0.1)",
+          "color": "lab(95.3146 -13.8285 -6.84732)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "Design": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.607547 0.0923267 -0.197615 / 0.3)",
+          "backgroundColor": "oklab(0.607547 0.0923267 -0.197615 / 0.1)",
+          "color": "lab(93.0838 4.35197 -9.88284)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "API": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.861434 -0.155314 0.0596801 / 0.3)",
+          "backgroundColor": "oklab(0.861434 -0.155314 0.0596801 / 0.1)",
+          "color": "lab(94.9004 -17.0769 5.63836)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "Ops": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.880304 0.00929835 0.134472 / 0.35)",
+          "backgroundColor": "oklab(0.880304 0.00929835 0.134472 / 0.1)",
+          "color": "lab(95.916 -1.21653 23.111)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "Urgent": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.700858 0.190084 0.041913 / 0.35)",
+          "backgroundColor": "oklab(0.700858 0.190084 0.041913 / 0.1)",
+          "color": "lab(92.8221 9.86832 2.60075)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        }
+      },
+      "labelClasses": {
+        "Produit": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-brand-2/30 bg-brand-2/10 text-cyan-100",
+        "Design": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-brand/30 bg-brand/10 text-violet-100",
+        "API": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-brand-3/30 bg-brand-3/10 text-emerald-100",
+        "Ops": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-warning/35 bg-warning/10 text-amber-100",
+        "Urgent": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-danger/35 bg-danger/10 text-rose-100"
+      },
+      "labelTags": {
+        "Produit": "span",
+        "Design": "span",
+        "API": "span",
+        "Ops": "span",
+        "Urgent": "span"
+      },
+      "focusables": [
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Aller au contenu principal",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Retour à l’accueil",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Dashboard",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Accueil",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Analytics",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Outils",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Dashboard Backlog",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Pokémon Data",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Admin Pokémon",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Docs JSON",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Organisation",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Notes",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Kanban",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Projets",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Calendrier",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Todo",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Texte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Studio JS",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "JS Progress",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Pomodoro",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Exercices JS",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Snippets",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Couleurs",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Système",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Mongo DB",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Réglages",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Session",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "submit",
+          "name": "Déconnexion",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Replier la navigation",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ouvrir l'historique des versions du Dashboard",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Palette dominante : Saphir",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Changer le thème",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ajouter une carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Finaliser les tokens UICréer les variantes utiles pour Button, Badge, Card et St",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Brancher les stats Pokémon détailléesAfficher live/fallback, générations et cata",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Créer le dashboard personnelRendre chaque module utilisable, pas seulement joli.",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Vérifier le parcours loginTester mobile, tablette et prod Vercel.",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Architecture Next + TailwindSocle Next.js, auth et design system intégré.",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ouvrir l'historique des versions du Dashboard",
+          "tabIndex": 0
+        }
+      ],
+      "checks": {
+        "modalOpens": true,
+        "selectedCard": true,
+        "editAction": true,
+        "deleteAction": true,
+        "categoryKeyboard": true,
+        "categoryButtonTags": {
+          "Produit": "button",
+          "Design": "button",
+          "API": "button",
+          "Ops": "button",
+          "Urgent": "button"
+        },
+        "dragPreview": {
+          "tested": true,
+          "visible": true,
+          "screenshot": {
+            "file": "test-results/design-system-badge/after/dark-desktop-drag-preview.png",
+            "sha256": "10a55ac0bb38557a3af87aed679c4a6ee6c510890beaed34798d2e80a6a38ae4"
+          },
+          "reason": null
+        },
+        "dragMove": {
+          "tested": true,
+          "moved": false,
+          "reason": "Colonne cible isOver=false"
+        },
+        "deleteConfirmed": true
+      },
+      "consoleErrors": [],
+      "pageErrors": []
+    },
+    {
+      "theme": "light",
+      "viewport": {
+        "name": "mobile",
+        "width": 375,
+        "height": 812
+      },
+      "overflow": 0,
+      "screenshots": {
+        "loaded": {
+          "file": "test-results/design-system-badge/after/light-mobile-loaded.png",
+          "sha256": "663d0ab93a882f0715d348ce6930cd43bdb6521caab842d170cd2c71a4d15a02"
+        },
+        "modal": {
+          "file": "test-results/design-system-badge/after/light-mobile-modal.png",
+          "sha256": "d42fc1df98564e8e78ad38e52390accc3a319109a2f9bec1930890a316ff191e"
+        }
+      },
+      "styles": {
+        "Produit": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.587604 -0.0652444 -0.122562 / 0.3)",
+          "backgroundColor": "oklab(0.587604 -0.0652444 -0.122562 / 0.1)",
+          "color": "rgb(16, 24, 39)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "Design": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.54132 0.0964073 -0.226955 / 0.3)",
+          "backgroundColor": "oklab(0.54132 0.0964073 -0.226955 / 0.1)",
+          "color": "rgb(16, 24, 39)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "API": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.595965 -0.121967 0.0367818 / 0.3)",
+          "backgroundColor": "oklab(0.595965 -0.121967 0.0367818 / 0.1)",
+          "color": "rgb(16, 24, 39)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "Ops": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.626353 0.0417886 0.117608 / 0.35)",
+          "backgroundColor": "oklab(0.626353 0.0417886 0.117608 / 0.1)",
+          "color": "rgb(16, 24, 39)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "Urgent": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.591746 0.198911 0.0502809 / 0.35)",
+          "backgroundColor": "oklab(0.591746 0.198911 0.0502809 / 0.1)",
+          "color": "rgb(16, 24, 39)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        }
+      },
+      "labelClasses": {
+        "Produit": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-brand-2/30 bg-brand-2/10 text-cyan-100",
+        "Design": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-brand/30 bg-brand/10 text-violet-100",
+        "API": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-brand-3/30 bg-brand-3/10 text-emerald-100",
+        "Ops": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-warning/35 bg-warning/10 text-amber-100",
+        "Urgent": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-danger/35 bg-danger/10 text-rose-100"
+      },
+      "labelTags": {
+        "Produit": "span",
+        "Design": "span",
+        "API": "span",
+        "Ops": "span",
+        "Urgent": "span"
+      },
+      "focusables": [
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Aller au contenu principal",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ouvrir le menu",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ouvrir l'historique des versions du Dashboard",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Palette dominante : Saphir",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Changer le thème",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ajouter une carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Finaliser les tokens UICréer les variantes utiles pour Button, Badge, Card et St",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Brancher les stats Pokémon détailléesAfficher live/fallback, générations et cata",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Créer le dashboard personnelRendre chaque module utilisable, pas seulement joli.",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Vérifier le parcours loginTester mobile, tablette et prod Vercel.",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Architecture Next + TailwindSocle Next.js, auth et design system intégré.",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ouvrir l'historique des versions du Dashboard",
+          "tabIndex": 0
+        }
+      ],
+      "checks": {
+        "modalOpens": true,
+        "selectedCard": true,
+        "editAction": true,
+        "deleteAction": true,
+        "categoryKeyboard": true,
+        "categoryButtonTags": {
+          "Produit": "button",
+          "Design": "button",
+          "API": "button",
+          "Ops": "button",
+          "Urgent": "button"
+        },
+        "dragPreview": {
+          "tested": false,
+          "visible": false,
+          "screenshot": null,
+          "reason": null
+        },
+        "dragMove": {
+          "tested": false,
+          "moved": false,
+          "reason": null
+        },
+        "deleteConfirmed": false
+      },
+      "consoleErrors": [],
+      "pageErrors": []
+    },
+    {
+      "theme": "light",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "overflow": 0,
+      "screenshots": {
+        "loaded": {
+          "file": "test-results/design-system-badge/after/light-tablet-loaded.png",
+          "sha256": "f0ded00890202f05d9efc7ad97128a27f076349a4d4a71c143c4c08074bddca7"
+        },
+        "modal": {
+          "file": "test-results/design-system-badge/after/light-tablet-modal.png",
+          "sha256": "c97035d0da50bbb4df591120efc0d6f5d0eb278c16ac5a7cd7ea37e1be08f7ed"
+        }
+      },
+      "styles": {
+        "Produit": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.587604 -0.0652444 -0.122562 / 0.3)",
+          "backgroundColor": "oklab(0.587604 -0.0652444 -0.122562 / 0.1)",
+          "color": "rgb(16, 24, 39)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "Design": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.54132 0.0964073 -0.226955 / 0.3)",
+          "backgroundColor": "oklab(0.54132 0.0964073 -0.226955 / 0.1)",
+          "color": "rgb(16, 24, 39)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "API": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.595965 -0.121967 0.0367818 / 0.3)",
+          "backgroundColor": "oklab(0.595965 -0.121967 0.0367818 / 0.1)",
+          "color": "rgb(16, 24, 39)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "Ops": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.626353 0.0417886 0.117608 / 0.35)",
+          "backgroundColor": "oklab(0.626353 0.0417886 0.117608 / 0.1)",
+          "color": "rgb(16, 24, 39)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "Urgent": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.591746 0.198911 0.0502809 / 0.35)",
+          "backgroundColor": "oklab(0.591746 0.198911 0.0502809 / 0.1)",
+          "color": "rgb(16, 24, 39)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        }
+      },
+      "labelClasses": {
+        "Produit": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-brand-2/30 bg-brand-2/10 text-cyan-100",
+        "Design": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-brand/30 bg-brand/10 text-violet-100",
+        "API": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-brand-3/30 bg-brand-3/10 text-emerald-100",
+        "Ops": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-warning/35 bg-warning/10 text-amber-100",
+        "Urgent": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-danger/35 bg-danger/10 text-rose-100"
+      },
+      "labelTags": {
+        "Produit": "span",
+        "Design": "span",
+        "API": "span",
+        "Ops": "span",
+        "Urgent": "span"
+      },
+      "focusables": [
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Aller au contenu principal",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ouvrir le menu",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ouvrir l'historique des versions du Dashboard",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Palette dominante : Saphir",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Changer le thème",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ajouter une carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Finaliser les tokens UICréer les variantes utiles pour Button, Badge, Card et St",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Brancher les stats Pokémon détailléesAfficher live/fallback, générations et cata",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Créer le dashboard personnelRendre chaque module utilisable, pas seulement joli.",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Vérifier le parcours loginTester mobile, tablette et prod Vercel.",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Architecture Next + TailwindSocle Next.js, auth et design system intégré.",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ouvrir l'historique des versions du Dashboard",
+          "tabIndex": 0
+        }
+      ],
+      "checks": {
+        "modalOpens": true,
+        "selectedCard": true,
+        "editAction": true,
+        "deleteAction": true,
+        "categoryKeyboard": true,
+        "categoryButtonTags": {
+          "Produit": "button",
+          "Design": "button",
+          "API": "button",
+          "Ops": "button",
+          "Urgent": "button"
+        },
+        "dragPreview": {
+          "tested": false,
+          "visible": false,
+          "screenshot": null,
+          "reason": null
+        },
+        "dragMove": {
+          "tested": false,
+          "moved": false,
+          "reason": null
+        },
+        "deleteConfirmed": false
+      },
+      "consoleErrors": [],
+      "pageErrors": []
+    },
+    {
+      "theme": "light",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1000
+      },
+      "overflow": 0,
+      "screenshots": {
+        "loaded": {
+          "file": "test-results/design-system-badge/after/light-desktop-loaded.png",
+          "sha256": "d67c015b1879d0afbea75407c762d46c2475a18059fa5779890e594c05ab63cc"
+        },
+        "modal": {
+          "file": "test-results/design-system-badge/after/light-desktop-modal.png",
+          "sha256": "42b31a96b6358e4c643b975273e7d0f4c3b5eabc4ad2f2a032145b70bd8f8253"
+        }
+      },
+      "styles": {
+        "Produit": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.587604 -0.0652444 -0.122562 / 0.3)",
+          "backgroundColor": "oklab(0.587604 -0.0652444 -0.122562 / 0.1)",
+          "color": "rgb(16, 24, 39)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "Design": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.54132 0.0964073 -0.226955 / 0.3)",
+          "backgroundColor": "oklab(0.54132 0.0964073 -0.226955 / 0.1)",
+          "color": "rgb(16, 24, 39)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "API": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.595965 -0.121967 0.0367818 / 0.3)",
+          "backgroundColor": "oklab(0.595965 -0.121967 0.0367818 / 0.1)",
+          "color": "rgb(16, 24, 39)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "Ops": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.626353 0.0417886 0.117608 / 0.35)",
+          "backgroundColor": "oklab(0.626353 0.0417886 0.117608 / 0.1)",
+          "color": "rgb(16, 24, 39)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        },
+        "Urgent": {
+          "display": "flex",
+          "minHeight": "28px",
+          "paddingLeft": "10px",
+          "paddingRight": "10px",
+          "paddingTop": "0px",
+          "paddingBottom": "0px",
+          "borderRadius": "3.35544e+07px",
+          "borderWidth": "1px",
+          "borderColor": "oklab(0.591746 0.198911 0.0502809 / 0.35)",
+          "backgroundColor": "oklab(0.591746 0.198911 0.0502809 / 0.1)",
+          "color": "rgb(16, 24, 39)",
+          "fontSize": "12px",
+          "fontWeight": "900",
+          "lineHeight": "16px"
+        }
+      },
+      "labelClasses": {
+        "Produit": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-brand-2/30 bg-brand-2/10 text-cyan-100",
+        "Design": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-brand/30 bg-brand/10 text-violet-100",
+        "API": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-brand-3/30 bg-brand-3/10 text-emerald-100",
+        "Ops": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-warning/35 bg-warning/10 text-amber-100",
+        "Urgent": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black border-danger/35 bg-danger/10 text-rose-100"
+      },
+      "labelTags": {
+        "Produit": "span",
+        "Design": "span",
+        "API": "span",
+        "Ops": "span",
+        "Urgent": "span"
+      },
+      "focusables": [
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Aller au contenu principal",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Retour à l’accueil",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Dashboard",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Accueil",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Analytics",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Outils",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Dashboard Backlog",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Pokémon Data",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Admin Pokémon",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Docs JSON",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Organisation",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Notes",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Kanban",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Projets",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Calendrier",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Todo",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Texte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Studio JS",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "JS Progress",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Pomodoro",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Exercices JS",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Snippets",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Couleurs",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Système",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Mongo DB",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Réglages",
+          "tabIndex": 0
+        },
+        {
+          "tag": "a",
+          "type": "",
+          "name": "Session",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "submit",
+          "name": "Déconnexion",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Replier la navigation",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ouvrir l'historique des versions du Dashboard",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Palette dominante : Saphir",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Changer le thème",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ajouter une carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Finaliser les tokens UICréer les variantes utiles pour Button, Badge, Card et St",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Brancher les stats Pokémon détailléesAfficher live/fallback, générations et cata",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Créer le dashboard personnelRendre chaque module utilisable, pas seulement joli.",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Vérifier le parcours loginTester mobile, tablette et prod Vercel.",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Glisser la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Modifier la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Demander la suppression de la carte",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Architecture Next + TailwindSocle Next.js, auth et design system intégré.",
+          "tabIndex": 0
+        },
+        {
+          "tag": "button",
+          "type": "button",
+          "name": "Ouvrir l'historique des versions du Dashboard",
+          "tabIndex": 0
+        }
+      ],
+      "checks": {
+        "modalOpens": true,
+        "selectedCard": true,
+        "editAction": true,
+        "deleteAction": true,
+        "categoryKeyboard": true,
+        "categoryButtonTags": {
+          "Produit": "button",
+          "Design": "button",
+          "API": "button",
+          "Ops": "button",
+          "Urgent": "button"
+        },
+        "dragPreview": {
+          "tested": true,
+          "visible": true,
+          "screenshot": {
+            "file": "test-results/design-system-badge/after/light-desktop-drag-preview.png",
+            "sha256": "de5130783e32c4943f1ba91ff42c52ca0ade28c70b68d2a07c6c340f11895b50"
+          },
+          "reason": null
+        },
+        "dragMove": {
+          "tested": true,
+          "moved": false,
+          "reason": "Colonne cible isOver=false"
+        },
+        "deleteConfirmed": true
+      },
+      "consoleErrors": [],
+      "pageErrors": []
+    }
+  ],
+  "reducedMotion": {
+    "mediaMatches": true,
+    "cardVisible": true,
+    "consoleErrors": [],
+    "pageErrors": []
+  }
+}
