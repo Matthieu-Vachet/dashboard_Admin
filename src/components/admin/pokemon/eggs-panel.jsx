@@ -7,6 +7,7 @@ import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-u
 import { DatasetSourceHeader } from "./dataset-source-header";
 import { DatasetFilterBar } from "./dataset-filter-bar";
 import { TierSection } from "./tier-section";
+import { Badge } from "@/components/ui/badge";
 import { uiAssets } from "@/components/site/ui-assets";
 
 const eggSections = [
@@ -51,9 +52,9 @@ function allEggSections(currentEggsList) {
 
 function EggPill({ children, tone = "" }) {
   return (
-    <span className={`inline-flex min-h-7 items-center rounded-full border px-2.5 py-1 text-[11px] font-black ${tone}`}>
+    <Badge className={`inline-flex min-h-7 items-center rounded-full border px-2.5 py-1 text-[11px] font-black border-current bg-transparent text-inherit ${tone}`}>
       {children}
-    </span>
+    </Badge>
   );
 }
 

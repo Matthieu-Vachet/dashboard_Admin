@@ -6,6 +6,7 @@ import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-u
 import { DatasetSourceHeader } from "./dataset-source-header";
 import { DatasetEventBanner } from "./dataset-event-banner";
 import { DatasetFilterBar } from "./dataset-filter-bar";
+import { Badge as DesignSystemBadge } from "@/components/ui/badge";
 import { uiAssets } from "@/components/site/ui-assets";
 
 const sectionLabels = {
@@ -139,9 +140,9 @@ function TypeIcons({ types }) {
 
 function Badge({ children, tone = "border-white/10 bg-white/[0.07] text-white" }) {
   return (
-    <span className={`inline-flex min-h-7 items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] ${tone}`}>
+    <DesignSystemBadge className={`inline-flex min-h-7 items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] ${tone}`}>
       {children}
-    </span>
+    </DesignSystemBadge>
   );
 }
 
