@@ -12,7 +12,7 @@ Statuts autorisés : `not-started`, `observing`, `planned`, `in-progress`, `bloc
 | DS-BACKLOG-006 | Formulaires | Select | Inventorier natif et custom sans composant universel | not-started | P1 | élevé | L | DS-BACKLOG-003 |
 | DS-BACKLOG-007 | Formulaires | Checkbox | Stabiliser sémantique, focus et états | not-started | P1 | moyen | M | Accessibility |
 | DS-BACKLOG-008 | États | Loading / Empty / Error | Cartographier puis extraire les états répétés | not-started | P1 | moyen | L | Card, Accessibility |
-| DS-BACKLOG-009 | Actions | Button | Sprint 2 recommandé : contrat et un adaptateur | planned | P1 | élevé | M | Badge validé |
+| DS-BACKLOG-009 | Actions | Button | Sprint Famille : contrat, inventaire, ExternalButton et LoadMoreButton | validated | P1 | élevé | M | Badge validé |
 | DS-BACKLOG-010 | Surfaces | Card | Classer primitive, composites et cartes métier | planned | P1 | élevé | L | Responsive |
 | DS-BACKLOG-011 | Overlays | Modal | Stabiliser dialogue, focus trap et responsive | not-started | P1 | élevé | L | Accessibility, Button |
 | DS-BACKLOG-012 | Qualité transverse | Responsive | Définir les matrices de viewports par famille | planned | P0 | moyen | M | Aucune |

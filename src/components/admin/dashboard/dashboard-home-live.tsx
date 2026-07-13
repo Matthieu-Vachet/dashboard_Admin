@@ -629,22 +629,26 @@ function ActionLink({
 function ExternalButton({ href, label }: { href: string; label: string }) {
   const internal = href.startsWith("/");
   const className =
-    "group flex min-h-11 items-center justify-between gap-3 rounded-lg border border-line bg-white/[0.045] px-3 text-sm font-black transition hover:border-brand-2/45 hover:bg-brand-2/10";
+    "group flex min-h-11 items-center justify-between gap-3 rounded-lg border border-line bg-white/[0.045] px-3 text-sm font-black transition duration-150 hover:border-brand-2/45 hover:bg-brand-2/10 focus-visible:[outline:revert]! focus-visible:[outline-offset:revert]!";
 
   if (internal) {
     return (
-      <Link href={href} className={className}>
-        {label}
-        <ArrowUpRight size={16} className="text-muted group-hover:text-brand-2" />
-      </Link>
+      <Button asChild className={className}>
+        <Link href={href}>
+          {label}
+          <ArrowUpRight size={16} className="text-muted group-hover:text-brand-2" />
+        </Link>
+      </Button>
     );
   }
 
   return (
-    <a href={href} target="_blank" rel="noreferrer" className={className}>
-      {label}
-      <ArrowUpRight size={16} className="text-muted group-hover:text-brand-2" />
-    </a>
+    <Button asChild className={className}>
+      <a href={href} target="_blank" rel="noreferrer">
+        {label}
+        <ArrowUpRight size={16} className="text-muted group-hover:text-brand-2" />
+      </a>
+    </Button>
   );
 }
 

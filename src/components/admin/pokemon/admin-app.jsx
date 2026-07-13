@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { DetailModal } from "@/components/admin/pokemon/detail-modal";
 import { PokemonCard } from "@/components/admin/pokemon/pokemon-card";
 import { SortableWidgetGrid } from "@/components/admin/shared/sortable-widget-grid";
+import { Button } from "@/components/ui/button";
 import { MetricCard } from "@/components/site/metric-card";
 import { uiAssets } from "@/components/site/ui-assets";
 import {
@@ -530,13 +531,13 @@ function LoadMoreButton({ shown, total, onClick }) {
   const remaining = Math.max(0, total - shown);
   return (
     <div className="mt-5 flex justify-center">
-      <button
-        className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-cyan-200/30 bg-cyan-400/12 px-5 py-2 text-sm font-black text-cyan-50 transition hover:border-cyan-200/55 hover:bg-cyan-400/20"
+      <Button
+        className="inline-flex min-h-11 items-center justify-center gap-[normal] rounded-2xl border border-cyan-200/30 bg-cyan-400/12 px-5 py-2 text-sm font-black text-cyan-50 transition duration-150 hover:border-cyan-200/55 hover:bg-cyan-400/20 focus-visible:[outline:revert]! focus-visible:[outline-offset:revert]!"
         type="button"
         onClick={onClick}
       >
         Afficher plus · {remaining.toLocaleString("fr-FR")} restant(s)
-      </button>
+      </Button>
     </div>
   );
 }
