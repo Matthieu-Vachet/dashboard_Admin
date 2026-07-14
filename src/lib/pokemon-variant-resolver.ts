@@ -67,12 +67,16 @@ function speciesTokens(pokemon: UnknownRecord, requestId: unknown): string[] {
   const names = record(pokemon.names);
   const data = record(pokemon.data);
   const dataNames = record(data.names);
-  return uniqueTokens([
-    requestId,
-    pokemon.id,
-    pokemon.pokemonId,
+  const canonical = uniqueTokens([
     pokemon.baseFormId,
     identity.pokemon,
+    data.baseFormId,
+  ]);
+  const identifiers = canonical.length
+    ? canonical
+    : uniqueTokens([requestId, pokemon.id, pokemon.pokemonId]);
+  return uniqueTokens([
+    ...identifiers,
     names.English,
     names.French,
     dataNames.English,

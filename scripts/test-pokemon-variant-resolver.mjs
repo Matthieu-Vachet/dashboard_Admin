@@ -116,14 +116,21 @@ test("résout une forme régionale exacte depuis assetForms", () => {
 
 test("conserve l'asset principal d'une fiche Méga déjà exacte", () => {
   const mega = {
-    id: "CHARIZARD",
-    formId: "CHARIZARD_MEGA_Y",
-    form: "mega-y",
+    pokemonId: "RAYQUAZA_MEGA",
+    formId: "RAYQUAZA_MEGA",
+    form: "mega",
     mega: true,
-    assets: { image: "https://assets.example/charizard-mega-y.png" },
+    identity: {
+      pokemon: "RAYQUAZA",
+      form: "RAYQUAZA_MEGA",
+      isMega: true,
+      resolution: { status: "matched" },
+    },
+    assets: { image: "https://assets.example/rayquaza-mega.png" },
   };
-  const resolution = resolvePokemonVariant(mega, { form: "CHARIZARD_MEGA_Y", mega: true });
-  assert.equal(resolution.image, "https://assets.example/charizard-mega-y.png");
+  const resolution = resolvePokemonVariant(mega);
+  assert.equal(resolution.image, "https://assets.example/rayquaza-mega.png");
+  assert.equal(resolution.source, "primary-assets");
   assert.ok(pokemonVariantBadges(mega).includes("Méga / Primo"));
 });
 
