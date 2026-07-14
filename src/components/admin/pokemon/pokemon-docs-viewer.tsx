@@ -51,6 +51,7 @@ export function PokemonDocsViewer({ docs }: { docs: PokemonDoc[] }) {
         <label className="mt-4 flex min-h-11 items-center gap-2 rounded-lg border border-line bg-white/[0.055] px-3 text-muted">
           <Search size={16} />
           <Input
+            aria-label="Chercher dans les docs"
             className="min-h-0 border-0 bg-transparent px-0 focus:bg-transparent"
             value={query}
             onChange={(event) => setQuery(event.target.value)}

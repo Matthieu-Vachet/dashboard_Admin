@@ -9,6 +9,8 @@ const adminPaths = new Set([
   "/api/v1/admin/raids/regenerate", "/api/v1/admin/eggs/regenerate", "/api/v1/admin/max-battles/regenerate",
   "/api/v1/admin/rocket/regenerate", "/api/v1/admin/research/regenerate", "/api/v1/admin/shiny/regenerate",
   "/api/v1/admin/pvp-rankings/regenerate",
+  "/api/v1/admin/best-attackers/regenerate",
+  "/api/v1/admin/pokemon-identity-mappings/regenerate",
 ]);
 const privateChecklistActions = new Set(["source-watch", "history", "url-audit"]);
 

@@ -420,12 +420,14 @@ export function DailyTools() {
         <Card className="h-full p-4">
           <ToolHeader icon={Save} title="Journal du jour" />
           <Textarea
+            aria-label="Journal du jour"
+            aria-describedby="form-a11y-journal-description"
             className="mt-4 min-h-72 text-base"
             value={journal}
             onChange={(event) => setJournal(event.target.value)}
             placeholder="Note tes décisions, blocages, idées et actions de demain..."
           />
-          <p className="mt-3 text-xs font-bold text-muted">Sauvegarde automatique dans ton navigateur.</p>
+          <p id="form-a11y-journal-description" className="mt-3 text-xs font-bold text-muted">Sauvegarde automatique dans ton navigateur.</p>
         </Card>
       ),
     },

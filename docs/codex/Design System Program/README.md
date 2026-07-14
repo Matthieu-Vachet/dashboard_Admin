@@ -20,7 +20,19 @@ Ce dossier pilote la consolidation progressive du Design System du Dashboard Adm
 
 ## Statut des familles
 
-Le statut courant fait foi dans `backlog/design-system-backlog.md`. Badge est la première famille pilotée : son sprint pilote et son sprint famille sont validés et documentés dans `sprints/badge/`.
+Le statut courant fait foi dans `backlog/design-system-backlog.md`.
+
+| Lot | Statut courant | Preuve |
+|---|---|---|
+| Badge | validated | pilote et sprint famille documentés dans `sprints/badge/` |
+| Button | validated | sprint famille documenté dans `sprints/button/` |
+| Field, Input et Textarea | validated | sprint famille documenté dans `sprints/field-input-textarea/` ; `Field` conserve son contrat minimal de label + enfant |
+| Accessibilité des formulaires | validated | sprint transverse documenté dans `sprints/form-accessibility/` |
+| Modal | validated | 25 cas classés A11/B0/C10/D4 dans `sprints/modal/` ; 11 usages déjà canoniques et aucune migration source supplémentaire |
+| Modal Stabilisation | planned | prochain sprint proposé, non lancé (`DS-BACKLOG-017`) |
+| Card | planned | lot distinct conservé au backlog (`DS-BACKLOG-010`) |
+
+Métriques de clôture du programme : huit entrées du backlog sont `validated`, cinq dossiers de sprint sont documentés, six familles de composants sont validées (Badge, Button, Field, Input, Textarea et Modal) et un chantier transverse d’accessibilité est validé. Pour Modal, les 36 scénarios de vérification ne montrent aucune différence significative de contrat, style, interaction ou pixels.
 
 ## Lancer un nouveau sprint
 

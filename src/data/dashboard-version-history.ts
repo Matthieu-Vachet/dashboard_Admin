@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.22.0",
+    date: "2026-07-14",
+    title: "Identité canonique et Best Attackers PvE",
+    changes: [
+      "Ajoute les classements PvE DialgaDex niveaux 30, 40 et 50 avec DPS, TDO, eDPS, tiers, filtres et export de la vue complète.",
+      "Centralise l'affichage des images Pokémon sur Raids, Œufs, Max, Rocket, Research, Shiny et PvP sans fallback visuel trompeur.",
+      "Expose la matrice Game Master privée, les variantes non résolues et la régénération protégée depuis l'Admin Pokémon.",
+      "Conserve MongoDB comme source runtime, compresse les grands datasets et vérifie hash, diff et relecture après écriture.",
+    ],
+  },
+  {
     version: "V1.21.1",
     date: "2026-07-13",
     title: "Correctifs responsive et fiabilisation Admin Pokémon",

@@ -71,7 +71,7 @@ async function readPokemonApiCurrent(
   try {
     const target = new URL(path, pokemonApiBaseUrl);
     const headers: Record<string, string> = { accept: "application/json" };
-    if (target.pathname.startsWith("/api/v1/shiny")) {
+    if (target.pathname.startsWith("/api/v1/shiny") || target.pathname.startsWith("/api/v1/pokemon-identity-mappings")) {
       const secret = process.env.POKEMON_API_ADMIN_SECRET || process.env.API_ADMIN_SECRET;
       if (!secret) throw requestError("POKEMON_API_ADMIN_SECRET est requis pour le Shiny Tracker prive.", 500);
       headers["x-api-admin-secret"] = secret;
@@ -287,6 +287,26 @@ async function readCurrentPvpRankings(request: NextRequest) {
   return readPokemonApiCurrent(
     `/api/v1/pvp-rankings${query ? `?${query}` : ""}`,
     (data) => Array.isArray(data.rankings) && Array.isArray(data.formats),
+    (data, meta, current) => ({ data, meta: normalizeCurrentMeta(meta), current }),
+  );
+}
+
+async function readCurrentBestAttackers(request: NextRequest) {
+  const query = forwardedRankedQuery(request, [
+    "type", "level", "metric", "search", "shadow", "mega", "elite", "class", "movesetClass", "page", "limit", "full",
+  ]);
+  return readPokemonApiCurrent(
+    `/api/v1/best-attackers${query ? `?${query}` : ""}`,
+    (data) => Array.isArray(data.rankings) && Boolean(data.options),
+    (data, meta, current) => ({ data, meta: normalizeCurrentMeta(meta), current }),
+  );
+}
+
+async function readCurrentPokemonIdentityMappings(request: NextRequest) {
+  const query = forwardedRankedQuery(request, ["status", "search", "page", "limit", "full"]);
+  return readPokemonApiCurrent(
+    `/api/v1/pokemon-identity-mappings${query ? `?${query}` : ""}`,
+    (data) => Array.isArray(data.mappings) && Boolean(data.metadata),
     (data, meta, current) => ({ data, meta: normalizeCurrentMeta(meta), current }),
   );
 }
@@ -657,6 +677,14 @@ export async function GET(request: NextRequest) {
       return json({ data: await readCurrentPvpRankings(request) });
     }
 
+    if (action === "best-attackers") {
+      return json({ data: await readCurrentBestAttackers(request) });
+    }
+
+    if (action === "pokemon-identity-mappings") {
+      return json({ data: await readCurrentPokemonIdentityMappings(request) });
+    }
+
     if (action === "items") {
       return json({ data: readItems() });
     }
@@ -791,6 +819,14 @@ export async function POST(request: NextRequest) {
 
     if (action === "regenerate-pvp-rankings") {
       return json({ data: await callPokemonApiAdmin("/api/v1/admin/pvp-rankings/regenerate") });
+    }
+
+    if (action === "regenerate-best-attackers") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/best-attackers/regenerate") });
+    }
+
+    if (action === "regenerate-pokemon-identity-mappings") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/pokemon-identity-mappings/regenerate") });
     }
 
     if (action === "open-file") {

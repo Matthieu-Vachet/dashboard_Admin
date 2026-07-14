@@ -21,6 +21,7 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  Swords,
   Boxes,
   PackageOpen,
   Wand2,
@@ -49,6 +50,7 @@ import {
 } from "./admin-ui";
 import { CandyPanel } from "./candy-panel";
 import { BackgroundPanel } from "./background-panel";
+import { BestAttackersPanel } from "./best-attackers-panel";
 import { CatalogPanel } from "./catalog-panel";
 import { CollectionsPanel } from "./collections-panel";
 import { EggsPanel } from "./eggs-panel";
@@ -56,6 +58,7 @@ import { EventsCalendarPanel } from "./events-calendar-panel";
 import { LoginCard } from "./login-card";
 import { MaxBattlesPanel } from "./max-battles-panel";
 import { PvpRankingsPanel } from "./pvp-rankings-panel";
+import { PokemonIdentityMappingsPanel } from "./pokemon-identity-mappings-panel";
 import { RaidsPanel } from "./raids-panel";
 import { ResearchPanel } from "./research-panel";
 import { RocketPanel } from "./rocket-panel";
@@ -104,10 +107,12 @@ const navItems = [
   { id: "max-battles", label: "Max Battles", icon: `${filtersAssetBase}/TodayView_Icon_Evolve.png`, group: "combat" },
   { id: "rocket", label: "Rocket", icon: `${filtersAssetBase}/TodayView_Icon_TeamRocket.png`, group: "combat" },
   { id: "pvp-rankings", label: "PvP Rankings", icon: `${filtersAssetBase}/TodayView_Icon_Battle.png`, group: "combat" },
+  { id: "best-attackers", label: "Best Attackers", icon: Swords, group: "combat" },
   { id: "eggs", label: "Œufs", icon: `${filtersAssetBase}/TodayView_Icon_LuckyEgg.png`, group: "events" },
   { id: "research", label: "Research", icon: `${filtersAssetBase}/TodayView_Icon_Research.png`, group: "events" },
   { id: "events", label: "Calendrier Events", icon: `${filtersAssetBase}/TodayView_Icon_Event.png`, group: "events" },
   { id: "shiny", label: "Shiny Tracker", icon: `${filtersAssetBase}/ic_shiny_white.png`, group: "quality" },
+  { id: "pokemon-identity-mappings", label: "Résolution variantes", icon: Radar, group: "quality" },
   { id: "checks", label: "Contrôles", icon: AlertTriangle, group: "quality" },
   { id: "sources", label: "Veille", icon: Radar, group: "quality" },
   { id: "compare", label: "Comparaison", icon: FileDiff, group: "quality" },
@@ -143,6 +148,8 @@ const defaultRuleForm = {
 
 const initialShinyOptions = { board: "today", search: "", type: "", generation: "", trend: "", page: 1, limit: 50 };
 const initialPvpOptions = { league: "great", search: "", role: "", page: 1, limit: 50 };
+const initialBestAttackersOptions = { type: "ANY", level: 40, metric: "edps", search: "", shadow: "", mega: "", elite: "", class: "", movesetClass: "", page: 1, limit: 50 };
+const initialIdentityMappingOptions = { status: "missing-local-form", search: "", page: 1, limit: 50 };
 
 const rulePresets = [
   {
@@ -494,6 +501,18 @@ function downloadCurrentDataset(resource, baseName) {
   URL.revokeObjectURL(url);
 }
 
+function downloadJsonPayload(value, baseName) {
+  const blob = new Blob([JSON.stringify(value, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${baseName}-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
 function regenerationMessage(report) {
   const diff = report?.diff || report?.current?.diagnostics?.diff;
   if (!diff?.changed) {
@@ -734,7 +753,7 @@ function RulesPanel({
           </div>
           <div>
             <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-              <span className="block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+              <span id="form-a11y-rule-filter-label" className="block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
                 Filtrer fichiers / cibles
               </span>
               <button
@@ -745,10 +764,12 @@ function RulesPanel({
                 Toutes les cibles
               </button>
             </div>
-            <p className="mb-2 text-xs font-bold leading-5 text-slate-500">
+            <p id="form-a11y-rule-filter-description" className="mb-2 text-xs font-bold leading-5 text-slate-500">
               Optionnel: vise une forme, un dossier, un fichier ou un id précis, par exemple types/fire, moves/charged, kanto ou WEATHER_BALL_FIRE.
             </p>
             <input
+              aria-labelledby="form-a11y-rule-filter-label"
+              aria-describedby="form-a11y-rule-filter-description"
               className={`${fieldClass} mb-2`}
               value={(form.formFilters || []).join(", ")}
               placeholder="ex: types/fire, moves/charged, weather, kanto"
@@ -965,6 +986,14 @@ export function AdminApp() {
   const [pvpRankingsLoading, setPvpRankingsLoading] = useState(false);
   const [pvpRankingsRegenerating, setPvpRankingsRegenerating] = useState(false);
   const [pvpOptions, setPvpOptions] = useState(initialPvpOptions);
+  const [bestAttackers, setBestAttackers] = useState(null);
+  const [bestAttackersLoading, setBestAttackersLoading] = useState(false);
+  const [bestAttackersRegenerating, setBestAttackersRegenerating] = useState(false);
+  const [bestAttackersOptions, setBestAttackersOptions] = useState(initialBestAttackersOptions);
+  const [identityMappings, setIdentityMappings] = useState(null);
+  const [identityMappingsLoading, setIdentityMappingsLoading] = useState(false);
+  const [identityMappingsRegenerating, setIdentityMappingsRegenerating] = useState(false);
+  const [identityMappingOptions, setIdentityMappingOptions] = useState(initialIdentityMappingOptions);
   const [history, setHistory] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [selectedEntry, setSelectedEntry] = useState(null);
@@ -1141,6 +1170,14 @@ export function AdminApp() {
   useEffect(() => {
     if (session.authenticated && active === "pvp-rankings") loadPvpRankings();
   }, [active, session.authenticated, pvpOptions]);
+
+  useEffect(() => {
+    if (session.authenticated && active === "best-attackers") loadBestAttackers();
+  }, [active, session.authenticated, bestAttackersOptions]);
+
+  useEffect(() => {
+    if (session.authenticated && active === "pokemon-identity-mappings") loadIdentityMappings();
+  }, [active, session.authenticated, identityMappingOptions]);
 
   const entries = useMemo(() => bootstrap.payload?.entries || [], [bootstrap.payload]);
   const customRuleEntries = useMemo(() => bootstrap.payload?.customRuleEntries || [], [bootstrap.payload]);
@@ -1380,12 +1417,32 @@ export function AdminApp() {
     }
   }
 
+  async function downloadRankedDataset({ action, options, baseName, label }) {
+    try {
+      const response = await fetch(rankedQuery(action, { ...options, full: true, page: 1 }), { cache: "no-store" });
+      const payload = await response.json();
+      if (!response.ok || !payload.data?.data) throw new Error(payload.error || `Export ${label} impossible.`);
+      downloadJsonPayload(payload.data, baseName);
+      toast.success(`${label} exporté sans modifier MongoDB.`);
+    } catch (error) {
+      toast.error(errorMessage(error, `Export ${label} impossible.`));
+    }
+  }
+
   function loadShiny({ notify = false } = {}) {
     return loadRankedDataset({ action: "shiny", options: shinyOptions, setData: setShiny, setLoading: setShinyLoading, label: "Shiny Tracker", notify });
   }
 
   function loadPvpRankings({ notify = false } = {}) {
     return loadRankedDataset({ action: "pvp-rankings", options: pvpOptions, setData: setPvpRankings, setLoading: setPvpRankingsLoading, label: "PvP Rankings", notify });
+  }
+
+  function loadBestAttackers({ notify = false } = {}) {
+    return loadRankedDataset({ action: "best-attackers", options: bestAttackersOptions, setData: setBestAttackers, setLoading: setBestAttackersLoading, label: "Best Attackers", notify });
+  }
+
+  function loadIdentityMappings({ notify = false } = {}) {
+    return loadRankedDataset({ action: "pokemon-identity-mappings", options: identityMappingOptions, setData: setIdentityMappings, setLoading: setIdentityMappingsLoading, label: "Résolution des variantes", notify });
   }
 
   async function loadShinyHistory(identity) {
@@ -1902,6 +1959,7 @@ export function AdminApp() {
                 <label className="relative block">
                   <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                   <input
+                    aria-label="Chercher fiche, type, fichier..."
                     className={`${fieldClass} pl-11`}
                     placeholder="Chercher fiche, type, fichier..."
                     value={search}
@@ -2166,6 +2224,33 @@ export function AdminApp() {
               />
             ) : null}
 
+            {active === "best-attackers" ? (
+              <BestAttackersPanel
+                dataset={bestAttackers}
+                loading={bestAttackersLoading}
+                regenerating={bestAttackersRegenerating}
+                options={bestAttackersOptions}
+                onOptionsChange={setBestAttackersOptions}
+                onRefresh={() => loadBestAttackers({ notify: true })}
+                onDownload={() => downloadRankedDataset({ action: "best-attackers", options: bestAttackersOptions, baseName: "best-attackers", label: "Best Attackers" })}
+                onRegenerate={() => regenerateRankedDataset({ action: "regenerate-best-attackers", setRegenerating: setBestAttackersRegenerating, reload: loadBestAttackers, label: "Best Attackers" })}
+                onOpenPokemon={openPokemonReference}
+              />
+            ) : null}
+
+            {active === "pokemon-identity-mappings" ? (
+              <PokemonIdentityMappingsPanel
+                dataset={identityMappings}
+                loading={identityMappingsLoading}
+                regenerating={identityMappingsRegenerating}
+                options={identityMappingOptions}
+                onOptionsChange={setIdentityMappingOptions}
+                onRefresh={() => loadIdentityMappings({ notify: true })}
+                onDownload={() => downloadRankedDataset({ action: "pokemon-identity-mappings", options: identityMappingOptions, baseName: "pokemon-identity-mappings", label: "Mappings Game Master" })}
+                onRegenerate={() => regenerateRankedDataset({ action: "regenerate-pokemon-identity-mappings", setRegenerating: setIdentityMappingsRegenerating, reload: loadIdentityMappings, label: "Résolution des variantes" })}
+              />
+            ) : null}
+
             {active === "events" ? (
               <EventsCalendarPanel globalSearch={search} onOpenPokemon={openPokemonReference} />
             ) : null}
@@ -2381,10 +2466,10 @@ export function AdminApp() {
                   </label>
                 }
               >
-                <p className="mb-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4 text-sm font-bold leading-6 text-slate-300">
+                <p id="form-a11y-bulk-description" className="mb-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4 text-sm font-bold leading-6 text-slate-300">
                   Génère un brouillon JSON à partir des problèmes détectés. Ce panneau ne modifie pas les fichiers: il sert à préparer des corrections groupées.
                 </p>
-                <textarea className={`${fieldClass} min-h-[520px] resize-y font-mono text-xs leading-6`} readOnly value={JSON.stringify(Object.fromEntries(bulkEntries.map((entry) => [entry.key, entry.suggestedPatch])), null, 2)} />
+                <textarea aria-label="Corrections groupées" aria-describedby="form-a11y-bulk-description" className={`${fieldClass} min-h-[520px] resize-y font-mono text-xs leading-6`} readOnly value={JSON.stringify(Object.fromEntries(bulkEntries.map((entry) => [entry.key, entry.suggestedPatch])), null, 2)} />
               </Panel>
             ) : null}
 
@@ -2397,10 +2482,10 @@ export function AdminApp() {
                   </button>
                 }
               >
-                <p className="mb-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4 text-sm font-bold leading-6 text-slate-300">
+                <p id="form-a11y-export-description" className="mb-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4 text-sm font-bold leading-6 text-slate-300">
                   Exporte les fiches correspondant à la recherche globale en cours. Pratique pour partager un lot réduit ou conserver un état de contrôle.
                 </p>
-                <textarea className={`${fieldClass} min-h-[520px] resize-y font-mono text-xs leading-6`} readOnly value={JSON.stringify(exportPayload, null, 2)} />
+                <textarea aria-label="Export et partage" aria-describedby="form-a11y-export-description" className={`${fieldClass} min-h-[520px] resize-y font-mono text-xs leading-6`} readOnly value={JSON.stringify(exportPayload, null, 2)} />
               </Panel>
             ) : null}
 

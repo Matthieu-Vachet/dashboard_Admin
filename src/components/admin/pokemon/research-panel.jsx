@@ -8,6 +8,7 @@ import { DatasetEventBanner } from "./dataset-event-banner";
 import { DatasetFilterBar } from "./dataset-filter-bar";
 import { Badge as DesignSystemBadge } from "@/components/ui/badge";
 import { uiAssets } from "@/components/site/ui-assets";
+import { PokemonArtwork } from "./pokemon-artwork";
 
 const sectionLabels = {
   fieldResearch: "Field Research",
@@ -153,14 +154,7 @@ function PokemonReward({ reward }) {
 
   return (
     <article className="grid min-w-0 grid-cols-[72px_minmax(0,1fr)] gap-3 rounded-2xl border border-cyan-200/14 bg-cyan-400/8 p-3">
-      <span className="grid h-[72px] w-[72px] place-items-center rounded-2xl border border-white/10 bg-slate-950/38 p-2">
-        <img
-          className="max-h-full object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,.36)]"
-          src={reward.assets?.image || reward.assets?.shinyImage || uiAssets.icons.pokemon}
-          alt={name}
-          loading="lazy"
-        />
-      </span>
+      <PokemonArtwork pokemon={reward} alt={name} className="h-[72px] w-[72px] drop-shadow-[0_12px_24px_rgba(0,0,0,.36)]" />
       <span className="min-w-0 space-y-2">
         <span className="flex min-w-0 flex-wrap items-center gap-2">
           <strong className="truncate text-sm font-black text-white">{name}</strong>

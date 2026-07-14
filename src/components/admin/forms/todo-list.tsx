@@ -73,6 +73,7 @@ export function TodoList() {
 
         <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto]">
           <Input
+            aria-label="Ajouter une action..."
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             onKeyDown={(event) => {

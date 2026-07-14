@@ -553,6 +553,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
               </div>
               <div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
                 <input
+                  aria-label="Rechercher dans la collection..."
                   className={fieldClass}
                   placeholder="Rechercher dans la collection..."
                   value={query}

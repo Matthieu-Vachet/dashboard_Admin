@@ -1,9 +1,9 @@
 ---
 id: DOC-004
 titre: Philosophie du projet
-version: 1.1.0
+version: 1.1.1
 statut: Actif
-derniere_mise_a_jour: 2026-07-13
+derniere_mise_a_jour: 2026-07-14
 auteur: Matthieu Vachet
 categorie: Fondation
 tome: 1
@@ -113,7 +113,7 @@ Les pages ne doivent pas inventer leur propre interface.
 
 Chaque nouvel élément visuel doit renforcer le Design System plutôt que le contourner.
 
-État observé : cinq fichiers UI atomiques partagés fournissent Badge, Button, Card, Input/Textarea et Modal, tandis que de nombreux composants métier reconstruisent localement boutons, filtres, cartes, modales et styles. Les spécifications Atomic/Composite/Complex/Template décrivent une cible future et non une bibliothèque React/Figma déjà réalisée.
+État observé : six fichiers UI atomiques partagés fournissent Badge, Button, Card, Field, Input/Textarea et Modal, tandis que de nombreux composants métier reconstruisent localement boutons, filtres, cartes, modales et styles. `Field` reste volontairement minimal : un label, ses props natives et son enfant, sans description, erreur, validation ou génération d’identifiant. Les spécifications Atomic/Composite/Complex/Template décrivent une cible future et non une bibliothèque React/Figma déjà réalisée.
 
 ---
 

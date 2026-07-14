@@ -5,7 +5,7 @@ import { ChevronDown, Crown, Download, RefreshCcw, RotateCcw, Sparkles } from "l
 import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
 import { DatasetSourceHeader } from "./dataset-source-header";
 import { DatasetFilterBar } from "./dataset-filter-bar";
-import { uiAssets } from "@/components/site/ui-assets";
+import { PokemonArtwork } from "./pokemon-artwork";
 
 const rocketTrainerAssets = {
   arlo: "/ui/rocket/leader-arlo.webp",
@@ -207,14 +207,7 @@ function PokemonCard({ pokemon, onOpenPokemon, compact = false }) {
       disabled={!canOpen}
       className="group grid min-w-0 grid-cols-[72px_minmax(0,1fr)] gap-3 rounded-2xl border border-white/10 bg-slate-950/34 p-3 text-left shadow-[0_14px_40px_rgba(0,0,0,.16)] transition enabled:hover:-translate-y-0.5 enabled:hover:border-cyan-200/35 enabled:hover:bg-cyan-400/8 disabled:cursor-default"
     >
-      <span className="relative grid h-[72px] w-[72px] place-items-center rounded-2xl border border-white/10 bg-slate-950/48 p-2">
-        <img
-          className="max-h-full object-contain drop-shadow-[0_12px_22px_rgba(0,0,0,.4)] transition duration-300 group-hover:scale-105"
-          src={pokemon.assets?.image || pokemon.assets?.shinyImage || uiAssets.icons.pokemon}
-          alt={name}
-          loading="lazy"
-        />
-      </span>
+      <PokemonArtwork pokemon={pokemon} alt={name} className="h-[72px] w-[72px] drop-shadow-[0_12px_22px_rgba(0,0,0,.4)]" />
       <span className="min-w-0 space-y-2">
         <span className="flex min-w-0 items-start justify-between gap-2">
           <span className="min-w-0">

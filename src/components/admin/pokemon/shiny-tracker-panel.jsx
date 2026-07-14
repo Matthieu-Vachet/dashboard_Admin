@@ -9,6 +9,7 @@ import { TypeIcons } from "./asset-icons";
 import { AssetStatCard, buttonClass, fieldClass, Panel, primaryButtonClass } from "./admin-ui";
 import { DatasetSourceHeader } from "./dataset-source-header";
 import { DatasetFilterBar } from "./dataset-filter-bar";
+import { PokemonArtwork } from "./pokemon-artwork";
 
 function formatNumber(value, compact = false) {
   if (value == null) return "—";
@@ -89,9 +90,7 @@ function ShinyDetail({ entry, history, onOpenPokemon }) {
   return (
     <div className="space-y-4">
       <section className="grid gap-4 rounded-2xl border border-white/10 p-4 sm:grid-cols-[9rem_minmax(0,1fr)]" style={typeSurface(entry, 0.18)}>
-        <div className="grid min-h-36 place-items-center rounded-2xl border border-white/10 bg-black/25 p-3">
-          {entry.pokemon?.assets?.shinyImage || entry.pokemon?.assets?.image ? <img className="max-h-32 object-contain" src={entry.pokemon.assets.shinyImage || entry.pokemon.assets.image} alt={pokemonName(entry)} /> : <span className="text-sm font-black text-amber-200">Asset shiny absent</span>}
-        </div>
+        <div className="grid min-h-36 place-items-center rounded-2xl border border-white/10 bg-black/25 p-3"><PokemonArtwork pokemon={entry.pokemon} shiny alt={pokemonName(entry)} className="h-32 w-32 border-0 bg-transparent" priority /></div>
         <div className="min-w-0">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
@@ -166,7 +165,7 @@ function Podium({ entries, board, onOpen }) {
         return (
           <button className={`relative flex min-h-[11rem] flex-col items-center justify-end overflow-hidden rounded-2xl border p-3 text-center sm:min-h-[14rem] sm:p-4 ${tone}`} style={typeSurface(entry, 0.15)} key={`${place}-${entry.sourceIdentity?.variantKey || entry.sourceIdentity?.id}`} type="button" onClick={() => onOpen(entry)}>
             <span className={`absolute top-3 grid h-9 w-9 place-items-center rounded-full font-mono font-black ${place === 1 ? "bg-amber-400 text-slate-950" : place === 2 ? "bg-slate-300 text-slate-950" : "bg-orange-400 text-slate-950"}`}>{place}</span>
-            <img className="mb-2 h-16 w-16 object-contain drop-shadow-[0_18px_30px_rgba(0,0,0,.45)] sm:mb-3 sm:h-24 sm:w-24" src={entry.pokemon?.assets?.shinyImage || entry.pokemon?.assets?.image} alt="" />
+            <PokemonArtwork pokemon={entry.pokemon} shiny alt={pokemonName(entry)} className="mb-2 h-16 w-16 border-0 bg-transparent drop-shadow-[0_18px_30px_rgba(0,0,0,.45)] sm:mb-3 sm:h-24 sm:w-24" />
             <strong className="line-clamp-2 text-base text-white">#{entry.pokemon?.dexNr} {pokemonName(entry)}</strong>
             <span className="mt-3 rounded-xl border border-white/10 bg-black/25 px-3 py-2 font-mono text-lg font-black text-white">{typeof metric === "number" ? formatNumber(metric, true) : metric || "—"}</span>
             <small className="mt-2 font-mono font-black text-amber-100">{entry.shiny?.odds?.raw || "—"}</small>
@@ -213,7 +212,7 @@ export function ShinyTrackerPanel({ dataset, loading, regenerating, options, onO
         {rankedEntries.map((entry) => (
           <button className="grid w-full min-w-0 grid-cols-[2rem_3.5rem_minmax(0,1fr)] gap-2 rounded-2xl border border-white/10 p-3 text-left transition hover:border-cyan-200/35 sm:grid-cols-[3rem_4rem_minmax(0,1fr)_repeat(4,minmax(5rem,auto))] sm:items-center sm:gap-3" style={typeSurface(entry, 0.1)} type="button" key={`${entry.rank}-${entry.sourceIdentity?.variantKey}`} onClick={() => openEntry(entry)}>
             <span className="font-mono text-sm font-black text-slate-400">#{entry.rank}</span>
-            <img className="h-12 w-12 object-contain sm:h-14 sm:w-14" src={entry.pokemon?.assets?.shinyImage || entry.pokemon?.assets?.image} alt="" loading="lazy" />
+            <PokemonArtwork pokemon={entry.pokemon} shiny alt={pokemonName(entry)} className="h-12 w-12 border-0 bg-transparent sm:h-14 sm:w-14" />
             <span className="min-w-0"><strong className="block truncate text-sm text-white">#{entry.pokemon?.dexNr} {pokemonName(entry)}</strong><span className="mt-1 flex flex-wrap items-center gap-2"><TypeIcons types={entry.pokemon?.types} size="sm" /><small className="truncate text-xs font-bold text-slate-400">Dernière : {formatDate(entry.lastSeenAt)}</small></span></span>
             <span className="col-span-3 grid grid-cols-4 gap-2 border-t border-white/10 pt-2 sm:hidden">
               <span><small className="block text-[9px] font-black uppercase text-slate-500">Daily</small><strong className="font-mono text-xs text-white">{formatNumber(entry.stats?.daily, true)}</strong></span>

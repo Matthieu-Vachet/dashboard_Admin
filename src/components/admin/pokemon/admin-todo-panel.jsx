@@ -87,6 +87,7 @@ export function AdminTodoPanel() {
     >
       <div className="mb-4 grid gap-3 sm:grid-cols-[1fr_auto]">
         <input
+          aria-label="Ajouter une tâche"
           className={fieldClass}
           value={newTodo}
           placeholder="Ajouter une tâche"
@@ -122,6 +123,7 @@ export function AdminTodoPanel() {
               <div className="min-w-0 flex-1">
                 {editing ? (
                   <input
+                    aria-label="Modifier la tâche"
                     autoFocus
                     className={`${fieldClass} h-10 py-2`}
                     value={editingText}

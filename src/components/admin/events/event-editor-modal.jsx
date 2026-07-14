@@ -66,6 +66,7 @@ export function ImportModal({ value, busy, onChange, onClose, onImport }) {
             </button>
           </div>
           <textarea
+            aria-label="Import JSON"
             className={`${fieldClass} min-h-[360px] font-mono text-xs leading-5`}
             value={value}
             onChange={(event) => onChange(event.target.value)}

@@ -17,6 +17,10 @@ export function LoginCard({ password, error, loading, onPasswordChange, onSubmit
         }}
       >
         <input
+          id="form-a11y-pokemon-admin-password"
+          aria-label="Mot de passe admin"
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? "form-a11y-pokemon-admin-password-error" : undefined}
           className="min-h-11 rounded-lg border border-white/10 bg-white/[0.06] px-3 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-sky-300"
           type="password"
           value={password}
@@ -31,7 +35,7 @@ export function LoginCard({ password, error, loading, onPasswordChange, onSubmit
           {loading ? "Connexion..." : "Se connecter"}
         </button>
       </form>
-      {error ? <p className="mt-3 text-sm font-bold text-rose-300">{error}</p> : null}
+      {error ? <p id="form-a11y-pokemon-admin-password-error" className="mt-3 text-sm font-bold text-rose-300">{error}</p> : null}
     </section>
   );
 }

@@ -2,10 +2,10 @@
 id: DOC-010
 title: Vue d'ensemble du Design System
 slug: design-system-overview
-version: 1.1.0
+version: 1.1.1
 status: Active
 created: 2026-07-12
-last_updated: 2026-07-13
+last_updated: 2026-07-14
 author: Matthieu Vachet
 owner: MatWeb Innovation
 
@@ -58,7 +58,7 @@ rules:
 >
 > Les couches Atomic, Composite, Complex et Templates décrites dans ce document constituent la **cible de gouvernance et de reconstruction Figma**. Elles ne doivent pas être confondues avec l'implémentation React actuelle.
 >
-> L'implémentation confirmée du Dashboard repose sur les variables CSS/Tailwind, deux thèmes, huit palettes, cinq fichiers UI atomiques partagés et de nombreux composants métier avec styles locaux. Les documents Phase 3C/3D/3E/4A annoncent respectivement 401, 520, 895 variantes futures et six templates cibles ; aucune preuve locale ne confirme leur génération dans Figma ou leur réalisation complète dans React.
+> L'implémentation confirmée du Dashboard repose sur les variables CSS/Tailwind, deux thèmes, huit palettes, six fichiers UI atomiques partagés et de nombreux composants métier avec styles locaux. Les documents Phase 3C/3D/3E/4A annoncent respectivement 401, 520, 895 variantes futures et six templates cibles ; aucune preuve locale ne confirme leur génération dans Figma ou leur réalisation complète dans React.
 
 ---
 
@@ -143,7 +143,7 @@ Cela garantit :
 - une maintenance simplifiée ;
 - une réduction du code.
 
-État observé : ce principe n'est pas encore uniformément atteint. Le Dashboard contient 123 fichiers de composants, dont 46 façades de compatibilité courtes, et plusieurs familles de boutons, cartes, filtres et modales sont reconstruites dans les composants métier.
+État observé : ce principe n'est pas encore uniformément atteint. Le Dashboard contient actuellement 127 fichiers JSX/TSX sous `src/components` ; l’audit du 13 juillet avait identifié 46 façades de compatibilité courtes. Plusieurs familles de boutons, cartes, filtres et modales restent reconstruites dans les composants métier.
 
 ---
 
@@ -513,7 +513,7 @@ Un composant atomique :
 - ne dépend d'aucune page ;
 - est entièrement réutilisable.
 
-La spécification Phase 3C décrit **401 variantes atomiques futures**. L'implémentation React confirmée contient cinq fichiers UI partagés : Badge, Button, Card, Input/Textarea et Modal, soit six familles approximatives. IconButton, Select, Checkbox, Switch, Chip, Label, Divider, ProgressBar, Tooltip et Tabs ne possèdent pas de primitive partagée dédiée.
+La spécification Phase 3C décrit **401 variantes atomiques futures**. L'implémentation React confirmée contient six fichiers UI partagés : Badge, Button, Card, Field, Input/Textarea et Modal, soit sept familles de composants exportées. `Field` compose seulement un label et son enfant ; il n’expose ni description, ni erreur, ni validation. IconButton, Select, Checkbox, Switch, Chip, Label autonome, Divider, ProgressBar, Tooltip et Tabs ne possèdent pas de primitive partagée dédiée.
 
 ---
 
@@ -2039,7 +2039,7 @@ Chaque composant possède :
 
 # Les Atomic Components dans le projet
 
-D'après l'audit code-only, la bibliothèque React partagée comporte six familles approximatives : Badge, Button, Card, Input, Textarea et Modal. Les **401 variantes** de `phase-3c-prep-atomic-component-spec.md` sont une spécification future, pas un inventaire de variantes réalisées.
+D'après le code courant, la bibliothèque React partagée comporte sept familles de composants : Badge, Button, Card, Field, Input, Textarea et Modal. Les **401 variantes** de `phase-3c-prep-atomic-component-spec.md` sont une spécification future, pas un inventaire de variantes réalisées.
 
 Ces composants servent de base à tous les composants composites et complexes.
 
@@ -6778,7 +6778,7 @@ Elle fait partie intégrante du processus de conception.
 
 Chaque composant, chaque page et chaque interaction doivent être pensés dès leur création pour offrir une expérience claire, cohérente et inclusive.
 
-**État observé : conformité partielle ; niveau WCAG 2.2 AA non démontré.** Les landmarks, skip link Dashboard, contrôles natifs, textes alternatifs et focus du Button commun constituent des bases positives. Les focus traps/restaurations des modales, certains labels, les alternatives clavier au DnD, les live regions, les cibles tactiles, le contraste des huit palettes et le reduced-motion restent incomplets ou non testés.
+**État observé : conformité partielle ; niveau WCAG 2.2 AA non démontré.** Les landmarks, skip link Dashboard, contrôles natifs, textes alternatifs, focus du Button commun et gestion du focus de la primitive Modal constituent des bases positives. Plusieurs modales métier, certains labels, les alternatives clavier au DnD, les live regions, les cibles tactiles, le contraste des huit palettes et le reduced-motion restent incomplets ou non testés.
 
 ---
 
@@ -6969,7 +6969,7 @@ Une modale doit :
 
 L'utilisateur ne doit jamais "perdre" le focus.
 
-État observé : la modale commune gère Escape et le rôle `dialog`, mais aucune focus trap/restauration systématique n'est détectée. Plusieurs modales métier possèdent une sémantique ou un nom accessible incomplet.
+État observé : la primitive Modal gère `role="dialog"`, `aria-modal`, Escape, focus initial, boucle Tab/Shift+Tab, retour du focus et scroll lock. Elle utilise `aria-label={title}` sans relier le titre ou la description visibles, et son bouton d’overlay focusable reste hors de la section dialog. Plusieurs modales métier possèdent encore une sémantique, un nom accessible ou un cycle de focus incomplet.
 
 ---
 

@@ -700,6 +700,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon }) {
           <label className="relative block">
             <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={17} />
             <input
+              aria-label="Rechercher event, bonus, Pokémon..."
               className={`${fieldClass} pl-11`}
               placeholder="Rechercher event, bonus, Pokémon..."
               value={query}

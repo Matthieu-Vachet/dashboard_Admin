@@ -47,7 +47,7 @@ export function ColorLab() {
             />
           </label>
           <div className="space-y-3">
-            <Input value={color} onChange={(event) => setColor(normalizeHex(event.target.value))} />
+            <Input aria-label="HEX" value={color} onChange={(event) => setColor(normalizeHex(event.target.value))} />
             <ColorValue label="HEX" value={color.toUpperCase()} copied={copied} onCopy={copy} />
             <ColorValue label="RGB" value={`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`} copied={copied} onCopy={copy} />
             <ColorValue label="HSL" value={`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`} copied={copied} onCopy={copy} />

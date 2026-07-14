@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.22.0 - 2026-07-14
+
+- Ajoute les classements Best Attackers aux niveaux 30, 40 et 50 avec DPS, TDO, eDPS, filtres et export serveur.
+- Centralise la résolution des espèces, formes, costumes et états autour d'une identité canonique et d'un composant d'artwork partagé.
+- Ajoute la matrice Game Master PokeMiners, ses diagnostics privés et l'action de régénération protégée.
+- Wrapper le moteur DialgaDex avec l'accord du propriétaire, attribution GPL, commit et empreintes de source vérifiables.
+
 ## 1.21.1 - 2026-07-13
 
 - Corrige les débordements et les hiérarchies visuelles d’Admin Pokémon sur mobile, tablette et bureau sans changer son identité graphique.

@@ -9,7 +9,7 @@ import { DatasetEventBanner } from "./dataset-event-banner";
 import { DatasetFilterBar } from "./dataset-filter-bar";
 import { TierSection } from "./tier-section";
 import { Badge } from "@/components/ui/badge";
-import { uiAssets } from "@/components/site/ui-assets";
+import { PokemonArtwork } from "./pokemon-artwork";
 
 const raidSections = [
   ["super_mega", "Super Méga", "/ui/raids/mega_raids_legendaire_raids.png", "violet"],
@@ -98,12 +98,7 @@ function RaidCard({ boss, onOpenPokemon, typeCatalog = [], weatherCatalog = [] }
             Non matché
           </span>
         ) : null}
-        <img
-          className="relative z-10 max-h-28 object-contain drop-shadow-[0_18px_34px_rgba(0,0,0,.38)] transition duration-300 group-hover:scale-105"
-          src={boss.assets?.image || boss.assets?.shinyImage || uiAssets.icons.pokemon}
-          alt={name}
-          loading="lazy"
-        />
+        <PokemonArtwork pokemon={boss} alt={name} className="relative z-10 h-28 w-28 border-0 bg-transparent drop-shadow-[0_18px_34px_rgba(0,0,0,.38)]" />
       </div>
       <div className="space-y-3 border-t border-white/10 p-4">
         <div className="min-w-0">

@@ -1,4 +1,4 @@
-# Écrans Shiny Tracker et PvP Rankings
+# Écrans Shiny Tracker, PvP Rankings et Best Attackers
 
 Les deux écrans sont des panneaux de l'Admin Pokémon et utilisent les composants partagés : `Panel`, `DatasetFilterBar` et `DatasetSourceHeader`. Ce dernier affiche la provenance, l'état, le hash, la visibilité et les diagnostics sans dupliquer cette logique dans chaque écran.
 
@@ -6,6 +6,9 @@ Le navigateur ne contacte jamais Snacknap ou GitHub directement. Toutes les lect
 
 - Shiny privé : podium top 3, filtres, recherche, type, génération, tendance, pagination, détail complet et graphique uniquement lorsque plusieurs snapshots internes existent.
 - PvP public : formats regroupés dynamiquement, tous les rôles, recherche, pagination et lignes accordéon détaillant scores, statistiques, IV/CP, attaques locales, matchups et contres. Les champs indisponibles sont signalés comme tels.
+- Best Attackers public : moteur DialgaDex isolé, données Pokémon locales, niveaux 30/40/50, 18 types + ANY, DPS/TDO/eDPS, filtres serveur et export de la vue complète.
+
+Le diagnostic privé « Résolution variantes » expose la matrice Game Master et ses statuts sans remplacer silencieusement une forme inconnue.
 
 Les boutons de régénération appellent les routes Admin non documentées avec le secret serveur. Les URLs et secrets externes ne sont jamais envoyés au client.
 
