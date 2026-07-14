@@ -77,117 +77,19 @@ export function typeBackground(type, catalog = []) {
   return catalogItem(catalog, type)?.assets?.background || null;
 }
 
-function firstImage(items = [], predicate = () => true) {
-  const list = Array.isArray(items) ? items : [];
-  return list.find((item) => predicate(item) && (item?.image || item?.shinyImage));
-}
-
 export function preferredPokemonImage(entry = {}, options = {}) {
-  const kind = String(entry.kind || "").toLowerCase();
-  const form = String(entry.form || "").toLowerCase();
-  const preferShiny = Boolean(options.preferShiny);
-  const shuffleVariants = Array.isArray(entry.assets?.shuffle?.variants)
-    ? entry.assets.shuffle.variants
-    : Array.isArray(entry.shuffleVariants)
-      ? entry.shuffleVariants
-      : [];
-  const homeVariants = Array.isArray(entry.assets?.home?.variants)
-    ? entry.assets.home.variants
-    : Array.isArray(entry.homeVariants)
-      ? entry.homeVariants
-      : [];
-
-  const matchingShuffle =
-    firstImage(shuffleVariants, (asset) =>
-      !asset?.shiny &&
-      [asset.form, asset.state, ...(asset.tags || []), ...(asset.codes || [])]
-        .filter(Boolean)
-        .map((value) => String(value).toLowerCase())
-        .some((value) => value === form || value === kind),
-    ) || firstImage(shuffleVariants, (asset) => !asset?.shiny) || firstImage(shuffleVariants);
-  const matchingShinyShuffle =
-    firstImage(shuffleVariants, (asset) =>
-      asset?.shiny &&
-      [asset.form, asset.state, ...(asset.tags || []), ...(asset.codes || [])]
-        .filter(Boolean)
-        .map((value) => String(value).toLowerCase())
-        .some((value) => value === form || value === kind),
-    ) || firstImage(shuffleVariants, (asset) => asset?.shiny);
-
-  const matchingHome =
-    firstImage(homeVariants, (asset) =>
-      Boolean(kind === "gigantamax" ? asset?.gigantamax : true) &&
-      [asset.detail, asset.view, asset.form, asset.genderCode]
-        .filter(Boolean)
-        .map((value) => String(value).toLowerCase())
-        .some((value) => value.includes(form) || value.includes(kind)),
-    ) || firstImage(homeVariants);
-  const matchingShinyHome =
-    firstImage(homeVariants, (asset) =>
-      Boolean(asset?.shinyImage) &&
-      Boolean(kind === "gigantamax" ? asset?.gigantamax : true) &&
-      [asset.detail, asset.view, asset.form, asset.genderCode]
-        .filter(Boolean)
-        .map((value) => String(value).toLowerCase())
-        .some((value) => value.includes(form) || value.includes(kind)),
-    ) || firstImage(homeVariants, (asset) => asset?.shinyImage);
-
-  if (kind === "event") return (preferShiny ? entry.shinyImage : null) || entry.image || entry.shinyImage || null;
-  if (kind === "dynamax")
-    return (
-      (preferShiny ? matchingShinyShuffle?.image || entry.shuffleShinyImage || entry.shinyImage : null) ||
-      matchingShuffle?.image ||
-      entry.shuffleImage ||
-      entry.image ||
-      entry.homeImage ||
-      null
-    );
-  if (kind === "gigantamax")
-    return (
-      (preferShiny ? matchingShinyHome?.shinyImage || entry.homeShinyImage || entry.shinyImage : null) ||
-      matchingHome?.image ||
-      entry.homeImage ||
-      matchingShuffle?.image ||
-      entry.shuffleImage ||
-      entry.image ||
-      null
-    );
-  if (kind === "mega")
-    return (
-      (preferShiny ? entry.shinyImage || entry.homeShinyImage || matchingShinyHome?.shinyImage : null) ||
-      entry.image ||
-      matchingHome?.image ||
-      entry.homeImage ||
-      matchingShuffle?.image ||
-      null
-    );
-  if (kind === "form")
-    return (
-      (preferShiny ? entry.shinyImage || entry.homeShinyImage || matchingShinyHome?.shinyImage : null) ||
-      entry.image ||
-      matchingHome?.image ||
-      entry.homeImage ||
-      matchingShuffle?.image ||
-      null
-    );
-
-  return (
-    (preferShiny ? entry.shinyImage : null) ||
-    entry.image ||
-    entry.homeImage ||
-    matchingHome?.image ||
-    matchingShuffle?.image ||
-    null
-  );
+  return resolvePokemonVariant(entry, {
+    ...options,
+    shiny: Boolean(options.shiny ?? options.preferShiny),
+  }).image;
 }
 
 export function pokemonVariantLabel(entry = {}) {
-  const kind = String(entry.kind || "").toLowerCase();
-  const form = String(entry.form || "normal").toLowerCase();
-  if (kind === "event") return "Évènement";
-  if (kind === "mega") return "Méga";
-  if (kind === "dynamax") return "Dynamax";
-  if (kind === "gigantamax") return "Gigamax";
-  if (kind === "form" && form !== "normal") return form.charAt(0).toUpperCase() + form.slice(1);
-  return "Normal";
+  return pokemonVariantBadges(entry)[0] || "Normal";
 }
+
+export { pokemonVariantBadges, resolvePokemonVariant };
+import {
+  pokemonVariantBadges,
+  resolvePokemonVariant,
+} from "@/lib/pokemon-variant-resolver";

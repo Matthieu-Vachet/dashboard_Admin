@@ -189,8 +189,7 @@ function readableAssetLabel(value) {
 }
 
 function eventAssetName(entry, asset) {
-  const label = readableAssetLabel(asset.costume || asset.form || "Evenement");
-  return `${entry.name} ${label}`.trim();
+  return entry.name || readableAssetLabel(asset.costume || asset.form || "Pokémon");
 }
 
 function eventCollectionItems(entries) {
@@ -211,10 +210,10 @@ function eventCollectionItems(entries) {
         baseKey: entry.key,
         collectionType: "event",
         kind: "event",
-        form: asset.costume || asset.form || "event",
+        form: asset.form || asset.costume || "event",
+        costume: asset.costume || null,
+        isFemale: Boolean(asset.isFemale),
         name: eventAssetName(entry, asset),
-        image: asset.image || asset.shinyImage || entry.image,
-        shinyImage: asset.shinyImage || null,
         eventAsset: asset,
         availability: {
           ...(entry.availability || {}),
@@ -230,17 +229,7 @@ function collectionPool(entries, collection) {
 }
 
 function collectionImage(entry, collection) {
-  if (collection?.shiny) {
-    return (
-      entry.shinyImage ||
-      entry.homeShinyImage ||
-      entry.shuffleShinyImage ||
-      entry.eventAsset?.shinyImage ||
-      preferredPokemonImage(entry, { preferShiny: true }) ||
-      null
-    );
-  }
-  return preferredPokemonImage(entry) || entry.image || entry.homeImage || null;
+  return preferredPokemonImage(entry, { preferShiny: Boolean(collection?.shiny) });
 }
 
 function generationKey(entry) {

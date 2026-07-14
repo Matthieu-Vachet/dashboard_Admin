@@ -30,6 +30,6 @@
 | DOC-034 | [Glossaire](./Tome%201%20%E2%80%94%20Foundation%20%28Fondations%29/DOC-034-glossary.md) |
 | DOC-035 | [Index des ADR](./Tome%201%20%E2%80%94%20Foundation%20%28Fondations%29/DOC-035-adr-index.md) |
 
-Les fiches du 14 juillet 2026 ajoutent ADR-011, RULE-045, PROVIDER-019, DATASET-021 à DATASET-022, COMP-325 à COMP-328, PAGE-050 à PAGE-051, API-161 à API-164 et COL-033 à COL-034 pour l'identité canonique, les mappings Game Master et Best Attackers.
+Les fiches du 14 juillet 2026 ajoutent ADR-011, RULE-045, PROVIDER-019, DATASET-021 à DATASET-022, COMP-325 à COMP-328, PAGE-050 à PAGE-051, API-161 à API-164 et COL-033 à COL-034 pour l'identité canonique, les mappings Game Master et Best Attackers. Le 15 juillet 2026, ADR-011, RULE-045 et COMP-325 passent en version 1.1.0 pour imposer le résolveur visuel Dashboard unique et interdire les fallbacks d'artwork sur les variantes explicites.
 
 Onze fiches spécialisées Post-audit du 13 juillet existent pour PAGE-049, COMP-137, API-157 à API-160, COL-030 à COL-032, DATASET-020 et WORKFLOW-016. Les autres identifiants restent consultables dans les registres JSON du dossier audit-documentation/registries.

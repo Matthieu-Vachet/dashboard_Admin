@@ -1,18 +1,29 @@
 "use client";
 
 import { ImageOff } from "lucide-react";
+import { pokemonVariantBadges, resolvePokemonVariant } from "@/lib/pokemon-variant-resolver";
 
-function imageFor(pokemon, shiny = false) {
-  const assets = pokemon?.assets || pokemon?.identity?.assets || {};
-  if (shiny) return assets.shinyImage || assets.shiny || null;
-  return assets.selected || assets.image || assets.portrait || null;
-}
-
-export function PokemonArtwork({ pokemon, alt, className = "h-16 w-16", shiny = false, priority = false }) {
-  const source = imageFor(pokemon, shiny);
+export function PokemonArtwork({
+  pokemon,
+  alt,
+  className = "h-16 w-16",
+  shiny = false,
+  priority = false,
+  variant = {},
+  showVariant = true,
+}) {
+  const resolution = resolvePokemonVariant(pokemon, { ...variant, shiny });
+  const source = resolution.image;
+  const badges = pokemonVariantBadges(pokemon, { ...variant, shiny });
+  const variantLabel = badges.find((badge) => badge.startsWith("Costume :") || badge.startsWith("Forme :") || badge === "Forme femelle");
   const name = alt || pokemon?.names?.French || pokemon?.names?.English || pokemon?.formId || "Pokémon";
   return (
-    <span className={`relative grid shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 p-1 ${className}`}>
+    <span
+      className={`relative grid shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 p-1 ${className}`}
+      data-asset-status={resolution.status}
+      data-asset-source={resolution.source}
+      title={variantLabel || (resolution.status === "missing-asset" ? "Asset exact absent" : undefined)}
+    >
       {source ? (
         <img className="h-full w-full object-contain" src={source} alt={name} loading={priority ? "eager" : "lazy"} />
       ) : (
@@ -20,8 +31,13 @@ export function PokemonArtwork({ pokemon, alt, className = "h-16 w-16", shiny = 
           <ImageOff size={18} aria-hidden="true" />Asset absent
         </span>
       )}
-      {pokemon?.identity?.resolutionStatus && pokemon.identity.resolutionStatus !== "matched" ? (
-        <span className="absolute bottom-1 right-1 h-2.5 w-2.5 rounded-full border border-slate-950 bg-amber-300" title={`Résolution : ${pokemon.identity.resolutionStatus}`} />
+      {showVariant && variantLabel ? (
+        <span className="absolute inset-x-0 bottom-0 truncate bg-slate-950/88 px-1 py-0.5 text-center text-[7px] font-black text-fuchsia-100" aria-label={variantLabel}>
+          🏷 {variantLabel}
+        </span>
+      ) : null}
+      {resolution.status !== "matched" ? (
+        <span className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full border border-slate-950 bg-amber-300" title="Résolution : missing-asset" />
       ) : null}
     </span>
   );

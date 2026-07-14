@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
+import { resolvePokemonVariant } from "@/lib/pokemon-variant-resolver";
 import {
   commitTrainerPokemonImport,
   previewTrainerPokemonImport,
@@ -126,12 +127,19 @@ function Move({ move }: { move: NormalizedTrainerPokemonMove }) {
 }
 
 function PokemonImage({ pokemon }: { pokemon: TrainerPokemon }) {
+  const resolvedImage = resolvePokemonVariant(pokemon, {
+    id: pokemon.dexNumber,
+    form: pokemon.form,
+    costume: pokemon.costume,
+    isFemale: pokemon.gender === "FEMALE",
+    shiny: pokemon.shiny,
+  }).image;
   return (
     <span className="grid h-[4.5rem] w-[4.5rem] shrink-0 place-items-center overflow-hidden rounded-lg border border-line bg-white/[0.05] p-1.5 lg:h-20 lg:w-20">
       <Image
-        className={pokemon.image ? "h-full w-full object-contain" : "h-8 w-8 object-contain opacity-45"}
-        src={pokemon.image || placeholderImage}
-        alt={pokemon.image ? `${pokemon.frenchName}${pokemon.shiny ? " chromatique" : ""}` : `Image indisponible pour ${pokemon.frenchName}`}
+        className={resolvedImage ? "h-full w-full object-contain" : "h-8 w-8 object-contain opacity-45"}
+        src={resolvedImage || placeholderImage}
+        alt={resolvedImage ? `${pokemon.frenchName}${pokemon.shiny ? " chromatique" : ""}` : `Image indisponible pour ${pokemon.frenchName}`}
         width={80}
         height={80}
       />

@@ -90,7 +90,7 @@ test("accepte les champs facultatifs, inconnus, la troisième attaque et le surn
 
 test("normalise les noms français, IV, attaques, shiny et diagnostics d’asset", () => {
   const references = localReferences();
-  const file = validateTrainerPokemonImport(validFile());
+  const file = validateTrainerPokemonImport(validFile(validEntry({ mon_gender: "MALE" })));
   const { entries, preview } = normalizeTrainerPokemonImport(file, references);
   assert.equal(entries[0].frenchName, "Polarhume");
   assert.equal(entries[0].ivPercent, 100);
@@ -104,10 +104,10 @@ test("normalise les noms français, IV, attaques, shiny et diagnostics d’asset
     references,
   );
   assert.equal(unresolved.entries[0].fastMove.resolved, false);
-  assert.match(unresolved.entries[0].image || "", /\.s\.icon\.png$/i);
+  assert.equal(unresolved.entries[0].image, null);
   assert.equal(unresolved.preview.diagnosticCounts.UNKNOWN_MOVE, 1);
-  assert.equal(unresolved.preview.diagnosticCounts.ASSET_FALLBACK, 1);
-  assert.equal(unresolved.preview.diagnosticCounts.MISSING_ASSET, 0);
+  assert.equal(unresolved.preview.diagnosticCounts.ASSET_FALLBACK, 0);
+  assert.equal(unresolved.preview.diagnosticCounts.MISSING_ASSET, 1);
 });
 
 test("résout le costume exact et ne présente jamais une image normale comme shiny", () => {

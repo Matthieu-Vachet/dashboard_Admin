@@ -60,6 +60,8 @@ import {
 } from "@/services/admin/events-api";
 import { fieldClass, Panel, primaryButtonClass, buttonClass } from "@/components/admin/pokemon/admin-ui";
 import { DatasetSourceHeader } from "@/components/admin/pokemon/dataset-source-header";
+import { PokemonArtwork } from "@/components/admin/pokemon/pokemon-artwork";
+import { resolvePokemonVariant } from "@/lib/pokemon-variant-resolver";
 
 const monthFormat = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" });
 const dateTimeFormat = new Intl.DateTimeFormat("fr-FR", {
@@ -220,7 +222,7 @@ function sectionUsefulImages(section, limit = 6) {
 function eventImages(event, limit = 4) {
   return (event.featuredPokemon || [])
     .map((pokemon) => ({
-      src: usefulEventImage(pokemon.image),
+      src: usefulEventImage(resolvePokemonVariant(pokemon).image),
       name: pokemon.name || pokemon.id,
     }))
     .filter((pokemon) => pokemon.src)
@@ -1489,7 +1491,7 @@ function PokemonCardGrid({ pokemon, onOpenPokemon, compact = false }) {
         const clickable = Boolean(onOpenPokemon && entry.id);
         const content = (
           <>
-            {entry.image ? <img className={`${compact ? "h-11 w-11" : "h-14 w-14"} object-contain drop-shadow-[0_0_16px_rgba(56,189,248,.12)]`} src={entry.image} alt="" loading="lazy" /> : <span className={`${compact ? "h-11 w-11" : "h-14 w-14"} grid place-items-center rounded-xl bg-slate-950/40 text-xs font-black text-slate-500`}>?</span>}
+            <PokemonArtwork pokemon={entry} alt={entry.name || entry.id} className={`${compact ? "h-11 w-11" : "h-14 w-14"} drop-shadow-[0_0_16px_rgba(56,189,248,.12)]`} />
             <span className="min-w-0">
               <strong className="block whitespace-normal break-words text-sm font-black leading-tight text-white">{entry.name || entry.id}</strong>
               <small className="block truncate text-xs font-bold text-slate-400">{entry.form || entry.dexId || "Pokemon"}</small>

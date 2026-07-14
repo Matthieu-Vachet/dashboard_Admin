@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.23.0 - 2026-07-15
+
+- Centralise l'affichage des variantes Pokémon dans un résolveur unique utilisé par `PokemonArtwork`, les fiches, collections, Events, modales et la collection personnelle.
+- Résout d'abord `assetForms` par forme, costume et différence femelle ; une variante explicite absente retourne désormais `missing-asset` sans image normale de substitution.
+- Rend les costumes et formes visibles séparément du nom principal et complète les badges Méga, Dynamax, Gigamax, Obscur et Purifié.
+- Ajoute dix tests de contrat dédiés et aligne la normalisation trainer sur la même règle sans modifier les JSON Pokémon ni MongoDB.
+
 ## 1.22.0 - 2026-07-14
 
 - Ajoute les classements Best Attackers aux niveaux 30, 40 et 50 avec DPS, TDO, eDPS, filtres et export serveur.

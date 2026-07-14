@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown, Swords, Zap } from "lucide-react";
 import { fieldClass, Panel } from "./admin-ui";
+import { PokemonArtwork } from "./pokemon-artwork";
 import { typeBackground, typeColors, typeIcon, typeName } from "@/components/site/pokemon-style";
 
 function moveTitle(move) {
@@ -262,7 +263,7 @@ function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
                     type="button"
                     onClick={() => onOpen?.(pokemon)}
                   >
-                    {pokemon.image ? <img className="h-7 w-7 object-contain" src={pokemon.image} alt="" /> : null}
+                    <PokemonArtwork pokemon={pokemon} className="h-7 w-7 rounded-lg border-0 bg-transparent p-0" showVariant={false} />
                     <span className="max-w-[12rem] truncate">
                       {pokemon.dexId} · {pokemon.name}
                     </span>

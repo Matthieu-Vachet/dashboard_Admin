@@ -259,7 +259,7 @@ export function MiniCardList({ entries, onOpen }) {
       {entries.length ? (
         entries.map((entry) => {
           const issues = entry.issues?.length || 0;
-          const image = preferredPokemonImage(entry) || entry.shinyImage;
+          const image = preferredPokemonImage(entry);
           return (
             <button
               className="group grid grid-cols-[3.25rem_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/35 p-3 text-left transition hover:border-cyan-200/40 hover:bg-cyan-400/10"

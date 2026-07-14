@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { preferredPokemonImage, typeBackground, typeColors, typeIcon, typeName } from "@/components/site/pokemon-style";
+import { pokemonVariantBadges } from "@/lib/pokemon-variant-resolver";
 import { uiAssets } from "@/components/site/ui-assets";
 
 const tabLabels = {
@@ -576,7 +577,7 @@ function findEntryByFormId(entries = [], formId) {
 function PokemonMiniCard({ item, onClick, suffix, direction }) {
   if (!item) return null;
   const clickable = typeof onClick === "function";
-  const image = preferredPokemonImage(item) || item.image || item.homeImage || item.shuffleImage;
+  const image = preferredPokemonImage(item);
   const Tag = clickable ? "button" : "div";
   return (
     <Tag
@@ -1089,19 +1090,20 @@ export function DetailModal({
     entry.secondaryType || payload.secondaryType ? String(entry.secondaryType || payload.secondaryType).toUpperCase() : null,
   ].filter(Boolean);
   const mainTypeColor = typeColors[mainType] || "#38bdf8";
-  const displayImage = preferredPokemonImage({
+  const displayPokemon = {
     ...entry,
-    assets: payload.assets || entry.assets,
-    image: payload.assets?.portrait || payload.assets?.image || entry.image,
-    homeImage:
-      payload.assets?.home?.image ||
-      payload.assets?.home?.shinyImage ||
-      entry.homeImage,
-    shuffleImage:
-      payload.assets?.shuffle?.variants?.find((asset) => !asset?.shiny && asset?.image)?.image ||
-      payload.assets?.shuffle?.variants?.find((asset) => asset?.image)?.image ||
-      entry.shuffleImage,
-  });
+    ...payload,
+    assets: {
+      ...(entry.assets || {}),
+      ...(payload.assets || {}),
+      assetForms: payload.assetForms || entry.assetForms || entry.eventAssets || [],
+    },
+    eventAssets: entry.eventAssets,
+    eventAsset: entry.eventAsset,
+  };
+  const displayImage = preferredPokemonImage(displayPokemon);
+  const displayVariantBadges = pokemonVariantBadges(displayPokemon)
+    .filter((label) => label.startsWith("Costume :") || label.startsWith("Forme :") || label === "Forme femelle");
   const candyIcon =
     payload.assets?.candy?.image ||
     payload.sourceData?.assets?.candy?.image ||
@@ -1150,6 +1152,9 @@ export function DetailModal({
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <TypeBadgeList types={pokemonTypes} typeCatalog={typeCatalog} />
                 <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-sm font-black text-white">{formatForm(payload.form || entry.form || "normal")}</span>
+                {displayVariantBadges.map((label) => (
+                  <span className="rounded-full border border-fuchsia-200/35 bg-fuchsia-300/16 px-3 py-1.5 text-sm font-black text-fuchsia-50" key={label}>🏷 {label}</span>
+                ))}
                 {availability.shinyReleased || shinyAvailability?.released ? (
                   <span className="inline-flex items-center gap-2 rounded-full border border-cyan-100/35 bg-cyan-300/16 px-3 py-1.5 text-sm font-black text-cyan-50">
                     <img className="h-4 w-4 object-contain" src={uiAssets.icons.shiny} alt="" />

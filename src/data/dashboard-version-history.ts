@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.23.0",
+    date: "2026-07-15",
+    title: "Résolution visuelle exacte des variantes Pokémon",
+    changes: [
+      "Centralise la sélection des artworks normaux, shiny, costumes, formes et différences femelles dans un résolveur unique partagé par toutes les surfaces Pokémon.",
+      "Interdit tout fallback vers l'image normale lorsqu'une variante explicite manque et affiche alors l'état missing-asset avec un placeholder visible.",
+      "Conserve le nom principal du Pokémon et expose séparément les badges de costume, forme, genre, Méga, Dynamax, Gigamax, Obscur et Purifié.",
+      "Ajoute dix tests de contrat couvrant formes normales et régionales, costumes, shiny, femelle, Méga et états spéciaux sans modifier les JSON ni MongoDB.",
+    ],
+  },
+  {
     version: "V1.22.0",
     date: "2026-07-14",
     title: "Identité canonique et Best Attackers PvE",

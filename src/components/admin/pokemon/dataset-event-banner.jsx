@@ -3,6 +3,7 @@
 import { CalendarDays, Clock3, ExternalLink, Layers3, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { eventsApiPath } from "@/services/admin/events-api";
+import { PokemonArtwork } from "./pokemon-artwork";
 
 function eventName(event) {
   return typeof event === "string" ? event : event?.name || event?.title || "";
@@ -102,9 +103,7 @@ export function DatasetEventBanner({ event, relatedEvent = null }) {
           {pokemon.length ? (
             <div className="flex -space-x-2">
               {pokemon.map((entry) => (
-                <span key={`${entry.id}-${entry.form}-${entry.name}`} className="grid h-12 w-12 place-items-center rounded-2xl border border-white/18 bg-slate-950/65 p-1.5 shadow-lg" title={entry.name}>
-                  <img className="max-h-full object-contain" src={entry.image} alt={entry.name || entry.id} loading="lazy" />
-                </span>
+                <PokemonArtwork key={`${entry.id}-${entry.form}-${entry.name}`} pokemon={entry} alt={entry.name || entry.id} className="h-12 w-12 shadow-lg" />
               ))}
             </div>
           ) : <Sparkles className="text-violet-100/70" size={26} />}
