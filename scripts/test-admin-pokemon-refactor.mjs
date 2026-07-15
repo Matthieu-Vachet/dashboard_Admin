@@ -52,7 +52,7 @@ test("la fonction Admin Pokémon n’embarque pas les classements volumineux", (
   const repository = read("src/server/pokemon-go/src/lib/data-repository.js");
   assert.doesNotMatch(config, /PokemonGo-Data\/\*\*/);
   assert.doesNotMatch(config, /pvp-rankings|best-attackers|shiny-tracker/);
-  for (const directory of ["pokemon", "pokemon-forms", "pokemon-assets", "moves", "generations", "types", "weather", "stickers", "source-watch"]) {
+  for (const directory of ["pokemon", "pokemon-forms", "pokemon-assets", "moves", "generations", "types", "weather", "stickers", "source-watch", "raids", "eggs", "max-battles", "rocket", "research"]) {
     assert.match(config, new RegExp(`PokemonGo-Data/${directory.replace("-", "\\-")}/\\*\\*`));
   }
   assert.match(repository, /path\.join\(\/\*turbopackIgnore: true\*\/ appRoot/);
