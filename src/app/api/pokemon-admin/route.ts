@@ -10,7 +10,7 @@ import {
 } from "@/lib/dashboard-store";
 import { assertJsonPayloadSize, assertSameOrigin, rateLimit } from "@/lib/security";
 
-export const maxDuration = 300;
+export const maxDuration = 60;
 
 type JsonValue = Record<string, unknown>;
 type CurrentPayload = {
@@ -29,7 +29,7 @@ const customRulesStoreKey = "matweb.pokemon.customRules";
 const sourceHistoryStoreKey = "matweb.pokemon.sourceHistory";
 const pokemonModulePattern = `${process.cwd()}/src/server/pokemon-go/`;
 const defaultPokemonApiPublicUrl = "https://pokemon-go-api.vercel.app";
-const pokemonAdminMutationTimeoutMs = 240_000;
+const pokemonAdminMutationTimeoutMs = 55_000;
 const pokemonApiBaseUrl =
   process.env.POKEMON_API_PUBLIC_URL
   || (process.env.VERCEL === "1" ? undefined : process.env.POKEMON_API_URL)

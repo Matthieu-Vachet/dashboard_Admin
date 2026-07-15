@@ -217,9 +217,9 @@ test("le Dashboard n'appelle Shiny qu'avec le secret serveur", () => {
   assert.match(source, /headers\["x-api-admin-secret"\] = secret/);
 });
 
-test("le proxy Admin laisse les snapshots longs terminer avant son propre timeout", () => {
+test("le proxy Admin conserve une marge avant la limite Vercel", () => {
   const source = read("src/app/api/pokemon-admin/route.ts");
-  assert.match(source, /export const maxDuration = 300/);
-  assert.match(source, /pokemonAdminMutationTimeoutMs = 240_000/);
+  assert.match(source, /export const maxDuration = 60/);
+  assert.match(source, /pokemonAdminMutationTimeoutMs = 55_000/);
   assert.match(source, /AbortSignal\.timeout\(pokemonAdminMutationTimeoutMs\)/);
 });

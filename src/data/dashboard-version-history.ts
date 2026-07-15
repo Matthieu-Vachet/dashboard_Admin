@@ -11,9 +11,9 @@ export const dashboardVersionHistory: DashboardVersionEntry[] = [
     date: "2026-07-15",
     title: "Snapshot Shiny fiable sur Vercel",
     changes: [
-      "Corrige l'expiration 504 du snapshot Shiny en donnant au traitement distant sa fenêtre d'exécution complète.",
-      "Aligne le timeout du proxy Admin sur la fonction API sans exposer le secret privé au navigateur.",
-      "Ajoute des traces serveur par phase et un test empêchant la réintroduction de la limite de 60 secondes.",
+      "Corrige l'expiration 504 du snapshot Shiny grâce au stockage compact du document courant et de son historique.",
+      "Aligne le proxy Admin sur la limite Vercel avec une marge de sécurité, sans exposer le secret privé au navigateur.",
+      "Ajoute des traces serveur par phase et un test empêchant une configuration non déployable.",
     ],
   },
   {
