@@ -327,12 +327,20 @@ async function readShinyHistory(request: NextRequest) {
 function readItems() {
   const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
   const file = dataPath("items", "items.json");
-  const data = JSON.parse(fs.readFileSync(file, "utf8"));
+  let data;
+  try {
+    data = JSON.parse(fs.readFileSync(file, "utf8"));
+  } catch {
+    throw requestError("Le référentiel local des items Pokémon GO est indisponible.", 503);
+  }
+  if (!Array.isArray(data?.items) || data.items.length === 0) {
+    throw requestError("Le référentiel local des items Pokémon GO est vide ou invalide.", 503);
+  }
   return {
     data,
     meta: {
-      source: "data/items/items.json",
-      total: Array.isArray(data.items) ? data.items.length : 0,
+      source: "PokemonGo-Data/items/items.json",
+      total: data.items.length,
     },
   };
 }

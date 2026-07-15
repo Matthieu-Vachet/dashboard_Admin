@@ -987,6 +987,7 @@ export function AdminApp() {
   const [research, setResearch] = useState(null);
   const [itemsReference, setItemsReference] = useState(null);
   const [researchLoading, setResearchLoading] = useState(false);
+  const [researchLoadError, setResearchLoadError] = useState("");
   const [researchRegenerating, setResearchRegenerating] = useState(false);
   const [shiny, setShiny] = useState(null);
   const [shinyLoading, setShinyLoading] = useState(false);
@@ -1674,6 +1675,7 @@ export function AdminApp() {
 
   async function loadResearch({ notify = false } = {}) {
     setResearchLoading(true);
+    setResearchLoadError("");
     try {
       const [response, itemsResponse] = await Promise.all([
         fetch(`${adminApiPath}?action=research`, { cache: "no-store" }),
@@ -1687,6 +1689,7 @@ export function AdminApp() {
       if (notify) toast.success("Research actualisé.");
     } catch (error) {
       const message = errorMessage(error, "Erreur de chargement Research.");
+      setResearchLoadError(message);
       setResearch((current) => markCurrentDatasetFailure(current, message));
       toast.error(message);
     } finally {
@@ -2235,6 +2238,7 @@ export function AdminApp() {
                 research={research}
                 itemsReference={itemsReference}
                 loading={researchLoading}
+                refreshError={researchLoadError}
                 regenerating={researchRegenerating}
                 onRefresh={() => loadResearch({ notify: true })}
                 onDownload={downloadResearchJson}

@@ -52,10 +52,21 @@ test("la fonction Admin Pokémon n’embarque pas les classements volumineux", (
   const repository = read("src/server/pokemon-go/src/lib/data-repository.js");
   assert.doesNotMatch(config, /PokemonGo-Data\/\*\*/);
   assert.doesNotMatch(config, /pvp-rankings|best-attackers|shiny-tracker/);
-  for (const directory of ["pokemon", "pokemon-forms", "pokemon-assets", "moves", "generations", "types", "weather", "stickers", "source-watch", "raids", "eggs", "max-battles", "rocket", "research"]) {
+  for (const directory of ["pokemon", "pokemon-forms", "pokemon-assets", "moves", "generations", "types", "weather", "stickers", "source-watch", "raids", "eggs", "max-battles", "rocket", "research", "items"]) {
     assert.match(config, new RegExp(`PokemonGo-Data/${directory.replace("-", "\\-")}/\\*\\*`));
   }
   assert.match(repository, /path\.join\(\/\*turbopackIgnore: true\*\/ appRoot/);
+});
+
+test("Research embarque et valide le référentiel items sans masquer les erreurs", () => {
+  const proxy = read("src/app/api/pokemon-admin/route.ts");
+  const app = read("src/components/admin/pokemon/admin-app.jsx");
+  const items = JSON.parse(read(".data/PokemonGo-Data/items/items.json"));
+  assert.ok(Array.isArray(items.items) && items.items.length > 0);
+  assert.match(proxy, /dataPath\("items", "items\.json"\)/);
+  assert.match(proxy, /référentiel local des items Pokémon GO est indisponible/);
+  assert.match(proxy, /référentiel local des items Pokémon GO est vide ou invalide/);
+  assert.match(app, /refreshError=\{researchLoadError\}/);
 });
 
 test("Résolution variantes sépare table desktop et cartes mobiles avec l’asset exact", () => {

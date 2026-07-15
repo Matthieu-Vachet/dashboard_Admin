@@ -18,6 +18,7 @@ const nextConfig: NextConfig = {
       "./.data/PokemonGo-Data/max-battles/**",
       "./.data/PokemonGo-Data/rocket/**",
       "./.data/PokemonGo-Data/research/**",
+      "./.data/PokemonGo-Data/items/**",
       "./public/ui/**",
     ],
   },
