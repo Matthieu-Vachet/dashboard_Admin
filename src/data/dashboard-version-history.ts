@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.24.1",
+    date: "2026-07-15",
+    title: "Assets exacts et fiabilisation Admin Pokémon",
+    changes: [
+      "Aligne fiches, collection et Shiny Tracker sur le résolveur canonique, avec fallback HOME réservé aux identités normales et costumes Snacknap exacts.",
+      "Restaure le référentiel d'items Research côté serveur et supprime les badges techniques superposés aux artworks.",
+      "Compacte les filtres de types Best Attackers et les statistiques Events sans retirer de donnée ni dégrader le rendu mobile.",
+      "Fiabilise la régénération Game Master avec stockage compact, nettoyage des staging orphelins, rétention bornée et diagnostic de quota explicite.",
+    ],
+  },
+  {
     version: "V1.24.0",
     date: "2026-07-15",
     title: "Game Master Explorer et ergonomie Admin Pokémon",

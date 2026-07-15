@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.24.1 - 2026-07-15
+
+- Aligne fiches, collection personnelle et Shiny Tracker sur la résolution canonique, avec HOME uniquement pour une identité normale et assets de costumes Snacknap exacts.
+- Restaure le référentiel items utilisé par Research et supprime les badges techniques superposés aux artworks partagés.
+- Remplace les grands filtres Best Attackers par 19 icônes accessibles et compacte les sept statistiques Events sans perte d'information.
+- Fiabilise Game Master Explorer avec le stockage compact et le nettoyage atomique fournis par l'API.
+
 ## 1.24.0 - 2026-07-15
 
 - Ajoute Game Master Explorer avec recherche et pagination serveur, catégories dynamiques, détail JSON repliable, comparaison locale, historique, diff et exports JSON/CSV privés.

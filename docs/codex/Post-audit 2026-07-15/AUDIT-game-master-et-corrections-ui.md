@@ -1,6 +1,6 @@
 ---
 title: Audit préalable Game Master Explorer et corrections UI Admin Pokémon
-version: 1.0.0
+version: 1.1.0
 status: Final
 last_update: 2026-07-15
 author: Matthieu Vachet
@@ -44,9 +44,16 @@ L’audit a été établi depuis Dashboard `336babb`, API `835698a` et Data `cf8
 - UI mobile dédiée pour cartes et navigation; rendu desktop existant conservé lorsque demandé.
 - Résolution normale GO → référence exacte → HOME → portrait → placeholder, indépendante de `availability`; résolution exacte obligatoire dès qu’une variante est demandée.
 
+## Résultat de la passe corrective
+
+- Le même résolveur canonique alimente désormais fiches, collection, datasets et Shiny Tracker, avec fallback HOME limité aux identités normales.
+- Research charge le référentiel `items/items.json` embarqué côté serveur et signale clairement une absence de fichier.
+- Best Attackers utilise les 19 icônes de type compactes, Events conserve ses sept statistiques sans tuiles surdimensionnées et les badges ne recouvrent plus les artworks.
+- Game Master stocke les templates de façon compacte, purge les staging orphelins, borne sa rétention et retourne un diagnostic de quota explicite.
+
 ## Migration
 
-La première régénération privée initialise les nouvelles collections sans modifier les JSON Pokémon. Aucun snapshot courant n’est remplacé tant que templates, comparaison locale, diagnostics et diff ne sont pas entièrement persistés. La rétention reste illimitée par défaut.
+La première régénération privée initialise les nouvelles collections sans modifier les JSON Pokémon. Aucun snapshot courant n’est remplacé tant que templates, comparaison locale et diagnostics ne sont pas entièrement persistés. Deux snapshots sont conservés par défaut.
 
 ## IDs documentaires
 
