@@ -10,7 +10,6 @@ export function PokemonArtwork({
   shiny = false,
   priority = false,
   variant = {},
-  showVariant = true,
 }) {
   const resolution = resolvePokemonVariant(pokemon, { ...variant, shiny });
   const source = resolution.image;
@@ -31,11 +30,6 @@ export function PokemonArtwork({
           <ImageOff size={18} aria-hidden="true" />Asset absent
         </span>
       )}
-      {showVariant && variantLabel ? (
-        <span className="absolute inset-x-0 bottom-0 truncate bg-slate-950/88 px-1 py-0.5 text-center text-[7px] font-black text-fuchsia-100" aria-label={variantLabel}>
-          🏷 {variantLabel}
-        </span>
-      ) : null}
       {resolution.status !== "matched" ? (
         <span className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full border border-slate-950 bg-amber-300" title="Résolution : missing-asset" />
       ) : null}

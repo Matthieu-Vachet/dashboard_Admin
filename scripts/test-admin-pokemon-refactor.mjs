@@ -32,8 +32,19 @@ test("Best Attackers utilise un sélecteur de types visuel et des cartes mobiles
   assert.match(source, /grid-cols-\[4\.75rem_minmax\(0,1fr\)\]/);
   assert.match(source, /sm:grid-cols-\[3rem_4\.5rem_minmax\(0,1fr\)_auto\]/);
   assert.match(source, /priority=\{entry\.rank <= 6\}/);
-  assert.match(source, /showVariant=\{false\}/);
+  assert.doesNotMatch(source, /showVariant=/);
   assert.match(source, /relative col-start-1 row-start-1 h-\[4\.75rem\]/);
+});
+
+test("les artworks partagés n'affichent plus de badge de variante superposé", () => {
+  const artwork = read("src/components/admin/pokemon/pokemon-artwork.jsx");
+  assert.doesNotMatch(artwork, /showVariant|bottom-0|🏷/);
+  assert.match(artwork, /title=\{variantLabel/);
+  for (const file of ["raids-panel.jsx", "max-battles-panel.jsx", "pvp-rankings-panel.jsx", "eggs-panel.jsx", "shiny-tracker-panel.jsx"]) {
+    const panel = read(`src/components/admin/pokemon/${file}`);
+    assert.match(panel, /<PokemonArtwork/);
+    assert.doesNotMatch(panel, /showVariant=/);
+  }
 });
 
 test("l’audit d’assets est paresseux, mutualisé et résilient aux limites GitHub", () => {

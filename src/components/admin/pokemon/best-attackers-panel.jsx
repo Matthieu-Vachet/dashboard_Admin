@@ -272,7 +272,6 @@ export function BestAttackersPanel({
                 pokemon={entry.pokemon}
                 className="h-full w-full sm:col-start-2 sm:row-start-1 sm:h-16 sm:w-16"
                 priority={entry.rank <= 6}
-                showVariant={false}
               />
               <span
                 className="absolute -left-1 -top-1 flex min-h-7 items-center gap-1 rounded-lg border border-amber-100/35 bg-slate-950/95 px-1.5 font-mono text-[10px] font-black text-amber-100 shadow-lg sm:static sm:col-start-1 sm:row-start-1 sm:grid sm:h-11 sm:w-11 sm:place-items-center sm:rounded-xl sm:border-amber-200/18 sm:bg-amber-300/10 sm:px-0 sm:text-sm sm:shadow-none"

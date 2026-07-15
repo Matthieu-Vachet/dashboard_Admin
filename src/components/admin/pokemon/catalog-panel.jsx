@@ -263,7 +263,7 @@ function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
                     type="button"
                     onClick={() => onOpen?.(pokemon)}
                   >
-                    <PokemonArtwork pokemon={pokemon} className="h-7 w-7 rounded-lg border-0 bg-transparent p-0" showVariant={false} />
+                    <PokemonArtwork pokemon={pokemon} className="h-7 w-7 rounded-lg border-0 bg-transparent p-0" />
                     <span className="max-w-[12rem] truncate">
                       {pokemon.dexId} · {pokemon.name}
                     </span>
