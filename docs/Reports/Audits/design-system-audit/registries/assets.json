@@ -1,0 +1,2315 @@
+{
+  "count": 385,
+  "entries": [
+    {
+      "path": "public/.DS_Store",
+      "extension": "none",
+      "bytes": 6148,
+      "family": "root"
+    },
+    {
+      "path": "public/.gitkeep",
+      "extension": "none",
+      "bytes": 1,
+      "family": "root"
+    },
+    {
+      "path": "public/ui/.DS_Store",
+      "extension": "none",
+      "bytes": 14340,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/.DS_Store",
+      "extension": "none",
+      "bytes": 18436,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/10_km.png",
+      "extension": ".png",
+      "bytes": 8669,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/12_km.png",
+      "extension": ".png",
+      "bytes": 8119,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/2_km.png",
+      "extension": ".png",
+      "bytes": 8490,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/5_km.png",
+      "extension": ".png",
+      "bytes": 8651,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/7_km.png",
+      "extension": ".png",
+      "bytes": 8907,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Bag_Dragon_Scale_Sprite.png",
+      "extension": ".png",
+      "bytes": 23201,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Bag_King's_Rock_Sprite.png",
+      "extension": ".png",
+      "bytes": 35751,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Bag_Metal_Coat_Sprite.png",
+      "extension": ".png",
+      "bytes": 48486,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Bag_Other_Stone_A_Sprite.png",
+      "extension": ".png",
+      "bytes": 48371,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Bag_Sinnoh_Stone_Sprite.png",
+      "extension": ".png",
+      "bytes": 38509,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Bag_Sun_Stone_Sprite.png",
+      "extension": ".png",
+      "bytes": 25890,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Bag_Unova_Stone_Sprite.png",
+      "extension": ".png",
+      "bytes": 45831,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Bag_Up-Grade_Sprite.png",
+      "extension": ".png",
+      "bytes": 24210,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/EggIncubatorIAP_Activated.png",
+      "extension": ".png",
+      "bytes": 51980,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/EggIncubatorIAP_Empty.png",
+      "extension": ".png",
+      "bytes": 54174,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/EggIncubatorSuper_Activated.png",
+      "extension": ".png",
+      "bytes": 47261,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/EggIncubatorSuper_Empty.png",
+      "extension": ".png",
+      "bytes": 43067,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/EggIncubatorTimed_Activated.png",
+      "extension": ".png",
+      "bytes": 57945,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/EggIncubatorTimed_Empty.png",
+      "extension": ".png",
+      "bytes": 57421,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/EggIncubatorUnlimited_Activated.png",
+      "extension": ".png",
+      "bytes": 48204,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/EggIncubatorUnlimited_Empty.png",
+      "extension": ".png",
+      "bytes": 51638,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/EggIncubator_Egg_10km.png",
+      "extension": ".png",
+      "bytes": 4797,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/EggIncubator_Egg_2km.png",
+      "extension": ".png",
+      "bytes": 4544,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/EggIncubator_Egg_5km.png",
+      "extension": ".png",
+      "bytes": 4556,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/EggIncubator_Egg_7km.png",
+      "extension": ".png",
+      "bytes": 4179,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/EggIncubator_Egg_A.png",
+      "extension": ".png",
+      "bytes": 4536,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/EggIncubator_Egg_B.png",
+      "extension": ".png",
+      "bytes": 4460,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/EggIncubator_Egg_C.png",
+      "extension": ".png",
+      "bytes": 4468,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/EggIncubator_Egg_D.png",
+      "extension": ".png",
+      "bytes": 4363,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/EggIncubator_Egg_TR_12km.png",
+      "extension": ".png",
+      "bytes": 4503,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/EggIncubator_TR.png",
+      "extension": ".png",
+      "bytes": 4638,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Egg_10km.png",
+      "extension": ".png",
+      "bytes": 8733,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Egg_12km_TR.png",
+      "extension": ".png",
+      "bytes": 7777,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Egg_2km.png",
+      "extension": ".png",
+      "bytes": 8160,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Egg_5km.png",
+      "extension": ".png",
+      "bytes": 8516,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Egg_7km.png",
+      "extension": ".png",
+      "bytes": 8864,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/GiftBox.png",
+      "extension": ".png",
+      "bytes": 56548,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Incense_0.png",
+      "extension": ".png",
+      "bytes": 48114,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Incense_0_Large_Bundle.png",
+      "extension": ".png",
+      "bytes": 59010,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Incense_0_Med_Bundle.png",
+      "extension": ".png",
+      "bytes": 45967,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Incense_1.png",
+      "extension": ".png",
+      "bytes": 48151,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Incense_1_Large_Bundle.png",
+      "extension": ".png",
+      "bytes": 57430,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Incense_1_Med_Bundle.png",
+      "extension": ".png",
+      "bytes": 44143,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_0101.png",
+      "extension": ".png",
+      "bytes": 34828,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_0102.png",
+      "extension": ".png",
+      "bytes": 31378,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_0103.png",
+      "extension": ".png",
+      "bytes": 32203,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_0104.png",
+      "extension": ".png",
+      "bytes": 51778,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_0201.png",
+      "extension": ".png",
+      "bytes": 12173,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_0202.png",
+      "extension": ".png",
+      "bytes": 23136,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_0401.png",
+      "extension": ".png",
+      "bytes": 69689,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_0701.png",
+      "extension": ".png",
+      "bytes": 54614,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_0702.png",
+      "extension": ".png",
+      "bytes": 40396,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_0703.png",
+      "extension": ".png",
+      "bytes": 42308,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_0704.png",
+      "extension": ".png",
+      "bytes": 26043,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_0705.png",
+      "extension": ".png",
+      "bytes": 49222,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_0706.png",
+      "extension": ".png",
+      "bytes": 43710,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_0707.png",
+      "extension": ".png",
+      "bytes": 51721,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_1201.png",
+      "extension": ".png",
+      "bytes": 24021,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_1202.png",
+      "extension": ".png",
+      "bytes": 25882,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_1203.png",
+      "extension": ".png",
+      "bytes": 37844,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_1204.png",
+      "extension": ".png",
+      "bytes": 37094,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_1301.png",
+      "extension": ".png",
+      "bytes": 32333,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_1401.png",
+      "extension": ".png",
+      "bytes": 33407,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_1402.png",
+      "extension": ".png",
+      "bytes": 34288,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_1402_3.png",
+      "extension": ".png",
+      "bytes": 31616,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_1402_5.png",
+      "extension": ".png",
+      "bytes": 50342,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_1403.png",
+      "extension": ".png",
+      "bytes": 34417,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_1404.png",
+      "extension": ".png",
+      "bytes": 54726,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_1406.png",
+      "extension": ".png",
+      "bytes": 56541,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_1408.png",
+      "extension": ".png",
+      "bytes": 32542,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_1408_3.png",
+      "extension": ".png",
+      "bytes": 30021,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_1408_5.png",
+      "extension": ".png",
+      "bytes": 43501,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_1609.png",
+      "extension": ".png",
+      "bytes": 5631,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_COIN_01.png",
+      "extension": ".png",
+      "bytes": 22463,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_COIN_BOX_01.png",
+      "extension": ".png",
+      "bytes": 70835,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_COIN_BUCKET_01.png",
+      "extension": ".png",
+      "bytes": 56972,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_COIN_HANDFUL_01.png",
+      "extension": ".png",
+      "bytes": 13682,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_COIN_HEAP_01.png",
+      "extension": ".png",
+      "bytes": 72097,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_COIN_POUCH_01.png",
+      "extension": ".png",
+      "bytes": 53360,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_COIN_STACK_01.png",
+      "extension": ".png",
+      "bytes": 37401,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_Giovanni_MapCompass.png",
+      "extension": ".png",
+      "bytes": 55824,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_Leader_MapCompass.png",
+      "extension": ".png",
+      "bytes": 55048,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_Meteorite.png",
+      "extension": ".png",
+      "bytes": 50480,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_ShadowFragment.png",
+      "extension": ".png",
+      "bytes": 35168,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_ShadowGem.png",
+      "extension": ".png",
+      "bytes": 52643,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Item_postcardstorageupgrade.1.png",
+      "extension": ".png",
+      "bytes": 27162,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/LV40_XLCandy_RGB_PSD.png",
+      "extension": ".png",
+      "bytes": 25870,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/Pokemon Center.png",
+      "extension": ".png",
+      "bytes": 18744,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/RareXLCandy_PSD.png",
+      "extension": ".png",
+      "bytes": 44838,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/SponsoredGiftIcon.png",
+      "extension": ".png",
+      "bytes": 66434,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/TR_hideout_icon_giovanni.png",
+      "extension": ".png",
+      "bytes": 49964,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/TR_hideout_icon_leader.png",
+      "extension": ".png",
+      "bytes": 58767,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/TroyKey.15.png",
+      "extension": ".png",
+      "bytes": 100712,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/TroyKey.png",
+      "extension": ".png",
+      "bytes": 67659,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/TroyKey_glacial.png",
+      "extension": ".png",
+      "bytes": 40325,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/TroyKey_magnetic.png",
+      "extension": ".png",
+      "bytes": 38568,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/TroyKey_moss.png",
+      "extension": ".png",
+      "bytes": 39539,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/TroyKey_rainy.png",
+      "extension": ".png",
+      "bytes": 47500,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/TroyKey_sparkly.png",
+      "extension": ".png",
+      "bytes": 59161,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/WonderBox.png",
+      "extension": ".png",
+      "bytes": 43170,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/WonderBox_Buff.png",
+      "extension": ".png",
+      "bytes": 74539,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/beastball_sprite.png",
+      "extension": ".png",
+      "bytes": 46970,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/candy_rgb.png",
+      "extension": ".png",
+      "bytes": 43036,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/dailyWalking_incense.png",
+      "extension": ".png",
+      "bytes": 55206,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/giovanni_map_compass_base_fix.png",
+      "extension": ".png",
+      "bytes": 56807,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/greatball_sprite.png",
+      "extension": ".png",
+      "bytes": 37600,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/hideout_map_compass_base_fix.png",
+      "extension": ".png",
+      "bytes": 54582,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/item_1350.png",
+      "extension": ".png",
+      "bytes": 57450,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/item_1351.png",
+      "extension": ".png",
+      "bytes": 59918,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/item_1600.png",
+      "extension": ".png",
+      "bytes": 68379,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/item_1601.png",
+      "extension": ".png",
+      "bytes": 56473,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/item_1602.png",
+      "extension": ".png",
+      "bytes": 51118,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/item_1606.png",
+      "extension": ".png",
+      "bytes": 52309,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/item_1607.png",
+      "extension": ".png",
+      "bytes": 53126,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/item_kyuremBlackFusionResource.png",
+      "extension": ".png",
+      "bytes": 36786,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/item_kyuremWhiteFusionResource.png",
+      "extension": ".png",
+      "bytes": 38248,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/item_maple_a.png",
+      "extension": ".png",
+      "bytes": 47421,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/item_maple_b.png",
+      "extension": ".png",
+      "bytes": 44988,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/item_maple_c.png",
+      "extension": ".png",
+      "bytes": 43905,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/item_pass_point_01.png",
+      "extension": ".png",
+      "bytes": 28854,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/item_route_cell.png",
+      "extension": ".png",
+      "bytes": 27321,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/item_route_cube.png",
+      "extension": ".png",
+      "bytes": 46332,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/itemstorageupgrade.1.png",
+      "extension": ".png",
+      "bytes": 41203,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/limited_incubatorx3.png",
+      "extension": ".png",
+      "bytes": 49578,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/limited_incubatorx5.png",
+      "extension": ".png",
+      "bytes": 52073,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/lucky_friend_applicator.png",
+      "extension": ".png",
+      "bytes": 61129,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/luckyegg.20.png",
+      "extension": ".png",
+      "bytes": 54866,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/luckyegg.5.png",
+      "extension": ".png",
+      "bytes": 43020,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/luckyegg.png",
+      "extension": ".png",
+      "bytes": 32680,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/maple_tappable_icon.png",
+      "extension": ".png",
+      "bytes": 68302,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/masterball_sprite.png",
+      "extension": ".png",
+      "bytes": 40216,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/maxpotion_store.10.png",
+      "extension": ".png",
+      "bytes": 52929,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/maxrevive_store.6.png",
+      "extension": ".png",
+      "bytes": 40062,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/mp_pack.png",
+      "extension": ".png",
+      "bytes": 17424,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/mp_pack_mulit.png",
+      "extension": ".png",
+      "bytes": 33449,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/poffin.3.png",
+      "extension": ".png",
+      "bytes": 34371,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/poffin.5.png",
+      "extension": ".png",
+      "bytes": 37876,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/pokeball_sprite.png",
+      "extension": ".png",
+      "bytes": 36395,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/pokeball_store.100.png",
+      "extension": ".png",
+      "bytes": 58179,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/pokeball_store.200.png",
+      "extension": ".png",
+      "bytes": 69803,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/pokeball_store.png",
+      "extension": ".png",
+      "bytes": 32334,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/pokemon_details_candy.png",
+      "extension": ".png",
+      "bytes": 20333,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/pokemon_details_mega_candy.png",
+      "extension": ".png",
+      "bytes": 18892,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/pokemonstorageupgrade.1.png",
+      "extension": ".png",
+      "bytes": 61305,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/premierball_sprite.png",
+      "extension": ".png",
+      "bytes": 31604,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/shield_fusionResource.png",
+      "extension": ".png",
+      "bytes": 51961,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/single_stat_increase.png",
+      "extension": ".png",
+      "bytes": 50495,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/sparkly_incense.png",
+      "extension": ".png",
+      "bytes": 204903,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/stardust_painted.png",
+      "extension": ".png",
+      "bytes": 25635,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/stardust_vector.png",
+      "extension": ".png",
+      "bytes": 3745,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/starpiece.25.png",
+      "extension": ".png",
+      "bytes": 34962,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/starpiece.8.png",
+      "extension": ".png",
+      "bytes": 27475,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/starpiece.png",
+      "extension": ".png",
+      "bytes": 22057,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/super_incubatorx3.png",
+      "extension": ".png",
+      "bytes": 46460,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/super_incubatorx5.png",
+      "extension": ".png",
+      "bytes": 52663,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/sword_fusionResource.png",
+      "extension": ".png",
+      "bytes": 52033,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/triple_stat_increase.png",
+      "extension": ".png",
+      "bytes": 54034,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/tx_FollowerItemFx.png",
+      "extension": ".png",
+      "bytes": 8601,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/tx_ar_photo_camera.png",
+      "extension": ".png",
+      "bytes": 39029,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/tx_converter.png",
+      "extension": ".png",
+      "bytes": 232123,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/tx_shadow_crystal.png",
+      "extension": ".png",
+      "bytes": 192908,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/tx_shadow_shard.png",
+      "extension": ".png",
+      "bytes": 131563,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/ultraball_sprite.png",
+      "extension": ".png",
+      "bytes": 36622,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Items/wildball_sprite.png",
+      "extension": ".png",
+      "bytes": 35641,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Mat_Web_Innovation_Logo_1_Black.png",
+      "extension": ".png",
+      "bytes": 265496,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Mat_Web_Innovation_Logo_2_White.png",
+      "extension": ".png",
+      "bytes": 1041375,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/alola_locked.png",
+      "extension": ".png",
+      "bytes": 24959,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/alola_starters.png",
+      "extension": ".png",
+      "bytes": 72014,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/galar_locked.png",
+      "extension": ".png",
+      "bytes": 28170,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/galar_starters.png",
+      "extension": ".png",
+      "bytes": 65422,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/hisui_locked.png",
+      "extension": ".png",
+      "bytes": 22858,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/hisui_starters.png",
+      "extension": ".png",
+      "bytes": 67615,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/hoenn_locked.png",
+      "extension": ".png",
+      "bytes": 26266,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/hoenn_starters.png",
+      "extension": ".png",
+      "bytes": 64703,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/jhoto_locked.png",
+      "extension": ".png",
+      "bytes": 26123,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/jhoto_starters.png",
+      "extension": ".png",
+      "bytes": 63250,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/kalos_locked.png",
+      "extension": ".png",
+      "bytes": 25912,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/kalos_starters.png",
+      "extension": ".png",
+      "bytes": 74757,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/kanto_locked.png",
+      "extension": ".png",
+      "bytes": 20701,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/kanto_starters.png",
+      "extension": ".png",
+      "bytes": 66007,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/paldea_locked.png",
+      "extension": ".png",
+      "bytes": 23884,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/paldea_starters.png",
+      "extension": ".png",
+      "bytes": 74744,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/sinnoh_locked.png",
+      "extension": ".png",
+      "bytes": 27013,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/sinnoh_starters.png",
+      "extension": ".png",
+      "bytes": 77455,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/unidenitied_locked.png",
+      "extension": ".png",
+      "bytes": 29647,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/unidentified_meltan.png",
+      "extension": ".png",
+      "bytes": 28849,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/unova_locked.png",
+      "extension": ".png",
+      "bytes": 25085,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/PokedexV2/unova_starters.png",
+      "extension": ".png",
+      "bytes": 69670,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/.DS_Store",
+      "extension": "none",
+      "bytes": 8196,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_0_normal.png",
+      "extension": ".png",
+      "bytes": 2837,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_10_water.png",
+      "extension": ".png",
+      "bytes": 2823,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_11_grass.png",
+      "extension": ".png",
+      "bytes": 3307,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_12_electric.png",
+      "extension": ".png",
+      "bytes": 2465,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_13_psychic.png",
+      "extension": ".png",
+      "bytes": 3353,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_14_ice.png",
+      "extension": ".png",
+      "bytes": 3183,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_15_dragon.png",
+      "extension": ".png",
+      "bytes": 3107,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_16_dark.png",
+      "extension": ".png",
+      "bytes": 3276,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_17_fairy.png",
+      "extension": ".png",
+      "bytes": 2589,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_1_fighting.png",
+      "extension": ".png",
+      "bytes": 2699,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_2_flying.png",
+      "extension": ".png",
+      "bytes": 2676,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_3_poison.png",
+      "extension": ".png",
+      "bytes": 2981,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_4_ground.png",
+      "extension": ".png",
+      "bytes": 2761,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_5_rock.png",
+      "extension": ".png",
+      "bytes": 2633,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_6_bug.png",
+      "extension": ".png",
+      "bytes": 3199,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_7_ghost.png",
+      "extension": ".png",
+      "bytes": 2929,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_8_steel.png",
+      "extension": ".png",
+      "bytes": 2902,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_9_fire.png",
+      "extension": ".png",
+      "bytes": 2779,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/.DS_Store",
+      "extension": "none",
+      "bytes": 6148,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/alola.png",
+      "extension": ".png",
+      "bytes": 327674,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/battle-league.png",
+      "extension": ".png",
+      "bytes": 600986,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/blue-gradient.png",
+      "extension": ".png",
+      "bytes": 8894,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/CatchCard_TypeBG_Bug.png",
+      "extension": ".png",
+      "bytes": 35315,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/CatchCard_TypeBG_Dark.png",
+      "extension": ".png",
+      "bytes": 28536,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/CatchCard_TypeBG_Dragon.png",
+      "extension": ".png",
+      "bytes": 52264,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/CatchCard_TypeBG_Electric.png",
+      "extension": ".png",
+      "bytes": 26302,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/CatchCard_TypeBG_Fairy.png",
+      "extension": ".png",
+      "bytes": 36873,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/CatchCard_TypeBG_Fighting.png",
+      "extension": ".png",
+      "bytes": 49113,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/CatchCard_TypeBG_Fire.png",
+      "extension": ".png",
+      "bytes": 30618,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/CatchCard_TypeBG_Flying.png",
+      "extension": ".png",
+      "bytes": 35304,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/CatchCard_TypeBG_Ghost.png",
+      "extension": ".png",
+      "bytes": 32113,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/CatchCard_TypeBG_Grass.png",
+      "extension": ".png",
+      "bytes": 38549,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/CatchCard_TypeBG_Ground.png",
+      "extension": ".png",
+      "bytes": 31921,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/CatchCard_TypeBG_Ice.png",
+      "extension": ".png",
+      "bytes": 33475,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/CatchCard_TypeBG_Normal.png",
+      "extension": ".png",
+      "bytes": 39556,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/CatchCard_TypeBG_Poison.png",
+      "extension": ".png",
+      "bytes": 41991,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/CatchCard_TypeBG_Psychic.png",
+      "extension": ".png",
+      "bytes": 62571,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/CatchCard_TypeBG_Rock.png",
+      "extension": ".png",
+      "bytes": 45357,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/CatchCard_TypeBG_Steel.png",
+      "extension": ".png",
+      "bytes": 40673,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png",
+      "extension": ".png",
+      "bytes": 23047,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/ic_catch_card.png",
+      "extension": ".png",
+      "bytes": 3015,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/catchCards/ic_catch_card_notification.png",
+      "extension": ".png",
+      "bytes": 14638,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/mega-hero.png",
+      "extension": ".png",
+      "bytes": 1642038,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/backgrounds/park.png",
+      "extension": ".png",
+      "bytes": 17446,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/chromatique_banner.png",
+      "extension": ".png",
+      "bytes": 43502,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/costume_banner.png",
+      "extension": ".png",
+      "bytes": 68134,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/eggs/10_km.png",
+      "extension": ".png",
+      "bytes": 8669,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/eggs/12_km.png",
+      "extension": ".png",
+      "bytes": 8119,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/eggs/1_km.png",
+      "extension": ".png",
+      "bytes": 3071,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/eggs/2_km.png",
+      "extension": ".png",
+      "bytes": 8490,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/eggs/5_km.png",
+      "extension": ".png",
+      "bytes": 8651,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/eggs/7_km.png",
+      "extension": ".png",
+      "bytes": 8907,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/eggs/rareté.png",
+      "extension": ".png",
+      "bytes": 934,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/eggs/rarity.png",
+      "extension": ".png",
+      "bytes": 934,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/TodayView_Icon_AttackMove.webp",
+      "extension": ".webp",
+      "bytes": 1704,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/TodayView_Icon_Battle.webp",
+      "extension": ".webp",
+      "bytes": 1400,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/attaque.png",
+      "extension": ".png",
+      "bytes": 40020,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/bonbon.png",
+      "extension": ".png",
+      "bytes": 57967,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/book-spells.svg",
+      "extension": ".svg",
+      "bytes": 732,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/boost-meteo.png",
+      "extension": ".png",
+      "bytes": 93627,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/bread_badge_icon.webp",
+      "extension": ".webp",
+      "bytes": 1410,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/check-circle.png",
+      "extension": ".png",
+      "bytes": 1868,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/combat.png",
+      "extension": ".png",
+      "bytes": 2623,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/copy.png",
+      "extension": ".png",
+      "bytes": 1557,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/distance-buddy.png",
+      "extension": ".png",
+      "bytes": 118384,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/défence.png",
+      "extension": ".png",
+      "bytes": 149535,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/fiche.svg",
+      "extension": ".svg",
+      "bytes": 1188,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/go_logo.png",
+      "extension": ".png",
+      "bytes": 36187,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/grass.png",
+      "extension": ".png",
+      "bytes": 8145,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/great.png",
+      "extension": ".png",
+      "bytes": 51497,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/height.png",
+      "extension": ".png",
+      "bytes": 3458,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/ic_shiny_white.webp",
+      "extension": ".webp",
+      "bytes": 944,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/little.png",
+      "extension": ".png",
+      "bytes": 183209,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/master.png",
+      "extension": ".png",
+      "bytes": 51328,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/max_pc.webp",
+      "extension": ".webp",
+      "bytes": 2530,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/mega-cp.png",
+      "extension": ".png",
+      "bytes": 4874,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/mega.png",
+      "extension": ".png",
+      "bytes": 3976,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokeball.webp",
+      "extension": ".webp",
+      "bytes": 1530,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex-alola.webp",
+      "extension": ".webp",
+      "bytes": 2248,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex-galar.webp",
+      "extension": ".webp",
+      "bytes": 764,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex-hoenn.webp",
+      "extension": ".webp",
+      "bytes": 1296,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex-johto.webp",
+      "extension": ".webp",
+      "bytes": 1356,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex-kalos.webp",
+      "extension": ".webp",
+      "bytes": 1516,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex-kanto.webp",
+      "extension": ".webp",
+      "bytes": 1538,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex-paldea.webp",
+      "extension": ".webp",
+      "bytes": 1538,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex-sinnoh.webp",
+      "extension": ".webp",
+      "bytes": 1308,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex-unova.webp",
+      "extension": ".webp",
+      "bytes": 1242,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex.png",
+      "extension": ".png",
+      "bytes": 11502,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokemon.png",
+      "extension": ".png",
+      "bytes": 11744,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/probleme.svg",
+      "extension": ".svg",
+      "bytes": 930,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/purified.png",
+      "extension": ".png",
+      "bytes": 4187,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/radar.png",
+      "extension": ".png",
+      "bytes": 7115,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/raid.png",
+      "extension": ".png",
+      "bytes": 4926,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/refresh.png",
+      "extension": ".png",
+      "bytes": 1796,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/resultat.svg",
+      "extension": ".svg",
+      "bytes": 562,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/search.png",
+      "extension": ".png",
+      "bytes": 2465,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/shadow.png",
+      "extension": ".png",
+      "bytes": 3685,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/shield-alt.svg",
+      "extension": ".svg",
+      "bytes": 546,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/speedometer.png",
+      "extension": ".png",
+      "bytes": 5842,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/stardus.png",
+      "extension": ".png",
+      "bytes": 2594,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/swords.svg",
+      "extension": ".svg",
+      "bytes": 1248,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/tabs/ic_alola.png",
+      "extension": ".png",
+      "bytes": 6565,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/tabs/ic_mythical.png",
+      "extension": ".png",
+      "bytes": 3820,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/tabs/ic_shadow_filter.png",
+      "extension": ".png",
+      "bytes": 1243,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/tabs/today_battle.png",
+      "extension": ".png",
+      "bytes": 5726,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/tabs/today_evolve.png",
+      "extension": ".png",
+      "bytes": 12655,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/tabs/today_postcard.png",
+      "extension": ".png",
+      "bytes": 1316,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/tag.png",
+      "extension": ".png",
+      "bytes": 2686,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/type.image.png",
+      "extension": ".png",
+      "bytes": 70485,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/ultra.png",
+      "extension": ".png",
+      "bytes": 51380,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/up.svg",
+      "extension": ".svg",
+      "bytes": 563,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/weight.png",
+      "extension": ".png",
+      "bytes": 2523,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/matweb-innovation-letter-m3.png",
+      "extension": ".png",
+      "bytes": 36186,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/max_battles/ic_shiny.png",
+      "extension": ".png",
+      "bytes": 3599,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/max_battles/max-battles.webp",
+      "extension": ".webp",
+      "bytes": 2316,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_banner.png",
+      "extension": ".png",
+      "bytes": 101195,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy.png",
+      "extension": ".png",
+      "bytes": 9029,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_115.png",
+      "extension": ".png",
+      "bytes": 14381,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_127.png",
+      "extension": ".png",
+      "bytes": 14351,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_130.png",
+      "extension": ".png",
+      "bytes": 15940,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_142.png",
+      "extension": ".png",
+      "bytes": 14622,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_15.png",
+      "extension": ".png",
+      "bytes": 14620,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_150.png",
+      "extension": ".png",
+      "bytes": 19670,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_18.png",
+      "extension": ".png",
+      "bytes": 14959,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_181.png",
+      "extension": ".png",
+      "bytes": 13655,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_208.png",
+      "extension": ".png",
+      "bytes": 14341,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_212.png",
+      "extension": ".png",
+      "bytes": 13530,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_214.png",
+      "extension": ".png",
+      "bytes": 14025,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_229.png",
+      "extension": ".png",
+      "bytes": 13863,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_248.png",
+      "extension": ".png",
+      "bytes": 14471,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_254.png",
+      "extension": ".png",
+      "bytes": 14819,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_257.png",
+      "extension": ".png",
+      "bytes": 14451,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_260.png",
+      "extension": ".png",
+      "bytes": 15840,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_282.png",
+      "extension": ".png",
+      "bytes": 14581,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_3.png",
+      "extension": ".png",
+      "bytes": 16152,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_302.png",
+      "extension": ".png",
+      "bytes": 14759,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_303.png",
+      "extension": ".png",
+      "bytes": 15383,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_306.png",
+      "extension": ".png",
+      "bytes": 14314,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_308.png",
+      "extension": ".png",
+      "bytes": 13046,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_310.png",
+      "extension": ".png",
+      "bytes": 14210,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_319.png",
+      "extension": ".png",
+      "bytes": 15098,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_323.png",
+      "extension": ".png",
+      "bytes": 14049,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_334.png",
+      "extension": ".png",
+      "bytes": 14381,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_354.png",
+      "extension": ".png",
+      "bytes": 13999,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_359.png",
+      "extension": ".png",
+      "bytes": 13824,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_362.png",
+      "extension": ".png",
+      "bytes": 15389,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_373.png",
+      "extension": ".png",
+      "bytes": 14158,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_376.png",
+      "extension": ".png",
+      "bytes": 15459,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_380.png",
+      "extension": ".png",
+      "bytes": 13889,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_380v2.png",
+      "extension": ".png",
+      "bytes": 15825,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_381.png",
+      "extension": ".png",
+      "bytes": 14090,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_381v2.png",
+      "extension": ".png",
+      "bytes": 15879,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_384.png",
+      "extension": ".png",
+      "bytes": 16431,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_428.png",
+      "extension": ".png",
+      "bytes": 15146,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_445.png",
+      "extension": ".png",
+      "bytes": 13882,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_448.png",
+      "extension": ".png",
+      "bytes": 15006,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_460.png",
+      "extension": ".png",
+      "bytes": 13021,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_475.png",
+      "extension": ".png",
+      "bytes": 14667,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_531.png",
+      "extension": ".png",
+      "bytes": 14537,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_6.png",
+      "extension": ".png",
+      "bytes": 20146,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_65.png",
+      "extension": ".png",
+      "bytes": 13840,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_719.png",
+      "extension": ".png",
+      "bytes": 16397,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_80.png",
+      "extension": ".png",
+      "bytes": 14421,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_9.png",
+      "extension": ".png",
+      "bytes": 14756,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_94.png",
+      "extension": ".png",
+      "bytes": 15643,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/mega_energy/reward_mega_energy_ralts.png",
+      "extension": ".png",
+      "bytes": 18856,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/pokemon-go-logo-white.png",
+      "extension": ".png",
+      "bytes": 274883,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/pokemon-go-logo.png",
+      "extension": ".png",
+      "bytes": 426954,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/1_star_raids.png",
+      "extension": ".png",
+      "bytes": 22668,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/3_star_raids.png",
+      "extension": ".png",
+      "bytes": 21843,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/5_star_raids.png",
+      "extension": ".png",
+      "bytes": 21213,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/elite_raids.png",
+      "extension": ".png",
+      "bytes": 22837,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/ic_shiny.png",
+      "extension": ".png",
+      "bytes": 3599,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/journée_communauté_raids.png",
+      "extension": ".png",
+      "bytes": 19452,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/mega_raids.png",
+      "extension": ".png",
+      "bytes": 20161,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/mega_raids_legendaire_raids.png",
+      "extension": ".png",
+      "bytes": 21087,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/primal_raids.png",
+      "extension": ".png",
+      "bytes": 23130,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/shadow_icon.png",
+      "extension": ".png",
+      "bytes": 8886,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/teamrocket_r.png",
+      "extension": ".png",
+      "bytes": 1487,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/ultra_breche_raids.png",
+      "extension": ".png",
+      "bytes": 24848,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/regional_banner.png",
+      "extension": ".png",
+      "bytes": 15228,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/regions/alola.png",
+      "extension": ".png",
+      "bytes": 72014,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/regions/galar.png",
+      "extension": ".png",
+      "bytes": 65422,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/regions/hisui.png",
+      "extension": ".png",
+      "bytes": 67615,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/regions/kanto.png",
+      "extension": ".png",
+      "bytes": 66007,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/regions/paldea.png",
+      "extension": ".png",
+      "bytes": 74744,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/rocket/boss-giovanni.webp",
+      "extension": ".webp",
+      "bytes": 4148,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/rocket/female-grunt.webp",
+      "extension": ".webp",
+      "bytes": 4402,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/rocket/leader-arlo.webp",
+      "extension": ".webp",
+      "bytes": 4708,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/rocket/leader-cliff.webp",
+      "extension": ".webp",
+      "bytes": 3310,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/rocket/leader-sierra.webp",
+      "extension": ".webp",
+      "bytes": 5188,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/rocket/male-grunt.webp",
+      "extension": ".webp",
+      "bytes": 3708,
+      "family": "ui"
+    }
+  ]
+}

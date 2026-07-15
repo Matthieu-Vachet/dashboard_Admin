@@ -1,0 +1,105 @@
+{
+  "auditVersion": "1.0.0",
+  "count": 5,
+  "entries": [
+    {
+      "id": "SERVICE-001",
+      "name": "dashboard-store service",
+      "path": "Dashboard Admin/src/services/admin/dashboard-store.js",
+      "responsibility": "Lire le fallback local et lire/écrire une valeur dans /api/dashboard-store.",
+      "api": [
+        "GET /api/dashboard-store?key=",
+        "PUT /api/dashboard-store"
+      ],
+      "consumers": [
+        "admin-app.jsx",
+        "admin-todo-panel.jsx",
+        "utils/admin/source-watch.js"
+      ],
+      "errors": "Les erreurs sont avalées et converties en false/valeur nulle.",
+      "retries": "Aucun",
+      "cache": "cache:no-store en lecture; fallback localStorage séparé",
+      "tests": []
+    },
+    {
+      "id": "SERVICE-002",
+      "name": "events API paths",
+      "path": "Dashboard Admin/src/services/admin/events-api.js",
+      "responsibility": "Centraliser trois chemins API Events.",
+      "api": [
+        "/api/events",
+        "/api/admin/events",
+        "/api/admin/events/scrape"
+      ],
+      "consumers": [
+        "events-calendar-panel.jsx",
+        "dataset-event-banner.jsx"
+      ],
+      "errors": "Aucune logique",
+      "retries": "Aucun",
+      "cache": "Aucun",
+      "tests": []
+    },
+    {
+      "id": "SERVICE-003",
+      "name": "learning API",
+      "path": "Dashboard Admin/src/services/admin/learning-api.ts",
+      "responsibility": "Client typé des routes catalogue, progression, activité, import, historique et rollback learning.",
+      "api": [
+        "GET /api/learning/topics",
+        "PUT /api/learning/progress",
+        "POST /api/learning/progress/migrate",
+        "GET /api/learning/activity",
+        "POST /api/learning/import",
+        "GET /api/learning/imports",
+        "POST /api/learning/imports/:id/rollback"
+      ],
+      "consumers": [
+        "use-javascript-learning.ts",
+        "learning-import-modal.tsx"
+      ],
+      "errors": "parseResponse transforme réponse/issue en Error enrichie status/issues.",
+      "retries": "Aucun",
+      "cache": "cache:no-store sur lectures explicites",
+      "tests": []
+    },
+    {
+      "id": "SERVICE-004",
+      "name": "pokemon admin API paths",
+      "path": "Dashboard Admin/src/services/admin/pokemon-admin-api.js",
+      "responsibility": "Centraliser les chemins du BFF Pokémon et du redéploiement.",
+      "api": [
+        "/api/pokemon-admin",
+        "/api/dashboard-redeploy"
+      ],
+      "consumers": [
+        "admin-app.jsx"
+      ],
+      "errors": "Aucune logique",
+      "retries": "Aucun",
+      "cache": "Aucun",
+      "tests": []
+    },
+    {
+      "id": "SERVICE-005",
+      "name": "trainer Pokemon API",
+      "path": "Dashboard Admin/src/services/admin/trainer-pokemon-api.ts",
+      "responsibility": "Client typé de lecture, preview, import, historique et rollback de la collection privée du dresseur.",
+      "api": [
+        "GET /api/trainer-pokemon",
+        "POST /api/trainer-pokemon/import",
+        "GET /api/trainer-pokemon/imports",
+        "POST /api/trainer-pokemon/imports/:id/rollback"
+      ],
+      "consumers": [
+        "trainer-pokemon-collection-panel.tsx"
+      ],
+      "errors": "readPayload transforme la réponse structurée en Error et conserve les issues de validation.",
+      "retries": "Aucun",
+      "cache": "cache:no-store sur les lectures",
+      "tests": [
+        "scripts/test-trainer-pokemon.mjs"
+      ]
+    }
+  ]
+}

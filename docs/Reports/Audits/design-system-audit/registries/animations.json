@@ -1,0 +1,22 @@
+{
+  "count": 13,
+  "keyframes": [
+    "energy-scan",
+    "sheen"
+  ],
+  "cssAnimations": [
+    "energy-scan 5.5s linear infinite",
+    "none",
+    "sheen 6s ease-in-out infinite"
+  ],
+  "utilityPatterns": [
+    "animate-pulse",
+    "animate-spin",
+    "duration-200",
+    "duration-300",
+    "duration-500",
+    "transition",
+    "transition-[padding]",
+    "transition-[width]"
+  ]
+}

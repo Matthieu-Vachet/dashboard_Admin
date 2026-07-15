@@ -1,0 +1,43 @@
+{
+  "auditVersion": "1.0.0",
+  "count": 3,
+  "entries": [
+    {
+      "id": "HOOK-001",
+      "name": "useDashboardPalette",
+      "path": "Dashboard Admin/src/hooks/admin/use-dashboard-palette.ts",
+      "responsibility": "Persister la palette, lire le thème next-themes et appliquer les variables CSS dark/light sur documentElement.",
+      "dependencies": ["next-themes/useTheme", "usePersistentState", "dashboardPaletteMap"],
+      "consumers": ["src/components/admin/navigation/admin-palette-selector.tsx"],
+      "cache": "localStorage via usePersistentState: matweb.dashboard.palette",
+      "errors": "Aucune gestion explicite; fallback vers la palette par défaut.",
+      "tests": [],
+      "evidence": "use-dashboard-palette.ts:19-39"
+    },
+    {
+      "id": "HOOK-002",
+      "name": "useDashboardVersionHistory",
+      "path": "Dashboard Admin/src/hooks/admin/use-dashboard-version-history.ts",
+      "responsibility": "Fusionner l’historique de versions embarqué avec la copie persistée navigateur.",
+      "dependencies": ["usePersistentState", "dashboardVersionHistory"],
+      "consumers": ["src/components/admin/layout/admin-app-frame.tsx"],
+      "cache": "localStorage: matweb.dashboard.versionHistory",
+      "errors": "Fallback sur l’historique embarqué si la valeur n’est pas un tableau.",
+      "tests": [],
+      "evidence": "use-dashboard-version-history.ts:10-28"
+    },
+    {
+      "id": "HOOK-003",
+      "name": "useJavascriptLearning",
+      "path": "Dashboard Admin/src/hooks/admin/use-javascript-learning.ts",
+      "responsibility": "Orchestrer catalogue, progression, activité, statistiques, migration localStorage vers MongoDB et mutations learning.",
+      "dependencies": ["learning-api", "learning/javascript", "React state/effects"],
+      "consumers": ["src/components/admin/forms/js-progress.tsx", "src/components/admin/stats/learning-analytics.tsx"],
+      "cache": "localStorage matweb.js.learning.progress.v2 avec clé legacy matweb.js.learning.progress",
+      "errors": "Fallback local, warning et notice; erreurs de mutation relancées.",
+      "tests": [],
+      "risks": ["291 lignes", "nombreux états couplés", "logique métier locale et distante dans un hook"],
+      "evidence": "use-javascript-learning.ts:23-290"
+    }
+  ]
+}

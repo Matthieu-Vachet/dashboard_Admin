@@ -1,0 +1,23 @@
+{
+  "auditVersion":"1.0.0",
+  "count":17,
+  "entries":[
+    {"id":"ASSET-001","family":"LocationCards","path":"PokemonGo-Assets-API/LocationCards","trackedFiles":233,"formats":["png"],"sampleDimensions":"512x512","consumers":["backgrounds","Pokemon assets references","Dashboard"],"source":"local repository plus imports","public":true},
+    {"id":"ASSET-002","family":"MegaPortraits","path":"PokemonGo-Assets-API/MegaPortraits","trackedFiles":170,"formats":["png"],"sampleDimensions":"483x511","consumers":["Pokemon mega assets"],"public":true},
+    {"id":"ASSET-003","family":"Pokemon GO icons","path":"PokemonGo-Assets-API/Pokemon","trackedFiles":3538,"formats":["png"],"sampleDimensions":"256x256","naming":"pm<dex>.<form/state>.icon.png","consumers":["Data","API","Dashboard"],"public":true},
+    {"id":"ASSET-004","family":"Pokemon HOME HD","path":"PokemonGo-Assets-API/PokemonHd","trackedFiles":3054,"formats":["png"],"sampleDimensions":"512x512","naming":"poke_capture_<dex>_<form>_<gender>_<shiny>.png","consumers":["Pokemon heavy assets","Dashboard proposals"],"public":true},
+    {"id":"ASSET-005","family":"Stickers","path":"PokemonGo-Assets-API/Stickers","trackedFiles":1667,"formats":["png"],"sampleDimensions":"512x512","consumers":["stickers dataset/API"],"public":true},
+    {"id":"ASSET-006","family":"Type backgrounds","path":"PokemonGo-Assets-API/TypeBackgrounds","trackedFiles":19,"formats":["png"],"sampleDimensions":"128x128","consumers":["type UI"],"public":true},
+    {"id":"ASSET-007","family":"Type icons","path":"PokemonGo-Assets-API/Types","trackedFiles":19,"formats":["png"],"sampleDimensions":"64x64","consumers":["types dataset/UI"],"public":true},
+    {"id":"ASSET-008","family":"Candy","path":"PokemonGo-Assets-API/candy","trackedFiles":549,"formats":["png"],"sampleDimensions":"256x256","consumers":["candy dataset/page"],"public":true},
+    {"id":"ASSET-009","family":"Divers/UI/filters/trainers","path":"PokemonGo-Assets-API/divers","trackedFiles":2925,"formats":["png","jpg","webp","svg"],"sampleDimensions":"variable; sample 1007x805","consumers":["Dashboard","Landing","API docs"],"public":true},
+    {"id":"ASSET-010","family":"Items","path":"PokemonGo-Assets-API/items","trackedFiles":128,"formats":["png"],"sampleDimensions":"256x256","consumers":["items/research"],"public":true},
+    {"id":"ASSET-011","family":"Pokemon Shuffle","path":"PokemonGo-Assets-API/pokemonShuffle","trackedFiles":10319,"formats":["png"],"sampleDimensions":"128x128","consumers":["Pokemon asset variants","Dashboard"],"public":true},
+    {"id":"ASSET-012","family":"Weather","path":"PokemonGo-Assets-API/weather","trackedFiles":8,"formats":["png"],"sampleDimensions":"64x64","consumers":["weather dataset/UI"],"public":true},
+    {"id":"ASSET-013","family":"PokeMiners mirror","path":"PokemonGo-Assets-API/PokeMiners-pogo_assets","workingTreeFiles":42398,"tracked":false,"formats":["png","fbx","wav","bundle","obj","json"],"source":"PokeMiners master ZIP","status":"ignored generated mirror","public":false,"modifiable":"only by sync script; not canonical"},
+    {"id":"ASSET-014","family":"PokeMiners cache","path":"PokemonGo-Assets-API/.pokeminers-cache","tracked":false,"source":"download/extract temporary","status":"ignored cache","public":false,"modifiable":"ephemeral"},
+    {"id":"ASSET-015","family":"Dashboard UI assets","path":"Dashboard Admin/public","workingTreeFiles":385,"formats":["png","svg","webp"],"source":"local Dashboard","consumers":["Dashboard components"],"public":true},
+    {"id":"ASSET-016","family":"API local asset tree","path":"PokemonGo-API-/asset","workingTreeFiles":13763,"trackedStatus":"mostly untracked/ignored relative to repository total","formats":["png"],"source":"INFORMATION NON TROUVÉE per file","consumers":["checklist/public UI possibly"],"public":"needs per-path verification"},
+    {"id":"ASSET-017","family":"PokemonGo-Data asset references","path":"PokemonGo-Data/pokemon-assets","fileCount":1604,"formats":["json references"],"source":"enriched from Assets repository and imports","consumers":["Mongo pokemonAssets","API","Dashboard"],"public":"references exposed selectively","note":"Not binary assets"}
+  ]
+}

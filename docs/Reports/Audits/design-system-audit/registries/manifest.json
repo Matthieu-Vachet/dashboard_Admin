@@ -1,0 +1,27 @@
+{
+  "generatedAt": "2026-07-13",
+  "project": "Dashboard Admin",
+  "sourceModified": false,
+  "outputs": {
+    "markdown": 369,
+    "json": 10,
+    "componentDocuments": 325
+  },
+  "statistics": {
+    "components": 325,
+    "implementationDefinitions": 267,
+    "compatibilityComponentPaths": 58,
+    "variants": 90,
+    "states": 1492,
+    "designTokens": 1712,
+    "cssVariables": 40,
+    "tailwindUtilities": 1542,
+    "icons": 212,
+    "animations": 13,
+    "pages": 20,
+    "layouts": 2,
+    "reusablePatterns": 497,
+    "assets": 385,
+    "dependencyEdges": 570
+  }
+}

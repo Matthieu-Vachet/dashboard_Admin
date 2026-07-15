@@ -1,0 +1,488 @@
+[
+  {
+    "token": "--background",
+    "category": "color.surface",
+    "currentValues": ["#05060d (dark)", "#f3f8ff (light)"],
+    "usageCount": 6,
+    "sourceLocations": ["src/app/globals.css:5", "src/app/globals.css:31", "src/app/globals.css:77", "src/app/globals.css:96"],
+    "canonicalTarget": "color.background",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Canonical theme-level page background; retain both mode values."]
+  },
+  {
+    "token": "--foreground",
+    "category": "color.content",
+    "currentValues": ["#eef3ff (dark)", "#101827 (light)"],
+    "usageCount": 15,
+    "sourceLocations": ["src/app/globals.css:6", "src/app/globals.css:32", "src/app/globals.css:79", "src/app/globals.css:97"],
+    "canonicalTarget": "color.foreground",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Canonical high-emphasis content color."]
+  },
+  {
+    "token": "--muted",
+    "category": "color.content",
+    "currentValues": ["#94a3b8 (dark)", "#526177 (light)"],
+    "usageCount": 5,
+    "sourceLocations": ["src/app/globals.css:7", "src/app/globals.css:33", "src/app/globals.css:57"],
+    "canonicalTarget": "color.content.muted",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Keep semantic role; validate contrast when local text-slate-* values migrate."]
+  },
+  {
+    "token": "--panel",
+    "category": "color.surface",
+    "currentValues": ["rgba(13, 17, 31, 0.74) (dark)", "rgba(255, 255, 255, 0.86) (light)"],
+    "usageCount": 5,
+    "sourceLocations": ["src/app/globals.css:8", "src/app/globals.css:34", "src/app/globals.css:58"],
+    "canonicalTarget": "color.surface.panel",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Canonical translucent surface used through bg-panel and glass effects."]
+  },
+  {
+    "token": "--panel-strong",
+    "category": "color.surface",
+    "currentValues": ["rgba(18, 24, 43, 0.9) (dark)", "rgba(255, 255, 255, 0.97) (light)"],
+    "usageCount": 6,
+    "sourceLocations": ["src/app/globals.css:9", "src/app/globals.css:35", "src/app/globals.css:59"],
+    "canonicalTarget": "color.surface.panel-strong",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Retain as the high-opacity surface for modals, sticky headers and strong cards."]
+  },
+  {
+    "token": "--line",
+    "category": "color.border",
+    "currentValues": ["rgba(255, 255, 255, 0.1) (dark)", "rgba(15, 23, 42, 0.14) (light)"],
+    "usageCount": 7,
+    "sourceLocations": ["src/app/globals.css:10", "src/app/globals.css:36", "src/app/globals.css:60"],
+    "canonicalTarget": "color.border.default",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Canonical default stroke; migration from border-white/10 requires computed-style equivalence in both modes."]
+  },
+  {
+    "token": "--line-strong",
+    "category": "color.border",
+    "currentValues": ["rgba(255, 255, 255, 0.18) (dark)", "rgba(15, 23, 42, 0.24) (light)"],
+    "usageCount": 4,
+    "sourceLocations": ["src/app/globals.css:11", "src/app/globals.css:37", "src/components/ui/modal.tsx:65"],
+    "canonicalTarget": "color.border.strong",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Keep separate from --line; it carries hierarchy on overlays and interactive hover states."]
+  },
+  {
+    "token": "--brand",
+    "category": "color.brand",
+    "currentValues": ["palette-dependent across 8 palettes and 2 modes", "#905bf4 default dark", "#7c3aed default light"],
+    "usageCount": 20,
+    "sourceLocations": ["src/app/globals.css:12", "src/app/globals.css:38", "src/data/dashboard-palettes.ts:9", "src/hooks/admin/use-dashboard-palette.ts:28"],
+    "canonicalTarget": "color.brand.primary",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Runtime palette token; do not collapse with an accent token even when default values coincide."]
+  },
+  {
+    "token": "--brand-2",
+    "category": "color.brand",
+    "currentValues": ["palette-dependent across 8 palettes and 2 modes", "#20d3ff default dark", "#0284c7 default light"],
+    "usageCount": 20,
+    "sourceLocations": ["src/app/globals.css:13", "src/app/globals.css:39", "src/data/dashboard-palettes.ts:10", "src/hooks/admin/use-dashboard-palette.ts:28"],
+    "canonicalTarget": "color.brand.secondary",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Runtime palette token and current focus/accent color source."]
+  },
+  {
+    "token": "--brand-3",
+    "category": "color.brand",
+    "currentValues": ["palette-dependent across 8 palettes and 2 modes", "#58f2a9 default dark", "#059669 default light"],
+    "usageCount": 20,
+    "sourceLocations": ["src/app/globals.css:14", "src/app/globals.css:40", "src/data/dashboard-palettes.ts:11", "src/hooks/admin/use-dashboard-palette.ts:28"],
+    "canonicalTarget": "color.brand.tertiary",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Runtime palette token; frequently used as positive/secondary accent but not a status-success token by contract."]
+  },
+  {
+    "token": "--accent-primary",
+    "category": "color.accent",
+    "currentValues": ["palette-dependent across 8 palettes and 2 modes"],
+    "usageCount": 20,
+    "sourceLocations": ["src/app/globals.css:15", "src/app/globals.css:41", "src/data/dashboard-palettes.ts:12", "src/app/globals.css:563"],
+    "canonicalTarget": "color.accent.primary",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Role is used in the primary-button gradient; keep distinct from brand aliases."]
+  },
+  {
+    "token": "--accent-secondary",
+    "category": "color.accent",
+    "currentValues": ["palette-dependent across 8 palettes and 2 modes"],
+    "usageCount": 20,
+    "sourceLocations": ["src/app/globals.css:16", "src/app/globals.css:42", "src/data/dashboard-palettes.ts:13", "src/app/globals.css:563"],
+    "canonicalTarget": "color.accent.secondary",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Finite palette role, not a generic semantic status."]
+  },
+  {
+    "token": "--accent-tertiary",
+    "category": "color.accent",
+    "currentValues": ["palette-dependent across 8 palettes and 2 modes"],
+    "usageCount": 22,
+    "sourceLocations": ["src/app/globals.css:17", "src/app/globals.css:43", "src/data/dashboard-palettes.ts:14", "src/app/globals.css:103", "src/app/globals.css:563"],
+    "canonicalTarget": "color.accent.tertiary",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Used in gradients and themed backgrounds; preserve runtime palette linkage."]
+  },
+  {
+    "token": "--accent-muted",
+    "category": "color.accent.alpha",
+    "currentValues": ["palette-dependent translucent accent"],
+    "usageCount": 32,
+    "sourceLocations": ["src/app/globals.css:18", "src/app/globals.css:44", "src/data/dashboard-palettes.ts:15", "src/app/globals.css:132", "src/app/globals.css:568"],
+    "canonicalTarget": "color.accent.muted",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["High-use alpha role for decorative backgrounds and subtle outlines."]
+  },
+  {
+    "token": "--accent-glow",
+    "category": "color.accent.alpha",
+    "currentValues": ["palette-dependent glow accent"],
+    "usageCount": 25,
+    "sourceLocations": ["src/app/globals.css:19", "src/app/globals.css:45", "src/data/dashboard-palettes.ts:16", "src/app/globals.css:102", "src/app/globals.css:186"],
+    "canonicalTarget": "color.accent.glow",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Do not replace local Pokemon type glows; this token is dashboard-palette-specific."]
+  },
+  {
+    "token": "--accent-border",
+    "category": "color.accent.alpha",
+    "currentValues": ["palette-dependent accent stroke"],
+    "usageCount": 22,
+    "sourceLocations": ["src/app/globals.css:20", "src/app/globals.css:46", "src/data/dashboard-palettes.ts:17", "src/app/globals.css:125", "src/app/globals.css:596"],
+    "canonicalTarget": "color.border.accent",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Canonical accent stroke and selection color."]
+  },
+  {
+    "token": "--accent-text",
+    "category": "color.content",
+    "currentValues": ["palette-dependent accent foreground"],
+    "usageCount": 20,
+    "sourceLocations": ["src/app/globals.css:21", "src/app/globals.css:47", "src/data/dashboard-palettes.ts:18", "src/app/globals.css:496"],
+    "canonicalTarget": "color.content.accent",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Validate contrast per palette/mode before broader adoption."]
+  },
+  {
+    "token": "--accent-bg",
+    "category": "color.surface",
+    "currentValues": ["palette-dependent accent surface"],
+    "usageCount": 21,
+    "sourceLocations": ["src/app/globals.css:22", "src/app/globals.css:48", "src/data/dashboard-palettes.ts:19", "src/app/globals.css:236", "src/app/globals.css:597"],
+    "canonicalTarget": "color.surface.accent",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Keep separate from --accent-muted because light-mode values and semantic roles differ."]
+  },
+  {
+    "token": "--accent-rgb",
+    "category": "color.channel",
+    "currentValues": ["space-separated palette-dependent RGB channels"],
+    "usageCount": 20,
+    "sourceLocations": ["src/app/globals.css:23", "src/app/globals.css:49", "src/data/dashboard-palettes.ts:20", "src/app/globals.css:564"],
+    "canonicalTarget": "color.accent.rgb-channel",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Implementation token needed for alpha composition; hide from normal Figma authoring but retain in code."
+    ]
+  },
+  {
+    "token": "--warning",
+    "category": "color.status",
+    "currentValues": ["#ffd166 (dark)", "#b7791f (light)"],
+    "usageCount": 3,
+    "sourceLocations": ["src/app/globals.css:24", "src/app/globals.css:50", "src/app/globals.css:64"],
+    "canonicalTarget": "color.status.warning",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Status role; do not merge with Pokemon/type amber palettes."
+    ]
+  },
+  {
+    "token": "--danger",
+    "category": "color.status",
+    "currentValues": ["#ff5f7d (dark)", "#dc3157 (light)"],
+    "usageCount": 3,
+    "sourceLocations": ["src/app/globals.css:25", "src/app/globals.css:51", "src/app/globals.css:65"],
+    "canonicalTarget": "color.status.danger",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Status role; a separate success token is a candidate only after current green usages are classified."
+    ]
+  },
+  {
+    "token": "success semantic token",
+    "category": "color.status",
+    "currentValues": ["Not found; current code alternates --brand-3, emerald and green utilities"],
+    "usageCount": 0,
+    "sourceLocations": ["src/components/ui/badge.tsx:9", "src/components/ui/button.tsx", "design-system-audit/registries/tailwind-utilities.json"],
+    "canonicalTarget": "color.status.success",
+    "status": "investigate",
+    "visualChangeExpected": false,
+    "notes": ["Create only after equivalence classes and dark/light values are proven; do not alias blindly to --brand-3 because palettes can change it."
+    ]
+  },
+  {
+    "token": "--font-sans",
+    "category": "typography.font-family",
+    "currentValues": ["Geist, Inter, ui-sans-serif, system-ui, sans-serif"],
+    "usageCount": 2,
+    "sourceLocations": ["src/app/globals.css:66", "src/app/globals.css:114"],
+    "canonicalTarget": "font.family.sans",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Canonical UI font stack."
+    ]
+  },
+  {
+    "token": "--font-mono",
+    "category": "typography.font-family",
+    "currentValues": ["Geist Mono, SFMono-Regular, ui-monospace, monospace"],
+    "usageCount": 1,
+    "sourceLocations": ["src/app/globals.css:67"],
+    "canonicalTarget": "font.family.mono",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Tailwind's font-mono mapping consumes this token indirectly."
+    ]
+  },
+  {
+    "token": "--radius-sm",
+    "category": "radius",
+    "currentValues": ["6px"],
+    "usageCount": 1,
+    "sourceLocations": ["src/app/globals.css:68"],
+    "canonicalTarget": "radius.small",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Only distinct named radius value in the @theme mapping."
+    ]
+  },
+  {
+    "token": "--radius-md / --radius-lg / --radius-xl / --radius-2xl",
+    "category": "radius",
+    "currentValues": ["8px for every alias"],
+    "usageCount": 4,
+    "sourceLocations": ["src/app/globals.css:69", "src/app/globals.css:70", "src/app/globals.css:71", "src/app/globals.css:72"],
+    "canonicalTarget": "radius.surface (retain aliases during migration)",
+    "status": "investigate",
+    "visualChangeExpected": false,
+    "notes": ["The aliases are currently value-duplicates but may represent semantic roles. Do not delete them until Figma and component contracts are mapped."
+    ]
+  },
+  {
+    "token": "rounded-lg",
+    "category": "radius.utility",
+    "currentValues": ["8px through --radius-lg"],
+    "usageCount": 250,
+    "sourceLocations": ["src/components/ui/button.tsx", "src/components/ui/card.tsx", "src/components/ui/input.tsx", "src/components/ui/modal.tsx", "src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx"],
+    "canonicalTarget": "radius.surface/control canonical utility",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["High-frequency canonical visual radius in the newer primitive layer."
+    ]
+  },
+  {
+    "token": "rounded-2xl",
+    "category": "radius.utility",
+    "currentValues": ["8px currently through --radius-2xl, despite legacy 2xl naming"],
+    "usageCount": 210,
+    "sourceLocations": ["src/components/admin/pokemon/admin-ui.jsx", "src/components/admin/events/events-calendar-panel.jsx", "src/components/admin/layout/admin-version-history-dialog.tsx", "src/components/admin/navigation/admin-palette-selector.tsx"],
+    "canonicalTarget": "radius.surface, after computed-style verification",
+    "status": "investigate",
+    "visualChangeExpected": false,
+    "notes": ["Name suggests a larger radius while current value is 8px. Preserve rendered value; migrate semantics before names."
+    ]
+  },
+  {
+    "token": "rounded-full",
+    "category": "radius.utility",
+    "currentValues": ["pill/circle radius"],
+    "usageCount": 211,
+    "sourceLocations": ["src/components/ui/badge.tsx", "src/components/admin/forms/kanban-board.tsx", "src/components/admin/pokemon"],
+    "canonicalTarget": "radius.pill",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Canonical for badges, pills and circular controls; do not use as evidence that their semantics are identical."
+    ]
+  },
+  {
+    "token": "bg-white/[0.06]",
+    "category": "color.surface.utility",
+    "currentValues": ["white at 6% alpha"],
+    "usageCount": 50,
+    "sourceLocations": ["src/components/ui/badge.tsx", "src/components/ui/input.tsx", "src/components/ui/modal.tsx", "src/components/admin/forms/kanban-board.tsx", "src/app/(dashboard)/projects/page.tsx"],
+    "canonicalTarget": "color.surface.subtle",
+    "status": "investigate",
+    "visualChangeExpected": false,
+    "notes": ["Repeated hardcode; any semantic alias must reproduce dark/light computed values exactly before migration."
+    ]
+  },
+  {
+    "token": "bg-white/[0.055]",
+    "category": "color.surface.utility",
+    "currentValues": ["white at 5.5% alpha"],
+    "usageCount": 45,
+    "sourceLocations": ["src/components/admin/pokemon/admin-ui.jsx", "src/components/admin/events/events-calendar-panel.jsx", "src/components/admin/forms/calendar-planner.tsx", "src/app/login/page.tsx"],
+    "canonicalTarget": "color.surface.legacy-subtle",
+    "status": "investigate",
+    "visualChangeExpected": false,
+    "notes": ["Dominant legacy glass surface; keep separate from 6% until screenshots prove interchangeability."
+    ]
+  },
+  {
+    "token": "border-white/10",
+    "category": "color.border.utility",
+    "currentValues": ["white at 10% alpha"],
+    "usageCount": 257,
+    "sourceLocations": ["src/components/admin/pokemon/admin-ui.jsx", "src/components/admin/events/event-editor-modal.jsx", "src/components/admin/events/events-calendar-panel.jsx", "src/components/admin/navigation/admin-sidebar.tsx"],
+    "canonicalTarget": "color.border.default or color.border.legacy, decided per light-mode behavior",
+    "status": "investigate",
+    "visualChangeExpected": false,
+    "notes": ["Largest border hardcode family; direct replacement by border-line can change light-mode appearance."
+    ]
+  },
+  {
+    "token": "text-white",
+    "category": "color.content.utility",
+    "currentValues": ["#fff / inherited Tailwind white"],
+    "usageCount": 218,
+    "sourceLocations": ["src/components/admin/pokemon/admin-ui.jsx", "src/components/admin/events/events-calendar-panel.jsx", "src/components/admin/dashboard/dashboard-home-live.tsx", "src/app/login/page.tsx"],
+    "canonicalTarget": "color.content.on-dark or color.foreground, classified per surface",
+    "status": "investigate",
+    "visualChangeExpected": false,
+    "notes": ["Many occurrences are Pokemon-domain dark surfaces and must not be globally replaced by text-foreground."
+    ]
+  },
+  {
+    "token": "min-h-11",
+    "category": "sizing.control",
+    "currentValues": ["2.75rem"],
+    "usageCount": 36,
+    "sourceLocations": ["src/components/ui/input.tsx", "src/components/admin/forms/calendar-planner.tsx", "src/components/admin/dashboard/daily-tools.tsx", "src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx"],
+    "canonicalTarget": "size.control.md",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Current common input/select height; preserve touch target and baseline alignment."
+    ]
+  },
+  {
+    "token": "gap-3 / p-3 / p-4",
+    "category": "spacing.utility",
+    "currentValues": ["0.75rem gap/padding", "1rem padding"],
+    "usageCount": 1062,
+    "sourceLocations": ["src/components/ui", "src/components/admin", "src/app"],
+    "canonicalTarget": "Tailwind spacing scale; component-level aliases only when a contract repeats",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Snapshot at 2026-07-13 19:22 CEST: gap-3=281, p-3=482, p-4=299 textual occurrences. Do not create abstract spacing tokens for every utility."
+    ]
+  },
+  {
+    "token": "glass-panel / glass-panel-strong",
+    "category": "effect.surface",
+    "currentValues": ["custom CSS classes backed by panel, line and accent variables"],
+    "usageCount": 9,
+    "sourceLocations": ["src/app/globals.css", "src/components/ui/card.tsx"],
+    "canonicalTarget": "effect.surface.glass / effect.surface.glass-strong",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["These are implementation-level composite tokens used by Card tones; document their exact blur, border and shadow recipes in Figma."
+    ]
+  },
+  {
+    "token": "shadow-[0_22px_90px_rgba(0,0,0,.24)]",
+    "category": "shadow",
+    "currentValues": ["0 22px 90px rgba(0,0,0,.24)"],
+    "usageCount": 5,
+    "sourceLocations": ["src/components/admin/pokemon/admin-ui.jsx", "src/components/admin/pokemon/collections-panel.jsx", "src/components/admin/pokemon/update-log-panel.jsx"],
+    "canonicalTarget": "shadow.legacy-panel",
+    "status": "merge",
+    "visualChangeExpected": false,
+    "notes": ["Repeated exact legacy panel elevation; safe token candidate after screenshot capture."
+    ]
+  },
+  {
+    "token": "shadow-[0_30px_120px_rgba(0,0,0,0.46)]",
+    "category": "shadow",
+    "currentValues": ["0 30px 120px rgba(0,0,0,0.46)"],
+    "usageCount": 1,
+    "sourceLocations": ["src/components/ui/modal.tsx:65"],
+    "canonicalTarget": "shadow.modal",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Single but structurally important overlay elevation; name it only alongside Modal documentation."
+    ]
+  },
+  {
+    "token": "z-[1100]",
+    "category": "z-index",
+    "currentValues": ["1100"],
+    "usageCount": 6,
+    "sourceLocations": ["src/components/ui/modal.tsx", "src/components/admin/layout/admin-version-history-dialog.tsx", "src/components/admin/pokemon/collections-panel.jsx", "src/components/admin/pokemon/detail-modal.jsx", "src/components/admin/pokemon/source-watch-panel.tsx"],
+    "canonicalTarget": "z.overlay.modal",
+    "status": "merge",
+    "visualChangeExpected": false,
+    "notes": ["Coordinate with z-[1120] previews and z-[1200] event overlays before introducing a scale."
+    ]
+  },
+  {
+    "token": "duration-200",
+    "category": "motion.duration",
+    "currentValues": ["200ms"],
+    "usageCount": 1,
+    "sourceLocations": ["src/components/ui/button.tsx:43"],
+    "canonicalTarget": "motion.duration.fast",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Do not normalize other durations until behavior and reduced-motion coverage are compared."
+    ]
+  },
+  {
+    "token": "animate-spin / animate-pulse",
+    "category": "motion.state",
+    "currentValues": ["Tailwind spin", "Tailwind pulse"],
+    "usageCount": 12,
+    "sourceLocations": ["src/components/admin/shared/loading-state.tsx", "src/components/admin/pokemon/admin-app.jsx", "src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx", "src/components/admin/stats/database-stats.tsx"],
+    "canonicalTarget": "motion.loading.spin / motion.loading.pulse",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Every consolidated loading state must be checked under prefers-reduced-motion."
+    ]
+  },
+  {
+    "token": "sm / md / lg / xl / 2xl",
+    "category": "breakpoint",
+    "currentValues": ["Tailwind default named breakpoints as observed in source"],
+    "usageCount": 5,
+    "sourceLocations": ["design-system-audit/registries/tokens.json", "design-system-audit/foundations/09-responsive-system.md"],
+    "canonicalTarget": "responsive breakpoint set",
+    "status": "keep",
+    "visualChangeExpected": false,
+    "notes": ["Do not introduce component-specific breakpoints unless current behavior cannot be represented by this set."
+    ]
+  }
+]

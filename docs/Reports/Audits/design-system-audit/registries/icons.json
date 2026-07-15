@@ -1,0 +1,664 @@
+{
+  "total": 212,
+  "lucide": [
+    "Activity",
+    "AlertTriangle",
+    "Archive",
+    "ArrowDownRight",
+    "ArrowLeft",
+    "ArrowUpRight",
+    "Award",
+    "BarChart3",
+    "Bold",
+    "BookMarked",
+    "BookOpen",
+    "BookOpenCheck",
+    "CalendarClock",
+    "CalendarDays",
+    "CalendarPlus",
+    "Check",
+    "CheckCircle2",
+    "CheckSquare2",
+    "ChevronDown",
+    "ChevronLeft",
+    "ChevronRight",
+    "ChevronUp",
+    "CircleDot",
+    "CircleHelp",
+    "ClipboardCopy",
+    "Clock3",
+    "Cloud",
+    "CloudSun",
+    "Code2",
+    "Coffee",
+    "Copy",
+    "Copyright",
+    "Crown",
+    "Database",
+    "Download",
+    "Dumbbell",
+    "Edit3",
+    "Egg",
+    "ExternalLink",
+    "Eye",
+    "EyeOff",
+    "FileJson",
+    "FileJson2",
+    "FileText",
+    "Filter",
+    "Flame",
+    "FlaskConical",
+    "FolderKanban",
+    "Gauge",
+    "GitCommitHorizontal",
+    "GitCompare",
+    "Github",
+    "GraduationCap",
+    "GripVertical",
+    "HardDrive",
+    "Heading1",
+    "Heading2",
+    "History",
+    "ImageIcon",
+    "Italic",
+    "KeyRound",
+    "Layers",
+    "Layers3",
+    "LayoutDashboard",
+    "Library",
+    "Lightbulb",
+    "Link2",
+    "List",
+    "ListChecks",
+    "ListOrdered",
+    "LockKeyhole",
+    "LogOut",
+    "LucideIcon",
+    "Menu",
+    "MonitorCog",
+    "Moon",
+    "NotebookPen",
+    "Package",
+    "Palette",
+    "PanelLeftClose",
+    "PanelLeftOpen",
+    "Pause",
+    "Pencil",
+    "Play",
+    "Plus",
+    "Quote",
+    "Radar",
+    "RefreshCcw",
+    "Rocket",
+    "RotateCcw",
+    "Save",
+    "ScrollText",
+    "Search",
+    "Server",
+    "Settings",
+    "Shield",
+    "ShieldAlert",
+    "ShieldCheck",
+    "SlidersHorizontal",
+    "Sparkles",
+    "Star",
+    "Sticker",
+    "Sun",
+    "Swords",
+    "Tags",
+    "Target",
+    "Timer",
+    "TimerReset",
+    "Trash2",
+    "TrendingDown",
+    "TrendingUp",
+    "Trophy",
+    "Underline",
+    "Upload",
+    "UploadCloud",
+    "UserRound",
+    "Users",
+    "WalletCards",
+    "Wand2",
+    "Wrench",
+    "X",
+    "XCircle",
+    "Zap"
+  ],
+  "assetFiles": [
+    {
+      "path": "public/ui/Types/.DS_Store",
+      "extension": "none",
+      "bytes": 8196,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_0_normal.png",
+      "extension": ".png",
+      "bytes": 2837,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_10_water.png",
+      "extension": ".png",
+      "bytes": 2823,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_11_grass.png",
+      "extension": ".png",
+      "bytes": 3307,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_12_electric.png",
+      "extension": ".png",
+      "bytes": 2465,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_13_psychic.png",
+      "extension": ".png",
+      "bytes": 3353,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_14_ice.png",
+      "extension": ".png",
+      "bytes": 3183,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_15_dragon.png",
+      "extension": ".png",
+      "bytes": 3107,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_16_dark.png",
+      "extension": ".png",
+      "bytes": 3276,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_17_fairy.png",
+      "extension": ".png",
+      "bytes": 2589,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_1_fighting.png",
+      "extension": ".png",
+      "bytes": 2699,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_2_flying.png",
+      "extension": ".png",
+      "bytes": 2676,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_3_poison.png",
+      "extension": ".png",
+      "bytes": 2981,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_4_ground.png",
+      "extension": ".png",
+      "bytes": 2761,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_5_rock.png",
+      "extension": ".png",
+      "bytes": 2633,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_6_bug.png",
+      "extension": ".png",
+      "bytes": 3199,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_7_ghost.png",
+      "extension": ".png",
+      "bytes": 2929,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_8_steel.png",
+      "extension": ".png",
+      "bytes": 2902,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/Types/ico_9_fire.png",
+      "extension": ".png",
+      "bytes": 2779,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/TodayView_Icon_AttackMove.webp",
+      "extension": ".webp",
+      "bytes": 1704,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/TodayView_Icon_Battle.webp",
+      "extension": ".webp",
+      "bytes": 1400,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/attaque.png",
+      "extension": ".png",
+      "bytes": 40020,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/bonbon.png",
+      "extension": ".png",
+      "bytes": 57967,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/book-spells.svg",
+      "extension": ".svg",
+      "bytes": 732,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/boost-meteo.png",
+      "extension": ".png",
+      "bytes": 93627,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/bread_badge_icon.webp",
+      "extension": ".webp",
+      "bytes": 1410,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/check-circle.png",
+      "extension": ".png",
+      "bytes": 1868,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/combat.png",
+      "extension": ".png",
+      "bytes": 2623,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/copy.png",
+      "extension": ".png",
+      "bytes": 1557,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/distance-buddy.png",
+      "extension": ".png",
+      "bytes": 118384,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/défence.png",
+      "extension": ".png",
+      "bytes": 149535,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/fiche.svg",
+      "extension": ".svg",
+      "bytes": 1188,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/go_logo.png",
+      "extension": ".png",
+      "bytes": 36187,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/grass.png",
+      "extension": ".png",
+      "bytes": 8145,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/great.png",
+      "extension": ".png",
+      "bytes": 51497,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/height.png",
+      "extension": ".png",
+      "bytes": 3458,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/ic_shiny_white.webp",
+      "extension": ".webp",
+      "bytes": 944,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/little.png",
+      "extension": ".png",
+      "bytes": 183209,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/master.png",
+      "extension": ".png",
+      "bytes": 51328,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/max_pc.webp",
+      "extension": ".webp",
+      "bytes": 2530,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/mega-cp.png",
+      "extension": ".png",
+      "bytes": 4874,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/mega.png",
+      "extension": ".png",
+      "bytes": 3976,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokeball.webp",
+      "extension": ".webp",
+      "bytes": 1530,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex-alola.webp",
+      "extension": ".webp",
+      "bytes": 2248,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex-galar.webp",
+      "extension": ".webp",
+      "bytes": 764,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex-hoenn.webp",
+      "extension": ".webp",
+      "bytes": 1296,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex-johto.webp",
+      "extension": ".webp",
+      "bytes": 1356,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex-kalos.webp",
+      "extension": ".webp",
+      "bytes": 1516,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex-kanto.webp",
+      "extension": ".webp",
+      "bytes": 1538,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex-paldea.webp",
+      "extension": ".webp",
+      "bytes": 1538,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex-sinnoh.webp",
+      "extension": ".webp",
+      "bytes": 1308,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex-unova.webp",
+      "extension": ".webp",
+      "bytes": 1242,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokedex.png",
+      "extension": ".png",
+      "bytes": 11502,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/pokemon.png",
+      "extension": ".png",
+      "bytes": 11744,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/probleme.svg",
+      "extension": ".svg",
+      "bytes": 930,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/purified.png",
+      "extension": ".png",
+      "bytes": 4187,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/radar.png",
+      "extension": ".png",
+      "bytes": 7115,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/raid.png",
+      "extension": ".png",
+      "bytes": 4926,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/refresh.png",
+      "extension": ".png",
+      "bytes": 1796,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/resultat.svg",
+      "extension": ".svg",
+      "bytes": 562,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/search.png",
+      "extension": ".png",
+      "bytes": 2465,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/shadow.png",
+      "extension": ".png",
+      "bytes": 3685,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/shield-alt.svg",
+      "extension": ".svg",
+      "bytes": 546,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/speedometer.png",
+      "extension": ".png",
+      "bytes": 5842,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/stardus.png",
+      "extension": ".png",
+      "bytes": 2594,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/swords.svg",
+      "extension": ".svg",
+      "bytes": 1248,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/tabs/ic_alola.png",
+      "extension": ".png",
+      "bytes": 6565,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/tabs/ic_mythical.png",
+      "extension": ".png",
+      "bytes": 3820,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/tabs/ic_shadow_filter.png",
+      "extension": ".png",
+      "bytes": 1243,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/tabs/today_battle.png",
+      "extension": ".png",
+      "bytes": 5726,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/tabs/today_evolve.png",
+      "extension": ".png",
+      "bytes": 12655,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/tabs/today_postcard.png",
+      "extension": ".png",
+      "bytes": 1316,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/tag.png",
+      "extension": ".png",
+      "bytes": 2686,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/type.image.png",
+      "extension": ".png",
+      "bytes": 70485,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/ultra.png",
+      "extension": ".png",
+      "bytes": 51380,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/up.svg",
+      "extension": ".svg",
+      "bytes": 563,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/icons/weight.png",
+      "extension": ".png",
+      "bytes": 2523,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/1_star_raids.png",
+      "extension": ".png",
+      "bytes": 22668,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/3_star_raids.png",
+      "extension": ".png",
+      "bytes": 21843,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/5_star_raids.png",
+      "extension": ".png",
+      "bytes": 21213,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/elite_raids.png",
+      "extension": ".png",
+      "bytes": 22837,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/ic_shiny.png",
+      "extension": ".png",
+      "bytes": 3599,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/journée_communauté_raids.png",
+      "extension": ".png",
+      "bytes": 19452,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/mega_raids.png",
+      "extension": ".png",
+      "bytes": 20161,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/mega_raids_legendaire_raids.png",
+      "extension": ".png",
+      "bytes": 21087,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/primal_raids.png",
+      "extension": ".png",
+      "bytes": 23130,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/shadow_icon.png",
+      "extension": ".png",
+      "bytes": 8886,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/teamrocket_r.png",
+      "extension": ".png",
+      "bytes": 1487,
+      "family": "ui"
+    },
+    {
+      "path": "public/ui/raids/ultra_breche_raids.png",
+      "extension": ".png",
+      "bytes": 24848,
+      "family": "ui"
+    }
+  ]
+}

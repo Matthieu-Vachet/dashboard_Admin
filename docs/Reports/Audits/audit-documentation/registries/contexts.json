@@ -1,0 +1,19 @@
+{
+  "auditVersion": "1.0.0",
+  "localContextCount": 0,
+  "externalProviderCount": 1,
+  "entries": [
+    {
+      "id": "CTX-001",
+      "name": "next-themes ThemeProvider",
+      "kind": "external-context-provider",
+      "path": "Dashboard Admin/src/components/admin/layout/admin-providers.tsx",
+      "scope": "RootLayout entier",
+      "values": ["resolved theme dark/light", "theme setters fournis par next-themes"],
+      "consumers": ["useDashboardPalette", "AdminTopbar ou sélecteur de thème à confirmer par import"],
+      "rerenderRisks": "Dépend du contexte externe; le changement de thème recalcule la palette et réécrit 12 variables CSS.",
+      "evidence": "admin-providers.tsx:3-17"
+    }
+  ],
+  "information": "Aucun createContext/useContext local trouvé dans Dashboard Admin/src."
+}

@@ -1,0 +1,2495 @@
+{
+  "count": 497,
+  "classPatterns": [
+    {
+      "id": "MWI-PATTERN-001",
+      "occurrences": 63,
+      "classes": "min-w-0"
+    },
+    {
+      "id": "MWI-PATTERN-002",
+      "occurrences": 54,
+      "classes": "border-brand-2/30 bg-brand-2/10 text-cyan-100"
+    },
+    {
+      "id": "MWI-PATTERN-003",
+      "occurrences": 54,
+      "classes": "border-brand-3/30 bg-brand-3/10 text-emerald-100"
+    },
+    {
+      "id": "MWI-PATTERN-004",
+      "occurrences": 52,
+      "classes": "border-brand/30 bg-brand/12 text-violet-100"
+    },
+    {
+      "id": "MWI-PATTERN-005",
+      "occurrences": 52,
+      "classes": "border-danger/35 bg-danger/12 text-rose-100"
+    },
+    {
+      "id": "MWI-PATTERN-006",
+      "occurrences": 52,
+      "classes": "border-line bg-white/[0.06] text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-007",
+      "occurrences": 52,
+      "classes": "border-warning/35 bg-warning/12 text-amber-100"
+    },
+    {
+      "id": "MWI-PATTERN-008",
+      "occurrences": 51,
+      "classes": "border-danger/30 bg-danger/15 text-danger hover:border-danger/50 hover:bg-danger/20"
+    },
+    {
+      "id": "MWI-PATTERN-009",
+      "occurrences": 51,
+      "classes": "border-line bg-white/[0.075] text-foreground hover:border-line-strong hover:bg-white/[0.11]"
+    },
+    {
+      "id": "MWI-PATTERN-010",
+      "occurrences": 51,
+      "classes": "border-transparent bg-transparent text-muted hover:bg-white/[0.08] hover:text-foreground"
+    },
+    {
+      "id": "MWI-PATTERN-011",
+      "occurrences": 51,
+      "classes": "dashboard-primary-button border-transparent text-white hover:brightness-110"
+    },
+    {
+      "id": "MWI-PATTERN-012",
+      "occurrences": 51,
+      "classes": "h-10 w-10 p-0"
+    },
+    {
+      "id": "MWI-PATTERN-013",
+      "occurrences": 51,
+      "classes": "min-h-10 px-4 text-sm"
+    },
+    {
+      "id": "MWI-PATTERN-014",
+      "occurrences": 51,
+      "classes": "min-h-12 px-5 text-sm"
+    },
+    {
+      "id": "MWI-PATTERN-015",
+      "occurrences": 51,
+      "classes": "min-h-9 px-3 text-xs"
+    },
+    {
+      "id": "MWI-PATTERN-016",
+      "occurrences": 26,
+      "classes": "flex flex-wrap gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-017",
+      "occurrences": 24,
+      "classes": "space-y-4"
+    },
+    {
+      "id": "MWI-PATTERN-018",
+      "occurrences": 23,
+      "classes": "min-h-12 w-full rounded-2xl border border-white/10 bg-slate-950/45 px-4 text-sm font-bold text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-400/10"
+    },
+    {
+      "id": "MWI-PATTERN-019",
+      "occurrences": 20,
+      "classes": "p-4"
+    },
+    {
+      "id": "MWI-PATTERN-020",
+      "occurrences": 20,
+      "classes": "rounded-2xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_22px_90px_rgba(0,0,0,.24)] backdrop-blur-xl sm:p-5"
+    },
+    {
+      "id": "MWI-PATTERN-021",
+      "occurrences": 19,
+      "classes": "space-y-3"
+    },
+    {
+      "id": "MWI-PATTERN-022",
+      "occurrences": 18,
+      "classes": "inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.075] px-4 py-2 text-sm font-black text-white transition hover:border-cyan-200/50 hover:bg-cyan-400/15"
+    },
+    {
+      "id": "MWI-PATTERN-023",
+      "occurrences": 17,
+      "classes": "inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-400 px-4 py-2 text-sm font-black text-white shadow-[0_14px_45px_rgba(14,165,233,.26)] transition hover:scale-[1.01]"
+    },
+    {
+      "id": "MWI-PATTERN-024",
+      "occurrences": 17,
+      "classes": "space-y-5"
+    },
+    {
+      "id": "MWI-PATTERN-025",
+      "occurrences": 17,
+      "classes": "text-xs font-black uppercase tracking-[0.16em] text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-026",
+      "occurrences": 16,
+      "classes": "-"
+    },
+    {
+      "id": "MWI-PATTERN-027",
+      "occurrences": 15,
+      "classes": "text-xs font-black uppercase tracking-[0.18em] text-brand-2"
+    },
+    {
+      "id": "MWI-PATTERN-028",
+      "occurrences": 14,
+      "classes": "border-amber-200/20 bg-amber-400/10 from-amber-400/15"
+    },
+    {
+      "id": "MWI-PATTERN-029",
+      "occurrences": 14,
+      "classes": "border-cyan-200/20 bg-cyan-400/10 from-cyan-400/15"
+    },
+    {
+      "id": "MWI-PATTERN-030",
+      "occurrences": 14,
+      "classes": "border-emerald-200/20 bg-emerald-400/10 from-emerald-400/15"
+    },
+    {
+      "id": "MWI-PATTERN-031",
+      "occurrences": 14,
+      "classes": "border-rose-200/20 bg-rose-400/10 from-rose-400/15"
+    },
+    {
+      "id": "MWI-PATTERN-032",
+      "occurrences": 14,
+      "classes": "border-violet-200/20 bg-violet-400/10 from-violet-400/15"
+    },
+    {
+      "id": "MWI-PATTERN-033",
+      "occurrences": 14,
+      "classes": "from-amber-400/24 via-orange-300/10 to-slate-900/20 text-amber-100 border-amber-200/25"
+    },
+    {
+      "id": "MWI-PATTERN-034",
+      "occurrences": 14,
+      "classes": "from-emerald-400/24 via-teal-300/10 to-slate-900/20 text-emerald-100 border-emerald-200/25"
+    },
+    {
+      "id": "MWI-PATTERN-035",
+      "occurrences": 14,
+      "classes": "from-sky-500/24 via-cyan-300/12 to-slate-900/20 text-cyan-100 border-cyan-200/25"
+    },
+    {
+      "id": "MWI-PATTERN-036",
+      "occurrences": 14,
+      "classes": "from-violet-500/24 via-fuchsia-300/10 to-slate-900/20 text-violet-100 border-violet-200/25"
+    },
+    {
+      "id": "MWI-PATTERN-037",
+      "occurrences": 14,
+      "classes": "text-brand-2"
+    },
+    {
+      "id": "MWI-PATTERN-038",
+      "occurrences": 13,
+      "classes": "rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400"
+    },
+    {
+      "id": "MWI-PATTERN-039",
+      "occurrences": 12,
+      "classes": "block"
+    },
+    {
+      "id": "MWI-PATTERN-040",
+      "occurrences": 12,
+      "classes": "border-brand-3/25 bg-brand-3/10 text-brand-3"
+    },
+    {
+      "id": "MWI-PATTERN-041",
+      "occurrences": 12,
+      "classes": "flex flex-wrap items-center gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-042",
+      "occurrences": 11,
+      "classes": "border-brand-2/30 bg-brand-2/10 text-brand-2"
+    },
+    {
+      "id": "MWI-PATTERN-043",
+      "occurrences": 11,
+      "classes": "border-brand-3/30 bg-brand-3/10 text-brand-3"
+    },
+    {
+      "id": "MWI-PATTERN-044",
+      "occurrences": 11,
+      "classes": "flex items-center justify-between gap-3"
+    },
+    {
+      "id": "MWI-PATTERN-045",
+      "occurrences": 11,
+      "classes": "flex items-start justify-between gap-3"
+    },
+    {
+      "id": "MWI-PATTERN-046",
+      "occurrences": 10,
+      "classes": "border-amber-200/22 bg-amber-400/[0.06]"
+    },
+    {
+      "id": "MWI-PATTERN-047",
+      "occurrences": 10,
+      "classes": "border-amber-200/22 bg-amber-400/12"
+    },
+    {
+      "id": "MWI-PATTERN-048",
+      "occurrences": 10,
+      "classes": "border-amber-200/30 bg-amber-400/14 text-amber-50"
+    },
+    {
+      "id": "MWI-PATTERN-049",
+      "occurrences": 10,
+      "classes": "border-brand/30 bg-brand/10 text-brand"
+    },
+    {
+      "id": "MWI-PATTERN-050",
+      "occurrences": 10,
+      "classes": "border-cyan-200/20 bg-cyan-400/[0.055]"
+    },
+    {
+      "id": "MWI-PATTERN-051",
+      "occurrences": 10,
+      "classes": "border-cyan-200/20 bg-cyan-400/12"
+    },
+    {
+      "id": "MWI-PATTERN-052",
+      "occurrences": 10,
+      "classes": "border-cyan-200/30 bg-cyan-400/14 text-cyan-50"
+    },
+    {
+      "id": "MWI-PATTERN-053",
+      "occurrences": 10,
+      "classes": "border-danger/30 bg-danger/10 text-danger"
+    },
+    {
+      "id": "MWI-PATTERN-054",
+      "occurrences": 10,
+      "classes": "border-emerald-200/20 bg-emerald-400/[0.055]"
+    },
+    {
+      "id": "MWI-PATTERN-055",
+      "occurrences": 10,
+      "classes": "border-emerald-200/20 bg-emerald-400/12"
+    },
+    {
+      "id": "MWI-PATTERN-056",
+      "occurrences": 10,
+      "classes": "border-emerald-200/30 bg-emerald-400/14 text-emerald-50"
+    },
+    {
+      "id": "MWI-PATTERN-057",
+      "occurrences": 10,
+      "classes": "border-red-200/22 bg-red-400/[0.06]"
+    },
+    {
+      "id": "MWI-PATTERN-058",
+      "occurrences": 10,
+      "classes": "border-red-200/22 bg-red-400/12"
+    },
+    {
+      "id": "MWI-PATTERN-059",
+      "occurrences": 10,
+      "classes": "border-red-200/30 bg-red-400/14 text-red-50"
+    },
+    {
+      "id": "MWI-PATTERN-060",
+      "occurrences": 10,
+      "classes": "border-sky-200/20 bg-sky-400/[0.055]"
+    },
+    {
+      "id": "MWI-PATTERN-061",
+      "occurrences": 10,
+      "classes": "border-sky-200/20 bg-sky-400/12"
+    },
+    {
+      "id": "MWI-PATTERN-062",
+      "occurrences": 10,
+      "classes": "border-sky-200/30 bg-sky-400/14 text-sky-50"
+    },
+    {
+      "id": "MWI-PATTERN-063",
+      "occurrences": 10,
+      "classes": "border-violet-200/22 bg-violet-400/[0.06]"
+    },
+    {
+      "id": "MWI-PATTERN-064",
+      "occurrences": 10,
+      "classes": "border-violet-200/22 bg-violet-400/12"
+    },
+    {
+      "id": "MWI-PATTERN-065",
+      "occurrences": 10,
+      "classes": "border-violet-200/30 bg-violet-400/14 text-violet-50"
+    },
+    {
+      "id": "MWI-PATTERN-066",
+      "occurrences": 10,
+      "classes": "border-warning/30 bg-warning/10 text-warning"
+    },
+    {
+      "id": "MWI-PATTERN-067",
+      "occurrences": 10,
+      "classes": "border-white/10 bg-white/[0.045] text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-068",
+      "occurrences": 10,
+      "classes": "grid gap-3"
+    },
+    {
+      "id": "MWI-PATTERN-069",
+      "occurrences": 10,
+      "classes": "mt-3 text-3xl font-black"
+    },
+    {
+      "id": "MWI-PATTERN-070",
+      "occurrences": 10,
+      "classes": "text-amber-100/74"
+    },
+    {
+      "id": "MWI-PATTERN-071",
+      "occurrences": 10,
+      "classes": "text-cyan-100/72"
+    },
+    {
+      "id": "MWI-PATTERN-072",
+      "occurrences": 10,
+      "classes": "text-emerald-100/72"
+    },
+    {
+      "id": "MWI-PATTERN-073",
+      "occurrences": 10,
+      "classes": "text-red-100/74"
+    },
+    {
+      "id": "MWI-PATTERN-074",
+      "occurrences": 10,
+      "classes": "text-sky-100/72"
+    },
+    {
+      "id": "MWI-PATTERN-075",
+      "occurrences": 10,
+      "classes": "text-violet-100/72"
+    },
+    {
+      "id": "MWI-PATTERN-076",
+      "occurrences": 9,
+      "classes": "border-brand-3/40 bg-brand-3/12 text-brand-3"
+    },
+    {
+      "id": "MWI-PATTERN-077",
+      "occurrences": 9,
+      "classes": "border-danger/40 bg-danger/12 text-danger"
+    },
+    {
+      "id": "MWI-PATTERN-078",
+      "occurrences": 9,
+      "classes": "border-warning/40 bg-warning/12 text-warning"
+    },
+    {
+      "id": "MWI-PATTERN-079",
+      "occurrences": 9,
+      "classes": "h-full w-full object-contain"
+    },
+    {
+      "id": "MWI-PATTERN-080",
+      "occurrences": 9,
+      "classes": "mt-1 block truncate text-xs font-bold text-slate-400"
+    },
+    {
+      "id": "MWI-PATTERN-081",
+      "occurrences": 9,
+      "classes": "truncate"
+    },
+    {
+      "id": "MWI-PATTERN-082",
+      "occurrences": 8,
+      "classes": "font-black"
+    },
+    {
+      "id": "MWI-PATTERN-083",
+      "occurrences": 8,
+      "classes": "font-bold text-slate-300"
+    },
+    {
+      "id": "MWI-PATTERN-084",
+      "occurrences": 8,
+      "classes": "mt-2"
+    },
+    {
+      "id": "MWI-PATTERN-085",
+      "occurrences": 8,
+      "classes": "w-full"
+    },
+    {
+      "id": "MWI-PATTERN-086",
+      "occurrences": 7,
+      "classes": "block text-[10px] font-black uppercase tracking-[0.16em] text-slate-500"
+    },
+    {
+      "id": "MWI-PATTERN-087",
+      "occurrences": 7,
+      "classes": "flex flex-wrap items-center justify-between gap-3"
+    },
+    {
+      "id": "MWI-PATTERN-088",
+      "occurrences": 7,
+      "classes": "flex items-center gap-3"
+    },
+    {
+      "id": "MWI-PATTERN-089",
+      "occurrences": 7,
+      "classes": "space-y-2"
+    },
+    {
+      "id": "MWI-PATTERN-090",
+      "occurrences": 7,
+      "classes": "text-brand-3"
+    },
+    {
+      "id": "MWI-PATTERN-091",
+      "occurrences": 6,
+      "classes": "block truncate text-sm font-black text-white"
+    },
+    {
+      "id": "MWI-PATTERN-092",
+      "occurrences": 6,
+      "classes": "border-amber-200/16 bg-amber-400/[0.075]"
+    },
+    {
+      "id": "MWI-PATTERN-093",
+      "occurrences": 6,
+      "classes": "border-amber-300/45 bg-amber-500/18 text-amber-100"
+    },
+    {
+      "id": "MWI-PATTERN-094",
+      "occurrences": 6,
+      "classes": "border-cyan-200/16 bg-cyan-400/[0.075]"
+    },
+    {
+      "id": "MWI-PATTERN-095",
+      "occurrences": 6,
+      "classes": "border-cyan-200/30 bg-cyan-400/16 text-cyan-50 shadow-[0_0_22px_rgba(34,211,238,.1)]"
+    },
+    {
+      "id": "MWI-PATTERN-096",
+      "occurrences": 6,
+      "classes": "border-cyan-200/45 bg-cyan-400/18 text-cyan-100"
+    },
+    {
+      "id": "MWI-PATTERN-097",
+      "occurrences": 6,
+      "classes": "border-emerald-200/16 bg-emerald-400/[0.075]"
+    },
+    {
+      "id": "MWI-PATTERN-098",
+      "occurrences": 6,
+      "classes": "border-emerald-200/30 bg-emerald-300/16 text-emerald-50"
+    },
+    {
+      "id": "MWI-PATTERN-099",
+      "occurrences": 6,
+      "classes": "border-emerald-200/30 bg-emerald-400/16 text-emerald-50 shadow-[0_0_22px_rgba(52,211,153,.1)]"
+    },
+    {
+      "id": "MWI-PATTERN-100",
+      "occurrences": 6,
+      "classes": "border-fuchsia-300/45 bg-fuchsia-500/18 text-fuchsia-100"
+    },
+    {
+      "id": "MWI-PATTERN-101",
+      "occurrences": 6,
+      "classes": "border-indigo-300/45 bg-indigo-500/18 text-indigo-100"
+    },
+    {
+      "id": "MWI-PATTERN-102",
+      "occurrences": 6,
+      "classes": "border-orange-200/32 bg-orange-400/18 text-orange-50 shadow-[0_0_22px_rgba(251,146,60,.1)]"
+    },
+    {
+      "id": "MWI-PATTERN-103",
+      "occurrences": 6,
+      "classes": "border-orange-300/45 bg-orange-500/18 text-orange-100"
+    },
+    {
+      "id": "MWI-PATTERN-104",
+      "occurrences": 6,
+      "classes": "border-red-300/45 bg-red-500/18 text-red-100"
+    },
+    {
+      "id": "MWI-PATTERN-105",
+      "occurrences": 6,
+      "classes": "border-rose-300/45 bg-rose-500/18 text-rose-100"
+    },
+    {
+      "id": "MWI-PATTERN-106",
+      "occurrences": 6,
+      "classes": "border-sky-300/45 bg-sky-500/18 text-sky-100"
+    },
+    {
+      "id": "MWI-PATTERN-107",
+      "occurrences": 6,
+      "classes": "border-slate-200/20 bg-slate-300/10 text-slate-200"
+    },
+    {
+      "id": "MWI-PATTERN-108",
+      "occurrences": 6,
+      "classes": "border-stone-200/45 bg-stone-400/18 text-stone-100"
+    },
+    {
+      "id": "MWI-PATTERN-109",
+      "occurrences": 6,
+      "classes": "border-violet-200/16 bg-violet-400/[0.075]"
+    },
+    {
+      "id": "MWI-PATTERN-110",
+      "occurrences": 6,
+      "classes": "border-violet-200/30 bg-violet-300/16 text-violet-50"
+    },
+    {
+      "id": "MWI-PATTERN-111",
+      "occurrences": 6,
+      "classes": "border-violet-200/30 bg-violet-400/16 text-violet-50 shadow-[0_0_22px_rgba(167,139,250,.1)]"
+    },
+    {
+      "id": "MWI-PATTERN-112",
+      "occurrences": 6,
+      "classes": "border-violet-300/45 bg-violet-500/18 text-violet-100"
+    },
+    {
+      "id": "MWI-PATTERN-113",
+      "occurrences": 6,
+      "classes": "border-yellow-200/45 bg-yellow-400/18 text-yellow-100"
+    },
+    {
+      "id": "MWI-PATTERN-114",
+      "occurrences": 6,
+      "classes": "flex flex-wrap items-start justify-between gap-3"
+    },
+    {
+      "id": "MWI-PATTERN-115",
+      "occurrences": 6,
+      "classes": "font-black text-white"
+    },
+    {
+      "id": "MWI-PATTERN-116",
+      "occurrences": 6,
+      "classes": "grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4"
+    },
+    {
+      "id": "MWI-PATTERN-117",
+      "occurrences": 6,
+      "classes": "h-5 w-5 shrink-0 object-contain"
+    },
+    {
+      "id": "MWI-PATTERN-118",
+      "occurrences": 6,
+      "classes": "mt-2 text-sm font-semibold leading-6 text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-119",
+      "occurrences": 6,
+      "classes": "mt-3 flex flex-wrap gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-120",
+      "occurrences": 6,
+      "classes": "mt-4 flex justify-end"
+    },
+    {
+      "id": "MWI-PATTERN-121",
+      "occurrences": 6,
+      "classes": "mt-4 space-y-3"
+    },
+    {
+      "id": "MWI-PATTERN-122",
+      "occurrences": 6,
+      "classes": "rounded-lg border border-line bg-white/[0.045] p-3"
+    },
+    {
+      "id": "MWI-PATTERN-123",
+      "occurrences": 6,
+      "classes": "text-2xl sm:text-3xl"
+    },
+    {
+      "id": "MWI-PATTERN-124",
+      "occurrences": 5,
+      "classes": "bg-brand"
+    },
+    {
+      "id": "MWI-PATTERN-125",
+      "occurrences": 5,
+      "classes": "bg-brand-2"
+    },
+    {
+      "id": "MWI-PATTERN-126",
+      "occurrences": 5,
+      "classes": "bg-brand-3"
+    },
+    {
+      "id": "MWI-PATTERN-127",
+      "occurrences": 5,
+      "classes": "bg-danger"
+    },
+    {
+      "id": "MWI-PATTERN-128",
+      "occurrences": 5,
+      "classes": "bg-warning"
+    },
+    {
+      "id": "MWI-PATTERN-129",
+      "occurrences": 5,
+      "classes": "block h-full rounded-full"
+    },
+    {
+      "id": "MWI-PATTERN-130",
+      "occurrences": 5,
+      "classes": "block truncate text-sm font-black"
+    },
+    {
+      "id": "MWI-PATTERN-131",
+      "occurrences": 5,
+      "classes": "border-brand-2/40 bg-brand-2/12 text-brand-2"
+    },
+    {
+      "id": "MWI-PATTERN-132",
+      "occurrences": 5,
+      "classes": "border-brand/30 bg-brand/10 text-violet-100"
+    },
+    {
+      "id": "MWI-PATTERN-133",
+      "occurrences": 5,
+      "classes": "border-brand/40 bg-brand/12 text-violet-200"
+    },
+    {
+      "id": "MWI-PATTERN-134",
+      "occurrences": 5,
+      "classes": "border-cyan-200/24 bg-cyan-400/[0.075] shadow-[inset_0_1px_0_rgba(103,232,249,.16)]"
+    },
+    {
+      "id": "MWI-PATTERN-135",
+      "occurrences": 5,
+      "classes": "border-danger/35 bg-danger/10 text-rose-100"
+    },
+    {
+      "id": "MWI-PATTERN-136",
+      "occurrences": 5,
+      "classes": "border-emerald-200/24 bg-emerald-400/[0.075] shadow-[inset_0_1px_0_rgba(110,231,183,.15)]"
+    },
+    {
+      "id": "MWI-PATTERN-137",
+      "occurrences": 5,
+      "classes": "border-emerald-300/35 bg-emerald-400/15 text-emerald-100"
+    },
+    {
+      "id": "MWI-PATTERN-138",
+      "occurrences": 5,
+      "classes": "border-orange-200/28 bg-orange-400/[0.085] shadow-[inset_0_1px_0_rgba(253,186,116,.16)]"
+    },
+    {
+      "id": "MWI-PATTERN-139",
+      "occurrences": 5,
+      "classes": "border-violet-200/26 bg-violet-400/[0.08] shadow-[inset_0_1px_0_rgba(196,181,253,.15)]"
+    },
+    {
+      "id": "MWI-PATTERN-140",
+      "occurrences": 5,
+      "classes": "border-warning/35 bg-warning/10 text-amber-100"
+    },
+    {
+      "id": "MWI-PATTERN-141",
+      "occurrences": 5,
+      "classes": "border-warning/45 bg-warning/12 text-warning"
+    },
+    {
+      "id": "MWI-PATTERN-142",
+      "occurrences": 5,
+      "classes": "grid gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-143",
+      "occurrences": 5,
+      "classes": "grid gap-3 lg:grid-cols-2"
+    },
+    {
+      "id": "MWI-PATTERN-144",
+      "occurrences": 5,
+      "classes": "max-h-full object-contain"
+    },
+    {
+      "id": "MWI-PATTERN-145",
+      "occurrences": 5,
+      "classes": "mt-1 block break-words text-white"
+    },
+    {
+      "id": "MWI-PATTERN-146",
+      "occurrences": 5,
+      "classes": "mt-2 max-w-2xl text-sm font-semibold leading-6 text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-147",
+      "occurrences": 5,
+      "classes": "mt-3 text-sm font-semibold leading-6 text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-148",
+      "occurrences": 5,
+      "classes": "p-5"
+    },
+    {
+      "id": "MWI-PATTERN-149",
+      "occurrences": 5,
+      "classes": "relative"
+    },
+    {
+      "id": "MWI-PATTERN-150",
+      "occurrences": 5,
+      "classes": "relative overflow-hidden p-5"
+    },
+    {
+      "id": "MWI-PATTERN-151",
+      "occurrences": 5,
+      "classes": "relative z-10"
+    },
+    {
+      "id": "MWI-PATTERN-152",
+      "occurrences": 5,
+      "classes": "rounded-2xl border border-dashed border-white/15 p-5 text-sm font-bold text-slate-400"
+    },
+    {
+      "id": "MWI-PATTERN-153",
+      "occurrences": 5,
+      "classes": "rounded-2xl border border-white/10 bg-slate-950/35 p-4"
+    },
+    {
+      "id": "MWI-PATTERN-154",
+      "occurrences": 5,
+      "classes": "rounded-lg border border-dashed border-line p-4 text-sm font-semibold text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-155",
+      "occurrences": 5,
+      "classes": "text-emerald-300"
+    },
+    {
+      "id": "MWI-PATTERN-156",
+      "occurrences": 5,
+      "classes": "text-lg font-black"
+    },
+    {
+      "id": "MWI-PATTERN-157",
+      "occurrences": 4,
+      "classes": "bg-amber-400/12"
+    },
+    {
+      "id": "MWI-PATTERN-158",
+      "occurrences": 4,
+      "classes": "bg-brand-2 text-slate-950"
+    },
+    {
+      "id": "MWI-PATTERN-159",
+      "occurrences": 4,
+      "classes": "bg-brand-2/12"
+    },
+    {
+      "id": "MWI-PATTERN-160",
+      "occurrences": 4,
+      "classes": "bg-cyan-400/12"
+    },
+    {
+      "id": "MWI-PATTERN-161",
+      "occurrences": 4,
+      "classes": "bg-emerald-400/12"
+    },
+    {
+      "id": "MWI-PATTERN-162",
+      "occurrences": 4,
+      "classes": "bg-fuchsia-400/12"
+    },
+    {
+      "id": "MWI-PATTERN-163",
+      "occurrences": 4,
+      "classes": "bg-lime-400/12"
+    },
+    {
+      "id": "MWI-PATTERN-164",
+      "occurrences": 4,
+      "classes": "bg-orange-400/12"
+    },
+    {
+      "id": "MWI-PATTERN-165",
+      "occurrences": 4,
+      "classes": "bg-rose-400/12"
+    },
+    {
+      "id": "MWI-PATTERN-166",
+      "occurrences": 4,
+      "classes": "bg-sky-400/12"
+    },
+    {
+      "id": "MWI-PATTERN-167",
+      "occurrences": 4,
+      "classes": "bg-teal-400/12"
+    },
+    {
+      "id": "MWI-PATTERN-168",
+      "occurrences": 4,
+      "classes": "bg-violet-400/12"
+    },
+    {
+      "id": "MWI-PATTERN-169",
+      "occurrences": 4,
+      "classes": "block text-xs font-black uppercase tracking-[0.16em] text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-170",
+      "occurrences": 4,
+      "classes": "border-amber-300/35 bg-amber-400/15 text-amber-100"
+    },
+    {
+      "id": "MWI-PATTERN-171",
+      "occurrences": 4,
+      "classes": "border-fuchsia-300/35 bg-fuchsia-400/15 text-fuchsia-100"
+    },
+    {
+      "id": "MWI-PATTERN-172",
+      "occurrences": 4,
+      "classes": "border-sky-300/35 bg-sky-400/15 text-sky-100"
+    },
+    {
+      "id": "MWI-PATTERN-173",
+      "occurrences": 4,
+      "classes": "border-violet-300/35 bg-violet-400/15 text-violet-100"
+    },
+    {
+      "id": "MWI-PATTERN-174",
+      "occurrences": 4,
+      "classes": "flex min-w-0 items-center gap-3"
+    },
+    {
+      "id": "MWI-PATTERN-175",
+      "occurrences": 4,
+      "classes": "grid gap-3 sm:grid-cols-2"
+    },
+    {
+      "id": "MWI-PATTERN-176",
+      "occurrences": 4,
+      "classes": "grid gap-4"
+    },
+    {
+      "id": "MWI-PATTERN-177",
+      "occurrences": 4,
+      "classes": "grid grid-cols-2 gap-3"
+    },
+    {
+      "id": "MWI-PATTERN-178",
+      "occurrences": 4,
+      "classes": "inline-flex flex-wrap items-center gap-1.5"
+    },
+    {
+      "id": "MWI-PATTERN-179",
+      "occurrences": 4,
+      "classes": "min-h-0 border-0 bg-transparent px-0 focus:bg-transparent"
+    },
+    {
+      "id": "MWI-PATTERN-180",
+      "occurrences": 4,
+      "classes": "mt-1 text-2xl font-black"
+    },
+    {
+      "id": "MWI-PATTERN-181",
+      "occurrences": 4,
+      "classes": "mt-2 flex flex-wrap gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-182",
+      "occurrences": 4,
+      "classes": "mt-2 min-h-11 w-full rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+    },
+    {
+      "id": "MWI-PATTERN-183",
+      "occurrences": 4,
+      "classes": "mt-3 flex flex-wrap items-center gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-184",
+      "occurrences": 4,
+      "classes": "mt-3 grid gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-185",
+      "occurrences": 4,
+      "classes": "mt-5 grid gap-3"
+    },
+    {
+      "id": "MWI-PATTERN-186",
+      "occurrences": 4,
+      "classes": "mt-5 space-y-3"
+    },
+    {
+      "id": "MWI-PATTERN-187",
+      "occurrences": 4,
+      "classes": "pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+    },
+    {
+      "id": "MWI-PATTERN-188",
+      "occurrences": 4,
+      "classes": "rotate-180"
+    },
+    {
+      "id": "MWI-PATTERN-189",
+      "occurrences": 4,
+      "classes": "rounded-2xl border p-4"
+    },
+    {
+      "id": "MWI-PATTERN-190",
+      "occurrences": 4,
+      "classes": "rounded-lg border border-line bg-black/15 p-3"
+    },
+    {
+      "id": "MWI-PATTERN-191",
+      "occurrences": 4,
+      "classes": "sr-only"
+    },
+    {
+      "id": "MWI-PATTERN-192",
+      "occurrences": 4,
+      "classes": "text-2xl font-black text-white"
+    },
+    {
+      "id": "MWI-PATTERN-193",
+      "occurrences": 4,
+      "classes": "text-amber-300"
+    },
+    {
+      "id": "MWI-PATTERN-194",
+      "occurrences": 4,
+      "classes": "text-cyan-300"
+    },
+    {
+      "id": "MWI-PATTERN-195",
+      "occurrences": 4,
+      "classes": "text-fuchsia-300"
+    },
+    {
+      "id": "MWI-PATTERN-196",
+      "occurrences": 4,
+      "classes": "text-lime-300"
+    },
+    {
+      "id": "MWI-PATTERN-197",
+      "occurrences": 4,
+      "classes": "text-orange-300"
+    },
+    {
+      "id": "MWI-PATTERN-198",
+      "occurrences": 4,
+      "classes": "text-rose-300"
+    },
+    {
+      "id": "MWI-PATTERN-199",
+      "occurrences": 4,
+      "classes": "text-sky-300"
+    },
+    {
+      "id": "MWI-PATTERN-200",
+      "occurrences": 4,
+      "classes": "text-teal-300"
+    },
+    {
+      "id": "MWI-PATTERN-201",
+      "occurrences": 4,
+      "classes": "text-violet-300"
+    },
+    {
+      "id": "MWI-PATTERN-202",
+      "occurrences": 4,
+      "classes": "text-xs font-semibold text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-203",
+      "occurrences": 4,
+      "classes": "truncate text-xs font-bold text-slate-400"
+    },
+    {
+      "id": "MWI-PATTERN-204",
+      "occurrences": 3,
+      "classes": "absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.1)_1px,transparent_1px)] [background-size:24px_24px]"
+    },
+    {
+      "id": "MWI-PATTERN-205",
+      "occurrences": 3,
+      "classes": "animate-spin"
+    },
+    {
+      "id": "MWI-PATTERN-206",
+      "occurrences": 3,
+      "classes": "block truncate font-black text-white"
+    },
+    {
+      "id": "MWI-PATTERN-207",
+      "occurrences": 3,
+      "classes": "block truncate text-xs font-bold text-slate-400"
+    },
+    {
+      "id": "MWI-PATTERN-208",
+      "occurrences": 3,
+      "classes": "border-brand-2/35 bg-brand-2/10 text-brand-2"
+    },
+    {
+      "id": "MWI-PATTERN-209",
+      "occurrences": 3,
+      "classes": "border-brand-2/50 bg-brand-2/16 text-brand-2 shadow-[0_0_24px_rgba(34,211,238,.12)]"
+    },
+    {
+      "id": "MWI-PATTERN-210",
+      "occurrences": 3,
+      "classes": "border-brand-3/35 bg-brand-3/10 text-brand-3"
+    },
+    {
+      "id": "MWI-PATTERN-211",
+      "occurrences": 3,
+      "classes": "border-brand-3/60 bg-brand-3/18 text-brand-3 shadow-[0_0_28px_rgba(52,211,153,.14)]"
+    },
+    {
+      "id": "MWI-PATTERN-212",
+      "occurrences": 3,
+      "classes": "border-brand/25 bg-brand/10 text-brand"
+    },
+    {
+      "id": "MWI-PATTERN-213",
+      "occurrences": 3,
+      "classes": "border-danger/45 bg-danger/14 text-danger"
+    },
+    {
+      "id": "MWI-PATTERN-214",
+      "occurrences": 3,
+      "classes": "border-danger/55 bg-danger/16 text-danger shadow-[0_0_24px_rgba(248,113,113,.12)]"
+    },
+    {
+      "id": "MWI-PATTERN-215",
+      "occurrences": 3,
+      "classes": "border-l-4 border-l-brand-2 bg-brand-2/[0.07] shadow-[inset_0_0_28px_rgba(34,211,238,.07)]"
+    },
+    {
+      "id": "MWI-PATTERN-216",
+      "occurrences": 3,
+      "classes": "border-l-4 border-l-brand-3 bg-brand-3/[0.09] shadow-[inset_0_0_28px_rgba(52,211,153,.08)]"
+    },
+    {
+      "id": "MWI-PATTERN-217",
+      "occurrences": 3,
+      "classes": "border-l-4 border-l-danger bg-danger/[0.08] shadow-[inset_0_0_28px_rgba(248,113,113,.08)]"
+    },
+    {
+      "id": "MWI-PATTERN-218",
+      "occurrences": 3,
+      "classes": "border-l-4 border-l-slate-400/80 bg-slate-400/[0.035]"
+    },
+    {
+      "id": "MWI-PATTERN-219",
+      "occurrences": 3,
+      "classes": "border-l-4 border-l-slate-500/50 bg-slate-500/[0.035] opacity-70"
+    },
+    {
+      "id": "MWI-PATTERN-220",
+      "occurrences": 3,
+      "classes": "border-l-4 border-l-warning bg-warning/[0.065]"
+    },
+    {
+      "id": "MWI-PATTERN-221",
+      "occurrences": 3,
+      "classes": "border-slate-400/25 bg-slate-400/10 text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-222",
+      "occurrences": 3,
+      "classes": "border-slate-400/35 bg-slate-400/10 text-slate-200"
+    },
+    {
+      "id": "MWI-PATTERN-223",
+      "occurrences": 3,
+      "classes": "border-t border-white/10 p-3"
+    },
+    {
+      "id": "MWI-PATTERN-224",
+      "occurrences": 3,
+      "classes": "border-white/10 bg-white/[0.045]"
+    },
+    {
+      "id": "MWI-PATTERN-225",
+      "occurrences": 3,
+      "classes": "border-white/10 bg-white/[0.055] text-slate-300"
+    },
+    {
+      "id": "MWI-PATTERN-226",
+      "occurrences": 3,
+      "classes": "fixed inset-0 z-[1100] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl sm:p-5"
+    },
+    {
+      "id": "MWI-PATTERN-227",
+      "occurrences": 3,
+      "classes": "flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"
+    },
+    {
+      "id": "MWI-PATTERN-228",
+      "occurrences": 3,
+      "classes": "flex flex-wrap gap-1.5"
+    },
+    {
+      "id": "MWI-PATTERN-229",
+      "occurrences": 3,
+      "classes": "flex items-center gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-230",
+      "occurrences": 3,
+      "classes": "flex items-center gap-2 text-sm font-black"
+    },
+    {
+      "id": "MWI-PATTERN-231",
+      "occurrences": 3,
+      "classes": "font-mono text-xs font-black text-slate-400"
+    },
+    {
+      "id": "MWI-PATTERN-232",
+      "occurrences": 3,
+      "classes": "grid gap-1.5"
+    },
+    {
+      "id": "MWI-PATTERN-233",
+      "occurrences": 3,
+      "classes": "grid gap-2 sm:grid-cols-2"
+    },
+    {
+      "id": "MWI-PATTERN-234",
+      "occurrences": 3,
+      "classes": "grid gap-3 md:grid-cols-2 xl:grid-cols-3"
+    },
+    {
+      "id": "MWI-PATTERN-235",
+      "occurrences": 3,
+      "classes": "grid gap-3 md:grid-cols-3"
+    },
+    {
+      "id": "MWI-PATTERN-236",
+      "occurrences": 3,
+      "classes": "grid gap-4 xl:grid-cols-2"
+    },
+    {
+      "id": "MWI-PATTERN-237",
+      "occurrences": 3,
+      "classes": "grid h-11 w-11 place-items-center rounded-lg border"
+    },
+    {
+      "id": "MWI-PATTERN-238",
+      "occurrences": 3,
+      "classes": "group min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/38 text-left shadow-[0_18px_70px_rgba(0,0,0,.2)] transition hover:-translate-y-0.5 hover:border-cyan-200/35 disabled:cursor-default"
+    },
+    {
+      "id": "MWI-PATTERN-239",
+      "occurrences": 3,
+      "classes": "h-4 w-4 object-contain"
+    },
+    {
+      "id": "MWI-PATTERN-240",
+      "occurrences": 3,
+      "classes": "h-4 w-4 shrink-0 object-contain"
+    },
+    {
+      "id": "MWI-PATTERN-241",
+      "occurrences": 3,
+      "classes": "h-5 w-5 accent-cyan-400"
+    },
+    {
+      "id": "MWI-PATTERN-242",
+      "occurrences": 3,
+      "classes": "h-5 w-5 object-contain"
+    },
+    {
+      "id": "MWI-PATTERN-243",
+      "occurrences": 3,
+      "classes": "inline-flex items-center gap-2 text-sm font-black"
+    },
+    {
+      "id": "MWI-PATTERN-244",
+      "occurrences": 3,
+      "classes": "inline-flex min-h-7 items-center rounded-full border px-2.5 py-1 text-[11px] font-black"
+    },
+    {
+      "id": "MWI-PATTERN-245",
+      "occurrences": 3,
+      "classes": "inline-flex min-h-7 items-center rounded-full border px-2.5 text-xs font-black"
+    },
+    {
+      "id": "MWI-PATTERN-246",
+      "occurrences": 3,
+      "classes": "max-h-full object-contain drop-shadow-2xl"
+    },
+    {
+      "id": "MWI-PATTERN-247",
+      "occurrences": 3,
+      "classes": "max-w-6xl"
+    },
+    {
+      "id": "MWI-PATTERN-248",
+      "occurrences": 3,
+      "classes": "mb-3 flex flex-wrap items-center justify-between gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-249",
+      "occurrences": 3,
+      "classes": "mb-3 flex items-center justify-between gap-3"
+    },
+    {
+      "id": "MWI-PATTERN-250",
+      "occurrences": 3,
+      "classes": "min-h-11 rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+    },
+    {
+      "id": "MWI-PATTERN-251",
+      "occurrences": 3,
+      "classes": "min-w-0 p-4"
+    },
+    {
+      "id": "MWI-PATTERN-252",
+      "occurrences": 3,
+      "classes": "mt-1 block text-white"
+    },
+    {
+      "id": "MWI-PATTERN-253",
+      "occurrences": 3,
+      "classes": "mt-1 block text-xs font-bold text-slate-400"
+    },
+    {
+      "id": "MWI-PATTERN-254",
+      "occurrences": 3,
+      "classes": "mt-1 text-2xl font-black text-white"
+    },
+    {
+      "id": "MWI-PATTERN-255",
+      "occurrences": 3,
+      "classes": "mt-1 text-sm font-semibold text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-256",
+      "occurrences": 3,
+      "classes": "mt-1 text-xl font-black"
+    },
+    {
+      "id": "MWI-PATTERN-257",
+      "occurrences": 3,
+      "classes": "mt-2 max-w-3xl text-sm font-semibold leading-6 text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-258",
+      "occurrences": 3,
+      "classes": "mt-2 text-2xl font-black text-white"
+    },
+    {
+      "id": "MWI-PATTERN-259",
+      "occurrences": 3,
+      "classes": "mt-2 text-sm font-bold text-slate-400"
+    },
+    {
+      "id": "MWI-PATTERN-260",
+      "occurrences": 3,
+      "classes": "mt-2 text-sm font-semibold text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-261",
+      "occurrences": 3,
+      "classes": "mt-3 block text-3xl font-black"
+    },
+    {
+      "id": "MWI-PATTERN-262",
+      "occurrences": 3,
+      "classes": "mt-4"
+    },
+    {
+      "id": "MWI-PATTERN-263",
+      "occurrences": 3,
+      "classes": "mt-4 flex flex-wrap gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-264",
+      "occurrences": 3,
+      "classes": "mt-4 grid gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-265",
+      "occurrences": 3,
+      "classes": "mt-4 grid gap-3 md:grid-cols-2"
+    },
+    {
+      "id": "MWI-PATTERN-266",
+      "occurrences": 3,
+      "classes": "mt-4 rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400"
+    },
+    {
+      "id": "MWI-PATTERN-267",
+      "occurrences": 3,
+      "classes": "mt-4 space-y-2"
+    },
+    {
+      "id": "MWI-PATTERN-268",
+      "occurrences": 3,
+      "classes": "p-4 sm:p-5"
+    },
+    {
+      "id": "MWI-PATTERN-269",
+      "occurrences": 3,
+      "classes": "pl-11"
+    },
+    {
+      "id": "MWI-PATTERN-270",
+      "occurrences": 3,
+      "classes": "pokemon-interface-icon max-h-full object-contain"
+    },
+    {
+      "id": "MWI-PATTERN-271",
+      "occurrences": 3,
+      "classes": "relative z-10 max-h-28 object-contain drop-shadow-[0_18px_34px_rgba(0,0,0,.38)] transition duration-300 group-hover:scale-105"
+    },
+    {
+      "id": "MWI-PATTERN-272",
+      "occurrences": 3,
+      "classes": "rounded-2xl border border-white/10 bg-slate-950/35 p-3"
+    },
+    {
+      "id": "MWI-PATTERN-273",
+      "occurrences": 3,
+      "classes": "rounded-2xl border border-white/10 bg-white/[0.035] p-4"
+    },
+    {
+      "id": "MWI-PATTERN-274",
+      "occurrences": 3,
+      "classes": "rounded-2xl border border-white/10 bg-white/[0.045] p-4"
+    },
+    {
+      "id": "MWI-PATTERN-275",
+      "occurrences": 3,
+      "classes": "rounded-2xl border border-white/10 bg-white/[0.055] p-3"
+    },
+    {
+      "id": "MWI-PATTERN-276",
+      "occurrences": 3,
+      "classes": "space-y-3 border-t border-white/10 p-4"
+    },
+    {
+      "id": "MWI-PATTERN-277",
+      "occurrences": 3,
+      "classes": "text-brand bg-brand/10 border-brand/20"
+    },
+    {
+      "id": "MWI-PATTERN-278",
+      "occurrences": 3,
+      "classes": "text-brand-2 bg-brand-2/10 border-brand-2/20"
+    },
+    {
+      "id": "MWI-PATTERN-279",
+      "occurrences": 3,
+      "classes": "text-brand-3 bg-brand-3/10 border-brand-3/20"
+    },
+    {
+      "id": "MWI-PATTERN-280",
+      "occurrences": 3,
+      "classes": "text-danger"
+    },
+    {
+      "id": "MWI-PATTERN-281",
+      "occurrences": 3,
+      "classes": "text-emerald-200"
+    },
+    {
+      "id": "MWI-PATTERN-282",
+      "occurrences": 3,
+      "classes": "text-lg font-black text-white"
+    },
+    {
+      "id": "MWI-PATTERN-283",
+      "occurrences": 3,
+      "classes": "text-muted hover:text-foreground"
+    },
+    {
+      "id": "MWI-PATTERN-284",
+      "occurrences": 3,
+      "classes": "text-slate-500"
+    },
+    {
+      "id": "MWI-PATTERN-285",
+      "occurrences": 3,
+      "classes": "text-sm font-black"
+    },
+    {
+      "id": "MWI-PATTERN-286",
+      "occurrences": 3,
+      "classes": "text-sm font-bold text-slate-500"
+    },
+    {
+      "id": "MWI-PATTERN-287",
+      "occurrences": 3,
+      "classes": "text-warning bg-warning/10 border-warning/20"
+    },
+    {
+      "id": "MWI-PATTERN-288",
+      "occurrences": 3,
+      "classes": "text-white"
+    },
+    {
+      "id": "MWI-PATTERN-289",
+      "occurrences": 3,
+      "classes": "text-xl font-black"
+    },
+    {
+      "id": "MWI-PATTERN-290",
+      "occurrences": 3,
+      "classes": "text-xs font-black text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-291",
+      "occurrences": 3,
+      "classes": "text-xs font-black uppercase tracking-[0.16em] text-brand-2"
+    },
+    {
+      "id": "MWI-PATTERN-292",
+      "occurrences": 3,
+      "classes": "text-xs font-black uppercase tracking-[0.16em] text-slate-500"
+    },
+    {
+      "id": "MWI-PATTERN-293",
+      "occurrences": 3,
+      "classes": "text-xs font-black uppercase tracking-[0.22em] text-cyan-200/70"
+    },
+    {
+      "id": "MWI-PATTERN-294",
+      "occurrences": 3,
+      "classes": "transition"
+    },
+    {
+      "id": "MWI-PATTERN-295",
+      "occurrences": 3,
+      "classes": "truncate text-lg font-black text-white"
+    },
+    {
+      "id": "MWI-PATTERN-296",
+      "occurrences": 3,
+      "classes": "truncate text-sm font-black text-white"
+    },
+    {
+      "id": "MWI-PATTERN-297",
+      "occurrences": 2,
+      "classes": "absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-amber-100/25 bg-amber-300/18 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-amber-50"
+    },
+    {
+      "id": "MWI-PATTERN-298",
+      "occurrences": 2,
+      "classes": "absolute right-3 top-3 rounded-full border border-red-200/30 bg-red-400/16 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-red-50"
+    },
+    {
+      "id": "MWI-PATTERN-299",
+      "occurrences": 2,
+      "classes": "bg-emerald-400/15 text-emerald-100"
+    },
+    {
+      "id": "MWI-PATTERN-300",
+      "occurrences": 2,
+      "classes": "block font-black text-white"
+    },
+    {
+      "id": "MWI-PATTERN-301",
+      "occurrences": 2,
+      "classes": "block h-2 overflow-hidden rounded-full bg-white/10"
+    },
+    {
+      "id": "MWI-PATTERN-302",
+      "occurrences": 2,
+      "classes": "block h-2.5 overflow-hidden rounded-full bg-white/10"
+    },
+    {
+      "id": "MWI-PATTERN-303",
+      "occurrences": 2,
+      "classes": "block h-full rounded-full bg-gradient-to-r from-brand-2 via-brand to-brand-3"
+    },
+    {
+      "id": "MWI-PATTERN-304",
+      "occurrences": 2,
+      "classes": "block max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[clamp(1.6rem,3vw,2.75rem)] font-black leading-none text-white drop-shadow-[0_0_18px_rgba(255,255,255,.16)]"
+    },
+    {
+      "id": "MWI-PATTERN-305",
+      "occurrences": 2,
+      "classes": "block text-[10px] uppercase tracking-[0.16em] text-slate-500"
+    },
+    {
+      "id": "MWI-PATTERN-306",
+      "occurrences": 2,
+      "classes": "block text-[9px] font-black uppercase text-slate-500"
+    },
+    {
+      "id": "MWI-PATTERN-307",
+      "occurrences": 2,
+      "classes": "block text-sm"
+    },
+    {
+      "id": "MWI-PATTERN-308",
+      "occurrences": 2,
+      "classes": "block truncate text-[11px] font-bold text-cyan-100/65"
+    },
+    {
+      "id": "MWI-PATTERN-309",
+      "occurrences": 2,
+      "classes": "block truncate text-sm text-white"
+    },
+    {
+      "id": "MWI-PATTERN-310",
+      "occurrences": 2,
+      "classes": "block truncate text-xs font-black uppercase tracking-[0.18em] text-white/72"
+    },
+    {
+      "id": "MWI-PATTERN-311",
+      "occurrences": 2,
+      "classes": "border-amber-300/24 bg-amber-400/8"
+    },
+    {
+      "id": "MWI-PATTERN-312",
+      "occurrences": 2,
+      "classes": "border-amber-300/25 bg-amber-400/[0.06] shadow-[0_18px_60px_rgba(245,158,11,.08)]"
+    },
+    {
+      "id": "MWI-PATTERN-313",
+      "occurrences": 2,
+      "classes": "border-amber-300/25 bg-amber-400/12 text-amber-100"
+    },
+    {
+      "id": "MWI-PATTERN-314",
+      "occurrences": 2,
+      "classes": "border-brand-2/25 bg-brand-2/10 text-brand-2"
+    },
+    {
+      "id": "MWI-PATTERN-315",
+      "occurrences": 2,
+      "classes": "border-brand-2/40 bg-brand-2/15 text-brand-2"
+    },
+    {
+      "id": "MWI-PATTERN-316",
+      "occurrences": 2,
+      "classes": "border-brand-2/45 bg-brand-2/12 text-foreground"
+    },
+    {
+      "id": "MWI-PATTERN-317",
+      "occurrences": 2,
+      "classes": "border-brand-2/50 bg-brand-2/8"
+    },
+    {
+      "id": "MWI-PATTERN-318",
+      "occurrences": 2,
+      "classes": "border-cyan-200/50 bg-cyan-400/20 text-cyan-50"
+    },
+    {
+      "id": "MWI-PATTERN-319",
+      "occurrences": 2,
+      "classes": "border-cyan-300/24 bg-cyan-400/8"
+    },
+    {
+      "id": "MWI-PATTERN-320",
+      "occurrences": 2,
+      "classes": "border-cyan-300/25 bg-cyan-400/[0.06] shadow-[0_18px_60px_rgba(34,211,238,.08)]"
+    },
+    {
+      "id": "MWI-PATTERN-321",
+      "occurrences": 2,
+      "classes": "border-cyan-300/25 bg-cyan-400/12 text-cyan-100"
+    },
+    {
+      "id": "MWI-PATTERN-322",
+      "occurrences": 2,
+      "classes": "border-danger/45 bg-danger/12 text-danger"
+    },
+    {
+      "id": "MWI-PATTERN-323",
+      "occurrences": 2,
+      "classes": "border-emerald-300/24 bg-emerald-400/8"
+    },
+    {
+      "id": "MWI-PATTERN-324",
+      "occurrences": 2,
+      "classes": "border-emerald-300/25 bg-emerald-400/[0.06] shadow-[0_18px_60px_rgba(16,185,129,.08)]"
+    },
+    {
+      "id": "MWI-PATTERN-325",
+      "occurrences": 2,
+      "classes": "border-emerald-300/25 bg-emerald-400/12 text-emerald-100"
+    },
+    {
+      "id": "MWI-PATTERN-326",
+      "occurrences": 2,
+      "classes": "border-line bg-white/[0.045] text-muted hover:text-foreground"
+    },
+    {
+      "id": "MWI-PATTERN-327",
+      "occurrences": 2,
+      "classes": "border-rose-300/24 bg-rose-400/8"
+    },
+    {
+      "id": "MWI-PATTERN-328",
+      "occurrences": 2,
+      "classes": "border-rose-300/25 bg-rose-400/[0.06] shadow-[0_18px_60px_rgba(244,63,94,.08)]"
+    },
+    {
+      "id": "MWI-PATTERN-329",
+      "occurrences": 2,
+      "classes": "border-rose-300/25 bg-rose-400/12 text-rose-100"
+    },
+    {
+      "id": "MWI-PATTERN-330",
+      "occurrences": 2,
+      "classes": "border-sky-300/25 bg-sky-400/[0.06] shadow-[0_18px_60px_rgba(14,165,233,.08)]"
+    },
+    {
+      "id": "MWI-PATTERN-331",
+      "occurrences": 2,
+      "classes": "border-sky-300/25 bg-sky-400/12 text-sky-100"
+    },
+    {
+      "id": "MWI-PATTERN-332",
+      "occurrences": 2,
+      "classes": "border-t border-white/10 p-4"
+    },
+    {
+      "id": "MWI-PATTERN-333",
+      "occurrences": 2,
+      "classes": "border-violet-300/24 bg-violet-400/8"
+    },
+    {
+      "id": "MWI-PATTERN-334",
+      "occurrences": 2,
+      "classes": "border-violet-300/25 bg-violet-400/[0.06] shadow-[0_18px_60px_rgba(139,92,246,.08)]"
+    },
+    {
+      "id": "MWI-PATTERN-335",
+      "occurrences": 2,
+      "classes": "border-violet-300/25 bg-violet-400/12 text-violet-100"
+    },
+    {
+      "id": "MWI-PATTERN-336",
+      "occurrences": 2,
+      "classes": "border-white/10 bg-white/[0.045] hover:border-cyan-200/35"
+    },
+    {
+      "id": "MWI-PATTERN-337",
+      "occurrences": 2,
+      "classes": "fixed inset-0 z-[1200] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl"
+    },
+    {
+      "id": "MWI-PATTERN-338",
+      "occurrences": 2,
+      "classes": "flex cursor-pointer list-none items-center justify-between gap-3"
+    },
+    {
+      "id": "MWI-PATTERN-339",
+      "occurrences": 2,
+      "classes": "flex flex-col gap-3 md:flex-row md:items-start md:justify-between"
+    },
+    {
+      "id": "MWI-PATTERN-340",
+      "occurrences": 2,
+      "classes": "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+    },
+    {
+      "id": "MWI-PATTERN-341",
+      "occurrences": 2,
+      "classes": "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
+    },
+    {
+      "id": "MWI-PATTERN-342",
+      "occurrences": 2,
+      "classes": "flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-black/15 p-3"
+    },
+    {
+      "id": "MWI-PATTERN-343",
+      "occurrences": 2,
+      "classes": "flex flex-wrap items-center justify-end gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-344",
+      "occurrences": 2,
+      "classes": "flex flex-wrap items-end justify-between gap-3"
+    },
+    {
+      "id": "MWI-PATTERN-345",
+      "occurrences": 2,
+      "classes": "flex items-center gap-1"
+    },
+    {
+      "id": "MWI-PATTERN-346",
+      "occurrences": 2,
+      "classes": "flex items-center justify-between gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-347",
+      "occurrences": 2,
+      "classes": "flex items-center justify-between rounded-lg border border-line bg-white/[0.045] p-3"
+    },
+    {
+      "id": "MWI-PATTERN-348",
+      "occurrences": 2,
+      "classes": "flex items-center justify-between text-xs font-black"
+    },
+    {
+      "id": "MWI-PATTERN-349",
+      "occurrences": 2,
+      "classes": "flex items-start gap-3"
+    },
+    {
+      "id": "MWI-PATTERN-350",
+      "occurrences": 2,
+      "classes": "flex items-start justify-between gap-4 border-b border-white/10 bg-white/[0.04] p-5"
+    },
+    {
+      "id": "MWI-PATTERN-351",
+      "occurrences": 2,
+      "classes": "flex min-h-11 items-center gap-2 rounded-lg border border-line bg-white/[0.055] px-3 text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-352",
+      "occurrences": 2,
+      "classes": "flex min-w-0 flex-wrap items-center gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-353",
+      "occurrences": 2,
+      "classes": "flex rounded-lg border border-line bg-white/[0.045] p-1"
+    },
+    {
+      "id": "MWI-PATTERN-354",
+      "occurrences": 2,
+      "classes": "font-mono text-cyan-100"
+    },
+    {
+      "id": "MWI-PATTERN-355",
+      "occurrences": 2,
+      "classes": "font-mono text-sm font-black"
+    },
+    {
+      "id": "MWI-PATTERN-356",
+      "occurrences": 2,
+      "classes": "font-mono text-sm font-black text-brand-2"
+    },
+    {
+      "id": "MWI-PATTERN-357",
+      "occurrences": 2,
+      "classes": "font-mono text-sm font-black text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-358",
+      "occurrences": 2,
+      "classes": "font-mono text-sm font-black text-slate-300"
+    },
+    {
+      "id": "MWI-PATTERN-359",
+      "occurrences": 2,
+      "classes": "font-mono text-xs font-black text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-360",
+      "occurrences": 2,
+      "classes": "fr-FR"
+    },
+    {
+      "id": "MWI-PATTERN-361",
+      "occurrences": 2,
+      "classes": "grid cursor-pointer list-none gap-3 p-4 marker:hidden sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+    },
+    {
+      "id": "MWI-PATTERN-362",
+      "occurrences": 2,
+      "classes": "grid gap-1"
+    },
+    {
+      "id": "MWI-PATTERN-363",
+      "occurrences": 2,
+      "classes": "grid gap-2 sm:grid-cols-2 xl:grid-cols-4"
+    },
+    {
+      "id": "MWI-PATTERN-364",
+      "occurrences": 2,
+      "classes": "grid gap-2 sm:grid-cols-3"
+    },
+    {
+      "id": "MWI-PATTERN-365",
+      "occurrences": 2,
+      "classes": "grid gap-3 md:grid-cols-2"
+    },
+    {
+      "id": "MWI-PATTERN-366",
+      "occurrences": 2,
+      "classes": "grid gap-3 sm:grid-cols-2 2xl:grid-cols-4"
+    },
+    {
+      "id": "MWI-PATTERN-367",
+      "occurrences": 2,
+      "classes": "grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+    },
+    {
+      "id": "MWI-PATTERN-368",
+      "occurrences": 2,
+      "classes": "grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
+    },
+    {
+      "id": "MWI-PATTERN-369",
+      "occurrences": 2,
+      "classes": "grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+    },
+    {
+      "id": "MWI-PATTERN-370",
+      "occurrences": 2,
+      "classes": "grid gap-3 sm:grid-cols-3"
+    },
+    {
+      "id": "MWI-PATTERN-371",
+      "occurrences": 2,
+      "classes": "grid gap-4 lg:grid-cols-2"
+    },
+    {
+      "id": "MWI-PATTERN-372",
+      "occurrences": 2,
+      "classes": "grid grid-cols-3 gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-373",
+      "occurrences": 2,
+      "classes": "grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/10 text-white"
+    },
+    {
+      "id": "MWI-PATTERN-374",
+      "occurrences": 2,
+      "classes": "grid h-10 w-10 place-items-center rounded-lg bg-brand-2/10 text-brand-2"
+    },
+    {
+      "id": "MWI-PATTERN-375",
+      "occurrences": 2,
+      "classes": "grid h-10 w-10 place-items-center rounded-lg border border-brand-2/25 bg-brand-2/10 text-brand-2"
+    },
+    {
+      "id": "MWI-PATTERN-376",
+      "occurrences": 2,
+      "classes": "grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.06] text-xl font-black text-white hover:bg-white/10"
+    },
+    {
+      "id": "MWI-PATTERN-377",
+      "occurrences": 2,
+      "classes": "grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-brand to-brand-2 text-xs font-black text-white"
+    },
+    {
+      "id": "MWI-PATTERN-378",
+      "occurrences": 2,
+      "classes": "grid h-8 w-8 place-items-center rounded-lg text-muted transition hover:bg-danger/10 hover:text-danger"
+    },
+    {
+      "id": "MWI-PATTERN-379",
+      "occurrences": 2,
+      "classes": "grid min-h-[420px] place-items-center text-center text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-380",
+      "occurrences": 2,
+      "classes": "grid w-full grid-cols-[auto_1fr] gap-3 rounded-lg border p-3 text-left transition"
+    },
+    {
+      "id": "MWI-PATTERN-381",
+      "occurrences": 2,
+      "classes": "h-10 w-10 object-contain"
+    },
+    {
+      "id": "MWI-PATTERN-382",
+      "occurrences": 2,
+      "classes": "h-2 overflow-hidden rounded-full bg-white/10"
+    },
+    {
+      "id": "MWI-PATTERN-383",
+      "occurrences": 2,
+      "classes": "h-5 w-5 accent-emerald-400"
+    },
+    {
+      "id": "MWI-PATTERN-384",
+      "occurrences": 2,
+      "classes": "h-full rounded-full bg-gradient-to-r from-brand-3 to-brand-2"
+    },
+    {
+      "id": "MWI-PATTERN-385",
+      "occurrences": 2,
+      "classes": "h-full rounded-lg border border-line bg-white/[0.035]"
+    },
+    {
+      "id": "MWI-PATTERN-386",
+      "occurrences": 2,
+      "classes": "inline-flex items-center gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-387",
+      "occurrences": 2,
+      "classes": "inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-388",
+      "occurrences": 2,
+      "classes": "inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-cyan-100/75"
+    },
+    {
+      "id": "MWI-PATTERN-389",
+      "occurrences": 2,
+      "classes": "inline-flex items-center justify-end gap-2 text-xs font-black text-cyan-100"
+    },
+    {
+      "id": "MWI-PATTERN-390",
+      "occurrences": 2,
+      "classes": "inline-flex min-h-11 items-center justify-center rounded-2xl border border-cyan-200/30 bg-cyan-400/12 px-5 py-2 text-sm font-black text-cyan-50 transition hover:border-cyan-200/55 hover:bg-cyan-400/20"
+    },
+    {
+      "id": "MWI-PATTERN-391",
+      "occurrences": 2,
+      "classes": "max-h-[calc(100dvh-14rem)] overflow-y-auto p-5"
+    },
+    {
+      "id": "MWI-PATTERN-392",
+      "occurrences": 2,
+      "classes": "max-h-full object-contain drop-shadow-xl"
+    },
+    {
+      "id": "MWI-PATTERN-393",
+      "occurrences": 2,
+      "classes": "max-w-2xl"
+    },
+    {
+      "id": "MWI-PATTERN-394",
+      "occurrences": 2,
+      "classes": "mb-1 text-xs font-black uppercase tracking-[0.22em] text-cyan-200/70"
+    },
+    {
+      "id": "MWI-PATTERN-395",
+      "occurrences": 2,
+      "classes": "mb-1 text-xs font-black uppercase tracking-[0.24em] text-cyan-200/70"
+    },
+    {
+      "id": "MWI-PATTERN-396",
+      "occurrences": 2,
+      "classes": "mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500"
+    },
+    {
+      "id": "MWI-PATTERN-397",
+      "occurrences": 2,
+      "classes": "mb-3 flex items-center justify-between gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-398",
+      "occurrences": 2,
+      "classes": "mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
+    },
+    {
+      "id": "MWI-PATTERN-399",
+      "occurrences": 2,
+      "classes": "mb-4 flex flex-wrap items-start justify-between gap-3"
+    },
+    {
+      "id": "MWI-PATTERN-400",
+      "occurrences": 2,
+      "classes": "mb-4 flex items-center justify-between gap-3"
+    },
+    {
+      "id": "MWI-PATTERN-401",
+      "occurrences": 2,
+      "classes": "min-w-0 flex-1"
+    },
+    {
+      "id": "MWI-PATTERN-402",
+      "occurrences": 2,
+      "classes": "min-w-0 overflow-hidden p-4"
+    },
+    {
+      "id": "MWI-PATTERN-403",
+      "occurrences": 2,
+      "classes": "min-w-0 overflow-hidden rounded-lg border border-line bg-black/15 p-3 sm:p-4"
+    },
+    {
+      "id": "MWI-PATTERN-404",
+      "occurrences": 2,
+      "classes": "min-w-0 p-4 sm:p-5"
+    },
+    {
+      "id": "MWI-PATTERN-405",
+      "occurrences": 2,
+      "classes": "min-w-0 space-y-2"
+    },
+    {
+      "id": "MWI-PATTERN-406",
+      "occurrences": 2,
+      "classes": "motion-border p-4"
+    },
+    {
+      "id": "MWI-PATTERN-407",
+      "occurrences": 2,
+      "classes": "mt-0.5 shrink-0"
+    },
+    {
+      "id": "MWI-PATTERN-408",
+      "occurrences": 2,
+      "classes": "mt-1 block text-2xl font-black text-white"
+    },
+    {
+      "id": "MWI-PATTERN-409",
+      "occurrences": 2,
+      "classes": "mt-1 block text-3xl font-black"
+    },
+    {
+      "id": "MWI-PATTERN-410",
+      "occurrences": 2,
+      "classes": "mt-1 block text-3xl font-black text-white"
+    },
+    {
+      "id": "MWI-PATTERN-411",
+      "occurrences": 2,
+      "classes": "mt-1 block truncate text-xs font-bold text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-412",
+      "occurrences": 2,
+      "classes": "mt-1 flex flex-wrap items-center gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-413",
+      "occurrences": 2,
+      "classes": "mt-1 text-sm font-bold text-slate-300"
+    },
+    {
+      "id": "MWI-PATTERN-414",
+      "occurrences": 2,
+      "classes": "mt-1 text-sm font-semibold leading-6 text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-415",
+      "occurrences": 2,
+      "classes": "mt-1 truncate text-[11px] font-bold text-cyan-100/65"
+    },
+    {
+      "id": "MWI-PATTERN-416",
+      "occurrences": 2,
+      "classes": "mt-2 block text-sm leading-6"
+    },
+    {
+      "id": "MWI-PATTERN-417",
+      "occurrences": 2,
+      "classes": "mt-2 block text-white"
+    },
+    {
+      "id": "MWI-PATTERN-418",
+      "occurrences": 2,
+      "classes": "mt-2 inline-flex items-center gap-1 text-xs font-black text-cyan-100 hover:text-white"
+    },
+    {
+      "id": "MWI-PATTERN-419",
+      "occurrences": 2,
+      "classes": "mt-2 line-clamp-2 text-xs font-semibold leading-5 text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-420",
+      "occurrences": 2,
+      "classes": "mt-2 max-w-3xl text-sm font-bold leading-6 text-slate-400"
+    },
+    {
+      "id": "MWI-PATTERN-421",
+      "occurrences": 2,
+      "classes": "mt-2 space-y-1 text-sm font-semibold text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-422",
+      "occurrences": 2,
+      "classes": "mt-2 space-y-2"
+    },
+    {
+      "id": "MWI-PATTERN-423",
+      "occurrences": 2,
+      "classes": "mt-2 text-2xl font-black"
+    },
+    {
+      "id": "MWI-PATTERN-424",
+      "occurrences": 2,
+      "classes": "mt-2 text-lg font-black"
+    },
+    {
+      "id": "MWI-PATTERN-425",
+      "occurrences": 2,
+      "classes": "mt-2 text-xl font-black"
+    },
+    {
+      "id": "MWI-PATTERN-426",
+      "occurrences": 2,
+      "classes": "mt-3 block"
+    },
+    {
+      "id": "MWI-PATTERN-427",
+      "occurrences": 2,
+      "classes": "mt-3 block break-words text-lg font-black text-white"
+    },
+    {
+      "id": "MWI-PATTERN-428",
+      "occurrences": 2,
+      "classes": "mt-3 font-mono text-3xl font-black leading-none"
+    },
+    {
+      "id": "MWI-PATTERN-429",
+      "occurrences": 2,
+      "classes": "mt-3 grid gap-2 sm:grid-cols-2"
+    },
+    {
+      "id": "MWI-PATTERN-430",
+      "occurrences": 2,
+      "classes": "mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3"
+    },
+    {
+      "id": "MWI-PATTERN-431",
+      "occurrences": 2,
+      "classes": "mt-3 grid gap-3"
+    },
+    {
+      "id": "MWI-PATTERN-432",
+      "occurrences": 2,
+      "classes": "mt-3 grid grid-cols-2 gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-433",
+      "occurrences": 2,
+      "classes": "mt-3 h-2 overflow-hidden rounded-full bg-white/10"
+    },
+    {
+      "id": "MWI-PATTERN-434",
+      "occurrences": 2,
+      "classes": "mt-3 rounded-2xl border border-white/10 bg-slate-950/35 p-3"
+    },
+    {
+      "id": "MWI-PATTERN-435",
+      "occurrences": 2,
+      "classes": "mt-3 text-sm font-black"
+    },
+    {
+      "id": "MWI-PATTERN-436",
+      "occurrences": 2,
+      "classes": "mt-3 text-sm font-bold leading-6 text-slate-300"
+    },
+    {
+      "id": "MWI-PATTERN-437",
+      "occurrences": 2,
+      "classes": "mt-3 text-sm font-bold text-slate-300"
+    },
+    {
+      "id": "MWI-PATTERN-438",
+      "occurrences": 2,
+      "classes": "mt-3 text-xl font-black"
+    },
+    {
+      "id": "MWI-PATTERN-439",
+      "occurrences": 2,
+      "classes": "mt-4 flex items-center justify-between gap-3 text-xs font-black text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-440",
+      "occurrences": 2,
+      "classes": "mt-4 flex min-h-11 items-center gap-2 rounded-lg border border-line bg-white/[0.055] px-3 text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-441",
+      "occurrences": 2,
+      "classes": "mt-4 text-sm font-black leading-6"
+    },
+    {
+      "id": "MWI-PATTERN-442",
+      "occurrences": 2,
+      "classes": "mt-5"
+    },
+    {
+      "id": "MWI-PATTERN-443",
+      "occurrences": 2,
+      "classes": "mt-5 flex items-center justify-between gap-3"
+    },
+    {
+      "id": "MWI-PATTERN-444",
+      "occurrences": 2,
+      "classes": "mt-5 flex justify-center"
+    },
+    {
+      "id": "MWI-PATTERN-445",
+      "occurrences": 2,
+      "classes": "mt-5 flex justify-end gap-2"
+    },
+    {
+      "id": "MWI-PATTERN-446",
+      "occurrences": 2,
+      "classes": "mt-5 grid gap-3 sm:grid-cols-[1fr_auto]"
+    },
+    {
+      "id": "MWI-PATTERN-447",
+      "occurrences": 2,
+      "classes": "mt-6 h-72 min-h-72 min-w-0"
+    },
+    {
+      "id": "MWI-PATTERN-448",
+      "occurrences": 2,
+      "classes": "overflow-hidden rounded-3xl border border-white/10 bg-slate-950/40"
+    },
+    {
+      "id": "MWI-PATTERN-449",
+      "occurrences": 2,
+      "classes": "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.22),transparent_34%),linear-gradient(135deg,rgba(255,255,255,.1),transparent_45%)]"
+    },
+    {
+      "id": "MWI-PATTERN-450",
+      "occurrences": 2,
+      "classes": "relative block"
+    },
+    {
+      "id": "MWI-PATTERN-451",
+      "occurrences": 2,
+      "classes": "relative grid min-w-0 grid-cols-[3rem_minmax(0,1fr)] items-center gap-3"
+    },
+    {
+      "id": "MWI-PATTERN-452",
+      "occurrences": 2,
+      "classes": "relative min-w-0 overflow-hidden rounded-2xl border bg-gradient-to-br p-3 shadow-[0_18px_65px_rgba(0,0,0,.22)]"
+    },
+    {
+      "id": "MWI-PATTERN-453",
+      "occurrences": 2,
+      "classes": "relative mt-1 block text-sm font-black text-white"
+    },
+    {
+      "id": "MWI-PATTERN-454",
+      "occurrences": 2,
+      "classes": "relative mt-3 truncate text-xs font-bold text-white/70"
+    },
+    {
+      "id": "MWI-PATTERN-455",
+      "occurrences": 2,
+      "classes": "relative z-[1001] max-h-[calc(100dvh-2rem)] w-full max-w-5xl overflow-hidden rounded-3xl border border-white/10 bg-slate-950 shadow-[0_24px_120px_rgba(0,0,0,.5)] sm:max-h-[calc(100dvh-3rem)]"
+    },
+    {
+      "id": "MWI-PATTERN-456",
+      "occurrences": 2,
+      "classes": "relative z-10 flex items-start justify-between gap-3"
+    },
+    {
+      "id": "MWI-PATTERN-457",
+      "occurrences": 2,
+      "classes": "rounded-2xl border border-dashed border-white/12 p-8 text-center font-bold text-slate-400"
+    },
+    {
+      "id": "MWI-PATTERN-458",
+      "occurrences": 2,
+      "classes": "rounded-2xl border border-white/10 bg-white/[0.055] p-3 text-sm font-black text-slate-200"
+    },
+    {
+      "id": "MWI-PATTERN-459",
+      "occurrences": 2,
+      "classes": "rounded-full border border-amber-300/25 bg-amber-400/10 px-3 py-2 text-xs font-black text-amber-100"
+    },
+    {
+      "id": "MWI-PATTERN-460",
+      "occurrences": 2,
+      "classes": "rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1 text-xs font-black text-amber-100"
+    },
+    {
+      "id": "MWI-PATTERN-461",
+      "occurrences": 2,
+      "classes": "rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-cyan-100"
+    },
+    {
+      "id": "MWI-PATTERN-462",
+      "occurrences": 2,
+      "classes": "rounded-full border border-line bg-white/[0.06] px-2 py-1 font-mono text-xs font-black text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-463",
+      "occurrences": 2,
+      "classes": "rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-slate-300"
+    },
+    {
+      "id": "MWI-PATTERN-464",
+      "occurrences": 2,
+      "classes": "rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-bold text-slate-200"
+    },
+    {
+      "id": "MWI-PATTERN-465",
+      "occurrences": 2,
+      "classes": "rounded-full border px-2 py-1 text-[10px] font-black"
+    },
+    {
+      "id": "MWI-PATTERN-466",
+      "occurrences": 2,
+      "classes": "rounded-full border px-3 py-2 text-xs font-black transition"
+    },
+    {
+      "id": "MWI-PATTERN-467",
+      "occurrences": 2,
+      "classes": "rounded-lg border border-line bg-black/15 p-4"
+    },
+    {
+      "id": "MWI-PATTERN-468",
+      "occurrences": 2,
+      "classes": "rounded-lg border border-line bg-white/[0.04] p-4 text-sm font-bold text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-469",
+      "occurrences": 2,
+      "classes": "rounded-lg border border-line bg-white/[0.045] p-3 text-sm font-semibold text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-470",
+      "occurrences": 2,
+      "classes": "rounded-lg border border-line bg-white/[0.055] p-3"
+    },
+    {
+      "id": "MWI-PATTERN-471",
+      "occurrences": 2,
+      "classes": "rounded-lg border p-3"
+    },
+    {
+      "id": "MWI-PATTERN-472",
+      "occurrences": 2,
+      "classes": "rounded-lg border px-4 py-2 text-sm font-black transition"
+    },
+    {
+      "id": "MWI-PATTERN-473",
+      "occurrences": 2,
+      "classes": "rounded-xl border border-white/10 bg-slate-950/35 px-3 py-2"
+    },
+    {
+      "id": "MWI-PATTERN-474",
+      "occurrences": 2,
+      "classes": "shrink-0"
+    },
+    {
+      "id": "MWI-PATTERN-475",
+      "occurrences": 2,
+      "classes": "shrink-0 text-left md:text-right"
+    },
+    {
+      "id": "MWI-PATTERN-476",
+      "occurrences": 2,
+      "classes": "sm:grid-cols-2"
+    },
+    {
+      "id": "MWI-PATTERN-477",
+      "occurrences": 2,
+      "classes": "sm:grid-cols-2 xl:grid-cols-3"
+    },
+    {
+      "id": "MWI-PATTERN-478",
+      "occurrences": 2,
+      "classes": "space-y-6"
+    },
+    {
+      "id": "MWI-PATTERN-479",
+      "occurrences": 2,
+      "classes": "text-[10px] font-black uppercase tracking-[0.22em] text-cyan-100/62"
+    },
+    {
+      "id": "MWI-PATTERN-480",
+      "occurrences": 2,
+      "classes": "text-[9px] font-black text-amber-200"
+    },
+    {
+      "id": "MWI-PATTERN-481",
+      "occurrences": 2,
+      "classes": "text-amber-100"
+    },
+    {
+      "id": "MWI-PATTERN-482",
+      "occurrences": 2,
+      "classes": "text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-483",
+      "occurrences": 2,
+      "classes": "text-slate-400"
+    },
+    {
+      "id": "MWI-PATTERN-484",
+      "occurrences": 2,
+      "classes": "text-sm font-bold text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-485",
+      "occurrences": 2,
+      "classes": "text-sm font-bold text-slate-400"
+    },
+    {
+      "id": "MWI-PATTERN-486",
+      "occurrences": 2,
+      "classes": "text-sm font-semibold text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-487",
+      "occurrences": 2,
+      "classes": "text-xl font-black tracking-tight text-white sm:text-2xl"
+    },
+    {
+      "id": "MWI-PATTERN-488",
+      "occurrences": 2,
+      "classes": "text-xs font-black text-cyan-100 underline-offset-4 hover:underline"
+    },
+    {
+      "id": "MWI-PATTERN-489",
+      "occurrences": 2,
+      "classes": "text-xs font-black uppercase tracking-[0.14em] text-brand-3"
+    },
+    {
+      "id": "MWI-PATTERN-490",
+      "occurrences": 2,
+      "classes": "text-xs font-black uppercase tracking-[0.18em] text-slate-500"
+    },
+    {
+      "id": "MWI-PATTERN-491",
+      "occurrences": 2,
+      "classes": "text-xs font-black uppercase tracking-[0.22em] text-cyan-100/70"
+    },
+    {
+      "id": "MWI-PATTERN-492",
+      "occurrences": 2,
+      "classes": "text-xs font-black uppercase tracking-[0.22em] text-cyan-200/75"
+    },
+    {
+      "id": "MWI-PATTERN-493",
+      "occurrences": 2,
+      "classes": "text-xs font-bold text-muted"
+    },
+    {
+      "id": "MWI-PATTERN-494",
+      "occurrences": 2,
+      "classes": "transition group-open:rotate-180"
+    },
+    {
+      "id": "MWI-PATTERN-495",
+      "occurrences": 2,
+      "classes": "truncate text-sm font-black"
+    },
+    {
+      "id": "MWI-PATTERN-496",
+      "occurrences": 2,
+      "classes": "w-full rounded-lg border p-3 text-left transition"
+    }
+  ],
+  "renderHelpers": [
+    {
+      "name": "renderInlineMarkdown",
+      "file": "/Users/matthieuvachet/Desktop/Workflow/Dashboard Admin/src/components/admin/learning/learning-detail-modal.tsx",
+      "lineStart": 323,
+      "lineEnd": 329,
+      "signature": "value: string",
+      "source": "function renderInlineMarkdown(value: string) {\n  return value.split(/(\\*\\*[^*]+\\*\\*|`[^`]+`)/g).filter(Boolean).map((part, index) => {\n    if (part.startsWith(\"**\") && part.endsWith(\"**\")) return <strong className=\"font-black text-foreground\" key={`${part}-${index}`}>{part.slice(2, -2)}</strong>;\n    if (part.startsWith(\"`\") && part.endsWith(\"`\")) return <code className=\"rounded bg-white/[0.08] px-1.5 py-0.5 font-mono text-xs text-brand-2\" key={`${part}-${index}`}>{part.slice(1, -1)}</code>;\n    return part;\n  });\n}"
+    }
+  ]
+}

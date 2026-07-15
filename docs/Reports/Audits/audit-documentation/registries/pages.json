@@ -1,0 +1,844 @@
+{
+  "auditVersion": "1.0.0",
+  "generatedAt": "2026-07-14",
+  "postAuditAddendum": "34-post-audit-changes.md",
+  "scope": "All active application pages plus Dashboard embedded sections",
+  "counts": {
+    "routedPages": 20,
+    "publicPagesOtherProjects": 5,
+    "pokemonAdminSections": 26,
+    "total": 51
+  },
+  "entries": [
+    {
+      "id": "PAGE-001",
+      "kind": "route",
+      "name": "Connexion",
+      "route": "/login",
+      "file": "Dashboard Admin/src/app/login/page.tsx",
+      "component": "LoginPage",
+      "auth": "public",
+      "visibility": "public-login",
+      "dataSources": [
+        "POST /api/session"
+      ],
+      "status": "active",
+      "evidence": "page.tsx:7-94"
+    },
+    {
+      "id": "PAGE-002",
+      "kind": "route",
+      "name": "Accueil",
+      "route": "/",
+      "file": "Dashboard Admin/src/app/(dashboard)/page.tsx",
+      "component": "DashboardHomeLive",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "localStorage",
+        "GET /api/pokemon-stats"
+      ],
+      "status": "active",
+      "evidence": "page.tsx:1-5"
+    },
+    {
+      "id": "PAGE-003",
+      "kind": "route",
+      "name": "Analytics",
+      "route": "/analytics",
+      "file": "Dashboard Admin/src/app/(dashboard)/analytics/page.tsx",
+      "component": "LearningAnalytics",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "localStorage",
+        "learning data"
+      ],
+      "status": "active",
+      "evidence": "page.tsx:1-5"
+    },
+    {
+      "id": "PAGE-004",
+      "kind": "route",
+      "name": "Outils",
+      "route": "/tools",
+      "file": "Dashboard Admin/src/app/(dashboard)/tools/page.tsx",
+      "component": "DailyTools",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "localStorage matweb.tools.*"
+      ],
+      "status": "active",
+      "evidence": "page.tsx:1-5"
+    },
+    {
+      "id": "PAGE-005",
+      "kind": "route",
+      "name": "Dashboard Backlog",
+      "route": "/tools/dashboard-backlog",
+      "file": "Dashboard Admin/src/app/(dashboard)/tools/dashboard-backlog/page.tsx",
+      "component": "DashboardBacklog",
+      "auth": "session+handler",
+      "visibility": "private",
+      "dataSources": [
+        "/api/dashboard-backlog",
+        "MongoDB or fallback"
+      ],
+      "status": "active",
+      "evidence": "page.tsx:1-5"
+    },
+    {
+      "id": "PAGE-006",
+      "kind": "route",
+      "name": "Admin Pokémon",
+      "route": "/pokemon-admin",
+      "file": "Dashboard Admin/src/app/(dashboard)/pokemon-admin/page.tsx",
+      "component": "PokemonAdminStudio",
+      "auth": "session+server-secret-for-mutations",
+      "visibility": "private",
+      "dataSources": [
+        "/api/pokemon-admin",
+        "PokemonGo-API",
+        "MongoDB",
+        "PokemonGo-Data snapshot",
+        "PokemonGo-Assets-API"
+      ],
+      "status": "active",
+      "evidence": "page.tsx:1-9"
+    },
+    {
+      "id": "PAGE-007",
+      "kind": "route",
+      "name": "Docs JSON",
+      "route": "/pokemon-docs",
+      "file": "Dashboard Admin/src/app/(dashboard)/pokemon-docs/page.tsx",
+      "component": "PokemonDocsPage",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "src/data/pokemon-docs/*.md",
+        "/api/pokemon-api-health",
+        "/api/pokemon-api-proxy"
+      ],
+      "status": "active",
+      "evidence": "page.tsx:1-61"
+    },
+    {
+      "id": "PAGE-008",
+      "kind": "route",
+      "name": "Notes",
+      "route": "/notes",
+      "file": "Dashboard Admin/src/app/(dashboard)/notes/page.tsx",
+      "component": "NotesBoard",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "localStorage matweb.notes"
+      ],
+      "status": "active",
+      "evidence": "page.tsx:1-5"
+    },
+    {
+      "id": "PAGE-009",
+      "kind": "route",
+      "name": "Kanban",
+      "route": "/kanban",
+      "file": "Dashboard Admin/src/app/(dashboard)/kanban/page.tsx",
+      "component": "KanbanBoard",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "localStorage matweb.kanban"
+      ],
+      "status": "active",
+      "evidence": "page.tsx:1-5"
+    },
+    {
+      "id": "PAGE-010",
+      "kind": "route",
+      "name": "Projets",
+      "route": "/projects",
+      "file": "Dashboard Admin/src/app/(dashboard)/projects/page.tsx",
+      "component": "ProjectsPage",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "localStorage matweb.projects",
+        "javascript learning defaults"
+      ],
+      "status": "active",
+      "evidence": "page.tsx:51-108"
+    },
+    {
+      "id": "PAGE-011",
+      "kind": "route",
+      "name": "Calendrier",
+      "route": "/calendar",
+      "file": "Dashboard Admin/src/app/(dashboard)/calendar/page.tsx",
+      "component": "CalendarPlanner",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "localStorage matweb.calendar"
+      ],
+      "status": "active",
+      "evidence": "page.tsx:1-5"
+    },
+    {
+      "id": "PAGE-012",
+      "kind": "route",
+      "name": "Todo",
+      "route": "/todo",
+      "file": "Dashboard Admin/src/app/(dashboard)/todo/page.tsx",
+      "component": "TodoList",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "localStorage matweb.todos"
+      ],
+      "status": "active",
+      "evidence": "page.tsx:1-5"
+    },
+    {
+      "id": "PAGE-013",
+      "kind": "route",
+      "name": "Texte",
+      "route": "/writer",
+      "file": "Dashboard Admin/src/app/(dashboard)/writer/page.tsx",
+      "component": "WriterStudio",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "localStorage"
+      ],
+      "status": "active",
+      "evidence": "page.tsx:1-5"
+    },
+    {
+      "id": "PAGE-014",
+      "kind": "route",
+      "name": "JS Progress",
+      "route": "/js-progress",
+      "file": "Dashboard Admin/src/app/(dashboard)/js-progress/page.tsx",
+      "component": "JsProgress",
+      "auth": "session+handler",
+      "visibility": "private",
+      "dataSources": [
+        "/api/learning/*",
+        "src/data/learning"
+      ],
+      "status": "active",
+      "evidence": "page.tsx:1-5"
+    },
+    {
+      "id": "PAGE-015",
+      "kind": "route",
+      "name": "Pomodoro",
+      "route": "/pomodoro",
+      "file": "Dashboard Admin/src/app/(dashboard)/pomodoro/page.tsx",
+      "component": "Pomodoro",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "client state/local storage to verify"
+      ],
+      "status": "active",
+      "evidence": "page.tsx:1-5"
+    },
+    {
+      "id": "PAGE-016",
+      "kind": "route",
+      "name": "Exercices JS",
+      "route": "/exercices-javascript",
+      "file": "Dashboard Admin/src/app/(dashboard)/exercices-javascript/page.tsx",
+      "component": "JavaScriptExercises",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "learning data"
+      ],
+      "status": "active",
+      "evidence": "page.tsx:1-5"
+    },
+    {
+      "id": "PAGE-017",
+      "kind": "route",
+      "name": "Snippets",
+      "route": "/snippets",
+      "file": "Dashboard Admin/src/app/(dashboard)/snippets/page.tsx",
+      "component": "SnippetVault",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "localStorage matweb.tools.snippets"
+      ],
+      "status": "active",
+      "evidence": "page.tsx:1-5"
+    },
+    {
+      "id": "PAGE-018",
+      "kind": "route",
+      "name": "Couleurs",
+      "route": "/palette",
+      "file": "Dashboard Admin/src/app/(dashboard)/palette/page.tsx",
+      "component": "ColorLab",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "localStorage matweb.palette.swatches"
+      ],
+      "status": "active",
+      "evidence": "page.tsx:1-5"
+    },
+    {
+      "id": "PAGE-019",
+      "kind": "route",
+      "name": "Mongo DB",
+      "route": "/database",
+      "file": "Dashboard Admin/src/app/(dashboard)/database/page.tsx",
+      "component": "DatabaseStats",
+      "auth": "session+handler",
+      "visibility": "private",
+      "dataSources": [
+        "GET /api/database-stats"
+      ],
+      "status": "active",
+      "evidence": "page.tsx:1-5"
+    },
+    {
+      "id": "PAGE-020",
+      "kind": "route",
+      "name": "Compte",
+      "route": "/account",
+      "file": "Dashboard Admin/src/app/(dashboard)/account/page.tsx",
+      "component": "AccountPage",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "server session",
+        "local preferences description"
+      ],
+      "status": "active-not-in-sidebar",
+      "evidence": "page.tsx:7-64"
+    },
+    {
+      "id": "PAGE-021",
+      "kind": "embedded-section",
+      "name": "Accueil Pokémon",
+      "route": "/pokemon-admin?section=overview",
+      "sectionId": "overview",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "inline+SortableWidgetGrid",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "pokemon bootstrap",
+        "local widget order"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:1929-1962"
+    },
+    {
+      "id": "PAGE-022",
+      "kind": "embedded-section",
+      "name": "Fiches Pokémon",
+      "route": "/pokemon-admin?section=pokedex",
+      "sectionId": "pokedex",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "PokemonCard list",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "/api/pokemon-admin"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:1964-2036"
+    },
+    {
+      "id": "PAGE-023",
+      "kind": "embedded-section",
+      "name": "Candies",
+      "route": "/pokemon-admin?section=candies",
+      "sectionId": "candies",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "CandyPanel",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "pokemon entries",
+        "candy assets"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2038-2040"
+    },
+    {
+      "id": "PAGE-024",
+      "kind": "embedded-section",
+      "name": "Background",
+      "route": "/pokemon-admin?section=backgrounds",
+      "sectionId": "backgrounds",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "BackgroundPanel",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "LocationCards",
+        "pokemon asset links"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2042-2051"
+    },
+    {
+      "id": "PAGE-025",
+      "kind": "embedded-section",
+      "name": "Collections",
+      "route": "/pokemon-admin?section=collections",
+      "sectionId": "collections",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "CollectionsPanel",
+      "auth": "session",
+      "visibility": "private-local",
+      "dataSources": [
+        "localStorage collections",
+        "pokemon entries"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2053-2061"
+    },
+    {
+      "id": "PAGE-026",
+      "kind": "embedded-section",
+      "name": "Assets",
+      "route": "/pokemon-admin?section=assets",
+      "sectionId": "assets",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "inline asset audit",
+      "auth": "session",
+      "visibility": "private-ui/public-assets",
+      "dataSources": [
+        "/api/pokemon-admin?action=assets",
+        "PokemonGo-Assets-API"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2161-2238"
+    },
+    {
+      "id": "PAGE-027",
+      "kind": "embedded-section",
+      "name": "Catalogues",
+      "route": "/pokemon-admin?section=catalogs",
+      "sectionId": "catalogs",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "CatalogPanel",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "/api/pokemon-admin?action=catalog"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2283"
+    },
+    {
+      "id": "PAGE-028",
+      "kind": "embedded-section",
+      "name": "Raids",
+      "route": "/pokemon-admin?section=raids",
+      "sectionId": "raids",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "RaidsPanel",
+      "auth": "session+secret-for-regenerate",
+      "visibility": "public-dataset/private-mutation",
+      "dataSources": [
+        "PokemonGo-API raids current"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2063-2075"
+    },
+    {
+      "id": "PAGE-029",
+      "kind": "embedded-section",
+      "name": "Max Battles",
+      "route": "/pokemon-admin?section=max-battles",
+      "sectionId": "max-battles",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "MaxBattlesPanel",
+      "auth": "session+secret-for-regenerate",
+      "visibility": "public-dataset/private-mutation",
+      "dataSources": [
+        "PokemonGo-API max-battles current"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2090-2101"
+    },
+    {
+      "id": "PAGE-030",
+      "kind": "embedded-section",
+      "name": "Rocket",
+      "route": "/pokemon-admin?section=rocket",
+      "sectionId": "rocket",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "RocketPanel",
+      "auth": "session+secret-for-regenerate",
+      "visibility": "public-dataset/private-mutation",
+      "dataSources": [
+        "PokemonGo-API rocket current",
+        "rocket-texts"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2103-2114"
+    },
+    {
+      "id": "PAGE-031",
+      "kind": "embedded-section",
+      "name": "PvP Rankings",
+      "route": "/pokemon-admin?section=pvp-rankings",
+      "sectionId": "pvp-rankings",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "PvpRankingsPanel",
+      "auth": "session+secret-for-regenerate",
+      "visibility": "public-dataset/private-mutation",
+      "dataSources": [
+        "PokemonGo-API pvp-rankings"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2143-2155"
+    },
+    {
+      "id": "PAGE-032",
+      "kind": "embedded-section",
+      "name": "Œufs",
+      "route": "/pokemon-admin?section=eggs",
+      "sectionId": "eggs",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "EggsPanel",
+      "auth": "session+secret-for-regenerate",
+      "visibility": "public-dataset/private-mutation",
+      "dataSources": [
+        "PokemonGo-API eggs current"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2077-2088"
+    },
+    {
+      "id": "PAGE-033",
+      "kind": "embedded-section",
+      "name": "Research",
+      "route": "/pokemon-admin?section=research",
+      "sectionId": "research",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "ResearchPanel",
+      "auth": "session+secret-for-regenerate",
+      "visibility": "public-dataset/private-mutation",
+      "dataSources": [
+        "PokemonGo-API research current",
+        "items"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2116-2126"
+    },
+    {
+      "id": "PAGE-034",
+      "kind": "embedded-section",
+      "name": "Calendrier Events",
+      "route": "/pokemon-admin?section=events",
+      "sectionId": "events",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "EventsCalendarPanel",
+      "auth": "session+admin-handlers",
+      "visibility": "private-ui/public-read-api",
+      "dataSources": [
+        "/api/events",
+        "/api/admin/events"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2157-2159"
+    },
+    {
+      "id": "PAGE-035",
+      "kind": "embedded-section",
+      "name": "Shiny Tracker",
+      "route": "/pokemon-admin?section=shiny",
+      "sectionId": "shiny",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "ShinyTrackerPanel",
+      "auth": "session+server-secret",
+      "visibility": "private",
+      "dataSources": [
+        "PokemonGo-API shiny",
+        "shiny history"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2128-2141"
+    },
+    {
+      "id": "PAGE-036",
+      "kind": "embedded-section",
+      "name": "Contrôles",
+      "route": "/pokemon-admin?section=checks",
+      "sectionId": "checks",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "ControlCardsPanel",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "pokemon diagnostics",
+        "custom rules"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2240-2252"
+    },
+    {
+      "id": "PAGE-037",
+      "kind": "embedded-section",
+      "name": "Veille",
+      "route": "/pokemon-admin?section=sources",
+      "sectionId": "sources",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "SourceRows",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "source-watch",
+        "source history"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2254-2271"
+    },
+    {
+      "id": "PAGE-038",
+      "kind": "embedded-section",
+      "name": "Comparaison",
+      "route": "/pokemon-admin?section=compare",
+      "sectionId": "compare",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "inline comparison",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "loaded pokemon entries"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2285-2320"
+    },
+    {
+      "id": "PAGE-039",
+      "kind": "embedded-section",
+      "name": "Todo-list Pokémon",
+      "route": "/pokemon-admin?section=todo",
+      "sectionId": "todo",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "AdminTodoPanel",
+      "auth": "session",
+      "visibility": "private-local",
+      "dataSources": [
+        "localStorage legacy/current"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2395"
+    },
+    {
+      "id": "PAGE-040",
+      "kind": "embedded-section",
+      "name": "Logs & MAJ",
+      "route": "/pokemon-admin?section=logs",
+      "sectionId": "logs",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "UpdateLogPanel",
+      "auth": "session",
+      "visibility": "private",
+      "dataSources": [
+        "git history",
+        "source history",
+        "deploy history"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2273-2281"
+    },
+    {
+      "id": "PAGE-041",
+      "kind": "embedded-section",
+      "name": "Règles JSON",
+      "route": "/pokemon-admin?section=rules",
+      "sectionId": "rules",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "RulesPanel",
+      "auth": "session+handler",
+      "visibility": "private",
+      "dataSources": [
+        "custom rules",
+        "GitHub data sync"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2322-2355"
+    },
+    {
+      "id": "PAGE-042",
+      "kind": "embedded-section",
+      "name": "Corrections",
+      "route": "/pokemon-admin?section=bulk",
+      "sectionId": "bulk",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "inline readonly draft",
+      "auth": "session",
+      "visibility": "private-readonly",
+      "dataSources": [
+        "computed suggested patches"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2357-2377"
+    },
+    {
+      "id": "PAGE-043",
+      "kind": "embedded-section",
+      "name": "Export",
+      "route": "/pokemon-admin?section=export",
+      "sectionId": "export",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "inline export",
+      "auth": "session",
+      "visibility": "private-readonly",
+      "dataSources": [
+        "filtered loaded entries"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:2379-2393"
+    },
+    {
+      "id": "PAGE-044",
+      "kind": "public-route",
+      "project": "Landing-Page-PogoApi",
+      "name": "Landing publique",
+      "route": "/",
+      "file": "Landing-Page-PogoApi/app/page.jsx",
+      "component": "LandingExperience",
+      "auth": "none",
+      "visibility": "public",
+      "dataSources": [
+        "PokemonGo-API public URL",
+        "PokemonGo-Assets-API raw assets"
+      ],
+      "status": "active",
+      "evidence": "page.jsx:1-5"
+    },
+    {
+      "id": "PAGE-045",
+      "kind": "public-route",
+      "project": "PokemonGo-API-",
+      "name": "Accueil API public",
+      "route": "/",
+      "file": "PokemonGo-API-/app/page.js",
+      "component": "HomePage",
+      "components": [
+        "MetricCard",
+        "FeaturedRandom",
+        "uiAssets"
+      ],
+      "auth": "none",
+      "visibility": "public",
+      "dataSources": [
+        "loadSiteDashboard",
+        "PokemonGo-Data snapshot"
+      ],
+      "status": "active",
+      "evidence": "page.js:11-17,95-130"
+    },
+    {
+      "id": "PAGE-046",
+      "kind": "public-route",
+      "project": "PokemonGo-API-",
+      "name": "Bibliothèque d’assets publique",
+      "route": "/assets",
+      "file": "PokemonGo-API-/app/assets/page.js",
+      "component": "AssetsApp",
+      "auth": "none",
+      "visibility": "public",
+      "dataSources": [
+        "GET /api/checklist-v3?action=catalog",
+        "GET /api/checklist-v3?action=assets"
+      ],
+      "status": "active",
+      "evidence": "assets/page.js:1-9"
+    },
+    {
+      "id": "PAGE-047",
+      "kind": "public-route",
+      "project": "PokemonGo-API-",
+      "name": "Bibliothèque API alias",
+      "route": "/bibliotheque",
+      "file": "PokemonGo-API-/app/bibliotheque/page.js",
+      "component": "ChecklistApp",
+      "auth": "none",
+      "visibility": "public",
+      "dataSources": [
+        "GET /api/checklist-v3",
+        "GET /api/checklist-v3?action=catalog"
+      ],
+      "status": "active-alias",
+      "evidence": "bibliotheque/page.js:1"
+    },
+    {
+      "id": "PAGE-048",
+      "kind": "public-route",
+      "project": "PokemonGo-API-",
+      "name": "Checklist API publique",
+      "route": "/checklist",
+      "file": "PokemonGo-API-/app/checklist/page.js",
+      "component": "ChecklistApp",
+      "auth": "none",
+      "visibility": "public",
+      "dataSources": [
+        "GET /api/checklist-v3",
+        "GET /api/checklist-v3?action=catalog",
+        "GET /api/checklist-v3?action=detail"
+      ],
+      "status": "active",
+      "evidence": "checklist/page.js:1-10"
+    },
+    {
+      "id": "PAGE-049",
+      "kind": "pokemon-admin-section",
+      "project": "Dashboard Admin",
+      "name": "Ma collection",
+      "route": "/pokemon-admin?section=my-collection",
+      "file": "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx",
+      "component": "TrainerPokemonCollectionPanel",
+      "auth": "session-and-handler-admin",
+      "visibility": "private-dashboard",
+      "dataSources": [
+        "GET /api/trainer-pokemon",
+        "POST /api/trainer-pokemon/import",
+        "GET /api/trainer-pokemon/imports",
+        "POST /api/trainer-pokemon/imports/:id/rollback"
+      ],
+      "status": "active",
+      "evidence": "admin-app.jsx:85-88,112-136,2071"
+    },
+    {
+      "id": "PAGE-050",
+      "kind": "pokemon-admin-section",
+      "project": "Dashboard Admin",
+      "name": "Best Attackers PvE",
+      "route": "/pokemon-admin?section=best-attackers",
+      "file": "Dashboard Admin/src/components/admin/pokemon/best-attackers-panel.jsx",
+      "component": "BestAttackersPanel",
+      "auth": "session-and-handler-admin",
+      "visibility": "private-dashboard/public-source-data",
+      "dataSources": ["GET /api/v1/best-attackers", "POST /api/v1/admin/best-attackers/regenerate"],
+      "status": "active"
+    },
+    {
+      "id": "PAGE-051",
+      "kind": "pokemon-admin-section",
+      "project": "Dashboard Admin",
+      "name": "Résolution variantes Pokémon",
+      "route": "/pokemon-admin?section=pokemon-identity-mappings",
+      "file": "Dashboard Admin/src/components/admin/pokemon/pokemon-identity-mappings-panel.jsx",
+      "component": "PokemonIdentityMappingsPanel",
+      "auth": "session-and-handler-admin",
+      "visibility": "private-dashboard",
+      "dataSources": ["GET /api/v1/pokemon-identity-mappings", "POST /api/v1/admin/pokemon-identity-mappings/regenerate"],
+      "status": "active"
+    }
+  ]
+}

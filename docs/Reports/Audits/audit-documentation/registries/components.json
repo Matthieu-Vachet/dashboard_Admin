@@ -1,0 +1,4143 @@
+{
+  "auditVersion": "1.0.0",
+  "generatedAt": "2026-07-14",
+  "postAuditAddendum": "34-post-audit-changes.md",
+  "scope": "All component files across Dashboard Admin, Landing-Page-PogoApi and PokemonGo-API-",
+  "count": 141,
+  "entries": [
+    {
+      "id": "COMP-001",
+      "names": [
+        "PokemonWidget"
+      ],
+      "path": "src/components/admin/cards/pokemon-widget.tsx",
+      "category": "Composite",
+      "status": "active",
+      "client": true,
+      "lines": 100,
+      "children": [
+        "@/components/ui/badge",
+        "@/components/ui/card"
+      ],
+      "parents": [
+        "src/components/dashboard/pokemon-widget.tsx"
+      ],
+      "hooks": [
+        "useEffect",
+        "useState"
+      ],
+      "api": [
+        "/api/pokemon-stats"
+      ],
+      "responsive": [
+        "sm"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-002",
+      "names": [
+        "StatCard"
+      ],
+      "path": "src/components/admin/cards/stat-card.tsx",
+      "category": "Composite",
+      "status": "active",
+      "lines": 60,
+      "props": [
+        "StatCardProps"
+      ],
+      "children": [
+        "@/components/ui/card"
+      ],
+      "parents": [
+        "src/components/dashboard/stat-card.tsx"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-003",
+      "names": [
+        "ColorLab"
+      ],
+      "path": "src/components/admin/dashboard/color-lab.tsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 229,
+      "children": [
+        "@/components/ui/badge",
+        "@/components/ui/button",
+        "@/components/ui/card",
+        "@/components/ui/input"
+      ],
+      "parents": [
+        "src/app/(dashboard)/palette/page.tsx",
+        "src/components/dashboard/color-lab.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/palette/page.tsx"
+      ],
+      "hooks": [
+        "useMemo",
+        "usePersistentState",
+        "useState"
+      ],
+      "responsive": [
+        "xl",
+        "sm"
+      ],
+      "a11y": {
+        "aria": 4,
+        "roles": []
+      },
+      "hardcodes": 13
+    },
+    {
+      "id": "COMP-004",
+      "names": [
+        "DailyTools"
+      ],
+      "path": "src/components/admin/dashboard/daily-tools.tsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 475,
+      "children": [
+        "@/components/admin/shared/sortable-widget-grid",
+        "@/components/ui/badge",
+        "@/components/ui/button",
+        "@/components/ui/card",
+        "@/components/ui/input"
+      ],
+      "parents": [
+        "src/app/(dashboard)/tools/page.tsx",
+        "src/components/dashboard/daily-tools.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/tools/page.tsx"
+      ],
+      "hooks": [
+        "useEffect",
+        "useMemo",
+        "usePersistentState",
+        "useState"
+      ],
+      "responsive": [
+        "sm",
+        "xl"
+      ],
+      "a11y": {
+        "aria": 5,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-005",
+      "names": [
+        "DashboardHomeLive"
+      ],
+      "path": "src/components/admin/dashboard/dashboard-home-live.tsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 658,
+      "children": [
+        "@/components/admin/pokemon/pokemon-api-status",
+        "@/components/admin/shared/sortable-widget-grid",
+        "@/components/ui/badge",
+        "@/components/ui/button",
+        "@/components/ui/card"
+      ],
+      "parents": [
+        "src/app/(dashboard)/page.tsx",
+        "src/components/dashboard/dashboard-home-live.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/page.tsx"
+      ],
+      "hooks": [
+        "useEffect",
+        "usePersistentState"
+      ],
+      "api": [
+        "/api/pokemon-stats"
+      ],
+      "assets": [
+        "https://pokemon-go-api.vercel.app/api-docs",
+        "https://pokemon-go-api.vercel.app/swagger"
+      ],
+      "responsive": [
+        "sm",
+        "lg",
+        "xl",
+        "2xl"
+      ],
+      "a11y": {
+        "aria": 1,
+        "roles": []
+      },
+      "hardcodes": 14
+    },
+    {
+      "id": "COMP-006",
+      "names": [
+        "Pomodoro"
+      ],
+      "path": "src/components/admin/dashboard/pomodoro.tsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 183,
+      "children": [
+        "@/components/ui/badge",
+        "@/components/ui/button",
+        "@/components/ui/card"
+      ],
+      "parents": [
+        "src/app/(dashboard)/pomodoro/page.tsx",
+        "src/components/dashboard/pomodoro.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/pomodoro/page.tsx"
+      ],
+      "hooks": [
+        "useEffect",
+        "useMemo",
+        "useState"
+      ],
+      "responsive": [
+        "sm",
+        "xl"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 5
+    },
+    {
+      "id": "COMP-007",
+      "names": [
+        "SnippetVault"
+      ],
+      "path": "src/components/admin/dashboard/snippet-vault.tsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 214,
+      "children": [
+        "@/components/ui/badge",
+        "@/components/ui/button",
+        "@/components/ui/card",
+        "@/components/ui/input",
+        "@/components/ui/modal"
+      ],
+      "parents": [
+        "src/app/(dashboard)/snippets/page.tsx",
+        "src/components/dashboard/snippet-vault.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/snippets/page.tsx"
+      ],
+      "hooks": [
+        "useEffect",
+        "useMemo",
+        "usePersistentState",
+        "useState"
+      ],
+      "responsive": [
+        "sm",
+        "lg",
+        "2xl"
+      ],
+      "a11y": {
+        "aria": 1,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-008",
+      "names": [
+        "EventEditorModal",
+        "ImportModal"
+      ],
+      "path": "src/components/admin/events/event-editor-modal.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 115,
+      "children": [
+        "@/components/admin/pokemon/admin-ui",
+        "@/components/admin/shared/modal-portal"
+      ],
+      "parents": [
+        "src/components/admin/events/events-calendar-panel.jsx"
+      ],
+      "responsive": [
+        "sm",
+        "lg"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 8
+    },
+    {
+      "id": "COMP-009",
+      "names": [
+        "EventsCalendarPanel"
+      ],
+      "path": "src/components/admin/events/events-calendar-panel.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 1630,
+      "children": [
+        "@/components/admin/events/event-editor-modal",
+        "@/components/admin/pokemon/admin-ui",
+        "@/components/admin/pokemon/dataset-source-header",
+        "@/components/admin/shared/modal-portal"
+      ],
+      "parents": [
+        "src/components/admin/pokemon/events-calendar-panel.jsx",
+        "src/components/pokemon-admin/events-calendar-panel.jsx"
+      ],
+      "hooks": [
+        "useEffect",
+        "useMemo",
+        "useState"
+      ],
+      "services": [
+        "@/services/admin/events-api"
+      ],
+      "assets": [
+        "https://leekduck.com",
+        "https://leekduck.com/events/",
+        "/ui/Types/ico_0_normal.png",
+        "/ui/Types/ico_1_fighting.png",
+        "/ui/Types/ico_2_flying.png",
+        "/ui/Types/ico_3_poison.png",
+        "/ui/Types/ico_4_ground.png",
+        "/ui/Types/ico_5_rock.png",
+        "/ui/Types/ico_6_bug.png",
+        "/ui/Types/ico_7_ghost.png",
+        "/ui/Types/ico_8_steel.png",
+        "/ui/Types/ico_9_fire.png",
+        "/ui/Types/ico_10_water.png",
+        "/ui/Types/ico_11_grass.png",
+        "/ui/Types/ico_12_electric.png",
+        "/ui/Types/ico_13_psychic.png",
+        "/ui/Types/ico_14_ice.png",
+        "/ui/Types/ico_15_dragon.png",
+        "/ui/Types/ico_16_dark.png",
+        "/ui/Types/ico_17_fairy.png"
+      ],
+      "responsive": [
+        "sm",
+        "xl",
+        "2xl",
+        "lg"
+      ],
+      "a11y": {
+        "aria": 5,
+        "roles": [
+          "dialog"
+        ]
+      },
+      "hardcodes": 46,
+      "debt": "very-large-component"
+    },
+    {
+      "id": "COMP-010",
+      "names": [
+        "CalendarPlanner"
+      ],
+      "path": "src/components/admin/forms/calendar-planner.tsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 705,
+      "children": [
+        "@/components/admin/shared/loading-state",
+        "@/components/ui/badge",
+        "@/components/ui/button",
+        "@/components/ui/card",
+        "@/components/ui/input",
+        "@/components/ui/modal"
+      ],
+      "parents": [
+        "src/app/(dashboard)/calendar/page.tsx",
+        "src/components/dashboard/calendar-planner.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/calendar/page.tsx"
+      ],
+      "hooks": [
+        "useMemo",
+        "usePersistentState",
+        "useState"
+      ],
+      "responsive": [
+        "xl",
+        "sm",
+        "2xl",
+        "md",
+        "lg"
+      ],
+      "a11y": {
+        "aria": 2,
+        "roles": []
+      },
+      "hardcodes": 2
+    },
+    {
+      "id": "COMP-011",
+      "names": [
+        "JavaScriptExercises"
+      ],
+      "path": "src/components/admin/forms/javascript-exercises.tsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 221,
+      "children": [
+        "@/components/ui/badge",
+        "@/components/ui/button",
+        "@/components/ui/card"
+      ],
+      "parents": [
+        "src/app/(dashboard)/exercices-javascript/page.tsx",
+        "src/components/dashboard/javascript-exercises.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/exercices-javascript/page.tsx"
+      ],
+      "hooks": [
+        "useMemo",
+        "useState"
+      ],
+      "responsive": [
+        "sm",
+        "md",
+        "xl"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 8
+    },
+    {
+      "id": "COMP-012",
+      "names": [
+        "JsProgress"
+      ],
+      "path": "src/components/admin/forms/js-progress.tsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 101,
+      "children": [
+        "@/components/admin/learning/learning-achievement-grid",
+        "@/components/admin/learning/learning-activity",
+        "@/components/admin/learning/learning-advanced-stats",
+        "@/components/admin/learning/learning-detail-modal",
+        "@/components/admin/learning/learning-import-modal",
+        "@/components/admin/learning/learning-summary",
+        "@/components/admin/learning/learning-topic-card",
+        "@/components/ui/badge",
+        "@/components/ui/button",
+        "@/components/ui/card"
+      ],
+      "parents": [
+        "src/app/(dashboard)/js-progress/page.tsx",
+        "src/components/dashboard/js-progress.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/js-progress/page.tsx"
+      ],
+      "hooks": [
+        "@/hooks/admin/use-javascript-learning",
+        "useJavascriptLearning",
+        "useMemo",
+        "useState"
+      ],
+      "responsive": [
+        "sm",
+        "lg"
+      ],
+      "a11y": {
+        "aria": 4,
+        "roles": [
+          "status"
+        ]
+      },
+      "hardcodes": 1
+    },
+    {
+      "id": "COMP-013",
+      "names": [
+        "KanbanBoard"
+      ],
+      "path": "src/components/admin/forms/kanban-board.tsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 773,
+      "children": [
+        "@/components/admin/shared/loading-state",
+        "@/components/ui/badge",
+        "@/components/ui/button",
+        "@/components/ui/card",
+        "@/components/ui/input",
+        "@/components/ui/modal"
+      ],
+      "parents": [
+        "src/app/(dashboard)/kanban/page.tsx",
+        "src/components/dashboard/kanban-board.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/kanban/page.tsx"
+      ],
+      "hooks": [
+        "useDroppable",
+        "useMemo",
+        "usePersistentState",
+        "useSensor",
+        "useSensors",
+        "useSortable",
+        "useState"
+      ],
+      "assets": [
+        "https://github.com/..."
+      ],
+      "responsive": [
+        "sm",
+        "xl",
+        "2xl"
+      ],
+      "a11y": {
+        "aria": 4,
+        "roles": []
+      },
+      "hardcodes": 9
+    },
+    {
+      "id": "COMP-014",
+      "names": [
+        "NotesBoard"
+      ],
+      "path": "src/components/admin/forms/notes-board.tsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 400,
+      "children": [
+        "@/components/admin/shared/loading-state",
+        "@/components/ui/badge",
+        "@/components/ui/button",
+        "@/components/ui/card",
+        "@/components/ui/input"
+      ],
+      "parents": [
+        "src/app/(dashboard)/notes/page.tsx",
+        "src/components/dashboard/notes-board.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/notes/page.tsx"
+      ],
+      "hooks": [
+        "useMemo",
+        "usePersistentState",
+        "useState"
+      ],
+      "responsive": [
+        "xl",
+        "sm"
+      ],
+      "a11y": {
+        "aria": 2,
+        "roles": []
+      },
+      "hardcodes": 5
+    },
+    {
+      "id": "COMP-015",
+      "names": [
+        "TodoList"
+      ],
+      "path": "src/components/admin/forms/todo-list.tsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 179,
+      "children": [
+        "@/components/admin/shared/loading-state",
+        "@/components/ui/badge",
+        "@/components/ui/button",
+        "@/components/ui/card",
+        "@/components/ui/input"
+      ],
+      "parents": [
+        "src/app/(dashboard)/todo/page.tsx",
+        "src/components/dashboard/todo-list.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/todo/page.tsx"
+      ],
+      "hooks": [
+        "useMemo",
+        "usePersistentState",
+        "useState"
+      ],
+      "responsive": [
+        "xl",
+        "sm"
+      ],
+      "a11y": {
+        "aria": 2,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-016",
+      "names": [
+        "WriterStudio"
+      ],
+      "path": "src/components/admin/forms/writer-studio.tsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 325,
+      "children": [
+        "@/components/ui/badge",
+        "@/components/ui/button",
+        "@/components/ui/card",
+        "@/components/ui/input"
+      ],
+      "parents": [
+        "src/app/(dashboard)/writer/page.tsx",
+        "src/components/dashboard/writer-studio.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/writer/page.tsx"
+      ],
+      "hooks": [
+        "useMemo",
+        "usePersistentState",
+        "useState"
+      ],
+      "responsive": [
+        "xl",
+        "sm",
+        "lg"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 1
+    },
+    {
+      "id": "COMP-017",
+      "names": [
+        "AdminAppFrame"
+      ],
+      "path": "src/components/admin/layout/admin-app-frame.tsx",
+      "category": "Layout",
+      "status": "active",
+      "client": true,
+      "lines": 139,
+      "children": [
+        "@/components/admin/layout/admin-version-history-dialog",
+        "@/components/admin/navigation/admin-sidebar",
+        "@/components/admin/navigation/admin-topbar",
+        "@/components/admin/shared/dashboard-footer"
+      ],
+      "parents": [
+        "src/app/(dashboard)/layout.tsx",
+        "src/components/dashboard/app-frame.tsx"
+      ],
+      "hooks": [
+        "@/hooks/admin/use-dashboard-version-history",
+        "useDashboardVersionHistory",
+        "useMemo",
+        "usePathname",
+        "usePersistentState",
+        "useState"
+      ],
+      "assets": [
+        "/ui/matweb-innovation-letter-m3.png"
+      ],
+      "responsive": [
+        "lg",
+        "2xl",
+        "sm"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 1
+    },
+    {
+      "id": "COMP-018",
+      "names": [
+        "Providers"
+      ],
+      "path": "src/components/admin/layout/admin-providers.tsx",
+      "category": "Layout",
+      "status": "active",
+      "client": true,
+      "lines": 19,
+      "parents": [
+        "src/app/layout.tsx",
+        "src/components/dashboard/providers.tsx"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-019",
+      "names": [
+        "AdminVersionHistoryDialog"
+      ],
+      "path": "src/components/admin/layout/admin-version-history-dialog.tsx",
+      "category": "Layout",
+      "status": "active",
+      "client": true,
+      "lines": 95,
+      "props": [
+        "AdminVersionHistoryDialogProps"
+      ],
+      "parents": [
+        "src/components/admin/layout/admin-app-frame.tsx"
+      ],
+      "responsive": [
+        "sm"
+      ],
+      "a11y": {
+        "aria": 3,
+        "roles": [
+          "dialog"
+        ]
+      },
+      "hardcodes": 3
+    },
+    {
+      "id": "COMP-020",
+      "names": [
+        "LearningAchievementGrid"
+      ],
+      "path": "src/components/admin/learning/learning-achievement-grid.tsx",
+      "category": "Feature",
+      "status": "active",
+      "lines": 51,
+      "children": [
+        "@/components/admin/learning/learning-progress-bar",
+        "@/components/ui/badge",
+        "@/components/ui/card"
+      ],
+      "parents": [
+        "src/components/admin/forms/js-progress.tsx"
+      ],
+      "responsive": [
+        "md",
+        "xl"
+      ],
+      "a11y": {
+        "aria": 1,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-021",
+      "names": [
+        "LearningActivityTimeline"
+      ],
+      "path": "src/components/admin/learning/learning-activity.tsx",
+      "category": "Feature",
+      "status": "active",
+      "lines": 60,
+      "children": [
+        "@/components/ui/card"
+      ],
+      "parents": [
+        "src/components/admin/forms/js-progress.tsx"
+      ],
+      "responsive": [
+        "sm"
+      ],
+      "a11y": {
+        "aria": 2,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-022",
+      "names": [
+        "LearningAdvancedStats"
+      ],
+      "path": "src/components/admin/learning/learning-advanced-stats.tsx",
+      "category": "Feature",
+      "status": "active",
+      "lines": 50,
+      "children": [
+        "@/components/ui/card"
+      ],
+      "parents": [
+        "src/components/admin/forms/js-progress.tsx"
+      ],
+      "responsive": [
+        "sm",
+        "lg",
+        "xl"
+      ],
+      "a11y": {
+        "aria": 1,
+        "roles": []
+      },
+      "hardcodes": 1
+    },
+    {
+      "id": "COMP-023",
+      "names": [
+        "LearningDetailModal"
+      ],
+      "path": "src/components/admin/learning/learning-detail-modal.tsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 373,
+      "children": [
+        "@/components/ui/badge",
+        "@/components/ui/button",
+        "@/components/ui/input",
+        "@/components/ui/modal"
+      ],
+      "parents": [
+        "src/components/admin/forms/js-progress.tsx"
+      ],
+      "hooks": [
+        "useState"
+      ],
+      "responsive": [
+        "md",
+        "sm",
+        "lg"
+      ],
+      "a11y": {
+        "aria": 3,
+        "roles": []
+      },
+      "hardcodes": 2
+    },
+    {
+      "id": "COMP-024",
+      "names": [
+        "LearningImportModal"
+      ],
+      "path": "src/components/admin/learning/learning-import-modal.tsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 210,
+      "children": [
+        "@/components/ui/badge",
+        "@/components/ui/button",
+        "@/components/ui/modal"
+      ],
+      "parents": [
+        "src/components/admin/forms/js-progress.tsx"
+      ],
+      "hooks": [
+        "useCallback",
+        "useEffect",
+        "useMemo",
+        "useState"
+      ],
+      "services": [
+        "@/services/admin/learning-api"
+      ],
+      "responsive": [
+        "sm",
+        "lg"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 2
+    },
+    {
+      "id": "COMP-025",
+      "names": [
+        "LearningProgressBar"
+      ],
+      "path": "src/components/admin/learning/learning-progress-bar.tsx",
+      "category": "Feature",
+      "status": "active",
+      "lines": 22,
+      "parents": [
+        "src/components/admin/learning/learning-achievement-grid.tsx",
+        "src/components/admin/learning/learning-summary.tsx",
+        "src/components/admin/learning/learning-topic-card.tsx"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-026",
+      "names": [
+        "LearningSummary"
+      ],
+      "path": "src/components/admin/learning/learning-summary.tsx",
+      "category": "Feature",
+      "status": "active",
+      "lines": 72,
+      "children": [
+        "@/components/admin/learning/learning-progress-bar",
+        "@/components/ui/card"
+      ],
+      "parents": [
+        "src/components/admin/forms/js-progress.tsx"
+      ],
+      "responsive": [
+        "sm",
+        "xl"
+      ],
+      "a11y": {
+        "aria": 1,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-027",
+      "names": [
+        "LearningTopicCard"
+      ],
+      "path": "src/components/admin/learning/learning-topic-card.tsx",
+      "category": "Feature",
+      "status": "active",
+      "lines": 100,
+      "children": [
+        "@/components/admin/learning/learning-progress-bar",
+        "@/components/ui/badge",
+        "@/components/ui/card"
+      ],
+      "parents": [
+        "src/components/admin/forms/js-progress.tsx"
+      ],
+      "responsive": [
+        "sm"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 2
+    },
+    {
+      "id": "COMP-028",
+      "names": [
+        "AdminPaletteSelector"
+      ],
+      "path": "src/components/admin/navigation/admin-palette-selector.tsx",
+      "category": "Layout",
+      "status": "active",
+      "client": true,
+      "lines": 110,
+      "children": [
+        "@/components/ui/button"
+      ],
+      "parents": [
+        "src/components/admin/navigation/admin-topbar.tsx"
+      ],
+      "hooks": [
+        "@/hooks/admin/use-dashboard-palette",
+        "useDashboardPalette",
+        "useState"
+      ],
+      "a11y": {
+        "aria": 2,
+        "roles": []
+      },
+      "hardcodes": 2
+    },
+    {
+      "id": "COMP-029",
+      "names": [
+        "AdminSidebar"
+      ],
+      "path": "src/components/admin/navigation/admin-sidebar.tsx",
+      "category": "Layout",
+      "status": "active",
+      "client": true,
+      "lines": 255,
+      "props": [
+        "AdminSidebarProps"
+      ],
+      "children": [
+        "@/components/ui/badge",
+        "@/components/ui/button"
+      ],
+      "parents": [
+        "src/components/admin/layout/admin-app-frame.tsx"
+      ],
+      "api": [
+        "/api/logout"
+      ],
+      "responsive": [
+        "2xl",
+        "lg"
+      ],
+      "a11y": {
+        "aria": 6,
+        "roles": []
+      },
+      "hardcodes": 11
+    },
+    {
+      "id": "COMP-030",
+      "names": [
+        "AdminTopbar"
+      ],
+      "path": "src/components/admin/navigation/admin-topbar.tsx",
+      "category": "Layout",
+      "status": "active",
+      "client": true,
+      "lines": 92,
+      "props": [
+        "AdminTopbarProps"
+      ],
+      "children": [
+        "@/components/admin/navigation/admin-palette-selector",
+        "@/components/ui/button"
+      ],
+      "parents": [
+        "src/components/admin/layout/admin-app-frame.tsx"
+      ],
+      "hooks": [
+        "useTheme"
+      ],
+      "responsive": [
+        "sm",
+        "lg",
+        "md"
+      ],
+      "a11y": {
+        "aria": 4,
+        "roles": []
+      },
+      "hardcodes": 1
+    },
+    {
+      "id": "COMP-031",
+      "names": [
+        "AdminApp"
+      ],
+      "path": "src/components/admin/pokemon/admin-app.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 2494,
+      "children": [
+        "@/components/admin/pokemon/detail-modal",
+        "@/components/admin/pokemon/pokemon-card",
+        "@/components/admin/shared/sortable-widget-grid",
+        "@/components/site/metric-card",
+        "@/components/site/ui-assets"
+      ],
+      "parents": [
+        "src/components/admin/pokemon/pokemon-admin-studio.tsx",
+        "src/components/pokemon-admin/admin-app.jsx"
+      ],
+      "hooks": [
+        "useEffect",
+        "useMemo",
+        "useState"
+      ],
+      "services": [
+        "@/services/admin/dashboard-store",
+        "@/services/admin/pokemon-admin-api"
+      ],
+      "assets": [
+        "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers/Filters",
+        "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers",
+        "https://www.margxt.fr/guide-liste-des-pokemon-shiny-disponibles-dans-pokemon-go/",
+        "https://www.margxt.fr/liste-des-pokemon-obscurs-et-chromatiques-shiny-dans-pokemon-go/",
+        "/ui/chromatique_banner.png",
+        "/ui/costume_banner.png",
+        "/ui/mega_banner.png",
+        "/ui/regional_banner.png",
+        "/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png"
+      ],
+      "responsive": [
+        "md",
+        "sm",
+        "lg",
+        "xl",
+        "2xl"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 17,
+      "debt": "very-large-component"
+    },
+    {
+      "id": "COMP-032",
+      "names": [
+        "AdminSectionNavigation"
+      ],
+      "path": "src/components/admin/pokemon/admin-section-navigation.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 105,
+      "hooks": [
+        "useMemo",
+        "useState"
+      ],
+      "responsive": [
+        "lg",
+        "2xl"
+      ],
+      "a11y": {
+        "aria": 5,
+        "roles": []
+      },
+      "hardcodes": 1
+    },
+    {
+      "id": "COMP-033",
+      "names": [
+        "AdminTodoPanel"
+      ],
+      "path": "src/components/admin/pokemon/admin-todo-panel.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 162,
+      "hooks": [
+        "useEffect",
+        "useMemo",
+        "useState"
+      ],
+      "services": [
+        "@/services/admin/dashboard-store"
+      ],
+      "responsive": [
+        "sm"
+      ],
+      "a11y": {
+        "aria": 4,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-034",
+      "names": [
+        "Panel",
+        "BarList",
+        "AssetStatCard",
+        "GenerationFilterBar",
+        "CompletionList",
+        "HistoryList",
+        "MiniCardList",
+        "ControlCardsPanel",
+        "JsonIssueList"
+      ],
+      "path": "src/components/admin/pokemon/admin-ui.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 360,
+      "children": [
+        "@/components/site/pokemon-style"
+      ],
+      "parents": [
+        "src/components/admin/events/event-editor-modal.jsx",
+        "src/components/admin/events/events-calendar-panel.jsx",
+        "src/components/pokemon-admin/admin-ui.jsx"
+      ],
+      "assets": [
+        "/ui/PokedexV2/kanto_starters.png",
+        "/ui/PokedexV2/jhoto_starters.png",
+        "/ui/PokedexV2/hoenn_starters.png",
+        "/ui/PokedexV2/sinnoh_starters.png",
+        "/ui/PokedexV2/unova_starters.png",
+        "/ui/PokedexV2/kalos_starters.png",
+        "/ui/PokedexV2/alola_starters.png",
+        "/ui/PokedexV2/galar_starters.png",
+        "/ui/PokedexV2/hisui_starters.png",
+        "/ui/PokedexV2/paldea_starters.png"
+      ],
+      "responsive": [
+        "sm",
+        "lg",
+        "2xl"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 12
+    },
+    {
+      "id": "COMP-035",
+      "names": [
+        "TypeIcons",
+        "WeatherIcons"
+      ],
+      "path": "src/components/admin/pokemon/asset-icons.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 113,
+      "children": [
+        "@/components/site/ui-assets"
+      ],
+      "parents": [
+        "src/components/pokemon-admin/asset-icons.jsx"
+      ],
+      "assets": [
+        "/ui/Types/ico_0_normal.png",
+        "/ui/Types/ico_1_fighting.png",
+        "/ui/Types/ico_2_flying.png",
+        "/ui/Types/ico_3_poison.png",
+        "/ui/Types/ico_4_ground.png",
+        "/ui/Types/ico_5_rock.png",
+        "/ui/Types/ico_6_bug.png",
+        "/ui/Types/ico_7_ghost.png",
+        "/ui/Types/ico_8_steel.png",
+        "/ui/Types/ico_9_fire.png",
+        "/ui/Types/ico_10_water.png",
+        "/ui/Types/ico_11_grass.png",
+        "/ui/Types/ico_12_electric.png",
+        "/ui/Types/ico_13_psychic.png",
+        "/ui/Types/ico_14_ice.png",
+        "/ui/Types/ico_15_dragon.png",
+        "/ui/Types/ico_16_dark.png",
+        "/ui/Types/ico_17_fairy.png"
+      ],
+      "a11y": {
+        "aria": 2,
+        "roles": []
+      },
+      "hardcodes": 1
+    },
+    {
+      "id": "COMP-036",
+      "names": [
+        "BackgroundPanel"
+      ],
+      "path": "src/components/admin/pokemon/background-panel.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 196,
+      "children": [
+        "@/components/site/pokemon-style",
+        "@/components/ui/modal"
+      ],
+      "hooks": [
+        "useState"
+      ],
+      "assets": [
+        "/ui/backgrounds/catchCards/ic_catch_card.png",
+        "/ui/backgrounds/catchCards/ic_catch_card_notification.png"
+      ],
+      "responsive": [
+        "sm",
+        "xl",
+        "lg",
+        "2xl"
+      ],
+      "a11y": {
+        "aria": 2,
+        "roles": []
+      },
+      "hardcodes": 4
+    },
+    {
+      "id": "COMP-037",
+      "names": [
+        "CandyPanel"
+      ],
+      "path": "src/components/admin/pokemon/candy-panel.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 202,
+      "children": [
+        "@/components/site/pokemon-style"
+      ],
+      "parents": [
+        "src/components/pokemon-admin/candy-panel.jsx"
+      ],
+      "hooks": [
+        "useMemo"
+      ],
+      "responsive": [
+        "lg",
+        "2xl",
+        "sm"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 12
+    },
+    {
+      "id": "COMP-038",
+      "names": [
+        "CatalogPanel"
+      ],
+      "path": "src/components/admin/pokemon/catalog-panel.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 407,
+      "children": [
+        "@/components/site/pokemon-style"
+      ],
+      "parents": [
+        "src/components/pokemon-admin/catalog-panel.jsx"
+      ],
+      "hooks": [
+        "useState"
+      ],
+      "responsive": [
+        "sm",
+        "xl",
+        "lg"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 22
+    },
+    {
+      "id": "COMP-039",
+      "names": [
+        "CollectionsPanel"
+      ],
+      "path": "src/components/admin/pokemon/collections-panel.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 795,
+      "children": [
+        "@/components/site/pokemon-style",
+        "@/components/site/ui-assets"
+      ],
+      "parents": [
+        "src/components/pokemon-admin/collections-panel.jsx"
+      ],
+      "hooks": [
+        "useMemo",
+        "useState"
+      ],
+      "assets": [
+        "/ui/icons/pokeball.webp",
+        "/ui/icons/ic_shiny_white.webp",
+        "/ui/icons/shadow.png",
+        "/ui/icons/purified.png",
+        "/ui/icons/mega.png",
+        "/ui/icons/max_pc.webp",
+        "/ui/icons/pokedex-kanto.webp",
+        "/ui/icons/pokedex-johto.webp",
+        "/ui/icons/pokedex-hoenn.webp",
+        "/ui/icons/pokedex-sinnoh.webp",
+        "/ui/icons/pokedex-unova.webp",
+        "/ui/icons/pokedex-kalos.webp",
+        "/ui/icons/pokedex-alola.webp",
+        "/ui/icons/pokedex-galar.webp",
+        "/ui/PokedexV2/hisui_starters.png",
+        "/ui/icons/pokedex-paldea.webp"
+      ],
+      "responsive": [
+        "sm",
+        "xl",
+        "md",
+        "lg",
+        "2xl"
+      ],
+      "a11y": {
+        "aria": 1,
+        "roles": [
+          "dialog"
+        ]
+      },
+      "hardcodes": 17
+    },
+    {
+      "id": "COMP-040",
+      "names": [
+        "DatasetSourceHeader",
+        "CurrentDatasetDiagnostics"
+      ],
+      "path": "src/components/admin/pokemon/current-dataset-diagnostics.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 171,
+      "responsive": [
+        "sm",
+        "xl"
+      ],
+      "a11y": {
+        "aria": 6,
+        "roles": [
+          "alert"
+        ]
+      },
+      "hardcodes": 6
+    },
+    {
+      "id": "COMP-041",
+      "names": [
+        "DatasetEventBanner"
+      ],
+      "path": "src/components/admin/pokemon/dataset-event-banner.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 126,
+      "hooks": [
+        "useEffect",
+        "useMemo",
+        "useState"
+      ],
+      "services": [
+        "@/services/admin/events-api"
+      ],
+      "responsive": [
+        "sm",
+        "xl"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 6
+    },
+    {
+      "id": "COMP-042",
+      "names": [
+        "DatasetFilterBar"
+      ],
+      "path": "src/components/admin/pokemon/dataset-filter-bar.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 51,
+      "responsive": [
+        "xl"
+      ],
+      "a11y": {
+        "aria": 1,
+        "roles": []
+      },
+      "hardcodes": 1
+    },
+    {
+      "id": "COMP-043",
+      "names": [
+        "DatasetSourceHeader"
+      ],
+      "path": "src/components/admin/pokemon/dataset-source-header.jsx",
+      "category": "Feature",
+      "status": "active",
+      "lines": 2,
+      "parents": [
+        "src/components/admin/events/events-calendar-panel.jsx"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-044",
+      "names": [
+        "DetailModal"
+      ],
+      "path": "src/components/admin/pokemon/detail-modal.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 1389,
+      "children": [
+        "@/components/site/pokemon-style",
+        "@/components/site/ui-assets"
+      ],
+      "parents": [
+        "src/components/admin/pokemon/admin-app.jsx",
+        "src/components/checklist/detail-modal.jsx"
+      ],
+      "hooks": [
+        "useEffect",
+        "useMemo",
+        "useState"
+      ],
+      "assets": [
+        "/ui/icons/tabs/ic_alola.png",
+        "/ui/icons/tabs/today_evolve.png",
+        "/ui/icons/TodayView_Icon_AttackMove.webp",
+        "/ui/icons/tabs/today_battle.png",
+        "/ui/icons/tabs/ic_shadow_filter.png",
+        "/ui/icons/tabs/ic_mythical.png",
+        "/ui/icons/probleme.svg",
+        "/ui/icons/tabs/today_postcard.png"
+      ],
+      "responsive": [
+        "sm",
+        "xl",
+        "lg",
+        "md"
+      ],
+      "a11y": {
+        "aria": 4,
+        "roles": [
+          "presentation",
+          "dialog"
+        ]
+      },
+      "hardcodes": 53,
+      "debt": "very-large-component"
+    },
+    {
+      "id": "COMP-045",
+      "names": [
+        "EggsPanel"
+      ],
+      "path": "src/components/admin/pokemon/eggs-panel.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 251,
+      "children": [
+        "@/components/site/ui-assets"
+      ],
+      "parents": [
+        "src/components/pokemon-admin/eggs-panel.jsx"
+      ],
+      "hooks": [
+        "useMemo",
+        "useState"
+      ],
+      "assets": [
+        "/ui/eggs/1_km.png",
+        "/ui/eggs/2_km.png",
+        "/ui/eggs/5_km.png",
+        "/ui/eggs/7_km.png",
+        "/ui/eggs/10_km.png",
+        "/ui/eggs/12_km.png",
+        "/ui/eggs/rarity.png"
+      ],
+      "responsive": [
+        "sm",
+        "2xl",
+        "xl"
+      ],
+      "a11y": {
+        "aria": 1,
+        "roles": []
+      },
+      "hardcodes": 10
+    },
+    {
+      "id": "COMP-046",
+      "names": [
+        "EventsCalendarPanel"
+      ],
+      "path": "src/components/admin/pokemon/events-calendar-panel.jsx",
+      "category": "Feature",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/events/events-calendar-panel"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-047",
+      "names": [
+        "LoginCard"
+      ],
+      "path": "src/components/admin/pokemon/login-card.jsx",
+      "category": "Feature",
+      "status": "active",
+      "lines": 38,
+      "parents": [
+        "src/components/pokemon-admin/login-card.jsx"
+      ],
+      "responsive": [
+        "md",
+        "sm"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 1
+    },
+    {
+      "id": "COMP-048",
+      "names": [
+        "MaxBattlesPanel"
+      ],
+      "path": "src/components/admin/pokemon/max-battles-panel.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 218,
+      "children": [
+        "@/components/site/ui-assets"
+      ],
+      "parents": [
+        "src/components/pokemon-admin/max-battles-panel.jsx"
+      ],
+      "hooks": [
+        "useMemo",
+        "useState"
+      ],
+      "assets": [
+        "/ui/max_battles/max-battles.webp",
+        "/ui/max_battles/ic_shiny.png"
+      ],
+      "responsive": [
+        "sm",
+        "2xl",
+        "xl"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 11
+    },
+    {
+      "id": "COMP-049",
+      "names": [
+        "PokemonAdminStudio"
+      ],
+      "path": "src/components/admin/pokemon/pokemon-admin-studio.tsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 8,
+      "children": [
+        "@/components/admin/pokemon/admin-app"
+      ],
+      "parents": [
+        "src/app/(dashboard)/pokemon-admin/page.tsx",
+        "src/components/pokemon-admin/pokemon-admin-studio.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/pokemon-admin/page.tsx"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-050",
+      "names": [
+        "PokemonApiExplorer"
+      ],
+      "path": "src/components/admin/pokemon/pokemon-api-explorer.tsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 134,
+      "children": [
+        "@/components/ui/badge",
+        "@/components/ui/button",
+        "@/components/ui/card"
+      ],
+      "parents": [
+        "src/app/(dashboard)/pokemon-docs/page.tsx",
+        "src/components/dashboard/pokemon-api-explorer.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/pokemon-docs/page.tsx"
+      ],
+      "hooks": [
+        "useEffect",
+        "useMemo",
+        "useState"
+      ],
+      "api": [
+        "/api/pokemon-api-proxy"
+      ],
+      "responsive": [
+        "xl",
+        "md"
+      ],
+      "a11y": {
+        "aria": 2,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-051",
+      "names": [
+        "PokemonApiStatus"
+      ],
+      "path": "src/components/admin/pokemon/pokemon-api-status.tsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 135,
+      "children": [
+        "@/components/ui/button"
+      ],
+      "parents": [
+        "src/app/(dashboard)/pokemon-docs/page.tsx",
+        "src/components/admin/dashboard/dashboard-home-live.tsx",
+        "src/components/dashboard/pokemon-api-status.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/pokemon-docs/page.tsx"
+      ],
+      "hooks": [
+        "useEffect"
+      ],
+      "api": [
+        "/api/pokemon-api-health"
+      ],
+      "assets": [
+        "https://pokemon-go-api.vercel.app/api-docs",
+        "https://pokemon-go-api.vercel.app/swagger"
+      ],
+      "responsive": [
+        "sm"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 1
+    },
+    {
+      "id": "COMP-052",
+      "names": [
+        "PokemonCard"
+      ],
+      "path": "src/components/admin/pokemon/pokemon-card.jsx",
+      "category": "Feature",
+      "status": "active",
+      "lines": 248,
+      "children": [
+        "@/components/site/pokemon-style",
+        "@/components/site/ui-assets"
+      ],
+      "parents": [
+        "src/components/admin/pokemon/admin-app.jsx",
+        "src/components/checklist/pokemon-card.jsx"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 22
+    },
+    {
+      "id": "COMP-053",
+      "names": [
+        "PokemonDocsViewer"
+      ],
+      "path": "src/components/admin/pokemon/pokemon-docs-viewer.tsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 292,
+      "children": [
+        "@/components/ui/badge",
+        "@/components/ui/card",
+        "@/components/ui/input"
+      ],
+      "parents": [
+        "src/app/(dashboard)/pokemon-docs/page.tsx",
+        "src/components/dashboard/pokemon-docs-viewer.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/pokemon-docs/page.tsx"
+      ],
+      "hooks": [
+        "useMemo",
+        "useState"
+      ],
+      "responsive": [
+        "xl",
+        "sm"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-054",
+      "names": [
+        "PvpRankingsPanel"
+      ],
+      "path": "src/components/admin/pokemon/pvp-rankings-panel.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 138,
+      "children": [
+        "@/components/site/pokemon-style"
+      ],
+      "hooks": [
+        "useMemo",
+        "useState"
+      ],
+      "responsive": [
+        "sm",
+        "xl",
+        "lg"
+      ],
+      "a11y": {
+        "aria": 4,
+        "roles": []
+      },
+      "hardcodes": 7
+    },
+    {
+      "id": "COMP-055",
+      "names": [
+        "RaidsPanel"
+      ],
+      "path": "src/components/admin/pokemon/raids-panel.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 289,
+      "children": [
+        "@/components/site/ui-assets"
+      ],
+      "parents": [
+        "src/components/pokemon-admin/raids-panel.jsx"
+      ],
+      "hooks": [
+        "useMemo",
+        "useState"
+      ],
+      "assets": [
+        "/ui/raids/mega_raids_legendaire_raids.png",
+        "/ui/raids/ultra_breche_raids.png",
+        "/ui/raids/mega_raids.png",
+        "/ui/raids/primal_raids.png",
+        "/ui/raids/5_star_raids.png",
+        "/ui/raids/3_star_raids.png",
+        "/ui/raids/1_star_raids.png",
+        "/ui/raids/shadow_icon.png",
+        "/ui/raids/teamrocket_r.png",
+        "/ui/raids/elite_raids.png"
+      ],
+      "responsive": [
+        "sm",
+        "2xl",
+        "xl"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 12
+    },
+    {
+      "id": "COMP-056",
+      "names": [
+        "ResearchPanel"
+      ],
+      "path": "src/components/admin/pokemon/research-panel.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 396,
+      "children": [
+        "@/components/site/ui-assets"
+      ],
+      "parents": [
+        "src/components/pokemon-admin/research-panel.jsx"
+      ],
+      "hooks": [
+        "useMemo",
+        "useState"
+      ],
+      "assets": [
+        "/ui/Types/ico_0_normal.png",
+        "/ui/Types/ico_1_fighting.png",
+        "/ui/Types/ico_2_flying.png",
+        "/ui/Types/ico_3_poison.png",
+        "/ui/Types/ico_4_ground.png",
+        "/ui/Types/ico_5_rock.png",
+        "/ui/Types/ico_6_bug.png",
+        "/ui/Types/ico_7_ghost.png",
+        "/ui/Types/ico_8_steel.png",
+        "/ui/Types/ico_9_fire.png",
+        "/ui/Types/ico_10_water.png",
+        "/ui/Types/ico_11_grass.png",
+        "/ui/Types/ico_12_electric.png",
+        "/ui/Types/ico_13_psychic.png",
+        "/ui/Types/ico_14_ice.png",
+        "/ui/Types/ico_15_dragon.png",
+        "/ui/Types/ico_16_dark.png",
+        "/ui/Types/ico_17_fairy.png",
+        "/ui/Items/Item_1201.png",
+        "/ui/Items/stardust_painted.png"
+      ],
+      "responsive": [
+        "sm",
+        "md",
+        "2xl",
+        "xl"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 15
+    },
+    {
+      "id": "COMP-057",
+      "names": [
+        "RocketPanel"
+      ],
+      "path": "src/components/admin/pokemon/rocket-panel.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 466,
+      "children": [
+        "@/components/site/ui-assets"
+      ],
+      "parents": [
+        "src/components/pokemon-admin/rocket-panel.jsx"
+      ],
+      "hooks": [
+        "useMemo",
+        "useState"
+      ],
+      "assets": [
+        "/ui/rocket/leader-arlo.webp",
+        "/ui/rocket/leader-cliff.webp",
+        "/ui/rocket/boss-giovanni.webp",
+        "/ui/rocket/leader-sierra.webp",
+        "/ui/rocket/male-grunt.webp",
+        "/ui/rocket/female-grunt.webp",
+        "/ui/Types/ico_0_normal.png",
+        "/ui/Types/ico_1_fighting.png",
+        "/ui/Types/ico_2_flying.png",
+        "/ui/Types/ico_3_poison.png",
+        "/ui/Types/ico_4_ground.png",
+        "/ui/Types/ico_5_rock.png",
+        "/ui/Types/ico_6_bug.png",
+        "/ui/Types/ico_7_ghost.png",
+        "/ui/Types/ico_8_steel.png",
+        "/ui/Types/ico_9_fire.png",
+        "/ui/Types/ico_10_water.png",
+        "/ui/Types/ico_11_grass.png",
+        "/ui/Types/ico_12_electric.png",
+        "/ui/Types/ico_13_psychic.png"
+      ],
+      "responsive": [
+        "md",
+        "xl",
+        "sm",
+        "2xl"
+      ],
+      "a11y": {
+        "aria": 1,
+        "roles": []
+      },
+      "hardcodes": 22
+    },
+    {
+      "id": "COMP-058",
+      "names": [
+        "ShinyTrackerPanel"
+      ],
+      "path": "src/components/admin/pokemon/shiny-tracker-panel.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 221,
+      "children": [
+        "@/components/site/pokemon-style",
+        "@/components/ui/modal"
+      ],
+      "hooks": [
+        "useState"
+      ],
+      "responsive": [
+        "sm",
+        "lg"
+      ],
+      "a11y": {
+        "aria": 6,
+        "roles": []
+      },
+      "hardcodes": 20
+    },
+    {
+      "id": "COMP-059",
+      "names": [
+        "SourceHistoryModal",
+        "DataDeployHistoryModal",
+        "SourceRows"
+      ],
+      "path": "src/components/admin/pokemon/source-watch-panel.tsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 487,
+      "parents": [
+        "src/components/pokemon-admin/source-watch-panel.tsx"
+      ],
+      "responsive": [
+        "sm",
+        "md"
+      ],
+      "a11y": {
+        "aria": 4,
+        "roles": [
+          "dialog"
+        ]
+      },
+      "hardcodes": 14
+    },
+    {
+      "id": "COMP-060",
+      "names": [
+        "TierSection"
+      ],
+      "path": "src/components/admin/pokemon/tier-section.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 108,
+      "hooks": [
+        "useState"
+      ],
+      "responsive": [
+        "sm"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 9
+    },
+    {
+      "id": "COMP-061",
+      "names": [
+        "UpdateLogPanel"
+      ],
+      "path": "src/components/admin/pokemon/update-log-panel.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 170,
+      "parents": [
+        "src/components/pokemon-admin/update-log-panel.jsx"
+      ],
+      "responsive": [
+        "xl",
+        "sm"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 3
+    },
+    {
+      "id": "COMP-062",
+      "names": [
+        "DashboardFooter"
+      ],
+      "path": "src/components/admin/shared/dashboard-footer.tsx",
+      "category": "Utility UI",
+      "status": "active",
+      "lines": 53,
+      "parents": [
+        "src/components/admin/layout/admin-app-frame.tsx",
+        "src/components/dashboard/dashboard-footer.tsx"
+      ],
+      "responsive": [
+        "sm"
+      ],
+      "a11y": {
+        "aria": 3,
+        "roles": []
+      },
+      "hardcodes": 4
+    },
+    {
+      "id": "COMP-063",
+      "names": [
+        "DashboardLoadingState"
+      ],
+      "path": "src/components/admin/shared/loading-state.tsx",
+      "category": "Utility UI",
+      "status": "active",
+      "client": true,
+      "lines": 34,
+      "children": [
+        "@/components/ui/card"
+      ],
+      "parents": [
+        "src/app/(dashboard)/projects/page.tsx",
+        "src/components/admin/forms/calendar-planner.tsx",
+        "src/components/admin/forms/kanban-board.tsx",
+        "src/components/admin/forms/notes-board.tsx",
+        "src/components/admin/forms/todo-list.tsx",
+        "src/components/admin/tables/dashboard-backlog.tsx",
+        "src/components/dashboard/loading-state.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/projects/page.tsx"
+      ],
+      "responsive": [
+        "md",
+        "xl"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-064",
+      "names": [
+        "ModalPortal"
+      ],
+      "path": "src/components/admin/shared/modal-portal.jsx",
+      "category": "Utility UI",
+      "status": "active",
+      "client": true,
+      "lines": 9,
+      "parents": [
+        "src/components/admin/events/event-editor-modal.jsx",
+        "src/components/admin/events/events-calendar-panel.jsx"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-065",
+      "names": [
+        "SortableWidgetGrid"
+      ],
+      "path": "src/components/admin/shared/sortable-widget-grid.tsx",
+      "category": "Utility UI",
+      "status": "active",
+      "client": true,
+      "lines": 239,
+      "parents": [
+        "src/components/admin/dashboard/daily-tools.tsx",
+        "src/components/admin/dashboard/dashboard-home-live.tsx",
+        "src/components/admin/pokemon/admin-app.jsx",
+        "src/components/admin/stats/database-stats.tsx",
+        "src/components/admin/stats/learning-analytics.tsx",
+        "src/components/dashboard/sortable-widget-grid.tsx"
+      ],
+      "hooks": [
+        "useMemo",
+        "useSensor",
+        "useSensors",
+        "useSortable"
+      ],
+      "responsive": [
+        "lg",
+        "2xl",
+        "md"
+      ],
+      "a11y": {
+        "aria": 2,
+        "roles": []
+      },
+      "hardcodes": 6
+    },
+    {
+      "id": "COMP-066",
+      "names": [
+        "DashboardCharts"
+      ],
+      "path": "src/components/admin/stats/dashboard-charts.tsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 112,
+      "children": [
+        "@/components/ui/card"
+      ],
+      "parents": [
+        "src/components/dashboard/dashboard-charts.tsx"
+      ],
+      "hooks": [
+        "useEffect",
+        "useState"
+      ],
+      "responsive": [
+        "xl"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 13
+    },
+    {
+      "id": "COMP-067",
+      "names": [
+        "DatabaseStats"
+      ],
+      "path": "src/components/admin/stats/database-stats.tsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 335,
+      "children": [
+        "@/components/admin/shared/sortable-widget-grid",
+        "@/components/ui/button",
+        "@/components/ui/card"
+      ],
+      "parents": [
+        "src/app/(dashboard)/database/page.tsx",
+        "src/components/dashboard/database-stats.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/database/page.tsx"
+      ],
+      "hooks": [
+        "useEffect",
+        "useMemo",
+        "useState"
+      ],
+      "api": [
+        "/api/database-stats"
+      ],
+      "responsive": [
+        "sm",
+        "2xl",
+        "xl"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 6
+    },
+    {
+      "id": "COMP-068",
+      "names": [
+        "LearningAnalytics"
+      ],
+      "path": "src/components/admin/stats/learning-analytics.tsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 210,
+      "children": [
+        "@/components/admin/shared/sortable-widget-grid",
+        "@/components/ui/card"
+      ],
+      "parents": [
+        "src/app/(dashboard)/analytics/page.tsx",
+        "src/components/dashboard/learning-analytics.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/analytics/page.tsx"
+      ],
+      "hooks": [
+        "@/hooks/admin/use-javascript-learning",
+        "useJavascriptLearning",
+        "useMemo",
+        "usePersistentState"
+      ],
+      "responsive": [
+        "xl",
+        "sm"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 4
+    },
+    {
+      "id": "COMP-069",
+      "names": [
+        "PokemonAnalytics"
+      ],
+      "path": "src/components/admin/stats/pokemon-analytics.tsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 236,
+      "children": [
+        "@/components/ui/badge",
+        "@/components/ui/card"
+      ],
+      "parents": [
+        "src/components/dashboard/pokemon-analytics.tsx"
+      ],
+      "hooks": [
+        "useEffect",
+        "useState"
+      ],
+      "api": [
+        "/api/pokemon-stats"
+      ],
+      "responsive": [
+        "sm",
+        "xl"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 23
+    },
+    {
+      "id": "COMP-070",
+      "names": [
+        "DashboardBacklog"
+      ],
+      "path": "src/components/admin/tables/dashboard-backlog.tsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 856,
+      "children": [
+        "@/components/admin/shared/loading-state",
+        "@/components/ui/badge",
+        "@/components/ui/button",
+        "@/components/ui/card",
+        "@/components/ui/input",
+        "@/components/ui/modal"
+      ],
+      "parents": [
+        "src/app/(dashboard)/tools/dashboard-backlog/page.tsx",
+        "src/components/dashboard/dashboard-backlog.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/tools/dashboard-backlog/page.tsx"
+      ],
+      "hooks": [
+        "useEffect",
+        "useMemo",
+        "useState"
+      ],
+      "api": [
+        "/api/dashboard-backlog"
+      ],
+      "responsive": [
+        "lg",
+        "sm",
+        "xl",
+        "2xl",
+        "md"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 6,
+      "debt": "very-large-component"
+    },
+    {
+      "id": "COMP-071",
+      "names": [
+        "DetailModal"
+      ],
+      "path": "src/components/checklist/detail-modal.jsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/pokemon/detail-modal"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-072",
+      "names": [
+        "PokemonCard"
+      ],
+      "path": "src/components/checklist/pokemon-card.jsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/pokemon/pokemon-card"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-073",
+      "names": [
+        "AppFrame"
+      ],
+      "path": "src/components/dashboard/app-frame.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/layout/admin-app-frame"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-074",
+      "names": [
+        "CalendarPlanner"
+      ],
+      "path": "src/components/dashboard/calendar-planner.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/forms/calendar-planner"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-075",
+      "names": [
+        "ColorLab"
+      ],
+      "path": "src/components/dashboard/color-lab.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/dashboard/color-lab"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-076",
+      "names": [
+        "DailyTools"
+      ],
+      "path": "src/components/dashboard/daily-tools.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/dashboard/daily-tools"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-077",
+      "names": [
+        "DashboardBacklog"
+      ],
+      "path": "src/components/dashboard/dashboard-backlog.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/tables/dashboard-backlog"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-078",
+      "names": [
+        "DashboardCharts"
+      ],
+      "path": "src/components/dashboard/dashboard-charts.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/stats/dashboard-charts"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-079",
+      "names": [
+        "DashboardFooter"
+      ],
+      "path": "src/components/dashboard/dashboard-footer.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "lines": 2,
+      "children": [
+        "@/components/admin/shared/dashboard-footer"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-080",
+      "names": [
+        "DashboardHomeLive"
+      ],
+      "path": "src/components/dashboard/dashboard-home-live.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/dashboard/dashboard-home-live"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-081",
+      "names": [
+        "DatabaseStats"
+      ],
+      "path": "src/components/dashboard/database-stats.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/stats/database-stats"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-082",
+      "names": [
+        "JavaScriptExercises"
+      ],
+      "path": "src/components/dashboard/javascript-exercises.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/forms/javascript-exercises"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-083",
+      "names": [
+        "JsProgress"
+      ],
+      "path": "src/components/dashboard/js-progress.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/forms/js-progress"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-084",
+      "names": [
+        "KanbanBoard"
+      ],
+      "path": "src/components/dashboard/kanban-board.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/forms/kanban-board"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-085",
+      "names": [
+        "LearningAnalytics"
+      ],
+      "path": "src/components/dashboard/learning-analytics.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/stats/learning-analytics"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-086",
+      "names": [
+        "DashboardLoadingState"
+      ],
+      "path": "src/components/dashboard/loading-state.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "lines": 2,
+      "children": [
+        "@/components/admin/shared/loading-state"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-087",
+      "names": [
+        "NotesBoard"
+      ],
+      "path": "src/components/dashboard/notes-board.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/forms/notes-board"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-088",
+      "names": [
+        "PokemonAnalytics"
+      ],
+      "path": "src/components/dashboard/pokemon-analytics.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/stats/pokemon-analytics"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-089",
+      "names": [
+        "PokemonApiExplorer"
+      ],
+      "path": "src/components/dashboard/pokemon-api-explorer.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/pokemon/pokemon-api-explorer"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-090",
+      "names": [
+        "PokemonApiStatus"
+      ],
+      "path": "src/components/dashboard/pokemon-api-status.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/pokemon/pokemon-api-status"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-091",
+      "names": [
+        "PokemonDocsViewer"
+      ],
+      "path": "src/components/dashboard/pokemon-docs-viewer.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 7,
+      "children": [
+        "@/components/admin/pokemon/pokemon-docs-viewer"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-092",
+      "names": [
+        "PokemonWidget"
+      ],
+      "path": "src/components/dashboard/pokemon-widget.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "lines": 2,
+      "children": [
+        "@/components/admin/cards/pokemon-widget"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-093",
+      "names": [
+        "Pomodoro"
+      ],
+      "path": "src/components/dashboard/pomodoro.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/dashboard/pomodoro"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-094",
+      "names": [
+        "Providers"
+      ],
+      "path": "src/components/dashboard/providers.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/layout/admin-providers"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-095",
+      "names": [
+        "SnippetVault"
+      ],
+      "path": "src/components/dashboard/snippet-vault.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/dashboard/snippet-vault"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-096",
+      "names": [
+        "SortableWidgetGrid"
+      ],
+      "path": "src/components/dashboard/sortable-widget-grid.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 7,
+      "children": [
+        "@/components/admin/shared/sortable-widget-grid"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-097",
+      "names": [
+        "StatCard"
+      ],
+      "path": "src/components/dashboard/stat-card.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "lines": 2,
+      "children": [
+        "@/components/admin/cards/stat-card"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-098",
+      "names": [
+        "TodoList"
+      ],
+      "path": "src/components/dashboard/todo-list.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/forms/todo-list"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-099",
+      "names": [
+        "WriterStudio"
+      ],
+      "path": "src/components/dashboard/writer-studio.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/forms/writer-studio"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-100",
+      "names": [
+        "AdminApp"
+      ],
+      "path": "src/components/pokemon-admin/admin-app.jsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/pokemon/admin-app"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-101",
+      "names": [
+        "AdminUi"
+      ],
+      "path": "src/components/pokemon-admin/admin-ui.jsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/pokemon/admin-ui"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-102",
+      "names": [
+        "AssetIcons"
+      ],
+      "path": "src/components/pokemon-admin/asset-icons.jsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/pokemon/asset-icons"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-103",
+      "names": [
+        "CandyPanel"
+      ],
+      "path": "src/components/pokemon-admin/candy-panel.jsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/pokemon/candy-panel"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-104",
+      "names": [
+        "CatalogPanel"
+      ],
+      "path": "src/components/pokemon-admin/catalog-panel.jsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/pokemon/catalog-panel"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-105",
+      "names": [
+        "CollectionsPanel"
+      ],
+      "path": "src/components/pokemon-admin/collections-panel.jsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/pokemon/collections-panel"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-106",
+      "names": [
+        "EggsPanel"
+      ],
+      "path": "src/components/pokemon-admin/eggs-panel.jsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/pokemon/eggs-panel"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-107",
+      "names": [
+        "EventsCalendarPanel"
+      ],
+      "path": "src/components/pokemon-admin/events-calendar-panel.jsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/events/events-calendar-panel"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-108",
+      "names": [
+        "LoginCard"
+      ],
+      "path": "src/components/pokemon-admin/login-card.jsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/pokemon/login-card"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-109",
+      "names": [
+        "MaxBattlesPanel"
+      ],
+      "path": "src/components/pokemon-admin/max-battles-panel.jsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/pokemon/max-battles-panel"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-110",
+      "names": [
+        "PokemonAdminStudio"
+      ],
+      "path": "src/components/pokemon-admin/pokemon-admin-studio.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/pokemon/pokemon-admin-studio"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-111",
+      "names": [
+        "RaidsPanel"
+      ],
+      "path": "src/components/pokemon-admin/raids-panel.jsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/pokemon/raids-panel"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-112",
+      "names": [
+        "ResearchPanel"
+      ],
+      "path": "src/components/pokemon-admin/research-panel.jsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/pokemon/research-panel"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-113",
+      "names": [
+        "RocketPanel"
+      ],
+      "path": "src/components/pokemon-admin/rocket-panel.jsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/pokemon/rocket-panel"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-114",
+      "names": [
+        "SourceWatchPanel"
+      ],
+      "path": "src/components/pokemon-admin/source-watch-panel.tsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/pokemon/source-watch-panel"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-115",
+      "names": [
+        "UpdateLogPanel"
+      ],
+      "path": "src/components/pokemon-admin/update-log-panel.jsx",
+      "category": "Compatibility",
+      "status": "facade",
+      "client": true,
+      "lines": 4,
+      "children": [
+        "@/components/admin/pokemon/update-log-panel"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "duplication": "compatibility re-export"
+    },
+    {
+      "id": "COMP-116",
+      "names": [
+        "MetricCard"
+      ],
+      "path": "src/components/site/metric-card.jsx",
+      "category": "Public UI",
+      "status": "active",
+      "lines": 36,
+      "parents": [
+        "src/components/admin/pokemon/admin-app.jsx"
+      ],
+      "responsive": [
+        "md"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 2
+    },
+    {
+      "id": "COMP-117",
+      "names": [
+        "PokemonStyle"
+      ],
+      "path": "src/components/site/pokemon-style.js",
+      "category": "Public UI",
+      "status": "active",
+      "lines": 194,
+      "parents": [
+        "src/components/admin/pokemon/admin-ui.jsx",
+        "src/components/admin/pokemon/background-panel.jsx",
+        "src/components/admin/pokemon/candy-panel.jsx",
+        "src/components/admin/pokemon/catalog-panel.jsx",
+        "src/components/admin/pokemon/collections-panel.jsx",
+        "src/components/admin/pokemon/detail-modal.jsx",
+        "src/components/admin/pokemon/pokemon-card.jsx",
+        "src/components/admin/pokemon/pvp-rankings-panel.jsx",
+        "src/components/admin/pokemon/shiny-tracker-panel.jsx"
+      ],
+      "assets": [
+        "/ui/Types/ico_6_bug.png",
+        "/ui/Types/ico_16_dark.png",
+        "/ui/Types/ico_15_dragon.png",
+        "/ui/Types/ico_12_electric.png",
+        "/ui/Types/ico_17_fairy.png",
+        "/ui/Types/ico_1_fighting.png",
+        "/ui/Types/ico_9_fire.png",
+        "/ui/Types/ico_2_flying.png",
+        "/ui/Types/ico_7_ghost.png",
+        "/ui/Types/ico_11_grass.png",
+        "/ui/Types/ico_4_ground.png",
+        "/ui/Types/ico_14_ice.png",
+        "/ui/Types/ico_0_normal.png",
+        "/ui/Types/ico_3_poison.png",
+        "/ui/Types/ico_13_psychic.png",
+        "/ui/Types/ico_5_rock.png",
+        "/ui/Types/ico_8_steel.png",
+        "/ui/Types/ico_10_water.png"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 18
+    },
+    {
+      "id": "COMP-118",
+      "names": [
+        "UiAssets"
+      ],
+      "path": "src/components/site/ui-assets.js",
+      "category": "Public UI",
+      "status": "active",
+      "lines": 81,
+      "parents": [
+        "src/components/admin/pokemon/admin-app.jsx",
+        "src/components/admin/pokemon/asset-icons.jsx",
+        "src/components/admin/pokemon/collections-panel.jsx",
+        "src/components/admin/pokemon/detail-modal.jsx",
+        "src/components/admin/pokemon/eggs-panel.jsx",
+        "src/components/admin/pokemon/max-battles-panel.jsx",
+        "src/components/admin/pokemon/pokemon-card.jsx",
+        "src/components/admin/pokemon/raids-panel.jsx",
+        "src/components/admin/pokemon/research-panel.jsx",
+        "src/components/admin/pokemon/rocket-panel.jsx"
+      ],
+      "assets": [
+        "/ui/pokemon-go-logo.png",
+        "/ui/pokemon-go-logo-white.png",
+        "/ui/icons/go_logo.png",
+        "/ui/icons/fiche.svg",
+        "/ui/icons/book-spells.svg",
+        "/ui/icons/probleme.svg",
+        "/ui/icons/resultat.svg",
+        "/ui/icons/pokedex.png",
+        "/ui/icons/pokedex-kanto.webp",
+        "/ui/icons/pokemon.png",
+        "/ui/icons/pokeball.webp",
+        "/ui/icons/search.png",
+        "/ui/icons/speedometer.png",
+        "/ui/icons/combat.png",
+        "/ui/icons/max_pc.webp",
+        "/ui/icons/check-circle.png",
+        "/ui/icons/tag.png",
+        "/ui/icons/weight.png",
+        "/ui/icons/height.png",
+        "/ui/icons/copy.png"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-119",
+      "names": [
+        "Badge"
+      ],
+      "path": "src/components/ui/badge.tsx",
+      "category": "Atomic",
+      "status": "active",
+      "lines": 31,
+      "parents": [
+        "src/app/(dashboard)/account/page.tsx",
+        "src/app/(dashboard)/projects/page.tsx",
+        "src/app/login/page.tsx",
+        "src/components/admin/cards/pokemon-widget.tsx",
+        "src/components/admin/dashboard/color-lab.tsx",
+        "src/components/admin/dashboard/daily-tools.tsx",
+        "src/components/admin/dashboard/dashboard-home-live.tsx",
+        "src/components/admin/dashboard/pomodoro.tsx",
+        "src/components/admin/dashboard/snippet-vault.tsx",
+        "src/components/admin/forms/calendar-planner.tsx",
+        "src/components/admin/forms/javascript-exercises.tsx",
+        "src/components/admin/forms/js-progress.tsx",
+        "src/components/admin/forms/kanban-board.tsx",
+        "src/components/admin/forms/notes-board.tsx",
+        "src/components/admin/forms/todo-list.tsx",
+        "src/components/admin/forms/writer-studio.tsx",
+        "src/components/admin/learning/learning-achievement-grid.tsx",
+        "src/components/admin/learning/learning-detail-modal.tsx",
+        "src/components/admin/learning/learning-import-modal.tsx",
+        "src/components/admin/learning/learning-topic-card.tsx",
+        "src/components/admin/navigation/admin-sidebar.tsx",
+        "src/components/admin/pokemon/pokemon-api-explorer.tsx",
+        "src/components/admin/pokemon/pokemon-docs-viewer.tsx",
+        "src/components/admin/stats/pokemon-analytics.tsx",
+        "src/components/admin/tables/dashboard-backlog.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/account/page.tsx",
+        "src/app/(dashboard)/projects/page.tsx",
+        "src/app/login/page.tsx"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-120",
+      "names": [
+        "Button"
+      ],
+      "path": "src/components/ui/button.tsx",
+      "category": "Atomic",
+      "status": "active",
+      "lines": 67,
+      "props": [
+        "ButtonProps"
+      ],
+      "parents": [
+        "src/app/(dashboard)/projects/page.tsx",
+        "src/app/login/page.tsx",
+        "src/components/admin/dashboard/color-lab.tsx",
+        "src/components/admin/dashboard/daily-tools.tsx",
+        "src/components/admin/dashboard/dashboard-home-live.tsx",
+        "src/components/admin/dashboard/pomodoro.tsx",
+        "src/components/admin/dashboard/snippet-vault.tsx",
+        "src/components/admin/forms/calendar-planner.tsx",
+        "src/components/admin/forms/javascript-exercises.tsx",
+        "src/components/admin/forms/js-progress.tsx",
+        "src/components/admin/forms/kanban-board.tsx",
+        "src/components/admin/forms/notes-board.tsx",
+        "src/components/admin/forms/todo-list.tsx",
+        "src/components/admin/forms/writer-studio.tsx",
+        "src/components/admin/learning/learning-detail-modal.tsx",
+        "src/components/admin/learning/learning-import-modal.tsx",
+        "src/components/admin/navigation/admin-palette-selector.tsx",
+        "src/components/admin/navigation/admin-sidebar.tsx",
+        "src/components/admin/navigation/admin-topbar.tsx",
+        "src/components/admin/pokemon/pokemon-api-explorer.tsx",
+        "src/components/admin/pokemon/pokemon-api-status.tsx",
+        "src/components/admin/stats/database-stats.tsx",
+        "src/components/admin/tables/dashboard-backlog.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/projects/page.tsx",
+        "src/app/login/page.tsx"
+      ],
+      "responsive": [
+        "sm",
+        "md",
+        "lg"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-121",
+      "names": [
+        "CardHeader",
+        "CardTitle",
+        "CardDescription",
+        "Card"
+      ],
+      "path": "src/components/ui/card.tsx",
+      "category": "Atomic",
+      "status": "active",
+      "lines": 69,
+      "props": [
+        "CardProps"
+      ],
+      "parents": [
+        "src/app/(dashboard)/account/page.tsx",
+        "src/app/(dashboard)/projects/page.tsx",
+        "src/app/login/page.tsx",
+        "src/components/admin/cards/pokemon-widget.tsx",
+        "src/components/admin/cards/stat-card.tsx",
+        "src/components/admin/dashboard/color-lab.tsx",
+        "src/components/admin/dashboard/daily-tools.tsx",
+        "src/components/admin/dashboard/dashboard-home-live.tsx",
+        "src/components/admin/dashboard/pomodoro.tsx",
+        "src/components/admin/dashboard/snippet-vault.tsx",
+        "src/components/admin/forms/calendar-planner.tsx",
+        "src/components/admin/forms/javascript-exercises.tsx",
+        "src/components/admin/forms/js-progress.tsx",
+        "src/components/admin/forms/kanban-board.tsx",
+        "src/components/admin/forms/notes-board.tsx",
+        "src/components/admin/forms/todo-list.tsx",
+        "src/components/admin/forms/writer-studio.tsx",
+        "src/components/admin/learning/learning-achievement-grid.tsx",
+        "src/components/admin/learning/learning-activity.tsx",
+        "src/components/admin/learning/learning-advanced-stats.tsx",
+        "src/components/admin/learning/learning-summary.tsx",
+        "src/components/admin/learning/learning-topic-card.tsx",
+        "src/components/admin/pokemon/pokemon-api-explorer.tsx",
+        "src/components/admin/pokemon/pokemon-docs-viewer.tsx",
+        "src/components/admin/shared/loading-state.tsx",
+        "src/components/admin/stats/dashboard-charts.tsx",
+        "src/components/admin/stats/database-stats.tsx",
+        "src/components/admin/stats/learning-analytics.tsx",
+        "src/components/admin/stats/pokemon-analytics.tsx",
+        "src/components/admin/tables/dashboard-backlog.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/account/page.tsx",
+        "src/app/(dashboard)/projects/page.tsx",
+        "src/app/login/page.tsx"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-122",
+      "names": [
+        "Input",
+        "Textarea"
+      ],
+      "path": "src/components/ui/input.tsx",
+      "category": "Atomic",
+      "status": "active",
+      "lines": 34,
+      "parents": [
+        "src/app/(dashboard)/projects/page.tsx",
+        "src/app/login/page.tsx",
+        "src/components/admin/dashboard/color-lab.tsx",
+        "src/components/admin/dashboard/daily-tools.tsx",
+        "src/components/admin/dashboard/snippet-vault.tsx",
+        "src/components/admin/forms/calendar-planner.tsx",
+        "src/components/admin/forms/kanban-board.tsx",
+        "src/components/admin/forms/notes-board.tsx",
+        "src/components/admin/forms/todo-list.tsx",
+        "src/components/admin/forms/writer-studio.tsx",
+        "src/components/admin/learning/learning-detail-modal.tsx",
+        "src/components/admin/pokemon/pokemon-docs-viewer.tsx",
+        "src/components/admin/tables/dashboard-backlog.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/projects/page.tsx",
+        "src/app/login/page.tsx"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-123",
+      "names": [
+        "Modal"
+      ],
+      "path": "src/components/ui/modal.tsx",
+      "category": "Atomic",
+      "status": "active",
+      "client": true,
+      "lines": 78,
+      "parents": [
+        "src/app/(dashboard)/projects/page.tsx",
+        "src/components/admin/dashboard/snippet-vault.tsx",
+        "src/components/admin/forms/calendar-planner.tsx",
+        "src/components/admin/forms/kanban-board.tsx",
+        "src/components/admin/learning/learning-detail-modal.tsx",
+        "src/components/admin/learning/learning-import-modal.tsx",
+        "src/components/admin/pokemon/background-panel.jsx",
+        "src/components/admin/pokemon/shiny-tracker-panel.jsx",
+        "src/components/admin/tables/dashboard-backlog.tsx"
+      ],
+      "pages": [
+        "src/app/(dashboard)/projects/page.tsx"
+      ],
+      "hooks": [
+        "useEffect"
+      ],
+      "responsive": [
+        "sm"
+      ],
+      "a11y": {
+        "aria": 4,
+        "roles": [
+          "dialog"
+        ]
+      },
+      "hardcodes": 2
+    },
+    {
+      "id": "COMP-124",
+      "names": [
+        "LandingExperience"
+      ],
+      "path": "Landing-Page-PogoApi/components/landing-experience.jsx",
+      "category": "Public UI",
+      "status": "active",
+      "client": true,
+      "lines": 205,
+      "parents": [
+        "Landing-Page-PogoApi/app/page.jsx"
+      ],
+      "pages": [
+        "Landing-Page-PogoApi/app/page.jsx"
+      ],
+      "hooks": [
+        "useEffect",
+        "useRef"
+      ],
+      "assets": [
+        "https://pokemon-go-api.vercel.app",
+        "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main"
+      ],
+      "responsive": [
+        "sm",
+        "md",
+        "lg"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 6
+    },
+    {
+      "id": "COMP-125",
+      "names": [
+        "AssetsApp"
+      ],
+      "path": "PokemonGo-API-/components/assets/assets-app.jsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 568,
+      "children": [
+        "PokemonGo-API-/components/site/metric-card",
+        "PokemonGo-API-/components/site/ui-assets",
+        "PokemonGo-API-/components/site/pokemon-style"
+      ],
+      "parents": [
+        "PokemonGo-API-/app/assets/page.js"
+      ],
+      "pages": [
+        "PokemonGo-API-/app/assets/page.js"
+      ],
+      "hooks": [
+        "useEffect",
+        "useMemo",
+        "useState"
+      ],
+      "api": [
+        "/api/checklist-v3?action=catalog",
+        "/api/checklist-v3?action=assets"
+      ],
+      "responsive": [
+        "sm",
+        "md",
+        "lg",
+        "xl",
+        "2xl"
+      ],
+      "a11y": {
+        "aria": 1,
+        "roles": [
+          "presentation"
+        ]
+      },
+      "hardcodes": 6,
+      "debt": "very-large-component"
+    },
+    {
+      "id": "COMP-126",
+      "names": [
+        "ChecklistApp"
+      ],
+      "path": "PokemonGo-API-/components/checklist/checklist-app.jsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 355,
+      "children": [
+        "PokemonGo-API-/components/site/metric-card",
+        "PokemonGo-API-/components/checklist/pokemon-card",
+        "PokemonGo-API-/components/checklist/detail-modal",
+        "PokemonGo-API-/components/site/ui-assets"
+      ],
+      "parents": [
+        "PokemonGo-API-/app/checklist/page.js",
+        "PokemonGo-API-/app/bibliotheque/page.js"
+      ],
+      "pages": [
+        "PokemonGo-API-/app/checklist/page.js",
+        "PokemonGo-API-/app/bibliotheque/page.js"
+      ],
+      "hooks": [
+        "useChecklistData",
+        "useEffect",
+        "useMemo",
+        "useState"
+      ],
+      "api": [
+        "/api/checklist-v3",
+        "/api/checklist-v3?action=catalog",
+        "/api/checklist-v3?action=detail"
+      ],
+      "responsive": [
+        "sm",
+        "md",
+        "lg",
+        "xl",
+        "2xl"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-127",
+      "names": [
+        "DetailModal"
+      ],
+      "path": "PokemonGo-API-/components/checklist/detail-modal.jsx",
+      "category": "Complex",
+      "status": "active",
+      "client": true,
+      "lines": 825,
+      "children": [
+        "PokemonGo-API-/components/site/pokemon-style",
+        "PokemonGo-API-/components/site/ui-assets"
+      ],
+      "parents": [
+        "PokemonGo-API-/components/checklist/checklist-app.jsx"
+      ],
+      "hooks": [
+        "useEffect",
+        "useMemo",
+        "useState"
+      ],
+      "responsive": [
+        "sm",
+        "lg",
+        "xl"
+      ],
+      "a11y": {
+        "aria": 3,
+        "roles": [
+          "presentation",
+          "dialog"
+        ]
+      },
+      "hardcodes": 5,
+      "debt": "very-large-component"
+    },
+    {
+      "id": "COMP-128",
+      "names": [
+        "PokemonCard"
+      ],
+      "path": "PokemonGo-API-/components/checklist/pokemon-card.jsx",
+      "category": "Public UI",
+      "status": "active",
+      "lines": 180,
+      "children": [
+        "PokemonGo-API-/components/site/pokemon-style",
+        "PokemonGo-API-/components/site/ui-assets"
+      ],
+      "parents": [
+        "PokemonGo-API-/components/checklist/checklist-app.jsx",
+        "PokemonGo-API-/components/site/featured-random.jsx"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 4
+    },
+    {
+      "id": "COMP-129",
+      "names": [
+        "ApiStatusPill"
+      ],
+      "path": "PokemonGo-API-/components/site/api-status-pill.jsx",
+      "category": "Public UI",
+      "status": "active",
+      "client": true,
+      "lines": 45,
+      "parents": [
+        "PokemonGo-API-/components/site/shell.jsx"
+      ],
+      "hooks": [
+        "useEffect",
+        "useState"
+      ],
+      "api": [
+        "/health"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-130",
+      "names": [
+        "FeaturedRandom"
+      ],
+      "path": "PokemonGo-API-/components/site/featured-random.jsx",
+      "category": "Public UI",
+      "status": "active",
+      "client": true,
+      "lines": 46,
+      "children": [
+        "PokemonGo-API-/components/checklist/pokemon-card"
+      ],
+      "parents": [
+        "PokemonGo-API-/app/page.js"
+      ],
+      "pages": [
+        "PokemonGo-API-/app/page.js"
+      ],
+      "hooks": [
+        "useEffect",
+        "useState"
+      ],
+      "responsive": [
+        "lg"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-131",
+      "names": [
+        "MetricCard"
+      ],
+      "path": "PokemonGo-API-/components/site/metric-card.jsx",
+      "category": "Public UI",
+      "status": "active",
+      "lines": 36,
+      "parents": [
+        "PokemonGo-API-/app/page.js",
+        "PokemonGo-API-/components/assets/assets-app.jsx",
+        "PokemonGo-API-/components/checklist/checklist-app.jsx"
+      ],
+      "pages": [
+        "PokemonGo-API-/app/page.js"
+      ],
+      "responsive": [
+        "md"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-132",
+      "names": [
+        "catalogItem",
+        "typeName",
+        "typeIcon",
+        "typeBackground",
+        "preferredPokemonImage",
+        "pokemonVariantLabel",
+        "typeLabels",
+        "typeColors"
+      ],
+      "path": "PokemonGo-API-/components/site/pokemon-style.js",
+      "category": "Public UI",
+      "status": "active",
+      "lines": 131,
+      "parents": [
+        "PokemonGo-API-/components/assets/assets-app.jsx",
+        "PokemonGo-API-/components/checklist/detail-modal.jsx",
+        "PokemonGo-API-/components/checklist/pokemon-card.jsx"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 18
+    },
+    {
+      "id": "COMP-133",
+      "names": [
+        "SectionCard"
+      ],
+      "path": "PokemonGo-API-/components/site/section-card.jsx",
+      "category": "Public UI",
+      "status": "unused",
+      "lines": 17,
+      "parents": [],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 0,
+      "debt": "unreferenced-component"
+    },
+    {
+      "id": "COMP-134",
+      "names": [
+        "SiteShell",
+        "PokeballMark"
+      ],
+      "path": "PokemonGo-API-/components/site/shell.jsx",
+      "category": "Layout",
+      "status": "active",
+      "client": true,
+      "lines": 164,
+      "children": [
+        "PokemonGo-API-/components/site/theme-toggle",
+        "PokemonGo-API-/components/site/api-status-pill",
+        "PokemonGo-API-/components/site/ui-assets"
+      ],
+      "parents": [
+        "PokemonGo-API-/app/layout.js"
+      ],
+      "hooks": [
+        "usePathname",
+        "useState"
+      ],
+      "responsive": [
+        "md",
+        "lg"
+      ],
+      "a11y": {
+        "aria": 13,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-135",
+      "names": [
+        "ThemeToggle"
+      ],
+      "path": "PokemonGo-API-/components/site/theme-toggle.jsx",
+      "category": "Public UI",
+      "status": "active",
+      "client": true,
+      "lines": 56,
+      "parents": [
+        "PokemonGo-API-/components/site/shell.jsx"
+      ],
+      "hooks": [
+        "useEffect",
+        "useState"
+      ],
+      "a11y": {
+        "aria": 2,
+        "roles": []
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-136",
+      "names": [
+        "uiAssets"
+      ],
+      "path": "PokemonGo-API-/components/site/ui-assets.js",
+      "category": "Public UI",
+      "status": "active",
+      "lines": 80,
+      "parents": [
+        "PokemonGo-API-/app/page.js",
+        "PokemonGo-API-/components/assets/assets-app.jsx",
+        "PokemonGo-API-/components/checklist/checklist-app.jsx",
+        "PokemonGo-API-/components/checklist/detail-modal.jsx",
+        "PokemonGo-API-/components/checklist/pokemon-card.jsx",
+        "PokemonGo-API-/components/site/shell.jsx"
+      ],
+      "assets": [
+        "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/pokemonShuffle/0025_pikachu_normal.png",
+        "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/Stickers/sticker_flair_marshadow_0802.png"
+      ],
+      "a11y": {
+        "aria": 0,
+        "roles": []
+      },
+      "hardcodes": 2
+    },
+    {
+      "id": "COMP-137",
+      "names": [
+        "TrainerPokemonCollectionPanel"
+      ],
+      "path": "src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "lines": 365,
+      "children": [
+        "@/components/ui/badge",
+        "@/components/ui/button",
+        "@/components/ui/card",
+        "@/components/ui/input",
+        "@/components/ui/modal"
+      ],
+      "parents": [
+        "src/components/admin/pokemon/admin-app.jsx"
+      ],
+      "hooks": [
+        "useCallback",
+        "useEffect",
+        "useMemo",
+        "useRef",
+        "useState"
+      ],
+      "api": [
+        "/api/trainer-pokemon",
+        "/api/trainer-pokemon/import",
+        "/api/trainer-pokemon/imports",
+        "/api/trainer-pokemon/imports/:id/rollback"
+      ],
+      "responsive": [
+        "sm",
+        "lg",
+        "xl"
+      ],
+      "a11y": {
+        "aria": 8,
+        "roles": [
+          "alert"
+        ]
+      },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-325",
+      "names": ["PokemonArtwork"],
+      "path": "src/components/admin/pokemon/pokemon-artwork.jsx",
+      "category": "Atomic",
+      "status": "active",
+      "client": true,
+      "parents": [
+        "src/components/admin/pokemon/raids-panel.jsx",
+        "src/components/admin/pokemon/eggs-panel.jsx",
+        "src/components/admin/pokemon/max-battles-panel.jsx",
+        "src/components/admin/pokemon/rocket-panel.jsx",
+        "src/components/admin/pokemon/research-panel.jsx",
+        "src/components/admin/pokemon/shiny-tracker-panel.jsx",
+        "src/components/admin/pokemon/pvp-rankings-panel.jsx",
+        "src/components/admin/pokemon/best-attackers-panel.jsx"
+      ],
+      "a11y": { "aria": 0, "roles": [] },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-326",
+      "names": ["PokemonStateIndicators"],
+      "path": "src/components/admin/pokemon/pokemon-state-indicators.jsx",
+      "category": "Atomic",
+      "status": "active",
+      "client": true,
+      "parents": ["src/components/admin/pokemon/best-attackers-panel.jsx"],
+      "a11y": { "aria": 1, "roles": [] },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-327",
+      "names": ["BestAttackersPanel"],
+      "path": "src/components/admin/pokemon/best-attackers-panel.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "parents": ["src/components/admin/pokemon/admin-app.jsx"],
+      "api": ["/api/pokemon-admin?action=best-attackers"],
+      "responsive": ["sm", "xl"],
+      "a11y": { "aria": 2, "roles": [] },
+      "hardcodes": 0
+    },
+    {
+      "id": "COMP-328",
+      "names": ["PokemonIdentityMappingsPanel"],
+      "path": "src/components/admin/pokemon/pokemon-identity-mappings-panel.jsx",
+      "category": "Feature",
+      "status": "active",
+      "client": true,
+      "parents": ["src/components/admin/pokemon/admin-app.jsx"],
+      "api": ["/api/pokemon-admin?action=pokemon-identity-mappings"],
+      "responsive": ["sm"],
+      "a11y": { "aria": 2, "roles": [] },
+      "hardcodes": 0
+    }
+  ]
+}

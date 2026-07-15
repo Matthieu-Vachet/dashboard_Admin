@@ -1,0 +1,182 @@
+{
+  "pages": [
+    {
+      "id": "MWI-PAGE-001",
+      "route": "/account",
+      "file": "src/app/(dashboard)/account/page.tsx",
+      "components": [
+        "MWI-COMP-001"
+      ]
+    },
+    {
+      "id": "MWI-PAGE-002",
+      "route": "/analytics",
+      "file": "src/app/(dashboard)/analytics/page.tsx",
+      "components": [
+        "MWI-COMP-002"
+      ]
+    },
+    {
+      "id": "MWI-PAGE-003",
+      "route": "/calendar",
+      "file": "src/app/(dashboard)/calendar/page.tsx",
+      "components": [
+        "MWI-COMP-003"
+      ]
+    },
+    {
+      "id": "MWI-PAGE-004",
+      "route": "/database",
+      "file": "src/app/(dashboard)/database/page.tsx",
+      "components": [
+        "MWI-COMP-004"
+      ]
+    },
+    {
+      "id": "MWI-PAGE-005",
+      "route": "/exercices-javascript",
+      "file": "src/app/(dashboard)/exercices-javascript/page.tsx",
+      "components": [
+        "MWI-COMP-005"
+      ]
+    },
+    {
+      "id": "MWI-PAGE-006",
+      "route": "/js-progress",
+      "file": "src/app/(dashboard)/js-progress/page.tsx",
+      "components": [
+        "MWI-COMP-006"
+      ]
+    },
+    {
+      "id": "MWI-PAGE-007",
+      "route": "/kanban",
+      "file": "src/app/(dashboard)/kanban/page.tsx",
+      "components": [
+        "MWI-COMP-007"
+      ]
+    },
+    {
+      "id": "MWI-PAGE-008",
+      "route": "/notes",
+      "file": "src/app/(dashboard)/notes/page.tsx",
+      "components": [
+        "MWI-COMP-009"
+      ]
+    },
+    {
+      "id": "MWI-PAGE-009",
+      "route": "/",
+      "file": "src/app/(dashboard)/page.tsx",
+      "components": [
+        "MWI-COMP-010"
+      ]
+    },
+    {
+      "id": "MWI-PAGE-010",
+      "route": "/palette",
+      "file": "src/app/(dashboard)/palette/page.tsx",
+      "components": [
+        "MWI-COMP-011"
+      ]
+    },
+    {
+      "id": "MWI-PAGE-011",
+      "route": "/pokemon-admin",
+      "file": "src/app/(dashboard)/pokemon-admin/page.tsx",
+      "components": [
+        "MWI-COMP-012"
+      ]
+    },
+    {
+      "id": "MWI-PAGE-012",
+      "route": "/pokemon-docs",
+      "file": "src/app/(dashboard)/pokemon-docs/page.tsx",
+      "components": [
+        "MWI-COMP-013"
+      ]
+    },
+    {
+      "id": "MWI-PAGE-013",
+      "route": "/pomodoro",
+      "file": "src/app/(dashboard)/pomodoro/page.tsx",
+      "components": [
+        "MWI-COMP-014"
+      ]
+    },
+    {
+      "id": "MWI-PAGE-014",
+      "route": "/projects",
+      "file": "src/app/(dashboard)/projects/page.tsx",
+      "components": [
+        "MWI-COMP-015"
+      ]
+    },
+    {
+      "id": "MWI-PAGE-015",
+      "route": "/snippets",
+      "file": "src/app/(dashboard)/snippets/page.tsx",
+      "components": [
+        "MWI-COMP-016"
+      ]
+    },
+    {
+      "id": "MWI-PAGE-016",
+      "route": "/todo",
+      "file": "src/app/(dashboard)/todo/page.tsx",
+      "components": [
+        "MWI-COMP-017"
+      ]
+    },
+    {
+      "id": "MWI-PAGE-017",
+      "route": "/tools/dashboard-backlog",
+      "file": "src/app/(dashboard)/tools/dashboard-backlog/page.tsx",
+      "components": [
+        "MWI-COMP-018"
+      ]
+    },
+    {
+      "id": "MWI-PAGE-018",
+      "route": "/tools",
+      "file": "src/app/(dashboard)/tools/page.tsx",
+      "components": [
+        "MWI-COMP-019"
+      ]
+    },
+    {
+      "id": "MWI-PAGE-019",
+      "route": "/writer",
+      "file": "src/app/(dashboard)/writer/page.tsx",
+      "components": [
+        "MWI-COMP-020"
+      ]
+    },
+    {
+      "id": "MWI-PAGE-020",
+      "route": "/login",
+      "file": "src/app/login/page.tsx",
+      "components": [
+        "MWI-COMP-022"
+      ]
+    }
+  ],
+  "layouts": [
+    {
+      "id": "MWI-LAYOUT-001",
+      "scope": "/",
+      "file": "src/app/(dashboard)/layout.tsx",
+      "components": [
+        "MWI-COMP-008"
+      ]
+    },
+    {
+      "id": "MWI-LAYOUT-002",
+      "scope": "/",
+      "file": "src/app/layout.tsx",
+      "components": [
+        "MWI-COMP-021"
+      ]
+    }
+  ]
+}

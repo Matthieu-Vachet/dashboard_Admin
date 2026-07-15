@@ -1,0 +1,430 @@
+{
+  "auditVersion": "1.0.0",
+  "postAuditUpdatedAt": "2026-07-14",
+  "postAuditAddendum": "34-post-audit-changes.md",
+  "count": 22,
+  "entries": [
+    {
+      "id": "DATASET-001",
+      "name": "Pokemon principal",
+      "visibility": "private-source/public-api",
+      "sourceProject": "PokemonGo-Data",
+      "sourceFiles": "pokemon/*.json",
+      "fileCount": 1024,
+      "bytes": 3952955,
+      "schema": "schemas/pokemon.schema.json",
+      "schemaVersion": "not embedded",
+      "generatedAt": null,
+      "pipeline": "static sync",
+      "mongodb": "pokemon",
+      "routes": [
+        "/api/v1/pokemon",
+        "smart/search/forms routes"
+      ],
+      "pages": [
+        "PAGE-022"
+      ],
+      "sourceOfTruth": "PokemonGo-Data"
+    },
+    {
+      "id": "DATASET-002",
+      "name": "Pokemon forms",
+      "visibility": "private-source/public-api",
+      "sourceProject": "PokemonGo-Data",
+      "sourceFiles": "pokemon-forms/**/*.json",
+      "fileCount": 580,
+      "bytes": 2133811,
+      "schema": "schemas/pokemon.schema.json",
+      "pipeline": "merged into static Pokemon sync",
+      "mongodb": "pokemon",
+      "routes": [
+        "forms/pokemon routes"
+      ],
+      "pages": [
+        "PAGE-022"
+      ],
+      "sourceOfTruth": "PokemonGo-Data"
+    },
+    {
+      "id": "DATASET-003",
+      "name": "Pokemon heavy assets references",
+      "visibility": "private-source/public-api",
+      "sourceFiles": "pokemon-assets/**/*.assets.json",
+      "fileCount": 1604,
+      "bytes": 6523941,
+      "schema": "schemas/pokemon-assets.schema.json",
+      "pipeline": "static sync",
+      "mongodb": "pokemonassets",
+      "routes": [
+        "asset/background/shuffle routes"
+      ],
+      "pages": [
+        "PAGE-024",
+        "PAGE-026"
+      ],
+      "sourceOfTruth": "PokemonGo-Data enriched from Assets repository"
+    },
+    {
+      "id": "DATASET-004",
+      "name": "Moves",
+      "visibility": "private-source/public-api",
+      "sourceFiles": "moves/**/*.json",
+      "fileCount": 468,
+      "bytes": 241639,
+      "pipeline": "static sync",
+      "mongodb": "moves",
+      "routes": [
+        "/api/v1/moves",
+        "/api/v1/pvp"
+      ],
+      "pages": [
+        "PAGE-027",
+        "PAGE-031"
+      ],
+      "sourceOfTruth": "PokemonGo-Data"
+    },
+    {
+      "id": "DATASET-005",
+      "name": "Types",
+      "visibility": "private-source/public-api",
+      "sourceFiles": "types/*.json",
+      "fileCount": 19,
+      "bytes": 33639,
+      "pipeline": "static sync",
+      "mongodb": "types",
+      "routes": [
+        "/api/v1/types"
+      ],
+      "pages": [
+        "PAGE-027"
+      ],
+      "sourceOfTruth": "PokemonGo-Data"
+    },
+    {
+      "id": "DATASET-006",
+      "name": "Weather",
+      "visibility": "private-source/public-api",
+      "sourceFiles": "weather/*.json",
+      "fileCount": 8,
+      "bytes": 6714,
+      "pipeline": "static sync",
+      "mongodb": "weather",
+      "routes": [
+        "/api/v1/weather"
+      ],
+      "pages": [
+        "PAGE-027"
+      ],
+      "sourceOfTruth": "PokemonGo-Data"
+    },
+    {
+      "id": "DATASET-007",
+      "name": "Generations and regions",
+      "visibility": "private-source/public-api",
+      "sourceFiles": "generations/*.json",
+      "fileCount": 10,
+      "bytes": 2512,
+      "pipeline": "static sync into two derived targets",
+      "mongodb": [
+        "generations",
+        "regions"
+      ],
+      "routes": [
+        "/api/v1/generations",
+        "/api/v1/regions"
+      ],
+      "pages": [
+        "PAGE-022",
+        "PAGE-027"
+      ],
+      "sourceOfTruth": "PokemonGo-Data"
+    },
+    {
+      "id": "DATASET-008",
+      "name": "Items and aliases",
+      "visibility": "private-source/public-api-items",
+      "sourceFiles": [
+        "items/items.json",
+        "items/itemAliases.json"
+      ],
+      "fileCount": 2,
+      "bytes": 132738,
+      "volume": {
+        "items": 93,
+        "aliases": 23
+      },
+      "provider": "PokeMiners plus manual aliases",
+      "pipeline": "static sync for items; aliases generation-only",
+      "mongodb": "items",
+      "routes": [
+        "/api/v1/items"
+      ],
+      "pages": [
+        "PAGE-033"
+      ],
+      "sourceOfTruth": "PokemonGo-Data"
+    },
+    {
+      "id": "DATASET-009",
+      "name": "Rocket texts",
+      "visibility": "private-source/public-api",
+      "sourceFiles": "rocket/rocketTexts.json",
+      "volume": 25,
+      "provider": "PokeMiners game master",
+      "pipeline": "static sync",
+      "mongodb": "rockettexts",
+      "routes": [
+        "/api/v1/rocket-texts"
+      ],
+      "pages": [
+        "PAGE-030"
+      ],
+      "sourceOfTruth": "PokemonGo-Data"
+    },
+    {
+      "id": "DATASET-010",
+      "name": "Stickers",
+      "visibility": "private-source/public-api",
+      "sourceFiles": "stickers/stickers.json",
+      "fileCount": 1,
+      "bytes": 439550,
+      "volume": 1667,
+      "pipeline": "static source reader / route",
+      "mongodb": "INFORMATION NON TROUVÉE as dedicated model",
+      "routes": [
+        "/api/v1/stickers"
+      ],
+      "pages": [
+        "PAGE-026"
+      ],
+      "sourceOfTruth": "PokemonGo-Data"
+    },
+    {
+      "id": "DATASET-011",
+      "name": "Candy colors/assets",
+      "visibility": "private-source/public-api",
+      "sourceFiles": "PokemonCandyColorData.json",
+      "bytes": 180096,
+      "pipeline": "static reader plus asset enrichment",
+      "mongodb": "derived through Pokemon/assets",
+      "routes": [
+        "/api/v1/candy"
+      ],
+      "pages": [
+        "PAGE-023"
+      ],
+      "sourceOfTruth": "PokemonGo-Data"
+    },
+    {
+      "id": "DATASET-012",
+      "name": "Current raids",
+      "visibility": "public",
+      "sourceFiles": "raids/currentRaids.json (fixture/export only)",
+      "bytes": 13141,
+      "provider": "LeekDuck",
+      "schemaVersion": "not in local JSON",
+      "pipeline": "external generation -> validation -> Mongo current -> readback",
+      "mongodb": "raids",
+      "routes": [
+        "/api/v1/raids",
+        "/api/v1/admin/raids/*"
+      ],
+      "pages": [
+        "PAGE-028"
+      ],
+      "sourceOfTruth": "MongoDB production"
+    },
+    {
+      "id": "DATASET-013",
+      "name": "Current eggs",
+      "visibility": "public",
+      "sourceFiles": "eggs/currentEggs.json (fixture/export only)",
+      "bytes": 60148,
+      "provider": "LeekDuck",
+      "pipeline": "current dataset pipeline",
+      "mongodb": "eggs",
+      "routes": [
+        "/api/v1/eggs",
+        "/api/v1/admin/eggs/*"
+      ],
+      "pages": [
+        "PAGE-032"
+      ],
+      "sourceOfTruth": "MongoDB production"
+    },
+    {
+      "id": "DATASET-014",
+      "name": "Current max battles",
+      "visibility": "public",
+      "sourceFiles": "max-battles/currentsMaxBattle.json (fixture/export only)",
+      "bytes": 2549,
+      "provider": "Snacknap",
+      "pipeline": "current dataset pipeline",
+      "mongodb": "maxbattles",
+      "routes": [
+        "/api/v1/max-battles",
+        "/api/v1/admin/max-battles/*"
+      ],
+      "pages": [
+        "PAGE-029"
+      ],
+      "sourceOfTruth": "MongoDB production"
+    },
+    {
+      "id": "DATASET-015",
+      "name": "Current Rocket",
+      "visibility": "public",
+      "sourceFiles": "rocket/currentRocket.json (fixture/export only)",
+      "bytes": 367155,
+      "provider": "LeekDuck",
+      "pipeline": "current dataset pipeline",
+      "mongodb": "rockets",
+      "routes": [
+        "/api/v1/rocket",
+        "/api/v1/admin/rocket/*"
+      ],
+      "pages": [
+        "PAGE-030"
+      ],
+      "sourceOfTruth": "MongoDB production"
+    },
+    {
+      "id": "DATASET-016",
+      "name": "Current Research",
+      "visibility": "public",
+      "sourceFiles": "research/currentResearch.json (fixture/export only)",
+      "bytes": 489144,
+      "provider": "LeekDuck",
+      "pipeline": "current dataset pipeline",
+      "mongodb": "researches",
+      "routes": [
+        "/api/v1/research",
+        "/api/v1/admin/research/*"
+      ],
+      "pages": [
+        "PAGE-033"
+      ],
+      "sourceOfTruth": "MongoDB production"
+    },
+    {
+      "id": "DATASET-017",
+      "name": "Shiny Tracker",
+      "visibility": "private",
+      "sourceFiles": "shiny-tracker/current.json",
+      "bytes": 4065719,
+      "schemaVersion": 2,
+      "generatedAt": "2026-07-12T16:23:45.008Z",
+      "volume": 1201,
+      "provider": "Snacknap",
+      "pipeline": "formal provider pipeline -> compressed Mongo current + snapshots",
+      "mongodb": [
+        "shinyrankings",
+        "shinysnapshots"
+      ],
+      "routes": [
+        "private /api/v1/shiny",
+        "admin shiny"
+      ],
+      "pages": [
+        "PAGE-035"
+      ],
+      "sourceOfTruth": "MongoDB production; JSON generated artifact"
+    },
+    {
+      "id": "DATASET-018",
+      "name": "PvP Rankings",
+      "visibility": "public",
+      "sourceFiles": "pvp-rankings/current.json",
+      "bytes": 81933967,
+      "schemaVersion": 2,
+      "generatedAt": "2026-07-12T17:13:46.020Z",
+      "volume": 19272,
+      "formats": 34,
+      "provider": "PvPoke",
+      "pipeline": "formal provider pipeline -> compressed Mongo current",
+      "mongodb": "pvprankings",
+      "routes": [
+        "/api/v1/pvp-rankings",
+        "admin pvp-rankings"
+      ],
+      "pages": [
+        "PAGE-031"
+      ],
+      "sourceOfTruth": "MongoDB production; JSON generated artifact"
+    },
+    {
+      "id": "DATASET-019",
+      "name": "Source Watch catalog",
+      "visibility": "private-admin",
+      "sourceFiles": "source-watch/sources.json",
+      "bytes": 6455,
+      "volume": 21,
+      "pipeline": "generic source-watch checks and history",
+      "mongodb": "dashboard store/history",
+      "routes": [
+        "Dashboard /api/pokemon-admin source-watch actions"
+      ],
+      "pages": [
+        "PAGE-037",
+        "PAGE-040"
+      ],
+      "sourceOfTruth": "PokemonGo-Data configuration"
+    },
+    {
+      "id": "DATASET-020",
+      "name": "Collection personnelle Pokémon GO",
+      "visibility": "private-dashboard",
+      "sourceProject": "Dashboard Admin",
+      "sourceFiles": "JSON importé par l’administrateur; aucun fichier métier conservé dans le dépôt",
+      "schema": "Dashboard Admin/src/lib/trainer-pokemon/schema.ts",
+      "schemaVersion": "champ source facultatif; aucun numéro imposé par le validateur",
+      "generatedAt": null,
+      "pipeline": "validation -> normalisation avec référentiels API -> snapshot MongoDB -> read-back -> activation du pointeur owner",
+      "mongodb": [
+        "trainer_pokemon_owners",
+        "trainer_pokemon_snapshots",
+        "trainer_pokemon_entries"
+      ],
+      "routes": [
+        "/api/trainer-pokemon",
+        "/api/trainer-pokemon/import",
+        "/api/trainer-pokemon/imports",
+        "/api/trainer-pokemon/imports/:id/rollback"
+      ],
+      "pages": [
+        "PAGE-049"
+      ],
+      "sourceOfTruth": "snapshot actif dans MongoDB Dashboard, isolé par owner"
+    },
+    {
+      "id": "DATASET-021",
+      "name": "Game Master Pokemon mappings",
+      "visibility": "private-admin",
+      "sourceProject": "PokemonGo-Data",
+      "sourceFiles": "game-master/gameMasterPokemonMappings.json",
+      "schemaVersion": 1,
+      "volume": 2456,
+      "provider": "PokeMiners game_masters",
+      "pipeline": "Game Master -> canonical comparison -> Mongo current verified",
+      "mongodb": "pokemon_identity_mappings",
+      "routes": ["/api/v1/pokemon-identity-mappings", "admin pokemon-identity-mappings"],
+      "pages": ["PAGE-051"],
+      "sourceOfTruth": "MongoDB production; JSON generated artifact"
+    },
+    {
+      "id": "DATASET-022",
+      "name": "Best Attackers PvE",
+      "visibility": "public",
+      "sourceProject": "PokemonGo-Data",
+      "sourceFiles": "best-attackers/bestAttackers.json",
+      "schemaVersion": 1,
+      "volume": 92511,
+      "provider": "DialgaDex formulas plus PokemonGo-Data",
+      "pipeline": "local references -> GPL wrapper -> compressed Mongo current verified",
+      "mongodb": "best_attackers",
+      "routes": ["/api/v1/best-attackers", "admin best-attackers"],
+      "pages": ["PAGE-050"],
+      "sourceOfTruth": "MongoDB production; JSON generated artifact"
+    }
+  ]
+}

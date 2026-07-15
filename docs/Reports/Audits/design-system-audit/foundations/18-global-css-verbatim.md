@@ -1,0 +1,676 @@
+# Global CSS — verbatim implementation snapshot
+
+Source: `Dashboard Admin/src/app/globals.css`. This appendix exists so the system can be rebuilt without access to source.
+
+```css
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  --background: #05060d;
+  --foreground: #eef3ff;
+  --muted: #94a3b8;
+  --panel: rgba(13, 17, 31, 0.74);
+  --panel-strong: rgba(18, 24, 43, 0.9);
+  --line: rgba(255, 255, 255, 0.1);
+  --line-strong: rgba(255, 255, 255, 0.18);
+  --brand: #905bf4;
+  --brand-2: #20d3ff;
+  --brand-3: #58f2a9;
+  --accent-primary: #20d3ff;
+  --accent-secondary: #905bf4;
+  --accent-tertiary: #58f2a9;
+  --accent-muted: rgba(32, 211, 255, 0.12);
+  --accent-glow: rgba(32, 211, 255, 0.28);
+  --accent-border: rgba(32, 211, 255, 0.36);
+  --accent-text: #bdf5ff;
+  --accent-bg: rgba(32, 211, 255, 0.12);
+  --accent-rgb: 32 211 255;
+  --warning: #ffd166;
+  --danger: #ff5f7d;
+  --radius: 8px;
+}
+
+.light {
+  color-scheme: light;
+  --background: #f3f8ff;
+  --foreground: #101827;
+  --muted: #526177;
+  --panel: rgba(255, 255, 255, 0.86);
+  --panel-strong: rgba(255, 255, 255, 0.97);
+  --line: rgba(15, 23, 42, 0.14);
+  --line-strong: rgba(15, 23, 42, 0.24);
+  --brand: #7c3aed;
+  --brand-2: #0284c7;
+  --brand-3: #059669;
+  --accent-primary: #0284c7;
+  --accent-secondary: #7c3aed;
+  --accent-tertiary: #059669;
+  --accent-muted: rgba(2, 132, 199, 0.12);
+  --accent-glow: rgba(2, 132, 199, 0.18);
+  --accent-border: rgba(2, 132, 199, 0.34);
+  --accent-text: #075985;
+  --accent-bg: rgba(2, 132, 199, 0.11);
+  --accent-rgb: 2 132 199;
+  --warning: #b7791f;
+  --danger: #dc3157;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-panel: var(--panel);
+  --color-panel-strong: var(--panel-strong);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brand-2: var(--brand-2);
+  --color-brand-3: var(--brand-3);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --font-sans: "Geist", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "SFMono-Regular", ui-monospace, monospace;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 8px;
+  --radius-xl: 8px;
+  --radius-2xl: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: var(--background);
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  background:
+    radial-gradient(ellipse at top, rgba(32, 211, 255, 0.1), transparent 34%),
+    linear-gradient(115deg, rgba(144, 91, 244, 0.14), transparent 28%),
+    linear-gradient(245deg, rgba(32, 211, 255, 0.12), transparent 28%),
+    var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  letter-spacing: 0;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+.light body {
+  background:
+    radial-gradient(ellipse at 10% 0%, var(--accent-glow), transparent 36%),
+    radial-gradient(ellipse at 90% 8%, color-mix(in srgb, var(--accent-tertiary) 13%, transparent), transparent 34%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(234, 243, 253, 0.94)),
+    var(--background);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: var(--accent-border);
+}
+
+.studio-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(120deg, transparent 0 48%, var(--accent-muted) 49%, transparent 50% 100%);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
+}
+
+.light .studio-grid {
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+    linear-gradient(120deg, transparent 0 48%, var(--accent-muted) 49%, transparent 50% 100%);
+  opacity: 0.46;
+}
+
+.scanline-overlay {
+  z-index: 0;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.025) 0,
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px,
+      transparent 5px
+    );
+  opacity: 0.28;
+}
+
+.light .scanline-overlay {
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(15, 23, 42, 0.022) 0,
+      rgba(15, 23, 42, 0.022) 1px,
+      transparent 1px,
+      transparent 6px
+    );
+  opacity: 0.2;
+}
+
+.energy-scan {
+  z-index: 0;
+  background: linear-gradient(90deg, transparent, var(--accent-muted), transparent);
+  transform: skewX(-14deg);
+  mix-blend-mode: screen;
+  animation: energy-scan 5.5s linear infinite;
+  will-change: transform;
+}
+
+.light .energy-scan {
+  background: linear-gradient(90deg, transparent, var(--accent-muted), transparent);
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+
+.pokemon-interface-icon {
+  filter: drop-shadow(0 0 10px var(--accent-glow));
+  opacity: 0.98;
+}
+
+.dashboard-sidebar {
+  background: rgba(6, 8, 18, 0.78);
+  color: var(--foreground);
+}
+
+.dashboard-sidebar-mobile {
+  background: rgba(6, 8, 18, 0.94);
+  color: var(--foreground);
+}
+
+.dashboard-sidebar-card {
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.dashboard-account-zone {
+  background:
+    radial-gradient(circle at 12% 0%, var(--accent-muted), transparent 42%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.065), rgba(15, 23, 42, 0.3));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 16px 46px rgba(0, 0, 0, 0.18);
+}
+
+.light .dashboard-sidebar {
+  background: linear-gradient(180deg, rgba(248, 252, 255, 0.96), rgba(239, 247, 255, 0.92));
+  color: #0f172a;
+  box-shadow: 18px 0 70px rgba(15, 23, 42, 0.08);
+}
+
+.light .dashboard-sidebar-mobile {
+  background: rgba(246, 250, 255, 0.96);
+  color: #0f172a;
+  box-shadow: 18px 0 70px rgba(15, 23, 42, 0.14);
+}
+
+.light .dashboard-sidebar-card {
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88);
+}
+
+.light .dashboard-account-zone {
+  background:
+    radial-gradient(circle at 12% 0%, var(--accent-muted), transparent 42%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(240, 247, 255, 0.72));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 16px 46px rgba(15, 23, 42, 0.09);
+}
+
+.light .dashboard-sidebar-link:hover {
+  background: var(--accent-bg);
+}
+
+.light .dashboard-sidebar-group {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.pokemon-admin-surface {
+  color: #fff;
+}
+
+.light .pokemon-admin-surface {
+  min-height: calc(100dvh - 7rem);
+  border-radius: 2rem;
+  background:
+    radial-gradient(circle at 12% 0%, var(--accent-glow), transparent 32%),
+    radial-gradient(circle at 88% 12%, color-mix(in srgb, var(--accent-tertiary) 12%, transparent), transparent 28%),
+    linear-gradient(135deg, rgba(248, 252, 255, 0.98), rgba(229, 242, 250, 0.96));
+  color: var(--foreground);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.94),
+    0 30px 110px rgba(15, 23, 42, 0.13);
+}
+
+.glass-panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 24px 80px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(18px);
+}
+
+.light .glass-panel {
+  background: var(--panel);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    0 18px 55px rgba(31, 45, 69, 0.1);
+}
+
+.glass-panel-strong {
+  border: 1px solid var(--line-strong);
+  background: var(--panel-strong);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 0 1px var(--accent-muted),
+    0 30px 120px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(22px);
+}
+
+.light .glass-panel-strong {
+  background: var(--panel-strong);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.96),
+    0 0 0 1px var(--accent-muted),
+    0 24px 80px rgba(31, 45, 69, 0.12);
+}
+
+.light input:not([type="checkbox"]),
+.light textarea,
+.light select {
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--foreground);
+}
+
+.light [class*="bg-white/["] {
+  background-color: rgba(255, 255, 255, 0.82);
+}
+
+.light main [class*="bg-slate-950/"],
+.light main .bg-\[\#101522\],
+.light main .bg-\[\#101522\]\/88,
+.light main .bg-\[\#07111f\],
+.light main .bg-\[\#050816\]\/85 {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  color: var(--foreground);
+}
+
+.light main [class*="bg-white/["] [class*="text-white"],
+.light main [class*="bg-white/["] [class*="text-slate-100"],
+.light main [class*="bg-white/["] [class*="text-slate-200"],
+.light main [class*="bg-white/["] [class*="text-cyan-50"],
+.light main [class*="bg-white/["] [class*="text-cyan-100"],
+.light main [class*="bg-white/["] [class*="text-emerald-100"],
+.light main [class*="bg-white/["] [class*="text-violet-100"],
+.light main [class*="bg-white/["] [class*="text-amber-100"],
+.light main [class*="bg-white/["] [class*="text-rose-100"] {
+  color: var(--foreground) !important;
+}
+
+.light main [class*="bg-white/["] [class*="text-white/"],
+.light main [class*="bg-white/["] [class*="text-slate-300"],
+.light main [class*="bg-white/["] [class*="text-slate-400"],
+.light main [class*="bg-white/["] [class*="text-slate-500"] {
+  color: var(--muted) !important;
+}
+
+.light .event-detail-overlay,
+.light .pokemon-modal-overlay {
+  background: rgba(15, 23, 42, 0.3) !important;
+}
+
+.light .event-detail-modal,
+.light .pokemon-detail-modal {
+  border-color: var(--line-strong) !important;
+  background:
+    radial-gradient(circle at 12% 0%, var(--accent-glow), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(236, 246, 255, 0.96)) !important;
+  color: var(--foreground) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    0 30px 110px rgba(15, 23, 42, 0.26) !important;
+}
+
+.light .event-detail-modal-body,
+.light .pokemon-detail-modal-body {
+  background:
+    linear-gradient(rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 8% 0%, var(--accent-muted), transparent 32%),
+    rgba(248, 252, 255, 0.94) !important;
+  color: var(--foreground);
+}
+
+.light .pokemon-detail-modal-header {
+  background:
+    linear-gradient(135deg, rgba(7, 16, 30, 0.86), rgba(15, 23, 42, 0.72)),
+    radial-gradient(circle at 14% 0%, var(--accent-glow), transparent 34%) !important;
+}
+
+.light .pokemon-detail-modal-header [class*="text-slate-200"] {
+  color: rgba(238, 243, 255, 0.84) !important;
+}
+
+.light .pokemon-detail-section {
+  border-color: var(--line) !important;
+  background:
+    radial-gradient(circle at 10% 0%, var(--accent-muted), transparent 38%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(244, 249, 255, 0.88)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.86),
+    0 18px 54px rgba(15, 23, 42, 0.09) !important;
+}
+
+.light .pokemon-detail-section > div:first-child {
+  background: transparent !important;
+}
+
+.light .event-detail-modal-body [class*="bg-slate-950/"],
+.light .event-detail-modal-body [class*="bg-white/["],
+.light .pokemon-detail-modal-body [class*="bg-slate-950/"],
+.light .pokemon-detail-modal-body [class*="bg-white/["] {
+  background-color: rgba(255, 255, 255, 0.82) !important;
+}
+
+.light .event-detail-modal-body [class*="border-white/"],
+.light .pokemon-detail-modal-body [class*="border-white/"] {
+  border-color: var(--line) !important;
+}
+
+.light .event-detail-modal-body [class*="text-white"],
+.light .event-detail-modal-body [class*="text-slate-100"],
+.light .event-detail-modal-body [class*="text-slate-200"],
+.light .event-detail-modal-body [class*="text-cyan-50"],
+.light .event-detail-modal-body [class*="text-cyan-100"],
+.light .event-detail-modal-body [class*="text-emerald-100"],
+.light .event-detail-modal-body [class*="text-violet-100"],
+.light .event-detail-modal-body [class*="text-amber-100"],
+.light .event-detail-modal-body [class*="text-rose-100"],
+.light .pokemon-detail-modal-body [class*="text-white"],
+.light .pokemon-detail-modal-body [class*="text-slate-100"],
+.light .pokemon-detail-modal-body [class*="text-slate-200"],
+.light .pokemon-detail-modal-body [class*="text-cyan-50"],
+.light .pokemon-detail-modal-body [class*="text-cyan-100"],
+.light .pokemon-detail-modal-body [class*="text-emerald-100"],
+.light .pokemon-detail-modal-body [class*="text-violet-100"],
+.light .pokemon-detail-modal-body [class*="text-amber-100"],
+.light .pokemon-detail-modal-body [class*="text-rose-100"] {
+  color: var(--foreground) !important;
+}
+
+.light .event-detail-modal-body [class*="text-white/"],
+.light .event-detail-modal-body [class*="text-slate-300"],
+.light .event-detail-modal-body [class*="text-slate-400"],
+.light .event-detail-modal-body [class*="text-slate-500"],
+.light .pokemon-detail-modal-body [class*="text-white/"],
+.light .pokemon-detail-modal-body [class*="text-slate-300"],
+.light .pokemon-detail-modal-body [class*="text-slate-400"],
+.light .pokemon-detail-modal-body [class*="text-slate-500"] {
+  color: var(--muted) !important;
+}
+
+.light [class*="text-cyan-100"],
+.light [class*="text-emerald-100"],
+.light [class*="text-violet-100"],
+.light [class*="text-amber-100"],
+.light [class*="text-rose-100"] {
+  color: var(--foreground);
+}
+
+.widget-glow-frame {
+  position: relative;
+  isolation: isolate;
+}
+
+.widget-glow-frame::before {
+  position: absolute;
+  inset: 14px 6px -8px;
+  z-index: -1;
+  border-radius: 14px;
+  background: radial-gradient(circle at 24% 0%, color-mix(in srgb, var(--widget-accent) 32%, transparent), transparent 58%);
+  content: "";
+  filter: blur(18px);
+  opacity: 0.58;
+  pointer-events: none;
+}
+
+.widget-glow-frame > div {
+  border: 1px solid color-mix(in srgb, var(--widget-accent) 24%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--widget-accent) 10%, transparent), transparent 48%),
+    rgba(255, 255, 255, 0.015);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--widget-accent) 18%, transparent),
+    0 18px 58px rgba(0, 0, 0, 0.1);
+}
+
+.widget-glow-frame > div::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--widget-accent) 32%, transparent), transparent);
+  content: "";
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.light .widget-glow-frame::before {
+  opacity: 0.36;
+  filter: blur(20px);
+}
+
+.light .widget-glow-frame > div {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--widget-accent) 12%, transparent), transparent 52%),
+    rgba(255, 255, 255, 0.88);
+  color: var(--foreground);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.76),
+    0 18px 52px rgba(15, 23, 42, 0.08);
+}
+
+.light .widget-toolbar,
+.light .widget-frame-actions {
+  border-color: rgba(31, 45, 69, 0.13);
+  background: rgba(255, 255, 255, 0.74);
+  color: #334155;
+}
+
+.light .widget-toolbar > span:first-child {
+  color: var(--accent-text);
+}
+
+.light .widget-toolbar-button,
+.light .widget-frame-button,
+.light .widget-toolbar-empty {
+  border-color: rgba(31, 45, 69, 0.12);
+  background: rgba(255, 255, 255, 0.82);
+  color: #334155;
+}
+
+.motion-border {
+  position: relative;
+  overflow: hidden;
+}
+
+.motion-border::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent, var(--accent-border), transparent),
+    linear-gradient(180deg, transparent, rgba(144, 91, 244, 0.28), transparent);
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.motion-border::after {
+  position: absolute;
+  inset: 1px;
+  content: "";
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent) 0 0 / 220% 100%;
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.motion-border:hover::before,
+.motion-border:hover::after {
+  opacity: 1;
+}
+
+.animated-sheen {
+  background-size: 220% 100%;
+  animation: sheen 6s ease-in-out infinite;
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.theme-icon-sun {
+  display: none;
+}
+
+.theme-icon-moon {
+  display: block;
+}
+
+.dashboard-primary-button {
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
+  box-shadow: 0 16px 42px rgb(var(--accent-rgb) / 0.2);
+}
+
+.dashboard-accent-glow {
+  box-shadow: 0 0 30px var(--accent-muted);
+}
+
+.dashboard-palette-trigger {
+  position: relative;
+}
+
+.dashboard-palette-menu {
+  background:
+    radial-gradient(circle at 16% 0%, var(--accent-muted), transparent 42%),
+    var(--panel-strong);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.light .dashboard-palette-menu {
+  box-shadow:
+    0 22px 62px rgba(15, 23, 42, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.94);
+}
+
+.dashboard-palette-option {
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.dashboard-palette-option:hover,
+.dashboard-palette-option[data-active="true"] {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+
+.light .dashboard-palette-option {
+  background: rgba(255, 255, 255, 0.74);
+}
+
+.light .pokemon-detail-modal .pokemon-detail-modal-header {
+  background-color: #0b1628 !important;
+  background-image:
+    linear-gradient(135deg, rgba(7, 16, 30, 0.9), rgba(15, 23, 42, 0.74)),
+    radial-gradient(circle at 14% 0%, var(--accent-glow), transparent 34%) !important;
+}
+
+.light .pokemon-detail-modal .pokemon-detail-modal-header [class*="text-slate-200"] {
+  color: rgba(238, 243, 255, 0.84) !important;
+}
+
+.light .pokemon-detail-modal-body .pokemon-detail-section {
+  border-color: var(--line) !important;
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  background-image:
+    radial-gradient(circle at 10% 0%, var(--accent-muted), transparent 38%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(244, 249, 255, 0.88)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.86),
+    0 18px 54px rgba(15, 23, 42, 0.09) !important;
+}
+
+.light .pokemon-detail-modal-body .pokemon-detail-section > div:first-child {
+  background: transparent !important;
+}
+
+.dark .theme-icon-sun {
+  display: block;
+}
+
+.dark .theme-icon-moon {
+  display: none;
+}
+
+.light .theme-icon-sun {
+  display: none;
+}
+
+.light .theme-icon-moon {
+  display: block;
+}
+
+@keyframes sheen {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes energy-scan {
+  from {
+    transform: translateX(-20%) skewX(-14deg);
+  }
+  to {
+    transform: translateX(420%) skewX(-14deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .energy-scan {
+    animation: none;
+  }
+}
+
+```

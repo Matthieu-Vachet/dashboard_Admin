@@ -1,0 +1,379 @@
+[
+  {
+    "family": "Buttons",
+    "auditComponentIds": ["MWI-COMP-039", "MWI-COMP-078", "MWI-COMP-089", "MWI-COMP-105", "MWI-COMP-125", "MWI-COMP-318"],
+    "sourcePaths": [
+      "src/components/ui/button.tsx",
+      "src/components/admin/dashboard/dashboard-home-live.tsx",
+      "src/components/admin/forms/calendar-planner.tsx",
+      "src/components/admin/forms/writer-studio.tsx",
+      "src/components/admin/learning/learning-detail-modal.tsx",
+      "src/components/admin/pokemon/admin-app.jsx"
+    ],
+    "currentImplementations": 6,
+    "embeddedNativeControls": 184,
+    "canonicalTarget": "Button (MWI-COMP-318) with finite variants and explicit composition",
+    "migrationCandidates": ["ExternalButton", "LoadMoreButton", "repeated icon buttons", "repeated primary/secondary/ghost/danger class patterns"],
+    "excludedComponents": ["EventButton", "ToolbarButton", "ProgressButton"],
+    "priority": "P1",
+    "risk": "high",
+    "estimatedSize": "XL",
+    "dependencies": ["semantic color tokens", "focus-visible baseline", "visual regression harness"],
+    "notes": [
+      "ToolbarButton and ProgressButton already compose MWI-COMP-318 and should remain business wrappers.",
+      "EventButton carries selection and event-domain layout; only its low-level button behavior is a migration candidate.",
+      "The 184 count is the current lexical count of native <button> occurrences outside the Button implementation, including two internal buttons in Modal."
+    ]
+  },
+  {
+    "family": "Cards",
+    "auditComponentIds": [
+      "MWI-COMP-024", "MWI-COMP-025", "MWI-COMP-033", "MWI-COMP-035", "MWI-COMP-042", "MWI-COMP-052", "MWI-COMP-059", "MWI-COMP-067", "MWI-COMP-069", "MWI-COMP-080", "MWI-COMP-084", "MWI-COMP-097", "MWI-COMP-099", "MWI-COMP-100", "MWI-COMP-101", "MWI-COMP-102", "MWI-COMP-103", "MWI-COMP-104", "MWI-COMP-109", "MWI-COMP-119", "MWI-COMP-120", "MWI-COMP-133", "MWI-COMP-137", "MWI-COMP-138", "MWI-COMP-146", "MWI-COMP-147", "MWI-COMP-149", "MWI-COMP-151", "MWI-COMP-166", "MWI-COMP-168", "MWI-COMP-181", "MWI-COMP-185", "MWI-COMP-187", "MWI-COMP-192", "MWI-COMP-193", "MWI-COMP-194", "MWI-COMP-198", "MWI-COMP-202", "MWI-COMP-208", "MWI-COMP-215", "MWI-COMP-220", "MWI-COMP-221", "MWI-COMP-223", "MWI-COMP-233", "MWI-COMP-237", "MWI-COMP-241", "MWI-COMP-242", "MWI-COMP-248", "MWI-COMP-249", "MWI-COMP-251", "MWI-COMP-253", "MWI-COMP-255", "MWI-COMP-261", "MWI-COMP-270", "MWI-COMP-275", "MWI-COMP-279", "MWI-COMP-286", "MWI-COMP-290", "MWI-COMP-293", "MWI-COMP-297", "MWI-COMP-306", "MWI-COMP-316", "MWI-COMP-319", "MWI-COMP-320", "MWI-COMP-321", "MWI-COMP-322"
+    ],
+    "sourcePaths": ["src/components/ui/card.tsx", "src/components/admin/cards", "src/components/admin/pokemon", "src/components/admin/learning", "src/components/admin/forms/kanban-board.tsx"],
+    "currentImplementations": 67,
+    "embeddedNativeControls": 0,
+    "canonicalTarget": "Card structural family (MWI-COMP-319 to MWI-COMP-322); MetricCard only after repeated-contract proof",
+    "migrationCandidates": ["simple surface wrappers", "stat/metric cards with identical anatomy", "post-audit PokemonMobileCard surface"],
+    "excludedComponents": ["PokemonCard", "RaidCard", "MaxBattleCard", "EggCard", "MatchupCard", "RewardCard", "KanbanTaskCard", "TicketCard"],
+    "priority": "P1",
+    "risk": "high",
+    "estimatedSize": "XL",
+    "dependencies": ["surface tokens", "radius policy", "elevation policy", "responsive screenshot coverage"],
+    "notes": [
+      "The audit has 66 card identities; the post-audit PokemonMobileCard raises the current family count to 67 without an MWI-COMP ID.",
+      "Do not merge all card identities. Classify structure, statistics, Pokemon, content, status, business-specialized and false-positive/helper cards first.",
+      "CardContent and CardFooter are not approved until padding/footer repetition is proven."
+    ]
+  },
+  {
+    "family": "Panels",
+    "auditComponentIds": ["MWI-COMP-051", "MWI-COMP-126", "MWI-COMP-130", "MWI-COMP-131", "MWI-COMP-138", "MWI-COMP-143", "MWI-COMP-144", "MWI-COMP-148", "MWI-COMP-150", "MWI-COMP-169", "MWI-COMP-170", "MWI-COMP-174", "MWI-COMP-175", "MWI-COMP-183", "MWI-COMP-184", "MWI-COMP-189", "MWI-COMP-206", "MWI-COMP-210", "MWI-COMP-218", "MWI-COMP-224", "MWI-COMP-229", "MWI-COMP-235", "MWI-COMP-293", "MWI-COMP-298", "MWI-COMP-301", "MWI-COMP-302", "MWI-COMP-303", "MWI-COMP-304", "MWI-COMP-305", "MWI-COMP-307", "MWI-COMP-309", "MWI-COMP-310", "MWI-COMP-311", "MWI-COMP-315"],
+    "sourcePaths": ["src/components/admin/pokemon/admin-ui.jsx", "src/components/pokemon-admin/admin-ui.jsx", "src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx"],
+    "currentImplementations": 35,
+    "embeddedNativeControls": 0,
+    "canonicalTarget": "Keep MWI-COMP-131 as a Pokemon Admin composite; no global Panel primitive yet",
+    "migrationCandidates": ["shared Pokemon Admin surface/header composition", "loading/empty/error slots where contracts match"],
+    "excludedComponents": ["ResearchPanel", "ShinyTrackerPanel", "CandyFamilyPanel", "EvolutionPanel", "IssuesPanel", "PvpPanel", "TrainerPokemonCollectionPanel"],
+    "priority": "P2",
+    "risk": "high",
+    "estimatedSize": "XL",
+    "dependencies": ["Card consolidation", "legacy Pokemon Admin visual adapter", "state contracts"],
+    "notes": [
+      "MWI-COMP-298 is a compatibility facade for MWI-COMP-131, not a second implementation.",
+      "MWI-COMP-131 has a legacy Pokemon Admin visual language and must not be promoted blindly to a global primitive.",
+      "The post-audit TrainerPokemonCollectionPanel is the 35th current panel-like implementation and has no audit ID."
+    ]
+  },
+  {
+    "family": "Badges and tags",
+    "auditComponentIds": ["MWI-COMP-061", "MWI-COMP-062", "MWI-COMP-065", "MWI-COMP-111", "MWI-COMP-145", "MWI-COMP-157", "MWI-COMP-158", "MWI-COMP-164", "MWI-COMP-173", "MWI-COMP-179", "MWI-COMP-186", "MWI-COMP-195", "MWI-COMP-196", "MWI-COMP-201", "MWI-COMP-207", "MWI-COMP-212", "MWI-COMP-317"],
+    "sourcePaths": ["src/components/ui/badge.tsx", "src/components/admin/forms/kanban-board.tsx", "src/components/admin/pokemon"],
+    "currentImplementations": 18,
+    "embeddedNativeControls": 0,
+    "canonicalTarget": "Badge (MWI-COMP-317) for static semantic labels; domain pills remain specialized",
+    "migrationCandidates": ["KanbanTaskCard category label", "KanbanTaskPreview category label", "static status labels matching the six existing tones"],
+    "excludedComponents": ["TypePills", "TypeChip", "TypeBadge", "MoveTypePill", "WeatherBadge", "MoveBadge", "RaidPill", "EggPill", "MaxPill", "StatusBadges"],
+    "priority": "P0",
+    "risk": "low",
+    "estimatedSize": "S",
+    "dependencies": ["screenshot baseline", "tone-to-semantic mapping"],
+    "notes": [
+      "The post-audit StatusBadges helper raises the current named family count to 18 but remains business composition.",
+      "Interactive chips and selectable category buttons are not Badge usages.",
+      "This family provides the best first-sprint value/risk ratio."
+    ]
+  },
+  {
+    "family": "Inputs and textareas",
+    "auditComponentIds": ["MWI-COMP-047", "MWI-COMP-048", "MWI-COMP-049", "MWI-COMP-257", "MWI-COMP-258", "MWI-COMP-259", "MWI-COMP-323", "MWI-COMP-324"],
+    "sourcePaths": ["src/components/ui/input.tsx", "src/components/admin/events/event-editor-modal.jsx", "src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx"],
+    "currentImplementations": 9,
+    "embeddedNativeControls": 36,
+    "canonicalTarget": "Input (MWI-COMP-323), Textarea (MWI-COMP-324), and a composable Field wrapper",
+    "migrationCandidates": ["29 native inputs outside ui/input.tsx", "7 native textareas outside ui/input.tsx", "Field and Area wrappers after contract comparison", "post-audit RangeFields"],
+    "excludedComponents": ["file upload controls", "domain-specific range/filter orchestration"],
+    "priority": "P1",
+    "risk": "medium",
+    "estimatedSize": "L",
+    "dependencies": ["label/error/description contract", "focus-visible tokens", "form integration tests"],
+    "notes": [
+      "MWI-COMP-257 to MWI-COMP-259 are compatibility facades, not new implementations.",
+      "The post-audit RangeFields helper has no audit ID and raises the current named family count by one.",
+      "File inputs should remain native under a documented FileField composition."
+    ]
+  },
+  {
+    "family": "Selects",
+    "auditComponentIds": ["MWI-COMP-048", "MWI-COMP-121", "MWI-COMP-205", "MWI-COMP-254", "MWI-COMP-257"],
+    "sourcePaths": ["src/components/admin/events/event-editor-modal.jsx", "src/components/admin/navigation/admin-palette-selector.tsx", "src/components/admin/pokemon/pvp-rankings-panel.jsx", "src/components/admin/tables/dashboard-backlog.tsx", "src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx"],
+    "currentImplementations": 6,
+    "embeddedNativeControls": 27,
+    "canonicalTarget": "Native-backed Select plus Field composition",
+    "migrationCandidates": ["SelectField", "FilterSelect", "FormatSelect", "post-audit local FilterSelect", "repeated selectClass patterns"],
+    "excludedComponents": ["AdminPaletteSelector"],
+    "priority": "P1",
+    "risk": "medium",
+    "estimatedSize": "L",
+    "dependencies": ["Field contract", "native option behavior", "dark/light and browser screenshots"],
+    "notes": [
+      "The post-audit local FilterSelect is the sixth named select implementation and has no audit ID.",
+      "Keep the native select element initially; styling consolidation must not replace platform behavior."
+    ]
+  },
+  {
+    "family": "Modals and dialogs",
+    "auditComponentIds": ["MWI-COMP-044", "MWI-COMP-045", "MWI-COMP-046", "MWI-COMP-064", "MWI-COMP-094", "MWI-COMP-098", "MWI-COMP-115", "MWI-COMP-178", "MWI-COMP-230", "MWI-COMP-231", "MWI-COMP-260", "MWI-COMP-312", "MWI-COMP-313", "MWI-COMP-325"],
+    "sourcePaths": ["src/components/ui/modal.tsx", "src/components/admin/events/event-editor-modal.jsx", "src/components/admin/events/events-calendar-panel.jsx", "src/components/admin/pokemon/detail-modal.jsx", "src/components/admin/pokemon/source-watch-panel.tsx", "src/components/admin/layout/admin-version-history-dialog.tsx"],
+    "currentImplementations": 15,
+    "embeddedNativeControls": 8,
+    "canonicalTarget": "Modal (MWI-COMP-325) with characterized focus, escape, portal, scroll and size contracts",
+    "migrationCandidates": ["AdminVersionHistoryDialog", "EventEditorModal", "ImportModal", "SourceHistoryModal", "DataDeployHistoryModal"],
+    "excludedComponents": ["EventDetailModal", "DetailModal", "image preview overlay", "collections bulk editor overlay"],
+    "priority": "P1",
+    "risk": "critical",
+    "estimatedSize": "XL",
+    "dependencies": ["focus tests", "scroll-lock tests", "nested overlay policy", "z-index tokens", "responsive visual tests"],
+    "notes": [
+      "The post-audit ImportModal raises the named count to 15 and already composes MWI-COMP-325.",
+      "The current Modal now traps Tab, restores focus and auto-focuses after the historical audit.",
+      "Complex Pokemon and event details have distinct full-screen/mobile behavior and must not be early migrations."
+    ]
+  },
+  {
+    "family": "Navigation",
+    "auditComponentIds": ["MWI-COMP-038", "MWI-COMP-122", "MWI-COMP-123", "MWI-COMP-124", "MWI-COMP-129", "MWI-COMP-171"],
+    "sourcePaths": ["src/components/admin/navigation", "src/components/admin/pokemon/admin-section-navigation.jsx", "src/components/admin/pokemon/detail-modal.jsx"],
+    "currentImplementations": 6,
+    "embeddedNativeControls": 0,
+    "canonicalTarget": "Keep route navigation, section navigation and detail navigation as separate composites over Button/Link",
+    "migrationCandidates": ["shared icon-button behavior", "shared focus and active-state tokens"],
+    "excludedComponents": ["AdminSidebar", "AdminSectionNavigation", "DetailNavigation"],
+    "priority": "P2",
+    "risk": "high",
+    "estimatedSize": "L",
+    "dependencies": ["Button", "responsive drawer investigation", "active-route tests"],
+    "notes": ["These components have different routing and state semantics; a universal Navigation component is not justified."]
+  },
+  {
+    "family": "Tables and rows",
+    "auditComponentIds": ["MWI-COMP-034", "MWI-COMP-060", "MWI-COMP-111", "MWI-COMP-232", "MWI-COMP-245", "MWI-COMP-314"],
+    "sourcePaths": ["src/components/admin/tables/dashboard-backlog.tsx", "src/components/admin/events/events-calendar-panel.jsx", "src/components/admin/pokemon/source-watch-panel.tsx", "src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx"],
+    "currentImplementations": 7,
+    "embeddedNativeControls": 2,
+    "canonicalTarget": "No generic DataTable yet; shared row density and overflow tokens only",
+    "migrationCandidates": ["static table surface/headers", "responsive overflow wrapper", "row state tokens"],
+    "excludedComponents": ["PokemonTable", "EventRow", "SignalRow", "SourceRows", "TagRow"],
+    "priority": "P2",
+    "risk": "high",
+    "estimatedSize": "L",
+    "dependencies": ["responsive tests", "keyboard scroll tests", "pagination investigation"],
+    "notes": ["The post-audit PokemonTable raises the named table/row count by one and is a business table, not a primitive."]
+  },
+  {
+    "family": "Filters",
+    "auditComponentIds": ["MWI-COMP-134", "MWI-COMP-154", "MWI-COMP-254", "MWI-COMP-294"],
+    "sourcePaths": ["src/components/admin/pokemon/admin-ui.jsx", "src/components/admin/pokemon/dataset-filter-bar.jsx", "src/components/admin/tables/dashboard-backlog.tsx", "src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx"],
+    "currentImplementations": 6,
+    "embeddedNativeControls": 0,
+    "canonicalTarget": "Composable filter patterns built from Input, Select, Checkbox and Button",
+    "migrationCandidates": ["FilterSelect", "post-audit FilterSelect", "post-audit RangeFields"],
+    "excludedComponents": ["GenerationFilterBar", "DatasetFilterBar"],
+    "priority": "P2",
+    "risk": "medium",
+    "estimatedSize": "L",
+    "dependencies": ["Input/Select/Checkbox", "query-state conventions"],
+    "notes": ["Do not create a universal Filter component; preserve each feature's query model."]
+  },
+  {
+    "family": "Loading, empty, error and success states",
+    "auditComponentIds": ["MWI-COMP-040", "MWI-COMP-113", "MWI-COMP-139", "MWI-COMP-161", "MWI-COMP-174", "MWI-COMP-237", "MWI-COMP-275", "MWI-COMP-296"],
+    "sourcePaths": ["src/components/admin/shared/loading-state.tsx", "src/components/admin/pokemon/detail-modal.jsx", "src/components/admin/pokemon/admin-ui.jsx", "src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx"],
+    "currentImplementations": 8,
+    "embeddedNativeControls": 4,
+    "canonicalTarget": "StateFrame composition with opt-in LoadingState, EmptyState and ErrorState contracts after characterization",
+    "migrationCandidates": ["simple centered loading cards", "dashed empty-state surfaces", "retryable error cards"],
+    "excludedComponents": ["Validation", "IssuesPanel", "JsonIssueList", "business-specific no-results messages"],
+    "priority": "P1",
+    "risk": "medium",
+    "estimatedSize": "M",
+    "dependencies": ["Card", "Button", "aria-live policy", "copy ownership"],
+    "notes": ["The post-audit collection feature adds inline loading, empty, no-results and error branches; it does not add a reusable state definition."]
+  },
+  {
+    "family": "Charts",
+    "auditComponentIds": ["MWI-COMP-036", "MWI-COMP-037", "MWI-COMP-058", "MWI-COMP-059", "MWI-COMP-096", "MWI-COMP-203", "MWI-COMP-240", "MWI-COMP-243", "MWI-COMP-244", "MWI-COMP-248", "MWI-COMP-267"],
+    "sourcePaths": ["src/components/admin/stats", "src/components/admin/dashboard/dashboard-home-live.tsx", "src/components/admin/pokemon/shiny-tracker-panel.jsx"],
+    "currentImplementations": 11,
+    "embeddedNativeControls": 0,
+    "canonicalTarget": "ChartSurface and shared semantic chart tokens; keep chart implementations specialized",
+    "migrationCandidates": ["tooltip style objects", "axis/grid colors", "empty chart state", "responsive container wrapper"],
+    "excludedComponents": ["StatusChart", "ApiTimeline", "PerformanceBars", "LearningActivityTimeline"],
+    "priority": "P3",
+    "risk": "high",
+    "estimatedSize": "L",
+    "dependencies": ["color tokens", "Recharts behavior tests", "data-specific accessibility summaries"],
+    "notes": ["Six Recharts Tooltip instances are vendor chart components, not evidence for a general UI Tooltip primitive."
+    ]
+  },
+  {
+    "family": "Progress rows",
+    "auditComponentIds": ["MWI-COMP-006", "MWI-COMP-036", "MWI-COMP-037", "MWI-COMP-081", "MWI-COMP-105", "MWI-COMP-117", "MWI-COMP-132", "MWI-COMP-134", "MWI-COMP-154", "MWI-COMP-203", "MWI-COMP-226", "MWI-COMP-244", "MWI-COMP-247", "MWI-COMP-272", "MWI-COMP-291", "MWI-COMP-294"],
+    "sourcePaths": ["src/components/admin/learning", "src/components/admin/pokemon/admin-ui.jsx", "src/components/admin/stats/database-stats.tsx"],
+    "currentImplementations": 16,
+    "embeddedNativeControls": 0,
+    "canonicalTarget": "ProgressBar visual primitive only after value/label/accessibility contracts align",
+    "migrationCandidates": ["simple percent bars", "shared track/fill semantics"],
+    "excludedComponents": ["ProgressButton", "GenerationBars", "KanbanBars", "PerformanceBars", "EndpointBars"],
+    "priority": "P2",
+    "risk": "medium",
+    "estimatedSize": "M",
+    "dependencies": ["semantic status colors", "aria-valuenow policy"],
+    "notes": ["Chart-like and interactive progress components remain business-specific."
+    ]
+  },
+  {
+    "family": "Avatar",
+    "auditComponentIds": [],
+    "sourcePaths": [],
+    "currentImplementations": 0,
+    "embeddedNativeControls": 0,
+    "canonicalTarget": null,
+    "migrationCandidates": [],
+    "excludedComponents": [],
+    "priority": "P3",
+    "risk": "low",
+    "estimatedSize": "XS",
+    "dependencies": [],
+    "notes": ["No repeated avatar behavior was found; do not create a primitive."
+    ]
+  },
+  {
+    "family": "Checkbox",
+    "auditComponentIds": [],
+    "sourcePaths": ["src/components/admin/forms/kanban-board.tsx", "src/components/admin/pokemon/admin-app.jsx", "src/components/admin/pokemon/collections-panel.jsx", "src/components/admin/pokemon/detail-modal.jsx", "src/components/admin/pokemon/pokemon-card.jsx", "src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx"],
+    "currentImplementations": 0,
+    "embeddedNativeControls": 8,
+    "canonicalTarget": "Native-backed Checkbox with label, checked, disabled, indeterminate and error contracts",
+    "migrationCandidates": ["eight native checkbox occurrences"],
+    "excludedComponents": ["radio strategy selector", "button-based aria-pressed toggle"],
+    "priority": "P1",
+    "risk": "medium",
+    "estimatedSize": "M",
+    "dependencies": ["Field", "focus-visible tokens", "keyboard tests"],
+    "notes": ["A primitive is justified by repetition and accessibility, but migration should begin with one form only."
+    ]
+  },
+  {
+    "family": "Switch",
+    "auditComponentIds": [],
+    "sourcePaths": ["src/components/admin/pokemon/dataset-filter-bar.jsx"],
+    "currentImplementations": 0,
+    "embeddedNativeControls": 1,
+    "canonicalTarget": null,
+    "migrationCandidates": [],
+    "excludedComponents": ["dataset filter aria-pressed button", "checkboxes representing selection"],
+    "priority": "P3",
+    "risk": "medium",
+    "estimatedSize": "XS",
+    "dependencies": ["semantic behavior inventory"],
+    "notes": ["Only one aria-pressed toggle pattern exists; no switch primitive is justified yet."
+    ]
+  },
+  {
+    "family": "Pagination",
+    "auditComponentIds": [],
+    "sourcePaths": ["src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx"],
+    "currentImplementations": 1,
+    "embeddedNativeControls": 1,
+    "canonicalTarget": null,
+    "migrationCandidates": ["post-audit local Pagination, if a second server-paginated list appears"],
+    "excludedComponents": ["load-more interactions", "client-only slices"],
+    "priority": "P2",
+    "risk": "medium",
+    "estimatedSize": "S",
+    "dependencies": ["second usage", "URL/query-state decision", "table/list accessibility"],
+    "notes": ["The audit correctly reported Not found; the current code now has one local Pagination without an MWI-COMP ID. Keep it local until reuse is demonstrated."
+    ]
+  },
+  {
+    "family": "Tabs",
+    "auditComponentIds": [],
+    "sourcePaths": [],
+    "currentImplementations": 0,
+    "embeddedNativeControls": 0,
+    "canonicalTarget": null,
+    "migrationCandidates": [],
+    "excludedComponents": ["AdminSectionNavigation", "DetailNavigation", "route navigation"],
+    "priority": "P3",
+    "risk": "medium",
+    "estimatedSize": "XS",
+    "dependencies": ["real tablist semantics"],
+    "notes": ["No role=tab or role=tablist usage exists; navigation components are not tabs."
+    ]
+  },
+  {
+    "family": "Search",
+    "auditComponentIds": [],
+    "sourcePaths": ["src/components/admin/pokemon/dataset-filter-bar.jsx", "src/components/admin/pokemon/admin-app.jsx", "src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx", "src/components/admin/tables/dashboard-backlog.tsx"],
+    "currentImplementations": 0,
+    "embeddedNativeControls": 12,
+    "canonicalTarget": "SearchField composition over Input, icon, clear action and optional debounce",
+    "migrationCandidates": ["visually matching input-plus-Search-icon patterns"],
+    "excludedComponents": ["feature query state", "server debounce", "filter orchestration"],
+    "priority": "P2",
+    "risk": "medium",
+    "estimatedSize": "M",
+    "dependencies": ["Input", "clear-button behavior", "label and announcement policy"],
+    "notes": ["Twelve Search icon JSX occurrences are a discovery signal, not twelve equivalent search fields. Search should be a composition, not an atom."
+    ]
+  },
+  {
+    "family": "Drawer",
+    "auditComponentIds": [],
+    "sourcePaths": ["src/components/admin/layout/admin-app-frame.tsx", "src/components/admin/navigation/admin-sidebar.tsx"],
+    "currentImplementations": 0,
+    "embeddedNativeControls": 1,
+    "canonicalTarget": null,
+    "migrationCandidates": ["responsive sidebar only if focus, escape, scroll lock and overlay behavior match a reusable dialog contract"],
+    "excludedComponents": ["desktop AdminSidebar"],
+    "priority": "P2",
+    "risk": "high",
+    "estimatedSize": "M",
+    "dependencies": ["Modal/Dialog overlay policy", "responsive navigation tests"],
+    "notes": ["Do not introduce Drawer independently of the responsive sidebar behavior."
+    ]
+  },
+  {
+    "family": "Tooltip",
+    "auditComponentIds": [],
+    "sourcePaths": ["src/components/admin/events/events-calendar-panel.jsx", "src/components/admin/pokemon/asset-icons.jsx", "src/components/admin/pokemon/rocket-panel.jsx", "src/components/admin/stats"],
+    "currentImplementations": 0,
+    "embeddedNativeControls": 21,
+    "canonicalTarget": null,
+    "migrationCandidates": ["15 host-element title attributes after content and keyboard audit"],
+    "excludedComponents": ["six Recharts Tooltip instances"],
+    "priority": "P2",
+    "risk": "medium",
+    "estimatedSize": "M",
+    "dependencies": ["accessible-name audit", "hover/focus/touch behavior"],
+    "notes": ["A primitive is not approved yet; first distinguish supplementary tooltip content from essential accessible names."
+    ]
+  },
+  {
+    "family": "Toast",
+    "auditComponentIds": [],
+    "sourcePaths": ["src/app/layout.tsx", "src/components/admin"],
+    "currentImplementations": 1,
+    "embeddedNativeControls": 81,
+    "canonicalTarget": "Keep Sonner as the rendering primitive; consider a typed notification service only if message policy requires it",
+    "migrationCandidates": ["normalize success/error durations and action conventions"],
+    "excludedComponents": ["DatasetEventBanner", "persistent alerts", "inline validation"],
+    "priority": "P2",
+    "risk": "medium",
+    "estimatedSize": "M",
+    "dependencies": ["notification taxonomy", "error-handling policy"],
+    "notes": ["The audit found no named Toast component, but current code has one Sonner Toaster host and 81 toast calls; creating a second visual primitive would duplicate the active strategy."
+    ]
+  }
+]

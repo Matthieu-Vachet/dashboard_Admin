@@ -1,0 +1,1780 @@
+{
+  "auditVersion": "1.0.0",
+  "postAuditUpdatedAt": "2026-07-14",
+  "postAuditAddendum": "34-post-audit-changes.md",
+  "count": 34,
+  "entries": [
+    {
+      "id": "COL-001",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "eggs",
+      "model": "Egg",
+      "role": "current eggs",
+      "schemaPath": "PokemonGo-API-/src/models/egg.js",
+      "required": [
+        "key",
+        "domain",
+        "visibility",
+        "source",
+        "generatedAt",
+        "savedAt",
+        "count",
+        "sourceHash",
+        "status",
+        "data",
+        "diagnostics"
+      ],
+      "unique": [
+        "key"
+      ],
+      "indexes": [
+        {
+          "keys": {
+            "key": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        }
+      ],
+      "ttl": null,
+      "visibility": "public-through-selected-routes",
+      "versioning": "timestamps; versionKey false",
+      "sourceOfTruth": "MongoDB current"
+    },
+    {
+      "id": "COL-002",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "generations",
+      "model": "Generation",
+      "role": "static generations",
+      "schemaPath": "PokemonGo-API-/src/models/generation.js",
+      "required": [
+        "id",
+        "slug",
+        "generation",
+        "data",
+        "sourceHash"
+      ],
+      "unique": [
+        "id",
+        "slug"
+      ],
+      "indexes": [
+        {
+          "keys": {
+            "id": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "slug": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "generation": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        }
+      ],
+      "ttl": null,
+      "visibility": "public-through-selected-routes",
+      "versioning": "timestamps; versionKey false",
+      "sourceOfTruth": "PokemonGo-Data synced"
+    },
+    {
+      "id": "COL-003",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "globalstats",
+      "model": "GlobalStat",
+      "role": "global sync stats",
+      "schemaPath": "PokemonGo-API-/src/models/global-stat.js",
+      "required": [
+        "key",
+        "data",
+        "generatedAt"
+      ],
+      "unique": [
+        "key"
+      ],
+      "indexes": [
+        {
+          "keys": {
+            "key": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        }
+      ],
+      "ttl": null,
+      "visibility": "public-through-selected-routes",
+      "versioning": "timestamps; versionKey false",
+      "sourceOfTruth": "PokemonGo-Data synced"
+    },
+    {
+      "id": "COL-004",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "items",
+      "model": "Item",
+      "role": "static items",
+      "schemaPath": "PokemonGo-API-/src/models/item.js",
+      "required": [
+        "id",
+        "templateId",
+        "itemId",
+        "sourceHash",
+        "data"
+      ],
+      "unique": [
+        "id"
+      ],
+      "indexes": [
+        {
+          "keys": {
+            "id": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "templateId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "itemId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "category": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "itemType": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "assetKey": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "searchTerms": "text"
+          },
+          "unique": false,
+          "sparse": false,
+          "text": true
+        }
+      ],
+      "ttl": null,
+      "visibility": "public-through-selected-routes",
+      "versioning": "timestamps; versionKey false",
+      "sourceOfTruth": "PokemonGo-Data synced"
+    },
+    {
+      "id": "COL-005",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "maxbattles",
+      "model": "MaxBattle",
+      "role": "current max battles",
+      "schemaPath": "PokemonGo-API-/src/models/max-battle.js",
+      "required": [
+        "key",
+        "domain",
+        "visibility",
+        "source",
+        "generatedAt",
+        "savedAt",
+        "count",
+        "sourceHash",
+        "status",
+        "data",
+        "diagnostics"
+      ],
+      "unique": [
+        "key"
+      ],
+      "indexes": [
+        {
+          "keys": {
+            "key": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        }
+      ],
+      "ttl": null,
+      "visibility": "public-through-selected-routes",
+      "versioning": "timestamps; versionKey false",
+      "sourceOfTruth": "MongoDB current"
+    },
+    {
+      "id": "COL-006",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "moves",
+      "model": "Move",
+      "role": "static moves",
+      "schemaPath": "PokemonGo-API-/src/models/move.js",
+      "required": [
+        "id",
+        "slug",
+        "kind",
+        "sourceHash",
+        "data"
+      ],
+      "unique": [
+        "id"
+      ],
+      "indexes": [
+        {
+          "keys": {
+            "id": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "slug": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "legacySlugs": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "kind": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "categories": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "elite": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "type": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "kind": 1,
+            "elite": 1,
+            "type": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "searchTerms": "text"
+          },
+          "unique": false,
+          "sparse": false,
+          "text": true
+        }
+      ],
+      "ttl": null,
+      "visibility": "public-through-selected-routes",
+      "versioning": "timestamps; versionKey false",
+      "sourceOfTruth": "PokemonGo-Data synced"
+    },
+    {
+      "id": "COL-007",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "pokemons",
+      "model": "Pokemon",
+      "role": "static Pokemon and forms",
+      "schemaPath": "PokemonGo-API-/src/models/pokemon.js",
+      "required": [
+        "key",
+        "kind",
+        "id",
+        "slug",
+        "form",
+        "sourceHash",
+        "data"
+      ],
+      "unique": [
+        "key"
+      ],
+      "indexes": [
+        {
+          "keys": {
+            "key": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "kind": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "parentKey": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "baseFormId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "formId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "slug": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "dexNr": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "dexId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "form": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "generation": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "regionId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "primaryType": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "secondaryType": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "types": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "weatherBoost": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "moveIds": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "eliteMoveIds": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "maxMoveIds": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "pvpLeagues": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "stats.attack": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "stats.defense": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "stats.stamina": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "maxCp.maxLevel50": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "flags.released": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "flags.shinyReleased": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "flags.shadowShinyReleased": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "flags.tradable": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "flags.pokemonHomeTransfer": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "flags.shadow": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "flags.apex": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "flags.dynamax": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "flags.gigantamax": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "flags.mega": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "buddyDistance": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "catchRate": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "fleeRate": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "dexNr": 1,
+            "form": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "generation": 1,
+            "regionId": 1,
+            "types": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "primaryType": 1,
+            "secondaryType": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "moveIds": 1,
+            "form": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "flags.released": 1,
+            "flags.shinyReleased": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "flags.shadow": 1,
+            "flags.shadowShinyReleased": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "searchTerms": "text"
+          },
+          "unique": false,
+          "sparse": false,
+          "text": true
+        }
+      ],
+      "ttl": null,
+      "visibility": "public-through-selected-routes",
+      "versioning": "timestamps; versionKey false",
+      "sourceOfTruth": "PokemonGo-Data synced"
+    },
+    {
+      "id": "COL-008",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "pokemonAssets",
+      "model": "PokemonAsset",
+      "role": "heavy asset references",
+      "schemaPath": "PokemonGo-API-/src/models/pokemon-asset.js",
+      "required": [
+        "key",
+        "id",
+        "formId",
+        "baseFormId",
+        "form",
+        "slug",
+        "sourceHash",
+        "assets",
+        "data"
+      ],
+      "unique": [
+        "key",
+        "formId"
+      ],
+      "indexes": [
+        {
+          "keys": {
+            "key": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "id": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "formId": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "baseFormId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "form": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "slug": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "dexNr": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "dexId": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "dexNr": 1,
+            "form": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        }
+      ],
+      "ttl": null,
+      "visibility": "public-through-selected-routes",
+      "versioning": "timestamps; versionKey false",
+      "sourceOfTruth": "PokemonGo-Data synced"
+    },
+    {
+      "id": "COL-009",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "pvp_rankings",
+      "model": "PvpRanking",
+      "role": "current PvP rankings",
+      "schemaPath": "PokemonGo-API-/src/models/pvp-ranking.js",
+      "required": [
+        "key",
+        "domain",
+        "visibility",
+        "source",
+        "generatedAt",
+        "savedAt",
+        "count",
+        "sourceHash",
+        "status",
+        "data",
+        "diagnostics"
+      ],
+      "unique": [
+        "key"
+      ],
+      "indexes": [
+        {
+          "keys": {
+            "key": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        }
+      ],
+      "ttl": null,
+      "visibility": "public-through-selected-routes",
+      "versioning": "timestamps; versionKey false",
+      "sourceOfTruth": "MongoDB current"
+    },
+    {
+      "id": "COL-010",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "raids",
+      "model": "Raid",
+      "role": "current raids",
+      "schemaPath": "PokemonGo-API-/src/models/raid.js",
+      "required": [
+        "key",
+        "domain",
+        "visibility",
+        "source",
+        "generatedAt",
+        "savedAt",
+        "count",
+        "sourceHash",
+        "status",
+        "data",
+        "diagnostics"
+      ],
+      "unique": [
+        "key"
+      ],
+      "indexes": [
+        {
+          "keys": {
+            "key": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        }
+      ],
+      "ttl": null,
+      "visibility": "public-through-selected-routes",
+      "versioning": "timestamps; versionKey false",
+      "sourceOfTruth": "MongoDB current"
+    },
+    {
+      "id": "COL-011",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "researches",
+      "model": "Research",
+      "role": "current research",
+      "schemaPath": "PokemonGo-API-/src/models/research.js",
+      "required": [
+        "key",
+        "domain",
+        "visibility",
+        "source",
+        "generatedAt",
+        "savedAt",
+        "count",
+        "sourceHash",
+        "status",
+        "data",
+        "diagnostics"
+      ],
+      "unique": [
+        "key"
+      ],
+      "indexes": [
+        {
+          "keys": {
+            "key": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        }
+      ],
+      "ttl": null,
+      "visibility": "public-through-selected-routes",
+      "versioning": "timestamps; versionKey false",
+      "sourceOfTruth": "MongoDB current"
+    },
+    {
+      "id": "COL-012",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "regions",
+      "model": "Region",
+      "role": "static regions",
+      "schemaPath": "PokemonGo-API-/src/models/region.js",
+      "required": [
+        "id",
+        "slug",
+        "data",
+        "sourceHash"
+      ],
+      "unique": [
+        "id",
+        "slug"
+      ],
+      "indexes": [
+        {
+          "keys": {
+            "id": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "slug": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "generation": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        }
+      ],
+      "ttl": null,
+      "visibility": "public-through-selected-routes",
+      "versioning": "timestamps; versionKey false",
+      "sourceOfTruth": "PokemonGo-Data synced"
+    },
+    {
+      "id": "COL-013",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "rockets",
+      "model": "Rocket",
+      "role": "current rocket",
+      "schemaPath": "PokemonGo-API-/src/models/rocket.js",
+      "required": [
+        "key",
+        "domain",
+        "visibility",
+        "source",
+        "generatedAt",
+        "savedAt",
+        "count",
+        "sourceHash",
+        "status",
+        "data",
+        "diagnostics"
+      ],
+      "unique": [
+        "key"
+      ],
+      "indexes": [
+        {
+          "keys": {
+            "key": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        }
+      ],
+      "ttl": null,
+      "visibility": "public-through-selected-routes",
+      "versioning": "timestamps; versionKey false",
+      "sourceOfTruth": "MongoDB current"
+    },
+    {
+      "id": "COL-014",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "rocket_texts",
+      "model": "RocketText",
+      "role": "static Rocket texts",
+      "schemaPath": "PokemonGo-API-/src/models/rocket-text.js",
+      "required": [
+        "id",
+        "textKey",
+        "sourceHash",
+        "data"
+      ],
+      "unique": [
+        "id"
+      ],
+      "indexes": [
+        {
+          "keys": {
+            "id": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "textKey": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "trainerType": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "gender": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "type": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "character": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "searchTerms": "text"
+          },
+          "unique": false,
+          "sparse": false,
+          "text": true
+        }
+      ],
+      "ttl": null,
+      "visibility": "public-through-selected-routes",
+      "versioning": "timestamps; versionKey false",
+      "sourceOfTruth": "MongoDB current"
+    },
+    {
+      "id": "COL-015",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "shiny_rankings",
+      "model": "ShinyRanking",
+      "role": "private current shiny",
+      "schemaPath": "PokemonGo-API-/src/models/shiny-ranking.js",
+      "required": [
+        "key",
+        "domain",
+        "visibility",
+        "source",
+        "generatedAt",
+        "savedAt",
+        "count",
+        "sourceHash",
+        "status",
+        "data",
+        "diagnostics"
+      ],
+      "unique": [
+        "key"
+      ],
+      "indexes": [
+        {
+          "keys": {
+            "key": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        }
+      ],
+      "ttl": null,
+      "visibility": "private",
+      "versioning": "timestamps; versionKey false",
+      "sourceOfTruth": "MongoDB current"
+    },
+    {
+      "id": "COL-016",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "shiny_snapshots",
+      "model": "ShinySnapshot",
+      "role": "private shiny history",
+      "schemaPath": "PokemonGo-API-/src/models/shiny-snapshot.js",
+      "required": [
+        "domain",
+        "visibility",
+        "snapshotAt",
+        "sourceHash",
+        "count",
+        "source",
+        "diagnostics",
+        "data"
+      ],
+      "unique": [],
+      "indexes": [
+        {
+          "keys": {
+            "domain": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "visibility": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "snapshotAt": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "sourceHash": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "domain": 1,
+            "snapshotAt": -1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        }
+      ],
+      "ttl": null,
+      "visibility": "private",
+      "versioning": "timestamps; versionKey false",
+      "sourceOfTruth": "MongoDB current"
+    },
+    {
+      "id": "COL-017",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "syncruns",
+      "model": "SyncRun",
+      "role": "static sync history",
+      "schemaPath": "PokemonGo-API-/src/models/sync-run.js",
+      "required": [
+        "status",
+        "startedAt"
+      ],
+      "unique": [],
+      "indexes": [
+        {
+          "keys": {
+            "status": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        }
+      ],
+      "ttl": null,
+      "visibility": "internal",
+      "versioning": "timestamps; versionKey false",
+      "sourceOfTruth": "PokemonGo-Data synced"
+    },
+    {
+      "id": "COL-018",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "types",
+      "model": "Type",
+      "role": "static types",
+      "schemaPath": "PokemonGo-API-/src/models/type.js",
+      "required": [
+        "id",
+        "slug",
+        "data",
+        "sourceHash"
+      ],
+      "unique": [
+        "id"
+      ],
+      "indexes": [
+        {
+          "keys": {
+            "id": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "slug": 1
+          },
+          "unique": false,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "searchTerms": "text"
+          },
+          "unique": false,
+          "sparse": false,
+          "text": true
+        }
+      ],
+      "ttl": null,
+      "visibility": "public-through-selected-routes",
+      "versioning": "timestamps; versionKey false",
+      "sourceOfTruth": "PokemonGo-Data synced"
+    },
+    {
+      "id": "COL-019",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "weathers",
+      "model": "Weather",
+      "role": "static weather",
+      "schemaPath": "PokemonGo-API-/src/models/weather.js",
+      "required": [
+        "id",
+        "slug",
+        "data",
+        "sourceHash"
+      ],
+      "unique": [
+        "id",
+        "slug"
+      ],
+      "indexes": [
+        {
+          "keys": {
+            "id": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "slug": 1
+          },
+          "unique": true,
+          "sparse": false,
+          "text": false
+        },
+        {
+          "keys": {
+            "searchTerms": "text"
+          },
+          "unique": false,
+          "sparse": false,
+          "text": true
+        }
+      ],
+      "ttl": null,
+      "visibility": "public-through-selected-routes",
+      "versioning": "timestamps; versionKey false",
+      "sourceOfTruth": "PokemonGo-Data synced"
+    },
+    {
+      "id": "COL-020",
+      "project": "Dashboard Admin",
+      "database": "DASHBOARD_MONGODB_DB or matweb-dashboard-admin",
+      "name": "dashboard_store",
+      "role": "generic dashboard key/value",
+      "indexes": [
+        {
+          "keys": {
+            "owner": 1,
+            "key": 1
+          },
+          "unique": true
+        }
+      ],
+      "ttl": null,
+      "visibility": "private-dashboard",
+      "versioning": "application fields/timestamps; no Mongo validator found",
+      "sourceOfTruth": "MongoDB with local seeds/content fallback depending domain"
+    },
+    {
+      "id": "COL-021",
+      "project": "Dashboard Admin",
+      "database": "DASHBOARD_MONGODB_DB or matweb-dashboard-admin",
+      "name": "dashboard_api_metrics",
+      "role": "daily API usage metrics",
+      "indexes": [
+        {
+          "keys": {
+            "owner": 1,
+            "day": 1,
+            "endpoint": 1,
+            "method": 1
+          },
+          "unique": true
+        }
+      ],
+      "ttl": null,
+      "visibility": "private-dashboard",
+      "versioning": "application fields/timestamps; no Mongo validator found",
+      "sourceOfTruth": "MongoDB with local seeds/content fallback depending domain"
+    },
+    {
+      "id": "COL-022",
+      "project": "Dashboard Admin",
+      "database": "DASHBOARD_MONGODB_DB or matweb-dashboard-admin",
+      "name": "dashboard_backlog",
+      "role": "backlog tickets",
+      "indexes": [
+        {
+          "keys": {
+            "owner": 1,
+            "updatedAt": -1
+          }
+        },
+        {
+          "keys": {
+            "owner": 1,
+            "status": 1,
+            "priority": 1
+          }
+        },
+        {
+          "keys": {
+            "owner": 1,
+            "type": 1,
+            "page": 1,
+            "component": 1
+          }
+        }
+      ],
+      "ttl": null,
+      "visibility": "private-dashboard",
+      "versioning": "application fields/timestamps; no Mongo validator found",
+      "sourceOfTruth": "MongoDB with local seeds/content fallback depending domain"
+    },
+    {
+      "id": "COL-023",
+      "project": "Dashboard Admin",
+      "database": "DASHBOARD_MONGODB_DB or matweb-dashboard-admin",
+      "name": "events",
+      "role": "Pokemon GO calendar events",
+      "indexes": [
+        {
+          "keys": {
+            "id": 1
+          },
+          "unique": true
+        },
+        {
+          "keys": {
+            "status": 1,
+            "startDate": 1
+          }
+        },
+        {
+          "keys": {
+            "type": 1,
+            "startDate": 1
+          }
+        },
+        {
+          "keys": {
+            "updatedAt": -1
+          }
+        }
+      ],
+      "ttl": null,
+      "visibility": "private-dashboard",
+      "versioning": "application fields/timestamps; no Mongo validator found",
+      "sourceOfTruth": "MongoDB with local seeds/content fallback depending domain"
+    },
+    {
+      "id": "COL-024",
+      "project": "Dashboard Admin",
+      "database": "DASHBOARD_MONGODB_DB or matweb-dashboard-admin",
+      "name": "learning_topics",
+      "role": "learning topic content",
+      "indexes": [
+        {
+          "keys": {
+            "id": 1
+          },
+          "unique": true
+        }
+      ],
+      "ttl": null,
+      "visibility": "private-dashboard",
+      "versioning": "application fields/timestamps; no Mongo validator found",
+      "sourceOfTruth": "MongoDB with local seeds/content fallback depending domain"
+    },
+    {
+      "id": "COL-025",
+      "project": "Dashboard Admin",
+      "database": "DASHBOARD_MONGODB_DB or matweb-dashboard-admin",
+      "name": "learning_curricula",
+      "role": "learning curriculum",
+      "indexes": [
+        {
+          "keys": {
+            "id": 1
+          },
+          "unique": true
+        }
+      ],
+      "ttl": null,
+      "visibility": "private-dashboard",
+      "versioning": "application fields/timestamps; no Mongo validator found",
+      "sourceOfTruth": "MongoDB with local seeds/content fallback depending domain"
+    },
+    {
+      "id": "COL-026",
+      "project": "Dashboard Admin",
+      "database": "DASHBOARD_MONGODB_DB or matweb-dashboard-admin",
+      "name": "learning_progress",
+      "role": "per-owner item progress",
+      "indexes": [
+        {
+          "keys": {
+            "owner": 1,
+            "itemId": 1
+          },
+          "unique": true
+        },
+        {
+          "keys": {
+            "owner": 1,
+            "completedAt": -1
+          }
+        }
+      ],
+      "ttl": null,
+      "visibility": "private-dashboard",
+      "versioning": "application fields/timestamps; no Mongo validator found",
+      "sourceOfTruth": "MongoDB with local seeds/content fallback depending domain"
+    },
+    {
+      "id": "COL-027",
+      "project": "Dashboard Admin",
+      "database": "DASHBOARD_MONGODB_DB or matweb-dashboard-admin",
+      "name": "learning_activity",
+      "role": "learning activity log",
+      "indexes": [
+        {
+          "keys": {
+            "owner": 1,
+            "occurredAt": -1
+          }
+        },
+        {
+          "keys": {
+            "eventKey": 1
+          },
+          "unique": true,
+          "sparse": true
+        }
+      ],
+      "ttl": null,
+      "visibility": "private-dashboard",
+      "versioning": "application fields/timestamps; no Mongo validator found",
+      "sourceOfTruth": "MongoDB with local seeds/content fallback depending domain"
+    },
+    {
+      "id": "COL-028",
+      "project": "Dashboard Admin",
+      "database": "DASHBOARD_MONGODB_DB or matweb-dashboard-admin",
+      "name": "learning_imports",
+      "role": "learning import history",
+      "indexes": [
+        {
+          "keys": {
+            "owner": 1,
+            "createdAt": -1
+          }
+        }
+      ],
+      "ttl": null,
+      "visibility": "private-dashboard",
+      "versioning": "application fields/timestamps; no Mongo validator found",
+      "sourceOfTruth": "MongoDB with local seeds/content fallback depending domain"
+    },
+    {
+      "id": "COL-029",
+      "project": "Dashboard Admin",
+      "database": "DASHBOARD_MONGODB_DB or matweb-dashboard-admin",
+      "name": "learning_topic_versions",
+      "role": "topic versions for rollback",
+      "indexes": [
+        {
+          "keys": {
+            "topicId": 1,
+            "createdAt": -1
+          }
+        }
+      ],
+      "ttl": null,
+      "visibility": "private-dashboard",
+      "versioning": "application fields/timestamps; no Mongo validator found",
+      "sourceOfTruth": "MongoDB with local seeds/content fallback depending domain"
+    },
+    {
+      "project": "Dashboard Admin",
+      "database": "DASHBOARD_MONGODB_DB or matweb-dashboard-admin",
+      "schemaPath": "Dashboard Admin/src/lib/trainer-pokemon/repository.ts",
+      "ttl": null,
+      "visibility": "private-dashboard",
+      "sourceOfTruth": "MongoDB Dashboard",
+      "id": "COL-030",
+      "name": "trainer_pokemon_owners",
+      "role": "pointeur du snapshot actif et précédent par owner",
+      "required": [
+        "owner",
+        "activeSnapshotId",
+        "updatedAt",
+        "updatedBy"
+      ],
+      "unique": [
+        "owner"
+      ],
+      "indexes": [
+        {
+          "keys": {
+            "owner": 1
+          },
+          "unique": true
+        }
+      ],
+      "versioning": "activeSnapshotId et previousSnapshotId gérés par l’application"
+    },
+    {
+      "project": "Dashboard Admin",
+      "database": "DASHBOARD_MONGODB_DB or matweb-dashboard-admin",
+      "schemaPath": "Dashboard Admin/src/lib/trainer-pokemon/repository.ts",
+      "ttl": null,
+      "visibility": "private-dashboard",
+      "sourceOfTruth": "MongoDB Dashboard",
+      "id": "COL-031",
+      "name": "trainer_pokemon_snapshots",
+      "role": "métadonnées, diagnostics, checksum et état des imports",
+      "required": [
+        "owner",
+        "sourceFileName",
+        "actualPokemonCount",
+        "importedAt",
+        "checksum",
+        "entryChecksum",
+        "status",
+        "stats"
+      ],
+      "unique": [],
+      "indexes": [
+        {
+          "keys": {
+            "owner": 1,
+            "importedAt": -1
+          }
+        },
+        {
+          "keys": {
+            "owner": 1,
+            "status": 1,
+            "importedAt": -1
+          }
+        }
+      ],
+      "versioning": "statuts staging, active, archived et failed"
+    },
+    {
+      "project": "Dashboard Admin",
+      "database": "DASHBOARD_MONGODB_DB or matweb-dashboard-admin",
+      "schemaPath": "Dashboard Admin/src/lib/trainer-pokemon/repository.ts",
+      "ttl": null,
+      "visibility": "private-dashboard",
+      "sourceOfTruth": "MongoDB Dashboard",
+      "id": "COL-032",
+      "name": "trainer_pokemon_entries",
+      "role": "entrées normalisées de chaque snapshot de collection",
+      "required": [
+        "owner",
+        "snapshotId",
+        "sourceId",
+        "dexNumber",
+        "frenchName",
+        "cp",
+        "ivPercent"
+      ],
+      "unique": [
+        "owner+snapshotId+sourceId"
+      ],
+      "indexes": [
+        {
+          "keys": {
+            "owner": 1,
+            "snapshotId": 1,
+            "sourceId": 1
+          },
+          "unique": true
+        },
+        {
+          "keys": {
+            "owner": 1,
+            "snapshotId": 1,
+            "dexNumber": 1
+          }
+        },
+        {
+          "keys": {
+            "owner": 1,
+            "snapshotId": 1,
+            "frenchName": 1
+          }
+        },
+        {
+          "keys": {
+            "owner": 1,
+            "snapshotId": 1,
+            "cp": -1
+          }
+        },
+        {
+          "keys": {
+            "owner": 1,
+            "snapshotId": 1,
+            "ivPercent": -1
+          }
+        },
+        {
+          "keys": {
+            "owner": 1,
+            "snapshotId": 1,
+            "shiny": 1,
+            "lucky": 1
+          }
+        },
+        {
+          "keys": {
+            "owner": 1,
+            "snapshotId": 1,
+            "gender": 1,
+            "alignment": 1
+          }
+        },
+        {
+          "keys": {
+            "owner": 1,
+            "snapshotId": 1,
+            "form": 1,
+            "costume": 1
+          }
+        },
+        {
+          "keys": {
+            "owner": 1,
+            "snapshotId": 1,
+            "specialForm": 1
+          }
+        }
+      ],
+      "versioning": "snapshotId immuable; activation via trainer_pokemon_owners"
+    },
+    {
+      "id": "COL-033",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "best_attackers",
+      "model": "BestAttacker",
+      "role": "current Best Attackers rankings",
+      "schemaPath": "PokemonGo-API-/src/models/best-attacker.js",
+      "required": ["key", "domain", "visibility", "source", "generatedAt", "savedAt", "count", "sourceHash", "status", "data", "diagnostics"],
+      "unique": ["key"],
+      "indexes": [{ "keys": { "key": 1 }, "unique": true }],
+      "visibility": "public-through-selected-routes",
+      "versioning": "timestamps; versionKey false; gzip+json payload"
+    },
+    {
+      "id": "COL-034",
+      "project": "PokemonGo-API-",
+      "database": "MONGODB_URI default database",
+      "name": "pokemon_identity_mappings",
+      "model": "PokemonIdentityMapping",
+      "role": "current private Game Master mappings",
+      "schemaPath": "PokemonGo-API-/src/models/pokemon-identity-mapping.js",
+      "required": ["key", "domain", "visibility", "source", "generatedAt", "savedAt", "count", "sourceHash", "status", "data", "diagnostics"],
+      "unique": ["key"],
+      "indexes": [{ "keys": { "key": 1 }, "unique": true }],
+      "visibility": "private-admin",
+      "versioning": "timestamps; versionKey false"
+    }
+  ]
+}
