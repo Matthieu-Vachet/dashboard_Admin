@@ -130,6 +130,29 @@ test("résout le shiny exact du costume sans utiliser l'image normale", () => {
   assert.notEqual(resolution.image, normalShiny);
 });
 
+test("conserve un costume Snacknap pré-résolu par le résolveur canonique", () => {
+  const exactShiny = "https://assets.example/pm25.cFALL_2023_NOEVOLVE.s.icon.png";
+  const resolution = resolvePokemonVariant({
+    id: "PIKACHU",
+    formId: "PIKACHU",
+    form: "PIKACHU",
+    costume: "FALL_2023_NOEVOLVE",
+    matchedSource: "asset-form",
+    resolutionStatus: "matched",
+    assets: { image: "https://assets.example/pm25.cFALL_2023_NOEVOLVE.icon.png", shinyImage: exactShiny },
+    identity: {
+      pokemon: "PIKACHU",
+      form: "PIKACHU",
+      costume: "FALL_2023_NOEVOLVE",
+      shinyImage: exactShiny,
+      resolution: { status: "matched", source: "asset-form" },
+    },
+  }, { shiny: true });
+  assert.equal(resolution.image, exactShiny);
+  assert.equal(resolution.source, "pre-resolved");
+  assert.equal(resolution.resolutionStatus, "matched");
+});
+
 test("résout la variante féminine exacte", () => {
   const resolution = resolvePokemonVariant(pikachu(), { isFemale: true });
   assert.equal(resolution.image, female);

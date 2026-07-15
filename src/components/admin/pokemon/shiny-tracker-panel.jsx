@@ -26,6 +26,11 @@ function formatDate(value) {
 }
 
 function pokemonName(entry) {
+  const sourceName = entry?.sourceIdentity?.name;
+  const sourceVariant = entry?.sourceIdentity?.costume || entry?.sourceIdentity?.form;
+  if (sourceName && sourceVariant) {
+    return sourceName.includes("(") ? sourceName : `${sourceName} (${sourceVariant})`;
+  }
   return entry?.pokemon?.names?.French || entry?.pokemon?.names?.English || entry?.sourceIdentity?.name || "Pokémon";
 }
 

@@ -152,6 +152,8 @@ test("Shiny conserve son podium, son détail responsive et son historique intern
   assert.match(source, /sm:|md:|lg:/);
   assert.match(source, /points\.length >= 2/);
   assert.match(source, /rankedEntries = entries\.filter/);
+  assert.match(source, /entry\?\.sourceIdentity\?\.costume \|\| entry\?\.sourceIdentity\?\.form/);
+  assert.match(source, /sourceName\.includes\("\("\)/);
   assert.doesNotMatch(source, /max-sm:h-\[calc\(100dvh/);
 });
 
