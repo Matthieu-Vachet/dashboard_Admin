@@ -7,6 +7,16 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.24.2",
+    date: "2026-07-15",
+    title: "Snapshot Shiny fiable sur Vercel",
+    changes: [
+      "Corrige l'expiration 504 du snapshot Shiny en donnant au traitement distant sa fenêtre d'exécution complète.",
+      "Aligne le timeout du proxy Admin sur la fonction API sans exposer le secret privé au navigateur.",
+      "Ajoute des traces serveur par phase et un test empêchant la réintroduction de la limite de 60 secondes.",
+    ],
+  },
+  {
     version: "V1.24.1",
     date: "2026-07-15",
     title: "Assets exacts et fiabilisation Admin Pokémon",

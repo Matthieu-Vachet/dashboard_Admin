@@ -216,3 +216,10 @@ test("le Dashboard n'appelle Shiny qu'avec le secret serveur", () => {
   assert.match(source, /target\.pathname\.startsWith\("\/api\/v1\/shiny"\)/);
   assert.match(source, /headers\["x-api-admin-secret"\] = secret/);
 });
+
+test("le proxy Admin laisse les snapshots longs terminer avant son propre timeout", () => {
+  const source = read("src/app/api/pokemon-admin/route.ts");
+  assert.match(source, /export const maxDuration = 300/);
+  assert.match(source, /pokemonAdminMutationTimeoutMs = 240_000/);
+  assert.match(source, /AbortSignal\.timeout\(pokemonAdminMutationTimeoutMs\)/);
+});

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.24.2 - 2026-07-15
+
+- Corrige le `504` du bouton Snapshot du Shiny Tracker en alignant la durée de la route Admin sur celle du traitement Vercel.
+- Conserve une limite explicite de quatre minutes sur l'appel API et cinq minutes sur la fonction proxy.
+- Ajoute un test de contrat pour empêcher le retour du délai trop court.
+
 ## 1.24.1 - 2026-07-15
 
 - Aligne fiches, collection personnelle et Shiny Tracker sur la résolution canonique, avec HOME uniquement pour une identité normale et assets de costumes Snacknap exacts.

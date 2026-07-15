@@ -10,6 +10,8 @@ import {
 } from "@/lib/dashboard-store";
 import { assertJsonPayloadSize, assertSameOrigin, rateLimit } from "@/lib/security";
 
+export const maxDuration = 300;
+
 type JsonValue = Record<string, unknown>;
 type CurrentPayload = {
   data: Record<string, unknown>;
@@ -27,6 +29,7 @@ const customRulesStoreKey = "matweb.pokemon.customRules";
 const sourceHistoryStoreKey = "matweb.pokemon.sourceHistory";
 const pokemonModulePattern = `${process.cwd()}/src/server/pokemon-go/`;
 const defaultPokemonApiPublicUrl = "https://pokemon-go-api.vercel.app";
+const pokemonAdminMutationTimeoutMs = 240_000;
 const pokemonApiBaseUrl =
   process.env.POKEMON_API_PUBLIC_URL
   || (process.env.VERCEL === "1" ? undefined : process.env.POKEMON_API_URL)
@@ -368,7 +371,7 @@ async function callPokemonApiAdmin(path: string, body?: unknown) {
   const response = await fetch(target, {
     method: "POST",
     cache: "no-store",
-    signal: AbortSignal.timeout(120_000),
+    signal: AbortSignal.timeout(pokemonAdminMutationTimeoutMs),
     headers: {
       accept: "application/json",
       "x-api-admin-secret": secret,
