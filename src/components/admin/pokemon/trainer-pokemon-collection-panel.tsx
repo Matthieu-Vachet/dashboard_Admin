@@ -360,7 +360,7 @@ export function TrainerPokemonCollectionPanel() {
 
       <Card className="p-3 sm:p-4">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <label className="relative block md:col-span-2"><span className="sr-only">Rechercher dans la collection</span><Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={17} /><Input className="pl-10" value={query.search} onChange={(event) => updateQuery({ search: event.target.value })} placeholder="Nom, surnom, numéro, forme, costume ou attaque…" /></label>
+          <label className="grid gap-1 text-xs font-black text-muted md:col-span-2"><span>Recherche</span><span className="relative block"><Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={17} /><Input className="pl-10" value={query.search} onChange={(event) => updateQuery({ search: event.target.value })} placeholder="Nom, surnom, numéro, forme, costume ou attaque…" /></span></label>
           <FilterSelect label="Trier par" value={query.sort} onChange={(value) => updateQuery({ sort: value as TrainerPokemonSortField })} options={[["dexNumber", "Numéro Pokédex"], ["frenchName", "Nom"], ["nickname", "Surnom"], ["cp", "CP"], ["ivPercent", "IV %"], ["attackIv", "Attaque IV"], ["defenseIv", "Défense IV"], ["staminaIv", "Endurance IV"], ["weightKg", "Poids"], ["heightM", "Taille"], ["shiny", "Chromatique"], ["lucky", "Chanceux"]]} />
           <FilterSelect label="Ordre" value={query.order} onChange={(value) => updateQuery({ order: value as QueryState["order"] })} options={[["asc", "Ascendant"], ["desc", "Descendant"]]} />
           <FilterSelect label="Chromatique" value={query.shiny} onChange={(value) => updateQuery({ shiny: value as QueryState["shiny"] })} options={[["all", "Tous"], ["yes", "Oui"], ["no", "Non"]]} />
@@ -368,8 +368,8 @@ export function TrainerPokemonCollectionPanel() {
           <FilterSelect label="Genre" value={query.gender} onChange={(value) => updateQuery({ gender: value })} options={[["", "Tous"], ...Object.entries(genderLabels)]} />
           <FilterSelect label="Alignement" value={query.alignment} onChange={(value) => updateQuery({ alignment: value })} options={[["", "Tous"], ["NORMAL", "Normal"], ["SHADOW", "Obscur"], ["PURIFIED", "Purifié"], ["UNKNOWN", "Inconnu"]]} />
           <label className="flex min-h-11 items-center gap-2 rounded-lg border border-line bg-white/[0.04] px-3 text-sm font-bold"><input type="checkbox" checked={query.perfect} onChange={(event) => updateQuery({ perfect: event.target.checked })} /> IV 100 % uniquement</label>
-          <Button icon={<SlidersHorizontal size={15} />} onClick={() => setMoreFiltersOpen((open) => !open)} aria-expanded={moreFiltersOpen}>Plus de filtres <Badge tone={activeFilterCount ? "cyan" : "neutral"}>{activeFilterCount}</Badge><ChevronDown className={moreFiltersOpen ? "rotate-180 transition" : "transition"} size={15} /></Button>
-          <Button icon={<RotateCcw size={15} />} onClick={() => { setQuery(initialQuery); setMoreFiltersOpen(false); }}>Réinitialiser les filtres</Button>
+          <Button className="min-h-11" icon={<SlidersHorizontal size={15} />} onClick={() => setMoreFiltersOpen((open) => !open)} aria-expanded={moreFiltersOpen}>Plus de filtres <Badge tone={activeFilterCount ? "cyan" : "neutral"}>{activeFilterCount}</Badge><ChevronDown className={moreFiltersOpen ? "rotate-180 transition" : "transition"} size={15} /></Button>
+          <Button className="min-h-11" icon={<RotateCcw size={15} />} onClick={() => { setQuery(initialQuery); setMoreFiltersOpen(false); }}>Réinitialiser les filtres</Button>
         </div>
         {moreFiltersOpen ? (
           <div className="mt-4 grid gap-3 border-t border-line pt-4 md:grid-cols-2 xl:grid-cols-4">

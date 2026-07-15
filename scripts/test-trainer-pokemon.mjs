@@ -4,6 +4,7 @@ import path from "node:path";
 import test from "node:test";
 import { executeAtomicSnapshotImport, executeAtomicSnapshotRollback } from "../src/lib/trainer-pokemon/atomic.ts";
 import { normalizeTrainerPokemonImport } from "../src/lib/trainer-pokemon/normalize.ts";
+import { resolvePokemonVariant } from "../src/lib/pokemon-variant-resolver.ts";
 import { TrainerPokemonValidationError, validateTrainerPokemonImport } from "../src/lib/trainer-pokemon/schema.ts";
 
 const root = path.resolve(import.meta.dirname, "../..");
@@ -123,6 +124,12 @@ test("résout le costume exact et ne présente jamais une image normale comme sh
   );
   assert.match(costume.entries[0].image || "", /cJAN_2020_NOEVOLVE(?:\.g\d+)?\.s\.icon\.png$/);
   assert.equal(costume.entries[0].imageMatch, "exact");
+  assert.equal(resolvePokemonVariant(costume.entries[0], {
+    id: costume.entries[0].dexNumber,
+    form: costume.entries[0].form,
+    costume: costume.entries[0].costume,
+    shiny: costume.entries[0].shiny,
+  }).image, costume.entries[0].image);
 
   const withoutShiny = {
     ...references,
@@ -136,6 +143,30 @@ test("résout le costume exact et ne présente jamais une image normale comme sh
   assert.equal(shiny.entries[0].image, null);
   assert.equal(shiny.entries[0].imageMatch, "missing");
   assert.equal(shiny.preview.diagnosticCounts.MISSING_ASSET, 1);
+});
+
+test("résout BULBASAUR_NORMAL et BULBASAUR_FALL_2019 dans toute la chaîne collection", () => {
+  const references = localReferences();
+  const source = validFile(validEntry({
+    mon_number: 1,
+    mon_name: "Bulbasaur",
+    mon_form: "BULBASAUR_NORMAL",
+    mon_gender: "MALE",
+    mon_isShiny: "NO",
+  }));
+  source.pokemonCount = 2;
+  source.fileData.costume = {
+    ...source.fileData["17397759268769916024"],
+    mon_form: "BULBASAUR_FALL_2019",
+  };
+  const result = normalizeTrainerPokemonImport(validateTrainerPokemonImport(source), references);
+  const normal = result.entries.find((entry) => entry.form === "BULBASAUR_NORMAL");
+  const costume = result.entries.find((entry) => entry.form === "BULBASAUR_FALL_2019");
+  assert.match(normal?.image || "", /pm1\.icon\.png$/);
+  assert.match(costume?.image || "", /pm1\.fFALL_2019\.icon\.png$/);
+  assert.equal(costume?.matchedCostume, "BULBASAUR_FALL_2019");
+  assert.equal(resolvePokemonVariant(normal, { id: 1, form: normal?.form }).image, normal?.image);
+  assert.equal(resolvePokemonVariant(costume, { id: 1, form: costume?.form }).image, costume?.image);
 });
 
 test("le fichier réel de 4 838 Pokémon est entièrement validé et normalisé", { skip: !fs.existsSync(samplePath) }, () => {
@@ -237,4 +268,7 @@ test("l’interface couvre recherche, filtres, tri, pagination, états vides et 
   for (const evidence of ["debouncedSearch", "Plus de filtres", "Forme spéciale", "Poids (kg)", "Taille (m)", "IV 100 % uniquement", "Trier par", "Pagination", "Aucune collection importée", "Aucun résultat", "lg:hidden", "hidden overflow-x-auto"]) {
     assert.match(panel, new RegExp(evidence.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
+  assert.match(panel, /<span>Recherche<\/span>/);
+  assert.match(panel, /md:col-span-2/);
+  assert.match(panel, /className="min-h-11"/);
 });

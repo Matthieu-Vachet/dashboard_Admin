@@ -59,6 +59,10 @@ export type TrainerPokemon = {
   secondaryType: string | null;
   image: string | null;
   imageMatch: "exact" | "form" | "normal" | "base" | "missing";
+  matchedForm?: string | null;
+  matchedCostume?: string | null;
+  matchedSource?: string;
+  resolutionStatus?: "matched" | "missing-asset";
   searchText: string;
 };
 

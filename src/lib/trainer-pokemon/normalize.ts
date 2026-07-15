@@ -60,6 +60,10 @@ function resolveTrainerPokemonArtwork(
   return {
     image: resolution.image,
     imageMatch: resolution.status === "matched" ? "exact" as const : "missing" as const,
+    matchedForm: resolution.matchedForm,
+    matchedCostume: resolution.matchedCostume,
+    matchedSource: resolution.matchedSource,
+    resolutionStatus: resolution.resolutionStatus,
   };
 }
 
@@ -257,6 +261,10 @@ export function normalizeTrainerPokemonImport(
       ...referenceTypes(match.reference),
       image: resolvedAsset.image,
       imageMatch: resolvedAsset.imageMatch,
+      matchedForm: resolvedAsset.matchedForm,
+      matchedCostume: resolvedAsset.matchedCostume,
+      matchedSource: resolvedAsset.matchedSource,
+      resolutionStatus: resolvedAsset.resolutionStatus,
       searchText,
     } satisfies TrainerPokemon;
   });

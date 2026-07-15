@@ -340,15 +340,20 @@ function preResolvedAssetPair(
     identity.matchedSource,
   ));
   const sourceAllowsExplicitVariant = knownSource !== "home-assets" && knownSource !== "home-variant";
+  const certifiedNormalizedAsset = pokemon.imageMatch === "exact";
   const selected = image(assets.selected);
   const matchedIdentityStatus = resolution.status === "matched" || pokemon.resolutionStatus === "matched";
   const identityMatchesCostume = !request.costume
-    || tokensMatch(identity.costume ?? raw.rawCostume, request.costume, species);
+    || tokensMatch(identity.costume ?? raw.rawCostume ?? pokemon.matchedCostume, request.costume, species)
+    || (certifiedNormalizedAsset && !text(identity.costume ?? raw.rawCostume ?? pokemon.matchedCostume));
   const identityMatchesForm = !requireForm
-    || tokensMatch(identity.form ?? raw.rawForm, request.form, species);
-  const identityMatchesFemale = !request.isFemale || boolean(identity.isFemale);
+    || tokensMatch(identity.form ?? raw.rawForm ?? pokemon.matchedForm, request.form, species)
+    || (certifiedNormalizedAsset && !text(identity.form ?? raw.rawForm ?? pokemon.matchedForm));
+  const identityMatchesFemale = !request.isFemale
+    || boolean(firstDefined(identity.isFemale, pokemon.isFemale, pokemon.gender))
+    || certifiedNormalizedAsset;
   const matchedIdentity = matchedIdentityStatus && sourceAllowsExplicitVariant && identityMatchesCostume && identityMatchesForm && identityMatchesFemale;
-  const exactNormalizedAsset = pokemon.imageMatch === "exact"
+  const exactNormalizedAsset = certifiedNormalizedAsset
     && sourceAllowsExplicitVariant
     && identityMatchesCostume
     && identityMatchesForm
