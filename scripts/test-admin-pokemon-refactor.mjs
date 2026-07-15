@@ -47,6 +47,17 @@ test("l’audit d’assets est paresseux, mutualisé et résilient aux limites G
   assert.match(workshop, /warnings,/);
 });
 
+test("la fonction Admin Pokémon n’embarque pas les classements volumineux", () => {
+  const config = read("next.config.ts");
+  const repository = read("src/server/pokemon-go/src/lib/data-repository.js");
+  assert.doesNotMatch(config, /PokemonGo-Data\/\*\*/);
+  assert.doesNotMatch(config, /pvp-rankings|best-attackers|shiny-tracker/);
+  for (const directory of ["pokemon", "pokemon-forms", "pokemon-assets", "moves", "generations", "types", "weather", "stickers", "source-watch"]) {
+    assert.match(config, new RegExp(`PokemonGo-Data/${directory.replace("-", "\\-")}/\\*\\*`));
+  }
+  assert.match(repository, /path\.join\(\/\*turbopackIgnore: true\*\/ appRoot/);
+});
+
 test("Résolution variantes sépare table desktop et cartes mobiles avec l’asset exact", () => {
   const source = read("src/components/admin/pokemon/pokemon-identity-mappings-panel.jsx");
   assert.match(source, /mapping\.localAsset\?\.image/);

@@ -7,6 +7,7 @@
 - Revoit la navigation interne Admin Pokémon, le filtre visuel des types et les cartes mobiles Best Attackers, Résolution variantes et précédent/suivant.
 - Agrandit à 76 px les artworks Best Attackers sur mobile, superpose le rang dans la même zone et priorise les six premières images sans désactiver le lazy-loading des résultats hors écran.
 - Charge l’audit des assets uniquement dans les sections concernées, mutualise l’inventaire GitHub distant et conserve les assets locaux liés lorsque la bibliothèque distante est limitée ou indisponible.
+- Réduit le bundle serveur Admin aux seuls référentiels nécessaires et exclut les classements volumineux déjà servis par l’API MongoDB.
 - Restaure pour les fiches normales l’ordre GO exact → référence locale → HOME → portrait, indépendamment de `availability`, tout en conservant l’interdiction absolue du fallback normal pour une variante explicite.
 
 ## 1.23.0 - 2026-07-15

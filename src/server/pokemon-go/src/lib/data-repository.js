@@ -52,7 +52,7 @@ function dataPath(...segments) {
 }
 
 function appPath(...segments) {
-  return path.join(appRoot, ...segments);
+  return path.join(/*turbopackIgnore: true*/ appRoot, ...segments);
 }
 
 function stripDataPrefix(relativePath) {
