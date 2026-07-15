@@ -42,12 +42,11 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 
 | Élément | Constat vérifié |
 | --- | --- |
-| Fichiers ADR-*.md présents | 0 |
-| Entrées ADR réservées dans documentation-map | ADR-001 à ADR-010 |
-| ADR formel accepté | 0 |
-| Décisions encodées examinées | 10 |
-| Liens vers fiches ADR | 0 |
-| Statut | absence explicite de fiches |
+| Fichiers ADR-*.md présents | ADR-001 à ADR-013 |
+| Entrées ADR historiques | ADR-001 à ADR-010 |
+| ADR post-audit | ADR-011 à ADR-013 |
+| ADR Game Master | ADR-012, ADR-013 |
+| Statut | décisions formalisées et actives |
 
 ## 3. Implémentation observée
 
@@ -61,7 +60,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - Learning conserve une migration browser et un rollback de contenu.
 - La collection trainer conserve les snapshots, vérifie le read-back et active un pointeur owner sans deleteMany.
 - Les assets publics sont consommés par URL GitHub raw sur main.
-- Ces dix décisions existent dans le code mais aucune ne possède une fiche ADR avec contexte, alternatives, décision et conséquences.
+- ADR-012 formalise l’indexation et l’activation atomique du Game Master. ADR-013 retient la cohabitation des deux écrans avec un seul générateur et un seul résolveur.
 
 ## 4. Relations et dépendances
 
@@ -103,6 +102,9 @@ flowchart TD
 - [COL-030](<../Post-audit 2026-07-13/COL-030-trainer-pokemon-owners.md>)
 - [COL-031](<../Post-audit 2026-07-13/COL-031-trainer-pokemon-snapshots.md>)
 - [COL-032](<../Post-audit 2026-07-13/COL-032-trainer-pokemon-entries.md>)
+- [ADR-011](<../Post-audit 2026-07-14/ADR-011-identite-pokemon-canonique.md>)
+- [ADR-012](<../Post-audit 2026-07-15/ADR-012-indexation-snapshots-game-master.md>)
+- [ADR-013](<../Post-audit 2026-07-15/ADR-013-cohabitation-resolution-variantes.md>)
 
 ## 7. Informations absentes du code
 

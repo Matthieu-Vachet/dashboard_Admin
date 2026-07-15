@@ -23,7 +23,15 @@ export type TrainerPokemonSpeciesReference = {
     primaryType?: string | null;
     secondaryType?: string | null;
     assetForms?: TrainerPokemonAssetFormReference[];
-    assets?: { image?: string | null; shinyImage?: string | null; assetsRef?: string | null };
+    assets?: {
+      image?: string | null;
+      shinyImage?: string | null;
+      assetsRef?: string | null;
+      portrait?: string | null;
+      portraitShiny?: string | null;
+      home?: { image?: string | null; shinyImage?: string | null; variants?: TrainerPokemonAssetFormReference[] } | null;
+      assetForms?: TrainerPokemonAssetFormReference[];
+    };
   };
 };
 
@@ -107,19 +115,33 @@ function localDataRoots() {
 }
 
 function hydrateLocalAssetForms(reference: TrainerPokemonSpeciesReference) {
-  if (reference.data?.assetForms?.length) return reference;
   const assetRef = reference.data?.assets?.assetsRef;
   if (!assetRef || assetRef.includes("..") || !assetRef.startsWith("pokemon-assets/")) return reference;
   for (const root of localDataRoots()) {
     const file = path.join(root, assetRef);
     if (!fs.existsSync(file)) continue;
     try {
-      const payload = JSON.parse(fs.readFileSync(file, "utf8")) as { assets?: { assetForms?: TrainerPokemonAssetFormReference[] } };
+      const payload = JSON.parse(fs.readFileSync(file, "utf8")) as { assets?: NonNullable<TrainerPokemonSpeciesReference["data"]>["assets"] };
+      const referencedAssets = payload.assets || {};
       return {
         ...reference,
         data: {
           ...reference.data,
-          assetForms: Array.isArray(payload.assets?.assetForms) ? payload.assets.assetForms : [],
+          assets: {
+            ...referencedAssets,
+            ...reference.data?.assets,
+            image: reference.data?.assets?.image || referencedAssets.image || null,
+            shinyImage: reference.data?.assets?.shinyImage || referencedAssets.shinyImage || null,
+            home: reference.data?.assets?.home || referencedAssets.home || null,
+            portrait: reference.data?.assets?.portrait || referencedAssets.portrait || null,
+            portraitShiny: reference.data?.assets?.portraitShiny || referencedAssets.portraitShiny || null,
+            assetForms: Array.isArray(reference.data?.assets?.assetForms)
+              ? reference.data.assets.assetForms
+              : Array.isArray(referencedAssets.assetForms) ? referencedAssets.assetForms : [],
+          },
+          assetForms: Array.isArray(reference.data?.assetForms)
+            ? reference.data.assetForms
+            : Array.isArray(referencedAssets.assetForms) ? referencedAssets.assetForms : [],
         },
       };
     } catch {

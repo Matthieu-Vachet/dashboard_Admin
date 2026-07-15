@@ -3,7 +3,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   AlertTriangle,
@@ -12,6 +12,7 @@ import {
   ClipboardCheck,
   Cloud,
   Copy,
+  Database,
   FileDiff,
   FileJson,
   History,
@@ -92,6 +93,11 @@ const TrainerPokemonCollectionPanel = dynamic(
   { loading: () => <div className={`${panelClass} min-h-64 animate-pulse`} aria-label="Chargement de Ma collection" /> },
 );
 
+const GameMasterExplorerPanel = dynamic(
+  () => import("./game-master-explorer-panel").then((module) => module.GameMasterExplorerPanel),
+  { loading: () => <div className={`${panelClass} min-h-64 animate-pulse`} aria-label="Chargement du Game Master Explorer" /> },
+);
+
 const filtersAssetBase = "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers/Filters";
 const pokemonAssetBase = "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers";
 const navItems = [
@@ -113,6 +119,7 @@ const navItems = [
   { id: "events", label: "Calendrier Events", icon: `${filtersAssetBase}/TodayView_Icon_Event.png`, group: "events" },
   { id: "shiny", label: "Shiny Tracker", icon: `${filtersAssetBase}/ic_shiny_white.png`, group: "quality" },
   { id: "pokemon-identity-mappings", label: "Résolution variantes", icon: Radar, group: "quality" },
+  { id: "game-master-explorer", label: "Game Master Explorer", icon: Database, group: "quality" },
   { id: "checks", label: "Contrôles", icon: AlertTriangle, group: "quality" },
   { id: "sources", label: "Veille", icon: Radar, group: "quality" },
   { id: "compare", label: "Comparaison", icon: FileDiff, group: "quality" },
@@ -955,6 +962,9 @@ export function AdminApp() {
   const [bootstrap, setBootstrap] = useState({ loading: false, payload: null, error: "" });
   const [catalog, setCatalog] = useState(null);
   const [assetAudit, setAssetAudit] = useState(null);
+  const [assetAuditLoading, setAssetAuditLoading] = useState(false);
+  const [assetAuditError, setAssetAuditError] = useState("");
+  const assetAuditRequestRef = useRef(null);
   const [sourceWatch, setSourceWatch] = useState(null);
   const [sourceHistory, setSourceHistory] = useState([]);
   const [sourceHistoryOpen, setSourceHistoryOpen] = useState(false);
@@ -1016,6 +1026,13 @@ export function AdminApp() {
   const [ruleMessage, setRuleMessage] = useState("");
   const [rulesSyncing, setRulesSyncing] = useState(false);
 
+  function selectSection(sectionId) {
+    setActive(sectionId);
+    const url = new URL(window.location.href);
+    url.searchParams.set("section", sectionId);
+    window.history.replaceState({}, "", url);
+  }
+
   useEffect(() => {
     setAssetChecks(readLocalJson(legacyAssetChecksKey, {}));
     setCollections(readLocalJson(collectionsKey, []));
@@ -1070,7 +1087,6 @@ export function AdminApp() {
       const [
         checklistResponse,
         catalogResponse,
-        assetResponse,
         historyResponse,
         rulesResponse,
         sourceHistoryResponse,
@@ -1078,7 +1094,6 @@ export function AdminApp() {
       ] = await Promise.all([
         fetch(adminApiPath),
         fetch(`${adminApiPath}?action=catalog`),
-        fetch(`${adminApiPath}?action=assets`),
         fetch(`${adminApiPath}?action=history`),
         fetch(`${adminApiPath}?action=custom-rules`),
         fetch(`${adminApiPath}?action=source-history`),
@@ -1087,7 +1102,6 @@ export function AdminApp() {
       const [
         checklistPayload,
         catalogPayload,
-        assetPayload,
         historyPayload,
         rulesPayload,
         sourceHistoryPayload,
@@ -1095,7 +1109,6 @@ export function AdminApp() {
       ] = await Promise.all([
         checklistResponse.json(),
         catalogResponse.json(),
-        assetResponse.json(),
         historyResponse.json(),
         rulesResponse.json(),
         sourceHistoryResponse.json(),
@@ -1104,7 +1117,6 @@ export function AdminApp() {
       if (!checklistResponse.ok) throw new Error(checklistPayload.error || "Erreur de chargement.");
       setBootstrap({ loading: false, payload: checklistPayload.data, error: "" });
       setCatalog(catalogPayload.data || null);
-      setAssetAudit(assetPayload.data || null);
       setHistory(historyPayload.data || []);
       setCustomRules(rulesPayload.data || checklistPayload.data?.customRules || []);
       setSourceHistory(Array.isArray(sourceHistoryPayload.data) ? sourceHistoryPayload.data : []);
@@ -1114,6 +1126,31 @@ export function AdminApp() {
       setBootstrap({ loading: false, payload: null, error: error.message });
       if (notify) toast.error(error.message || "Erreur de chargement du dashboard.");
     }
+  }
+
+  function loadAssetAudit() {
+    if (assetAuditRequestRef.current) return assetAuditRequestRef.current;
+    setAssetAuditLoading(true);
+    setAssetAuditError("");
+    const request = fetch(`${adminApiPath}?action=assets`)
+      .then(async (response) => {
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || "Audit des assets indisponible.");
+        setAssetAudit(payload.data || null);
+        return payload.data || null;
+      })
+      .catch((error) => {
+        const message = error.message || "Audit des assets indisponible.";
+        setAssetAuditError(message);
+        toast.error(message);
+        return null;
+      })
+      .finally(() => {
+        assetAuditRequestRef.current = null;
+        setAssetAuditLoading(false);
+      });
+    assetAuditRequestRef.current = request;
+    return request;
   }
 
   useEffect(() => {
@@ -1178,6 +1215,16 @@ export function AdminApp() {
   useEffect(() => {
     if (session.authenticated && active === "pokemon-identity-mappings") loadIdentityMappings();
   }, [active, session.authenticated, identityMappingOptions]);
+
+  useEffect(() => {
+    if (
+      session.authenticated &&
+      (active === "assets" || active === "backgrounds") &&
+      !assetAudit
+    ) {
+      void loadAssetAudit();
+    }
+  }, [active, session.authenticated, assetAudit]);
 
   const entries = useMemo(() => bootstrap.payload?.entries || [], [bootstrap.payload]);
   const customRuleEntries = useMemo(() => bootstrap.payload?.customRuleEntries || [], [bootstrap.payload]);
@@ -1979,7 +2026,7 @@ export function AdminApp() {
                 </button>
               </div>
             </div>
-            <AdminSectionNavigation items={navItems} active={active} onSelect={setActive} />
+            <AdminSectionNavigation key={active} items={navItems} active={active} onSelect={selectSection} />
             </div>
           </header>
 
@@ -2112,7 +2159,7 @@ export function AdminApp() {
                 entries={entries}
                 library={assetAudit?.locationCards || []}
                 linkedAssets={(assetAudit?.goAssets || []).filter((item) => item.assetType === "background")}
-                loading={!assetAudit}
+                loading={assetAuditLoading}
                 search={search}
                 onOpen={openDetail}
               />
@@ -2251,6 +2298,8 @@ export function AdminApp() {
               />
             ) : null}
 
+            {active === "game-master-explorer" ? <GameMasterExplorerPanel /> : null}
+
             {active === "events" ? (
               <EventsCalendarPanel globalSearch={search} onOpenPokemon={openPokemonReference} />
             ) : null}
@@ -2258,6 +2307,16 @@ export function AdminApp() {
             {active === "assets" ? (
               <section className="grid items-start gap-5 xl:grid-cols-[1.4fr_.9fr]">
                 <Panel title="Vérification d’assets" eyebrow="bibliothèque">
+                  {assetAuditError ? (
+                    <p className="mb-4 rounded-2xl border border-red-300/25 bg-red-400/10 p-4 text-sm font-bold text-red-100">
+                      {assetAuditError}
+                    </p>
+                  ) : null}
+                  {(assetAudit?.warnings || []).length ? (
+                    <p className="mb-4 rounded-2xl border border-amber-300/25 bg-amber-400/10 p-4 text-sm font-bold text-amber-100">
+                      Bibliothèques distantes partiellement indisponibles : {assetAudit.warnings.join(" · ")}. Les assets déjà liés aux fiches restent affichés.
+                    </p>
+                  ) : null}
                   <div className="mb-4 grid min-w-0 items-start gap-3 sm:grid-cols-2 2xl:grid-cols-4">
                     <AssetStatCard label="Liés" value={assetAudit?.totals?.goFiles || 0} icon={uiAssets.icons.goLogo} tone="cyan" detail="Tous assets JSON fiches" />
                     <AssetStatCard label="HOME" value={assetAudit?.totals?.homeFiles || 0} icon={uiAssets.icons.pokemon} tone="green" detail="Images HOME liées" />

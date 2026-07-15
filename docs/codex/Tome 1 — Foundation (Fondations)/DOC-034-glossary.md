@@ -61,6 +61,10 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | diagnostics | Métadonnées de parsing, matching, diff, warnings et provenance |
 | activeSnapshotId | Pointeur owner vers la collection trainer active |
 | OpenAPI | Contrat public généré par src/docs/openapi.js |
+| Game Master Explorer | Outil Admin privé qui indexe et recherche le Game Master sans le charger intégralement dans le navigateur |
+| staging Game Master | Documents d’un nouveau snapshot écrits avant activation du pointeur `current` |
+| comparaison locale | Rapprochement auditable Game Master ↔ PokemonGo-Data avec asset exact, provenance et statut |
+| disponibilité asset | Présence d’une image locale valide, indépendante de la disponibilité du Pokémon en jeu |
 
 ## 3. Implémentation observée
 
@@ -106,7 +110,9 @@ flowchart LR
 
 ### Fiches spécialisées présentes
 
-Aucune fiche spécialisée liée n’est présente.
+- [PAGE-052](<../Post-audit 2026-07-15/PAGE-052-game-master-explorer.md>)
+- [ADR-012](<../Post-audit 2026-07-15/ADR-012-indexation-snapshots-game-master.md>)
+- [RULE-047](<../Post-audit 2026-07-15/RULE-047-fallback-home-formes-normales.md>)
 
 ## 7. Informations absentes du code
 

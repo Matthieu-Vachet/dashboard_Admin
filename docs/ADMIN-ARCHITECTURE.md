@@ -34,7 +34,8 @@ ajouter de nouvelle logique metier.
 
 ## Navigation Et Datasets
 
-- `AdminSectionNavigation` porte la recherche, les groupes repliables, l'état actif et les icônes officielles Pokémon GO. Ajouter une section consiste à enrichir sa configuration, sans recopier le rendu.
+- `AdminSectionNavigation` porte la recherche, l'état actif et les icônes officielles Pokémon GO. Sur desktop, elle n’affiche que le groupe choisi dans une barre compacte ; sur mobile, elle ouvre une sheet plein écran, verrouille le scroll et ferme avec Échap. La section active est reflétée dans `?section=`.
 - `DatasetSourceHeader` est l'en-tête commun des sources dynamiques. Il expose provenance, visibilité, statut et diagnostics dans une structure stable.
-- Tous les accordéons métier sont fermés par défaut. Seul le groupe de navigation contenant la section active est ouvert automatiquement.
+- Les accordéons métier sont fermés par défaut. La navigation ne déploie jamais toutes les catégories simultanément.
 - La confidentialité est décidée par le dataset et contrôlée côté serveur. Le client n'obtient jamais le secret de l'API Pokémon.
+- `GameMasterExplorerPanel` est chargé dynamiquement. Ses listes sont paginées côté serveur et n’obtiennent jamais `raw`; `GameMasterJsonViewer` ne reçoit que le template ouvert.

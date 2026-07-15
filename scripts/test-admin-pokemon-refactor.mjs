@@ -6,7 +6,7 @@ import test from "node:test";
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
-test("la navigation Admin Pokémon reste groupée, recherchable et accessible", () => {
+test("la navigation Admin Pokémon est compacte sur desktop et devient une sheet sur mobile", () => {
   const source = read("src/components/admin/pokemon/admin-section-navigation.jsx");
   assert.match(source, /Rechercher une section Admin Pokémon/);
   for (const group of ["Données Pokémon", "Combat", "Événements", "Maintenance", "Qualité & supervision"]) {
@@ -14,8 +14,70 @@ test("la navigation Admin Pokémon reste groupée, recherchable et accessible", 
   }
   assert.match(source, /alt=""/);
   assert.match(source, /aria-expanded=/);
-  assert.match(source, /grid items-start/);
-  assert.match(source, /Accès rapides/);
+  assert.match(source, /hidden rounded-2xl[^\n]+lg:block/);
+  assert.match(source, /fixed inset-0 z-\[90\]/);
+  assert.match(source, /role="dialog" aria-modal="true"/);
+  assert.match(source, /document\.body\.style\.overflow = "hidden"/);
+  assert.match(source, /createPortal/);
+  assert.match(source, /document\.body\)/);
+  assert.doesNotMatch(source, /2xl:grid-cols-5/);
+});
+
+test("Best Attackers utilise un sélecteur de types visuel et des cartes mobiles compactes", () => {
+  const source = read("src/components/admin/pokemon/best-attackers-panel.jsx");
+  assert.match(source, /function TypeFilter/);
+  assert.match(source, /typeIcon\(type\)/);
+  assert.match(source, /role="radio"/);
+  assert.match(source, /type === "ANY"/);
+  assert.match(source, /grid-cols-\[4\.75rem_minmax\(0,1fr\)\]/);
+  assert.match(source, /sm:grid-cols-\[3rem_4\.5rem_minmax\(0,1fr\)_auto\]/);
+  assert.match(source, /priority=\{entry\.rank <= 6\}/);
+  assert.match(source, /showVariant=\{false\}/);
+  assert.match(source, /relative col-start-1 row-start-1 h-\[4\.75rem\]/);
+});
+
+test("l’audit d’assets est paresseux, mutualisé et résilient aux limites GitHub", () => {
+  const app = read("src/components/admin/pokemon/admin-app.jsx");
+  const workshop = read("src/server/pokemon-go/apps/checklist/server/workshop.js");
+  assert.match(app, /active === "assets" \|\| active === "backgrounds"/);
+  assert.match(app, /assetAuditRequestRef/);
+  assert.match(app, /Les assets déjà liés aux fiches restent affichés/);
+  assert.match(workshop, /function allRemoteAssetTree/);
+  assert.match(workshop, /Promise\.allSettled/);
+  assert.match(workshop, /warnings,/);
+});
+
+test("Résolution variantes sépare table desktop et cartes mobiles avec l’asset exact", () => {
+  const source = read("src/components/admin/pokemon/pokemon-identity-mappings-panel.jsx");
+  assert.match(source, /mapping\.localAsset\?\.image/);
+  assert.match(source, /Aucun asset exact disponible/);
+  assert.match(source, /md:hidden/);
+  assert.match(source, /hidden overflow-x-auto[^\n]+md:block/);
+  assert.match(source, /missing-local-costume/);
+  assert.match(source, /ambiguous/);
+});
+
+test("Game Master Explorer reste privé, paginé et ne charge le JSON brut qu’au détail", () => {
+  const panel = read("src/components/admin/pokemon/game-master-explorer-panel.jsx");
+  const viewer = read("src/components/admin/pokemon/game-master-json-viewer.jsx");
+  const proxy = read("src/app/api/pokemon-admin/route.ts");
+  assert.match(panel, /Game Master Explorer/);
+  assert.match(panel, /Explorer/);
+  assert.match(panel, /Comparaison locale/);
+  assert.match(panel, /Historique & diff/);
+  assert.match(panel, /game-master-template/);
+  assert.match(viewer, /Une seule entrée brute est chargée à la fois/);
+  assert.match(viewer, /Tout ouvrir/);
+  assert.match(proxy, /x-api-admin-secret/);
+  assert.match(proxy, /game-master-templates/);
+  assert.match(proxy, /Cache-Control", "private, no-store"/);
+});
+
+test("la navigation précédente et suivante reste côte à côte sur mobile", () => {
+  const source = read("src/components/admin/pokemon/detail-modal.jsx");
+  assert.match(source, /grid grid-cols-2 gap-2 sm:gap-3/);
+  assert.match(source, /← Fiche précédente/);
+  assert.match(source, /Fiche suivante →/);
 });
 
 test("la modale commune conserve le callback courant et restaure le focus", () => {

@@ -45,9 +45,9 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 
 | Élément | Constat vérifié |
 | --- | --- |
-| Datasets enregistrés | DATASET-001 à DATASET-020 |
+| Datasets enregistrés | DATASET-001 à DATASET-024 |
 | Providers enregistrés | PROVIDER-001 à PROVIDER-018 |
-| Collections enregistrées | COL-001 à COL-032 |
+| Collections enregistrées | COL-001 à COL-039 |
 | Schémas Data | schemas/pokemon.schema.json et schemas/pokemon-assets.schema.json |
 | Pipelines current API | 7 domaines |
 | Pipelines privés Dashboard | Learning, Events, Source Watch et collection du dresseur |
@@ -60,6 +60,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - Les cinq JSON raids, eggs, max-battles, rocket et research servent de fixtures, références ou exports; les lectures runtime utilisent MongoDB.
 - Learning emploie Zod, des contenus locaux, une migration navigateur, quatre collections de contenu/progression et deux collections d’historique.
 - DATASET-020 valide le JSON importé, résout Pokémon, attaques et types via l’API publique, écrit un snapshot puis bascule activeSnapshotId après read-back.
+- DATASET-023 indexe le Game Master par template. DATASET-024 conserve métadonnées de snapshots, diffs et comparaison locale ; un hash identique ne duplique pas le snapshot.
 
 ## 4. Relations et dépendances
 
@@ -105,6 +106,8 @@ flowchart LR
 - [COL-031](<../Post-audit 2026-07-13/COL-031-trainer-pokemon-snapshots.md>)
 - [COL-032](<../Post-audit 2026-07-13/COL-032-trainer-pokemon-entries.md>)
 - [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
+- [DATASET-023](<../Post-audit 2026-07-15/DATASET-023-game-master-index-courant.md>)
+- [DATASET-024](<../Post-audit 2026-07-15/DATASET-024-game-master-historique-diffs.md>)
 
 Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient uniquement aux registres JSON.
 

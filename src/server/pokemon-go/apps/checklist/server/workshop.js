@@ -39,6 +39,32 @@ const filenamePattern =
 let remoteHdCache = null;
 let remoteShuffleCache = null;
 let remoteLocationCardsCache = null;
+let remoteAssetTreeCache = null;
+let remoteAssetTreePromise = null;
+
+async function allRemoteAssetTree() {
+  if (remoteAssetTreeCache) return remoteAssetTreeCache;
+  if (!remoteAssetTreePromise) {
+    const headers = { "user-agent": "PokemonGo-API-checklist" };
+    const token = String(process.env.GITHUB_TOKEN || "").trim();
+    if (token) headers.authorization = `Bearer ${token}`;
+    remoteAssetTreePromise = fetch(
+      "https://api.github.com/repos/Matthieu-Vachet/PokemonGo-Assets-API/git/trees/main?recursive=1",
+      { headers, next: { revalidate: 3600 } },
+    )
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`GitHub assets: HTTP ${response.status}`);
+        const tree = await response.json();
+        remoteAssetTreeCache = tree.tree || [];
+        return remoteAssetTreeCache;
+      })
+      .catch((error) => {
+        remoteAssetTreePromise = null;
+        throw error;
+      });
+  }
+  return remoteAssetTreePromise;
+}
 
 function readJson(file, fallback = null) {
   try {
@@ -89,13 +115,8 @@ async function allHdAssets() {
   if (fs.existsSync(hdDir))
     return fs.readdirSync(hdDir).map(parseAsset).filter(Boolean);
   if (remoteHdCache) return remoteHdCache;
-  const response = await fetch(
-    "https://api.github.com/repos/Matthieu-Vachet/PokemonGo-Assets-API/git/trees/main?recursive=1",
-    { headers: { "user-agent": "PokemonGo-API-checklist" } },
-  );
-  if (!response.ok) throw new Error(`GitHub assets: HTTP ${response.status}`);
-  const tree = await response.json();
-  remoteHdCache = (tree.tree || [])
+  const tree = await allRemoteAssetTree();
+  remoteHdCache = tree
     .filter((item) => item.type === "blob" && item.path.startsWith("PokemonHd/"))
     .map((item) => parseAsset(path.basename(item.path)))
     .filter(Boolean);
@@ -227,13 +248,8 @@ async function allShuffleAssets() {
   } else if (remoteShuffleCache) {
     assets = remoteShuffleCache;
   } else {
-    const response = await fetch(
-      "https://api.github.com/repos/Matthieu-Vachet/PokemonGo-Assets-API/git/trees/main?recursive=1",
-      { headers: { "user-agent": "PokemonGo-API-checklist" } },
-    );
-    if (!response.ok) throw new Error(`GitHub assets: HTTP ${response.status}`);
-    const tree = await response.json();
-    remoteShuffleCache = (tree.tree || [])
+    const tree = await allRemoteAssetTree();
+    remoteShuffleCache = tree
       .filter((item) => item.type === "blob" && item.path.startsWith("pokemonShuffle/"))
       .map((item) => parseShuffleAsset(path.basename(item.path)))
       .filter(Boolean);
@@ -258,14 +274,8 @@ function locationCardLabel(filename) {
 async function allLocationCardAssets() {
   if (remoteLocationCardsCache) return remoteLocationCardsCache;
 
-  const response = await fetch(
-    "https://api.github.com/repos/Matthieu-Vachet/PokemonGo-Assets-API/git/trees/main?recursive=1",
-    { headers: { "user-agent": "PokemonGo-API-checklist" } },
-  );
-  if (!response.ok) throw new Error(`GitHub assets: HTTP ${response.status}`);
-
-  const tree = await response.json();
-  remoteLocationCardsCache = (tree.tree || [])
+  const tree = await allRemoteAssetTree();
+  remoteLocationCardsCache = tree
     .filter((item) => item.type === "blob" && item.path.startsWith("LocationCards/"))
     .map((item) => {
       const filename = path.basename(item.path);
@@ -281,9 +291,19 @@ async function allLocationCardAssets() {
 }
 
 async function assetAudit(dexId = "") {
-  const [assets, locationCards] = await Promise.all([allHdAssets(), allLocationCardAssets()]);
+  const remoteResults = await Promise.allSettled([
+    allHdAssets(),
+    allLocationCardAssets(),
+    allShuffleAssets(),
+  ]);
+  const [assetsResult, locationCardsResult, shuffleAssetsResult] = remoteResults;
+  const assets = assetsResult.status === "fulfilled" ? assetsResult.value : [];
+  const locationCards = locationCardsResult.status === "fulfilled" ? locationCardsResult.value : [];
+  const shuffleAssets = shuffleAssetsResult.status === "fulfilled" ? shuffleAssetsResult.value : [];
+  const warnings = [...new Set(remoteResults
+    .filter((result) => result.status === "rejected")
+    .map((result) => result.reason?.message || "Bibliothèque distante indisponible."))];
   const goAssets = allGoAssets();
-  const shuffleAssets = await allShuffleAssets();
   const used = usedAssetUrls();
   const counts = new Map();
   for (const item of used)
@@ -324,6 +344,7 @@ async function assetAudit(dexId = "") {
     duplicated: [...counts.entries()]
       .filter(([, count]) => count > 1)
       .map(([url, count]) => ({ url, count })),
+    warnings,
   };
 }
 

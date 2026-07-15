@@ -55,6 +55,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - La navigation principale contient 18 destinations visibles réparties en cinq groupes; la page Account existe hors navGroups.
 - PokemonAdminStudio rend AdminApp. AdminApp contient les 24 sections overview, pokedex, candies, backgrounds, collections, my-collection, assets, catalogs, raids, max-battles, rocket, pvp-rankings, eggs, research, events, shiny, checks, sources, compare, todo, logs, rules, bulk et export.
 - La section PAGE-049 charge COMP-137 avec next/dynamic. Elle appelle SERVICE-005 et les routes API-157 à API-160.
+- PAGE-052 charge COMP-329 avec `next/dynamic`. La navigation interne est COMP-331 ; le détail utilise COMP-330. Toutes les lectures passent par le BFF de session puis API-165 à API-176 avec le secret serveur.
 - Le design exécuté utilise les thèmes dark et light, huit palettes et les primitives Badge, Button, Card, Input, Textarea et Modal.
 - Le Dashboard lit PokemonGo-Data via un voisin ou .data, PokemonGo-API via ses handlers serveur, les assets via GitHub raw et ses données privées via MongoDB Dashboard.
 
@@ -76,6 +77,9 @@ flowchart LR
   SECTIONS --> PERSONAL["PAGE-049 / COMP-137"]
   PERSONAL --> ROUTES["API-157 à API-160"]
   ROUTES --> MONGO[("COL-030 à COL-032")]
+  SECTIONS --> GM["PAGE-052 / COMP-329"]
+  GM --> GM_API["API-165 à API-176"]
+  GM_API --> GM_MONGO[("COL-035 à COL-039")]
 ```
 
 ## 6. Références documentaires
@@ -108,6 +112,10 @@ flowchart LR
 - [COL-032](<../Post-audit 2026-07-13/COL-032-trainer-pokemon-entries.md>)
 - [DATASET-020](<../Post-audit 2026-07-13/DATASET-020-collection-personnelle-pokemon-go.md>)
 - [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
+- [PAGE-052](<../Post-audit 2026-07-15/PAGE-052-game-master-explorer.md>)
+- [COMP-329](<../Post-audit 2026-07-15/COMP-329-game-master-explorer-panel.md>)
+- [COMP-330](<../Post-audit 2026-07-15/COMP-330-game-master-json-viewer.md>)
+- [COMP-331](<../Post-audit 2026-07-15/COMP-331-admin-pokemon-navigation-responsive.md>)
 
 Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient uniquement aux registres JSON.
 

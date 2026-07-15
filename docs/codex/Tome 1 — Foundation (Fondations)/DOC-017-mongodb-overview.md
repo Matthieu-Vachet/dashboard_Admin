@@ -47,6 +47,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | COL-030 | trainer_pokemon_owners |
 | COL-031 | trainer_pokemon_snapshots |
 | COL-032 | trainer_pokemon_entries |
+| COL-035 à COL-039 | Game Master state, templates, snapshots, diffs et comparaison locale |
 | TTL déclarés | 0 |
 
 ## 3. Implémentation observée
@@ -57,6 +58,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - trainer_pokemon_snapshots indexe owner/importedAt et owner/status/importedAt.
 - trainer_pokemon_entries possède neuf index, dont l’unicité owner+snapshotId+sourceId et les accès par numéro, nom, CP, IV, états, genre, alignement, forme et costume.
 - Les modèles Mongoose désactivent versionKey sur les modèles observés; le versionnement métier repose sur timestamps, hash, snapshots ou historique applicatif.
+- COL-035 porte le pointeur Game Master actif. COL-036 à COL-039 sont écrites en staging avant cette bascule ; la rétention est illimitée par défaut.
 
 ## 4. Relations et dépendances
 
@@ -65,6 +67,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | Sync statique | écrit | COL-002 à 004, 006 à 008, 012, 014, 018 à 019 |
 | Current pipeline | écrit | COL-001, 005, 009 à 011, 013, 015 à 016 |
 | Trainer repository | écrit | COL-030 à COL-032 |
+| Game Master pipeline | écrit | COL-035 à COL-039 |
 
 ## 5. Diagramme vérifié
 
@@ -96,6 +99,7 @@ flowchart LR
 - [COL-030](<../Post-audit 2026-07-13/COL-030-trainer-pokemon-owners.md>)
 - [COL-031](<../Post-audit 2026-07-13/COL-031-trainer-pokemon-snapshots.md>)
 - [COL-032](<../Post-audit 2026-07-13/COL-032-trainer-pokemon-entries.md>)
+- [COL-035 à COL-039](<../Post-audit 2026-07-15/COL-035-game-master-states.md>)
 
 ## 7. Informations absentes du code
 

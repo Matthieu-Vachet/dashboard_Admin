@@ -382,6 +382,80 @@ async function callPokemonApiAdmin(path: string, body?: unknown) {
   return payload;
 }
 
+async function readPokemonApiAdmin(path: string) {
+  const secret = process.env.POKEMON_API_ADMIN_SECRET || process.env.API_ADMIN_SECRET;
+  if (!secret) {
+    throw requestError("POKEMON_API_ADMIN_SECRET doit être défini côté serveur pour lire les données Pokémon privées.", 500);
+  }
+  const target = new URL(path, pokemonApiBaseUrl);
+  const response = await fetch(target, {
+    cache: "no-store",
+    signal: AbortSignal.timeout(30_000),
+    headers: { accept: "application/json", "x-api-admin-secret": secret },
+  });
+  const payload = (await response.json().catch(() => ({}))) as {
+    error?: string | { message?: string };
+  };
+  if (!response.ok) {
+    throw requestError(
+      typeof payload?.error === "string"
+        ? payload.error
+        : payload?.error?.message || `PokemonGo-API HTTP ${response.status}`,
+      response.status,
+    );
+  }
+  return payload;
+}
+
+async function proxyPokemonApiAdminDownload(path: string) {
+  const secret = process.env.POKEMON_API_ADMIN_SECRET || process.env.API_ADMIN_SECRET;
+  if (!secret) throw requestError("POKEMON_API_ADMIN_SECRET doit être défini côté serveur pour exporter les données privées.", 500);
+  const response = await fetch(new URL(path, pokemonApiBaseUrl), {
+    cache: "no-store",
+    signal: AbortSignal.timeout(60_000),
+    headers: { accept: "application/json,text/csv", "x-api-admin-secret": secret },
+  });
+  if (!response.ok) {
+    const payload = await response.json().catch(() => null) as { error?: string | { message?: string } } | null;
+    throw requestError(
+      typeof payload?.error === "string" ? payload.error : payload?.error?.message || `PokemonGo-API HTTP ${response.status}`,
+      response.status,
+    );
+  }
+  const download = new NextResponse(await response.arrayBuffer(), { status: 200 });
+  download.headers.set("Cache-Control", "private, no-store");
+  download.headers.set("Content-Type", response.headers.get("content-type") || "application/octet-stream");
+  download.headers.set("Content-Disposition", response.headers.get("content-disposition") || 'attachment; filename="game-master-export.json"');
+  return download;
+}
+
+const gameMasterReadActions: Record<string, { path: string; query?: string[] }> = {
+  "game-master-summary": { path: "/api/v1/admin/game-master/summary" },
+  "game-master-categories": { path: "/api/v1/admin/game-master/categories" },
+  "game-master-templates": { path: "/api/v1/admin/game-master/templates", query: ["q", "search", "match", "category", "group", "settingType", "pokemonId", "localStatus", "sort", "order", "page", "limit"] },
+  "game-master-search": { path: "/api/v1/admin/game-master/search", query: ["q", "search", "match", "category", "group", "settingType", "pokemonId", "localStatus", "sort", "order", "page", "limit"] },
+  "game-master-comparison": { path: "/api/v1/admin/game-master/local-comparison", query: ["q", "search", "status", "pokemonId", "form", "costume", "generation", "shiny", "sex", "dataType", "category", "page", "limit"] },
+  "game-master-snapshots": { path: "/api/v1/admin/game-master/snapshots", query: ["page", "limit"] },
+  "game-master-diff": { path: "/api/v1/admin/game-master/diff", query: ["to", "snapshotId", "templateId", "type", "category", "page", "limit"] },
+};
+
+function gameMasterReadPath(request: NextRequest, action: string) {
+  if (action === "game-master-template") {
+    const templateId = String(request.nextUrl.searchParams.get("templateId") || "").trim();
+    if (!templateId) throw requestError("templateId est requis.", 400);
+    return `/api/v1/admin/game-master/templates/${encodeURIComponent(templateId)}`;
+  }
+  if (action === "game-master-snapshot") {
+    const snapshotId = String(request.nextUrl.searchParams.get("snapshotId") || "").trim();
+    if (!snapshotId) throw requestError("snapshotId est requis.", 400);
+    return `/api/v1/admin/game-master/snapshots/${encodeURIComponent(snapshotId)}`;
+  }
+  const definition = gameMasterReadActions[action];
+  if (!definition) throw requestError("Action Game Master inconnue.", 404);
+  const query = forwardedRankedQuery(request, definition.query || []);
+  return `${definition.path}${query ? `?${query}` : ""}`;
+}
+
 function clearPokemonModuleCache() {
   for (const key of Object.keys(require.cache)) {
     if (key.includes(pokemonModulePattern)) delete require.cache[key];
@@ -685,6 +759,15 @@ export async function GET(request: NextRequest) {
       return json({ data: await readCurrentPokemonIdentityMappings(request) });
     }
 
+    if (action === "game-master-export") {
+      const query = forwardedRankedQuery(request, ["scope", "format", "includeRaw", "q", "search", "match", "category", "group", "settingType", "pokemonId", "localStatus", "status", "form", "costume", "generation", "shiny", "sex", "dataType", "to", "snapshotId", "templateId", "type", "sort", "order"]);
+      return proxyPokemonApiAdminDownload(`/api/v1/admin/game-master/export${query ? `?${query}` : ""}`);
+    }
+
+    if (action.startsWith("game-master-")) {
+      return json({ data: await readPokemonApiAdmin(gameMasterReadPath(request, action)) });
+    }
+
     if (action === "items") {
       return json({ data: readItems() });
     }
@@ -827,6 +910,14 @@ export async function POST(request: NextRequest) {
 
     if (action === "regenerate-pokemon-identity-mappings") {
       return json({ data: await callPokemonApiAdmin("/api/v1/admin/pokemon-identity-mappings/regenerate") });
+    }
+
+    if (action === "regenerate-game-master") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/game-master/regenerate") });
+    }
+
+    if (action === "reindex-game-master") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/game-master/reindex") });
     }
 
     if (action === "open-file") {

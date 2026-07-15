@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.24.0 - 2026-07-15
+
+- Ajoute Game Master Explorer avec recherche et pagination serveur, catégories dynamiques, détail JSON repliable, comparaison locale, historique, diff et exports JSON/CSV privés.
+- Connecte cinq collections MongoDB de snapshots, templates, diffs et correspondances locales à douze routes Admin protégées, sans exposer le Game Master complet au navigateur.
+- Revoit la navigation interne Admin Pokémon, le filtre visuel des types et les cartes mobiles Best Attackers, Résolution variantes et précédent/suivant.
+- Agrandit à 76 px les artworks Best Attackers sur mobile, superpose le rang dans la même zone et priorise les six premières images sans désactiver le lazy-loading des résultats hors écran.
+- Charge l’audit des assets uniquement dans les sections concernées, mutualise l’inventaire GitHub distant et conserve les assets locaux liés lorsque la bibliothèque distante est limitée ou indisponible.
+- Restaure pour les fiches normales l’ordre GO exact → référence locale → HOME → portrait, indépendamment de `availability`, tout en conservant l’interdiction absolue du fallback normal pour une variante explicite.
+
 ## 1.23.0 - 2026-07-15
 
 - Centralise l'affichage des variantes Pokémon dans un résolveur unique utilisé par `PokemonArtwork`, les fiches, collections, Events, modales et la collection personnelle.

@@ -41,6 +41,29 @@ test("résout un Pokémon normal et sa forme _NORMAL sur l'asset principal", () 
   assert.equal(normalForm.source, "primary-assets");
 });
 
+test("utilise HOME pour une fiche normale sans asset GO, indépendamment de sa disponibilité", () => {
+  const resolution = resolvePokemonVariant({
+    id: "FUTUREMON",
+    formId: "FUTUREMON",
+    form: "normal",
+    availability: { released: false },
+    assets: { image: null, shinyImage: null, home: { image: "future-home.png", shinyImage: "future-home-shiny.png" } },
+  });
+  assert.equal(resolution.image, "future-home.png");
+  assert.equal(resolution.source, "home-assets");
+});
+
+test("n'utilise jamais HOME normal pour masquer un costume manquant", () => {
+  const resolution = resolvePokemonVariant({
+    id: "PIKACHU",
+    formId: "PIKACHU",
+    form: "normal",
+    assets: { home: { image: "pikachu-home.png" }, assetForms: [] },
+  }, { costume: "PIKACHU_UNKNOWN_2099" });
+  assert.equal(resolution.image, null);
+  assert.equal(resolution.source, "missing");
+});
+
 test("résout un costume officiel même s'il est encore stocké dans assetForms.form", () => {
   const resolution = resolvePokemonVariant(pikachu(), {
     form: "PIKACHU_NORMAL",

@@ -1,13 +1,13 @@
 ---
 id: COMP-137
 title: TrainerPokemonCollectionPanel
-version: 1.1.0
+version: 1.2.0
 status: Active
-last_updated: 2026-07-13
+last_updated: 2026-07-15
 owner: Matthieu Vachet
 category: Complex Component
 projects: [Dashboard Admin]
-references: [PAGE-049, API-157, API-158, API-159, API-160]
+references: [PAGE-049, API-157, API-158, API-159, API-160, COMP-325, RULE-047]
 ---
 
 # COMP-137 — TrainerPokemonCollectionPanel
@@ -23,6 +23,8 @@ Réutilise `Badge`, `Button`, `Card`, `Input` et `Modal`. Les images utilisent `
 ## États
 
 Loading, refreshing, vide, erreur, aucun résultat, parsing, previewing, ready, importing, success, diagnostics et asset absent.
+
+L’artwork délègue au résolveur partagé. Le chargement des références conserve GO, HOME, portraits et variantes ; `availability` ne décide jamais si un asset local peut être affiché.
 
 ## Performance
 

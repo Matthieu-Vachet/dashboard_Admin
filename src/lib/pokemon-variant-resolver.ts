@@ -4,6 +4,7 @@ export type PokemonVariantAsset = {
   isFemale?: boolean | null;
   image?: string | null;
   shinyImage?: string | null;
+  source?: "asset-form" | "home-variant";
 };
 
 export type PokemonVariantRequest = {
@@ -24,7 +25,7 @@ export type PokemonVariantResolution = {
   shinyImage: string | null;
   assetVariant: PokemonVariantAsset | null;
   status: "matched" | "missing-asset";
-  source: "asset-form" | "primary-assets" | "pre-resolved" | "missing";
+  source: "asset-form" | "home-variant" | "primary-assets" | "home-assets" | "portrait-assets" | "pre-resolved" | "missing";
   explicitVariant: boolean;
   request: Required<PokemonVariantRequest>;
 };
@@ -170,18 +171,29 @@ function assetVariantList(pokemon: UnknownRecord): PokemonVariantAsset[] {
     sourceData.assetForms,
     sourceAssets.assetForms,
   ];
-  const variants = candidates.flatMap((candidate) => Array.isArray(candidate) ? candidate : []);
+  const variants = candidates.flatMap((candidate) => Array.isArray(candidate)
+    ? candidate.map((variant) => ({ ...record(variant), source: "asset-form" }))
+    : []);
+  const homeCandidates = [
+    record(assets.home).variants,
+    record(dataAssets.home).variants,
+    record(sourceAssets.home).variants,
+  ];
+  variants.push(...homeCandidates.flatMap((candidate) => Array.isArray(candidate)
+    ? candidate.map((variant) => ({ ...record(variant), source: "home-variant" }))
+    : []));
   const selectedEvent = record(pokemon.eventAsset);
-  if (Object.keys(selectedEvent).length) variants.unshift(selectedEvent);
+  if (Object.keys(selectedEvent).length) variants.unshift({ ...selectedEvent, source: "asset-form" });
   const seen = new Set<string>();
   return variants.flatMap((candidate) => {
     const variant = record(candidate);
     const normalized: PokemonVariantAsset = {
       form: text(variant.form),
       costume: text(variant.costume),
-      isFemale: boolean(variant.isFemale),
+      isFemale: boolean(firstDefined(variant.isFemale, variant.gender, String(variant.detail || "").toLowerCase().includes("female"))),
       image: image(variant.image),
       shinyImage: image(variant.shinyImage),
+      source: variant.source === "home-variant" ? "home-variant" : "asset-form",
     };
     const key = JSON.stringify(normalized);
     if (seen.has(key)) return [];
@@ -223,16 +235,56 @@ function exactAssetVariant(
     }
     return true;
   });
-  return matches.length === 1 ? matches[0] : null;
+  if (matches.length === 1) return matches[0];
+  const goMatches = matches.filter((variant) => variant.source !== "home-variant");
+  if (goMatches.length === 1) return goMatches[0];
+  const unique = [...new Map(matches.map((variant) => [
+    [variant.image, variant.shinyImage, variant.costume, variant.form, variant.isFemale].join("|"),
+    variant,
+  ])).values()];
+  return unique.length === 1 ? unique[0] : null;
 }
 
 function primaryAssetPair(pokemon: UnknownRecord) {
   const assets = record(pokemon.assets);
   const data = record(pokemon.data);
   const dataAssets = record(data.assets);
+  const sourceData = record(pokemon.sourceData);
+  const sourceAssets = record(sourceData.assets);
+  const home = record(assets.home);
+  const dataHome = record(dataAssets.home);
+  const sourceHome = record(sourceAssets.home);
+  const normalCandidates = [
+    [assets.image, "primary-assets"],
+    [dataAssets.image, "primary-assets"],
+    [sourceAssets.image, "primary-assets"],
+    [pokemon.image, "primary-assets"],
+    [home.image, "home-assets"],
+    [dataHome.image, "home-assets"],
+    [sourceHome.image, "home-assets"],
+    [assets.portrait, "portrait-assets"],
+    [dataAssets.portrait, "portrait-assets"],
+    [sourceAssets.portrait, "portrait-assets"],
+  ] as const;
+  const shinyCandidates = [
+    [assets.shinyImage, "primary-assets"],
+    [dataAssets.shinyImage, "primary-assets"],
+    [sourceAssets.shinyImage, "primary-assets"],
+    [pokemon.shinyImage, "primary-assets"],
+    [home.shinyImage, "home-assets"],
+    [dataHome.shinyImage, "home-assets"],
+    [sourceHome.shinyImage, "home-assets"],
+    [assets.portraitShiny, "portrait-assets"],
+    [dataAssets.portraitShiny, "portrait-assets"],
+    [sourceAssets.portraitShiny, "portrait-assets"],
+  ] as const;
+  const normal = normalCandidates.find(([value]) => image(value));
+  const shiny = shinyCandidates.find(([value]) => image(value));
   return {
-    image: image(firstDefined(assets.image, dataAssets.image, pokemon.image)),
-    shinyImage: image(firstDefined(assets.shinyImage, dataAssets.shinyImage, pokemon.shinyImage)),
+    image: image(normal?.[0]),
+    imageSource: normal?.[1] || null,
+    shinyImage: image(shiny?.[0]),
+    shinyImageSource: shiny?.[1] || null,
   };
 }
 
@@ -283,7 +335,7 @@ export function resolvePokemonVariant(
         shinyImage: assetVariant.shinyImage || null,
         assetVariant,
         status: requestedImage ? "matched" : "missing-asset",
-        source: requestedImage ? "asset-form" : "missing",
+        source: requestedImage ? (assetVariant.source || "asset-form") : "missing",
         explicitVariant,
         request,
       };
@@ -316,6 +368,7 @@ export function resolvePokemonVariant(
 
   const primary = primaryAssetPair(pokemon);
   const requestedImage = request.shiny ? primary.shinyImage : primary.image;
+  const requestedSource = request.shiny ? primary.shinyImageSource : primary.imageSource;
   const preResolved = requestedImage ? null : preResolvedAssetPair(pokemon, request, species);
   const resolvedImage = requestedImage || (request.shiny ? preResolved?.shinyImage : preResolved?.image) || null;
   return {
@@ -323,7 +376,7 @@ export function resolvePokemonVariant(
     shinyImage: primary.shinyImage || preResolved?.shinyImage || null,
     assetVariant: null,
     status: resolvedImage ? "matched" : "missing-asset",
-    source: requestedImage ? "primary-assets" : resolvedImage ? "pre-resolved" : "missing",
+    source: requestedImage ? (requestedSource || "primary-assets") : resolvedImage ? "pre-resolved" : "missing",
     explicitVariant,
     request,
   };

@@ -1,13 +1,13 @@
 ---
 id: PAGE-049
 title: Ma collection Pokémon GO
-version: 1.1.0
+version: 1.2.0
 status: Active
-last_updated: 2026-07-13
+last_updated: 2026-07-15
 owner: Matthieu Vachet
 category: Page privée
 projects: [Dashboard Admin]
-references: [COMP-137, DATASET-020, API-157, API-158, API-159, API-160, WORKFLOW-016]
+references: [COMP-137, DATASET-020, API-157, API-158, API-159, API-160, WORKFLOW-016, RULE-047]
 ---
 
 # PAGE-049 — Ma collection Pokémon GO
@@ -32,6 +32,6 @@ Le composant ne lit jamais MongoDB directement et ne persiste rien dans `localSt
 
 Vérifié à 375×812, 390×844, 430×932, 768×1024, 1440×900 et 1920×1080 sans débordement global, en sombre et en clair. Les champs possèdent des labels, les états importants utilisent une live region et la modale piège/restaure le focus.
 
-## Limites
+## Résolution des assets
 
-Les variantes recherchent successivement l’asset exact, la forme, la forme normale puis la base. Un shiny sans asset shiny conserve le placeholder officiel et n’utilise jamais l’image normale. Aucun import MongoDB réel n'a été déclenché pendant la livraison.
+`assetsRef` hydrate maintenant le bloc d’assets complet, y compris HOME et portraits. Une fiche normale recherche GO principal, référence normale exacte, HOME, portrait puis placeholder ; le shiny suit le même ordre avec les champs shiny. La disponibilité en jeu n’intervient pas. Une variante explicite exige toujours son asset exact et ne peut jamais utiliser l’image normale. Aucun import MongoDB réel n'a été déclenché pendant la livraison.

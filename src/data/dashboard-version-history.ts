@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.24.0",
+    date: "2026-07-15",
+    title: "Game Master Explorer et ergonomie Admin Pokémon",
+    changes: [
+      "Ajoute le Game Master Explorer privé connecté à MongoDB avec catégories, recherche serveur, détail JSON progressif, comparaison locale, snapshots, diffs et exports filtrés.",
+      "Réorganise la navigation interne Admin Pokémon en barre compacte sur desktop et panneau plein écran accessible sur mobile.",
+      "Ajoute les types visuels et les cartes mobiles compactes de Best Attackers, ainsi que les cartes mobiles et miniatures exactes de Résolution variantes.",
+      "Restaure le fallback Pokémon HOME pour les seules fiches normales, indépendamment de la disponibilité en jeu, sans jamais masquer une variante explicite manquante.",
+    ],
+  },
+  {
     version: "V1.23.0",
     date: "2026-07-15",
     title: "Résolution visuelle exacte des variantes Pokémon",

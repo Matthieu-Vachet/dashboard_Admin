@@ -574,25 +574,25 @@ function findEntryByFormId(entries = [], formId) {
   );
 }
 
-function PokemonMiniCard({ item, onClick, suffix, direction }) {
+function PokemonMiniCard({ item, onClick, suffix, direction, compact = false }) {
   if (!item) return null;
   const clickable = typeof onClick === "function";
   const image = preferredPokemonImage(item);
   const Tag = clickable ? "button" : "div";
   return (
     <Tag
-      className={`w-full rounded-2xl border border-white/10 bg-slate-950/45 p-3 text-left transition ${clickable ? "hover:-translate-y-0.5 hover:border-cyan-200/45 hover:bg-cyan-400/10" : ""}`}
+      className={`w-full rounded-2xl border border-white/10 bg-slate-950/45 text-left transition ${compact ? "p-2 sm:p-3" : "p-3"} ${clickable ? "hover:-translate-y-0.5 hover:border-cyan-200/45 hover:bg-cyan-400/10" : ""}`}
       type={clickable ? "button" : undefined}
       onClick={clickable ? () => onClick(item) : undefined}
     >
-      <div className={`flex items-center gap-3 ${direction === "previous" ? "sm:flex-row-reverse sm:text-right" : ""}`}>
-        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/10 p-2">
+      <div className={`flex items-center ${compact ? "gap-2 sm:gap-3" : "gap-3"} ${direction === "previous" ? "sm:flex-row-reverse sm:text-right" : ""}`}>
+        <span className={`grid shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/10 p-2 ${compact ? "h-10 w-10 sm:h-14 sm:w-14" : "h-14 w-14"}`}>
           {image ? <img className="max-h-full object-contain drop-shadow-xl" src={image} alt="" /> : null}
         </span>
         <span className="min-w-0">
-          <strong className="block truncate text-sm font-black text-white">{item.name || item.id || item.formId}</strong>
-          <small className="mt-1 block truncate font-mono text-[11px] font-bold text-slate-300">N° {item.dexId || "?"} · {formatForm(item.form)}</small>
-          {suffix ? <span className="mt-1 block text-xs font-black text-cyan-100">{suffix}</span> : null}
+          <strong className={`block truncate font-black text-white ${compact ? "text-xs sm:text-sm" : "text-sm"}`}>{item.name || item.id || item.formId}</strong>
+          <small className={`mt-1 truncate font-mono font-bold text-slate-300 ${compact ? "hidden text-[11px] min-[430px]:block sm:block" : "block text-[11px]"}`}>N° {item.dexId || "?"} · {formatForm(item.form)}</small>
+          {suffix ? <span className={`mt-1 block font-black text-cyan-100 ${compact ? "text-[10px] sm:text-xs" : "text-xs"}`}>{suffix}</span> : null}
         </span>
       </div>
     </Tag>
@@ -682,9 +682,9 @@ function EvolutionPanel({ evolutions = [], allEntries = [], onOpenRelated, candy
 
 function DetailNavigation({ previousEntry, nextEntry, onPrevious, onNext }) {
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-      <PokemonMiniCard item={previousEntry} onClick={onPrevious ? () => onPrevious() : null} suffix="Fiche précédente" direction="previous" />
-      <PokemonMiniCard item={nextEntry} onClick={onNext ? () => onNext() : null} suffix="Fiche suivante" />
+    <div className="grid grid-cols-2 gap-2 sm:gap-3">
+      <PokemonMiniCard item={previousEntry} onClick={onPrevious ? () => onPrevious() : null} suffix="← Fiche précédente" direction="previous" compact />
+      <PokemonMiniCard item={nextEntry} onClick={onNext ? () => onNext() : null} suffix="Fiche suivante →" compact />
     </div>
   );
 }

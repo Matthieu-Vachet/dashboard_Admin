@@ -1,7 +1,7 @@
 "use client";
 
-import { Download, RefreshCcw, RotateCcw, Swords, Trophy } from "lucide-react";
-import { typeColors, typeLabels } from "@/components/site/pokemon-style";
+import { Download, Layers3, RefreshCcw, RotateCcw, Swords, Trophy } from "lucide-react";
+import { typeColors, typeIcon, typeLabels } from "@/components/site/pokemon-style";
 import { TypeIcons } from "./asset-icons";
 import { buttonClass, fieldClass, Panel, primaryButtonClass } from "./admin-ui";
 import { DatasetFilterBar } from "./dataset-filter-bar";
@@ -65,6 +65,39 @@ function typeSurface(entry) {
   return {
     backgroundImage: `linear-gradient(110deg, ${color}20, rgba(2,6,23,.90) 58%)`,
   };
+}
+
+function TypeFilter({ availableTypes, value, onChange }) {
+  return (
+    <fieldset className="min-w-0 sm:col-span-2 xl:col-span-4">
+      <legend className="mb-2 text-[10px] font-black uppercase tracking-[.16em] text-slate-500">
+        Type d’attaque
+      </legend>
+      <div className="flex snap-x gap-2 overflow-x-auto pb-2 xl:grid xl:grid-cols-[repeat(19,minmax(0,1fr))] xl:overflow-visible" role="radiogroup" aria-label="Type d’attaque">
+        {typeOrder.filter((type) => availableTypes.includes(type)).map((type) => {
+          const selected = value === type;
+          const icon = type === "ANY" ? null : typeIcon(type);
+          const color = typeColors[type] || "#22d3ee";
+          const label = type === "ANY" ? "Tous" : typeLabels[type] || type;
+          return (
+            <button
+              className={`group flex min-h-16 min-w-[4.35rem] snap-start flex-col items-center justify-center gap-1 rounded-2xl border px-2 py-2 text-[9px] font-black transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-300 xl:min-w-0 ${selected ? "border-cyan-100/60 bg-cyan-300/18 text-white shadow-[0_0_22px_rgba(34,211,238,.18)]" : "border-white/10 bg-slate-950/45 text-slate-400 hover:border-white/25 hover:text-white"}`}
+              key={type}
+              type="button"
+              role="radio"
+              aria-checked={selected}
+              onClick={() => onChange(type)}
+              title={type === "ANY" ? "Tous les types (ANY)" : label}
+              style={selected ? { boxShadow: `inset 0 -2px 0 ${color}, 0 0 22px ${color}22` } : undefined}
+            >
+              {icon ? <img className="h-6 w-6 object-contain" src={icon} alt="" /> : <Layers3 size={22} aria-hidden="true" />}
+              <span className="max-w-full truncate">{label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
 }
 
 export function BestAttackersPanel({
@@ -156,27 +189,10 @@ export function BestAttackersPanel({
         toggles={toggles}
       />
       <section
-        className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5"
+        className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
         aria-label="Filtres Best Attackers"
       >
-        <label>
-          <span className="mb-1 block text-[10px] font-black uppercase tracking-[.16em] text-slate-500">
-            Type
-          </span>
-          <select
-            className={fieldClass}
-            value={options.type}
-            onChange={(event) => setOption("type", event.target.value)}
-          >
-            {typeOrder
-              .filter((type) => apiOptions.types.includes(type))
-              .map((type) => (
-                <option value={type} key={type}>
-                  {type === "ANY" ? "Tous les types" : typeLabels[type] || type}
-                </option>
-              ))}
-          </select>
-        </label>
+        <TypeFilter availableTypes={apiOptions.types} value={options.type} onChange={(type) => setOption("type", type)} />
         <label>
           <span className="mb-1 block text-[10px] font-black uppercase tracking-[.16em] text-slate-500">
             Niveau
@@ -247,20 +263,29 @@ export function BestAttackersPanel({
       >
         {entries.map((entry) => (
           <article
-            className="grid min-w-0 gap-3 rounded-2xl border border-white/10 p-3 sm:grid-cols-[3rem_4.5rem_minmax(0,1fr)_auto] sm:items-center"
+            className="grid min-w-0 grid-cols-[4.75rem_minmax(0,1fr)] items-center gap-2 rounded-2xl border border-white/10 p-2.5 sm:grid-cols-[3rem_4.5rem_minmax(0,1fr)_auto] sm:gap-3 sm:p-3"
             style={typeSurface(entry)}
             key={`${entry.pokemonKey}-${entry.rank}`}
           >
-            <span
-              className="grid h-11 w-11 place-items-center rounded-xl border border-amber-200/18 bg-amber-300/10 font-mono text-sm font-black text-amber-100"
-              title={`Rang global ${entry.rank}`}
-            >
-              <Trophy size={14} />#{entry.rank}
-            </span>
-            <PokemonArtwork pokemon={entry.pokemon} className="h-16 w-16" />
-            <div className="min-w-0">
+            <div className="relative col-start-1 row-start-1 h-[4.75rem] w-[4.75rem] sm:contents">
+              <PokemonArtwork
+                pokemon={entry.pokemon}
+                className="h-full w-full sm:col-start-2 sm:row-start-1 sm:h-16 sm:w-16"
+                priority={entry.rank <= 6}
+                showVariant={false}
+              />
+              <span
+                className="absolute -left-1 -top-1 flex min-h-7 items-center gap-1 rounded-lg border border-amber-100/35 bg-slate-950/95 px-1.5 font-mono text-[10px] font-black text-amber-100 shadow-lg sm:static sm:col-start-1 sm:row-start-1 sm:grid sm:h-11 sm:w-11 sm:place-items-center sm:rounded-xl sm:border-amber-200/18 sm:bg-amber-300/10 sm:px-0 sm:text-sm sm:shadow-none"
+                title={`Rang global ${entry.rank}`}
+              >
+                <Trophy className="sm:hidden" size={11} aria-hidden="true" />
+                <span className="sm:hidden">#{entry.rank}</span>
+                <span className="hidden sm:inline">#{entry.rank}</span>
+              </span>
+            </div>
+            <div className="col-start-2 row-start-1 min-w-0 self-center sm:col-start-3">
               <button
-                className="block max-w-full truncate text-left text-base font-black text-white hover:text-cyan-100"
+                className="block max-w-full truncate text-left text-sm font-black text-white hover:text-cyan-100 sm:text-base"
                 type="button"
                 onClick={() => onOpenPokemon?.(entry.pokemon)}
               >
@@ -274,7 +299,7 @@ export function BestAttackersPanel({
                   Tier {entry.tier}
                 </span>
               </div>
-              <p className="mt-2 flex min-w-0 flex-wrap items-center gap-1 text-xs font-bold text-slate-300">
+              <p className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1 text-[11px] font-bold text-slate-300 sm:mt-2 sm:text-xs">
                 <Swords size={13} />
                 <span className="truncate">
                   {nameOf(entry.fastMove)}
@@ -283,8 +308,8 @@ export function BestAttackersPanel({
                 </span>
               </p>
             </div>
-            <div className="grid grid-cols-3 gap-2 sm:min-w-[17rem]">
-              <div className="rounded-xl border border-cyan-200/15 bg-cyan-300/[.08] p-2 text-center">
+            <div className="col-span-2 row-start-2 grid grid-cols-3 gap-1.5 sm:col-start-4 sm:row-start-1 sm:min-w-[17rem] sm:gap-2">
+              <div className="rounded-xl border border-cyan-200/15 bg-cyan-300/[.08] p-1.5 text-center sm:p-2">
                 <small className="block text-[9px] font-black uppercase text-slate-500">
                   DPS
                 </small>
@@ -292,7 +317,7 @@ export function BestAttackersPanel({
                   {metricValue(entry, "dps")}
                 </strong>
               </div>
-              <div className="rounded-xl border border-violet-200/15 bg-violet-300/[.08] p-2 text-center">
+              <div className="rounded-xl border border-violet-200/15 bg-violet-300/[.08] p-1.5 text-center sm:p-2">
                 <small className="block text-[9px] font-black uppercase text-slate-500">
                   TDO
                 </small>
@@ -300,7 +325,7 @@ export function BestAttackersPanel({
                   {metricValue(entry, "tdo")}
                 </strong>
               </div>
-              <div className="rounded-xl border border-emerald-200/15 bg-emerald-300/[.08] p-2 text-center">
+              <div className="rounded-xl border border-emerald-200/15 bg-emerald-300/[.08] p-1.5 text-center sm:p-2">
                 <small className="block text-[9px] font-black uppercase text-slate-500">
                   eDPS
                 </small>

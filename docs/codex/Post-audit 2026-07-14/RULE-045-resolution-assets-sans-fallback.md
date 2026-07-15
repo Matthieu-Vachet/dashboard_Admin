@@ -1,12 +1,12 @@
 ---
 id: RULE-045
 title: Résolution Pokémon et assets sans fallback silencieux
-version: 1.1.0
+version: 1.2.0
 status: Active
 last_update: 2026-07-15
 author: Matthieu Vachet
 affected_projects: [PokemonGo-Data, PokemonGo-API-, PokemonGo-Assets-API, Dashboard Admin]
-references: [ADR-011, DATASET-021, COMP-325]
+references: [ADR-011, DATASET-021, COMP-325, RULE-047]
 ---
 
 # RULE-045 — Résolution sans fallback silencieux
@@ -19,7 +19,10 @@ Dans le Dashboard, `pokemon-variant-resolver.ts` est l'unique autorité de séle
 
 Les composants ne peuvent pas rétablir un fallback local vers `assets.image`, `image`, Home, Shuffle ou une URL source. Les assets pré-résolus ne sont acceptés que lorsqu'ils portent une preuve explicite de sélection ou un statut canonique `matched` cohérent avec la variante demandée.
 
+RULE-047 précise l’unique exception légitime : une fiche réellement normale peut utiliser HOME ou portrait après épuisement des assets GO et référencés exacts. Cette règle est indépendante de `availability`. Elle ne s’applique jamais à une variante explicite.
+
 ## Historique
 
+- 1.2.0 — 2026-07-15 : ordre normal GO → référence → HOME → portrait et séparation disponibilité jeu/asset.
 - 1.1.0 — 2026-07-15 : formalisation du résolveur Dashboard unique et de la comparaison `form` / `costume` / `isFemale`.
 - 1.0.0 — 2026-07-14 : création de la règle sans fallback silencieux.
