@@ -41,6 +41,37 @@ test("résout un Pokémon normal et sa forme _NORMAL sur l'asset principal", () 
   assert.equal(normalForm.source, "primary-assets");
 });
 
+test("traite BULBASAUR_NORMAL comme l'alias canonique de BULBASAUR", () => {
+  const resolution = resolvePokemonVariant({
+    id: "BULBASAUR",
+    formId: "BULBASAUR",
+    baseFormId: "BULBASAUR",
+    form: "normal",
+    assets: { image: "bulbasaur-go.png" },
+  }, { form: "BULBASAUR_NORMAL" });
+  assert.equal(resolution.image, "bulbasaur-go.png");
+  assert.equal(resolution.explicitVariant, false);
+  assert.equal(resolution.matchedForm, "BULBASAUR_NORMAL");
+  assert.equal(resolution.matchedSource, "primary-assets");
+  assert.equal(resolution.resolutionStatus, "matched");
+});
+
+test("préfère l'asset normal exact du fichier référencé avant HOME", () => {
+  const resolution = resolvePokemonVariant({
+    id: "BULBASAUR",
+    formId: "BULBASAUR",
+    baseFormId: "BULBASAUR",
+    form: "normal",
+    assets: {
+      image: null,
+      assetForms: [{ form: "BULBASAUR_NORMAL", costume: null, isFemale: false, image: "bulbasaur-normal-form.png" }],
+      home: { image: "bulbasaur-home.png" },
+    },
+  });
+  assert.equal(resolution.image, "bulbasaur-normal-form.png");
+  assert.equal(resolution.source, "asset-form");
+});
+
 test("utilise HOME pour une fiche normale sans asset GO, indépendamment de sa disponibilité", () => {
   const resolution = resolvePokemonVariant({
     id: "FUTUREMON",
@@ -50,6 +81,18 @@ test("utilise HOME pour une fiche normale sans asset GO, indépendamment de sa d
     assets: { image: null, shinyImage: null, home: { image: "future-home.png", shinyImage: "future-home-shiny.png" } },
   });
   assert.equal(resolution.image, "future-home.png");
+  assert.equal(resolution.source, "home-assets");
+});
+
+test("utilise HOME shiny uniquement pour une fiche normale", () => {
+  const resolution = resolvePokemonVariant({
+    id: "FUTUREMON",
+    formId: "FUTUREMON",
+    form: "normal",
+    availability: { released: false, shinyReleased: false },
+    assets: { home: { image: "future-home.png", shinyImage: "future-home-shiny.png" } },
+  }, { shiny: true });
+  assert.equal(resolution.image, "future-home-shiny.png");
   assert.equal(resolution.source, "home-assets");
 });
 
@@ -137,6 +180,36 @@ test("résout une forme régionale exacte depuis assetForms", () => {
   );
 });
 
+test("résout une fiche régionale propre sans revenir à HOME", () => {
+  const resolution = resolvePokemonVariant({
+    id: "TAUROS",
+    formId: "TAUROS_PALDEA_AQUA",
+    baseFormId: "TAUROS",
+    form: "paldea",
+    assets: {
+      image: "tauros-paldea-aqua-go.png",
+      home: { image: "tauros-normal-home.png" },
+    },
+  });
+  assert.equal(resolution.image, "tauros-paldea-aqua-go.png");
+  assert.equal(resolution.source, "primary-assets");
+  assert.equal(resolution.explicitVariant, true);
+});
+
+test("n'utilise jamais HOME pour une fiche spéciale exacte sans asset GO", () => {
+  const resolution = resolvePokemonVariant({
+    id: "RAYQUAZA_MEGA",
+    formId: "RAYQUAZA_MEGA",
+    baseFormId: "RAYQUAZA",
+    form: "mega",
+    mega: true,
+    assets: { image: null, home: { image: "rayquaza-home.png" } },
+  });
+  assert.equal(resolution.image, null);
+  assert.equal(resolution.source, "missing");
+  assert.equal(resolution.explicitVariant, true);
+});
+
 test("conserve l'asset principal d'une fiche Méga déjà exacte", () => {
   const mega = {
     pokemonId: "RAYQUAZA_MEGA",
@@ -190,6 +263,7 @@ test("résout les vrais assets Bulbizarre FALL 2019 et Pikachu WINTER 2020", {
     shiny: true,
   });
   assert.match(bulbasaurResolution.image || "", /pm1\.fFALL_2019\.icon\.png$/);
+  assert.equal(bulbasaurResolution.matchedCostume, "BULBASAUR_FALL_2019");
   assert.match(pikachuResolution.image || "", /pm25\.fWINTER_2020\.s\.icon\.png$/);
 });
 
