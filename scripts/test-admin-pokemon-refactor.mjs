@@ -28,7 +28,11 @@ test("Best Attackers utilise un sélecteur de types visuel et des cartes mobiles
   assert.match(source, /function TypeFilter/);
   assert.match(source, /typeIcon\(type\)/);
   assert.match(source, /role="radio"/);
+  assert.match(source, /aria-label=\{type === "ANY" \? "Tous les types"/);
   assert.match(source, /type === "ANY"/);
+  assert.match(source, /h-11 w-11 min-w-11/);
+  assert.match(source, /overflow-x-auto/);
+  assert.doesNotMatch(source, /<span className="max-w-full truncate">\{label\}<\/span>/);
   assert.match(source, /grid-cols-\[4\.75rem_minmax\(0,1fr\)\]/);
   assert.match(source, /sm:grid-cols-\[3rem_4\.5rem_minmax\(0,1fr\)_auto\]/);
   assert.match(source, /priority=\{entry\.rank <= 6\}/);

@@ -73,7 +73,7 @@ function TypeFilter({ availableTypes, value, onChange }) {
       <legend className="mb-2 text-[10px] font-black uppercase tracking-[.16em] text-slate-500">
         Type d’attaque
       </legend>
-      <div className="flex snap-x gap-2 overflow-x-auto pb-2 xl:grid xl:grid-cols-[repeat(19,minmax(0,1fr))] xl:overflow-visible" role="radiogroup" aria-label="Type d’attaque">
+      <div className="flex snap-x gap-2 overflow-x-auto pb-2 lg:grid lg:grid-cols-[repeat(10,minmax(2.75rem,1fr))] lg:overflow-visible xl:grid-cols-[repeat(19,minmax(2.75rem,1fr))]" role="radiogroup" aria-label="Type d’attaque">
         {typeOrder.filter((type) => availableTypes.includes(type)).map((type) => {
           const selected = value === type;
           const icon = type === "ANY" ? null : typeIcon(type);
@@ -81,17 +81,18 @@ function TypeFilter({ availableTypes, value, onChange }) {
           const label = type === "ANY" ? "Tous" : typeLabels[type] || type;
           return (
             <button
-              className={`group flex min-h-16 min-w-[4.35rem] snap-start flex-col items-center justify-center gap-1 rounded-2xl border px-2 py-2 text-[9px] font-black transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-300 xl:min-w-0 ${selected ? "border-cyan-100/60 bg-cyan-300/18 text-white shadow-[0_0_22px_rgba(34,211,238,.18)]" : "border-white/10 bg-slate-950/45 text-slate-400 hover:border-white/25 hover:text-white"}`}
+              className={`group relative grid h-11 w-11 min-w-11 snap-start place-items-center rounded-xl border transition sm:h-12 sm:w-12 sm:min-w-12 lg:w-full lg:min-w-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 ${selected ? "border-cyan-100/60 bg-cyan-300/18 text-white shadow-[0_0_22px_rgba(34,211,238,.18)]" : "border-line bg-white/[0.06] text-muted hover:border-white/25 hover:text-foreground"}`}
               key={type}
               type="button"
               role="radio"
               aria-checked={selected}
+              aria-label={type === "ANY" ? "Tous les types" : `Type ${label}`}
               onClick={() => onChange(type)}
               title={type === "ANY" ? "Tous les types (ANY)" : label}
               style={selected ? { boxShadow: `inset 0 -2px 0 ${color}, 0 0 22px ${color}22` } : undefined}
             >
               {icon ? <img className="h-6 w-6 object-contain" src={icon} alt="" /> : <Layers3 size={22} aria-hidden="true" />}
-              <span className="max-w-full truncate">{label}</span>
+              {selected ? <span className="absolute bottom-1 h-1 w-4 rounded-full" style={{ backgroundColor: color }} aria-hidden="true" /> : null}
             </button>
           );
         })}
