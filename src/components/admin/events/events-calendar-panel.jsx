@@ -674,14 +674,14 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon }) {
           </div>
         }
       >
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7">
-          <StatTile icon={<CalendarDays size={19} />} label="Events visibles" value={filteredEvents.length} />
-          <StatTile icon={<Sparkles size={19} />} label="En cours" value={activeCount} tone="green" />
-          <StatTile icon={<Clock3 size={19} />} label="À venir" value={upcomingCount} tone="cyan" />
-          <StatTile icon={<Archive size={19} />} label="Archivés" value={archivedCount} tone="amber" />
-          <StatTile icon={<Swords size={19} />} label="Raids liés" value={coverage.raids} tone="violet" />
-          <StatTile icon={<FlaskConical size={19} />} label="Research liées" value={coverage.research} tone="green" />
-          <StatTile icon={<Egg size={19} />} label="Pokémon illustrés" value={coverage.pokemon} tone="amber" />
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-7">
+          <StatTile icon={<CalendarDays size={16} />} label="Events visibles" value={filteredEvents.length} />
+          <StatTile icon={<Sparkles size={16} />} label="En cours" value={activeCount} tone="green" />
+          <StatTile icon={<Clock3 size={16} />} label="À venir" value={upcomingCount} tone="cyan" />
+          <StatTile icon={<Archive size={16} />} label="Archivés" value={archivedCount} tone="amber" />
+          <StatTile icon={<Swords size={16} />} label="Raids liés" value={coverage.raids} tone="violet" />
+          <StatTile icon={<FlaskConical size={16} />} label="Research liées" value={coverage.research} tone="green" />
+          <StatTile icon={<Egg size={16} />} label="Pokémon illustrés" value={coverage.pokemon} tone="amber" />
         </div>
         <DatasetSourceHeader
           dataset={{
@@ -871,12 +871,12 @@ function StatTile({ icon, label, value, tone = "cyan" }) {
     violet: "border-violet-200/20 bg-violet-400/10 text-violet-100",
   }[tone];
   return (
-    <article className={`rounded-2xl border p-4 ${toneClass}`}>
-      <div className="mb-3 inline-grid h-10 w-10 place-items-center rounded-2xl border border-white/10 bg-slate-950/35">
+    <article className={`min-w-0 rounded-xl border p-2.5 ${toneClass}`}>
+      <div className="mb-1.5 inline-grid h-8 w-8 place-items-center rounded-xl border border-white/10 bg-slate-950/35">
         {icon}
       </div>
-      <span className="block text-xs font-black uppercase tracking-[0.18em] text-white/60">{label}</span>
-      <strong className="mt-1 block text-3xl font-black text-white">{value}</strong>
+      <span className="block text-[10px] font-black uppercase leading-tight tracking-[0.14em] text-white/65">{label}</span>
+      <strong className="mt-0.5 block text-2xl font-black leading-none text-white">{value}</strong>
     </article>
   );
 }

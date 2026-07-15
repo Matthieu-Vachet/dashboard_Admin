@@ -162,6 +162,17 @@ test("le calendrier remplace la grille mensuelle par un agenda sur mobile", () =
   assert.match(source, /id === "calendar" \? "hidden sm:inline-flex"/);
 });
 
+test("les statistiques Events restent complètes dans des tuiles compactes", () => {
+  const source = read("src/components/admin/events/events-calendar-panel.jsx");
+  assert.match(source, /grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-7/);
+  assert.match(source, /min-w-0 rounded-xl border p-2\.5/);
+  assert.match(source, /h-8 w-8/);
+  assert.match(source, /text-\[10px\]/);
+  for (const label of ["Events visibles", "En cours", "À venir", "Archivés", "Raids liés", "Research liées", "Pokémon illustrés"]) {
+    assert.match(source, new RegExp(label));
+  }
+});
+
 test("les diagnostics source et l'API Explorer restent contenus sur mobile", () => {
   const diagnostics = read("src/components/admin/pokemon/current-dataset-diagnostics.jsx");
   const explorer = read("src/components/admin/pokemon/pokemon-api-explorer.tsx");
