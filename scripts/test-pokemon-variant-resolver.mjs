@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
 import test from "node:test";
 import {
@@ -14,6 +15,7 @@ const winterShiny = "https://assets.example/pikachu-winter-2020-shiny.png";
 const female = "https://assets.example/pikachu-female.png";
 const dashboardRoot = path.resolve(import.meta.dirname, "..");
 const dataRoot = path.resolve(dashboardRoot, "..", "PokemonGo-Data");
+const require = createRequire(import.meta.url);
 
 function pikachu() {
   return {
@@ -265,6 +267,40 @@ test("résout les vrais assets Bulbizarre FALL 2019 et Pikachu WINTER 2020", {
   assert.match(bulbasaurResolution.image || "", /pm1\.fFALL_2019\.icon\.png$/);
   assert.equal(bulbasaurResolution.matchedCostume, "BULBASAUR_FALL_2019");
   assert.match(pikachuResolution.image || "", /pm25\.fWINTER_2020\.s\.icon\.png$/);
+});
+
+test("les fiches Admin conservent les assets exacts des formes et le fallback HOME normal", () => {
+  const { buildChecklist } = require("../src/server/pokemon-go/apps/checklist/server/engine.js");
+  const entries = buildChecklist();
+  const expectedTauros = new Map([
+    ["TAUROS_PALDEA_AQUA", "fPALDEA_AQUA.icon.png"],
+    ["TAUROS_PALDEA_BLAZE", "fPALDEA_BLAZE.icon.png"],
+    ["TAUROS_PALDEA_COMBAT", "fPALDEA_COMBAT.icon.png"],
+  ]);
+  for (const [formId, suffix] of expectedTauros) {
+    const entry = entries.find((candidate) => candidate.formId === formId);
+    assert.ok(entry, `fiche ${formId} absente`);
+    const resolution = resolvePokemonVariant(entry);
+    assert.match(resolution.image || "", new RegExp(`${suffix.replaceAll(".", "\\.")}$`));
+    assert.equal(resolution.source, "primary-assets");
+  }
+
+  for (const formId of ["RATTATA_ALOLA", "RAYQUAZA_MEGA"]) {
+    const entry = entries.find((candidate) => candidate.formId === formId);
+    assert.ok(entry, `fiche spéciale ${formId} absente`);
+    assert.equal(resolvePokemonVariant(entry).source, "primary-assets");
+  }
+
+  const unreleasedHomeOnly = entries.find((entry) =>
+    entry.form === "normal"
+    && entry.availability?.released === false
+    && !entry.image
+    && entry.homeImage,
+  );
+  assert.ok(unreleasedHomeOnly, "aucune fiche normale HOME-only non sortie trouvée");
+  const homeResolution = resolvePokemonVariant(unreleasedHomeOnly);
+  assert.equal(homeResolution.image, unreleasedHomeOnly.homeImage);
+  assert.equal(homeResolution.source, "home-assets");
 });
 
 test("les composants partagés ne sélectionnent plus directement les assets Pokémon", () => {
