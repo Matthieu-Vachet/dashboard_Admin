@@ -11,6 +11,7 @@ import {
   type DashboardDatasetRunDocument,
 } from "@/lib/dashboard-store";
 import { scrapeLeekDuckEvents } from "@/lib/leekduck-events-scraper";
+import { synchronizeEventsArchive } from "@/lib/events-archive-store";
 import { assertSameOrigin, rateLimit } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
@@ -97,12 +98,16 @@ export async function POST(request: NextRequest) {
       events: scraped.events,
       replaceSource: "leekduck",
     });
+    const archive = await synchronizeEventsArchive(scraped.events);
     const unmatchedEntries = [
       ...scraped.report.unmatchedPokemon.map((sourceName) => unmatchedContext(sourceName, scraped.events as unknown as Array<Record<string, unknown>>, "missing-local-pokemon")),
       ...scraped.report.unmatchedItems.map((sourceName) => unmatchedContext(sourceName, scraped.events as unknown as Array<Record<string, unknown>>, "missing-local-item")),
     ];
-    const changed = Boolean(imported.inserted || imported.modified || imported.deleted);
-    const warnings = scraped.report.detailErrors ? [`${scraped.report.detailErrors} page(s) de détail n'ont pas pu être lues.`] : [];
+    const changed = Boolean(imported.inserted || imported.modified || imported.deleted || archive.added || archive.modified);
+    const warnings = [
+      ...(scraped.report.detailErrors ? [`${scraped.report.detailErrors} page(s) de détail n'ont pas pu être lues.`] : []),
+      ...archive.ambiguities.map((entry) => ({ message: "Collision ambiguë de clé canonique conservée séparément.", ...entry })),
+    ];
     const completedAt = new Date();
     const sourceRun = await completeDatasetRun(run._id!, {
       status: changed ? (unmatchedEntries.length || warnings.length ? "partial" : "success") : "unchanged",
@@ -137,6 +142,7 @@ export async function POST(request: NextRequest) {
           deleted: imported.deleted,
           total: imported.total,
         },
+        archive,
         events: imported.events,
         sourceRun,
       },

@@ -194,7 +194,7 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
           </a>
         ) : <span>URL source indisponible</span>}
         <span>Ajoutés : {Number(diff.added) || 0}</span>
-        <span>Retirés : {Number(diff.removed) || 0}</span>
+        <span title="Absent du flux courant, jamais supprimé de l’archive permanente">Absents du flux : {Number(diff.removed) || 0}</span>
         <span>Modifiés : {Number(diff.modified) || 0}</span>
         <span>Avertissements : {warningCount}</span>
         {timezone ? <span>Fuseau : {timezone}</span> : null}

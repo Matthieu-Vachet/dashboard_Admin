@@ -9,6 +9,7 @@ import {
   AlertTriangle,
   Archive,
   BarChart3,
+  CalendarDays,
   ClipboardCheck,
   Cloud,
   Copy,
@@ -16,6 +17,7 @@ import {
   FileDiff,
   FileJson,
   History,
+  Image as ImageIcon,
   ListTodo,
   Radar,
   RefreshCcw,
@@ -56,6 +58,9 @@ import { CatalogPanel } from "./catalog-panel";
 import { CollectionsPanel } from "./collections-panel";
 import { EggsPanel } from "./eggs-panel";
 import { EventsCalendarPanel } from "./events-calendar-panel";
+import { CommunityDaysPanel } from "./community-days-panel";
+import { DynamaxImagesPanel } from "./dynamax-images-panel";
+import { EventsHistoryPanel } from "./events-history-panel";
 import { LoginCard } from "./login-card";
 import { MaxBattlesPanel } from "./max-battles-panel";
 import { PvpRankingsPanel } from "./pvp-rankings-panel";
@@ -112,6 +117,7 @@ const navItems = [
   { id: "collections", label: "Collections", icon: Boxes, group: "data" },
   { id: "my-collection", label: "Ma collection", icon: PackageOpen, group: "data" },
   { id: "assets", label: "Assets", icon: `${filtersAssetBase}/TodayView_Icon_Photobomb.png`, group: "data" },
+  { id: "dynamax-images", label: "Images Dynamax", icon: ImageIcon, group: "data" },
   { id: "catalogs", label: "Catalogues", icon: Archive, group: "data" },
   { id: "raids", label: "Raids", icon: `${filtersAssetBase}/TodayView_Icon_Raid.png`, group: "combat" },
   { id: "max-battles", label: "Max Battles", icon: `${filtersAssetBase}/TodayView_Icon_Evolve.png`, group: "combat" },
@@ -121,6 +127,8 @@ const navItems = [
   { id: "eggs", label: "Œufs", icon: `${filtersAssetBase}/TodayView_Icon_LuckyEgg.png`, group: "events" },
   { id: "research", label: "Research", icon: `${filtersAssetBase}/TodayView_Icon_Research.png`, group: "events" },
   { id: "events", label: "Calendrier Events", icon: `${filtersAssetBase}/TodayView_Icon_Event.png`, group: "events" },
+  { id: "community-days", label: "Community Days", icon: CalendarDays, group: "events" },
+  { id: "events-history", label: "Historique Events", icon: Archive, group: "events" },
   { id: "shiny", label: "Shiny Tracker", icon: `${filtersAssetBase}/ic_shiny_white.png`, group: "quality" },
   { id: "pokemon-identity-mappings", label: "Résolution variantes", icon: Radar, group: "quality" },
   { id: "game-master-explorer", label: "Game Master Explorer", icon: Database, group: "quality" },
@@ -2311,8 +2319,14 @@ export function AdminApp() {
             {active === "game-master-explorer" ? <GameMasterExplorerPanel /> : null}
 
             {active === "events" ? (
-              <EventsCalendarPanel globalSearch={search} onOpenPokemon={openPokemonReference} />
+              <EventsCalendarPanel globalSearch={search} onOpenPokemon={openPokemonReference} onOpenHistory={() => selectSection("events-history")} />
             ) : null}
+
+            {active === "community-days" ? <CommunityDaysPanel /> : null}
+
+            {active === "events-history" ? <EventsHistoryPanel /> : null}
+
+            {active === "dynamax-images" ? <DynamaxImagesPanel /> : null}
 
             {active === "assets" ? (
               <section className="grid items-start gap-5 xl:grid-cols-[1.4fr_.9fr]">

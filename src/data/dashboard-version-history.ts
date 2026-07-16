@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.26.0",
+    date: "2026-07-16",
+    title: "Community Days, archive Events et images Dynamax privées",
+    changes: [
+      "Ajoute le référentiel permanent Community Days avec résolution locale normal/shiny, historique, non-résolus et synchronisation sans suppression.",
+      "Archive tous les événements observés par le calendrier, conserve les absents du flux et crée des révisions compactes uniquement lors d'un changement réel.",
+      "Ajoute la galerie privée Images Dynamax, le scan serveur sécurisé, le cache temporaire et l'export ZIP sans données de combat ni route publique.",
+      "Expose les lectures publiques paginées Community Days et Historique Events via PokemonGo-API, avec projections sans payload interne sensible.",
+    ],
+  },
+  {
     version: "V1.25.0",
     date: "2026-07-16",
     title: "Audit des variantes et historique des datasets",

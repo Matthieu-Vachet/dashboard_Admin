@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.26.0 - 2026-07-16
+
+- Ajoute la page Community Days, sa collection permanente, ses upserts sans suppression, ses assets normal/shiny et son historique de synchronisation.
+- Ajoute `events_archive`, la conservation des événements disparus du flux, les révisions compactes et la page Historique Events filtrable.
+- Ajoute la galerie Admin Images Dynamax, reliée aux routes API privées de scan, cache et ZIP sans déclenchement à la consultation.
+- Clarifie la Source active : `removed` signifie désormais « absent du flux » et jamais « supprimé de l’archive ».
+
 ## 1.25.0 - 2026-07-16
 
 - Corrige les faux mappings ambigus des costumes sexués et affiche les variantes mâle/femelle, la raison exacte et les candidats des ambiguïtés réelles.

@@ -1,0 +1,47 @@
+"use client";
+
+/* eslint-disable @next/next/no-img-element */
+import { FileDiff, RefreshCcw, Search } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { buttonClass, fieldClass, Panel } from "./admin-ui";
+
+export function EventsHistoryPanel() {
+  const [resource, setResource] = useState({ items: [], meta: {} });
+  const [filters, setFilters] = useState({ search: "", year: "", month: "", type: "", status: "", provider: "", pokemon: "", activeInCurrentFeed: "", modified: "" });
+  const [selected, setSelected] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const load = useCallback(async (notify = false) => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({ limit: "100", ...Object.fromEntries(Object.entries(filters).filter(([, value]) => value)) });
+      const response = await fetch(`/api/admin/events/archive?${params}`, { cache: "no-store" });
+      const payload = await response.json();
+      if (!response.ok || payload.success === false) throw new Error(payload.error || "Archive Events indisponible.");
+      setResource(payload.data);
+      if (notify) toast.success("Archive Events actualisée.");
+    } catch (error) { toast.error(error.message || "Archive Events indisponible."); }
+    finally { setLoading(false); }
+  }, [filters]);
+  useEffect(() => { const timer = setTimeout(() => load(false), 180); return () => clearTimeout(timer); }, [load]);
+
+  function update(key) { return (event) => setFilters((current) => ({ ...current, [key]: event.target.value })); }
+
+  async function openDetail(item) {
+    try {
+      const response = await fetch(`/api/admin/events/archive/${encodeURIComponent(item.id)}`, { cache: "no-store" });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Détail indisponible.");
+      setSelected(payload.data);
+    } catch (error) { toast.error(error.message || "Détail indisponible."); }
+  }
+
+  return <section className="space-y-5"><Panel title="Historique des événements" eyebrow="Archive permanente MongoDB" action={<button className={buttonClass} type="button" onClick={() => load(true)} disabled={loading}><RefreshCcw className={loading ? "animate-spin" : ""} size={17} />Actualiser</button>}>
+    <p className="rounded-2xl border border-emerald-200/15 bg-emerald-300/[.07] p-4 text-sm font-bold text-emerald-50">Aucun événement n’est supprimé de cette archive. « Absent du flux » signifie uniquement qu’il n’est plus présent dans le flux courant LeekDuck.</p>
+    <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-5"><label className="relative xl:col-span-2"><Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} /><input className={`${fieldClass} pl-11`} value={filters.search} onChange={update("search")} placeholder="Recherche" /></label><input className={fieldClass} value={filters.year} onChange={update("year")} placeholder="Année" /><select className={fieldClass} value={filters.month} onChange={update("month")}><option value="">Tous les mois</option>{Array.from({ length: 12 }, (_, index) => <option key={index + 1} value={index + 1}>{index + 1}</option>)}</select><input className={fieldClass} value={filters.type} onChange={update("type")} placeholder="Type" /><select className={fieldClass} value={filters.status} onChange={update("status")}><option value="">Tous statuts</option><option value="past">Passés</option><option value="active">Actifs</option><option value="upcoming">À venir</option></select><input className={fieldClass} value={filters.provider} onChange={update("provider")} placeholder="Provider" /><input className={fieldClass} value={filters.pokemon} onChange={update("pokemon")} placeholder="Pokémon" /><select className={fieldClass} value={filters.activeInCurrentFeed} onChange={update("activeInCurrentFeed")}><option value="">Présence flux : toutes</option><option value="true">Actif dans le flux</option><option value="false">Disparu du flux</option></select><select className={fieldClass} value={filters.modified} onChange={update("modified")}><option value="">Révisions : toutes</option><option value="true">Modifiés</option><option value="false">Jamais modifiés</option></select></div>
+    <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4"><div className="rounded-2xl bg-slate-950/35 p-4"><strong className="text-3xl text-white">{resource.meta?.total || 0}</strong><span className="block text-xs font-bold text-slate-400">événements archivés</span></div><div className="rounded-2xl bg-slate-950/35 p-4"><strong className="text-3xl text-white">{resource.meta?.revisions || 0}</strong><span className="block text-xs font-bold text-slate-400">révisions</span></div><div className="rounded-2xl bg-slate-950/35 p-4"><strong className="text-3xl text-white">{resource.items?.filter((item) => item.activeInCurrentFeed).length || 0}</strong><span className="block text-xs font-bold text-slate-400">présents dans cette page</span></div><div className="rounded-2xl bg-slate-950/35 p-4"><strong className="text-3xl text-white">{resource.items?.filter((item) => !item.activeInCurrentFeed).length || 0}</strong><span className="block text-xs font-bold text-slate-400">absents du flux</span></div></div>
+  </Panel><section className="grid gap-3 lg:grid-cols-2 2xl:grid-cols-3">{resource.items?.map((item) => <article className="rounded-2xl border border-white/10 bg-slate-950/35 p-4" key={item.canonicalKey}><div className="flex gap-3">{item.images?.[0] ? <img className="h-20 w-20 rounded-xl object-cover" src={item.images[0]} alt="" loading="lazy" /> : <div className="h-20 w-20 rounded-xl bg-white/[.04]" />}<div className="min-w-0"><h3 className="font-black text-white">{item.title}</h3><p className="mt-1 text-xs font-bold text-slate-400">{new Date(item.startDate).toLocaleString("fr-FR")} → {new Date(item.endDate).toLocaleString("fr-FR")}</p><p className="mt-2 text-xs font-bold text-cyan-100">{item.eventType} · {item.provider}</p></div></div><dl className="mt-3 grid grid-cols-2 gap-2 text-xs"><div><dt className="text-slate-500">Première détection</dt><dd className="font-bold text-slate-200">{new Date(item.firstSeenAt).toLocaleString("fr-FR")}</dd></div><div><dt className="text-slate-500">Dernière détection</dt><dd className="font-bold text-slate-200">{new Date(item.lastSeenAt).toLocaleString("fr-FR")}</dd></div></dl><div className="mt-3 flex flex-wrap items-center gap-2"><span className="rounded-full border border-white/10 px-2 py-1 text-[10px] font-black text-white">{item.status}</span><span className={`rounded-full border px-2 py-1 text-[10px] font-black ${item.activeInCurrentFeed ? "border-emerald-200/20 text-emerald-100" : "border-amber-200/20 text-amber-100"}`}>{item.activeInCurrentFeed ? "Actif dans le flux" : "Absent du flux"}</span><span className="rounded-full border border-violet-200/20 px-2 py-1 text-[10px] font-black text-violet-100">{Math.max(0, item.revision - 1)} révision(s)</span><button className={buttonClass} type="button" onClick={() => openDetail(item)}>Détail</button></div></article>)}</section>
+  {selected ? <div className="fixed inset-0 z-[120] grid place-items-center bg-slate-950/90 p-3" role="dialog" aria-modal="true"><div className="max-h-[92vh] w-full max-w-6xl overflow-auto rounded-3xl border border-white/10 bg-[#07101f] p-5"><div className="flex items-center justify-between"><h3 className="flex items-center gap-2 text-xl font-black text-white"><FileDiff />{selected.title}</h3><button className={buttonClass} type="button" onClick={() => setSelected(null)}>Fermer</button></div><div className="mt-4 grid gap-4 lg:grid-cols-2"><section><h4 className="font-black text-cyan-100">JSON courant et payload source</h4><pre className="mt-2 max-h-[65vh] overflow-auto whitespace-pre-wrap rounded-2xl bg-slate-950/70 p-4 text-xs text-cyan-50">{JSON.stringify(selected, null, 2)}</pre></section><section><h4 className="font-black text-violet-100">Historique des révisions et diff</h4><pre className="mt-2 max-h-[65vh] overflow-auto whitespace-pre-wrap rounded-2xl bg-slate-950/70 p-4 text-xs text-violet-50">{JSON.stringify(selected.revisionHistory || [], null, 2)}</pre></section></div></div></div> : null}
+  </section>;
+}

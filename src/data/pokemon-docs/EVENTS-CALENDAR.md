@@ -6,7 +6,9 @@ dans le Dashboard Admin. Elle utilise MongoDB quand `DASHBOARD_MONGODB_URI` ou
 
 ## Collection Mongo
 
-Collection : `events`
+Collection courante : `events`. Archive permanente : `events_archive`. Historique technique : `dataset_runs`.
+
+`events` peut retirer les entrées absentes du flux courant. Le même rescraping upsert simultanément `events_archive`, où aucune entrée n’est supprimée : `activeInCurrentFeed: false` signifie uniquement « absent du flux actuel ». Toute modification source réelle incrémente la révision et conserve un diff compact.
 
 Chaque document est global au dashboard et contient :
 
@@ -109,6 +111,8 @@ PATCH /api/admin/events/:id
 DELETE /api/admin/events/:id
 POST /api/admin/events/scrape
 POST /api/admin/events/import
+GET /api/admin/events/archive
+GET /api/admin/events/archive/:id
 ```
 
 L'import accepte soit un tableau JSON, soit un objet `{ "events": [...] }`. Les events sont
@@ -138,6 +142,16 @@ un rapport exploitable :
 
 Si LeekDuck ne retourne aucun event ou si l'import échoue, la route renvoie
 `success: false` et aucun toast de succès ne doit être affiché.
+
+Routes publiques de l’archive dans PokemonGo-API :
+
+```http
+GET /api/v1/events/history
+GET /api/v1/events/history/:id
+GET /api/v1/events/history/:id/revisions
+```
+
+La projection publique ne retourne pas `sourcePayload`, diagnostics internes ni secrets.
 
 ## UI Admin
 

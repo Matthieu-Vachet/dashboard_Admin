@@ -21,6 +21,11 @@ const nextConfig: NextConfig = {
       "./.data/PokemonGo-Data/items/**",
       "./public/ui/**",
     ],
+    "/api/admin/community-days/**": [
+      "./.data/PokemonGo-Data/pokemon/**",
+      "./.data/PokemonGo-Data/pokemon-forms/**",
+      "./.data/PokemonGo-Data/pokemon-assets/**",
+    ],
   },
   images: {
     remotePatterns: [

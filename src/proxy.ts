@@ -10,6 +10,8 @@ const protectedApiPaths = [
   "/api/trainer-pokemon",
   "/api/dashboard-backlog",
   "/api/admin/events",
+  "/api/admin/community-days",
+  "/api/admin/dynamax-images",
   "/api/learning",
 ];
 

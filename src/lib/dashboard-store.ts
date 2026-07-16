@@ -190,6 +190,11 @@ async function getClient() {
   return clientPromise;
 }
 
+export async function getDashboardDatabase() {
+  const client = await getClient();
+  return client.db(dashboardDbName);
+}
+
 async function getCollection(): Promise<Collection<DashboardStoreDocument>> {
   const client = await getClient();
   const collection = client.db(dashboardDbName).collection<DashboardStoreDocument>(collectionName);

@@ -33,6 +33,7 @@ import {
   FileJson,
   Filter,
   FlaskConical,
+  History,
   List,
   Pencil,
   RefreshCcw,
@@ -390,7 +391,7 @@ function downloadJson(filename, payload) {
   URL.revokeObjectURL(url);
 }
 
-export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon }) {
+export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHistory }) {
   const [events, setEvents] = useState(defaultPokemonEvents);
   const [meta, setMeta] = useState({ configured: false, seeded: true, collection: "events" });
   const [loading, setLoading] = useState(false);
@@ -656,6 +657,9 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon }) {
           <div className="flex flex-wrap gap-2">
             <button className={buttonClass} type="button" onClick={() => loadEvents({ notify: true })} disabled={loading}>
               <RefreshCcw size={17} /> {loading ? "Chargement..." : "Actualiser"}
+            </button>
+            <button className={buttonClass} type="button" onClick={onOpenHistory}>
+              <History size={17} /> Historique des événements
             </button>
             <button className={primaryButtonClass} type="button" onClick={scrapeEvents} disabled={busy === "scrape"}>
               <Sparkles size={17} /> {busy === "scrape" ? "Scrape..." : "Rescraper Events"}
