@@ -86,7 +86,9 @@ export function PokemonCard({
   const mainType = String(entry.primaryType || "NORMAL").toUpperCase();
   const background = typeBackground(mainType, typeCatalog);
   const visibleWeather = compact ? weather.slice(0, 1) : weather.slice(0, 2);
-  const displayImage = preferredPokemonImage(entry);
+  const displayImage = preferredPokemonImage(entry, {
+    shiny: entry?.presentationVariant?.shiny === true,
+  });
   const variantLabel = pokemonVariantLabel(entry);
 
   return (

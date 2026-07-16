@@ -47,6 +47,11 @@ function MappingArtwork({ mapping, className = "h-14 w-14" }) {
   );
 }
 
+function AssetBundleValue({ mapping }) {
+  const value = [mapping.assetBundleValue, mapping.assetBundleSuffix].filter(Boolean).join(" · ");
+  return <><span className="block break-all">{value || "Non fourni par le Game Master"}</span><span className="mt-1 block text-[9px] text-slate-500">{mapping.assetBundleSource || "Aucune source bundle"}</span></>;
+}
+
 function MappingIdentity({ mapping, compact = false }) {
   return (
     <div className="flex min-w-0 items-center gap-3">
@@ -128,9 +133,10 @@ export function PokemonIdentityMappingsPanel({ dataset, loading, regenerating, o
               </div>
               <div className="col-span-2 min-w-0 rounded-xl border border-white/8 bg-white/[.035] p-2">
                 <dt className="text-[9px] font-black uppercase tracking-[.1em] text-slate-500">Asset bundle</dt>
-                <dd className="mt-1 break-all font-mono text-[10px] font-bold text-slate-300">{mapping.assetBundleValue || "—"}{mapping.assetBundleSuffix ? ` · ${mapping.assetBundleSuffix}` : ""}</dd>
+                <dd className="mt-1 font-mono text-[10px] font-bold text-slate-300"><AssetBundleValue mapping={mapping} /></dd>
               </div>
             </dl>
+            {mapping.ambiguityReason ? <p className="mt-2 rounded-xl border border-violet-200/20 bg-violet-300/[.08] p-2 text-[10px] font-bold leading-5 text-violet-100">{mapping.ambiguityReason} — {mapping.ambiguityExplanation}</p> : null}
           </article>
         ))}
       </div>
@@ -144,8 +150,8 @@ export function PokemonIdentityMappingsPanel({ dataset, loading, regenerating, o
                 <td className="p-3"><MappingIdentity mapping={mapping} /></td>
                 <td className="p-3 font-mono text-slate-300">{mapping.form || "—"}</td>
                 <td className="p-3 font-mono text-slate-300">{mapping.localForm || "—"}</td>
-                <td className="p-3 text-xs text-slate-400"><span className="block break-all">{mapping.assetBundleValue || "—"}</span><span>{mapping.assetBundleSuffix || ""}</span></td>
-                <td className="p-3"><StatusBadge status={mapping.mappingStatus} /></td>
+                <td className="p-3 text-xs text-slate-400"><AssetBundleValue mapping={mapping} /></td>
+                <td className="p-3"><StatusBadge status={mapping.mappingStatus} />{mapping.ambiguityReason ? <span className="mt-1 block max-w-64 text-[10px] leading-4 text-violet-200">{mapping.ambiguityReason} · {mapping.candidateCount || mapping.ambiguityCount || 0} candidat(s)</span> : null}</td>
               </tr>
             ))}
           </tbody>

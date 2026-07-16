@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.25.0",
+    date: "2026-07-16",
+    title: "Audit des variantes et historique des datasets",
+    changes: [
+      "Regroupe les assets mâle et femelle d'un même costume sans créer de fausse ambiguïté et affiche la raison exacte des ambiguïtés réelles.",
+      "Rend Asset bundle, les candidats, les catégories de variantes et les fichiers locaux exploitables dans les outils d'audit Game Master.",
+      "Ajoute l'historique des exécutions, les diffs et les non-matchés détaillés aux datasets dynamiques et au calendrier Events.",
+      "Affiche un asset shiny exact dans le filtre Chromatique et une carte distincte par costume dans le filtre Costume / Event.",
+    ],
+  },
+  {
     version: "V1.24.2",
     date: "2026-07-15",
     title: "Snapshot Shiny fiable sur Vercel",

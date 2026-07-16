@@ -327,6 +327,14 @@ async function readShinyHistory(request: NextRequest) {
   return payload;
 }
 
+async function readDatasetHistory(request: NextRequest) {
+  const domain = String(request.nextUrl.searchParams.get("domain") || "");
+  const allowed = new Set(["raids", "eggs", "max-battles", "rocket", "research", "shiny", "pvp-rankings", "best-attackers", "pokemon-identity-mappings"]);
+  if (!allowed.has(domain)) throw requestError("Domaine d'historique invalide.", 400);
+  const query = forwardedRankedQuery(request, ["page", "limit", "status"]);
+  return readPokemonApiAdmin(`/api/v1/${domain}/history${query ? `?${query}` : ""}`);
+}
+
 function readItems() {
   const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
   const file = dataPath("items", "items.json");
@@ -445,8 +453,9 @@ const gameMasterReadActions: Record<string, { path: string; query?: string[] }> 
   "game-master-categories": { path: "/api/v1/admin/game-master/categories" },
   "game-master-templates": { path: "/api/v1/admin/game-master/templates", query: ["q", "search", "match", "category", "group", "settingType", "pokemonId", "localStatus", "sort", "order", "page", "limit"] },
   "game-master-search": { path: "/api/v1/admin/game-master/search", query: ["q", "search", "match", "category", "group", "settingType", "pokemonId", "localStatus", "sort", "order", "page", "limit"] },
-  "game-master-comparison": { path: "/api/v1/admin/game-master/local-comparison", query: ["q", "search", "status", "pokemonId", "form", "costume", "generation", "shiny", "sex", "dataType", "category", "page", "limit"] },
+  "game-master-comparison": { path: "/api/v1/admin/game-master/local-comparison", query: ["q", "search", "status", "pokemonId", "form", "costume", "generation", "shiny", "sex", "dataType", "category", "variantCategory", "page", "limit"] },
   "game-master-snapshots": { path: "/api/v1/admin/game-master/snapshots", query: ["page", "limit"] },
+  "game-master-runs": { path: "/api/v1/admin/game-master/runs", query: ["page", "limit", "status"] },
   "game-master-diff": { path: "/api/v1/admin/game-master/diff", query: ["to", "snapshotId", "templateId", "type", "category", "page", "limit"] },
 };
 
@@ -768,6 +777,10 @@ export async function GET(request: NextRequest) {
 
     if (action === "pokemon-identity-mappings") {
       return json({ data: await readCurrentPokemonIdentityMappings(request) });
+    }
+
+    if (action === "dataset-history") {
+      return json({ data: await readDatasetHistory(request) });
     }
 
     if (action === "game-master-export") {

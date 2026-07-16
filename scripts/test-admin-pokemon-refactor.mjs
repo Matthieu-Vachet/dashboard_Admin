@@ -110,6 +110,24 @@ test("Game Master Explorer reste privé, paginé et ne charge le JSON brut qu’
   assert.match(proxy, /Cache-Control", "private, no-store"/);
 });
 
+test("les datasets affichent l'historique centralisé et les diagnostics non matchés", () => {
+  const diagnostics = read("src/components/admin/pokemon/current-dataset-diagnostics.jsx");
+  const proxy = read("src/app/api/pokemon-admin/route.ts");
+  const eventRoute = read("src/app/api/admin/events/scrape/route.ts");
+  const eventHistory = read("src/app/api/admin/events/history/route.ts");
+  const events = read("src/components/admin/events/events-calendar-panel.jsx");
+  assert.match(diagnostics, /Historique des exécutions/);
+  assert.match(diagnostics, /Voir les \{unmatchedEntries\.length\} entrées non matchées/);
+  assert.match(diagnostics, /diffUnavailableReason/);
+  assert.match(proxy, /dataset-history/);
+  assert.match(eventRoute, /startDatasetRun/);
+  assert.match(eventRoute, /completeDatasetRun/);
+  assert.match(eventRoute, /unmatchedContext/);
+  assert.match(eventHistory, /listDatasetRuns\("events-calendar"/);
+  assert.match(events, /sourceRun/);
+  assert.match(events, /événement\(s\) disponible\(s\)/);
+});
+
 test("la navigation précédente et suivante reste côte à côte sur mobile", () => {
   const source = read("src/components/admin/pokemon/detail-modal.jsx");
   assert.match(source, /grid grid-cols-2 gap-2 sm:gap-3/);

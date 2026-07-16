@@ -212,13 +212,38 @@ function LocalComparisonDetail({ item }) {
         <DetailDefinition label="Forme locale" value={item.localForm} />
         <DetailDefinition label="Costume local" value={item.localCostume} />
         <DetailDefinition label="Source de résolution" value={item.resolutionSource} />
+        <DetailDefinition label="Asset bundle" value={item.assetBundleValue || item.assetBundleSuffix || "Non fourni par le Game Master"} />
+        <DetailDefinition label="Source bundle" value={item.assetBundleSource || "Non fournie"} />
+        <DetailDefinition label="Catégorie de variante" value={item.variantCategory} />
         <DetailDefinition label="Sexe" value={item.localAsset?.isFemale ? "female" : "neutral"} />
         <DetailDefinition label="assetForms" value={item.localAssetFormCount ?? 0} />
         <DetailDefinition label="Disponibilité jeu" value={item.gameAvailability?.released === false ? "Non sorti (sans effet sur l’asset)" : item.gameAvailability?.released === true ? "Sorti" : "Non renseignée"} />
       </dl>
+      {item.ambiguityReason ? <div className="mt-3 rounded-xl border border-violet-200/20 bg-violet-300/[.08] p-3"><strong className="text-xs text-violet-100">Raison exacte : {item.ambiguityReason}</strong><p className="mt-1 text-xs font-bold leading-5 text-slate-300">{item.ambiguityExplanation || "Plusieurs identités locales distinctes correspondent."}</p><p className="mt-1 font-mono text-[10px] text-slate-500">{item.candidateCount || item.ambiguityCount || 0} candidat(s)</p></div> : null}
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
         {[['Normal', item.localAsset?.image, item.localAsset?.source], ['Shiny', item.localAsset?.shinyImage, item.localAsset?.shinySource]].map(([label, image, source]) => <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-slate-950/30 p-2" key={label}>{image ? <img className="h-14 w-14 shrink-0 object-contain" src={image} alt={`Asset local ${label.toLowerCase()}`} /> : <span className="grid h-14 w-14 shrink-0 place-items-center rounded-lg border border-white/10"><ImageOff className="text-slate-600" size={18} /></span>}<div className="min-w-0"><strong className="text-xs text-white">{label}</strong><span className="block break-all font-mono text-[9px] text-slate-500">{source || "Asset absent"}</span></div></div>)}
       </div>
+      {item.genderVariants?.length ? <div className="mt-3 grid gap-2 sm:grid-cols-2">{item.genderVariants.map((variant, index) => <div className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/[.025] p-2" key={`${variant.isFemale}-${variant.image}-${index}`}>{variant.image ? <img className="h-12 w-12 object-contain" src={variant.image} alt={variant.isFemale ? "Asset femelle" : "Asset mâle ou neutre"} /> : <ImageOff className="m-3 text-slate-600" size={18} />}<div><strong className="text-xs text-white">{variant.isFemale ? "Femelle" : "Mâle / défaut"}</strong><span className="block break-all font-mono text-[9px] text-slate-500">{variant.costume || variant.form || "forme principale"}</span></div></div>)}</div> : null}
+      {item.ambiguousCandidates?.length ? <details className="mt-3 rounded-xl border border-white/10 bg-slate-950/35 p-3"><summary className="cursor-pointer text-xs font-black text-slate-200">Afficher les candidats ambigus</summary><pre className="mt-2 max-h-72 overflow-auto whitespace-pre-wrap break-all font-mono text-[10px] text-slate-400">{JSON.stringify(item.ambiguousCandidates, null, 2)}</pre></details> : null}
+    </article>
+  );
+}
+
+function DatasetRunCard({ run }) {
+  const tone = run.status === "failed"
+    ? "border-rose-200/20 text-rose-100"
+    : run.status === "partial"
+      ? "border-amber-200/20 text-amber-100"
+      : "border-emerald-200/20 text-emerald-100";
+  return (
+    <article className="rounded-2xl border border-white/10 bg-slate-950/40 p-3">
+      <div className="flex items-center justify-between gap-2">
+        <strong className="font-mono text-xs text-white">{formatDate(run.startedAt)}</strong>
+        <span className={`rounded-full border px-2 py-1 text-[8px] font-black uppercase ${tone}`}>{run.status}</span>
+      </div>
+      <p className="mt-2 text-[10px] font-bold text-slate-500">
+        {Number(run.totalAfter || 0).toLocaleString("fr-FR")} templates · {Number(run.durationMs || 0).toLocaleString("fr-FR")} ms · {Number(run.unmatchedCount || 0).toLocaleString("fr-FR")} non matché(s)
+      </p>
     </article>
   );
 }
@@ -254,7 +279,15 @@ function DetailModal({ resource, loading, tab, onTab, onClose }) {
   const local = detail.localComparison || [];
   const history = detail.history || [];
   const diffs = detail.diffs || [];
-  const assetRows = [["Asset bundle", template.assetBundleValue], ["Suffix", template.assetBundleSuffix], ["Forme", template.form], ["Costume", template.costume]].filter(([, value]) => value);
+  const assetRows = [
+    ["Asset bundle", template.assetBundleValue || "Non fourni par le Game Master"],
+    ["Suffix", template.assetBundleSuffix || "Non fourni"],
+    ["Source", template.assetBundleSource || "Non fournie"],
+    ["Chemin bundle", template.assetBundlePaths?.value || template.assetBundlePaths?.suffix || "Aucun champ assetBundle dans ce template"],
+    ["Résolution", template.assetBundleResolved ? "Fourni" : "Absent du Game Master"],
+    ["Forme", template.form || "Non fournie"],
+    ["Costume", template.costume || "Non fourni"],
+  ];
   const interpretedRows = businessSummary(template.raw || {});
 
   return createPortal(
@@ -292,9 +325,10 @@ export function GameMasterExplorerPanel() {
   const [templates, setTemplates] = useState(null);
   const [comparison, setComparison] = useState(null);
   const [snapshots, setSnapshots] = useState(null);
+  const [runs, setRuns] = useState(null);
   const [diffs, setDiffs] = useState(null);
   const [filters, setFilters] = useState({ q: "", match: "partial", category: "", group: "", settingType: "", localStatus: "", sort: "templateId", order: "asc", page: 1, limit: 50 });
-  const [comparisonFilters, setComparisonFilters] = useState({ q: "", pokemonId: "", form: "", status: "", costume: "", generation: "", shiny: "", sex: "", dataType: "", category: "", page: 1, limit: 50 });
+  const [comparisonFilters, setComparisonFilters] = useState({ q: "", pokemonId: "", form: "", status: "", costume: "", generation: "", shiny: "", sex: "", dataType: "", category: "", variantCategory: "", page: 1, limit: 50 });
   const [diffFilters, setDiffFilters] = useState({ snapshotId: "", type: "", category: "", page: 1, limit: 50 });
   const [loading, setLoading] = useState(true);
   const [contentLoading, setContentLoading] = useState(false);
@@ -355,8 +389,12 @@ export function GameMasterExplorerPanel() {
     if (!summary?.initialized || mode !== "history") return undefined;
     let cancelled = false;
     setContentLoading(true);
-    Promise.all([gameMasterRequest("game-master-snapshots", { page: 1, limit: 50 }), gameMasterRequest("game-master-diff", diffFilters)])
-      .then(([snapshotPayload, diffPayload]) => { if (!cancelled) { setSnapshots(snapshotPayload); setDiffs(diffPayload); } })
+    Promise.all([
+      gameMasterRequest("game-master-snapshots", { page: 1, limit: 50 }),
+      gameMasterRequest("game-master-runs", { page: 1, limit: 50 }),
+      gameMasterRequest("game-master-diff", diffFilters),
+    ])
+      .then(([snapshotPayload, runPayload, diffPayload]) => { if (!cancelled) { setSnapshots(snapshotPayload); setRuns(runPayload); setDiffs(diffPayload); } })
       .catch((requestError) => { if (!cancelled) setError(requestError.message); })
       .finally(() => { if (!cancelled) setContentLoading(false); });
     return () => { cancelled = true; };
@@ -479,17 +517,18 @@ export function GameMasterExplorerPanel() {
                 <select className={fieldClass} value={comparisonFilters.sex} onChange={(event) => setComparisonFilter("sex", event.target.value)} aria-label="Sexe"><option value="">Tous les sexes</option><option value="female">Variante féminine</option><option value="neutral">Autre / neutre</option></select>
                 <select className={fieldClass} value={comparisonFilters.dataType} onChange={(event) => setComparisonFilter("dataType", event.target.value)} aria-label="Type de donnée"><option value="">Tous les types de données</option><option value="pokemonSettings">Pokémon Settings</option><option value="formSettings">Form Settings</option></select>
                 <select className={fieldClass} value={comparisonFilters.category} onChange={(event) => setComparisonFilter("category", event.target.value)} aria-label="Catégorie Game Master"><option value="">Toutes les catégories GM</option>{categories.filter((category) => category.group === "pokemon").map((category) => <option value={category.id} key={category.id}>{category.label}</option>)}</select>
+                <select className={fieldClass} value={comparisonFilters.variantCategory} onChange={(event) => setComparisonFilter("variantCategory", event.target.value)} aria-label="Catégorie de variante"><option value="">Toutes les variantes</option><option value="normal">Normal</option><option value="costume">Costume</option><option value="regional">Régional</option><option value="mega">Méga</option><option value="primal">Primo</option><option value="dynamax">Dynamax</option><option value="gigantamax">Gigamax</option><option value="official-gender">Forme sexuée officielle</option><option value="special-state">État spécial</option><option value="alternative">Alternative</option></select>
                 <select className={fieldClass} value={comparisonFilters.limit} onChange={(event) => setComparisonFilter("limit", Number(event.target.value))} aria-label="Résultats par page"><option value={25}>25 par page</option><option value={50}>50 par page</option><option value={100}>100 par page</option></select>
-                <button className={buttonClass} type="button" onClick={() => setComparisonFilters({ q: "", pokemonId: "", form: "", status: "", costume: "", generation: "", shiny: "", sex: "", dataType: "", category: "", page: 1, limit: 50 })}><RefreshCcw size={15} /> Réinitialiser</button>
+                <button className={buttonClass} type="button" onClick={() => setComparisonFilters({ q: "", pokemonId: "", form: "", status: "", costume: "", generation: "", shiny: "", sex: "", dataType: "", category: "", variantCategory: "", page: 1, limit: 50 })}><RefreshCcw size={15} /> Réinitialiser</button>
               </section>
-              {contentLoading ? <div className="h-52 animate-pulse rounded-2xl bg-white/[.04]" /> : <div className="grid gap-2 md:grid-cols-2">{(comparison?.data || []).map((item) => <article className="rounded-2xl border border-white/10 bg-slate-950/45 p-3" key={item.comparisonKey}><div className="flex items-start gap-3">{item.localAsset?.image ? <img className="h-14 w-14 shrink-0 rounded-xl border border-white/10 object-contain p-1" src={item.localAsset.image} alt="Asset local exact" /> : <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-white/10"><ImageOff className="text-slate-600" size={20} /></span>}<div className="min-w-0 flex-1"><strong className="block truncate text-sm font-black text-white">#{item.pokemonId} {item.pokemon}</strong><span className="block truncate font-mono text-[10px] text-slate-500">{item.form || "normal"} → {item.localForm || "—"}</span><div className="mt-2"><StatusBadge status={item.mappingStatus} /></div></div></div><button className="mt-3 w-full rounded-xl border border-white/10 bg-white/[.035] px-3 py-2 text-left font-mono text-[10px] text-slate-400 hover:text-white" type="button" onClick={() => openTemplate(item.templateId)}>{item.templateId}</button></article>)}</div>}
+              {contentLoading ? <div className="h-52 animate-pulse rounded-2xl bg-white/[.04]" /> : <div className="grid gap-2 md:grid-cols-2">{(comparison?.data || []).map((item) => <article className="rounded-2xl border border-white/10 bg-slate-950/45 p-3" key={item.comparisonKey}><div className="flex items-start gap-3">{item.localAsset?.image ? <img className="h-14 w-14 shrink-0 rounded-xl border border-white/10 object-contain p-1" src={item.localAsset.image} alt="Asset local exact" /> : <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-white/10"><ImageOff className="text-slate-600" size={20} /></span>}<div className="min-w-0 flex-1"><strong className="block truncate text-sm font-black text-white">#{item.pokemonId} {item.pokemon}</strong><span className="block truncate font-mono text-[10px] text-slate-500">{item.form || "normal"} → {item.localForm || "—"}</span><div className="mt-2 flex flex-wrap gap-1.5"><StatusBadge status={item.mappingStatus} />{item.variantCategory ? <span className="rounded-full border border-white/10 px-2 py-1 text-[9px] font-black text-slate-400">{item.variantCategory}</span> : null}</div></div></div><div className="mt-3 rounded-xl border border-white/8 bg-white/[.025] p-2 font-mono text-[10px] text-slate-400"><strong className="text-slate-300">Asset bundle : </strong>{item.assetBundleValue || item.assetBundleSuffix || "Non fourni par le Game Master"}{item.ambiguityReason ? <p className="mt-2 text-violet-200">Ambiguïté : {item.ambiguityReason} — {item.ambiguityExplanation}</p> : null}</div><button className="mt-2 w-full rounded-xl border border-white/10 bg-white/[.035] px-3 py-2 text-left font-mono text-[10px] text-slate-400 hover:text-white" type="button" onClick={() => openTemplate(item.templateId)}>{item.templateId}</button></article>)}</div>}
               <Pagination meta={comparison?.meta} onPage={(page) => setComparisonFilters((current) => ({ ...current, page }))} />
             </div>
           ) : null}
 
           {mode === "history" ? (
             <div className="grid gap-4 lg:grid-cols-[minmax(0,.85fr)_minmax(0,1.4fr)]">
-              <section className="space-y-2"><h3 className="text-sm font-black text-white">Snapshots</h3>{(snapshots?.data || []).map((snapshot) => <button className={`w-full rounded-2xl border p-3 text-left ${diffFilters.snapshotId === snapshot.snapshotId || snapshot.current && !diffFilters.snapshotId ? "border-cyan-200/30 bg-cyan-300/[.08]" : "border-white/10 bg-slate-950/40"}`} type="button" onClick={() => setDiffFilters((current) => ({ ...current, snapshotId: snapshot.snapshotId, page: 1 }))} key={snapshot.snapshotId}><div className="flex items-center justify-between gap-2"><strong className="truncate font-mono text-xs text-white">{snapshot.snapshotId}</strong>{snapshot.current ? <span className="rounded-full bg-emerald-300/12 px-2 py-1 text-[8px] font-black uppercase text-emerald-100">Actif</span> : null}</div><p className="mt-2 text-[10px] font-bold text-slate-500">{formatDate(snapshot.indexedAt)} · {snapshot.totalTemplates} templates</p><p className="mt-1 text-[10px] font-bold text-slate-400">+{snapshot.changes?.added || 0} · −{snapshot.changes?.removed || 0} · ~{snapshot.changes?.modified || 0}</p></button>)}</section>
+              <section className="space-y-4"><div className="space-y-2"><h3 className="text-sm font-black text-white">Exécutions</h3>{(runs?.data || []).map((run) => <DatasetRunCard run={run} key={run._id || run.startedAt} />)}</div><div className="space-y-2"><h3 className="text-sm font-black text-white">Snapshots</h3>{(snapshots?.data || []).map((snapshot) => <button className={`w-full rounded-2xl border p-3 text-left ${diffFilters.snapshotId === snapshot.snapshotId || snapshot.current && !diffFilters.snapshotId ? "border-cyan-200/30 bg-cyan-300/[.08]" : "border-white/10 bg-slate-950/40"}`} type="button" onClick={() => setDiffFilters((current) => ({ ...current, snapshotId: snapshot.snapshotId, page: 1 }))} key={snapshot.snapshotId}><div className="flex items-center justify-between gap-2"><strong className="truncate font-mono text-xs text-white">{snapshot.snapshotId}</strong>{snapshot.current ? <span className="rounded-full bg-emerald-300/12 px-2 py-1 text-[8px] font-black uppercase text-emerald-100">Actif</span> : null}</div><p className="mt-2 text-[10px] font-bold text-slate-500">{formatDate(snapshot.indexedAt)} · {snapshot.totalTemplates} templates</p><p className="mt-1 text-[10px] font-bold text-slate-400">+{snapshot.changes?.added || 0} · −{snapshot.changes?.removed || 0} · ~{snapshot.changes?.modified || 0}</p></button>)}</div></section>
               <section className="space-y-3"><div className="grid grid-cols-2 gap-2"><select className={fieldClass} value={diffFilters.type} onChange={(event) => setDiffFilters((current) => ({ ...current, type: event.target.value, page: 1 }))}><option value="">Tous les changements</option><option value="added">Ajoutés</option><option value="removed">Retirés</option><option value="modified">Modifiés</option></select><select className={fieldClass} value={diffFilters.category} onChange={(event) => setDiffFilters((current) => ({ ...current, category: event.target.value, page: 1 }))}><option value="">Toutes les catégories</option>{categories.map((category) => <option value={category.id} key={category.id}>{category.label}</option>)}</select></div>{contentLoading ? <div className="h-52 animate-pulse rounded-2xl bg-white/[.04]" /> : (diffs?.data || []).map((diff) => <button className="w-full rounded-2xl border border-white/10 bg-slate-950/45 p-3 text-left hover:border-cyan-200/30" type="button" onClick={() => openTemplate(diff.templateId)} key={diff._id || `${diff.snapshotId}-${diff.templateId}`}><div className="flex items-center justify-between gap-2"><strong className="break-all font-mono text-xs text-white">{diff.templateId}</strong><span className="rounded-full border border-white/10 px-2 py-1 text-[9px] font-black uppercase text-slate-300">{diff.changeType}</span></div><p className="mt-2 text-[10px] font-bold text-slate-500">{diff.category} · {(diff.changes || []).length} changement(s){diff.truncated ? " · tronqué" : ""}</p></button>)}<Pagination meta={diffs?.meta} onPage={(page) => setDiffFilters((current) => ({ ...current, page }))} /></section>
             </div>
           ) : null}

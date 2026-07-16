@@ -1101,7 +1101,9 @@ export function DetailModal({
     eventAssets: entry.eventAssets,
     eventAsset: entry.eventAsset,
   };
-  const displayImage = preferredPokemonImage(displayPokemon);
+  const displayImage = preferredPokemonImage(displayPokemon, {
+    shiny: entry?.presentationVariant?.shiny === true,
+  });
   const displayVariantBadges = pokemonVariantBadges(displayPokemon)
     .filter((label) => label.startsWith("Costume :") || label.startsWith("Forme :") || label === "Forme femelle");
   const candyIcon =

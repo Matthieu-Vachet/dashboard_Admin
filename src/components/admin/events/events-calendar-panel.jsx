@@ -423,6 +423,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon }) {
         configured: Boolean(payload.data?.configured),
         seeded: Boolean(payload.data?.seeded),
         collection: payload.data?.collection || "events",
+        sourceRun: payload.data?.sourceRun || null,
       });
       if (notify) toast.success("Calendrier events actualisé.");
     } catch (error) {
@@ -627,7 +628,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon }) {
       const nextEvents = Array.isArray(payload.data?.events) ? payload.data.events : [];
       if (!nextEvents.length) throw new Error("Aucun event récupéré depuis LeekDuck.");
       setEvents(nextEvents);
-      setMeta((current) => ({ ...current, configured: true, seeded: false }));
+      setMeta((current) => ({ ...current, configured: true, seeded: false, sourceRun: payload.data?.sourceRun || current.sourceRun || null }));
       toast.success(
         `LeekDuck rescrapé: ${payload.data?.eventsParsed || nextEvents.length} events, ${payload.data?.pokemonMatched || 0} Pokémon matchés.`,
       );
@@ -687,16 +688,34 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon }) {
           dataset={{
             meta: {
               source: meta.configured ? "mongodb" : "seed",
-              provider: "leekduck-events",
+              provider: meta.sourceRun?.provider || "leekduck-events",
               mode: meta.seeded ? "seed" : "scraped",
               visibility: "public",
-              status: meta.configured ? "success" : "warning",
-              count: events.length,
-              url: "https://leekduck.com/events/",
+              status: meta.sourceRun?.status || (meta.configured ? "success" : "warning"),
+              count: meta.sourceRun?.totalAfter ?? events.length,
+              url: meta.sourceRun?.sourceUrl || "https://leekduck.com/events/",
+              event: events.length ? `${events.length} événement(s) disponible(s)` : null,
+              fetchedAt: meta.sourceRun?.retrievedAt || null,
+              savedAt: meta.sourceRun?.savedAt || null,
+              sourceHash: meta.sourceRun?.hashAfter || null,
+              diagnostics: meta.sourceRun ? {
+                matchedCount: meta.sourceRun.matchedCount,
+                unmatchedCount: meta.sourceRun.unmatchedCount,
+                unmatchedEntries: meta.sourceRun.unmatchedEntries || [],
+                warnings: meta.sourceRun.warnings || [],
+                diffUnavailableReason: meta.sourceRun.diffUnavailableReason || null,
+                diff: {
+                  changed: meta.sourceRun.changed,
+                  added: meta.sourceRun.added,
+                  removed: meta.sourceRun.removed,
+                  modified: meta.sourceRun.modified,
+                },
+              } : null,
             },
-            current: { visibility: "public", diagnostics: { warnings: meta.seeded ? ["Lecture sur données seed : MongoDB non configuré."] : [] } },
+            current: { visibility: "public", diagnostics: meta.sourceRun ? undefined : { warnings: meta.seeded ? ["Lecture sur données seed : MongoDB non configuré."] : [], diffUnavailableReason: "Aucune exécution de scraping enregistrée." } },
           }}
           total={events.length}
+          historyUrl="/api/admin/events/history"
         />
         <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_180px_180px_170px_auto]">
           <label className="relative block">

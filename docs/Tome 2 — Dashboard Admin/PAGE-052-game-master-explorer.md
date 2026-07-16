@@ -1,9 +1,9 @@
 ---
 id: PAGE-052
 title: Game Master Explorer et Local Data Inspector
-version: 1.0.0
+version: 1.1.0
 status: Active
-last_update: 2026-07-15
+last_update: 2026-07-16
 author: Matthieu Vachet
 affected_projects: [Dashboard Admin, PokemonGo-API-, PokemonGo-Data]
 references: [ADR-012, ADR-013, RULE-046, DATASET-023, DATASET-024, COMP-329, COMP-330, API-165, API-176]
@@ -59,6 +59,14 @@ COMP-329 propose Explorer, Recherche, Comparaison locale et Historique. COMP-330
 
 Le mapping conserve forme, costume, sexe, asset exact, provenance et statut. Une fiche locale dédiée est prioritaire sur une copie héritée dans `assetForms`. Une variante explicite absente ne retombe jamais sur la forme normale.
 
+Les candidats sont regroupés par `pokemonId + form + costume`. Des assets qui ne diffèrent que par `isFemale` forment une seule correspondance `matched` avec `genderVariants`; l’asset mâle sert uniquement de miniature par défaut. Une ambiguïté exige plusieurs identités de forme ou costume distinctes et expose toujours `ambiguityReason`, `ambiguityExplanation` et `ambiguousCandidates`.
+
+L’onglet Assets affiche la valeur, le suffixe, la source et le chemin de `assetBundle`. Si le Game Master ne fournit aucun champ, l’absence est indiquée explicitement au lieu d’une cellule vide.
+
+## Historique d’exécution
+
+Chaque régénération crée une exécution `running`, puis `success`, `partial`, `unchanged` ou `failed`. L’interface Historique affiche durée, compteurs, hash, diff et non-matchés sans confondre ces exécutions avec les snapshots de contenu.
+
 ## Sécurité
 
 Session Dashboard puis secret serveur, `private, no-store`, paramètres bornés, recherche limitée à 120 caractères, regex échappées, pagination maximale à 100 et export maximal à 10 000 entrées. Aucun secret n’est sérialisé.
@@ -85,4 +93,5 @@ Le test réel du 15 juillet 2026 indexe 18 152 templates et 31 catégories. La c
 
 ## Historique
 
+- 1.1.0 — 2026-07-16 : variantes sexuées regroupées, bundles auditables et historique d’exécution centralisé.
 - 1.0.0 — 2026-07-15 : création connectée à MongoDB, PokemonGo-Data et PokeMiners.

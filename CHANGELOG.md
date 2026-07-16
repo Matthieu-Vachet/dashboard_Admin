@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.25.0 - 2026-07-16
+
+- Corrige les faux mappings ambigus des costumes sexués et affiche les variantes mâle/femelle, la raison exacte et les candidats des ambiguïtés réelles.
+- Rend `Asset bundle` explicite dans l’audit Game Master, y compris lorsque le champ est absent de la source.
+- Ajoute l’historique centralisé des exécutions, les diffs et les non-matchés détaillés aux datasets dynamiques, au Game Master et au calendrier Events.
+- Corrige les filtres Chromatique et Costume / Event avec l’asset shiny exact et une carte stable par costume, sexes regroupés.
+
 ## 1.24.2 - 2026-07-15
 
 - Corrige le `504` du bouton Snapshot du Shiny Tracker avec le pipeline compact fourni par l'API.

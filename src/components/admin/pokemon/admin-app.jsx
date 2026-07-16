@@ -81,6 +81,10 @@ import {
   entryMatchesFicheFilter,
   sortPokemonEntries,
 } from "@/utils/admin/pokemon-entries";
+import {
+  pokemonPresentationEntries,
+  pokemonPresentationSearchText,
+} from "@/utils/admin/pokemon-presentation-entries.mjs";
 import { persistSourceSignatures } from "@/utils/admin/source-watch";
 
 const legacyAssetChecksKey = "pokedex-v4-asset-checks";
@@ -1238,30 +1242,31 @@ export function AdminApp() {
       ),
     [entries],
   );
+  const presentationEntries = useMemo(
+    () => pokemonPresentationEntries(entries, ficheFilter),
+    [entries, ficheFilter],
+  );
   const filtered = useMemo(
     () =>
       sortPokemonEntries(
-        entries.filter((entry) =>
+        presentationEntries.filter((entry) =>
           (generationFilter === "all" ||
             (generationFilter === "hisui"
               ? String(entry.form || "").toLowerCase().includes("hisui")
               : String(entry.generation || "") === String(generationFilter))) &&
           entryMatchesFicheFilter(entry, ficheFilter) &&
-          [entry.name, entry.dexId, entry.form, entry.kind, entry.file, entry.primaryType]
-            .filter(Boolean)
-            .join(" ")
-            .toLowerCase()
-            .includes(search.toLowerCase()),
+          pokemonPresentationSearchText(entry).includes(search.toLowerCase()),
         ),
       ),
-    [entries, search, generationFilter, ficheFilter],
+    [presentationEntries, search, generationFilter, ficheFilter],
   );
   const ficheFilterCounts = useMemo(
     () =>
       Object.fromEntries(
         ficheFilterOptions.map(([id]) => [
           id,
-          entries.filter((entry) => entryMatchesFicheFilter(entry, id)).length,
+          pokemonPresentationEntries(entries, id)
+            .filter((entry) => entryMatchesFicheFilter(entry, id)).length,
         ]),
       ),
     [entries],
@@ -1731,7 +1736,8 @@ export function AdminApp() {
     setSelectedEntry(entry);
     setExtraPanel(null);
     setDetail(null);
-    const response = await fetch(`${adminApiPath}?action=detail&key=${encodeURIComponent(entry.key)}`);
+    const detailKey = entry.baseKey || entry.key;
+    const response = await fetch(`${adminApiPath}?action=detail&key=${encodeURIComponent(detailKey)}`);
     const payload = await response.json();
     setDetail(response.ok ? payload.data : { detail: { error: payload.error || "Erreur de chargement." } });
   }

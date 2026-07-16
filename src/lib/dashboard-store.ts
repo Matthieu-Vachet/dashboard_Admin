@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { MongoClient, ObjectId, type Collection, type Filter } from "mongodb";
 import {
   defaultPokemonEvents,
@@ -106,17 +107,50 @@ export type DashboardPokemonEventDocument = {
   archivedAt: Date | null;
 };
 
+export type DashboardDatasetRunDocument = {
+  _id?: ObjectId;
+  datasetKey: string;
+  provider: string;
+  sourceUrl: string | null;
+  status: "running" | "success" | "partial" | "failed" | "unchanged";
+  startedAt: Date;
+  completedAt: Date | null;
+  durationMs: number;
+  retrievedAt: Date | null;
+  savedAt: Date | null;
+  hashBefore: string | null;
+  hashAfter: string | null;
+  changed: boolean;
+  totalBefore: number;
+  totalAfter: number;
+  added: number;
+  removed: number;
+  modified: number;
+  matchedCount: number;
+  unmatchedCount: number;
+  warningsCount: number;
+  errorsCount: number;
+  unmatchedEntries: Array<Record<string, unknown>>;
+  warnings: unknown[];
+  errors: unknown[];
+  diffUnavailableReason: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 const dashboardDbName = process.env.DASHBOARD_MONGODB_DB || "matweb-dashboard-admin";
 const collectionName = "dashboard_store";
 const apiMetricsCollectionName = "dashboard_api_metrics";
 const backlogCollectionName = "dashboard_backlog";
 const eventsCollectionName = "events";
+const datasetRunsCollectionName = "dataset_runs";
 
 let clientPromise: Promise<MongoClient> | null = null;
 let indexReady = false;
 let metricsIndexReady = false;
 let backlogIndexReady = false;
 let eventsIndexReady = false;
+let datasetRunsIndexReady = false;
 
 function mongoUri() {
   return process.env.DASHBOARD_MONGODB_URI || process.env.MONGODB_URI || "";
@@ -217,6 +251,109 @@ async function getPokemonEventsCollection(): Promise<Collection<DashboardPokemon
   }
 
   return collection;
+}
+
+async function getDatasetRunsCollection(): Promise<Collection<DashboardDatasetRunDocument>> {
+  const client = await getClient();
+  const collection = client.db(dashboardDbName).collection<DashboardDatasetRunDocument>(datasetRunsCollectionName);
+  if (!datasetRunsIndexReady) {
+    await Promise.all([
+      collection.createIndex({ datasetKey: 1, startedAt: -1 }),
+      collection.createIndex({ status: 1, startedAt: -1 }),
+    ]);
+    datasetRunsIndexReady = true;
+  }
+  return collection;
+}
+
+function datasetHash(value: unknown) {
+  return createHash("sha256").update(JSON.stringify(value)).digest("hex");
+}
+
+function serializeDatasetRun(run: DashboardDatasetRunDocument | null) {
+  if (!run) return null;
+  return {
+    ...run,
+    id: run._id?.toString() || "",
+    _id: undefined,
+    startedAt: run.startedAt?.toISOString?.() || run.startedAt,
+    completedAt: run.completedAt?.toISOString?.() || run.completedAt,
+    retrievedAt: run.retrievedAt?.toISOString?.() || run.retrievedAt,
+    savedAt: run.savedAt?.toISOString?.() || run.savedAt,
+    createdAt: run.createdAt?.toISOString?.() || run.createdAt,
+    updatedAt: run.updatedAt?.toISOString?.() || run.updatedAt,
+  };
+}
+
+export async function startDatasetRun(input: Pick<DashboardDatasetRunDocument, "datasetKey" | "provider" | "sourceUrl"> & Partial<DashboardDatasetRunDocument>) {
+  const collection = await getDatasetRunsCollection();
+  const now = new Date();
+  const document: DashboardDatasetRunDocument = {
+    datasetKey: input.datasetKey,
+    provider: input.provider,
+    sourceUrl: input.sourceUrl || null,
+    status: "running",
+    startedAt: input.startedAt || now,
+    completedAt: null,
+    durationMs: 0,
+    retrievedAt: null,
+    savedAt: null,
+    hashBefore: input.hashBefore || null,
+    hashAfter: null,
+    changed: false,
+    totalBefore: Number(input.totalBefore || 0),
+    totalAfter: 0,
+    added: 0,
+    removed: 0,
+    modified: 0,
+    matchedCount: 0,
+    unmatchedCount: 0,
+    warningsCount: 0,
+    errorsCount: 0,
+    unmatchedEntries: [],
+    warnings: [],
+    errors: [],
+    diffUnavailableReason: input.diffUnavailableReason || null,
+    createdAt: now,
+    updatedAt: now,
+  };
+  const result = await collection.insertOne(document);
+  return { ...document, _id: result.insertedId };
+}
+
+export async function completeDatasetRun(id: ObjectId, update: Partial<DashboardDatasetRunDocument>) {
+  const collection = await getDatasetRunsCollection();
+  const completedAt = update.completedAt || new Date();
+  await collection.updateOne({ _id: id }, { $set: { ...update, completedAt, updatedAt: completedAt } });
+  return serializeDatasetRun(await collection.findOne({ _id: id }));
+}
+
+export async function failDatasetRun(id: ObjectId, error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  return completeDatasetRun(id, { status: "failed", errorsCount: 1, errors: [{ message }] });
+}
+
+export async function listDatasetRuns(datasetKey: string, options: { page?: number; limit?: number; status?: string } = {}) {
+  const collection = await getDatasetRunsCollection();
+  const page = Math.max(1, Number(options.page || 1));
+  const limit = Math.min(100, Math.max(1, Number(options.limit || 20)));
+  const filter: Filter<DashboardDatasetRunDocument> = { datasetKey };
+  if (options.status) filter.status = options.status as DashboardDatasetRunDocument["status"];
+  const [runs, total] = await Promise.all([
+    collection.find(filter).sort({ startedAt: -1 }).skip((page - 1) * limit).limit(limit).toArray(),
+    collection.countDocuments(filter),
+  ]);
+  return { runs: runs.map(serializeDatasetRun), page, limit, total, pages: Math.ceil(total / limit) };
+}
+
+async function latestDatasetRun(datasetKey: string) {
+  if (!dashboardStoreConfigured()) return null;
+  const collection = await getDatasetRunsCollection();
+  return serializeDatasetRun(await collection.findOne({ datasetKey, status: { $ne: "running" } }, { sort: { startedAt: -1 } }));
+}
+
+export function hashDataset(value: unknown) {
+  return datasetHash(value);
 }
 
 function metricDay(date = new Date()) {
@@ -744,6 +881,7 @@ export async function listPokemonEvents(options: { includeArchived?: boolean } =
       collection: eventsCollectionName,
       seeded: true,
       events: includeArchived ? seeded : seeded.filter((event) => event.status !== "archived"),
+      sourceRun: null,
     };
   }
 
@@ -758,11 +896,13 @@ export async function listPokemonEvents(options: { includeArchived?: boolean } =
     .toArray();
   const events = documents.map(serializePokemonEventRecord);
 
+  const sourceRun = await latestDatasetRun("events-calendar");
   return {
     configured: true,
     collection: eventsCollectionName,
     seeded: events.length === 0,
     events: events.length ? events : includeArchived ? seeded : seeded.filter((event) => event.status !== "archived"),
+    sourceRun,
   };
 }
 
