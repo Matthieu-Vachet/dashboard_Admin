@@ -26,6 +26,18 @@ const nextConfig: NextConfig = {
       "./.data/PokemonGo-Data/pokemon-forms/**",
       "./.data/PokemonGo-Data/pokemon-assets/**",
     ],
+    "/api/admin/events/scrape": [
+      "./.data/PokemonGo-Data/pokemon/**",
+      "./.data/PokemonGo-Data/pokemon-forms/**",
+      "./.data/PokemonGo-Data/pokemon-assets/**",
+      "./.data/PokemonGo-Data/moves/**",
+      "./.data/PokemonGo-Data/raids/**",
+      "./.data/PokemonGo-Data/eggs/**",
+      "./.data/PokemonGo-Data/max-battles/**",
+      "./.data/PokemonGo-Data/rocket/**",
+      "./.data/PokemonGo-Data/research/**",
+      "./.data/PokemonGo-Data/items/**",
+    ],
   },
   images: {
     remotePatterns: [
