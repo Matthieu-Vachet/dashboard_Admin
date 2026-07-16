@@ -29,7 +29,7 @@ export async function callDynamaxApi(path: string, method: "GET" | "POST" | "DEL
     method,
     cache: "no-store",
     redirect: "error",
-    signal: AbortSignal.timeout(method === "POST" ? 58_000 : 25_000),
+    signal: AbortSignal.timeout(method === "POST" ? 59_000 : 25_000),
     headers: { "x-api-admin-secret": adminSecret(), accept: path.endsWith(".zip") ? "application/zip" : "application/json" },
   });
   return response;
