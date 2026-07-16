@@ -1000,8 +1000,23 @@ export async function importPokemonEvents(owner: string, input: Record<string, u
 
   const collection = await getPokemonEventsCollection();
   const now = new Date();
-  const normalizedEvents = events.map((event) => normalizePokemonEventInput(owner, event as Record<string, unknown>));
-  const operations = normalizedEvents.map((normalized) => ({
+  const provisionalEvents = events.map((event) => normalizePokemonEventInput(owner, event as Record<string, unknown>));
+  const existingDocuments = await collection.find({ id: { $in: provisionalEvents.map((event) => event.id) } }).toArray();
+  const existingById = new Map(existingDocuments.map((event) => [event.id, event]));
+  const normalizedEvents = events.map((event, index) => normalizePokemonEventInput(
+    owner,
+    event as Record<string, unknown>,
+    existingById.get(provisionalEvents[index].id),
+  ));
+  const changedEvents = normalizedEvents.filter((normalized) => {
+    const existing = existingById.get(normalized.id);
+    if (!existing) return true;
+    const previousContent = Object.fromEntries(
+      Object.keys(normalized).map((key) => [key, existing[key as keyof DashboardPokemonEventDocument]]),
+    );
+    return datasetHash(previousContent) !== datasetHash(normalized);
+  });
+  const operations = changedEvents.map((normalized) => ({
     updateOne: {
       filter: { id: normalized.id },
       update: {
@@ -1017,7 +1032,9 @@ export async function importPokemonEvents(owner: string, input: Record<string, u
     },
   }));
 
-  const result = await collection.bulkWrite(operations, { ordered: false });
+  const result = operations.length
+    ? await collection.bulkWrite(operations, { ordered: false })
+    : { upsertedCount: 0 };
   const replaceSource = !Array.isArray(input) ? textValue(input.replaceSource) : "";
   const deleted = replaceSource
     ? await collection.deleteMany({
@@ -1028,8 +1045,8 @@ export async function importPokemonEvents(owner: string, input: Record<string, u
   const list = await listPokemonEvents({ includeArchived: true });
 
   return {
-    matched: result.matchedCount,
-    modified: result.modifiedCount,
+    matched: existingDocuments.length,
+    modified: changedEvents.filter((event) => existingById.has(event.id)).length,
     inserted: result.upsertedCount,
     deleted: deleted.deletedCount || 0,
     total: events.length,
