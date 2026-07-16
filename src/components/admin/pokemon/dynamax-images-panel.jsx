@@ -10,6 +10,10 @@ function Stat({ label, value }) {
   return <div className="rounded-2xl border border-white/10 bg-slate-950/35 p-4"><span className="text-xs font-black uppercase tracking-[.14em] text-slate-400">{label}</span><strong className="mt-2 block text-3xl font-black text-white">{Number(value) || 0}</strong></div>;
 }
 
+function wait(delayMs) {
+  return new Promise((resolve) => setTimeout(resolve, delayMs));
+}
+
 export function DynamaxImagesPanel() {
   const [state, setState] = useState(null);
   const [busy, setBusy] = useState("");
@@ -34,9 +38,25 @@ export function DynamaxImagesPanel() {
   async function scan() {
     setBusy("scan");
     try {
+      const previousScanAt = state?.lastScanAt || null;
       const response = await fetch("/api/admin/dynamax-images/scan", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
       const payload = await response.json();
       if (!response.ok || payload.success === false) throw new Error(payload.error || "Scan Dynamax impossible.");
+      if (response.status === 202) {
+        toast.info("Scan Dynamax lancé côté serveur…");
+        for (let attempt = 0; attempt < 30; attempt += 1) {
+          await wait(2_500);
+          const statusResponse = await fetch("/api/admin/dynamax-images", { cache: "no-store" });
+          const statusPayload = await statusResponse.json();
+          const nextState = statusPayload.data || null;
+          if (statusResponse.ok && statusPayload.success !== false && nextState?.lastScanAt && nextState.lastScanAt !== previousScanAt) {
+            setState(nextState);
+            toast.success(`${nextState.counts?.downloaded || 0} image(s) Dynamax téléchargée(s).`);
+            return;
+          }
+        }
+        throw new Error("Le scan continue côté serveur. Utilisez Actualiser dans quelques instants.");
+      }
       setState(payload.data);
       toast.success(`${payload.data?.counts?.downloaded || 0} image(s) Dynamax téléchargée(s).`);
     } catch (error) {
