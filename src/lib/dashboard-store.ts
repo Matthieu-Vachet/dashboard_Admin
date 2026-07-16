@@ -275,6 +275,24 @@ function datasetHash(value: unknown) {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
 }
 
+function stableEventContent(value: unknown): unknown {
+  if (value instanceof Date) return value.toISOString();
+  if (Array.isArray(value)) return value.map(stableEventContent);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .filter(([, item]) => item !== undefined && item !== null)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([key, item]) => [key, stableEventContent(item)]),
+    );
+  }
+  return value;
+}
+
+function eventContentHash(value: unknown) {
+  return datasetHash(stableEventContent(value));
+}
+
 function serializeDatasetRun(run: DashboardDatasetRunDocument | null) {
   if (!run) return null;
   return {
@@ -1014,7 +1032,7 @@ export async function importPokemonEvents(owner: string, input: Record<string, u
     const previousContent = Object.fromEntries(
       Object.keys(normalized).map((key) => [key, existing[key as keyof DashboardPokemonEventDocument]]),
     );
-    return datasetHash(previousContent) !== datasetHash(normalized);
+    return eventContentHash(previousContent) !== eventContentHash(normalized);
   });
   const operations = changedEvents.map((normalized) => ({
     updateOne: {
