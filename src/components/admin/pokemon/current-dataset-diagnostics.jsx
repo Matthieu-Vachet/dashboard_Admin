@@ -1,8 +1,21 @@
 "use client";
 
-import { AlertTriangle, CheckCircle2, Copy, Database, ExternalLink, GitCompare, History, Search, X } from "lucide-react";
+/* eslint-disable react-hooks/set-state-in-effect */
+
+import {
+  AlertTriangle,
+  CheckCircle2,
+  ChevronDown,
+  Copy,
+  Database,
+  ExternalLink,
+  GitCompare,
+  History,
+  Search,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { ModalPortal } from "@/components/admin/shared/modal-portal";
+import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 
 function firstDefined(...values) {
   return values.find((value) => value !== undefined && value !== null && value !== "");
@@ -48,7 +61,55 @@ function Metric({ label, value, mono = false }) {
   );
 }
 
+function DiagnosticCard({ entry, provider, onCopy }) {
+  const rawAlias = firstDefined(entry.rawAlias, entry.sourceAlias, entry.sourceId, entry.sourceName, "—");
+  const normalizedAlias = firstDefined(entry.normalizedAlias, entry.normalizedSourceId, "—");
+  const pokemon = firstDefined(entry.pokemon, entry.sourceName, entry.pokemonName, "Non détecté");
+  const form = firstDefined(entry.form, entry.sourceForm, "—");
+  const costume = firstDefined(entry.costume, entry.sourceCostume, "—");
+  const candidates = Array.isArray(entry.candidates) ? entry.candidates : [];
+
+  return (
+    <article className="rounded-xl border border-amber-200/15 bg-amber-300/[.055] p-3">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <strong className="block break-words text-sm text-white">{entry.sourceName || entry.sourceId || "Entrée source inconnue"}</strong>
+          <p className="mt-1 break-words font-mono text-[10px] text-amber-100">{entry.reason || "alias-inconnu"}</p>
+        </div>
+        <Button size="icon" variant="ghost" type="button" onClick={() => onCopy(entry)} aria-label="Copier le diagnostic">
+          <Copy size={13} />
+        </Button>
+      </div>
+      <dl className="mt-3 grid gap-2 text-xs sm:grid-cols-2 xl:grid-cols-3">
+        <Metric label="Provider" value={entry.provider || provider} mono />
+        <Metric label="Alias brut" value={rawAlias} mono />
+        <Metric label="Alias normalisé" value={normalizedAlias} mono />
+        <Metric label="Pokémon détecté" value={pokemon} />
+        <Metric label="Pokédex" value={entry.pokemonId || entry.dexNr || "—"} mono />
+        <Metric label="Forme" value={form} mono />
+        <Metric label="Costume" value={costume} mono />
+        <Metric label="Confiance" value={entry.confidence ?? 0} mono />
+        <Metric label="Occurrences" value={entry.occurrences ?? 1} mono />
+        <Metric label="Première détection" value={formatDate(entry.firstDetectedAt)} />
+        <Metric label="Dernière détection" value={formatDate(entry.lastDetectedAt)} />
+        <Metric label="Action proposée" value={entry.proposedAction || "Associer dans Identity Manager"} />
+        {entry.localFile ? <Metric label="Fichier local possible" value={entry.localFile} mono /> : null}
+      </dl>
+      {candidates.length ? (
+        <details className="mt-3 rounded-lg border border-white/10 bg-slate-950/30 text-xs">
+          <summary className="cursor-pointer px-3 py-2 font-black text-cyan-100">Voir les {candidates.length} candidat(s)</summary>
+          <pre className="max-h-52 overflow-auto border-t border-white/10 p-3 text-[10px] text-slate-300">{JSON.stringify(candidates, null, 2)}</pre>
+        </details>
+      ) : null}
+      <Button asChild className="mt-3" size="sm" variant="secondary">
+        <a href="/pokemon-admin?section=identity-manager">Ouvrir l’Identity Manager</a>
+      </Button>
+    </article>
+  );
+}
+
 export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", historyUrl = "" }) {
+  const [expanded, setExpanded] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyRuns, setHistoryRuns] = useState([]);
@@ -94,6 +155,10 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
   const errorMessage = error && String(error).startsWith("Affichage de la dernière version MongoDB connue")
     ? String(error)
     : `Affichage de la dernière version MongoDB connue — la nouvelle récupération a échoué. ${error}`;
+  const storageKey = useMemo(
+    () => `matweb.pokemon.dataset-source.${String(meta.domain || provider).toLowerCase().replace(/[^a-z0-9_-]+/g, "-")}`,
+    [meta.domain, provider],
+  );
   const metrics = [
     ["Provider", provider, false],
     ["Mode", mode, false],
@@ -112,23 +177,35 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
   }, [diagnosticQuery, selectedRun, unmatchedEntries]);
 
   useEffect(() => {
-    if (!historyOpen) return undefined;
-    const previousOverflow = document.body.style.overflow;
-    const closeOnEscape = (event) => {
-      if (event.key === "Escape") setHistoryOpen(false);
-    };
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", closeOnEscape);
-    };
-  }, [historyOpen]);
+    setExpanded(window.sessionStorage.getItem(storageKey) === "open");
+  }, [storageKey]);
+
+  function toggleExpanded() {
+    setExpanded((currentExpanded) => {
+      const nextExpanded = !currentExpanded;
+      window.sessionStorage.setItem(storageKey, nextExpanded ? "open" : "closed");
+      return nextExpanded;
+    });
+  }
 
   async function openHistory(preferCurrent = false) {
     setHistoryOpen(true);
     setDiagnosticQuery("");
-    if (preferCurrent) setSelectedRun({ status, unmatchedEntries, warnings, errors: [], added: diff.added, removed: diff.removed, modified: diff.modified, changed: diff.changed, matchedCount: diagnostics.matchedCount, unmatchedCount: diagnostics.unmatchedCount, diffUnavailableReason: diagnostics.diffUnavailableReason });
+    if (preferCurrent) {
+      setSelectedRun({
+        status,
+        unmatchedEntries,
+        warnings,
+        errors: [],
+        added: diff.added,
+        removed: diff.removed,
+        modified: diff.modified,
+        changed: diff.changed,
+        matchedCount: diagnostics.matchedCount,
+        unmatchedCount: diagnostics.unmatchedCount,
+        diffUnavailableReason: diagnostics.diffUnavailableReason,
+      });
+    }
     if (!resolvedHistoryUrl) return;
     setHistoryLoading(true);
     try {
@@ -151,89 +228,112 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
   }
 
   return (
-    <section className="mt-4 min-w-0 space-y-3 rounded-2xl border border-cyan-300/15 bg-cyan-400/[0.075] p-3 sm:p-4" aria-label="État de la source de données">
+    <section className="mt-4 min-w-0 rounded-2xl border border-cyan-300/15 bg-cyan-400/[0.075] p-3 sm:p-4" aria-label="État de la source de données">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-sm font-black text-cyan-50">
+          <Database size={18} aria-hidden="true" />
+          <span>Source active : {sourceLabel}</span>
+          <span className="rounded-full border border-white/10 bg-white/[0.07] px-2 py-1 text-[10px] uppercase tracking-[0.12em] text-cyan-100/70">{status}</span>
+          <span className={`rounded-full border px-2 py-1 text-[10px] uppercase tracking-[0.12em] ${visibility === "private" ? "border-violet-200/25 bg-violet-300/14 text-violet-50" : "border-emerald-200/25 bg-emerald-300/14 text-emerald-50"}`}>
+            {visibility === "private" ? "Privé · Admin" : "Public · API"}
+          </span>
+          {warningCount ? <span className="rounded-full border border-amber-200/25 bg-amber-300/12 px-2 py-1 text-[10px] text-amber-100">{warningCount} avertissement(s)</span> : null}
+          {unmatchedEntries.length ? (
+            <button className="rounded-full border border-amber-200/25 bg-amber-300/12 px-2 py-1 text-[10px] text-amber-100 underline-offset-2 hover:underline" type="button" onClick={() => openHistory(true)}>
+              {unmatchedEntries.length} non matchée(s)
+            </button>
+          ) : null}
+        </div>
+        <div className="flex items-center gap-2">
+          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] ${changed ? "border-amber-200/25 bg-amber-300/14 text-amber-50" : "border-emerald-200/25 bg-emerald-300/14 text-emerald-50"}`}>
+            {changed ? <GitCompare size={13} aria-hidden="true" /> : <CheckCircle2 size={13} aria-hidden="true" />}
+            {hasDiff ? (changed ? "Contenu modifié" : "Contenu inchangé") : "Diff indisponible"}
+          </span>
+          <Button size="icon" variant="ghost" type="button" onClick={toggleExpanded} aria-expanded={expanded} aria-label={expanded ? "Replier les détails de la source" : "Déplier les détails de la source"}>
+            <ChevronDown className={`transition-transform duration-200 motion-reduce:transition-none ${expanded ? "rotate-180" : ""}`} size={18} />
+          </Button>
+        </div>
+      </div>
+
       {error ? (
-        <div className="flex items-start gap-2 rounded-xl border border-red-200/25 bg-red-400/12 p-3 text-sm font-bold leading-5 text-red-50" role="alert">
+        <div className="mt-3 flex items-start gap-2 rounded-xl border border-red-200/25 bg-red-400/12 p-3 text-sm font-bold leading-5 text-red-50" role="alert">
           <AlertTriangle className="mt-0.5 shrink-0" size={17} aria-hidden="true" />
           <span>{errorMessage}</span>
         </div>
       ) : null}
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex min-w-0 flex-wrap items-center gap-2 text-sm font-black text-cyan-50">
-          <Database size={18} aria-hidden="true" />
-          <span>Source active : {sourceLabel}</span>
-          <span className="rounded-full border border-white/10 bg-white/[0.07] px-2 py-1 text-[10px] uppercase tracking-[0.12em] text-cyan-100/70">
-            {status}
-          </span>
-          <span className={`rounded-full border px-2 py-1 text-[10px] uppercase tracking-[0.12em] ${visibility === "private" ? "border-violet-200/25 bg-violet-300/14 text-violet-50" : "border-emerald-200/25 bg-emerald-300/14 text-emerald-50"}`}>
-            {visibility === "private" ? "Privé · Admin" : "Public · API"}
-          </span>
-        </div>
-        <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] ${changed ? "border-amber-200/25 bg-amber-300/14 text-amber-50" : "border-emerald-200/25 bg-emerald-300/14 text-emerald-50"}`}>
-          {changed ? <GitCompare size={13} aria-hidden="true" /> : <CheckCircle2 size={13} aria-hidden="true" />}
-          {hasDiff ? (changed ? "Contenu modifié" : "Contenu inchangé") : "Diff indisponible"}
-        </span>
-      </div>
+      {expanded ? (
+        <div className="mt-3 space-y-3">
+          <dl className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+            {metrics.map(([label, value, mono]) => <Metric key={label} label={label} value={value} mono={mono} />)}
+          </dl>
 
-      <dl className="hidden gap-2 sm:grid sm:grid-cols-2 xl:grid-cols-4">
-        {metrics.map(([label, value, mono]) => <Metric key={label} label={label} value={value} mono={mono} />)}
-      </dl>
-      <details className="rounded-xl border border-white/10 bg-slate-950/25 text-xs sm:hidden">
-        <summary className="cursor-pointer px-3 py-2.5 font-black text-cyan-50">Afficher les détails de la source</summary>
-        <dl className="grid gap-2 border-t border-white/10 p-2">
-          {metrics.map(([label, value, mono]) => <Metric key={label} label={label} value={value} mono={mono} />)}
-        </dl>
-      </details>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold text-slate-300">
+            {sourceUrl ? (
+              <a className="inline-flex min-w-0 items-center gap-1 text-cyan-100 underline decoration-cyan-200/30 underline-offset-4 hover:text-white" href={sourceUrl} target="_blank" rel="noreferrer">
+                <span className="max-w-full break-all sm:max-w-[36rem] sm:truncate">{sourceUrl}</span>
+                <ExternalLink className="shrink-0" size={13} aria-hidden="true" />
+              </a>
+            ) : <span>URL source indisponible</span>}
+            <span>Ajoutés : {Number(diff.added) || 0}</span>
+            <span title="Absent du flux courant, jamais supprimé de l’archive permanente">Absents du flux : {Number(diff.removed) || 0}</span>
+            <span>Modifiés : {Number(diff.modified) || 0}</span>
+            <span>Avertissements : {warningCount}</span>
+            {timezone ? <span>Fuseau : {timezone}</span> : null}
+            {dynamicShellDetected ? <span className="text-violet-100">Page dynamique résolue</span> : null}
+            {resolvedHistoryUrl ? <Button size="sm" variant="ghost" type="button" onClick={() => openHistory(false)} icon={<History size={13} />}>Historique</Button> : null}
+          </div>
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold text-slate-300">
-        {sourceUrl ? (
-          <a className="inline-flex min-w-0 items-center gap-1 text-cyan-100 underline decoration-cyan-200/30 underline-offset-4 hover:text-white" href={sourceUrl} target="_blank" rel="noreferrer">
-            <span className="max-w-full break-all sm:max-w-[36rem] sm:truncate">{sourceUrl}</span>
-            <ExternalLink className="shrink-0" size={13} aria-hidden="true" />
-          </a>
-        ) : <span>URL source indisponible</span>}
-        <span>Ajoutés : {Number(diff.added) || 0}</span>
-        <span title="Absent du flux courant, jamais supprimé de l’archive permanente">Absents du flux : {Number(diff.removed) || 0}</span>
-        <span>Modifiés : {Number(diff.modified) || 0}</span>
-        <span>Avertissements : {warningCount}</span>
-        {timezone ? <span>Fuseau : {timezone}</span> : null}
-        {dynamicShellDetected ? <span className="text-violet-100">Page dynamique résolue</span> : null}
-        {resolvedHistoryUrl ? <button className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-cyan-100 hover:bg-white/[.06]" type="button" onClick={() => openHistory(false)}><History size={13} /> Historique</button> : null}
-        {unmatchedEntries.length ? <button className="inline-flex items-center gap-1 rounded-lg border border-amber-200/20 px-2 py-1 text-amber-100 hover:bg-amber-300/10" type="button" onClick={() => openHistory(true)}>Voir les {unmatchedEntries.length} entrées non matchées</button> : null}
-      </div>
+          {!hasDiff && diagnostics.diffUnavailableReason ? <p className="rounded-xl border border-white/10 bg-slate-950/25 px-3 py-2 text-xs font-bold text-slate-400">Diff indisponible : {diagnostics.diffUnavailableReason}</p> : null}
 
-      {!hasDiff && diagnostics.diffUnavailableReason ? <p className="rounded-xl border border-white/10 bg-slate-950/25 px-3 py-2 text-xs font-bold text-slate-400">Diff indisponible : {diagnostics.diffUnavailableReason}</p> : null}
-
-      {selection ? (
-        <div className="grid gap-2 rounded-xl border border-violet-200/18 bg-violet-400/9 p-3 sm:grid-cols-2">
-          {selection.regular ? (
-            <div className="min-w-0">
-              <span className="text-[9px] font-black uppercase tracking-[0.16em] text-violet-100/55">Rotation raids normale</span>
-              <strong className="mt-1 block truncate text-xs text-violet-50">{formatEvent(selection.regular)}</strong>
+          {selection ? (
+            <div className="grid gap-2 rounded-xl border border-violet-200/18 bg-violet-400/9 p-3 sm:grid-cols-2">
+              {selection.regular ? <div className="min-w-0"><span className="text-[9px] font-black uppercase tracking-[0.16em] text-violet-100/55">Rotation raids normale</span><strong className="mt-1 block truncate text-xs text-violet-50">{formatEvent(selection.regular)}</strong></div> : null}
+              {selection.shadow ? <div className="min-w-0"><span className="text-[9px] font-black uppercase tracking-[0.16em] text-red-100/55">Rotation raids obscurs</span><strong className="mt-1 block truncate text-xs text-red-50">{formatEvent(selection.shadow)}</strong></div> : null}
             </div>
           ) : null}
-          {selection.shadow ? (
-            <div className="min-w-0">
-              <span className="text-[9px] font-black uppercase tracking-[0.16em] text-red-100/55">Rotation raids obscurs</span>
-              <strong className="mt-1 block truncate text-xs text-red-50">{formatEvent(selection.shadow)}</strong>
-            </div>
+
+          {warnings.length ? (
+            <details className="group rounded-xl border border-amber-200/20 bg-amber-300/10 text-xs font-bold leading-5 text-amber-50">
+              <summary className="cursor-pointer list-none px-3 py-2.5">Afficher les {warnings.length} diagnostic(s)</summary>
+              <ul className="space-y-1 border-t border-amber-100/10 p-3">
+                {warnings.map((warning, index) => <li key={`${formatWarning(warning)}-${index}`}>• {formatWarning(warning)}</li>)}
+              </ul>
+            </details>
           ) : null}
         </div>
       ) : null}
 
-      {warnings.length ? (
-        <details className="group rounded-xl border border-amber-200/20 bg-amber-300/10 text-xs font-bold leading-5 text-amber-50">
-          <summary className="cursor-pointer list-none px-3 py-2.5">Afficher les {warnings.length} diagnostic(s)</summary>
-          <ul className="space-y-1 border-t border-amber-100/10 p-3">
-            {warnings.map((warning) => (
-              <li key={formatWarning(warning)}>• {formatWarning(warning)}</li>
+      <Modal open={historyOpen} onClose={() => setHistoryOpen(false)} title="Historique des exécutions" description={provider} className="max-w-6xl">
+        <div className="grid min-h-[56dvh] gap-4 lg:grid-cols-[18rem_minmax(0,1fr)]">
+          <aside className="max-h-[65dvh] overflow-y-auto border-b border-line pb-3 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-3">
+            {historyLoading ? <p className="text-sm text-slate-400">Chargement…</p> : historyRuns.map((run, index) => (
+              <button className={`mb-2 w-full rounded-xl border p-3 text-left ${selectedRun === run ? "border-cyan-200/35 bg-cyan-300/10" : "border-white/10 bg-white/[.025]"}`} type="button" onClick={() => setSelectedRun(run)} key={run.id || `${run.startedAt}-${index}`}>
+                <strong className="block text-xs text-white">{run.status || "inconnu"}</strong>
+                <span className="mt-1 block text-[10px] text-slate-500">{formatDate(run.startedAt || run.savedAt)}</span>
+                <span className="mt-1 block font-mono text-[10px] text-slate-400">{run.totalAfter ?? 0} · {run.unmatchedCount ?? 0} non matché(s)</span>
+              </button>
             ))}
-          </ul>
-        </details>
-      ) : null}
-
-      {historyOpen ? <ModalPortal><div className="fixed inset-0 z-[110] bg-slate-950/88 p-3 backdrop-blur-lg" role="dialog" aria-modal="true" aria-label="Historique et diagnostics de scraping"><div className="mx-auto flex h-full max-w-6xl flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#07101f]"><header className="flex items-center gap-3 border-b border-white/10 p-4"><History className="text-cyan-200" size={20} /><div className="min-w-0 flex-1"><h3 className="font-black text-white">Historique des exécutions</h3><p className="text-xs font-bold text-slate-500">{provider}</p></div><button className="grid h-10 w-10 place-items-center rounded-full border border-white/10 text-white" type="button" onClick={() => setHistoryOpen(false)} aria-label="Fermer"><X size={18} /></button></header><div className="grid min-h-0 flex-1 lg:grid-cols-[19rem_minmax(0,1fr)]"><aside className="min-h-0 overflow-y-auto border-b border-white/10 p-3 lg:border-b-0 lg:border-r">{historyLoading ? <p className="text-sm text-slate-400">Chargement…</p> : historyRuns.map((run, index) => <button className={`mb-2 w-full rounded-xl border p-3 text-left ${selectedRun === run ? "border-cyan-200/35 bg-cyan-300/10" : "border-white/10 bg-white/[.025]"}`} type="button" onClick={() => setSelectedRun(run)} key={run.id || `${run.startedAt}-${index}`}><strong className="block text-xs text-white">{run.status || "inconnu"}</strong><span className="mt-1 block text-[10px] text-slate-500">{formatDate(run.startedAt || run.savedAt)}</span><span className="mt-1 block font-mono text-[10px] text-slate-400">{run.totalAfter ?? 0} · {run.unmatchedCount ?? 0} non matché(s)</span></button>)}</aside><main className="min-h-0 overflow-y-auto p-3 sm:p-5"><div className="grid gap-2 sm:grid-cols-4"><Metric label="Statut" value={selectedRun?.status || status} /><Metric label="Total" value={selectedRun?.totalAfter ?? count} mono /><Metric label="Matchés" value={selectedRun?.matchedCount ?? diagnostics.matchedCount ?? 0} mono /><Metric label="Non matchés" value={selectedRun?.unmatchedCount ?? diagnostics.unmatchedCount ?? 0} mono /></div><div className="relative mt-4"><Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} /><input className="min-h-11 w-full rounded-xl border border-white/10 bg-slate-950/45 pl-10 pr-3 text-sm text-white outline-none focus:border-cyan-200/40" value={diagnosticQuery} onChange={(event) => setDiagnosticQuery(event.target.value)} placeholder="Identifiant, forme, costume, raison…" /></div><div className="mt-3 space-y-2">{visibleUnmatched.map((entry, index) => <article className="rounded-xl border border-amber-200/15 bg-amber-300/[.055] p-3" key={`${entry.sourceId}-${entry.sourceName}-${index}`}><div className="flex items-start justify-between gap-2"><div><strong className="text-sm text-white">{entry.sourceName || entry.sourceId || "Entrée source inconnue"}</strong><p className="mt-1 font-mono text-[10px] text-amber-100">{entry.reason || "unknown"}</p></div><button className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 text-slate-300" type="button" onClick={() => copyDiagnostic(entry)} aria-label="Copier le diagnostic"><Copy size={13} /></button></div><dl className="mt-2 grid gap-2 text-xs sm:grid-cols-2"><Metric label="ID source" value={entry.sourceId || "—"} mono /><Metric label="Forme / costume" value={entry.sourceForm || entry.sourceCostume || "—"} mono />{entry.localFile ? <Metric label="Fichier local possible" value={entry.localFile} mono /> : null}</dl></article>)}{!visibleUnmatched.length ? <p className="rounded-xl border border-dashed border-white/12 p-6 text-center text-sm font-bold text-slate-400">Aucune entrée non matchée pour cette exécution.</p> : null}</div>{selectedRun?.errors?.length ? <pre className="mt-4 whitespace-pre-wrap rounded-xl border border-red-200/20 bg-red-300/[.07] p-3 text-xs text-red-100">{JSON.stringify(selectedRun.errors, null, 2)}</pre> : null}</main></div></div></div></ModalPortal> : null}
+          </aside>
+          <div className="min-w-0">
+            <dl className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+              <Metric label="Statut" value={selectedRun?.status || status} />
+              <Metric label="Total" value={selectedRun?.totalAfter ?? count} mono />
+              <Metric label="Matchés" value={selectedRun?.matchedCount ?? diagnostics.matchedCount ?? 0} mono />
+              <Metric label="Non matchés" value={selectedRun?.unmatchedCount ?? diagnostics.unmatchedCount ?? 0} mono />
+            </dl>
+            <label className="relative mt-4 block">
+              <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+              <input className="min-h-11 w-full rounded-xl border border-white/10 bg-slate-950/45 pl-10 pr-3 text-sm text-white outline-none focus:border-cyan-200/40" value={diagnosticQuery} onChange={(event) => setDiagnosticQuery(event.target.value)} placeholder="Identifiant, alias, forme, costume, raison…" />
+            </label>
+            <div className="mt-3 max-h-[54dvh] space-y-2 overflow-y-auto pr-1">
+              {visibleUnmatched.map((entry, index) => <DiagnosticCard entry={entry} provider={provider} onCopy={copyDiagnostic} key={`${entry.sourceId}-${entry.sourceName}-${index}`} />)}
+              {!visibleUnmatched.length ? <p className="rounded-xl border border-dashed border-white/12 p-6 text-center text-sm font-bold text-slate-400">Aucune entrée non matchée pour cette exécution.</p> : null}
+            </div>
+            {selectedRun?.errors?.length ? <pre className="mt-4 whitespace-pre-wrap rounded-xl border border-red-200/20 bg-red-300/[.07] p-3 text-xs text-red-100">{JSON.stringify(selectedRun.errors, null, 2)}</pre> : null}
+          </div>
+        </div>
+      </Modal>
     </section>
   );
 }

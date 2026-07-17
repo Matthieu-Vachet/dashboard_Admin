@@ -117,7 +117,11 @@ test("les datasets affichent l'historique centralisé et les diagnostics non mat
   const eventHistory = read("src/app/api/admin/events/history/route.ts");
   const events = read("src/components/admin/events/events-calendar-panel.jsx");
   assert.match(diagnostics, /Historique des exécutions/);
-  assert.match(diagnostics, /Voir les \{unmatchedEntries\.length\} entrées non matchées/);
+  assert.match(diagnostics, /\{unmatchedEntries\.length\} non matchée\(s\)/);
+  assert.match(diagnostics, /Alias brut/);
+  assert.match(diagnostics, /Alias normalisé/);
+  assert.match(diagnostics, /Action proposée/);
+  assert.match(diagnostics, /Ouvrir l’Identity Manager/);
   assert.match(diagnostics, /diffUnavailableReason/);
   assert.match(proxy, /dataset-history/);
   assert.match(eventRoute, /startDatasetRun/);
@@ -193,13 +197,31 @@ test("les statistiques Events restent complètes dans des tuiles compactes", () 
   }
 });
 
-test("les diagnostics source et l'API Explorer restent contenus sur mobile", () => {
+test("les diagnostics source restent repliés et l'API Explorer reste contenu sur mobile", () => {
   const diagnostics = read("src/components/admin/pokemon/current-dataset-diagnostics.jsx");
   const explorer = read("src/components/admin/pokemon/pokemon-api-explorer.tsx");
-  assert.match(diagnostics, /Afficher les détails de la source/);
-  assert.match(diagnostics, /sm:hidden/);
+  assert.match(diagnostics, /const \[expanded, setExpanded\] = useState\(false\)/);
+  assert.match(diagnostics, /sessionStorage\.getItem\(storageKey\)/);
+  assert.match(diagnostics, /sessionStorage\.setItem\(storageKey/);
+  assert.match(diagnostics, /aria-expanded=\{expanded\}/);
+  assert.match(diagnostics, /motion-reduce:transition-none/);
+  assert.match(diagnostics, /Replier les détails de la source/);
+  assert.match(diagnostics, /Déplier les détails de la source/);
+  assert.match(diagnostics, /<Modal open=\{historyOpen\}/);
+  assert.doesNotMatch(diagnostics, /ModalPortal|fixed inset-0/);
   assert.match(explorer, /min-w-0 overflow-hidden/);
   assert.match(explorer, /xl:grid-cols-\[minmax\(16rem,23rem\)_minmax\(0,1fr\)_auto\]/);
+});
+
+test("Community Days et Historique Events utilisent la modale officielle et une action Détail compacte", () => {
+  for (const file of ["community-days-panel.jsx", "events-history-panel.jsx"]) {
+    const source = read(`src/components/admin/pokemon/${file}`);
+    assert.match(source, /import \{ Modal \} from "@\/components\/ui\/modal"/);
+    assert.match(source, /<Modal open=/);
+    assert.match(source, /<Button size="sm" variant="secondary"/);
+    assert.doesNotMatch(source, /fixed inset-0/);
+    assert.doesNotMatch(source, /role="dialog" aria-modal="true"/);
+  }
 });
 
 test("le catalogue distingue visuellement les attaques rapides et chargées", () => {

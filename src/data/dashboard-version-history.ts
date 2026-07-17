@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.27.1",
+    date: "2026-07-17",
+    title: "Modales et supervision des sources",
+    changes: [
+      "Migre les détails Community Days, l’historique Events et les diagnostics de datasets vers la primitive Modal officielle au-dessus de la sidebar.",
+      "Réduit les actions Détail des cartes événements avec la taille secondaire compacte du Design System.",
+      "Replie les panneaux Source active par défaut, conserve leur état pendant la session et maintient erreurs, avertissements et non-matchés visibles.",
+      "Enrichit les diagnostics non matchés et permet d’ouvrir directement l’Identity Manager depuis chaque anomalie.",
+    ],
+  },
+  {
     version: "V1.27.0",
     date: "2026-07-17",
     title: "Identity Manager canonique",
