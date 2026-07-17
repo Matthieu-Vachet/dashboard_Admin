@@ -16,6 +16,7 @@ import {
   Database,
   FileDiff,
   FileJson,
+  Fingerprint,
   History,
   Image as ImageIcon,
   ListTodo,
@@ -65,6 +66,7 @@ import { LoginCard } from "./login-card";
 import { MaxBattlesPanel } from "./max-battles-panel";
 import { PvpRankingsPanel } from "./pvp-rankings-panel";
 import { PokemonIdentityMappingsPanel } from "./pokemon-identity-mappings-panel";
+import { IdentityManagerPanel } from "./identity-manager-panel";
 import { RaidsPanel } from "./raids-panel";
 import { ResearchPanel } from "./research-panel";
 import { RocketPanel } from "./rocket-panel";
@@ -130,6 +132,7 @@ const navItems = [
   { id: "community-days", label: "Community Days", icon: CalendarDays, group: "events" },
   { id: "events-history", label: "Historique Events", icon: Archive, group: "events" },
   { id: "shiny", label: "Shiny Tracker", icon: `${filtersAssetBase}/ic_shiny_white.png`, group: "quality" },
+  { id: "identity-manager", label: "Identity Manager", icon: Fingerprint, group: "quality" },
   { id: "pokemon-identity-mappings", label: "Résolution variantes", icon: Radar, group: "quality" },
   { id: "game-master-explorer", label: "Game Master Explorer", icon: Database, group: "quality" },
   { id: "checks", label: "Contrôles", icon: AlertTriangle, group: "quality" },
@@ -2315,6 +2318,8 @@ export function AdminApp() {
                 onRegenerate={() => regenerateRankedDataset({ action: "regenerate-pokemon-identity-mappings", setRegenerating: setIdentityMappingsRegenerating, reload: loadIdentityMappings, label: "Résolution des variantes" })}
               />
             ) : null}
+
+            {active === "identity-manager" ? <IdentityManagerPanel /> : null}
 
             {active === "game-master-explorer" ? <GameMasterExplorerPanel /> : null}
 

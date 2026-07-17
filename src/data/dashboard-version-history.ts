@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.27.0",
+    date: "2026-07-17",
+    title: "Identity Manager canonique",
+    changes: [
+      "Ajoute l’interface privée Identity Manager pour administrer les identités canoniques et les alias propres à chaque provider.",
+      "Expose création, modification, dépréciation, restauration, fusion, recherche, filtres, tri, pagination, historique et conflits via le BFF authentifié.",
+      "Ajoute l’import JSON prévisualisé, l’export, les statistiques providers et le workflow complet de résolution des aliases inconnus.",
+      "Affiche les diagnostics non matchés avec leur cause exacte, leur confiance, les candidats, les dates et les actions de traitement traçables.",
+    ],
+  },
+  {
     version: "V1.26.0",
     date: "2026-07-16",
     title: "Community Days, archive Events et images Dynamax privées",

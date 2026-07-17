@@ -369,20 +369,30 @@ function readRocketTexts() {
   };
 }
 
-async function callPokemonApiAdmin(path: string, body?: unknown) {
+async function requestPokemonApiAdmin(
+  path: string,
+  options: {
+    method?: "GET" | "POST" | "PATCH" | "DELETE";
+    body?: unknown;
+    user?: string;
+    timeoutMs?: number;
+  } = {},
+) {
   const secret = process.env.POKEMON_API_ADMIN_SECRET || process.env.API_ADMIN_SECRET;
   if (!secret) {
     throw requestError("POKEMON_API_ADMIN_SECRET doit être défini côté serveur pour gérer les données Pokémon privées.", 500);
   }
 
+  const { method = "GET", body, user, timeoutMs = method === "GET" ? 30_000 : pokemonAdminMutationTimeoutMs } = options;
   const target = new URL(path, pokemonApiBaseUrl);
   const response = await fetch(target, {
-    method: "POST",
+    method,
     cache: "no-store",
-    signal: AbortSignal.timeout(pokemonAdminMutationTimeoutMs),
+    signal: AbortSignal.timeout(timeoutMs),
     headers: {
       accept: "application/json",
       "x-api-admin-secret": secret,
+      ...(user ? { "x-admin-user": user } : {}),
       ...(body ? { "content-type": "application/json" } : {}),
     },
     body: body ? JSON.stringify(body) : undefined,
@@ -401,29 +411,26 @@ async function callPokemonApiAdmin(path: string, body?: unknown) {
   return payload;
 }
 
-async function readPokemonApiAdmin(path: string) {
-  const secret = process.env.POKEMON_API_ADMIN_SECRET || process.env.API_ADMIN_SECRET;
-  if (!secret) {
-    throw requestError("POKEMON_API_ADMIN_SECRET doit être défini côté serveur pour lire les données Pokémon privées.", 500);
-  }
-  const target = new URL(path, pokemonApiBaseUrl);
-  const response = await fetch(target, {
-    cache: "no-store",
-    signal: AbortSignal.timeout(30_000),
-    headers: { accept: "application/json", "x-api-admin-secret": secret },
-  });
-  const payload = (await response.json().catch(() => ({}))) as {
-    error?: string | { message?: string };
-  };
-  if (!response.ok) {
-    throw requestError(
-      typeof payload?.error === "string"
-        ? payload.error
-        : payload?.error?.message || `PokemonGo-API HTTP ${response.status}`,
-      response.status,
-    );
-  }
-  return payload;
+async function callPokemonApiAdmin(path: string, body?: unknown, user?: string) {
+  return requestPokemonApiAdmin(path, { method: "POST", body, user });
+}
+
+async function readPokemonApiAdmin(path: string, user?: string) {
+  return requestPokemonApiAdmin(path, { method: "GET", user });
+}
+
+function identityManagerQuery(request: NextRequest) {
+  return forwardedRankedQuery(request, [
+    "search", "provider", "status", "pokemonId", "form", "costume", "conflict",
+    "withoutGameMaster", "stale", "sort", "order", "reason", "confidence",
+    "identityId", "canonicalId", "action", "page", "limit",
+  ]);
+}
+
+function requiredBodyId(body: JsonValue, field: string) {
+  const value = String(body[field] || "").trim();
+  if (!value) throw requestError(`Le champ ${field} est requis.`, 400);
+  return encodeURIComponent(value);
 }
 
 async function proxyPokemonApiAdminDownload(path: string) {
@@ -779,6 +786,30 @@ export async function GET(request: NextRequest) {
       return json({ data: await readCurrentPokemonIdentityMappings(request) });
     }
 
+    if (action === "identity-manager") {
+      const query = identityManagerQuery(request);
+      return json({ data: await readPokemonApiAdmin(`/api/v1/admin/pokemon-identities${query ? `?${query}` : ""}`, session!.email) });
+    }
+
+    if (action === "identity-manager-conflicts") {
+      return json({ data: await readPokemonApiAdmin("/api/v1/admin/pokemon-identities/conflicts", session!.email) });
+    }
+
+    if (action === "identity-manager-history") {
+      const query = identityManagerQuery(request);
+      return json({ data: await readPokemonApiAdmin(`/api/v1/admin/pokemon-identities/history${query ? `?${query}` : ""}`, session!.email) });
+    }
+
+    if (action === "identity-manager-diagnostics") {
+      const query = identityManagerQuery(request);
+      return json({ data: await readPokemonApiAdmin(`/api/v1/admin/pokemon-identities/diagnostics${query ? `?${query}` : ""}`, session!.email) });
+    }
+
+    if (action === "identity-manager-export") {
+      const query = identityManagerQuery(request);
+      return proxyPokemonApiAdminDownload(`/api/v1/admin/pokemon-identities/export${query ? `?${query}` : ""}`);
+    }
+
     if (action === "dataset-history") {
       return json({ data: await readDatasetHistory(request) });
     }
@@ -898,6 +929,77 @@ export async function POST(request: NextRequest) {
 
     if (action === "save-image-review") {
       return json({ data: workshop.saveImageReview(body) });
+    }
+
+    if (action === "identity-manager-create") {
+      return json({ data: await requestPokemonApiAdmin("/api/v1/admin/pokemon-identities", {
+        method: "POST",
+        body: body.payload,
+        user: session!.email,
+      }) });
+    }
+
+    if (action === "identity-manager-update") {
+      const identityId = requiredBodyId(body, "identityId");
+      return json({ data: await requestPokemonApiAdmin(`/api/v1/admin/pokemon-identities/${identityId}`, {
+        method: "PATCH",
+        body: body.payload,
+        user: session!.email,
+      }) });
+    }
+
+    if (action === "identity-manager-deprecate") {
+      const identityId = requiredBodyId(body, "identityId");
+      return json({ data: await requestPokemonApiAdmin(`/api/v1/admin/pokemon-identities/${identityId}`, {
+        method: "DELETE",
+        body: { reason: body.reason },
+        user: session!.email,
+      }) });
+    }
+
+    if (action === "identity-manager-restore") {
+      const identityId = requiredBodyId(body, "identityId");
+      return json({ data: await callPokemonApiAdmin(`/api/v1/admin/pokemon-identities/${identityId}/restore`, undefined, session!.email) });
+    }
+
+    if (action === "identity-manager-merge") {
+      const identityId = requiredBodyId(body, "identityId");
+      return json({ data: await callPokemonApiAdmin(`/api/v1/admin/pokemon-identities/${identityId}/merge`, {
+        targetId: body.targetId,
+        reason: body.reason,
+      }, session!.email) });
+    }
+
+    if (action === "identity-manager-alias-create") {
+      const identityId = requiredBodyId(body, "identityId");
+      return json({ data: await callPokemonApiAdmin(`/api/v1/admin/pokemon-identities/${identityId}/aliases`, body.payload, session!.email) });
+    }
+
+    if (action === "identity-manager-alias-update") {
+      const identityId = requiredBodyId(body, "identityId");
+      const aliasId = requiredBodyId(body, "aliasId");
+      return json({ data: await requestPokemonApiAdmin(`/api/v1/admin/pokemon-identities/${identityId}/aliases/${aliasId}`, {
+        method: "PATCH",
+        body: body.payload,
+        user: session!.email,
+      }) });
+    }
+
+    if (action === "identity-manager-resolve") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/pokemon-identities/resolve", body.payload, session!.email) });
+    }
+
+    if (action === "identity-manager-import") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/pokemon-identities/import", body.payload, session!.email) });
+    }
+
+    if (action === "identity-manager-diagnostic-update") {
+      const diagnosticId = requiredBodyId(body, "diagnosticId");
+      return json({ data: await requestPokemonApiAdmin(`/api/v1/admin/pokemon-identities/diagnostics/${diagnosticId}`, {
+        method: "PATCH",
+        body: body.payload,
+        user: session!.email,
+      }) });
     }
 
     if (action === "regenerate-raids") {

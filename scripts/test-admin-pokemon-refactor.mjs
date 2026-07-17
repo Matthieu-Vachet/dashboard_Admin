@@ -239,5 +239,36 @@ test("le proxy Admin conserve une marge avant la limite Vercel", () => {
   const source = read("src/app/api/pokemon-admin/route.ts");
   assert.match(source, /export const maxDuration = 60/);
   assert.match(source, /pokemonAdminMutationTimeoutMs = 55_000/);
-  assert.match(source, /AbortSignal\.timeout\(pokemonAdminMutationTimeoutMs\)/);
+  assert.match(source, /timeoutMs = method === "GET" \? 30_000 : pokemonAdminMutationTimeoutMs/);
+  assert.match(source, /AbortSignal\.timeout\(timeoutMs\)/);
+});
+
+test("Identity Manager reste privé et expose un CRUD traçable sans secret navigateur", () => {
+  const app = read("src/components/admin/pokemon/admin-app.jsx");
+  const panel = read("src/components/admin/pokemon/identity-manager-panel.tsx");
+  const proxy = read("src/app/api/pokemon-admin/route.ts");
+  assert.match(app, /id: "identity-manager"/);
+  assert.match(app, /<IdentityManagerPanel/);
+  assert.match(proxy, /\/api\/v1\/admin\/pokemon-identities/);
+  assert.match(proxy, /"x-admin-user": user/);
+  assert.match(proxy, /identity-manager-diagnostic-update/);
+  assert.match(panel, /Nouvelle identité/);
+  assert.match(panel, /identity-manager-alias-create/);
+  assert.match(panel, /identity-manager-merge/);
+  assert.match(panel, /mode: "preview"/);
+  assert.match(panel, /Aucune écriture n’est possible avant une prévisualisation sans conflit/);
+  assert.match(panel, /<Modal/);
+  assert.doesNotMatch(panel, /window\.prompt|fixed inset-0/);
+});
+
+test("les aliases inconnus disposent d’un workflow de résolution détaillé", () => {
+  const panel = read("src/components/admin/pokemon/identity-manager-panel.tsx");
+  for (const label of ["Associer", "Créer une identité", "Ignorer", "Faux positif", "Voir les", "Exporter le diagnostic"]) {
+    assert.match(panel, new RegExp(label));
+  }
+  for (const field of ["Première détection", "Dernière détection", "Occurrences", "Action proposée", "Normalisé", "confiance"]) {
+    assert.match(panel, new RegExp(field, "i"));
+  }
+  assert.match(panel, /identity-manager-diagnostic-update/);
+  assert.match(panel, /Résolu depuis le diagnostic/);
 });
