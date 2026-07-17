@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.28.0",
+    date: "2026-07-17",
+    title: "Home Centre de commande Admin Pokémon",
+    changes: [
+      "Transforme l’accueil en centre de commande quotidien avec état global, dernière synchronisation, recherche et actions rapides.",
+      "Agrège événements actifs et à venir, aliases non résolus, variantes non matchées, conflits d’identités, assets et erreurs providers par requêtes groupées.",
+      "Ajoute la qualité globale, l’activité récente, les changements de sources et les accès directs aux événements, diagnostics, assets et historiques.",
+      "Conserve les métriques et widgets historiques dans la grille réordonnable et masquable afin de limiter la surcharge visuelle.",
+    ],
+  },
+  {
     version: "V1.27.1",
     date: "2026-07-17",
     title: "Modales et supervision des sources",

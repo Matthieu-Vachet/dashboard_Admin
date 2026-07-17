@@ -283,6 +283,27 @@ test("Identity Manager reste privé et expose un CRUD traçable sans secret navi
   assert.doesNotMatch(panel, /window\.prompt|fixed inset-0/);
 });
 
+test("la Home Admin Pokémon est un centre de commande quotidien sans perdre les widgets existants", () => {
+  const app = read("src/components/admin/pokemon/admin-app.jsx");
+  const home = read("src/components/admin/pokemon/admin-command-center.tsx");
+  assert.match(app, /<AdminCommandCenter/);
+  assert.match(app, /id: "overview-summary"/);
+  assert.match(app, /widgets historiques conservés/);
+  assert.match(app, /<SortableWidgetGrid/);
+  for (const label of ["Événements actifs", "Prochains événements", "Aliases non résolus", "Variantes non matchées", "Conflits d’identités", "Assets à vérifier", "Qualité et providers", "Activité récente"]) {
+    assert.match(home, new RegExp(label));
+  }
+  for (const section of ["identity-manager", "events", "assets", "pokemon-identity-mappings", "checks", "logs"]) {
+    assert.match(home, new RegExp(`onNavigate\\(\\"${section}\\"\\)`));
+  }
+  assert.match(home, /identity-manager-diagnostics&status=open&page=1&limit=1/);
+  assert.match(home, /pokemon-identity-mappings&page=1&limit=1/);
+  assert.match(home, /events\/archive\?status=active/);
+  assert.match(home, /events\/archive\?status=upcoming/);
+  assert.match(home, /Promise\.allSettled/);
+  assert.doesNotMatch(home, /window\.prompt|fixed inset-0/);
+});
+
 test("les aliases inconnus disposent d’un workflow de résolution détaillé", () => {
   const panel = read("src/components/admin/pokemon/identity-manager-panel.tsx");
   for (const label of ["Associer", "Créer une identité", "Ignorer", "Faux positif", "Voir les", "Exporter le diagnostic"]) {

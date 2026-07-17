@@ -74,6 +74,7 @@ import { ShinyTrackerPanel } from "./shiny-tracker-panel";
 import { DataDeployHistoryModal, SourceHistoryModal, SourceRows } from "./source-watch-panel";
 import { UpdateLogPanel } from "./update-log-panel";
 import { AdminTodoPanel } from "./admin-todo-panel";
+import { AdminCommandCenter } from "./admin-command-center";
 import { AdminSectionNavigation } from "./admin-section-navigation";
 import {
   readDashboardStoreValue,
@@ -1348,6 +1349,25 @@ export function AdminApp() {
   };
   const overviewWidgets = [
     {
+      id: "overview-summary",
+      label: "Synthèse existante",
+      node: (
+        <Panel title="Synthèse des fiches" eyebrow="widgets historiques conservés">
+          <section className="grid items-start gap-3 sm:grid-cols-2">
+            <MetricCard label="Fiches analysées" value={summary.total || 0} icon={uiAssets.icons.fiche} />
+            <MetricCard label="Terminées" value={summary.complete || 0} accent="green" icon={uiAssets.icons.bookSpells} />
+            <MetricCard label="Problèmes" value={summary.issues || 0} accent="amber" icon={uiAssets.icons.problem} />
+            <MetricCard label="Assets vérifiés" value={Object.keys(assetChecks).length} accent="violet" icon={uiAssets.icons.result} />
+          </section>
+          <section className="mt-3 grid items-start gap-3 sm:grid-cols-3">
+            <article className="rounded-2xl border border-emerald-300/15 bg-emerald-400/10 p-4"><Sparkles className="mb-3 text-emerald-200" size={21} /><span className="text-xs font-bold text-emerald-100/80">Données complètes</span><strong className="mt-1 block text-2xl font-black">{summary.complete || 0}</strong></article>
+            <article className="rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4"><ShieldCheck className="mb-3 text-cyan-200" size={21} /><span className="text-xs font-bold text-cyan-100/80">Accès admin</span><strong className="mt-1 block text-2xl font-black">Protégé</strong></article>
+            <article className="rounded-2xl border border-violet-300/15 bg-violet-400/10 p-4"><BarChart3 className="mb-3 text-violet-200" size={21} /><span className="text-xs font-bold text-violet-100/80">Résultat filtre</span><strong className="mt-1 block text-2xl font-black">{filtered.length}</strong></article>
+          </section>
+        </Panel>
+      ),
+    },
+    {
       id: "completion",
       label: "Complétion",
       node: (
@@ -2063,30 +2083,20 @@ export function AdminApp() {
 
             {!bootstrap.loading && !bootstrap.error && active === "overview" ? (
               <>
-                <section className="grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                  <MetricCard label="Fiches analysées" value={summary.total || 0} icon={uiAssets.icons.fiche} />
-                  <MetricCard label="Terminées" value={summary.complete || 0} accent="green" icon={uiAssets.icons.bookSpells} />
-                  <MetricCard label="Problèmes" value={summary.issues || 0} accent="amber" icon={uiAssets.icons.problem} />
-                  <MetricCard label="Assets vérifiés" value={Object.keys(assetChecks).length} accent="violet" icon={uiAssets.icons.result} />
-                </section>
-
-                <section className="grid items-start gap-3 lg:grid-cols-3">
-                  <article className="rounded-[2rem] border border-emerald-300/15 bg-emerald-400/10 p-5">
-                    <Sparkles className="mb-4 text-emerald-200" size={24} />
-                    <span className="text-sm font-bold text-emerald-100/80">Données complètes</span>
-                    <strong className="mt-1 block text-3xl font-black">{summary.complete || 0}</strong>
-                  </article>
-                  <article className="rounded-[2rem] border border-cyan-300/15 bg-cyan-400/10 p-5">
-                    <ShieldCheck className="mb-4 text-cyan-200" size={24} />
-                    <span className="text-sm font-bold text-cyan-100/80">Accès admin</span>
-                    <strong className="mt-1 block text-3xl font-black">Protégé</strong>
-                  </article>
-                  <article className="rounded-[2rem] border border-violet-300/15 bg-violet-400/10 p-5">
-                    <BarChart3 className="mb-4 text-violet-200" size={24} />
-                    <span className="text-sm font-bold text-violet-100/80">Résultat filtre</span>
-                    <strong className="mt-1 block text-3xl font-black">{filtered.length}</strong>
-                  </article>
-                </section>
+                <AdminCommandCenter
+                  summary={summary}
+                  assetCheckedCount={Object.keys(assetChecks).length}
+                  assetsToVerify={unchecked.length}
+                  filteredCount={filtered.length}
+                  sourceWatch={sourceWatch}
+                  history={history}
+                  freshness={bootstrap.payload?.freshness || null}
+                  search={search}
+                  refreshing={bootstrap.loading || sourceWatch?.loading}
+                  onSearchChange={setSearch}
+                  onNavigate={selectSection}
+                  onRefresh={() => { void loadAdminData({ notify: true }); void loadSources(); }}
+                />
 
                 <SortableWidgetGrid
                   columnsClassName="columns-1 xl:columns-2"
