@@ -375,8 +375,14 @@ test("les composants partagés ne sélectionnent plus directement les assets Pok
   const artwork = fs.readFileSync(path.join(dashboardRoot, "src/components/admin/pokemon/pokemon-artwork.jsx"), "utf8");
   const style = fs.readFileSync(path.join(dashboardRoot, "src/components/site/pokemon-style.js"), "utf8");
   const collections = fs.readFileSync(path.join(dashboardRoot, "src/components/admin/pokemon/collections-panel.jsx"), "utf8");
+  const communityDays = fs.readFileSync(path.join(dashboardRoot, "src/components/admin/pokemon/community-days-panel.jsx"), "utf8");
+  const shinyTracker = fs.readFileSync(path.join(dashboardRoot, "src/components/admin/pokemon/shiny-tracker-panel.jsx"), "utf8");
   assert.match(artwork, /resolvePokemonVariant/);
   assert.doesNotMatch(artwork, /assets\??\.(?:image|shinyImage)/);
   assert.match(style, /resolvePokemonVariant/);
   assert.doesNotMatch(collections, /entry\.(?:image|shinyImage|homeImage|homeShinyImage)\s*\|\|/);
+  assert.match(communityDays, /<PokemonArtwork pokemon=\{featured\}/);
+  assert.doesNotMatch(communityDays, /<img[^>]+src=\{(?:entry\.)?(?:image|shinyImage)\}/);
+  assert.equal((shinyTracker.match(/<PokemonArtwork /g) || []).length, 3);
+  assert.doesNotMatch(shinyTracker, /<img[^>]+src=\{(?:entry\.)?(?:image|shinyImage)\}/);
 });
