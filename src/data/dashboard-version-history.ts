@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.29.0",
+    date: "2026-07-18",
+    title: "Catalogue canonique PokemonGo-Data",
+    changes: [
+      "Relie l’Identity Manager à l’inventaire exhaustif PokemonGo-Data et expose un aperçu de synchronisation MongoDB non destructif avant application.",
+      "Affiche le nom local, la clé d’identité, le fichier source, l’asset bundle et les assets sexués de chaque identité canonique.",
+      "Ajoute les états synchronized, orphaned, draft et conflict aux filtres et conserve une raison de diagnostic exacte, y compris les nouveaux codes stables.",
+      "Verrouille les champs dérivés du catalogue local et conserve les créations manuelles en brouillon jusqu’à validation par PokemonGo-Data.",
+    ],
+  },
+  {
     version: "V1.28.0",
     date: "2026-07-17",
     title: "Home Centre de commande Admin Pokémon",

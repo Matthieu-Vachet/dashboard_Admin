@@ -2,6 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // The workspace contains several independent applications and lockfiles.
+  // Pinning Turbopack to this package prevents it from selecting the parent
+  // workspace and producing stale React Client Manifests during local reloads.
+  turbopack: {
+    root: process.cwd(),
+  },
   outputFileTracingIncludes: {
     "/api/pokemon-admin": [
       "./.data/PokemonGo-Data/pokemon/**",

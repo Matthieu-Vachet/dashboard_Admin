@@ -421,7 +421,7 @@ async function readPokemonApiAdmin(path: string, user?: string) {
 
 function identityManagerQuery(request: NextRequest) {
   return forwardedRankedQuery(request, [
-    "search", "provider", "status", "pokemonId", "form", "costume", "conflict",
+    "search", "provider", "status", "syncStatus", "pokemonId", "form", "costume", "category", "conflict",
     "withoutGameMaster", "stale", "sort", "order", "reason", "confidence",
     "identityId", "canonicalId", "action", "page", "limit",
   ]);
@@ -791,6 +791,15 @@ export async function GET(request: NextRequest) {
       return json({ data: await readPokemonApiAdmin(`/api/v1/admin/pokemon-identities${query ? `?${query}` : ""}`, session!.email) });
     }
 
+    if (action === "identity-manager-inventory") {
+      const query = identityManagerQuery(request);
+      return json({ data: await readPokemonApiAdmin(`/api/v1/admin/pokemon-identities/inventory${query ? `?${query}` : ""}`, session!.email) });
+    }
+
+    if (action === "identity-manager-sync-preview") {
+      return json({ data: await readPokemonApiAdmin("/api/v1/admin/pokemon-identities/sync/preview", session!.email) });
+    }
+
     if (action === "identity-manager-conflicts") {
       return json({ data: await readPokemonApiAdmin("/api/v1/admin/pokemon-identities/conflicts", session!.email) });
     }
@@ -937,6 +946,10 @@ export async function POST(request: NextRequest) {
         body: body.payload,
         user: session!.email,
       }) });
+    }
+
+    if (action === "identity-manager-sync-apply") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/pokemon-identities/sync/apply", undefined, session!.email) });
     }
 
     if (action === "identity-manager-update") {

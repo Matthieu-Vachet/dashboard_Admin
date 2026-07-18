@@ -7,11 +7,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
+  Database,
   Download,
   FileUp,
   Fingerprint,
   History,
   Link2,
+  PackageCheck,
   Plus,
   RefreshCcw,
   RotateCcw,
@@ -32,6 +34,37 @@ import { cn } from "@/lib/cn";
 
 type IdentityStatus = "active" | "draft" | "deprecated" | "ignored";
 type AliasStatus = "active" | "deprecated" | "ignored" | "conflict";
+type IdentitySyncStatus = "synchronized" | "orphaned" | "draft" | "conflict";
+
+type LocalGenderAsset = {
+  isFemale?: boolean | null;
+  gender?: string;
+  image?: string | null;
+  shinyImage?: string | null;
+  sourcePath?: string | null;
+  source?: string | null;
+};
+
+type LocalIdentityInfo = {
+  pokemonName?: string | null;
+  form?: string | null;
+  formId?: string | null;
+  costume?: string | null;
+  transformation?: string | null;
+  category?: string;
+  identityKey?: string;
+  sourceType?: string;
+  sourceFile?: string;
+  pokemonSourceFile?: string | null;
+  assetsRef?: string | null;
+  assets?: { image?: string | null; shinyImage?: string | null; imageSource?: string | null; shinyImageSource?: string | null };
+  genderAssets?: LocalGenderAsset[];
+  localReferences?: Array<{ type?: string; sourceFile?: string; sourcePath?: string | null; assetsRef?: string | null }>;
+  fingerprint?: string;
+  inventoryFingerprint?: string;
+  lastValidatedAt?: string;
+  issues?: string[];
+};
 
 type ProviderAlias = {
   aliasId: string;
@@ -52,9 +85,13 @@ type PokemonIdentity = {
   pokemonId: number;
   form?: string | null;
   costume?: string | null;
+  transformation?: string | null;
   status: IdentityStatus;
+  syncStatus?: IdentitySyncStatus;
   aliases: ProviderAlias[];
   genderVariants?: { male?: boolean; female?: boolean };
+  localIdentity?: LocalIdentityInfo | null;
+  previousCanonicalIds?: string[];
   metadata?: { notes?: string | null; tags?: string[]; lastUsedAt?: string | null; usageCount?: number };
   updatedAt?: string;
 };
@@ -101,6 +138,21 @@ type ImportReport = {
   invalid: unknown[];
 };
 
+type IdentitySyncReport = {
+  mode: "dry-run" | "write";
+  inventory: { schemaVersion: number; fingerprint: string; total: number; issues: number };
+  before: { identities: number; aliases: number };
+  after: { identities: number; aliases: number };
+  create: number;
+  update: number;
+  unchanged: number;
+  orphan: number;
+  conflict: number;
+  aliasesPreserved: number;
+  conflicts: Array<Record<string, unknown>>;
+  mewtwoArmored: "present" | "missing";
+};
+
 type IdentityForm = {
   canonicalId: string;
   pokemonId: string;
@@ -125,11 +177,42 @@ const emptyIdentityForm: IdentityForm = {
   pokemonId: "",
   form: "",
   costume: "",
-  status: "active",
+  status: "draft",
   male: false,
   female: false,
   notes: "",
 };
+
+const diagnosticReasonOptions = [
+  "ALIAS_UNKNOWN",
+  "POKEMON_UNKNOWN",
+  "FORM_UNKNOWN",
+  "COSTUME_UNKNOWN",
+  "CANONICAL_ID_MISSING",
+  "CANONICAL_ID_NOT_SYNCHRONIZED",
+  "DUPLICATE_ALIAS",
+  "ALIAS_CONFLICT",
+  "MULTIPLE_FUNCTIONAL_IDENTITIES",
+  "GENDER_ASSET_UNAVAILABLE",
+  "IDENTITY_DEPRECATED",
+  "ALIAS_IGNORED",
+  "SOURCE_DATA_INCOMPLETE",
+  "LOCAL_IDENTITY_MISSING",
+  "VARIANT_NOT_FOUND",
+  "unknown-alias",
+  "unknown-pokemon",
+  "unknown-form",
+  "unknown-costume",
+  "missing-canonical-id",
+  "duplicate",
+  "conflict",
+  "multiple-candidates",
+  "ambiguous-gender",
+  "deprecated-identity",
+  "ignored-alias",
+  "incomplete-source",
+  "missing-local-match",
+] as const;
 
 const emptyAliasForm: AliasForm = {
   provider: "game-master",
@@ -157,11 +240,25 @@ function formatDate(value?: string | null) {
 }
 
 function statusTone(status: string): "green" | "amber" | "red" | "violet" | "neutral" {
-  if (status === "active" || status === "resolved") return "green";
-  if (status === "draft" || status === "open") return "amber";
+  if (status === "active" || status === "resolved" || status === "synchronized") return "green";
+  if (status === "draft" || status === "open" || status === "orphaned") return "amber";
   if (status === "conflict" || status === "false-positive") return "red";
   if (status === "deprecated") return "violet";
   return "neutral";
+}
+
+function localPreviewAsset(identity: PokemonIdentity) {
+  const genderAssets = identity.localIdentity?.genderAssets || [];
+  const preferred = genderAssets.find((asset) => asset.isFemale === false)
+    || genderAssets.find((asset) => asset.isFemale == null)
+    || genderAssets[0];
+  return preferred?.image || identity.localIdentity?.assets?.image || null;
+}
+
+function localAssetBundle(identity: PokemonIdentity) {
+  return identity.localIdentity?.assetsRef
+    || identity.localIdentity?.localReferences?.find((reference) => reference.assetsRef)?.assetsRef
+    || null;
 }
 
 function identityPayload(form: IdentityForm) {
@@ -249,7 +346,7 @@ export function IdentityManagerPanel() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [filters, setFilters] = useState({ search: "", provider: "", status: "", pokemonId: "", form: "", costume: "", conflict: false, withoutGameMaster: false, stale: false, sort: "updatedAt", order: "desc", page: 1 });
+  const [filters, setFilters] = useState({ search: "", provider: "", status: "", syncStatus: "", pokemonId: "", form: "", costume: "", conflict: false, withoutGameMaster: false, stale: false, sort: "updatedAt", order: "desc", page: 1 });
   const [diagnosticFilters, setDiagnosticFilters] = useState({ provider: "", reason: "", status: "open", pokemonId: "", form: "", costume: "", confidence: "", page: 1 });
   const [identityModal, setIdentityModal] = useState<{ open: boolean; identity?: PokemonIdentity; diagnostic?: IdentityDiagnostic }>({ open: false });
   const [identityForm, setIdentityForm] = useState<IdentityForm>(emptyIdentityForm);
@@ -264,10 +361,32 @@ export function IdentityManagerPanel() {
   const [associateModal, setAssociateModal] = useState<{ open: boolean; diagnostic?: IdentityDiagnostic }>({ open: false });
   const [associateSearch, setAssociateSearch] = useState("");
   const [associateCandidates, setAssociateCandidates] = useState<PokemonIdentity[]>([]);
+  const [syncModalOpen, setSyncModalOpen] = useState(false);
+  const [syncLoading, setSyncLoading] = useState(false);
+  const [syncReport, setSyncReport] = useState<IdentitySyncReport | null>(null);
 
   const providers = useMemo(() => meta.stats?.providers || [], [meta.stats?.providers]);
   const activeCount = Number(meta.stats?.statuses?.active || 0);
   const conflictCount = Number(conflicts.explicitConflicts || 0) + Number(conflicts.aliasConflicts?.length || 0);
+  const localFieldsLocked = Boolean(identityModal.identity?.localIdentity && identityModal.identity.syncStatus === "synchronized");
+  const syncHasChanges = Boolean(syncReport && (syncReport.create || syncReport.update || syncReport.orphan));
+
+  const loadSyncPreview = useCallback(async (notify = false) => {
+    setSyncLoading(true);
+    try {
+      const upstream = await apiGet("identity-manager-sync-preview");
+      const report = upstream?.data as IdentitySyncReport;
+      setSyncReport(report);
+      if (notify) toast.success("Inventaire PokemonGo-Data vérifié sans écriture.");
+      return report;
+    } catch (caught) {
+      const message = caught instanceof Error ? caught.message : "Aperçu de synchronisation indisponible.";
+      if (notify) toast.error(message);
+      return null;
+    } finally {
+      setSyncLoading(false);
+    }
+  }, []);
 
   const loadIdentities = useCallback(async (notify = false) => {
     setLoading(true);
@@ -318,6 +437,11 @@ export function IdentityManagerPanel() {
   }, [loadDiagnostics, loadIdentities, view]);
 
   useEffect(() => {
+    const timer = window.setTimeout(() => void loadSyncPreview(), 0);
+    return () => window.clearTimeout(timer);
+  }, [loadSyncPreview]);
+
+  useEffect(() => {
     if (!associateModal.open) return;
     const timer = window.setTimeout(async () => {
       try {
@@ -340,7 +464,7 @@ export function IdentityManagerPanel() {
 
   function openCreate(diagnostic?: IdentityDiagnostic) {
     const canonicalSuggestion = [diagnostic?.pokemon, diagnostic?.form, diagnostic?.costume].filter(Boolean).join("_").toUpperCase().replace(/[^A-Z0-9]+/g, "_");
-    setIdentityForm({ ...emptyIdentityForm, canonicalId: canonicalSuggestion, pokemonId: diagnostic?.pokemonId ? String(diagnostic.pokemonId) : "", form: diagnostic?.form || "", costume: diagnostic?.costume || "" });
+    setIdentityForm({ ...emptyIdentityForm, canonicalId: canonicalSuggestion, pokemonId: diagnostic?.pokemonId ? String(diagnostic.pokemonId) : "", form: diagnostic?.form || "", costume: diagnostic?.costume || "", status: "draft" });
     setIdentityModal({ open: true, diagnostic });
   }
 
@@ -529,6 +653,27 @@ export function IdentityManagerPanel() {
     }
   }
 
+  async function openSyncPreview() {
+    setSyncModalOpen(true);
+    await loadSyncPreview(true);
+  }
+
+  async function applyLocalSync() {
+    if (!syncReport || syncReport.conflict > 0) return;
+    setBusy(true);
+    try {
+      const upstream = await apiPost("identity-manager-sync-apply");
+      const report = upstream?.data as IdentitySyncReport;
+      setSyncReport(report);
+      toast.success(`Synchronisation appliquée : ${report.create} création(s), ${report.update} mise(s) à jour.`);
+      await Promise.all([loadIdentities(), loadSyncPreview()]);
+    } catch (caught) {
+      toast.error(caught instanceof Error ? caught.message : "Synchronisation locale impossible.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function downloadDiagnostics() {
     const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), filters: diagnosticFilters, diagnostics }, null, 2)], { type: "application/json" });
     const href = URL.createObjectURL(blob);
@@ -544,11 +689,12 @@ export function IdentityManagerPanel() {
       <header className="rounded-2xl border border-brand-2/25 bg-[linear-gradient(135deg,rgba(14,165,233,.13),rgba(139,92,246,.1),rgba(2,6,23,.8))] p-4 sm:p-5">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200/75">Référence canonique · MongoDB privé</p>
+            <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200/75">Catalogue local PokemonGo-Data · MongoDB privé</p>
             <h2 id="identity-manager-title" className="mt-1 flex items-center gap-3 text-2xl font-black sm:text-3xl"><Fingerprint className="text-cyan-200" /> Identity Manager</h2>
             <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-muted">Associez chaque identifiant fournisseur à une identité PokemonGo-Data unique, sans altérer sa valeur originale.</p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant="primary" icon={<PackageCheck size={15} />} disabled={syncLoading} onClick={() => void openSyncPreview()}>{syncLoading ? "Vérification…" : "Synchroniser le catalogue"}</Button>
             <Button size="sm" variant="ghost" icon={<History size={15} />} onClick={() => void openGlobalHistory()}>Historique global</Button>
             <Button size="sm" variant="secondary" icon={<Download size={15} />} asChild><a href="/api/pokemon-admin?action=identity-manager-export">JSON</a></Button>
             <Button size="sm" variant="secondary" icon={<FileUp size={15} />} onClick={() => setImportModal(true)}>Importer</Button>
@@ -562,6 +708,14 @@ export function IdentityManagerPanel() {
           <Stat label="Conflits" value={conflictCount} tone="red" onClick={() => { setView("identities"); updateFilter("conflict", true); }} />
           <Stat label="Sans Game Master" value={Number(conflicts.incomplete || 0)} tone="amber" onClick={() => { setView("identities"); updateFilter("withoutGameMaster", true); }} />
         </div>
+        {syncReport ? (
+          <button type="button" className={cn("mt-3 flex w-full flex-wrap items-center gap-2 rounded-xl border p-3 text-left text-sm font-bold transition hover:brightness-110", syncReport.conflict ? "border-danger/35 bg-danger/10 text-rose-100" : syncReport.create || syncReport.update || syncReport.orphan ? "border-warning/35 bg-warning/10 text-amber-100" : "border-brand-3/30 bg-brand-3/10 text-emerald-100")} onClick={() => setSyncModalOpen(true)}>
+            <Database size={17} />
+            <span>{syncReport.inventory.total.toLocaleString("fr-FR")} identités locales</span>
+            <Badge tone={syncReport.conflict ? "red" : syncReport.create || syncReport.update || syncReport.orphan ? "amber" : "green"}>{syncReport.conflict ? `${syncReport.conflict} conflit(s)` : syncReport.create || syncReport.update || syncReport.orphan ? "Synchronisation requise" : "MongoDB synchronisé"}</Badge>
+            <span className="ml-auto text-xs opacity-80">Empreinte {syncReport.inventory.fingerprint.slice(0, 12)} · Mewtwo Armored {syncReport.mewtwoArmored === "present" ? "présent" : "absent"}</span>
+          </button>
+        ) : null}
       </header>
 
       <div className="flex flex-wrap items-center gap-2 rounded-xl border border-line bg-panel/55 p-2">
@@ -585,18 +739,22 @@ export function IdentityManagerPanel() {
               <option value="">Tous les statuts</option>
               {(["active", "draft", "deprecated", "ignored"] as const).map((status) => <option key={status}>{status}</option>)}
             </select>
+            <select className={inputClass} aria-label="État de synchronisation" value={filters.syncStatus} onChange={(event) => updateFilter("syncStatus", event.target.value)}>
+              <option value="">Tous les états de synchronisation</option>
+              {(["synchronized", "orphaned", "draft", "conflict"] as const).map((status) => <option key={status}>{status}</option>)}
+            </select>
             <Input inputMode="numeric" placeholder="N° Pokédex" value={filters.pokemonId} onChange={(event) => updateFilter("pokemonId", event.target.value)} />
             <Input placeholder="Forme" value={filters.form} onChange={(event) => updateFilter("form", event.target.value)} />
             <Input placeholder="Costume" value={filters.costume} onChange={(event) => updateFilter("costume", event.target.value)} />
             <div className="grid grid-cols-2 gap-2">
-              <select className={inputClass} aria-label="Trier" value={filters.sort} onChange={(event) => updateFilter("sort", event.target.value)}><option value="updatedAt">Modification</option><option value="canonicalId">Canonical ID</option><option value="pokemonId">Pokédex</option><option value="status">Statut</option></select>
+              <select className={inputClass} aria-label="Trier" value={filters.sort} onChange={(event) => updateFilter("sort", event.target.value)}><option value="updatedAt">Modification</option><option value="canonicalId">Canonical ID</option><option value="pokemonId">Pokédex</option><option value="status">Statut</option><option value="syncStatus">Synchronisation</option></select>
               <select className={inputClass} aria-label="Ordre" value={filters.order} onChange={(event) => updateFilter("order", event.target.value)}><option value="desc">Décroissant</option><option value="asc">Croissant</option></select>
             </div>
             <div className="flex flex-wrap gap-2 md:col-span-2 xl:col-span-4">
               <Button size="sm" variant={filters.conflict ? "danger" : "secondary"} icon={<AlertTriangle size={14} />} onClick={() => updateFilter("conflict", !filters.conflict)}>Avec conflit</Button>
               <Button size="sm" variant={filters.withoutGameMaster ? "primary" : "secondary"} icon={<Link2 size={14} />} onClick={() => updateFilter("withoutGameMaster", !filters.withoutGameMaster)}>Sans alias Game Master</Button>
               <Button size="sm" variant={filters.stale ? "primary" : "secondary"} icon={<Clock3 size={14} />} onClick={() => updateFilter("stale", !filters.stale)}>Non utilisé récemment</Button>
-              <Button size="sm" variant="ghost" icon={<RotateCcw size={14} />} onClick={() => setFilters({ search: "", provider: "", status: "", pokemonId: "", form: "", costume: "", conflict: false, withoutGameMaster: false, stale: false, sort: "updatedAt", order: "desc", page: 1 })}>Réinitialiser</Button>
+              <Button size="sm" variant="ghost" icon={<RotateCcw size={14} />} onClick={() => setFilters({ search: "", provider: "", status: "", syncStatus: "", pokemonId: "", form: "", costume: "", conflict: false, withoutGameMaster: false, stale: false, sort: "updatedAt", order: "desc", page: 1 })}>Réinitialiser</Button>
             </div>
           </div>
 
@@ -604,16 +762,32 @@ export function IdentityManagerPanel() {
           {loading ? <p className="rounded-xl border border-line bg-panel/55 p-8 text-center font-bold text-muted">Chargement du catalogue…</p> : null}
           {!loading && !identities.length ? <p className="rounded-xl border border-line bg-panel/55 p-8 text-center font-bold text-muted">Aucune identité ne correspond aux filtres.</p> : null}
           <div className="grid gap-4 xl:grid-cols-2">
-            {identities.map((identity) => (
+            {identities.map((identity) => {
+              const previewAsset = localPreviewAsset(identity);
+              const assetBundle = localAssetBundle(identity);
+              return (
               <article key={identityId(identity)} className={cardClass}>
                 <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2"><strong className="break-all font-mono text-lg text-cyan-100">{identity.canonicalId}</strong><Badge tone={statusTone(identity.status)}>{identity.status}</Badge></div>
-                    <p className="mt-1 text-sm font-bold text-muted">#{String(identity.pokemonId).padStart(4, "0")} · {identity.form || "forme normale"} · {identity.costume || "sans costume"}</p>
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="h-16 w-16 shrink-0 rounded-xl border border-line bg-slate-950/60 bg-contain bg-center bg-no-repeat" style={previewAsset ? { backgroundImage: `url(${JSON.stringify(previewAsset).slice(1, -1)})` } : undefined} role="img" aria-label={previewAsset ? `Asset local de ${identity.localIdentity?.pokemonName || identity.canonicalId}` : "Asset local absent"}>
+                      {!previewAsset ? <span className="grid h-full place-items-center text-[10px] font-black uppercase text-muted">Absent</span> : null}
+                    </div>
+                    <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2"><strong className="break-all font-mono text-lg text-cyan-100">{identity.canonicalId}</strong><Badge tone={statusTone(identity.status)}>{identity.status}</Badge>{identity.syncStatus ? <Badge tone={statusTone(identity.syncStatus)}>{identity.syncStatus}</Badge> : null}</div>
+                    <p className="mt-1 text-base font-black text-foreground">{identity.localIdentity?.pokemonName || `Pokémon #${identity.pokemonId}`}</p>
+                    <p className="mt-1 text-sm font-bold text-muted">#{String(identity.pokemonId).padStart(4, "0")} · {identity.form || "forme normale"} · {identity.costume || "sans costume"}{identity.transformation ? ` · ${identity.transformation}` : ""}</p>
                     <p className="mt-1 text-xs font-semibold text-muted">Genre disponible : {identity.genderVariants?.male ? "mâle" : "—"} / {identity.genderVariants?.female ? "femelle" : "—"}</p>
+                    </div>
                   </div>
                   <span className="text-xs font-semibold text-muted">MAJ {formatDate(identity.updatedAt)}</span>
                 </div>
+                <div className="mt-4 grid gap-2 rounded-lg border border-brand-2/20 bg-brand-2/[0.055] p-3 text-xs sm:grid-cols-2">
+                  <p className="min-w-0"><span className="font-black uppercase tracking-[0.12em] text-cyan-200/65">Identité locale</span><br /><code className="break-all text-foreground">{identity.localIdentity?.identityKey || "Non reliée à PokemonGo-Data"}</code></p>
+                  <p className="min-w-0"><span className="font-black uppercase tracking-[0.12em] text-cyan-200/65">Asset bundle</span><br /><code className={cn("break-all", assetBundle ? "text-foreground" : "text-amber-100")}>{assetBundle || "Aucun asset bundle déclaré"}</code></p>
+                  <p className="min-w-0"><span className="font-black uppercase tracking-[0.12em] text-cyan-200/65">Source locale</span><br /><code className="break-all text-foreground">{identity.localIdentity?.sourceFile || "Non disponible"}</code></p>
+                  <p><span className="font-black uppercase tracking-[0.12em] text-cyan-200/65">Assets sexués</span><br /><strong>{identity.localIdentity?.genderAssets?.length || 0} variante(s) · validé {formatDate(identity.localIdentity?.lastValidatedAt)}</strong></p>
+                </div>
+                {identity.localIdentity?.issues?.length ? <p className="mt-2 rounded-lg border border-warning/30 bg-warning/10 p-2 text-xs font-bold text-amber-100">{identity.localIdentity.issues.join(" · ")}</p> : null}
                 <div className="mt-4 space-y-2">
                   {identity.aliases.length ? identity.aliases.map((alias) => (
                     <button key={alias.aliasId} type="button" className="flex w-full items-center gap-2 rounded-lg border border-line bg-white/[0.035] p-2.5 text-left transition hover:border-brand-2/35" onClick={() => openAlias(identity, alias)}>
@@ -632,7 +806,8 @@ export function IdentityManagerPanel() {
                   <Button size="sm" variant={identity.status === "deprecated" ? "secondary" : "danger"} icon={identity.status === "deprecated" ? <RotateCcw size={14} /> : <Trash2 size={14} />} disabled={busy} onClick={() => identity.status === "deprecated" ? void restoreIdentity(identity) : setDeprecateModal({ open: true, identity, reason: "" })}>{identity.status === "deprecated" ? "Restaurer" : "Déprécier"}</Button>
                 </div>
               </article>
-            ))}
+              );
+            })}
           </div>
           <Pagination meta={meta} onPage={(page) => updateFilter("page", page)} />
         </>
@@ -641,7 +816,7 @@ export function IdentityManagerPanel() {
           <div className="grid gap-3 rounded-xl border border-line bg-panel/55 p-4 md:grid-cols-2 xl:grid-cols-4">
             <select className={inputClass} aria-label="Cause" value={diagnosticFilters.reason} onChange={(event) => updateDiagnosticFilter("reason", event.target.value)}>
               <option value="">Toutes les causes</option>
-              {["unknown-alias", "unknown-pokemon", "unknown-form", "unknown-costume", "missing-canonical-id", "duplicate", "conflict", "multiple-candidates", "ambiguous-gender", "deprecated-identity", "ignored-alias", "incomplete-source", "missing-local-match"].map((reason) => <option key={reason}>{reason}</option>)}
+              {diagnosticReasonOptions.map((reason) => <option key={reason}>{reason}</option>)}
             </select>
             <Input placeholder="Provider" value={diagnosticFilters.provider} onChange={(event) => updateDiagnosticFilter("provider", event.target.value)} />
             <select className={inputClass} aria-label="Statut de traitement" value={diagnosticFilters.status} onChange={(event) => updateDiagnosticFilter("status", event.target.value)}><option value="">Tous les statuts</option><option value="open">Ouvert</option><option value="resolved">Résolu</option><option value="ignored">Ignoré</option><option value="false-positive">Faux positif</option></select>
@@ -680,14 +855,29 @@ export function IdentityManagerPanel() {
         </>
       )}
 
-      <Modal open={identityModal.open} onClose={() => setIdentityModal({ open: false })} title={identityModal.identity ? `Modifier ${identityModal.identity.canonicalId}` : "Créer une identité canonique"} description={identityModal.diagnostic ? `Cette création résoudra ensuite l’alias ${identityModal.diagnostic.rawAlias}.` : "Les identités actives doivent correspondre à PokemonGo-Data ; utilisez draft pour préparer une donnée future."} footer={<div className="flex justify-end gap-2"><Button onClick={() => setIdentityModal({ open: false })}>Annuler</Button><Button variant="primary" disabled={busy} onClick={() => void saveIdentity()}>{busy ? "Enregistrement…" : "Enregistrer"}</Button></div>}>
+      <Modal open={syncModalOpen} onClose={() => setSyncModalOpen(false)} title="Synchroniser le catalogue canonique" description="PokemonGo-Data reste la vérité absolue. Cet aperçu compare l’inventaire local à MongoDB sans modifier les alias fournisseurs." className="max-w-4xl" footer={<div className="flex flex-wrap justify-end gap-2"><Button variant="secondary" icon={<RefreshCcw size={15} />} disabled={syncLoading || busy} onClick={() => void loadSyncPreview(true)}>Recalculer l’aperçu</Button><Button variant="primary" icon={<Database size={15} />} disabled={busy || syncLoading || !syncReport || syncReport.conflict > 0 || !syncHasChanges} onClick={() => void applyLocalSync()}>{busy ? "Synchronisation…" : syncHasChanges ? "Appliquer la synchronisation" : "Catalogue déjà synchronisé"}</Button></div>}>
+        {syncLoading && !syncReport ? <p className="p-6 text-center font-bold text-muted">Comparaison du catalogue local et de MongoDB…</p> : null}
+        {syncReport ? <div className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-3"><Stat label="Inventaire local" value={syncReport.inventory.total} tone="cyan" /><Stat label="MongoDB avant" value={syncReport.before.identities} tone="violet" /><Stat label="MongoDB après" value={syncReport.after.identities} tone="green" /></div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Stat label="À créer" value={syncReport.create} tone="green" /><Stat label="À mettre à jour" value={syncReport.update} tone="cyan" /><Stat label="Orphelins conservés" value={syncReport.orphan} tone="amber" /><Stat label="Conflits bloquants" value={syncReport.conflict} tone="red" /></div>
+          <div className="rounded-xl border border-line bg-white/[0.035] p-4 text-sm font-semibold text-muted">
+            <p><strong className="text-foreground">{syncReport.unchanged.toLocaleString("fr-FR")}</strong> identité(s) inchangée(s) · <strong className="text-foreground">{syncReport.aliasesPreserved.toLocaleString("fr-FR")}</strong> alias préservé(s) · <strong className="text-foreground">{syncReport.inventory.issues}</strong> alerte(s) d’inventaire.</p>
+            <p className="mt-2 break-all font-mono text-xs">Empreinte : {syncReport.inventory.fingerprint}</p>
+            <p className={cn("mt-2 font-black", syncReport.mewtwoArmored === "present" ? "text-emerald-200" : "text-rose-200")}>Régression Mewtwo Armored : {syncReport.mewtwoArmored === "present" ? "identité présente" : "identité absente"}</p>
+          </div>
+          {syncReport.conflicts.length ? <div className="rounded-xl border border-danger/35 bg-danger/10 p-4"><p className="font-black text-rose-100">La synchronisation est bloquée. Chaque conflit doit être résolu explicitement.</p><pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap text-xs text-rose-100/80">{JSON.stringify(syncReport.conflicts, null, 2)}</pre></div> : null}
+        </div> : null}
+      </Modal>
+
+      <Modal open={identityModal.open} onClose={() => setIdentityModal({ open: false })} title={identityModal.identity ? `Modifier ${identityModal.identity.canonicalId}` : "Créer une identité canonique"} description={identityModal.diagnostic ? `Cette création crée un brouillon puis résout l’alias ${identityModal.diagnostic.rawAlias}. Activez-le seulement après ajout de la fiche locale.` : "Le catalogue actif vient de PokemonGo-Data. Une création manuelle commence en brouillon pour une donnée future."} footer={<div className="flex justify-end gap-2"><Button onClick={() => setIdentityModal({ open: false })}>Annuler</Button><Button variant="primary" disabled={busy} onClick={() => void saveIdentity()}>{busy ? "Enregistrement…" : "Enregistrer"}</Button></div>}>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Canonical ID"><Input value={identityForm.canonicalId} onChange={(event) => setIdentityForm((current) => ({ ...current, canonicalId: event.target.value }))} placeholder="PIKACHU_WORLD_CAP" /></Field>
-          <Field label="Numéro Pokédex"><Input inputMode="numeric" value={identityForm.pokemonId} onChange={(event) => setIdentityForm((current) => ({ ...current, pokemonId: event.target.value }))} /></Field>
-          <Field label="Forme"><Input value={identityForm.form} onChange={(event) => setIdentityForm((current) => ({ ...current, form: event.target.value }))} placeholder="optionnelle" /></Field>
-          <Field label="Costume"><Input value={identityForm.costume} onChange={(event) => setIdentityForm((current) => ({ ...current, costume: event.target.value }))} placeholder="optionnel" /></Field>
+          {localFieldsLocked ? <p className="sm:col-span-2 rounded-lg border border-brand-3/30 bg-brand-3/10 p-3 text-sm font-bold text-emerald-100">Canonical ID, forme, costume et genres sont verrouillés car ils proviennent de PokemonGo-Data. La synchronisation locale est leur seul point d’écriture.</p> : null}
+          <Field label="Canonical ID"><Input disabled={localFieldsLocked} value={identityForm.canonicalId} onChange={(event) => setIdentityForm((current) => ({ ...current, canonicalId: event.target.value }))} placeholder="PIKACHU_WORLD_CAP" /></Field>
+          <Field label="Numéro Pokédex"><Input disabled={localFieldsLocked} inputMode="numeric" value={identityForm.pokemonId} onChange={(event) => setIdentityForm((current) => ({ ...current, pokemonId: event.target.value }))} /></Field>
+          <Field label="Forme"><Input disabled={localFieldsLocked} value={identityForm.form} onChange={(event) => setIdentityForm((current) => ({ ...current, form: event.target.value }))} placeholder="optionnelle" /></Field>
+          <Field label="Costume"><Input disabled={localFieldsLocked} value={identityForm.costume} onChange={(event) => setIdentityForm((current) => ({ ...current, costume: event.target.value }))} placeholder="optionnel" /></Field>
           <Field label="Statut"><select className={inputClass} value={identityForm.status} onChange={(event) => setIdentityForm((current) => ({ ...current, status: event.target.value as IdentityStatus }))}>{(["active", "draft", "deprecated", "ignored"] as const).map((status) => <option key={status}>{status}</option>)}</select></Field>
-          <div className="grid grid-cols-2 gap-2 pt-5"><label className="flex items-center gap-2 rounded-lg border border-line p-3 text-sm font-bold"><input type="checkbox" checked={identityForm.male} onChange={(event) => setIdentityForm((current) => ({ ...current, male: event.target.checked }))} /> Mâle</label><label className="flex items-center gap-2 rounded-lg border border-line p-3 text-sm font-bold"><input type="checkbox" checked={identityForm.female} onChange={(event) => setIdentityForm((current) => ({ ...current, female: event.target.checked }))} /> Femelle</label></div>
+          <div className="grid grid-cols-2 gap-2 pt-5"><label className="flex items-center gap-2 rounded-lg border border-line p-3 text-sm font-bold"><input disabled={localFieldsLocked} type="checkbox" checked={identityForm.male} onChange={(event) => setIdentityForm((current) => ({ ...current, male: event.target.checked }))} /> Mâle</label><label className="flex items-center gap-2 rounded-lg border border-line p-3 text-sm font-bold"><input disabled={localFieldsLocked} type="checkbox" checked={identityForm.female} onChange={(event) => setIdentityForm((current) => ({ ...current, female: event.target.checked }))} /> Femelle</label></div>
           <div className="sm:col-span-2"><Field label="Notes"><Textarea value={identityForm.notes} onChange={(event) => setIdentityForm((current) => ({ ...current, notes: event.target.value }))} /></Field></div>
         </div>
       </Modal>
