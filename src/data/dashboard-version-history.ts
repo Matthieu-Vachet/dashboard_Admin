@@ -7,6 +7,42 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.31.2",
+    date: "2026-07-18",
+    title: "Version visible alignée et vérifiable",
+    changes: [
+      "Aligne la version du package, l’en-tête du Dashboard, l’historique intégré et le changelog sur la livraison réellement déployée.",
+      "Ajoute un test de contrat qui empêche une nouvelle divergence entre ces quatre sources de version.",
+    ],
+  },
+  {
+    version: "V1.31.1",
+    date: "2026-07-18",
+    title: "Convergence des consommateurs d’assets",
+    changes: [
+      "Remplace les images directes Community Days par le composant PokemonArtwork et conserve l’autorité de la résolution canonique.",
+      "Ajoute l’audit des consommateurs Admin Pokémon et verrouille le Shiny Tracker, les événements et les cartes partagées par des tests statiques ciblés.",
+    ],
+  },
+  {
+    version: "V1.31.0",
+    date: "2026-07-18",
+    title: "Assets canoniques des événements",
+    changes: [
+      "Résout en lot les assets des événements par Identity Manager sans requête MongoDB par entrée ni fallback provider silencieux.",
+      "Conserve les traces canonicalId, référence locale, bundle, asset final et code d’échec jusque dans les vues Admin Pokémon.",
+    ],
+  },
+  {
+    version: "V1.30.0",
+    date: "2026-07-18",
+    title: "Autorité canonique des artworks Pokémon",
+    changes: [
+      "Branche le résolveur visuel partagé sur le contrat canonique fourni par PokemonGo-API et respecte strictement le sexe et l’état shiny demandés.",
+      "Interdit les images fournisseur comme autorité finale dès qu’une résolution Identity Manager est disponible et expose des diagnostics stables en cas d’échec.",
+    ],
+  },
+  {
     version: "V1.29.0",
     date: "2026-07-18",
     title: "Catalogue canonique PokemonGo-Data",

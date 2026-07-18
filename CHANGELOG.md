@@ -1,5 +1,42 @@
 # Changelog
 
+## 1.31.2 - 2026-07-18
+
+- Aligne `package.json`, la version visible du Dashboard, l’historique intégré et ce changelog.
+- Ajoute un test de contrat afin d’empêcher une nouvelle divergence de version lors d’une livraison.
+
+## 1.31.1 - 2026-07-18
+
+- Unifie les derniers consommateurs Community Days autour de `PokemonArtwork` sans accès direct aux images provider.
+- Ajoute l’audit des consommateurs canoniques et les garde-fous statiques Shiny Tracker, événements et cartes partagées.
+
+## 1.31.0 - 2026-07-18
+
+- Résout en lot les assets des événements via Identity Manager et conserve leur trace canonique complète.
+- Étend les tests d’intégration aux assets shiny, aux événements et aux échecs explicites sans fallback silencieux.
+
+## 1.30.0 - 2026-07-18
+
+- Branche le résolveur partagé sur l’autorité canonique de PokemonGo-API pour les artworks normaux, shiny et sexués.
+- Conserve les codes d’échec stables, la provenance, le bundle et l’asset final dans les composants Admin Pokémon.
+
+## 1.29.0 - 2026-07-18
+
+- Connecte l’Identity Manager à l’inventaire exhaustif PokemonGo-Data et à sa synchronisation MongoDB non destructive.
+- Affiche la référence locale, le fichier source, l’asset bundle, les variantes sexuées et les états de synchronisation.
+
+## 1.28.0 - 2026-07-17
+
+- Transforme l’accueil Admin Pokémon en centre de commande quotidien avec actions rapides, santé des providers et diagnostics prioritaires.
+
+## 1.27.1 - 2026-07-17
+
+- Migre les modales restantes, compacte le bouton Détail et replie les grands panneaux de source sans masquer leurs alertes.
+
+## 1.27.0 - 2026-07-17
+
+- Ajoute l’Identity Manager canonique, son CRUD privé, ses conflits, son historique, son import prévisualisé et ses diagnostics détaillés.
+
 ## 1.26.0 - 2026-07-16
 
 - Ajoute la page Community Days, sa collection permanente, ses upserts sans suppression, ses assets normal/shiny et son historique de synchronisation.
