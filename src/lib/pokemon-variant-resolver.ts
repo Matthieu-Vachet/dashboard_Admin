@@ -25,7 +25,8 @@ export type PokemonVariantResolution = {
   shinyImage: string | null;
   assetVariant: PokemonVariantAsset | null;
   status: "matched" | "missing-asset";
-  source: "asset-form" | "home-variant" | "primary-assets" | "home-assets" | "portrait-assets" | "pre-resolved" | "missing";
+  source: "canonical-identity" | "asset-form" | "home-variant" | "primary-assets" | "home-assets" | "portrait-assets" | "pre-resolved" | "missing";
+  reason: string | null;
   matchedForm: string | null;
   matchedCostume: string | null;
   matchedSource: PokemonVariantResolution["source"];
@@ -366,11 +367,12 @@ function preResolvedAssetPair(
 
 function finalizeResolution(
   pokemon: UnknownRecord,
-  resolution: Omit<PokemonVariantResolution, "matchedForm" | "matchedCostume" | "matchedSource" | "resolutionStatus">,
+  resolution: Omit<PokemonVariantResolution, "matchedForm" | "matchedCostume" | "matchedSource" | "resolutionStatus" | "reason"> & { reason?: string | null },
 ): PokemonVariantResolution {
   const matched = resolution.status === "matched";
   return {
     ...resolution,
+    reason: resolution.reason || null,
     matchedForm: matched
       ? text(resolution.assetVariant?.form) || text(resolution.request.form) || text(pokemon.formId) || text(pokemon.form)
       : null,
@@ -388,6 +390,31 @@ export function resolvePokemonVariant(
 ): PokemonVariantResolution {
   const pokemon = record(pokemonValue);
   const request = normalizedRequest(pokemon, overrides);
+  const identity = record(pokemon.identity);
+  const assetResolution = record(identity.assetResolution);
+  const canonicalId = text(identity.canonicalId);
+  if (canonicalId) {
+    const identityResolution = record(identity.resolution);
+    const canonicalImage = request.shiny
+      ? image(firstDefined(identity.shinyImage, assetResolution.shinyImage))
+      : image(firstDefined(identity.image, assetResolution.image));
+    const canonicalMatched = (identity.resolutionStatus === "matched"
+      || identityResolution.status === "matched"
+      || assetResolution.status === "matched")
+      && Boolean(canonicalImage);
+    return finalizeResolution(pokemon, {
+      image: canonicalMatched ? canonicalImage : null,
+      shinyImage: image(firstDefined(identity.shinyImage, assetResolution.shinyImage)),
+      assetVariant: null,
+      status: canonicalMatched ? "matched" : "missing-asset",
+      source: canonicalMatched ? "canonical-identity" : "missing",
+      reason: canonicalMatched
+        ? null
+        : text(firstDefined(assetResolution.reason, identityResolution.reason, "ASSET_ENTRY_NOT_FOUND")),
+      explicitVariant: Boolean(request.costume || request.form || request.isFemale || request.mega || request.gigantamax || request.dynamax),
+      request,
+    });
+  }
   const species = speciesTokens(pokemon, request.id);
   const requireForm = explicitFormRequested(pokemon, request, species);
   const hasNonBaseForm = nonBaseFormRequested(request, species);

@@ -153,6 +153,51 @@ test("conserve un costume Snacknap pré-résolu par le résolveur canonique", ()
   assert.equal(resolution.resolutionStatus, "matched");
 });
 
+test("une identité canonique est l'unique autorité d'asset côté Dashboard", () => {
+  const exactShiny = "https://assets.example/pm25.fCOSTUME_2020.s.icon.png";
+  const resolution = resolvePokemonVariant({
+    id: "PIKACHU",
+    form: "FLYING",
+    costume: "FLYING",
+    assets: {
+      image: "https://provider.example/wrong-normal.png",
+      shinyImage: "https://provider.example/wrong-shiny.png",
+      home: { shinyImage: "https://home.example/wrong-shiny.png" },
+    },
+    identity: {
+      canonicalId: "PIKACHU_COSTUME_2020",
+      identityId: "6a5b845a37c48578724ac17d",
+      image: "https://assets.example/pm25.fCOSTUME_2020.icon.png",
+      shinyImage: exactShiny,
+      resolutionStatus: "matched",
+      resolution: { status: "matched" },
+      assetResolution: { status: "matched", shinyImage: exactShiny },
+    },
+  }, { shiny: true });
+  assert.equal(resolution.image, exactShiny);
+  assert.equal(resolution.source, "canonical-identity");
+  assert.equal(resolution.reason, null);
+});
+
+test("un échec canonique expose le code exact sans fallback fournisseur ou HOME", () => {
+  const resolution = resolvePokemonVariant({
+    id: "PIKACHU",
+    assets: {
+      shinyImage: "https://provider.example/wrong-shiny.png",
+      home: { shinyImage: "https://home.example/wrong-shiny.png" },
+    },
+    identity: {
+      canonicalId: "PIKACHU_UNKNOWN_COSTUME",
+      resolutionStatus: "missing-asset",
+      resolution: { status: "missing-asset", reason: "COSTUME_ASSET_NOT_FOUND" },
+      assetResolution: { status: "unmatched", reason: "COSTUME_ASSET_NOT_FOUND" },
+    },
+  }, { shiny: true });
+  assert.equal(resolution.image, null);
+  assert.equal(resolution.source, "missing");
+  assert.equal(resolution.reason, "COSTUME_ASSET_NOT_FOUND");
+});
+
 test("résout la variante féminine exacte", () => {
   const resolution = resolvePokemonVariant(pikachu(), { isFemale: true });
   assert.equal(resolution.image, female);

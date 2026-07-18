@@ -21,7 +21,8 @@ export function PokemonArtwork({
       className={`relative grid shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 p-1 ${className}`}
       data-asset-status={resolution.status}
       data-asset-source={resolution.source}
-      title={variantLabel || (resolution.status === "missing-asset" ? "Asset exact absent" : undefined)}
+      data-asset-reason={resolution.reason || undefined}
+      title={variantLabel || (resolution.status === "missing-asset" ? `Asset exact absent${resolution.reason ? ` · ${resolution.reason}` : ""}` : undefined)}
     >
       {source ? (
         <img className="h-full w-full object-contain" src={source} alt={name} loading={priority ? "eager" : "lazy"} />
@@ -31,7 +32,7 @@ export function PokemonArtwork({
         </span>
       )}
       {resolution.status !== "matched" ? (
-        <span className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full border border-slate-950 bg-amber-300" title="Résolution : missing-asset" />
+        <span className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full border border-slate-950 bg-amber-300" title={`Résolution : ${resolution.reason || "missing-asset"}`} />
       ) : null}
     </span>
   );

@@ -1,9 +1,9 @@
 ---
 id: RULE-045
 title: Résolution Pokémon et assets sans fallback silencieux
-version: 1.2.0
+version: 1.3.0
 status: Active
-last_update: 2026-07-15
+last_update: 2026-07-18
 author: Matthieu Vachet
 affected_projects: [PokemonGo-Data, PokemonGo-API-, PokemonGo-Assets-API, Dashboard Admin]
 references: [ADR-011, DATASET-021, COMP-325, RULE-047]
@@ -19,10 +19,15 @@ Dans le Dashboard, `pokemon-variant-resolver.ts` est l'unique autorité de séle
 
 Les composants ne peuvent pas rétablir un fallback local vers `assets.image`, `image`, Home, Shuffle ou une URL source. Les assets pré-résolus ne sont acceptés que lorsqu'ils portent une preuve explicite de sélection ou un statut canonique `matched` cohérent avec la variante demandée.
 
+Lorsqu'un payload contient `identity.canonicalId`, cette identité synchronisée est l'autorité absolue. Le Dashboard consomme uniquement `identity.assetResolution` et ne réinterprète ni le nom, ni la forme, ni le costume, ni les URLs du provider. Un échec canonique reste sans image et expose son code exact via `reason` et `data-asset-reason` ; il ne déclenche jamais un second chemin de résolution concurrent.
+
+La trace attendue relie au minimum l'alias brut, le provider, le canonicalId, l'identifiant MongoDB, la référence locale, le bundle, le chemin JSON de l'entrée et l'URL finale. Les composants de présentation affichent l'état absent sans modifier ce diagnostic.
+
 RULE-047 précise l’unique exception légitime : une fiche réellement normale peut utiliser HOME ou portrait après épuisement des assets GO et référencés exacts. Cette règle est indépendante de `availability`. Elle ne s’applique jamais à une variante explicite.
 
 ## Historique
 
+- 1.3.0 — 2026-07-18 : Identity Manager devient l'autorité de résolution et les raisons d'échec canoniques sont conservées jusqu'au composant visuel.
 - 1.2.0 — 2026-07-15 : ordre normal GO → référence → HOME → portrait et séparation disponibilité jeu/asset.
 - 1.1.0 — 2026-07-15 : formalisation du résolveur Dashboard unique et de la comparaison `form` / `costume` / `isFemale`.
 - 1.0.0 — 2026-07-14 : création de la règle sans fallback silencieux.
