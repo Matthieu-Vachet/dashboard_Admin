@@ -1,9 +1,7 @@
 import { createHash } from "node:crypto";
-import fs from "node:fs";
-import path from "node:path";
 import type { Db, Filter } from "mongodb";
 import { completeDatasetRun, getDashboardDatabase, hashDataset, listDatasetRuns, startDatasetRun } from "./dashboard-store";
-import { resolvePokemonVariant } from "./pokemon-variant-resolver";
+import { resolveCanonicalPokemonAssets, type CanonicalAssetResolution } from "./pokemon-canonical-assets-api";
 
 export const COMMUNITY_DAYS_SOURCE = "https://pogoapi.net/api/v1/community_days.json";
 
@@ -41,7 +39,6 @@ export type CommunityDayDocument = {
 };
 
 let indexesReady = false;
-let pokemonIndex: Map<string, Record<string, unknown>> | null = null;
 
 function text(value: unknown) {
   return String(value ?? "").trim();
@@ -80,67 +77,65 @@ function statusFor(startDate: Date, endDate: Date, now = new Date()) {
   return "past" as const;
 }
 
-function jsonFiles(directory: string): string[] {
-  if (!fs.existsSync(directory)) return [];
-  return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
-    const target = path.join(directory, entry.name);
-    if (entry.isDirectory()) return jsonFiles(target);
-    return entry.isFile() && entry.name.endsWith(".json") ? [target] : [];
-  });
-}
-
-function localPokemonIndex() {
-  if (pokemonIndex) return pokemonIndex;
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
-  const index = new Map<string, Record<string, unknown>>();
-  for (const file of [...jsonFiles(dataPath("pokemon")), ...jsonFiles(dataPath("pokemon-forms"))]) {
-    try {
-      const candidate = JSON.parse(fs.readFileSync(file, "utf8")) as Record<string, unknown>;
-      const names = candidate.names && typeof candidate.names === "object" ? candidate.names as Record<string, unknown> : {};
-      for (const alias of [candidate.id, candidate.slug, names.English, names.French]) {
-        const key = normalizeName(alias);
-        if (key && !index.has(key)) index.set(key, candidate);
-      }
-    } catch {
-      // A malformed local file becomes an unmatched source entry, never a sync blocker.
-    }
-  }
-  pokemonIndex = index;
-  return index;
-}
-
-function resolveFeaturedPokemon(name: string) {
-  const local = localPokemonIndex().get(normalizeName(name));
-  if (!local) {
+function resolveFeaturedPokemon(name: string, resolution?: CanonicalAssetResolution) {
+  const identity = resolution?.identityResolution?.identity || null;
+  const asset = resolution?.assetResolution || null;
+  if (resolution?.status !== "matched" || !identity || !asset || asset.status !== "matched") {
+    const reason = resolution?.reason || resolution?.identityResolution?.reason || "CANONICAL_ID_NOT_FOUND";
     return {
-      value: { dexNr: null, pokemonId: null, form: null, costume: null, isFemale: false, image: null, shinyImage: null, resolutionStatus: "unmatched" },
-      diagnostic: { sourceId: null, sourceName: name, sourceForm: null, sourceCostume: null, sourceImage: null, reason: "missing-local-pokemon", candidates: [], sourcePayload: { name } },
+      value: {
+        dexNr: Number(identity?.pokemonId || 0) || null,
+        pokemonId: identity?.canonicalId || null,
+        canonicalId: identity?.canonicalId || null,
+        form: identity?.form || null,
+        costume: identity?.costume || null,
+        isFemale: asset?.selectedIsFemale === true,
+        image: null,
+        shinyImage: null,
+        resolutionStatus: resolution?.status || "unmatched",
+        resolutionReason: reason,
+        identity: identity ? { ...identity, provider: "pogoapi", rawAlias: name, assetResolution: asset } : null,
+      },
+      diagnostic: {
+        provider: "pogoapi",
+        sourceId: identity?.canonicalId || null,
+        sourceName: name,
+        rawAlias: name,
+        normalizedAlias: normalizeName(name).replace(/\s+/g, "_"),
+        sourceForm: identity?.form || null,
+        sourceCostume: identity?.costume || null,
+        sourceImage: null,
+        reason,
+        confidence: resolution?.identityResolution?.confidence || 0,
+        candidates: resolution?.identityResolution?.candidates || [],
+        sourcePayload: { name, trace: asset?.trace || null },
+      },
     };
   }
-  const normal = resolvePokemonVariant(local);
-  const shiny = resolvePokemonVariant(local, { shiny: true });
-  const dexNr = Number(local.dexNr || local.dexId || 0) || null;
-  const pokemonId = text(local.id || local.pokemonId) || null;
-  let reason = "";
-  if (!normal.image) reason = "missing-normal-asset";
-  else if (!shiny.image) reason = "missing-shiny-asset";
   return {
     value: {
-      dexNr,
-      pokemonId,
-      form: text(local.form) || null,
-      costume: null,
-      isFemale: false,
-      image: normal.image,
-      shinyImage: shiny.image,
-      resolutionStatus: reason ? "partial" : "matched",
+      dexNr: Number(identity.pokemonId || 0) || null,
+      pokemonId: identity.canonicalId,
+      canonicalId: identity.canonicalId,
+      form: identity.form || null,
+      costume: identity.costume || null,
+      isFemale: asset.selectedIsFemale === true,
+      image: asset.image || null,
+      shinyImage: asset.shinyImage || null,
+      resolutionStatus: "matched",
+      resolutionReason: null,
+      identity: { ...identity, provider: "pogoapi", rawAlias: name, assetResolution: asset },
+      assetResolution: asset,
     },
-    diagnostic: reason ? { sourceId: pokemonId, sourceName: name, sourceForm: null, sourceCostume: null, sourceImage: null, reason, candidates: [], sourcePayload: { name } } : null,
+    diagnostic: null,
   };
 }
 
-export function normalizeCommunityDay(raw: RawCommunityDay, now = new Date()) {
+export function normalizeCommunityDay(
+  raw: RawCommunityDay,
+  now = new Date(),
+  resolutions: ReadonlyMap<string, CanonicalAssetResolution> = new Map(),
+) {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("invalid-source-entry");
   const sourceId = text(raw.community_day_number);
   const pokemonNames = stringArray(raw.boosted_pokemon);
@@ -154,7 +149,7 @@ export function normalizeCommunityDay(raw: RawCommunityDay, now = new Date()) {
     endDate = new Date(startDate);
     diagnostics.push({ sourceId, sourceName: pokemonNames.join(", "), sourceForm: null, sourceCostume: null, sourceImage: null, reason: "invalid-source-entry", candidates: [], sourcePayload: raw });
   }
-  const resolved = pokemonNames.map(resolveFeaturedPokemon);
+  const resolved = pokemonNames.map((name) => resolveFeaturedPokemon(name, resolutions.get(name)));
   const exclusiveMoves = Array.isArray(raw.event_moves) ? raw.event_moves.map((item) => {
     const move = item && typeof item === "object" ? item as Record<string, unknown> : {};
     return { pokemon: text(move.pokemon), move: text(move.move), moveType: text(move.move_type) || null };
@@ -226,7 +221,10 @@ export async function synchronizeCommunityDays(fetchImpl: typeof fetch = fetch) 
     if (!response.ok) throw new Error(`PogoAPI Community Days HTTP ${response.status}`);
     const payload = await response.json();
     if (!Array.isArray(payload)) throw new Error("Structure Community Days invalide.");
-    const normalized = payload.map((entry) => normalizeCommunityDay(entry));
+    const aliases = [...new Set(payload.flatMap((entry) => stringArray((entry as RawCommunityDay)?.boosted_pokemon)))];
+    const canonical = await resolveCanonicalPokemonAssets(aliases.map((rawAlias) => ({ provider: "pogoapi", rawAlias })));
+    const resolutions = new Map(canonical.map((entry) => [entry.request.rawAlias, entry]));
+    const normalized = payload.map((entry) => normalizeCommunityDay(entry, new Date(), resolutions));
     const beforeBySourceId = new Map(existing.map((item) => [item.sourceId, item]));
     const currentSourceIds = new Set(normalized.map((item) => item.document.sourceId));
     const absentFromSource = existing.filter((item) => !currentSourceIds.has(item.sourceId));

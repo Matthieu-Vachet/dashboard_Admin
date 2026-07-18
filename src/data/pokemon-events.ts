@@ -148,11 +148,20 @@ export type PokemonEventReward = {
 export type PokemonFeaturedPokemon = {
   id?: string;
   name: string;
-  image?: string;
+  image?: string | null;
+  shinyImage?: string | null;
+  sourceImage?: string | null;
+  rawAlias?: string;
+  canonicalId?: string | null;
+  identityId?: string | null;
   dexId?: string;
   form?: string;
+  costume?: string | null;
   types?: string[];
   shiny?: boolean;
+  resolutionStatus?: string;
+  resolutionReason?: string | null;
+  identity?: Record<string, unknown> | null;
 };
 
 export type PokemonEventSection = {

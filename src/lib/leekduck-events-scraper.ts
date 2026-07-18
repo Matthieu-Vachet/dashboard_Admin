@@ -12,6 +12,7 @@ import {
   type PokemonEventType,
   type PokemonFeaturedPokemon,
 } from "@/data/pokemon-events";
+import { resolveCanonicalPokemonAssets, type CanonicalAssetResolution } from "./pokemon-canonical-assets-api";
 
 const leekDuckEventsFeedUrl = "https://leekduck.com/feeds/events.json";
 const leekDuckEventsUrl = "https://leekduck.com/events/";
@@ -224,6 +225,8 @@ function enrichPokemonCandidate(
     return {
       pokemon: {
         name: candidate.name,
+        rawAlias: candidate.name,
+        sourceImage: candidate.image || null,
         image: candidate.image,
         shiny: candidate.shiny,
       } satisfies PokemonFeaturedPokemon,
@@ -234,6 +237,8 @@ function enrichPokemonCandidate(
   return {
     pokemon: {
       ...local,
+      rawAlias: candidate.name,
+      sourceImage: candidate.image || null,
       image: local.image || candidate.image,
       shiny: candidate.shiny || local.shiny,
     } satisfies PokemonFeaturedPokemon,
@@ -636,7 +641,9 @@ function matchPokemonCandidates(
   if (haystack) {
     for (const local of index.entries) {
       const key = normalizeText(local.name);
-      if (key && key.length > 2 && haystack.includes(key)) matched.push(local);
+      if (key && key.length > 2 && haystack.includes(key)) {
+        matched.push({ ...local, rawAlias: local.englishName || local.name, sourceImage: null });
+      }
       if (matched.length >= 24) break;
     }
   }
@@ -657,7 +664,7 @@ function enrichSections(
   let matchedCount = 0;
   let itemMatchedCount = 0;
   const enriched = sections.map((section): PokemonEventSection => {
-    const pokemon = section.pokemon.map((candidate) => {
+    const pokemon: PokemonFeaturedPokemon[] = section.pokemon.map((candidate) => {
       const result = enrichPokemonCandidate(candidate, pokemonIndex);
       if (result.matched) matchedCount += 1;
       else unmatchedPokemon.add(candidate.name);
@@ -745,6 +752,103 @@ async function mapLimit<T, R>(items: T[], limit: number, mapper: (item: T, index
   });
   await Promise.all(workers);
   return results;
+}
+
+type CanonicalRequest = Parameters<typeof resolveCanonicalPokemonAssets>[0][number];
+
+function canonicalRequest(entry: PokemonFeaturedPokemon): CanonicalRequest {
+  return {
+    provider: "leekduck",
+    rawAlias: String(entry.rawAlias || entry.name || entry.id || "").trim(),
+    ...(Number(entry.dexId) > 0 ? { pokemonId: Number(entry.dexId) } : {}),
+    ...(entry.form ? { form: entry.form } : {}),
+    ...(entry.costume ? { costume: entry.costume } : {}),
+  };
+}
+
+function canonicalRequestKey(request: CanonicalRequest) {
+  return JSON.stringify([request.provider, request.rawAlias, request.pokemonId || null, request.form || null, request.costume || null]);
+}
+
+function canonicalPokemon(entry: PokemonFeaturedPokemon, resolution?: CanonicalAssetResolution): PokemonFeaturedPokemon {
+  const identity = resolution?.identityResolution?.identity || null;
+  const asset = resolution?.assetResolution || null;
+  const sourceImage = entry.sourceImage || entry.image || null;
+  if (resolution?.status !== "matched" || !identity || !asset || asset.status !== "matched") {
+    return {
+      ...entry,
+      rawAlias: String(entry.rawAlias || entry.name || ""),
+      sourceImage,
+      image: null,
+      shinyImage: null,
+      canonicalId: typeof identity?.canonicalId === "string" ? identity.canonicalId : null,
+      identityId: typeof identity?.identityId === "string" ? identity.identityId : null,
+      resolutionStatus: resolution?.status || "unmatched",
+      resolutionReason: resolution?.reason || resolution?.identityResolution?.reason || "CANONICAL_ID_NOT_FOUND",
+      identity: identity ? { ...identity, provider: "leekduck", rawAlias: entry.rawAlias || entry.name, assetResolution: asset } : null,
+    };
+  }
+  return {
+    ...entry,
+    id: String(identity.canonicalId || entry.id || ""),
+    rawAlias: String(entry.rawAlias || entry.name || ""),
+    sourceImage,
+    image: typeof asset.image === "string" ? asset.image : null,
+    shinyImage: typeof asset.shinyImage === "string" ? asset.shinyImage : null,
+    canonicalId: String(identity.canonicalId),
+    identityId: String(identity.identityId || ""),
+    dexId: String(identity.pokemonId || entry.dexId || ""),
+    form: typeof identity.form === "string" ? identity.form : undefined,
+    costume: typeof identity.costume === "string" ? identity.costume : null,
+    resolutionStatus: "matched",
+    resolutionReason: null,
+    identity: { ...identity, provider: "leekduck", rawAlias: entry.rawAlias || entry.name, assetResolution: asset },
+  };
+}
+
+export async function canonicalizeLeekDuckPokemonEvents(
+  events: PokemonCalendarEvent[],
+  resolver: typeof resolveCanonicalPokemonAssets = resolveCanonicalPokemonAssets,
+) {
+  const lists = events.flatMap((event) => [
+    event.featuredPokemon,
+    event.wildSpawns || [],
+    event.raids || [],
+    event.eggs || [],
+    event.researchRewards || [],
+    ...(event.sections || []).map((section) => section.pokemon || []),
+  ]);
+  const requests = uniqueBy(
+    lists.flat().map(canonicalRequest).filter((request) => request.rawAlias),
+    canonicalRequestKey,
+  );
+  const resolutions = requests.length ? await resolver(requests) : [];
+  const byRequest = new Map(resolutions.map((resolution) => [canonicalRequestKey(resolution.request), resolution]));
+  const transform = (entry: PokemonFeaturedPokemon) => canonicalPokemon(entry, byRequest.get(canonicalRequestKey(canonicalRequest(entry))));
+  const canonicalEvents = events.map((event) => ({
+    ...event,
+    featuredPokemon: event.featuredPokemon.map(transform),
+    wildSpawns: event.wildSpawns?.map(transform),
+    raids: event.raids?.map(transform),
+    eggs: event.eggs?.map(transform),
+    researchRewards: event.researchRewards?.map(transform),
+    sections: event.sections?.map((section) => ({ ...section, pokemon: section.pokemon?.map(transform) })),
+  }));
+  const canonicalPokemonEntries = canonicalEvents.flatMap((event) => [
+    ...event.featuredPokemon,
+    ...(event.wildSpawns || []),
+    ...(event.raids || []),
+    ...(event.eggs || []),
+    ...(event.researchRewards || []),
+  ]);
+  return {
+    events: canonicalEvents,
+    matched: canonicalPokemonEntries.filter((entry) => entry.resolutionStatus === "matched").length,
+    unmatched: uniqueBy(
+      canonicalPokemonEntries.filter((entry) => entry.resolutionStatus !== "matched"),
+      (entry) => `${entry.rawAlias || entry.name}:${entry.resolutionReason || "unknown"}`,
+    ),
+  };
 }
 
 export async function scrapeLeekDuckEvents() {
@@ -892,7 +996,12 @@ export async function scrapeLeekDuckEvents() {
     };
     return event;
   });
-  const events = eventResults.filter(Boolean) as PokemonCalendarEvent[];
+  const parsedEvents = eventResults.filter(Boolean) as PokemonCalendarEvent[];
+  const canonical = await canonicalizeLeekDuckPokemonEvents(parsedEvents);
+  const events = canonical.events;
+  unmatchedPokemon.clear();
+  canonical.unmatched.forEach((entry) => unmatchedPokemon.add(entry.rawAlias || entry.name));
+  pokemonMatched = canonical.matched;
 
   const report = {
     success: true,

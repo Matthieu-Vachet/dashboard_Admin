@@ -120,8 +120,9 @@ upsert par `id`.
 
 `POST /api/admin/events/scrape` lit `https://leekduck.com/feeds/events.json`,
 utilise `https://github.com/bigfoott/ScrapedDuck` comme référence d'enrichissement
-quand le dataset public expose `extraData`, matche les Pokémon avec les JSON locaux
-`pokemon/` et `pokemon-forms/`, puis upsert le résultat dans MongoDB. La réponse contient
+quand le dataset public expose `extraData`, puis résout tous les alias Pokémon en un lot
+privé via l'Identity Manager avant l'upsert MongoDB. Les images LeekDuck sont conservées
+dans `sourceImage` pour l'audit mais ne servent jamais de fallback visuel. La réponse contient
 un rapport exploitable :
 
 ```json
@@ -172,3 +173,5 @@ Le scraper s'appuie d'abord sur le feed JSON public LeekDuck Events et utilise S
 comme source d'enrichissement. Les pages de détail LeekDuck très spécifiques peuvent
 contenir des blocs que ScrapedDuck n'expose pas encore ; dans ce cas le dashboard conserve
 l'event, ses dates, son image et son lien source, mais n'invente pas de bonus ou rewards.
+Un Pokémon sans identité canonique reste sans artwork, avec son alias brut et sa raison
+dans `dataset_runs`, jusqu'à son association dans l'Identity Manager.

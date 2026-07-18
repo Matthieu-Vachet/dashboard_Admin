@@ -4,10 +4,12 @@ import path from "node:path";
 import test from "node:test";
 import communityStore from "../src/lib/community-days-store.ts";
 import archiveStore from "../src/lib/events-archive-store.ts";
+import leekDuckStore from "../src/lib/leekduck-events-scraper.ts";
 import type { PokemonCalendarEvent } from "../src/data/pokemon-events.ts";
 
 const { normalizeCommunityDay } = communityStore;
 const { normalizeArchivedEvent, synchronizeEventsArchive } = archiveStore;
+const { canonicalizeLeekDuckPokemonEvents } = leekDuckStore;
 
 class MemoryCursor<T extends Record<string, unknown>> {
   constructor(private documents: T[]) {}
@@ -67,6 +69,28 @@ function event(overrides: Partial<PokemonCalendarEvent> = {}): PokemonCalendarEv
   };
 }
 
+function canonicalPikachu() {
+  return new Map([["Pikachu", {
+    request: { provider: "pogoapi", rawAlias: "Pikachu" },
+    status: "matched",
+    reason: null,
+    identityResolution: {
+      status: "matched",
+      strategy: "provider-exact",
+      confidence: 1,
+      identity: { identityId: "identity-25", canonicalId: "PIKACHU_NORMAL", pokemonId: 25, form: null, costume: null },
+    },
+    assetResolution: {
+      status: "matched",
+      reason: null,
+      image: "https://assets.example/pm25.icon.png",
+      shinyImage: "https://assets.example/pm25.s.icon.png",
+      selectedIsFemale: false,
+      trace: { canonicalId: "PIKACHU_NORMAL" },
+    },
+  }]]) as never;
+}
+
 test("normalise un Community Day avec identité stable, assets normaux/shiny et aucun champ de stats", () => {
   const normalized = normalizeCommunityDay({
     bonuses: ["Double XP"],
@@ -75,14 +99,52 @@ test("normalise un Community Day avec identité stable, assets normaux/shiny et 
     end_date: "2018-01-20",
     event_moves: [{ move: "Surf", move_type: "charged", pokemon: "Pikachu" }],
     start_date: "2018-01-20",
-  }, new Date("2026-07-16T00:00:00.000Z"));
+  }, new Date("2026-07-16T00:00:00.000Z"), canonicalPikachu());
   assert.equal(normalized.document.id, "community-day-2018-01-pikachu");
-  assert.equal(normalized.document.featuredPokemon[0].pokemonId, "PIKACHU");
+  assert.equal(normalized.document.featuredPokemon[0].pokemonId, "PIKACHU_NORMAL");
+  assert.equal(normalized.document.featuredPokemon[0].canonicalId, "PIKACHU_NORMAL");
   assert.ok(normalized.document.featuredPokemon[0].image);
   assert.ok(normalized.document.featuredPokemon[0].shinyImage);
   assert.equal(normalized.document.exclusiveMoves[0].move, "Surf");
   assert.equal("stats" in normalized.document, false);
   assert.equal("cp" in normalized.document, false);
+});
+
+test("un Community Day sans résolution Identity Manager reste diagnostiqué sans fallback local", () => {
+  const normalized = normalizeCommunityDay({
+    boosted_pokemon: ["Pikachu"],
+    community_day_number: 1,
+    start_date: "2018-01-20",
+    end_date: "2018-01-20",
+  });
+  assert.equal(normalized.document.featuredPokemon[0].image, null);
+  assert.equal(normalized.document.featuredPokemon[0].resolutionReason, "CANONICAL_ID_NOT_FOUND");
+  assert.equal(normalized.diagnostics[0].provider, "pogoapi");
+});
+
+test("LeekDuck remplace l'image source par l'asset canonique et conserve la source pour l'audit", async () => {
+  const source = event({
+    featuredPokemon: [{ name: "Pikachu (Flying)", rawAlias: "Pikachu (Flying)", image: "https://leekduck.com/pikachu.png" }],
+  });
+  const result = await canonicalizeLeekDuckPokemonEvents([source], async (requests) => requests.map((request) => ({
+    request,
+    status: "matched",
+    reason: null,
+    identityResolution: {
+      status: "matched",
+      identity: { identityId: "identity-flying", canonicalId: "PIKACHU_COSTUME_2020", pokemonId: 25, form: null, costume: "COSTUME_2020" },
+    },
+    assetResolution: {
+      status: "matched",
+      image: "https://assets.example/pm25.fCOSTUME_2020.icon.png",
+      shinyImage: "https://assets.example/pm25.fCOSTUME_2020.s.icon.png",
+    },
+  })) as never);
+  const pokemon = result.events[0].featuredPokemon[0];
+  assert.equal(pokemon.canonicalId, "PIKACHU_COSTUME_2020");
+  assert.equal(pokemon.image, "https://assets.example/pm25.fCOSTUME_2020.icon.png");
+  assert.equal(pokemon.sourceImage, "https://leekduck.com/pikachu.png");
+  assert.equal(result.unmatched.length, 0);
 });
 
 test("refuse une entrée Community Day invalide", () => {
