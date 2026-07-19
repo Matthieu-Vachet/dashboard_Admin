@@ -210,6 +210,12 @@ test("les diagnostics source restent repliés et l'API Explorer reste contenu su
   assert.match(diagnostics, /motion-reduce:transition-none/);
   assert.match(diagnostics, /Replier les détails de la source/);
   assert.match(diagnostics, /Déplier les détails de la source/);
+  assert.match(diagnostics, /grid-cols-\[minmax\(0,1fr\)_auto\]/);
+  assert.match(diagnostics, /col-span-2 flex min-w-0 flex-wrap/);
+  assert.match(diagnostics, /function DatasetDiffBadge/);
+  assert.match(diagnostics, /<span className="sm:hidden">\s*<DatasetDiffBadge/);
+  assert.match(diagnostics, /<span className="hidden sm:block">\s*<DatasetDiffBadge/);
+  assert.match(diagnostics, /whitespace-nowrap/);
   assert.match(diagnostics, /<Modal open=\{historyOpen\}/);
   assert.doesNotMatch(diagnostics, /ModalPortal|fixed inset-0/);
   assert.match(explorer, /min-w-0 overflow-hidden/);

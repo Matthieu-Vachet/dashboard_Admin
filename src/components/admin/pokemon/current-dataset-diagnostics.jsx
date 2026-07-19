@@ -61,6 +61,15 @@ function Metric({ label, value, mono = false }) {
   );
 }
 
+function DatasetDiffBadge({ changed, hasDiff }) {
+  return (
+    <span className={`inline-flex min-h-6 shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-[9px] font-black uppercase leading-4 tracking-[0.08em] sm:px-2.5 sm:py-1 sm:text-[10px] sm:tracking-[0.12em] ${changed ? "border-amber-200/25 bg-amber-300/14 text-amber-50" : "border-emerald-200/25 bg-emerald-300/14 text-emerald-50"}`}>
+      {changed ? <GitCompare size={12} aria-hidden="true" /> : <CheckCircle2 size={12} aria-hidden="true" />}
+      {hasDiff ? (changed ? "Contenu modifié" : "Contenu inchangé") : "Diff indisponible"}
+    </span>
+  );
+}
+
 function DiagnosticCard({ entry, provider, onCopy }) {
   const rawAlias = firstDefined(entry.rawAlias, entry.sourceAlias, entry.sourceId, entry.sourceName, "—");
   const normalizedAlias = firstDefined(entry.normalizedAlias, entry.normalizedSourceId, "—");
@@ -229,27 +238,31 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
 
   return (
     <section className="mt-4 min-w-0 rounded-2xl border border-cyan-300/15 bg-cyan-400/[0.075] p-3 sm:p-4" aria-label="État de la source de données">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-sm font-black text-cyan-50">
-          <Database size={18} aria-hidden="true" />
-          <span>Source active : {sourceLabel}</span>
-          <span className="rounded-full border border-white/10 bg-white/[0.07] px-2 py-1 text-[10px] uppercase tracking-[0.12em] text-cyan-100/70">{status}</span>
-          <span className={`rounded-full border px-2 py-1 text-[10px] uppercase tracking-[0.12em] ${visibility === "private" ? "border-violet-200/25 bg-violet-300/14 text-violet-50" : "border-emerald-200/25 bg-emerald-300/14 text-emerald-50"}`}>
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-2 sm:flex sm:flex-wrap sm:gap-3">
+        <div className="flex min-w-0 items-center gap-2 text-sm font-black text-cyan-50 sm:shrink-0">
+          <Database className="shrink-0" size={18} aria-hidden="true" />
+          <span className="min-w-0 truncate" title={`Source active : ${sourceLabel}`}>Source active : {sourceLabel}</span>
+        </div>
+        <div className="order-3 col-span-2 flex min-w-0 flex-wrap items-center gap-1.5 sm:order-none sm:flex-1 sm:gap-2">
+          <span className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-white/10 bg-white/[0.07] px-2 py-0.5 text-[9px] font-black uppercase leading-4 tracking-[0.08em] text-cyan-100/70 sm:py-1 sm:text-[10px] sm:tracking-[0.12em]">{status}</span>
+          <span className={`inline-flex min-h-6 items-center whitespace-nowrap rounded-full border px-2 py-0.5 text-[9px] font-black uppercase leading-4 tracking-[0.08em] sm:py-1 sm:text-[10px] sm:tracking-[0.12em] ${visibility === "private" ? "border-violet-200/25 bg-violet-300/14 text-violet-50" : "border-emerald-200/25 bg-emerald-300/14 text-emerald-50"}`}>
             {visibility === "private" ? "Privé · Admin" : "Public · API"}
           </span>
-          {warningCount ? <span className="rounded-full border border-amber-200/25 bg-amber-300/12 px-2 py-1 text-[10px] text-amber-100">{warningCount} avertissement(s)</span> : null}
+          {warningCount ? <span className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-amber-200/25 bg-amber-300/12 px-2 py-0.5 text-[9px] font-black leading-4 text-amber-100 sm:py-1 sm:text-[10px]">{warningCount} avertissement(s)</span> : null}
           {unmatchedEntries.length ? (
-            <button className="rounded-full border border-amber-200/25 bg-amber-300/12 px-2 py-1 text-[10px] text-amber-100 underline-offset-2 hover:underline" type="button" onClick={() => openHistory(true)}>
+            <button className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-amber-200/25 bg-amber-300/12 px-2 py-0.5 text-[9px] font-black leading-4 text-amber-100 underline-offset-2 hover:underline sm:py-1 sm:text-[10px]" type="button" onClick={() => openHistory(true)}>
               {unmatchedEntries.length} non matchée(s)
             </button>
           ) : null}
-        </div>
-        <div className="flex items-center gap-2">
-          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] ${changed ? "border-amber-200/25 bg-amber-300/14 text-amber-50" : "border-emerald-200/25 bg-emerald-300/14 text-emerald-50"}`}>
-            {changed ? <GitCompare size={13} aria-hidden="true" /> : <CheckCircle2 size={13} aria-hidden="true" />}
-            {hasDiff ? (changed ? "Contenu modifié" : "Contenu inchangé") : "Diff indisponible"}
+          <span className="sm:hidden">
+            <DatasetDiffBadge changed={changed} hasDiff={hasDiff} />
           </span>
-          <Button size="icon" variant="ghost" type="button" onClick={toggleExpanded} aria-expanded={expanded} aria-label={expanded ? "Replier les détails de la source" : "Déplier les détails de la source"}>
+        </div>
+        <div className="col-start-2 row-start-1 flex shrink-0 items-center gap-2 sm:order-none sm:ml-auto">
+          <span className="hidden sm:block">
+            <DatasetDiffBadge changed={changed} hasDiff={hasDiff} />
+          </span>
+          <Button className="h-9 w-9 sm:h-10 sm:w-10" size="icon" variant="ghost" type="button" onClick={toggleExpanded} aria-expanded={expanded} aria-label={expanded ? "Replier les détails de la source" : "Déplier les détails de la source"}>
             <ChevronDown className={`transition-transform duration-200 motion-reduce:transition-none ${expanded ? "rotate-180" : ""}`} size={18} />
           </Button>
         </div>
