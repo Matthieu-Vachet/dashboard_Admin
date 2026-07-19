@@ -24,8 +24,9 @@ import {
   XCircle,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { toast } from "sonner";
+import { typeColors, typeLabels } from "@/components/site/pokemon-style";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
@@ -48,6 +49,7 @@ type LocalGenderAsset = {
 
 type LocalIdentityInfo = {
   pokemonName?: string | null;
+  types?: string[];
   form?: string | null;
   formId?: string | null;
   costume?: string | null;
@@ -224,7 +226,7 @@ const emptyAliasForm: AliasForm = {
 };
 
 const inputClass = "min-h-11 w-full rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-bold text-foreground outline-none transition focus:border-brand-2/55";
-const cardClass = "rounded-xl border border-line bg-slate-950/35 p-4 shadow-[0_18px_45px_rgba(0,0,0,.14)]";
+const cardClass = "min-w-0 overflow-hidden rounded-xl border border-line bg-slate-950/35 p-4 shadow-[0_18px_45px_rgba(0,0,0,.14)]";
 
 function identityId(identity: PokemonIdentity) {
   return identity.id || identity._id || "";
@@ -260,6 +262,20 @@ function localAssetBundle(identity: PokemonIdentity) {
   return identity.localIdentity?.assetsRef
     || identity.localIdentity?.localReferences?.find((reference) => reference.assetsRef)?.assetsRef
     || null;
+}
+
+function identityTypes(identity: PokemonIdentity) {
+  return [...new Set((identity.localIdentity?.types || []).map((type) => String(type).toUpperCase()).filter(Boolean))];
+}
+
+function identityCardStyle(types: string[]): CSSProperties {
+  const [primaryType, secondaryType] = types;
+  const primary = typeColors[primaryType] || typeColors.NORMAL;
+  const secondary = typeColors[secondaryType] || primary;
+  return {
+    borderColor: `color-mix(in srgb, ${primary} 42%, rgba(255,255,255,.12))`,
+    background: `linear-gradient(145deg, color-mix(in srgb, ${primary} 15%, rgba(2,6,23,.94)), color-mix(in srgb, ${secondary} 8%, rgba(2,6,23,.96)) 62%, rgba(2,6,23,.97))`,
+  };
 }
 
 function identityPayload(form: IdentityForm) {
@@ -764,25 +780,26 @@ export function IdentityManagerPanel() {
           {error ? <p className="rounded-xl border border-danger/30 bg-danger/10 p-4 font-bold text-rose-100">{error}</p> : null}
           {loading ? <p className="rounded-xl border border-line bg-panel/55 p-8 text-center font-bold text-muted">Chargement du catalogue…</p> : null}
           {!loading && !identities.length ? <p className="rounded-xl border border-line bg-panel/55 p-8 text-center font-bold text-muted">Aucune identité ne correspond aux filtres.</p> : null}
-          <div className="grid gap-4 xl:grid-cols-2">
+          <div className="grid min-w-0 gap-4 xl:grid-cols-2">
             {identities.map((identity) => {
               const previewAsset = localPreviewAsset(identity);
               const assetBundle = localAssetBundle(identity);
+              const types = identityTypes(identity);
               return (
-              <article key={identityId(identity)} className={cardClass}>
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="flex min-w-0 items-start gap-3">
-                    <div className="h-16 w-16 shrink-0 rounded-xl border border-line bg-slate-950/60 bg-contain bg-center bg-no-repeat" style={previewAsset ? { backgroundImage: `url(${JSON.stringify(previewAsset).slice(1, -1)})` } : undefined} role="img" aria-label={previewAsset ? `Asset local de ${identity.localIdentity?.pokemonName || identity.canonicalId}` : "Asset local absent"}>
+              <article key={identityId(identity)} className={cardClass} style={identityCardStyle(types)}>
+                <div className="grid min-w-0 grid-cols-[6rem_minmax(0,1fr)] items-start gap-3 sm:grid-cols-[7rem_minmax(0,1fr)_auto]">
+                    <div className="h-24 w-24 shrink-0 rounded-xl border border-line bg-slate-950/60 bg-contain bg-center bg-no-repeat sm:h-28 sm:w-28" style={previewAsset ? { backgroundImage: `url(${JSON.stringify(previewAsset).slice(1, -1)})` } : undefined} role="img" aria-label={previewAsset ? `Asset local de ${identity.localIdentity?.pokemonName || identity.canonicalId}` : "Asset local absent"}>
                       {!previewAsset ? <span className="grid h-full place-items-center text-[10px] font-black uppercase text-muted">Absent</span> : null}
                     </div>
                     <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2"><strong className="break-all font-mono text-lg text-cyan-100">{identity.canonicalId}</strong><Badge tone={statusTone(identity.status)}>{identity.status}</Badge>{identity.syncStatus ? <Badge tone={statusTone(identity.syncStatus)}>{identity.syncStatus}</Badge> : null}</div>
+                    <strong className="block [overflow-wrap:anywhere] font-mono text-lg text-cyan-100">{identity.canonicalId}</strong>
+                    <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2"><Badge tone={statusTone(identity.status)}>{identity.status}</Badge>{identity.syncStatus ? <Badge tone={statusTone(identity.syncStatus)}>{identity.syncStatus}</Badge> : null}</div>
                     <p className="mt-1 text-base font-black text-foreground">{identity.localIdentity?.pokemonName || `Pokémon #${identity.pokemonId}`}</p>
                     <p className="mt-1 text-sm font-bold text-muted">#{String(identity.pokemonId).padStart(4, "0")} · {identity.form || "forme normale"} · {identity.costume || "sans costume"}{identity.transformation ? ` · ${identity.transformation}` : ""}</p>
                     <p className="mt-1 text-xs font-semibold text-muted">Genre disponible : {identity.genderVariants?.male ? "mâle" : "—"} / {identity.genderVariants?.female ? "femelle" : "—"}</p>
+                    {types.length ? <div className="mt-2 flex flex-wrap gap-1.5">{types.map((type) => <span key={type} className="rounded-full border border-white/15 px-2 py-1 text-[10px] font-black uppercase tracking-[0.08em] text-white" style={{ backgroundColor: `color-mix(in srgb, ${typeColors[type] || typeColors.NORMAL} 48%, rgba(2,6,23,.75))` }}>{typeLabels[type] || type}</span>)}</div> : null}
                     </div>
-                  </div>
-                  <span className="text-xs font-semibold text-muted">MAJ {formatDate(identity.updatedAt)}</span>
+                  <span className="col-span-2 text-xs font-semibold text-muted sm:col-span-1 sm:whitespace-nowrap">MAJ {formatDate(identity.updatedAt)}</span>
                 </div>
                 <div className="mt-4 grid gap-2 rounded-lg border border-brand-2/20 bg-brand-2/[0.055] p-3 text-xs sm:grid-cols-2">
                   <p className="min-w-0"><span className="font-black uppercase tracking-[0.12em] text-cyan-200/65">Identité locale</span><br /><code className="break-all text-foreground">{identity.localIdentity?.identityKey || "Non reliée à PokemonGo-Data"}</code></p>
@@ -793,20 +810,18 @@ export function IdentityManagerPanel() {
                 {identity.localIdentity?.issues?.length ? <p className="mt-2 rounded-lg border border-warning/30 bg-warning/10 p-2 text-xs font-bold text-amber-100">{identity.localIdentity.issues.join(" · ")}</p> : null}
                 <div className="mt-4 space-y-2">
                   {identity.aliases.length ? identity.aliases.map((alias) => (
-                    <button key={alias.aliasId} type="button" className="flex w-full items-center gap-2 rounded-lg border border-line bg-white/[0.035] p-2.5 text-left transition hover:border-brand-2/35" onClick={() => openAlias(identity, alias)}>
-                      <Badge tone="violet">{alias.provider}</Badge>
-                      <span className="min-w-0 flex-1 truncate font-mono text-sm font-bold">{alias.value}</span>
-                      <Badge tone={statusTone(alias.status)}>{alias.status}</Badge>
-                      <span className="text-xs font-black text-muted">{Math.round(alias.confidence * 100)}%</span>
+                    <button key={alias.aliasId} type="button" className="flex w-full min-w-0 flex-col gap-2 rounded-lg border border-line bg-white/[0.035] p-2.5 text-left transition hover:border-brand-2/35 sm:flex-row sm:items-center" onClick={() => openAlias(identity, alias)}>
+                      <span className="flex w-full min-w-0 items-center gap-2 sm:flex-1"><Badge tone="violet">{alias.provider}</Badge><span className="min-w-0 flex-1 truncate font-mono text-sm font-bold">{alias.value}</span></span>
+                      <span className="flex items-center gap-2"><Badge tone={statusTone(alias.status)}>{alias.status}</Badge><span className="text-xs font-black text-muted">{Math.round(alias.confidence * 100)}%</span></span>
                     </button>
                   )) : <p className="rounded-lg border border-dashed border-warning/35 bg-warning/5 p-3 text-sm font-bold text-amber-100">Aucun alias fournisseur.</p>}
                 </div>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Button size="sm" variant="primary" icon={<Link2 size={14} />} onClick={() => openAlias(identity)}>Alias</Button>
-                  <Button size="sm" variant="secondary" onClick={() => openEdit(identity)}>Modifier</Button>
-                  <Button size="sm" variant="ghost" icon={<History size={14} />} onClick={() => void openHistory(identity)}>Historique</Button>
-                  <Button size="sm" variant="ghost" icon={<ArrowLeftRight size={14} />} onClick={() => setMergeModal({ open: true, identity, targetId: "", reason: "" })}>Fusionner</Button>
-                  <Button size="sm" variant={identity.status === "deprecated" ? "secondary" : "danger"} icon={identity.status === "deprecated" ? <RotateCcw size={14} /> : <Trash2 size={14} />} disabled={busy} onClick={() => identity.status === "deprecated" ? void restoreIdentity(identity) : setDeprecateModal({ open: true, identity, reason: "" })}>{identity.status === "deprecated" ? "Restaurer" : "Déprécier"}</Button>
+                <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+                  <Button className="w-full sm:w-auto" size="sm" variant="primary" icon={<Link2 size={14} />} onClick={() => openAlias(identity)}>Alias</Button>
+                  <Button className="w-full sm:w-auto" size="sm" variant="secondary" onClick={() => openEdit(identity)}>Modifier</Button>
+                  <Button className="w-full sm:w-auto" size="sm" variant="ghost" icon={<History size={14} />} onClick={() => void openHistory(identity)}>Historique</Button>
+                  <Button className="w-full sm:w-auto" size="sm" variant="ghost" icon={<ArrowLeftRight size={14} />} onClick={() => setMergeModal({ open: true, identity, targetId: "", reason: "" })}>Fusionner</Button>
+                  <Button className="col-span-2 w-full sm:w-auto" size="sm" variant={identity.status === "deprecated" ? "secondary" : "danger"} icon={identity.status === "deprecated" ? <RotateCcw size={14} /> : <Trash2 size={14} />} disabled={busy} onClick={() => identity.status === "deprecated" ? void restoreIdentity(identity) : setDeprecateModal({ open: true, identity, reason: "" })}>{identity.status === "deprecated" ? "Restaurer" : "Déprécier"}</Button>
                 </div>
               </article>
               );
