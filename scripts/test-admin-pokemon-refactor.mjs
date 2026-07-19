@@ -301,6 +301,11 @@ test("Identity Manager reste privé et expose un CRUD traçable sans secret navi
   assert.match(panel, /sm:h-28 sm:w-28/);
   assert.match(panel, /grid-cols-\[6rem_minmax\(0,1fr\)\]/);
   assert.match(panel, /grid grid-cols-2 gap-2 sm:flex sm:flex-wrap/);
+  assert.match(panel, /meta\.stats\?\.providers/);
+  assert.match(panel, /aliasProviderOptions/);
+  assert.match(panel, /Autre…/);
+  assert.match(panel, /Nom du fournisseur personnalisé/);
+  assert.match(panel, /normalisé et contrôlé par le serveur/);
   assert.match(panel, /identity-manager-sync-preview/);
   assert.match(panel, /identity-manager-sync-apply/);
   assert.match(panel, /syncStatus/);

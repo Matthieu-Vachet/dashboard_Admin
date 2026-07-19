@@ -225,6 +225,8 @@ const emptyAliasForm: AliasForm = {
   reason: "",
 };
 
+const customProviderValue = "__custom_provider__";
+
 const inputClass = "min-h-11 w-full rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-bold text-foreground outline-none transition focus:border-brand-2/55";
 const cardClass = "min-w-0 overflow-hidden rounded-xl border border-line bg-slate-950/35 p-4 shadow-[0_18px_45px_rgba(0,0,0,.14)]";
 
@@ -370,6 +372,7 @@ export function IdentityManagerPanel() {
   const [identityForm, setIdentityForm] = useState<IdentityForm>(emptyIdentityForm);
   const [aliasModal, setAliasModal] = useState<{ open: boolean; identity?: PokemonIdentity; alias?: ProviderAlias }>({ open: false });
   const [aliasForm, setAliasForm] = useState<AliasForm>(emptyAliasForm);
+  const [aliasProviderSelection, setAliasProviderSelection] = useState(emptyAliasForm.provider);
   const [historyModal, setHistoryModal] = useState<{ open: boolean; identity?: PokemonIdentity; items: Array<Record<string, unknown>> }>({ open: false, items: [] });
   const [mergeModal, setMergeModal] = useState<{ open: boolean; identity?: PokemonIdentity; targetId: string; reason: string }>({ open: false, targetId: "", reason: "" });
   const [deprecateModal, setDeprecateModal] = useState<{ open: boolean; identity?: PokemonIdentity; reason: string }>({ open: false, reason: "" });
@@ -385,6 +388,16 @@ export function IdentityManagerPanel() {
   const effectiveIdentitySearch = combineWith(filters.search);
 
   const providers = useMemo(() => meta.stats?.providers || [], [meta.stats?.providers]);
+  const aliasProviderOptions = useMemo(() => {
+    const names = new Set(
+      providers
+        .map((entry) => entry.provider.trim())
+        .filter(Boolean),
+    );
+    names.add(emptyAliasForm.provider);
+    if (aliasProviderSelection !== customProviderValue) names.add(aliasProviderSelection);
+    return [...names].sort((left, right) => left.localeCompare(right, "fr"));
+  }, [aliasProviderSelection, providers]);
   const activeCount = Number(meta.stats?.statuses?.active || 0);
   const conflictCount = Number(conflicts.explicitConflicts || 0) + Number(conflicts.aliasConflicts?.length || 0);
   const localFieldsLocked = Boolean(identityModal.identity?.localIdentity && identityModal.identity.syncStatus === "synchronized");
@@ -502,7 +515,9 @@ export function IdentityManagerPanel() {
   }
 
   function openAlias(identity: PokemonIdentity, alias?: ProviderAlias) {
-    setAliasForm(alias ? { provider: alias.provider, value: alias.value, status: alias.status, confidence: String(alias.confidence), reason: alias.reason || "" } : emptyAliasForm);
+    const form = alias ? { provider: alias.provider, value: alias.value, status: alias.status, confidence: String(alias.confidence), reason: alias.reason || "" } : emptyAliasForm;
+    setAliasForm(form);
+    setAliasProviderSelection(form.provider);
     setAliasModal({ open: true, identity, alias });
   }
 
@@ -901,7 +916,35 @@ export function IdentityManagerPanel() {
       </Modal>
 
       <Modal open={aliasModal.open} onClose={() => setAliasModal({ open: false })} title={aliasModal.alias ? "Modifier l’alias" : "Ajouter un alias fournisseur"} description={aliasModal.identity?.canonicalId} footer={<div className="flex justify-end gap-2"><Button onClick={() => setAliasModal({ open: false })}>Annuler</Button><Button variant="primary" disabled={busy} onClick={() => void saveAlias()}>Enregistrer</Button></div>}>
-        <div className="grid gap-4 sm:grid-cols-2"><Field label="Provider"><Input value={aliasForm.provider} onChange={(event) => setAliasForm((current) => ({ ...current, provider: event.target.value }))} placeholder="leekduck" /></Field><Field label="Valeur originale"><Input value={aliasForm.value} onChange={(event) => setAliasForm((current) => ({ ...current, value: event.target.value }))} placeholder="pikachu-world-cap" /></Field><Field label="Statut"><select className={inputClass} value={aliasForm.status} onChange={(event) => setAliasForm((current) => ({ ...current, status: event.target.value as AliasStatus }))}>{(["active", "deprecated", "ignored", "conflict"] as const).map((status) => <option key={status}>{status}</option>)}</select></Field><Field label="Confiance (0 à 1)"><Input inputMode="decimal" value={aliasForm.confidence} onChange={(event) => setAliasForm((current) => ({ ...current, confidence: event.target.value }))} /></Field><div className="sm:col-span-2"><Field label="Motif"><Textarea value={aliasForm.reason} onChange={(event) => setAliasForm((current) => ({ ...current, reason: event.target.value }))} /></Field></div></div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Fournisseur">
+            <select
+              className={inputClass}
+              value={aliasProviderSelection}
+              onChange={(event) => {
+                const provider = event.target.value;
+                setAliasProviderSelection(provider);
+                setAliasForm((current) => ({ ...current, provider: provider === customProviderValue ? "" : provider }));
+              }}
+            >
+              {aliasProviderOptions.map((provider) => <option key={provider} value={provider}>{provider}</option>)}
+              <option value={customProviderValue}>Autre…</option>
+            </select>
+            {aliasProviderSelection === customProviderValue ? (
+              <Input
+                aria-label="Nom du fournisseur personnalisé"
+                value={aliasForm.provider}
+                onChange={(event) => setAliasForm((current) => ({ ...current, provider: event.target.value }))}
+                placeholder="nouveau-fournisseur"
+              />
+            ) : null}
+            <span className="normal-case tracking-normal text-muted">Le nom est normalisé et contrôlé par le serveur avant enregistrement.</span>
+          </Field>
+          <Field label="Valeur originale"><Input value={aliasForm.value} onChange={(event) => setAliasForm((current) => ({ ...current, value: event.target.value }))} placeholder="pikachu-world-cap" /></Field>
+          <Field label="Statut"><select className={inputClass} value={aliasForm.status} onChange={(event) => setAliasForm((current) => ({ ...current, status: event.target.value as AliasStatus }))}>{(["active", "deprecated", "ignored", "conflict"] as const).map((status) => <option key={status}>{status}</option>)}</select></Field>
+          <Field label="Confiance (0 à 1)"><Input inputMode="decimal" value={aliasForm.confidence} onChange={(event) => setAliasForm((current) => ({ ...current, confidence: event.target.value }))} /></Field>
+          <div className="sm:col-span-2"><Field label="Motif"><Textarea value={aliasForm.reason} onChange={(event) => setAliasForm((current) => ({ ...current, reason: event.target.value }))} /></Field></div>
+        </div>
       </Modal>
 
       <Modal open={historyModal.open} onClose={() => setHistoryModal({ open: false, items: [] })} title={historyModal.identity ? `Historique · ${historyModal.identity.canonicalId}` : "Historique Identity Manager"} className="max-w-4xl">
