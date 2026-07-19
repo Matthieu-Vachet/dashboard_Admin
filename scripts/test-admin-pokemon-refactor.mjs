@@ -18,6 +18,9 @@ test("la navigation Admin Pokémon est compacte sur desktop et devient une sheet
   assert.match(source, /fixed inset-0 z-\[90\]/);
   assert.match(source, /role="dialog" aria-modal="true"/);
   assert.match(source, /document\.body\.style\.overflow = "hidden"/);
+  assert.match(source, /mobileCloseRef\.current\?\.focus\(\)/);
+  assert.match(source, /ref=\{mobileCloseRef\}/);
+  assert.doesNotMatch(source, /mobileSearchRef|ref=\{mobileSearchRef\}/);
   assert.match(source, /createPortal/);
   assert.match(source, /document\.body\)/);
   assert.doesNotMatch(source, /2xl:grid-cols-5/);

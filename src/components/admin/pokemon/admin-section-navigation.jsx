@@ -44,13 +44,13 @@ export function AdminSectionNavigation({ items, active, onSelect }) {
   const [desktopQuery, setDesktopQuery] = useState("");
   const [mobileQuery, setMobileQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
-  const mobileSearchRef = useRef(null);
+  const mobileCloseRef = useRef(null);
 
   useEffect(() => {
     if (!mobileOpen) return undefined;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    mobileSearchRef.current?.focus();
+    mobileCloseRef.current?.focus();
     const closeOnEscape = (event) => {
       if (event.key === "Escape") setMobileOpen(false);
     };
@@ -151,14 +151,13 @@ export function AdminSectionNavigation({ items, active, onSelect }) {
                 <small className="text-[10px] font-black uppercase tracking-[.2em] text-cyan-200/70">Admin Pokémon</small>
                 <h2 className="text-xl font-black text-white">Changer de section</h2>
               </div>
-              <button className="grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-white/[.06] text-white" type="button" onClick={() => setMobileOpen(false)} aria-label="Fermer la navigation">
+              <button ref={mobileCloseRef} className="grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-white/[.06] text-white" type="button" onClick={() => setMobileOpen(false)} aria-label="Fermer la navigation">
                 <X size={20} />
               </button>
             </header>
             <label className="relative mt-4 block">
               <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
               <input
-                ref={mobileSearchRef}
                 className={`${fieldClass} min-h-12 pl-12`}
                 value={mobileQuery}
                 onChange={(event) => setMobileQuery(event.target.value)}
