@@ -25,6 +25,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { resolvePokemonVariant } from "@/lib/pokemon-variant-resolver";
+import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
 import {
   commitTrainerPokemonImport,
   previewTrainerPokemonImport,
@@ -246,6 +247,7 @@ function ImportModal({
 }
 
 export function TrainerPokemonCollectionPanel() {
+  const { combineWith } = useAdminPokemonSearch();
   const [query, setQuery] = useState(initialQuery);
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [data, setData] = useState<TrainerPokemonListResponse | null>(null);
@@ -264,11 +266,12 @@ export function TrainerPokemonCollectionPanel() {
   const [announcement, setAnnouncement] = useState("");
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
   const requestIdRef = useRef(0);
+  const combinedSearch = combineWith(query.search);
 
   useEffect(() => {
-    const timeout = window.setTimeout(() => setDebouncedSearch(query.search), 300);
+    const timeout = window.setTimeout(() => setDebouncedSearch(combinedSearch), 300);
     return () => window.clearTimeout(timeout);
-  }, [query.search]);
+  }, [combinedSearch]);
 
   const load = useCallback(async (background = false) => {
     const requestId = ++requestIdRef.current;

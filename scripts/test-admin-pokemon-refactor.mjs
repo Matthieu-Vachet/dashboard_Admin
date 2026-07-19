@@ -344,3 +344,33 @@ test("les aliases inconnus disposent d’un workflow de résolution détaillé",
   assert.match(panel, /identity-manager-diagnostic-update/);
   assert.match(panel, /Résolu depuis le diagnostic/);
 });
+
+test("la recherche Admin Pokémon persiste dans l’URL et se propage aux sections compatibles", () => {
+  const app = read("src/components/admin/pokemon/admin-app.jsx");
+  const context = read("src/components/admin/pokemon/admin-pokemon-search-context.tsx");
+  const gameMaster = read("src/components/admin/pokemon/game-master-explorer-panel.jsx");
+  assert.match(app, /<AdminPokemonSearchProvider query=\{search\}/);
+  assert.match(app, /url\.searchParams\.set\("q", value\)/);
+  assert.match(app, /requestedParams\.get\("q"\)/);
+  assert.match(app, /onSearchChange=\{updateGlobalSearch\}/);
+  assert.match(context, /combineAdminPokemonSearch/);
+  assert.match(context, /useAdminPokemonSearch/);
+  assert.match(gameMaster, /combineAdminPokemonSearch\(globalSearch, filters\.q\)/);
+  assert.match(gameMaster, /combineAdminPokemonSearch\(globalSearch, comparisonFilters\.q\)/);
+
+  for (const file of [
+    "catalog-panel.jsx",
+    "community-days-panel.jsx",
+    "eggs-panel.jsx",
+    "identity-manager-panel.tsx",
+    "max-battles-panel.jsx",
+    "raids-panel.jsx",
+    "research-panel.jsx",
+    "rocket-panel.jsx",
+    "trainer-pokemon-collection-panel.tsx",
+  ]) {
+    const panel = read(`src/components/admin/pokemon/${file}`);
+    assert.match(panel, /useAdminPokemonSearch/);
+    assert.match(panel, /combineWith/);
+  }
+});

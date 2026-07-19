@@ -9,6 +9,7 @@ import { DatasetFilterBar } from "./dataset-filter-bar";
 import { Badge as DesignSystemBadge } from "@/components/ui/badge";
 import { uiAssets } from "@/components/site/ui-assets";
 import { PokemonArtwork } from "./pokemon-artwork";
+import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
 
 const sectionLabels = {
   fieldResearch: "Field Research",
@@ -282,6 +283,7 @@ export function ResearchPanel({
   onDownload,
   onRegenerate,
 }) {
+  const { combineWith } = useAdminPokemonSearch();
   const [query, setQuery] = useState("");
   const [eventOnly, setEventOnly] = useState(false);
   const [pokemonOnly, setPokemonOnly] = useState(false);
@@ -298,7 +300,7 @@ export function ResearchPanel({
     sectionLabels[id] || id.replace(/([A-Z])/g, " $1"),
     values(tasks),
   ]), [currentResearchList]);
-  const normalizedQuery = textKey(query);
+  const normalizedQuery = textKey(combineWith(query));
   const filteredSections = useMemo(() => sections.map(([id, title, tasks]) => [
     id,
     title,

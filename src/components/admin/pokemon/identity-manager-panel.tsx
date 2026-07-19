@@ -31,6 +31,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { cn } from "@/lib/cn";
+import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
 
 type IdentityStatus = "active" | "draft" | "deprecated" | "ignored";
 type AliasStatus = "active" | "deprecated" | "ignored" | "conflict";
@@ -337,6 +338,7 @@ function Stat({ label, value, tone = "cyan", onClick }: { label: string; value: 
 }
 
 export function IdentityManagerPanel() {
+  const { combineWith } = useAdminPokemonSearch();
   const [view, setView] = useState<"identities" | "diagnostics">("identities");
   const [identities, setIdentities] = useState<PokemonIdentity[]>([]);
   const [meta, setMeta] = useState<ListMeta>({ page: 1, limit: 24, total: 0, pages: 1 });
@@ -364,6 +366,7 @@ export function IdentityManagerPanel() {
   const [syncModalOpen, setSyncModalOpen] = useState(false);
   const [syncLoading, setSyncLoading] = useState(false);
   const [syncReport, setSyncReport] = useState<IdentitySyncReport | null>(null);
+  const effectiveIdentitySearch = combineWith(filters.search);
 
   const providers = useMemo(() => meta.stats?.providers || [], [meta.stats?.providers]);
   const activeCount = Number(meta.stats?.statuses?.active || 0);
@@ -393,7 +396,7 @@ export function IdentityManagerPanel() {
     setError("");
     try {
       const [identityUpstream, conflictUpstream] = await Promise.all([
-        apiGet("identity-manager", { ...filters, limit: 24 }),
+        apiGet("identity-manager", { ...filters, search: effectiveIdentitySearch, limit: 24 }),
         apiGet("identity-manager-conflicts"),
       ]);
       const result = unwrapList<PokemonIdentity>(identityUpstream);
@@ -408,7 +411,7 @@ export function IdentityManagerPanel() {
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [effectiveIdentitySearch, filters]);
 
   const loadDiagnostics = useCallback(async (notify = false) => {
     setLoading(true);

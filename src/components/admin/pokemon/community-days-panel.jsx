@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { buttonClass, fieldClass, Panel, primaryButtonClass } from "./admin-ui";
 import { PokemonArtwork } from "./pokemon-artwork";
+import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
 
 const statusTabs = [["", "Tous"], ["upcoming", "À venir"], ["active", "En cours"], ["past", "Passés"], ["unresolved", "Non résolus"]];
 const generationRanges = { 1: [1, 151], 2: [152, 251], 3: [252, 386], 4: [387, 493], 5: [494, 649], 6: [650, 721], 7: [722, 809], 8: [810, 905], 9: [906, 1025] };
 
 export function CommunityDaysPanel() {
+  const { combineWith } = useAdminPokemonSearch();
   const [resource, setResource] = useState({ items: [], meta: {}, history: [] });
   const [status, setStatus] = useState("");
   const [query, setQuery] = useState("");
@@ -23,6 +25,7 @@ export function CommunityDaysPanel() {
   const [generation, setGeneration] = useState("");
   const [busy, setBusy] = useState("");
   const [inspect, setInspect] = useState(null);
+  const effectiveQuery = combineWith(query);
 
   const load = useCallback(async (notify = false) => {
     setBusy("load");
@@ -32,7 +35,7 @@ export function CommunityDaysPanel() {
       if (status === "unresolved") params.set("unresolved", "true");
       if (year) params.set("year", year);
       if (month) params.set("month", month);
-      if (query) params.set("search", query);
+      if (effectiveQuery) params.set("search", effectiveQuery);
       const response = await fetch(`/api/admin/community-days?${params}`, { cache: "no-store" });
       const payload = await response.json();
       if (!response.ok || payload.success === false) throw new Error(payload.error || "Community Days indisponibles.");
@@ -41,7 +44,7 @@ export function CommunityDaysPanel() {
     } catch (error) {
       toast.error(error.message || "Community Days indisponibles.");
     } finally { setBusy(""); }
-  }, [status, year, month, query]);
+  }, [status, year, month, effectiveQuery]);
 
   useEffect(() => { const timer = setTimeout(() => load(false), 180); return () => clearTimeout(timer); }, [load]);
 

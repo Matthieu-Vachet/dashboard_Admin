@@ -9,6 +9,7 @@ import { DatasetFilterBar } from "./dataset-filter-bar";
 import { TierSection } from "./tier-section";
 import { Badge } from "@/components/ui/badge";
 import { PokemonArtwork } from "./pokemon-artwork";
+import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
 
 const eggSections = [
   ["1km", "1 km", "/ui/eggs/1_km.png", "cyan"],
@@ -157,6 +158,7 @@ export function EggsPanel({
   onOpenPokemon,
   typeCatalog = [],
 }) {
+  const { combineWith } = useAdminPokemonSearch();
   const [query, setQuery] = useState("");
   const [shinyOnly, setShinyOnly] = useState(false);
   const [rareOnly, setRareOnly] = useState(false);
@@ -167,7 +169,7 @@ export function EggsPanel({
   const total = totalEggs(currentEggsList);
   const adventureTotal = (buckets["5km_adventure_sync"] || 0) + (buckets["10km_adventure_sync"] || 0);
   const sections = useMemo(() => allEggSections(currentEggsList), [currentEggsList]);
-  const normalizedQuery = query.trim().toLowerCase();
+  const normalizedQuery = combineWith(query).toLocaleLowerCase("fr");
   const filteredSections = useMemo(() => sections.map((section) => {
     const [id] = section;
     const pokemon = values(currentEggsList[id]).filter((entry) => {

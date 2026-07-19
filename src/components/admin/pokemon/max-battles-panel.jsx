@@ -9,6 +9,7 @@ import { DatasetFilterBar } from "./dataset-filter-bar";
 import { TierSection } from "./tier-section";
 import { Badge } from "@/components/ui/badge";
 import { PokemonArtwork } from "./pokemon-artwork";
+import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
 
 function values(data) {
   return Array.isArray(data) ? data : [];
@@ -132,6 +133,7 @@ export function MaxBattlesPanel({
   onOpenPokemon,
   typeCatalog = [],
 }) {
+  const { combineWith } = useAdminPokemonSearch();
   const [query, setQuery] = useState("");
   const [shinyOnly, setShinyOnly] = useState(false);
   const [gigantamaxOnly, setGigantamaxOnly] = useState(false);
@@ -141,7 +143,7 @@ export function MaxBattlesPanel({
   );
   const total = totalBattles(currentMaxBattle);
   const tierEntries = useMemo(() => sortedTierEntries(currentMaxBattle), [currentMaxBattle]);
-  const normalizedQuery = query.trim().toLowerCase();
+  const normalizedQuery = combineWith(query).toLocaleLowerCase("fr");
   const filteredTierEntries = useMemo(() => tierEntries.map(([id, pokemon]) => [id, values(pokemon).filter((entry) => {
     if (shinyOnly && !entry.shiny) return false;
     if (gigantamaxOnly && !String(entry.maxForm || entry.form || "").toLowerCase().includes("gigantamax")) return false;

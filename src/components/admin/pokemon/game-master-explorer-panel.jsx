@@ -27,6 +27,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { buttonClass, fieldClass, Panel, primaryButtonClass } from "./admin-ui";
+import { combineAdminPokemonSearch, useAdminPokemonSearch } from "./admin-pokemon-search-context";
 import { GameMasterJsonViewer } from "./game-master-json-viewer";
 
 const modes = [
@@ -319,6 +320,7 @@ function DetailModal({ resource, loading, tab, onTab, onClose }) {
 }
 
 export function GameMasterExplorerPanel() {
+  const { query: globalSearch } = useAdminPokemonSearch();
   const [mode, setMode] = useState("explorer");
   const [summary, setSummary] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -338,6 +340,14 @@ export function GameMasterExplorerPanel() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailTab, setDetailTab] = useState("summary");
   const closeDetail = useCallback(() => setDetail(null), []);
+  const effectiveFilters = useMemo(() => ({
+    ...filters,
+    q: combineAdminPokemonSearch(globalSearch, filters.q),
+  }), [filters, globalSearch]);
+  const effectiveComparisonFilters = useMemo(() => ({
+    ...comparisonFilters,
+    q: combineAdminPokemonSearch(globalSearch, comparisonFilters.q),
+  }), [comparisonFilters, globalSearch]);
 
   const loadOverview = useCallback(async () => {
     setLoading(true);
@@ -362,28 +372,28 @@ export function GameMasterExplorerPanel() {
       setContentLoading(true);
       setError("");
       try {
-        const payload = await gameMasterRequest(mode === "search" ? "game-master-search" : "game-master-templates", filters, { signal: controller.signal });
+        const payload = await gameMasterRequest(mode === "search" ? "game-master-search" : "game-master-templates", effectiveFilters, { signal: controller.signal });
         setTemplates(payload);
       } catch (requestError) {
         if (requestError.name !== "AbortError") setError(requestError.message);
       } finally {
         setContentLoading(false);
       }
-    }, filters.q ? 260 : 0);
+    }, effectiveFilters.q ? 260 : 0);
     return () => { window.clearTimeout(timeout); controller.abort(); };
-  }, [filters, mode, summary?.initialized]);
+  }, [effectiveFilters, mode, summary?.initialized]);
 
   useEffect(() => {
     if (!summary?.initialized || mode !== "comparison") return undefined;
     const controller = new AbortController();
     const timeout = window.setTimeout(async () => {
       setContentLoading(true);
-      try { setComparison(await gameMasterRequest("game-master-comparison", comparisonFilters, { signal: controller.signal })); }
+      try { setComparison(await gameMasterRequest("game-master-comparison", effectiveComparisonFilters, { signal: controller.signal })); }
       catch (requestError) { if (requestError.name !== "AbortError") setError(requestError.message); }
       finally { setContentLoading(false); }
-    }, comparisonFilters.q ? 260 : 0);
+    }, effectiveComparisonFilters.q ? 260 : 0);
     return () => { window.clearTimeout(timeout); controller.abort(); };
-  }, [comparisonFilters, mode, summary?.initialized]);
+  }, [effectiveComparisonFilters, mode, summary?.initialized]);
 
   useEffect(() => {
     if (!summary?.initialized || mode !== "history") return undefined;
@@ -433,7 +443,7 @@ export function GameMasterExplorerPanel() {
 
   function setFilter(key, value) { setFilters((current) => ({ ...current, [key]: value, page: 1 })); }
   function setComparisonFilter(key, value) { setComparisonFilters((current) => ({ ...current, [key]: value, page: 1 })); }
-  const exportParams = mode === "comparison" ? comparisonFilters : mode === "history" ? diffFilters : filters;
+  const exportParams = mode === "comparison" ? effectiveComparisonFilters : mode === "history" ? diffFilters : effectiveFilters;
   const exportHref = (format) => {
     const params = new URLSearchParams({ action: "game-master-export", scope: mode === "comparison" ? "comparison" : mode === "history" ? "diff" : "templates", format });
     for (const [key, value] of Object.entries(exportParams)) if (value !== "" && !["page", "limit"].includes(key)) params.set(key, String(value));

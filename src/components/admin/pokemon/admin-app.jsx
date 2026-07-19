@@ -3,7 +3,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   AlertTriangle,
@@ -75,6 +75,7 @@ import { DataDeployHistoryModal, SourceHistoryModal, SourceRows } from "./source
 import { UpdateLogPanel } from "./update-log-panel";
 import { AdminTodoPanel } from "./admin-todo-panel";
 import { AdminCommandCenter } from "./admin-command-center";
+import { AdminPokemonSearchProvider } from "./admin-pokemon-search-context";
 import { AdminSectionNavigation } from "./admin-section-navigation";
 import {
   readDashboardStoreValue,
@@ -1050,14 +1051,29 @@ export function AdminApp() {
     window.history.replaceState({}, "", url);
   }
 
+  const updateGlobalSearch = useCallback((value) => {
+    setSearch(value);
+    setShinyOptions((current) => current.search === value ? current : { ...current, search: value, page: 1 });
+    setPvpOptions((current) => current.search === value ? current : { ...current, search: value, page: 1 });
+    setBestAttackersOptions((current) => current.search === value ? current : { ...current, search: value, page: 1 });
+    setIdentityMappingOptions((current) => current.search === value ? current : { ...current, search: value, page: 1 });
+    const url = new URL(window.location.href);
+    if (value.trim()) url.searchParams.set("q", value);
+    else url.searchParams.delete("q");
+    window.history.replaceState({}, "", url);
+  }, []);
+
   useEffect(() => {
     setAssetChecks(readLocalJson(legacyAssetChecksKey, {}));
     setCollections(readLocalJson(collectionsKey, []));
-    const requestedSection = new URLSearchParams(window.location.search).get("section");
+    const requestedParams = new URLSearchParams(window.location.search);
+    const requestedSection = requestedParams.get("section");
+    const requestedSearch = requestedParams.get("q") || "";
     if (requestedSection && navItems.some((item) => item.id === requestedSection)) {
       setActive(requestedSection);
     }
-  }, []);
+    if (requestedSearch) updateGlobalSearch(requestedSearch);
+  }, [updateGlobalSearch]);
 
   useEffect(() => {
     if (!session.authenticated) return;
@@ -2018,6 +2034,7 @@ export function AdminApp() {
   }
 
   return (
+    <AdminPokemonSearchProvider query={search} onQueryChange={updateGlobalSearch}>
     <main className="pokemon-admin-surface text-white">
       <div className="w-full">
         <section className="min-w-0">
@@ -2050,7 +2067,7 @@ export function AdminApp() {
                     className={`${fieldClass} pl-11`}
                     placeholder="Chercher fiche, type, fichier..."
                     value={search}
-                    onChange={(event) => setSearch(event.target.value)}
+                    onChange={(event) => updateGlobalSearch(event.target.value)}
                   />
                 </label>
                 <button className={buttonClass} type="button" onClick={() => loadAdminData({ notify: true })}>
@@ -2093,7 +2110,7 @@ export function AdminApp() {
                   freshness={bootstrap.payload?.freshness || null}
                   search={search}
                   refreshing={bootstrap.loading || sourceWatch?.loading}
-                  onSearchChange={setSearch}
+                  onSearchChange={updateGlobalSearch}
                   onNavigate={selectSection}
                   onRefresh={() => { void loadAdminData({ notify: true }); void loadSources(); }}
                 />
@@ -2684,5 +2701,6 @@ export function AdminApp() {
         }}
       />
     </main>
+    </AdminPokemonSearchProvider>
   );
 }

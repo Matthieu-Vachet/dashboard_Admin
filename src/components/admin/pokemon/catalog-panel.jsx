@@ -5,6 +5,7 @@ import { ChevronDown, Swords, Zap } from "lucide-react";
 import { fieldClass, Panel } from "./admin-ui";
 import { PokemonArtwork } from "./pokemon-artwork";
 import { typeBackground, typeColors, typeIcon, typeName } from "@/components/site/pokemon-style";
+import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
 
 function moveTitle(move) {
   return move.names?.French || move.names?.English || move.name || move.id;
@@ -286,6 +287,7 @@ function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
 }
 
 export function CatalogPanel({ catalog = {}, onOpen }) {
+  const { combineWith } = useAdminPokemonSearch();
   const [tab, setTab] = useState("moves");
   const [catalogSearch, setCatalogSearch] = useState("");
   const data = catalog || {};
@@ -303,8 +305,9 @@ export function CatalogPanel({ catalog = {}, onOpen }) {
         : tab === "weather"
           ? data.weather || []
           : data.types || [];
+  const effectiveSearch = combineWith(catalogSearch).toLocaleLowerCase("fr");
   const items = rawItems.filter((item) =>
-    JSON.stringify(item).toLowerCase().includes(catalogSearch.trim().toLowerCase()),
+    JSON.stringify(item).toLocaleLowerCase("fr").includes(effectiveSearch),
   );
 
   return (

@@ -6,6 +6,7 @@ import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-u
 import { DatasetSourceHeader } from "./dataset-source-header";
 import { DatasetFilterBar } from "./dataset-filter-bar";
 import { PokemonArtwork } from "./pokemon-artwork";
+import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
 
 const rocketTrainerAssets = {
   arlo: "/ui/rocket/leader-arlo.webp",
@@ -345,6 +346,7 @@ export function RocketPanel({
   onRegenerate,
   onOpenPokemon,
 }) {
+  const { combineWith } = useAdminPokemonSearch();
   const [query, setQuery] = useState("");
   const [shinyOnly, setShinyOnly] = useState(false);
   const [bossOnly, setBossOnly] = useState(false);
@@ -355,7 +357,7 @@ export function RocketPanel({
   const totalTrainers = profiles.length;
   const totalEntries = totalPokemon(profiles);
   const translatedProfiles = profiles.filter((profile) => findRocketText(profile, texts)).length;
-  const normalizedQuery = textKey(query);
+  const normalizedQuery = textKey(combineWith(query));
   const filteredGroups = useMemo(() => groups.map(([title, items, group]) => [
     title,
     items.filter((profile) => {

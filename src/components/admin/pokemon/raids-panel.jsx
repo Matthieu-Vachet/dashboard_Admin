@@ -10,6 +10,7 @@ import { DatasetFilterBar } from "./dataset-filter-bar";
 import { TierSection } from "./tier-section";
 import { Badge } from "@/components/ui/badge";
 import { PokemonArtwork } from "./pokemon-artwork";
+import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
 
 const raidSections = [
   ["super_mega", "Super Méga", "/ui/raids/mega_raids_legendaire_raids.png", "violet"],
@@ -188,6 +189,7 @@ export function RaidsPanel({
   typeCatalog = [],
   weatherCatalog = [],
 }) {
+  const { combineWith } = useAdminPokemonSearch();
   const [query, setQuery] = useState("");
   const [shinyOnly, setShinyOnly] = useState(false);
   const [unmatchedOnly, setUnmatchedOnly] = useState(false);
@@ -198,7 +200,7 @@ export function RaidsPanel({
   const total = totalRaids(currentList);
   const openBugs = values(currentList.shadow_lvl5).length + values(currentList.shadow_lvl3).length + values(currentList.shadow_lvl1).length;
   const sections = useMemo(() => allRaidSections(currentList), [currentList]);
-  const normalizedQuery = query.trim().toLowerCase();
+  const normalizedQuery = combineWith(query).toLocaleLowerCase("fr");
   const filteredSections = useMemo(() => sections.map((section) => {
     const [id] = section;
     const bosses = values(currentList[id]).filter((boss) => {
