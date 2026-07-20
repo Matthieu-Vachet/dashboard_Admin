@@ -27,7 +27,7 @@ export function AdminAppFrame({
     navGroups.map((group) => group.id),
   );
   const versionHistory = useDashboardVersionHistory();
-  const brandLogo = "/ui/matweb-innovation-letter-m3.png";
+  const brandLogo = "/ui/zygardDexLogo.png";
 
   const activeLabel = useMemo(
     () => navItems.find((item) => item.href === pathname)?.label || "Accueil",
