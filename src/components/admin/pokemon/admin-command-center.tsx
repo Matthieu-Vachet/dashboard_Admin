@@ -2,25 +2,36 @@
 
 import {
   Activity,
+  AlertTriangle,
   ArrowRight,
   CalendarClock,
   CalendarDays,
   CheckCircle2,
+  CircleDashed,
   Clock3,
   DatabaseZap,
   Fingerprint,
   History,
   Image as ImageIcon,
+  LoaderCircle,
+  Play,
   Radar,
   RefreshCcw,
   Search,
   ShieldAlert,
+  XCircle,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState, type ComponentType } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  executeGlobalRegenerationStep,
+  globalRegenerationDefinitions,
+  initialGlobalRegenerationSteps,
+  type GlobalRegenerationStep,
+} from "@/lib/admin-pokemon-global-regeneration";
 
 type Summary = {
   total?: number;
@@ -183,6 +194,14 @@ function EventLine({ event, label }: { event?: EventItem; label: string }) {
   );
 }
 
+function RegenerationStatusIcon({ status }: { status: GlobalRegenerationStep["status"] }) {
+  if (status === "running") return <LoaderCircle className="animate-spin text-cyan-200 motion-reduce:animate-none" size={17} />;
+  if (status === "success") return <CheckCircle2 className="text-emerald-200" size={17} />;
+  if (status === "warning") return <AlertTriangle className="text-amber-200" size={17} />;
+  if (status === "error") return <XCircle className="text-rose-200" size={17} />;
+  return <CircleDashed className="text-muted" size={17} />;
+}
+
 export function AdminCommandCenter({
   summary,
   assetCheckedCount,
@@ -198,6 +217,9 @@ export function AdminCommandCenter({
   onRefresh,
 }: CommandCenterProps) {
   const [remote, setRemote] = useState<RemoteOverview>(emptyRemote);
+  const [regenerationSteps, setRegenerationSteps] = useState<GlobalRegenerationStep[]>(initialGlobalRegenerationSteps);
+  const [regenerationStarted, setRegenerationStarted] = useState(false);
+  const regenerationLock = useRef(false);
 
   const loadRemoteOverview = useCallback(async () => {
     const results = await Promise.allSettled([
@@ -249,11 +271,45 @@ export function AdminCommandCenter({
   const attentionCount = Number(summary.issues || 0) + Number(remote.aliasesUnresolved || 0) + Number(remote.conflicts || 0) + providerErrors;
   const lastSync = freshness?.data?.iso || freshness?.data?.date || history[0]?.iso || history[0]?.date;
   const recentHistory = history.slice(0, 3);
+  const regenerationRunning = regenerationSteps.some((step) => step.status === "running");
+  const regenerationCompleted = regenerationSteps.filter((step) => ["success", "warning", "error"].includes(step.status)).length;
+  const regenerationErrors = regenerationSteps.filter((step) => step.status === "error").length;
+  const regenerationWarnings = regenerationSteps.filter((step) => step.status === "warning").length;
+  const regenerationProgress = Math.round((regenerationCompleted / regenerationSteps.length) * 100);
 
   function refreshAll() {
     onRefresh();
     setRemote((current) => ({ ...current, loading: true }));
     void loadRemoteOverview();
+  }
+
+  function updateRegenerationStep(id: string, patch: Partial<GlobalRegenerationStep>) {
+    setRegenerationSteps((current) => current.map((step) => (step.id === id ? { ...step, ...patch } : step)));
+  }
+
+  async function regenerateAll() {
+    if (regenerationLock.current) return;
+    regenerationLock.current = true;
+    setRegenerationStarted(true);
+    setRegenerationSteps(initialGlobalRegenerationSteps());
+
+    for (const definition of globalRegenerationDefinitions) {
+      updateRegenerationStep(definition.id, { status: "running", summary: "Traitement en cours…", diagnostics: undefined });
+      try {
+        const result = await executeGlobalRegenerationStep(definition);
+        updateRegenerationStep(definition.id, result);
+      } catch (caught) {
+        const message = caught instanceof Error ? caught.message : "Erreur de régénération non identifiée.";
+        updateRegenerationStep(definition.id, {
+          status: "error",
+          summary: message,
+          diagnostics: { error: message },
+        });
+      }
+    }
+
+    regenerationLock.current = false;
+    refreshAll();
   }
 
   return (
@@ -270,7 +326,8 @@ export function AdminCommandCenter({
             <h2 className="mt-2 max-w-3xl text-2xl font-black leading-tight text-foreground sm:text-3xl">Voici ce qui demande votre attention aujourd’hui.</h2>
             <p className="mt-3 flex flex-wrap items-center gap-2 text-sm font-semibold text-muted"><Clock3 size={15} /> Dernière synchronisation : <strong className="text-foreground">{formatDate(lastSync)}</strong></p>
             <div className="mt-5 flex flex-wrap gap-2">
-              <Button variant="primary" icon={<RefreshCcw className={refreshing || remote.loading ? "animate-spin" : ""} size={16} />} onClick={refreshAll} disabled={refreshing || remote.loading}>Actualiser le centre</Button>
+              <Button variant="primary" icon={<RefreshCcw size={16} />} loading={refreshing || remote.loading} loadingText="Actualisation…" onClick={refreshAll}>Actualiser le centre</Button>
+              <Button variant="primary" icon={<Play size={16} />} loading={regenerationRunning} loadingText="Régénération en cours…" onClick={() => void regenerateAll()}>Tout régénérer</Button>
               <Button variant="secondary" icon={<Fingerprint size={16} />} onClick={() => onNavigate("identity-manager")}>Ouvrir l’Identity Manager</Button>
               <Button variant="secondary" icon={<ShieldAlert size={16} />} onClick={() => onNavigate("checks")}>Ouvrir les diagnostics</Button>
             </div>
@@ -287,6 +344,40 @@ export function AdminCommandCenter({
           </div>
         </div>
       </Card>
+
+      {regenerationStarted ? (
+        <Card className="border border-cyan-300/20 p-4 sm:p-5" aria-live="polite">
+          <CardHeader
+            eyebrow="Orchestration contrôlée"
+            action={regenerationRunning ? <Badge tone="cyan">Étape {Math.min(regenerationCompleted + 1, regenerationSteps.length)} / {regenerationSteps.length}</Badge> : <Badge tone={regenerationErrors ? "red" : regenerationWarnings ? "amber" : "green"}>{regenerationErrors ? "Terminé avec erreurs" : regenerationWarnings ? "Terminé avec avertissements" : "Terminé avec succès"}</Badge>}
+          >
+            <CardTitle>Régénération globale Admin Pokémon</CardTitle>
+            <CardDescription>{regenerationRunning ? regenerationSteps.find((step) => step.status === "running")?.label || "Préparation…" : `${regenerationSteps.length - regenerationErrors} étape(s) exécutée(s) · ${regenerationErrors} échec(s) · ${regenerationWarnings} avertissement(s)`}</CardDescription>
+          </CardHeader>
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-950/60" role="progressbar" aria-label="Progression de la régénération globale" aria-valuemin={0} aria-valuemax={100} aria-valuenow={regenerationProgress}>
+            <div className="h-full rounded-full bg-gradient-to-r from-cyan-300 via-sky-400 to-violet-400 transition-[width] duration-300 motion-reduce:transition-none" style={{ width: `${regenerationProgress}%` }} />
+          </div>
+          <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+            {regenerationSteps.map((step) => (
+              <div className="min-w-0 rounded-lg border border-line bg-white/[.035] p-3" key={step.id}>
+                <div className="flex items-start gap-2">
+                  <span className="mt-0.5 shrink-0"><RegenerationStatusIcon status={step.status} /></span>
+                  <div className="min-w-0 flex-1">
+                    <strong className="block text-sm text-foreground">{step.label}</strong>
+                    <small className="mt-1 block break-words text-xs font-semibold text-muted">{step.summary || "En attente"}</small>
+                  </div>
+                </div>
+                {step.diagnostics ? (
+                  <details className="mt-2 text-xs text-muted">
+                    <summary className="cursor-pointer font-black text-cyan-100">Diagnostic</summary>
+                    <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words rounded-md bg-slate-950/55 p-2 text-[11px] leading-5">{JSON.stringify(step.diagnostics, null, 2)}</pre>
+                  </details>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </Card>
+      ) : null}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-6">
         <StatCard icon={CalendarDays} label="Événements actifs" value={numberLabel(remote.activeEvents)} detail="présents dans le flux" tone="green" onClick={() => onNavigate("events")} />

@@ -143,6 +143,7 @@ function PokemonImage({ pokemon }: { pokemon: TrainerPokemon }) {
         alt={resolvedImage ? `${pokemon.frenchName}${pokemon.shiny ? " chromatique" : ""}` : `Image indisponible pour ${pokemon.frenchName}`}
         width={80}
         height={80}
+        unoptimized={!resolvedImage}
       />
     </span>
   );
@@ -224,7 +225,7 @@ function ImportModal({
   const busy = phase === "parsing" || phase === "previewing" || phase === "importing";
   return (
     <Modal open={open} onClose={busy ? () => undefined : onClose} title="Importer ma collection" description="Le fichier est entièrement validé avant tout remplacement. La collection active reste intacte jusqu’à la bascule atomique." footer={
-      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end"><Button onClick={onClose} disabled={busy}>Annuler</Button><Button variant="primary" icon={phase === "importing" ? <LoaderCircle className="animate-spin" size={16} /> : <Upload size={16} />} onClick={onConfirm} disabled={phase !== "ready"}>Confirmer le remplacement</Button></div>
+      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end"><Button onClick={onClose} disabled={busy}>Annuler</Button><Button variant="primary" icon={<Upload size={16} />} loading={phase === "importing"} loadingText="Remplacement…" onClick={onConfirm} disabled={phase !== "ready"}>Confirmer le remplacement</Button></div>
     }>
       <div className="grid gap-4">
         <label className="grid gap-2 rounded-lg border border-dashed border-brand-2/35 bg-brand-2/[0.06] p-4 text-sm font-bold">
@@ -263,6 +264,7 @@ export function TrainerPokemonCollectionPanel() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [history, setHistory] = useState<TrainerPokemonSnapshotSummary[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [rollbackId, setRollbackId] = useState("");
   const [announcement, setAnnouncement] = useState("");
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
   const requestIdRef = useRef(0);
@@ -334,8 +336,8 @@ export function TrainerPokemonCollectionPanel() {
 
   async function rollback(snapshot: TrainerPokemonSnapshotSummary) {
     if (!window.confirm(`Restaurer le snapshot « ${snapshot.sourceFileName} » ?`)) return;
-    setHistoryLoading(true);
-    try { await rollbackTrainerPokemonImport(snapshot.id); toast.success("Snapshot restauré."); setHistory((await readTrainerPokemonImports()).imports); await load(true); } catch (error) { toast.error(errorText(error)); } finally { setHistoryLoading(false); }
+    setRollbackId(snapshot.id);
+    try { await rollbackTrainerPokemonImport(snapshot.id); toast.success("Snapshot restauré."); setHistory((await readTrainerPokemonImports()).imports); await load(true); } catch (error) { toast.error(errorText(error)); } finally { setRollbackId(""); }
   }
 
   const statCards = useMemo(() => data ? [
@@ -354,7 +356,7 @@ export function TrainerPokemonCollectionPanel() {
       <Card tone="strong" className="p-4 sm:p-5">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div><p className="text-xs font-black uppercase tracking-[0.2em] text-brand-2">Collection privée · MongoDB</p><h2 className="mt-1 text-2xl font-black sm:text-3xl" id="trainer-pokemon-title">Ma collection Pokémon GO</h2><p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-muted">Import atomique, consultation paginée et diagnostics des correspondances avec les référentiels canoniques.</p></div>
-          <div className="flex flex-wrap gap-2"><Button icon={<History size={16} />} onClick={() => void openHistory()}>Historique</Button><Button icon={<RefreshCcw className={refreshing ? "animate-spin" : ""} size={16} />} onClick={() => void load(true)} disabled={refreshing}>Rafraîchir</Button><Button variant="primary" icon={<Upload size={16} />} onClick={() => { setImportOpen(true); setImportPhase("idle"); setImportError(null); setImportFileName(""); }}>Importer un JSON</Button></div>
+          <div className="flex flex-wrap gap-2"><Button icon={<History size={16} />} loading={historyLoading} loadingText="Historique…" onClick={() => void openHistory()}>Historique</Button><Button icon={<RefreshCcw size={16} />} loading={refreshing} loadingText="Actualisation…" onClick={() => void load(true)}>Rafraîchir</Button><Button variant="primary" icon={<Upload size={16} />} onClick={() => { setImportOpen(true); setImportPhase("idle"); setImportError(null); setImportFileName(""); }}>Importer un JSON</Button></div>
         </div>
         {data?.snapshot ? <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 rounded-lg border border-line bg-white/[0.04] p-3 text-xs font-semibold text-muted"><span><strong className="text-foreground">Fichier :</strong> {data.snapshot.sourceFileName}</span><span><strong className="text-foreground">Dernier import :</strong> {dateFormatter.format(new Date(data.snapshot.importedAt))}</span><span><strong className="text-foreground">Export :</strong> {data.snapshot.sourceExportTime || "Non renseigné"}</span><span><strong className="text-foreground">Checksum :</strong> <code>{data.snapshot.checksum.slice(0, 12)}</code></span></div> : null}
       </Card>
@@ -394,7 +396,7 @@ export function TrainerPokemonCollectionPanel() {
 
       <ImportModal open={importOpen} phase={importPhase} preview={importPreview} fileName={importFileName} error={importError} onClose={() => setImportOpen(false)} onSelectFile={(file) => void selectFile(file)} onConfirm={() => void confirmImport()} />
       <Modal open={historyOpen} onClose={() => setHistoryOpen(false)} title="Historique des imports" description="Les snapshots archivés restent récupérables. Le rollback vérifie le volume avant la bascule.">
-        {historyLoading ? <LoaderCircle className="mx-auto animate-spin text-brand-2" /> : <div className="grid gap-2">{history.length ? history.map((item) => <div className="flex flex-col gap-3 rounded-lg border border-line p-3 sm:flex-row sm:items-center sm:justify-between" key={item.id}><div><strong className="block">{item.sourceFileName}</strong><span className="mt-1 block text-xs text-muted">{dateFormatter.format(new Date(item.importedAt))} · {item.actualPokemonCount.toLocaleString("fr-FR")} Pokémon · {item.status}</span></div>{item.canRollback ? <Button size="sm" icon={<RotateCcw size={14} />} onClick={() => void rollback(item)}>Restaurer</Button> : <Badge tone={item.status === "active" ? "green" : item.status === "failed" ? "red" : "neutral"}>{item.status}</Badge>}</div>) : <p className="py-8 text-center text-sm text-muted">Aucun historique.</p>}</div>}
+        {historyLoading ? <LoaderCircle className="mx-auto animate-spin text-brand-2" /> : <div className="grid gap-2">{history.length ? history.map((item) => <div className="flex flex-col gap-3 rounded-lg border border-line p-3 sm:flex-row sm:items-center sm:justify-between" key={item.id}><div><strong className="block">{item.sourceFileName}</strong><span className="mt-1 block text-xs text-muted">{dateFormatter.format(new Date(item.importedAt))} · {item.actualPokemonCount.toLocaleString("fr-FR")} Pokémon · {item.status}</span></div>{item.canRollback ? <Button size="sm" icon={<RotateCcw size={14} />} loading={rollbackId === item.id} loadingText="Restauration…" disabled={Boolean(rollbackId)} onClick={() => void rollback(item)}>Restaurer</Button> : <Badge tone={item.status === "active" ? "green" : item.status === "failed" ? "red" : "neutral"}>{item.status}</Badge>}</div>) : <p className="py-8 text-center text-sm text-muted">Aucun historique.</p>}</div>}
       </Modal>
     </section>
   );

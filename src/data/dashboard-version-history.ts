@@ -7,6 +7,18 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.32.0",
+    date: "2026-07-22",
+    title: "Régénération globale fiable et actions observables",
+    changes: [
+      "Orchestre les treize régénérations Admin Pokémon dans un centre de commande séquentiel avec progression, diagnostics par étape et résumé final.",
+      "Suit la régénération longue des classements PvP en arrière-plan jusqu’à son état terminal, sans conserver une requête navigateur vouée au timeout.",
+      "Corrige l’upsert des diagnostics Identity Manager et conserve les compteurs d’occurrences sans conflit MongoDB.",
+      "Unifie les états de chargement des actions longues avec le bouton canonique, aria-busy, verrou anti-double clic et libellé contextuel.",
+      "Renforce les cartes Community Days et les surfaces Identity Manager sur mobile sans modifier la chaîne canonique des assets.",
+    ],
+  },
+  {
     version: "V1.31.2",
     date: "2026-07-18",
     title: "Version visible alignée et vérifiable",

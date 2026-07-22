@@ -84,6 +84,8 @@ function resolveFeaturedPokemon(name: string, resolution?: CanonicalAssetResolut
     const reason = resolution?.reason || resolution?.identityResolution?.reason || "CANONICAL_ID_NOT_FOUND";
     return {
       value: {
+        name,
+        rawAlias: name,
         dexNr: Number(identity?.pokemonId || 0) || null,
         pokemonId: identity?.canonicalId || null,
         canonicalId: identity?.canonicalId || null,
@@ -94,6 +96,14 @@ function resolveFeaturedPokemon(name: string, resolution?: CanonicalAssetResolut
         shinyImage: null,
         resolutionStatus: resolution?.status || "unmatched",
         resolutionReason: reason,
+        resolutionDiagnostic: {
+          provider: "pogoapi",
+          rawAlias: name,
+          normalizedAlias: normalizeName(name).replace(/\s+/g, "_"),
+          reason,
+          confidence: resolution?.identityResolution?.confidence || 0,
+          candidates: resolution?.identityResolution?.candidates || [],
+        },
         identity: identity ? { ...identity, provider: "pogoapi", rawAlias: name, assetResolution: asset } : null,
       },
       diagnostic: {
@@ -114,6 +124,8 @@ function resolveFeaturedPokemon(name: string, resolution?: CanonicalAssetResolut
   }
   return {
     value: {
+      name,
+      rawAlias: name,
       dexNr: Number(identity.pokemonId || 0) || null,
       pokemonId: identity.canonicalId,
       canonicalId: identity.canonicalId,
@@ -124,6 +136,7 @@ function resolveFeaturedPokemon(name: string, resolution?: CanonicalAssetResolut
       shinyImage: asset.shinyImage || null,
       resolutionStatus: "matched",
       resolutionReason: null,
+      resolutionDiagnostic: null,
       identity: { ...identity, provider: "pogoapi", rawAlias: name, assetResolution: asset },
       assetResolution: asset,
     },

@@ -95,6 +95,7 @@ import {
   pokemonPresentationSearchText,
 } from "@/utils/admin/pokemon-presentation-entries.mjs";
 import { persistSourceSignatures } from "@/utils/admin/source-watch";
+import { executePokemonAdminRegeneration } from "@/lib/admin-pokemon-global-regeneration";
 
 const legacyAssetChecksKey = "pokedex-v4-asset-checks";
 const assetChecksStoreKey = "matweb.pokemon.assetChecks";
@@ -672,9 +673,7 @@ function RulesPanel({
       eyebrow="checker dynamique"
       action={
         <div className="flex flex-wrap gap-2">
-          <button className={buttonClass} type="button" onClick={onSyncGithub} disabled={syncingGithub}>
-            <Cloud size={17} /> {syncingGithub ? "Sync..." : "Sync GitHub"}
-          </button>
+          <Button type="button" icon={<Cloud size={17} />} loading={syncingGithub} loadingText="Synchronisation…" onClick={onSyncGithub}>Sync GitHub</Button>
           <button className={primaryButtonClass} type="button" onClick={() => onFormChange({ ...defaultRuleForm })}>
             <Sparkles size={17} /> Nouvelle règle
           </button>
@@ -1500,13 +1499,7 @@ export function AdminApp() {
   async function regenerateRankedDataset({ action, setRegenerating, reload, label }) {
     setRegenerating(true);
     try {
-      const response = await fetch(adminApiPath, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action }),
-      });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || `Régénération ${label} impossible.`);
+      const payload = await executePokemonAdminRegeneration(action);
       const report = assertSuccessfulAdminAction(payload, `Régénération ${label} impossible.`);
       toast.success(regenerationMessage(report));
       await reload();
@@ -2070,17 +2063,8 @@ export function AdminApp() {
                     onChange={(event) => updateGlobalSearch(event.target.value)}
                   />
                 </label>
-                <button className={buttonClass} type="button" onClick={() => loadAdminData({ notify: true })}>
-                  <RefreshCcw size={17} /> Actualiser
-                </button>
-                <button
-                  className={primaryButtonClass}
-                  type="button"
-                  onClick={redeployDashboard}
-                  disabled={redeployingDashboard}
-                >
-                  <Cloud size={17} /> {redeployingDashboard ? "Déploiement..." : "Redéployer"}
-                </button>
+                <Button type="button" icon={<RefreshCcw size={17} />} loading={bootstrap.loading} loadingText="Actualisation…" onClick={() => loadAdminData({ notify: true })}>Actualiser</Button>
+                <Button variant="primary" type="button" icon={<Cloud size={17} />} loading={redeployingDashboard} loadingText="Déploiement…" onClick={redeployDashboard}>Redéployer</Button>
               </div>
             </div>
             <AdminSectionNavigation key={active} items={navItems} active={active} onSelect={selectSection} />

@@ -4,9 +4,10 @@ import { Download, ExternalLink, RefreshCcw, RotateCcw, Sparkles, TrendingDown, 
 import { useState } from "react";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Modal } from "@/components/ui/modal";
+import { Button } from "@/components/ui/button";
 import { typeColors, typeLabels } from "@/components/site/pokemon-style";
 import { TypeIcons } from "./asset-icons";
-import { AssetStatCard, buttonClass, fieldClass, Panel, primaryButtonClass } from "./admin-ui";
+import { AssetStatCard, buttonClass, fieldClass, Panel } from "./admin-ui";
 import { DatasetSourceHeader } from "./dataset-source-header";
 import { DatasetFilterBar } from "./dataset-filter-bar";
 import { PokemonArtwork } from "./pokemon-artwork";
@@ -199,7 +200,7 @@ export function ShinyTrackerPanel({ dataset, loading, regenerating, options, onO
 
   return (
     <div className="space-y-5">
-      <Panel eyebrow="Provider autorisé · espace privé" title="Shiny Tracker" action={<div className="flex flex-wrap gap-2"><button className={buttonClass} type="button" onClick={onDownload} disabled={!dataset}><Download size={16} /> JSON privé</button><button className={buttonClass} type="button" onClick={onRefresh} disabled={loading}><RefreshCcw className={loading ? "animate-spin" : ""} size={16} /> Actualiser</button><button className={primaryButtonClass} type="button" onClick={onRegenerate} disabled={regenerating}><RotateCcw className={regenerating ? "animate-spin" : ""} size={16} /> Snapshot</button></div>}>
+      <Panel eyebrow="Provider autorisé · espace privé" title="Shiny Tracker" action={<div className="flex flex-wrap gap-2"><Button icon={<Download size={16} />} onClick={onDownload} disabled={!dataset}>JSON privé</Button><Button icon={<RefreshCcw size={16} />} loading={loading} loadingText="Actualisation…" onClick={onRefresh}>Actualiser</Button><Button variant="primary" icon={<RotateCcw size={16} />} loading={regenerating} loadingText="Snapshot en cours…" onClick={onRegenerate}>Snapshot</Button></div>}>
         <div className="grid gap-3 sm:grid-cols-3"><AssetStatCard label="Aujourd’hui" value={summary.today} tone="amber" /><AssetStatCard label="Total" value={summary.total} tone="cyan" /><AssetStatCard label="Rares" value={summary.rare} tone="violet" /></div>
         <DatasetSourceHeader dataset={dataset} total={meta.total || entries.length} />
       </Panel>

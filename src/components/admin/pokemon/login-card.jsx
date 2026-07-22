@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+
 export function LoginCard({ password, error, loading, onPasswordChange, onSubmit }) {
   return (
     <section className="w-full max-w-xl rounded-lg border border-white/10 bg-zinc-950/85 p-5 shadow-[0_30px_90px_rgba(0,0,0,0.38)] backdrop-blur md:p-8">
@@ -27,13 +29,7 @@ export function LoginCard({ password, error, loading, onPasswordChange, onSubmit
           placeholder="Mot de passe admin"
           onChange={(event) => onPasswordChange(event.target.value)}
         />
-        <button
-          className="min-h-11 rounded-lg border border-cyan-200/30 bg-cyan-400/15 px-4 font-black text-cyan-50 transition hover:bg-cyan-400/20 disabled:opacity-60"
-          type="submit"
-          disabled={loading}
-        >
-          {loading ? "Connexion..." : "Se connecter"}
-        </button>
+        <Button className="min-h-11" variant="primary" type="submit" loading={loading} loadingText="Connexion…">Se connecter</Button>
       </form>
       {error ? <p id="form-a11y-pokemon-admin-password-error" className="mt-3 text-sm font-bold text-rose-300">{error}</p> : null}
     </section>

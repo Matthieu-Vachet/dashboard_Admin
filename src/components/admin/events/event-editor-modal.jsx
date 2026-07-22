@@ -2,8 +2,9 @@
 
 import { FileJson, Save, X } from "lucide-react";
 import { POKEMON_EVENT_TYPES } from "@/data/pokemon-events";
-import { buttonClass, fieldClass, primaryButtonClass } from "@/components/admin/pokemon/admin-ui";
+import { fieldClass } from "@/components/admin/pokemon/admin-ui";
 import { ModalPortal } from "@/components/admin/shared/modal-portal";
+import { Button } from "@/components/ui/button";
 import { Field as FieldRoot } from "@/components/ui/field";
 
 export function EventEditorModal({ draft, busy, statusOptions, onChange, onClose, onSave }) {
@@ -40,10 +41,8 @@ export function EventEditorModal({ draft, busy, statusOptions, onChange, onClose
             <Area label="Liens sources: Label | URL" value={draft.linksText} onChange={(value) => update({ linksText: value })} />
           </div>
           <div className="mt-5 flex justify-end gap-2">
-            <button className={buttonClass} type="button" onClick={onClose}>Annuler</button>
-            <button className={primaryButtonClass} type="button" onClick={onSave} disabled={busy}>
-              <Save size={17} /> {busy ? "Enregistrement..." : "Enregistrer"}
-            </button>
+            <Button type="button" onClick={onClose} disabled={busy}>Annuler</Button>
+            <Button variant="primary" type="button" icon={<Save size={17} />} loading={busy} loadingText="Enregistrement…" onClick={onSave}>Enregistrer</Button>
           </div>
         </article>
       </div>
@@ -73,10 +72,8 @@ export function ImportModal({ value, busy, onChange, onClose, onImport }) {
             placeholder='{"events":[{"id":"community-day-example","title":"Community Day","type":"community_day","startDate":"2026-07-01T10:00:00.000Z","endDate":"2026-07-01T17:00:00.000Z"}]}'
           />
           <div className="mt-5 flex justify-end gap-2">
-            <button className={buttonClass} type="button" onClick={onClose}>Annuler</button>
-            <button className={primaryButtonClass} type="button" onClick={onImport} disabled={busy}>
-              <FileJson size={17} /> {busy ? "Import..." : "Importer"}
-            </button>
+            <Button type="button" onClick={onClose} disabled={busy}>Annuler</Button>
+            <Button variant="primary" type="button" icon={<FileJson size={17} />} loading={busy} loadingText="Import…" onClick={onImport}>Importer</Button>
           </div>
         </article>
       </div>

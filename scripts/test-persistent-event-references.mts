@@ -119,6 +119,8 @@ test("un Community Day sans résolution Identity Manager reste diagnostiqué san
   });
   assert.equal(normalized.document.featuredPokemon[0].image, null);
   assert.equal(normalized.document.featuredPokemon[0].resolutionReason, "CANONICAL_ID_NOT_FOUND");
+  assert.equal(normalized.document.featuredPokemon[0].rawAlias, "Pikachu");
+  assert.equal((normalized.document.featuredPokemon[0].resolutionDiagnostic as Record<string, unknown>).normalizedAlias, "pikachu");
   assert.equal(normalized.diagnostics[0].provider, "pogoapi");
 });
 

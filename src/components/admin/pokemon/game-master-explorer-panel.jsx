@@ -26,7 +26,8 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
-import { buttonClass, fieldClass, Panel, primaryButtonClass } from "./admin-ui";
+import { Button } from "@/components/ui/button";
+import { buttonClass, fieldClass, Panel } from "./admin-ui";
 import { combineAdminPokemonSearch, useAdminPokemonSearch } from "./admin-pokemon-search-context";
 import { GameMasterJsonViewer } from "./game-master-json-viewer";
 
@@ -463,9 +464,9 @@ export function GameMasterExplorerPanel() {
           <div className="flex flex-wrap gap-2">
             <a className={buttonClass} href={exportHref("json")}><Download size={16} /> JSON</a>
             <a className={buttonClass} href={exportHref("csv")}><Download size={16} /> CSV</a>
-            <button className={buttonClass} type="button" onClick={loadOverview} disabled={loading}><RefreshCcw className={loading ? "animate-spin" : ""} size={16} /> Actualiser</button>
-            <button className={buttonClass} type="button" onClick={() => runMutation("reindex-game-master", "Index Game Master reconstruit.")} disabled={Boolean(busy) || !summary?.initialized}><ServerCog className={busy === "reindex-game-master" ? "animate-spin" : ""} size={16} /> Réindexer</button>
-            <button className={primaryButtonClass} type="button" onClick={() => runMutation("regenerate-game-master", "Nouveau snapshot Game Master activé.")} disabled={Boolean(busy)}><RotateCcw className={busy === "regenerate-game-master" ? "animate-spin" : ""} size={16} /> Régénérer</button>
+            <Button type="button" icon={<RefreshCcw size={16} />} loading={loading} loadingText="Actualisation…" onClick={loadOverview}>Actualiser</Button>
+            <Button type="button" icon={<ServerCog size={16} />} loading={busy === "reindex-game-master"} loadingText="Réindexation…" onClick={() => runMutation("reindex-game-master", "Index Game Master reconstruit.")} disabled={Boolean(busy) || !summary?.initialized}>Réindexer</Button>
+            <Button variant="primary" type="button" icon={<RotateCcw size={16} />} loading={busy === "regenerate-game-master"} loadingText="Régénération…" onClick={() => runMutation("regenerate-game-master", "Nouveau snapshot Game Master activé.")} disabled={Boolean(busy)}>Régénérer</Button>
           </div>
         )}
       >
@@ -486,7 +487,7 @@ export function GameMasterExplorerPanel() {
       </section>
 
       {!loading && !summary?.initialized ? (
-        <div className="rounded-3xl border border-dashed border-cyan-200/25 bg-cyan-300/[.05] p-8 text-center"><Database className="mx-auto text-cyan-200" size={28} /><h3 className="mt-3 text-lg font-black text-white">Aucun snapshot indexé</h3><p className="mx-auto mt-2 max-w-xl text-sm font-bold leading-6 text-slate-400">Lance la régénération pour récupérer le Game Master côté serveur, construire l’index et activer le premier snapshot MongoDB.</p><button className={`${primaryButtonClass} mt-5`} type="button" onClick={() => runMutation("regenerate-game-master", "Premier snapshot Game Master activé.")} disabled={Boolean(busy)}><RotateCcw className={busy ? "animate-spin" : ""} size={16} /> Initialiser</button></div>
+        <div className="rounded-3xl border border-dashed border-cyan-200/25 bg-cyan-300/[.05] p-8 text-center"><Database className="mx-auto text-cyan-200" size={28} /><h3 className="mt-3 text-lg font-black text-white">Aucun snapshot indexé</h3><p className="mx-auto mt-2 max-w-xl text-sm font-bold leading-6 text-slate-400">Lance la régénération pour récupérer le Game Master côté serveur, construire l’index et activer le premier snapshot MongoDB.</p><Button className="mt-5" variant="primary" type="button" icon={<RotateCcw size={16} />} loading={busy === "regenerate-game-master"} loadingText="Initialisation…" onClick={() => runMutation("regenerate-game-master", "Premier snapshot Game Master activé.")} disabled={Boolean(busy)}>Initialiser</Button></div>
       ) : null}
 
       {summary?.initialized ? (

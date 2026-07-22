@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.32.0 - 2026-07-22
+
+- Ajoute la régénération globale séquentielle d’Admin Pokémon avec progression, états par étape, diagnostics et rafraîchissement final.
+- Rend la régénération PvP asynchrone et observable afin d’éviter le timeout des requêtes Dashboard, tout en conservant l’exécution idempotente côté API.
+- Corrige le conflit MongoDB de la régénération des mappings et vérifie le pipeline réel jusqu’au document `current`.
+- Migre les actions longues restantes vers le bouton partagé avec spinner, `aria-busy`, verrou anti-double clic et libellé de chargement.
+- Finalise les vues responsive Community Days et Identity Manager sans introduire de fallback d’asset silencieux.
+
 ## 1.31.2 - 2026-07-18
 
 - Aligne `package.json`, la version visible du Dashboard, l’historique intégré et ce changelog.

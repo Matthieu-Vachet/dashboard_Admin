@@ -10,6 +10,6 @@ Le navigateur ne contacte jamais Snacknap ou GitHub directement. Toutes les lect
 
 Le diagnostic privé « Résolution variantes » expose la matrice Game Master et ses statuts sans remplacer silencieusement une forme inconnue. Sa table desktop est conservée ; sous `md`, chaque ligne devient une carte et place l’asset exact avant l’identité. PAGE-052 Game Master Explorer utilise le même générateur et le même résolveur sans supprimer PAGE-051.
 
-Les boutons de régénération appellent les routes Admin non documentées avec le secret serveur. Les URLs et secrets externes ne sont jamais envoyés au client.
+Les boutons de régénération appellent les routes Admin non documentées avec le secret serveur. Les URLs et secrets externes ne sont jamais envoyés au client. Pour PvP, le démarrage répond `202` avec un `run.id`; le BFF authentifié interroge ensuite la route de statut privée jusqu'au succès ou à l'échec. Le client n'attend donc jamais directement la génération et l'import du payload complet.
 
 L'explorateur API charge OpenAPI à l'exécution et présente toutes les routes publiques sans liste manuelle. Les actions privées de régénération sont ajoutées séparément, marquées privées et exécutées uniquement par le proxy serveur.

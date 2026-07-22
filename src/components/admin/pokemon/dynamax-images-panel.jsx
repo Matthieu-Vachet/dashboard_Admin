@@ -4,7 +4,8 @@
 import { Archive, Download, Eraser, Image as ImageIcon, RefreshCcw, ScanSearch } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { buttonClass, Panel, primaryButtonClass } from "./admin-ui";
+import { Button } from "@/components/ui/button";
+import { buttonClass, Panel } from "./admin-ui";
 
 function Stat({ label, value }) {
   return <div className="rounded-2xl border border-white/10 bg-slate-950/35 p-4"><span className="text-xs font-black uppercase tracking-[.14em] text-slate-400">{label}</span><strong className="mt-2 block text-3xl font-black text-white">{Number(value) || 0}</strong></div>;
@@ -84,10 +85,10 @@ export function DynamaxImagesPanel() {
   const counts = state?.counts || {};
   return <section className="space-y-5">
     <Panel title="Images Dynamax" eyebrow="Assets · privé Admin" action={<div className="flex flex-wrap gap-2">
-      <button className={primaryButtonClass} type="button" onClick={scan} disabled={busy === "scan"}><ScanSearch size={17} />{busy === "scan" ? "Scan en cours…" : "Scanner les images Dynamax"}</button>
+      <Button variant="primary" type="button" icon={<ScanSearch size={17} />} loading={busy === "scan"} loadingText="Scan en cours…" disabled={Boolean(busy)} onClick={scan}>Scanner les images Dynamax</Button>
       <a className={`${buttonClass} ${!state ? "pointer-events-none opacity-50" : ""}`} href="/api/admin/dynamax-images/export.zip"><Download size={17} />Télécharger le ZIP</a>
-      <button className={buttonClass} type="button" onClick={() => load(true)} disabled={busy === "load"}><RefreshCcw className={busy === "load" ? "animate-spin" : ""} size={17} />Actualiser</button>
-      <button className={buttonClass} type="button" onClick={clearCache} disabled={!state || busy === "clear"}><Eraser size={17} />Vider le cache temporaire</button>
+      <Button type="button" icon={<RefreshCcw size={17} />} loading={busy === "load"} loadingText="Actualisation…" disabled={Boolean(busy)} onClick={() => load(true)}>Actualiser</Button>
+      <Button type="button" icon={<Eraser size={17} />} loading={busy === "clear"} loadingText="Suppression…" disabled={!state || Boolean(busy)} onClick={clearCache}>Vider le cache temporaire</Button>
     </div>}>
       <p className="rounded-2xl border border-violet-200/15 bg-violet-300/[.07] p-4 text-sm font-bold leading-6 text-violet-50">Le scan et les téléchargements sont exécutés côté serveur. Une consultation de cette page ne déclenche jamais de scraping et aucune donnée Pokémon n’est créée.</p>
       <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4">

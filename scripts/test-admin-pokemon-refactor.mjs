@@ -200,6 +200,13 @@ test("les statistiques Events restent complètes dans des tuiles compactes", () 
   }
 });
 
+test("Events déduplique les assets identiques et la collection sert son placeholder sans optimiseur privé", () => {
+  const eventsSource = read("src/components/admin/events/events-calendar-panel.jsx");
+  const trainerSource = read("src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx");
+  assert.match(eventsSource, /uniqueBy\(\(event\.featuredPokemon \|\| \[\]\)[\s\S]*?\(pokemon\) => pokemon\.src\)/);
+  assert.match(trainerSource, /unoptimized=\{!resolvedImage\}/);
+});
+
 test("les diagnostics source restent repliés et l'API Explorer reste contenu sur mobile", () => {
   const diagnostics = read("src/components/admin/pokemon/current-dataset-diagnostics.jsx");
   const explorer = read("src/components/admin/pokemon/pokemon-api-explorer.tsx");
@@ -231,6 +238,12 @@ test("Community Days et Historique Events utilisent la modale officielle et une 
     assert.doesNotMatch(source, /fixed inset-0/);
     assert.doesNotMatch(source, /role="dialog" aria-modal="true"/);
   }
+  const communityDays = read("src/components/admin/pokemon/community-days-panel.jsx");
+  assert.match(communityDays, /featured\.map\(\(entry\) => <FeaturedPokemonTile/);
+  assert.match(communityDays, /Pokémon vedettes/);
+  assert.match(communityDays, /Raison exacte/);
+  assert.match(communityDays, /Afficher le JSON d’audit/);
+  assert.doesNotMatch(communityDays, /featuredPokemon\?\.\[0\]/);
 });
 
 test("le catalogue distingue visuellement les attaques rapides et chargées", () => {
@@ -342,6 +355,42 @@ test("la Home Admin Pokémon est un centre de commande quotidien sans perdre les
   assert.match(home, /events\/archive\?status=upcoming/);
   assert.match(home, /Promise\.allSettled/);
   assert.doesNotMatch(home, /window\.prompt|fixed inset-0/);
+});
+
+test("la Home orchestre une régénération globale séquentielle et tolérante aux erreurs", () => {
+  const home = read("src/components/admin/pokemon/admin-command-center.tsx");
+  const orchestrator = read("src/lib/admin-pokemon-global-regeneration.ts");
+  const adminApp = read("src/components/admin/pokemon/admin-app.jsx");
+  const adminRoute = read("src/app/api/pokemon-admin/route.ts");
+  assert.match(home, /Tout régénérer/);
+  assert.match(home, /regenerationLock/);
+  assert.match(home, /for \(const definition of globalRegenerationDefinitions\)/);
+  assert.match(home, /Progression de la régénération globale/);
+  assert.match(home, /Diagnostic/);
+  assert.match(orchestrator, /regenerate-game-master/);
+  assert.match(orchestrator, /identity-manager-sync-preview/);
+  assert.match(orchestrator, /identity-manager-sync-apply/);
+  assert.match(orchestrator, /regenerate-pokemon-identity-mappings/);
+  for (const action of [
+    "regenerate-raids",
+    "regenerate-max-battles",
+    "regenerate-rocket",
+    "regenerate-pvp-rankings",
+    "regenerate-best-attackers",
+    "regenerate-eggs",
+    "regenerate-research",
+    "regenerate-shiny",
+  ]) {
+    assert.match(orchestrator, new RegExp(action));
+  }
+  assert.match(orchestrator, /\/api\/admin\/events\/scrape/);
+  assert.match(orchestrator, /\/api\/admin\/community-days\/sync/);
+  assert.match(orchestrator, /Synchronisation non appliquée/);
+  assert.match(orchestrator, /waitForRegeneration/);
+  assert.match(orchestrator, /regeneration-status/);
+  assert.match(adminApp, /executePokemonAdminRegeneration\(action\)/);
+  assert.match(adminRoute, /asynchronousRegenerationDomains/);
+  assert.match(adminRoute, /\/regenerate\/\$\{encodeURIComponent\(runId\)\}/);
 });
 
 test("les aliases inconnus disposent d’un workflow de résolution détaillé", () => {

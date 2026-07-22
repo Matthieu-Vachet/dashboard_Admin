@@ -83,6 +83,9 @@ function speciesTokens(pokemon: UnknownRecord, requestId: unknown): string[] {
     : uniqueTokens([requestId, pokemon.id, pokemon.pokemonId]);
   return uniqueTokens([
     ...identifiers,
+    pokemon.sourceName,
+    pokemon.frenchName,
+    pokemon.name,
     names.English,
     names.French,
     dataNames.English,

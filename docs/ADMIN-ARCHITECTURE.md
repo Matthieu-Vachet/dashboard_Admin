@@ -39,3 +39,10 @@ ajouter de nouvelle logique metier.
 - Les accordéons métier sont fermés par défaut. La navigation ne déploie jamais toutes les catégories simultanément.
 - La confidentialité est décidée par le dataset et contrôlée côté serveur. Le client n'obtient jamais le secret de l'API Pokémon.
 - `GameMasterExplorerPanel` est chargé dynamiquement. Ses listes sont paginées côté serveur et n’obtiennent jamais `raw`; `GameMasterJsonViewer` ne reçoit que le template ouvert.
+
+## Regenerations Admin Pokemon
+
+- Le centre de commande lance les domaines un par un afin de conserver une progression lisible et d'éviter les pointes de charge sur les providers et MongoDB.
+- Chaque étape possède un état `pending`, `running`, `success`, `warning` ou `error`. Une erreur est isolée à son domaine et n'empêche pas les étapes suivantes ; le résumé final conserve le diagnostic exact.
+- Le PvP répond `202 Accepted` avec un identifiant d'exécution. Le Dashboard interroge ensuite la route de statut privée jusqu'à `success` ou `failed` au lieu de garder une requête HTTP ouverte au-delà de la durée d'une Function.
+- Les boutons d'actions longues utilisent `Button` avec `loading` et `loadingText`. La primitive applique le spinner, `aria-busy`, la désactivation automatique et respecte `prefers-reduced-motion`.

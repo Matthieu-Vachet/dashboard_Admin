@@ -3,8 +3,9 @@
 import { ChevronDown, Download, ExternalLink, RefreshCcw, RotateCcw, Shield, Swords } from "lucide-react";
 import { useMemo, useState } from "react";
 import { typeColors, typeLabels } from "@/components/site/pokemon-style";
+import { Button } from "@/components/ui/button";
 import { TypeIcons } from "./asset-icons";
-import { buttonClass, fieldClass, Panel, primaryButtonClass } from "./admin-ui";
+import { buttonClass, fieldClass, Panel } from "./admin-ui";
 import { DatasetSourceHeader } from "./dataset-source-header";
 import { DatasetFilterBar } from "./dataset-filter-bar";
 import { PokemonArtwork } from "./pokemon-artwork";
@@ -125,7 +126,7 @@ export function PvpRankingsPanel({ dataset, loading, regenerating, options, onOp
 
   return (
     <div className="space-y-5">
-      <Panel eyebrow="Source officielle · dépôt MIT PvPoke" title="Classements PvP" action={<div className="flex flex-wrap gap-2"><button className={buttonClass} type="button" onClick={onDownload} disabled={!dataset}><Download size={16} /> JSON</button><button className={buttonClass} type="button" onClick={onRefresh} disabled={loading}><RefreshCcw className={loading ? "animate-spin" : ""} size={16} /> Actualiser</button><button className={primaryButtonClass} type="button" onClick={onRegenerate} disabled={regenerating}><RotateCcw className={regenerating ? "animate-spin" : ""} size={16} /> Régénérer</button></div>}><DatasetSourceHeader dataset={dataset} total={meta.total || entries.length} /></Panel>
+      <Panel eyebrow="Source officielle · dépôt MIT PvPoke" title="Classements PvP" action={<div className="flex flex-wrap gap-2"><Button icon={<Download size={16} />} onClick={onDownload} disabled={!dataset}>JSON</Button><Button icon={<RefreshCcw size={16} />} loading={loading} loadingText="Actualisation…" onClick={onRefresh}>Actualiser</Button><Button variant="primary" icon={<RotateCcw size={16} />} loading={regenerating} loadingText="Régénération…" onClick={onRegenerate}>Régénérer</Button></div>}><DatasetSourceHeader dataset={dataset} total={meta.total || entries.length} /></Panel>
       <DatasetFilterBar query={options.search} onQueryChange={(search) => onOptionsChange({ ...options, search, page: 1 })} resultCount={entries.length} totalCount={meta.total || entries.length} />
       <div className="grid gap-3 lg:grid-cols-2"><FormatSelect formats={formats} value={options.league} onChange={(event) => { setExpanded(""); onOptionsChange({ ...options, league: event.target.value, page: 1 }); }} /><select className={fieldClass} value={options.role} onChange={(event) => onOptionsChange({ ...options, role: event.target.value, page: 1 })} aria-label="Classement">{roles.map(([id, label]) => <option value={id === "overall" ? "" : id} key={id}>{label}</option>)}</select></div>
       <section className="space-y-2" aria-label="Classement PvP">

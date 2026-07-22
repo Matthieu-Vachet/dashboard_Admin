@@ -48,6 +48,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { EventEditorModal, ImportModal } from "@/components/admin/events/event-editor-modal";
 import { ModalPortal } from "@/components/admin/shared/modal-portal";
+import { Button } from "@/components/ui/button";
 import {
   defaultPokemonEvents,
   POKEMON_EVENT_STATUS_LABELS,
@@ -221,12 +222,12 @@ function sectionUsefulImages(section, limit = 6) {
 }
 
 function eventImages(event, limit = 4) {
-  return (event.featuredPokemon || [])
+  return uniqueBy((event.featuredPokemon || [])
     .map((pokemon) => ({
       src: usefulEventImage(resolvePokemonVariant(pokemon).image),
       name: pokemon.name || pokemon.id,
     }))
-    .filter((pokemon) => pokemon.src)
+    .filter((pokemon) => pokemon.src), (pokemon) => pokemon.src)
     .slice(0, limit);
 }
 
@@ -523,8 +524,8 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
     }
   }
 
-  async function patchEvent(event, patch, label) {
-    setBusy(event.id);
+  async function patchEvent(event, patch, label, operation) {
+    setBusy(`${event.id}:${operation}`);
     try {
       const response = await fetch(`${adminEventsApiPath}/${encodeURIComponent(event.id)}`, {
         method: "PATCH",
@@ -548,7 +549,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
 
   async function deleteEvent(event) {
     if (!window.confirm(`Supprimer ${event.title} ?`)) return;
-    setBusy(event.id);
+    setBusy(`${event.id}:delete`);
     try {
       const response = await fetch(`${adminEventsApiPath}/${encodeURIComponent(event.id)}`, {
         method: "DELETE",
@@ -655,18 +656,12 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
         eyebrow={`Mongo ${meta.collection}${meta.seeded ? " · données seed" : ""}`}
         action={
           <div className="flex flex-wrap gap-2">
-            <button className={buttonClass} type="button" onClick={() => loadEvents({ notify: true })} disabled={loading}>
-              <RefreshCcw size={17} /> {loading ? "Chargement..." : "Actualiser"}
-            </button>
+            <Button type="button" icon={<RefreshCcw size={17} />} loading={loading} loadingText="Actualisation…" onClick={() => loadEvents({ notify: true })}>Actualiser</Button>
             <button className={buttonClass} type="button" onClick={onOpenHistory}>
               <History size={17} /> Historique des événements
             </button>
-            <button className={primaryButtonClass} type="button" onClick={scrapeEvents} disabled={busy === "scrape"}>
-              <Sparkles size={17} /> {busy === "scrape" ? "Scrape..." : "Rescraper Events"}
-            </button>
-            <button className={buttonClass} type="button" onClick={importLoadedEvents} disabled={busy === "import-loaded" || !events.length}>
-              <Upload size={17} /> {busy === "import-loaded" ? "Envoi..." : "Envoyer MongoDB"}
-            </button>
+            <Button variant="primary" type="button" icon={<Sparkles size={17} />} loading={busy === "scrape"} loadingText="Scrape…" disabled={Boolean(busy)} onClick={scrapeEvents}>Rescraper Events</Button>
+            <Button type="button" icon={<Upload size={17} />} loading={busy === "import-loaded"} loadingText="Envoi…" disabled={Boolean(busy) || !events.length} onClick={importLoadedEvents}>Envoyer MongoDB</Button>
             <button className={buttonClass} type="button" onClick={() => setImportOpen(true)}>
               <Upload size={17} /> Import JSON
             </button>
@@ -851,12 +846,12 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
       {selectedEvent ? (
         <EventDetailModal
           event={selectedEvent}
-          busy={busy === selectedEvent.id}
+          busyAction={busy.startsWith(`${selectedEvent.id}:`) ? busy.split(":").at(-1) : ""}
           onClose={() => setSelectedEvent(null)}
           onEdit={() => openEdit(selectedEvent)}
           onDuplicate={() => duplicateEvent(selectedEvent)}
-          onArchive={() => patchEvent(selectedEvent, { status: "archived" }, "Event archivé.")}
-          onRestore={() => patchEvent(selectedEvent, { status: eventStatus(selectedEvent) === "past" ? "past" : "upcoming" }, "Event restauré.")}
+          onArchive={() => patchEvent(selectedEvent, { status: "archived" }, "Event archivé.", "archive")}
+          onRestore={() => patchEvent(selectedEvent, { status: eventStatus(selectedEvent) === "past" ? "past" : "upcoming" }, "Event restauré.", "restore")}
           onDelete={() => deleteEvent(selectedEvent)}
           onOpenPokemon={onOpenPokemon}
         />
@@ -1338,7 +1333,7 @@ function DetailSection({ title, eyebrow, count, tone = "neutral", children, clas
   );
 }
 
-function EventDetailModal({ event, busy, onClose, onEdit, onDuplicate, onArchive, onRestore, onDelete, onOpenPokemon }) {
+function EventDetailModal({ event, busyAction, onClose, onEdit, onDuplicate, onArchive, onRestore, onDelete, onOpenPokemon }) {
   const type = eventType(event);
   const rewards = eventRewards(event, 120);
   const pokemonGroups = eventPokemonGroups(event);
@@ -1455,17 +1450,11 @@ function EventDetailModal({ event, busy, onClose, onEdit, onDuplicate, onArchive
               <Copy size={17} /> Dupliquer
             </button>
             {event.status === "archived" ? (
-              <button className={buttonClass} type="button" onClick={onRestore} disabled={busy}>
-                <Archive size={17} /> Restaurer
-              </button>
+              <Button type="button" icon={<Archive size={17} />} loading={busyAction === "restore"} loadingText="Restauration…" disabled={Boolean(busyAction)} onClick={onRestore}>Restaurer</Button>
             ) : (
-              <button className={buttonClass} type="button" onClick={onArchive} disabled={busy}>
-                <Archive size={17} /> Archiver
-              </button>
+              <Button type="button" icon={<Archive size={17} />} loading={busyAction === "archive"} loadingText="Archivage…" disabled={Boolean(busyAction)} onClick={onArchive}>Archiver</Button>
             )}
-            <button className={buttonClass} type="button" onClick={onDelete} disabled={busy}>
-              <Trash2 size={17} /> Supprimer
-            </button>
+            <Button variant="danger" type="button" icon={<Trash2 size={17} />} loading={busyAction === "delete"} loadingText="Suppression…" disabled={Boolean(busyAction)} onClick={onDelete}>Supprimer</Button>
             <button className={primaryButtonClass} type="button" onClick={onEdit}>
               <Pencil size={17} /> Modifier
             </button>

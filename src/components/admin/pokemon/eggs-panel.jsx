@@ -3,11 +3,12 @@
 import { Download, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import { TypeIcons } from "./asset-icons";
-import { AssetStatCard, buttonClass, Panel, primaryButtonClass } from "./admin-ui";
+import { AssetStatCard, Panel } from "./admin-ui";
 import { DatasetSourceHeader } from "./dataset-source-header";
 import { DatasetFilterBar } from "./dataset-filter-bar";
 import { TierSection } from "./tier-section";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { PokemonArtwork } from "./pokemon-artwork";
 import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
 
@@ -190,15 +191,9 @@ export function EggsPanel({
         eyebrow="MongoDB + LeekDuck"
         action={
           <div className="flex flex-wrap gap-2">
-            <button className={buttonClass} type="button" onClick={onRefresh} disabled={loading || regenerating}>
-              <RefreshCcw size={17} /> {loading ? "Chargement..." : "Actualiser"}
-            </button>
-            <button className={buttonClass} type="button" onClick={onDownload} disabled={!eggs?.current || !total || loading || regenerating}>
-              <Download size={17} /> Télécharger JSON
-            </button>
-            <button className={primaryButtonClass} type="button" onClick={onRegenerate} disabled={loading || regenerating}>
-              <RotateCcw size={17} /> {regenerating ? "Régénération..." : "Régénérer oeufs"}
-            </button>
+            <Button icon={<RefreshCcw size={17} />} loading={loading} loadingText="Chargement…" onClick={onRefresh} disabled={regenerating}>Actualiser</Button>
+            <Button icon={<Download size={17} />} onClick={onDownload} disabled={!eggs?.current || !total || loading || regenerating}>Télécharger JSON</Button>
+            <Button variant="primary" icon={<RotateCcw size={17} />} loading={regenerating} loadingText="Régénération…" onClick={onRegenerate} disabled={loading}>Régénérer les œufs</Button>
           </div>
         }
       >

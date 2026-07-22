@@ -364,7 +364,8 @@ export function IdentityManagerPanel() {
   const [diagnosticMeta, setDiagnosticMeta] = useState<ListMeta>({ page: 1, limit: 24, total: 0, pages: 1 });
   const [conflicts, setConflicts] = useState<{ aliasConflicts?: unknown[]; explicitConflicts?: number; incomplete?: number }>({});
   const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState(false);
+  const [busyAction, setBusyAction] = useState("");
+  const busy = Boolean(busyAction);
   const [error, setError] = useState("");
   const [filters, setFilters] = useState({ search: "", provider: "", status: "", syncStatus: "", pokemonId: "", form: "", costume: "", conflict: false, withoutGameMaster: false, stale: false, sort: "updatedAt", order: "desc", page: 1 });
   const [diagnosticFilters, setDiagnosticFilters] = useState({ provider: "", reason: "", status: "open", pokemonId: "", form: "", costume: "", confidence: "", page: 1 });
@@ -531,7 +532,7 @@ export function IdentityManagerPanel() {
 
   async function saveIdentity() {
     if (!identityForm.canonicalId || !identityForm.pokemonId) return toast.error("Canonical ID et numéro Pokédex sont requis.");
-    setBusy(true);
+    setBusyAction("save-identity");
     try {
       const action = identityModal.identity ? "identity-manager-update" : "identity-manager-create";
       const upstream = await apiPost(action, { identityId: identityModal.identity ? identityId(identityModal.identity) : undefined, payload: identityPayload(identityForm) });
@@ -543,13 +544,13 @@ export function IdentityManagerPanel() {
     } catch (caught) {
       toast.error(caught instanceof Error ? caught.message : "Impossible d’enregistrer l’identité.");
     } finally {
-      setBusy(false);
+      setBusyAction("");
     }
   }
 
   async function saveAlias() {
     if (!aliasModal.identity || !aliasForm.provider || !aliasForm.value) return toast.error("Provider et alias sont requis.");
-    setBusy(true);
+    setBusyAction("save-alias");
     try {
       await apiPost(aliasModal.alias ? "identity-manager-alias-update" : "identity-manager-alias-create", {
         identityId: identityId(aliasModal.identity),
@@ -562,12 +563,12 @@ export function IdentityManagerPanel() {
     } catch (caught) {
       toast.error(caught instanceof Error ? caught.message : "Impossible d’enregistrer l’alias.");
     } finally {
-      setBusy(false);
+      setBusyAction("");
     }
   }
 
   async function restoreIdentity(identity: PokemonIdentity) {
-    setBusy(true);
+    setBusyAction(`restore:${identityId(identity)}`);
     try {
       await apiPost("identity-manager-restore", { identityId: identityId(identity) });
       toast.success(`${identity.canonicalId} restaurée.`);
@@ -575,13 +576,13 @@ export function IdentityManagerPanel() {
     } catch (caught) {
       toast.error(caught instanceof Error ? caught.message : "Changement de statut impossible.");
     } finally {
-      setBusy(false);
+      setBusyAction("");
     }
   }
 
   async function deprecateIdentity() {
     if (!deprecateModal.identity || !deprecateModal.reason.trim()) return toast.error("Le motif de dépréciation est obligatoire.");
-    setBusy(true);
+    setBusyAction("deprecate");
     try {
       await apiPost("identity-manager-deprecate", { identityId: identityId(deprecateModal.identity), reason: deprecateModal.reason });
       toast.success(`${deprecateModal.identity.canonicalId} dépréciée sans suppression.`);
@@ -590,7 +591,7 @@ export function IdentityManagerPanel() {
     } catch (caught) {
       toast.error(caught instanceof Error ? caught.message : "Dépréciation impossible.");
     } finally {
-      setBusy(false);
+      setBusyAction("");
     }
   }
 
@@ -616,7 +617,7 @@ export function IdentityManagerPanel() {
 
   async function mergeIdentity() {
     if (!mergeModal.identity || !mergeModal.targetId || !mergeModal.reason.trim()) return toast.error("Identité cible et motif requis.");
-    setBusy(true);
+    setBusyAction("merge");
     try {
       await apiPost("identity-manager-merge", { identityId: identityId(mergeModal.identity), targetId: mergeModal.targetId, reason: mergeModal.reason });
       toast.success("Identités fusionnées et source dépréciée.");
@@ -625,7 +626,7 @@ export function IdentityManagerPanel() {
     } catch (caught) {
       toast.error(caught instanceof Error ? caught.message : "Fusion impossible.");
     } finally {
-      setBusy(false);
+      setBusyAction("");
     }
   }
 
@@ -646,7 +647,7 @@ export function IdentityManagerPanel() {
 
   async function applyImport() {
     if (!importReport || importReport.conflicts.length || importReport.duplicates.length || importReport.invalid.length) return;
-    setBusy(true);
+    setBusyAction("import");
     try {
       const upstream = await apiPost("identity-manager-import", { payload: { mode: "apply", identities: importIdentities } });
       setImportReport(upstream?.data || null);
@@ -655,12 +656,12 @@ export function IdentityManagerPanel() {
     } catch (caught) {
       toast.error(caught instanceof Error ? caught.message : "Import impossible.");
     } finally {
-      setBusy(false);
+      setBusyAction("");
     }
   }
 
   async function updateDiagnostic(diagnostic: IdentityDiagnostic, status: "ignored" | "false-positive") {
-    setBusy(true);
+    setBusyAction(`diagnostic:${status}:${diagnosticId(diagnostic)}`);
     try {
       await apiPost("identity-manager-diagnostic-update", { diagnosticId: diagnosticId(diagnostic), payload: { status } });
       toast.success(status === "ignored" ? "Alias ignoré avec traçabilité." : "Diagnostic marqué comme faux positif.");
@@ -668,13 +669,13 @@ export function IdentityManagerPanel() {
     } catch (caught) {
       toast.error(caught instanceof Error ? caught.message : "Diagnostic non modifié.");
     } finally {
-      setBusy(false);
+      setBusyAction("");
     }
   }
 
   async function associate(identity: PokemonIdentity) {
     if (!associateModal.diagnostic) return;
-    setBusy(true);
+    setBusyAction(`associate:${identityId(identity)}`);
     try {
       await resolveDiagnostic(associateModal.diagnostic, identity);
       toast.success(`Alias associé à ${identity.canonicalId}.`);
@@ -683,7 +684,7 @@ export function IdentityManagerPanel() {
     } catch (caught) {
       toast.error(caught instanceof Error ? caught.message : "Association impossible.");
     } finally {
-      setBusy(false);
+      setBusyAction("");
     }
   }
 
@@ -694,7 +695,7 @@ export function IdentityManagerPanel() {
 
   async function applyLocalSync() {
     if (!syncReport || syncReport.conflict > 0) return;
-    setBusy(true);
+    setBusyAction("sync");
     try {
       const upstream = await apiPost("identity-manager-sync-apply");
       const report = upstream?.data as IdentitySyncReport;
@@ -704,7 +705,7 @@ export function IdentityManagerPanel() {
     } catch (caught) {
       toast.error(caught instanceof Error ? caught.message : "Synchronisation locale impossible.");
     } finally {
-      setBusy(false);
+      setBusyAction("");
     }
   }
 
@@ -728,7 +729,7 @@ export function IdentityManagerPanel() {
             <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-muted">Associez chaque identifiant fournisseur à une identité PokemonGo-Data unique, sans altérer sa valeur originale.</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" variant="primary" icon={<PackageCheck size={15} />} disabled={syncLoading} onClick={() => void openSyncPreview()}>{syncLoading ? "Vérification…" : "Synchroniser le catalogue"}</Button>
+            <Button size="sm" variant="primary" icon={<PackageCheck size={15} />} loading={syncLoading} loadingText="Vérification…" onClick={() => void openSyncPreview()}>Synchroniser le catalogue</Button>
             <Button size="sm" variant="ghost" icon={<History size={15} />} onClick={() => void openGlobalHistory()}>Historique global</Button>
             <Button size="sm" variant="secondary" icon={<Download size={15} />} asChild><a href="/api/pokemon-admin?action=identity-manager-export">JSON</a></Button>
             <Button size="sm" variant="secondary" icon={<FileUp size={15} />} onClick={() => setImportModal(true)}>Importer</Button>
@@ -755,7 +756,7 @@ export function IdentityManagerPanel() {
       <div className="flex flex-wrap items-center gap-2 rounded-xl border border-line bg-panel/55 p-2">
         <Button size="sm" variant={view === "identities" ? "primary" : "ghost"} icon={<Fingerprint size={15} />} onClick={() => setView("identities")}>Identités</Button>
         <Button size="sm" variant={view === "diagnostics" ? "primary" : "ghost"} icon={<ShieldAlert size={15} />} onClick={() => setView("diagnostics")}>Diagnostics détaillés <Badge tone={diagnosticMeta.total ? "amber" : "neutral"}>{diagnosticMeta.total}</Badge></Button>
-        <Button className="ml-auto" size="sm" variant="ghost" icon={<RefreshCcw size={15} />} onClick={() => view === "identities" ? void loadIdentities(true) : void loadDiagnostics(true)}>Actualiser</Button>
+        <Button className="ml-auto" size="sm" variant="ghost" icon={<RefreshCcw size={15} />} loading={loading} loadingText="Actualisation…" onClick={() => view === "identities" ? void loadIdentities(true) : void loadDiagnostics(true)}>Actualiser</Button>
       </div>
 
       {view === "identities" ? (
@@ -836,7 +837,7 @@ export function IdentityManagerPanel() {
                   <Button className="w-full sm:w-auto" size="sm" variant="secondary" onClick={() => openEdit(identity)}>Modifier</Button>
                   <Button className="w-full sm:w-auto" size="sm" variant="ghost" icon={<History size={14} />} onClick={() => void openHistory(identity)}>Historique</Button>
                   <Button className="w-full sm:w-auto" size="sm" variant="ghost" icon={<ArrowLeftRight size={14} />} onClick={() => setMergeModal({ open: true, identity, targetId: "", reason: "" })}>Fusionner</Button>
-                  <Button className="col-span-2 w-full sm:w-auto" size="sm" variant={identity.status === "deprecated" ? "secondary" : "danger"} icon={identity.status === "deprecated" ? <RotateCcw size={14} /> : <Trash2 size={14} />} disabled={busy} onClick={() => identity.status === "deprecated" ? void restoreIdentity(identity) : setDeprecateModal({ open: true, identity, reason: "" })}>{identity.status === "deprecated" ? "Restaurer" : "Déprécier"}</Button>
+                  <Button className="col-span-2 w-full sm:w-auto" size="sm" variant={identity.status === "deprecated" ? "secondary" : "danger"} icon={identity.status === "deprecated" ? <RotateCcw size={14} /> : <Trash2 size={14} />} loading={busyAction === `restore:${identityId(identity)}`} loadingText="Restauration…" disabled={busy} onClick={() => identity.status === "deprecated" ? void restoreIdentity(identity) : setDeprecateModal({ open: true, identity, reason: "" })}>{identity.status === "deprecated" ? "Restaurer" : "Déprécier"}</Button>
                 </div>
               </article>
               );
@@ -879,7 +880,7 @@ export function IdentityManagerPanel() {
                     <p className="mt-2"><span className="text-muted">Action proposée</span><br /><strong>{diagnostic.proposedAction || "Associer"}</strong></p>
                   </div>
                 </div>
-                {diagnostic.status === "open" ? <div className="mt-4 flex flex-wrap gap-2"><Button size="sm" variant="primary" icon={<Link2 size={14} />} onClick={() => { setAssociateSearch(diagnostic.pokemon || diagnostic.rawAlias); setAssociateModal({ open: true, diagnostic }); }}>Associer</Button><Button size="sm" variant="secondary" icon={<Plus size={14} />} onClick={() => openCreate(diagnostic)}>Créer une identité</Button><Button size="sm" variant="ghost" icon={<XCircle size={14} />} disabled={busy} onClick={() => void updateDiagnostic(diagnostic, "ignored")}>Ignorer</Button><Button size="sm" variant="ghost" icon={<ShieldAlert size={14} />} disabled={busy} onClick={() => void updateDiagnostic(diagnostic, "false-positive")}>Faux positif</Button></div> : null}
+                {diagnostic.status === "open" ? <div className="mt-4 flex flex-wrap gap-2"><Button size="sm" variant="primary" icon={<Link2 size={14} />} onClick={() => { setAssociateSearch(diagnostic.pokemon || diagnostic.rawAlias); setAssociateModal({ open: true, diagnostic }); }}>Associer</Button><Button size="sm" variant="secondary" icon={<Plus size={14} />} onClick={() => openCreate(diagnostic)}>Créer une identité</Button><Button size="sm" variant="ghost" icon={<XCircle size={14} />} loading={busyAction === `diagnostic:ignored:${diagnosticId(diagnostic)}`} loadingText="Mise à jour…" disabled={busy} onClick={() => void updateDiagnostic(diagnostic, "ignored")}>Ignorer</Button><Button size="sm" variant="ghost" icon={<ShieldAlert size={14} />} loading={busyAction === `diagnostic:false-positive:${diagnosticId(diagnostic)}`} loadingText="Mise à jour…" disabled={busy} onClick={() => void updateDiagnostic(diagnostic, "false-positive")}>Faux positif</Button></div> : null}
               </article>
             ))}
           </div>
@@ -888,7 +889,7 @@ export function IdentityManagerPanel() {
         </>
       )}
 
-      <Modal open={syncModalOpen} onClose={() => setSyncModalOpen(false)} title="Synchroniser le catalogue canonique" description="PokemonGo-Data reste la vérité absolue. Cet aperçu compare l’inventaire local à MongoDB sans modifier les alias fournisseurs." className="max-w-4xl" footer={<div className="flex flex-wrap justify-end gap-2"><Button variant="secondary" icon={<RefreshCcw size={15} />} disabled={syncLoading || busy} onClick={() => void loadSyncPreview(true)}>Recalculer l’aperçu</Button><Button variant="primary" icon={<Database size={15} />} disabled={busy || syncLoading || !syncReport || syncReport.conflict > 0 || !syncHasChanges} onClick={() => void applyLocalSync()}>{busy ? "Synchronisation…" : syncHasChanges ? "Appliquer la synchronisation" : "Catalogue déjà synchronisé"}</Button></div>}>
+      <Modal open={syncModalOpen} onClose={() => setSyncModalOpen(false)} title="Synchroniser le catalogue canonique" description="PokemonGo-Data reste la vérité absolue. Cet aperçu compare l’inventaire local à MongoDB sans modifier les alias fournisseurs." className="max-w-4xl" footer={<div className="flex flex-wrap justify-end gap-2"><Button variant="secondary" icon={<RefreshCcw size={15} />} loading={syncLoading} loadingText="Recalcul…" disabled={busy} onClick={() => void loadSyncPreview(true)}>Recalculer l’aperçu</Button><Button variant="primary" icon={<Database size={15} />} loading={busyAction === "sync"} loadingText="Synchronisation…" disabled={busy || syncLoading || !syncReport || syncReport.conflict > 0 || !syncHasChanges} onClick={() => void applyLocalSync()}>{syncHasChanges ? "Appliquer la synchronisation" : "Catalogue déjà synchronisé"}</Button></div>}>
         {syncLoading && !syncReport ? <p className="p-6 text-center font-bold text-muted">Comparaison du catalogue local et de MongoDB…</p> : null}
         {syncReport ? <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-3"><Stat label="Inventaire local" value={syncReport.inventory.total} tone="cyan" /><Stat label="MongoDB avant" value={syncReport.before.identities} tone="violet" /><Stat label="MongoDB après" value={syncReport.after.identities} tone="green" /></div>
@@ -902,7 +903,7 @@ export function IdentityManagerPanel() {
         </div> : null}
       </Modal>
 
-      <Modal open={identityModal.open} onClose={() => setIdentityModal({ open: false })} title={identityModal.identity ? `Modifier ${identityModal.identity.canonicalId}` : "Créer une identité canonique"} description={identityModal.diagnostic ? `Cette création crée un brouillon puis résout l’alias ${identityModal.diagnostic.rawAlias}. Activez-le seulement après ajout de la fiche locale.` : "Le catalogue actif vient de PokemonGo-Data. Une création manuelle commence en brouillon pour une donnée future."} footer={<div className="flex justify-end gap-2"><Button onClick={() => setIdentityModal({ open: false })}>Annuler</Button><Button variant="primary" disabled={busy} onClick={() => void saveIdentity()}>{busy ? "Enregistrement…" : "Enregistrer"}</Button></div>}>
+      <Modal open={identityModal.open} onClose={() => setIdentityModal({ open: false })} title={identityModal.identity ? `Modifier ${identityModal.identity.canonicalId}` : "Créer une identité canonique"} description={identityModal.diagnostic ? `Cette création crée un brouillon puis résout l’alias ${identityModal.diagnostic.rawAlias}. Activez-le seulement après ajout de la fiche locale.` : "Le catalogue actif vient de PokemonGo-Data. Une création manuelle commence en brouillon pour une donnée future."} footer={<div className="flex justify-end gap-2"><Button onClick={() => setIdentityModal({ open: false })} disabled={busy}>Annuler</Button><Button variant="primary" loading={busyAction === "save-identity"} loadingText="Enregistrement…" disabled={busy} onClick={() => void saveIdentity()}>Enregistrer</Button></div>}>
         <div className="grid gap-4 sm:grid-cols-2">
           {localFieldsLocked ? <p className="sm:col-span-2 rounded-lg border border-brand-3/30 bg-brand-3/10 p-3 text-sm font-bold text-emerald-100">Canonical ID, forme, costume et genres sont verrouillés car ils proviennent de PokemonGo-Data. La synchronisation locale est leur seul point d’écriture.</p> : null}
           <Field label="Canonical ID"><Input disabled={localFieldsLocked} value={identityForm.canonicalId} onChange={(event) => setIdentityForm((current) => ({ ...current, canonicalId: event.target.value }))} placeholder="PIKACHU_WORLD_CAP" /></Field>
@@ -915,7 +916,7 @@ export function IdentityManagerPanel() {
         </div>
       </Modal>
 
-      <Modal open={aliasModal.open} onClose={() => setAliasModal({ open: false })} title={aliasModal.alias ? "Modifier l’alias" : "Ajouter un alias fournisseur"} description={aliasModal.identity?.canonicalId} footer={<div className="flex justify-end gap-2"><Button onClick={() => setAliasModal({ open: false })}>Annuler</Button><Button variant="primary" disabled={busy} onClick={() => void saveAlias()}>Enregistrer</Button></div>}>
+      <Modal open={aliasModal.open} onClose={() => setAliasModal({ open: false })} title={aliasModal.alias ? "Modifier l’alias" : "Ajouter un alias fournisseur"} description={aliasModal.identity?.canonicalId} footer={<div className="flex justify-end gap-2"><Button onClick={() => setAliasModal({ open: false })} disabled={busy}>Annuler</Button><Button variant="primary" loading={busyAction === "save-alias"} loadingText="Enregistrement…" disabled={busy} onClick={() => void saveAlias()}>Enregistrer</Button></div>}>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Fournisseur">
             <select
@@ -951,11 +952,11 @@ export function IdentityManagerPanel() {
         {!historyModal.items.length ? <p className="p-4 text-center font-bold text-muted">Chargement ou aucune modification enregistrée.</p> : <div className="space-y-2">{historyModal.items.map((item, index) => <article key={String(item.id || item._id || index)} className="rounded-lg border border-line bg-white/[0.035] p-3"><div className="flex flex-wrap items-center gap-2"><Badge tone="violet">{String(item.action || "modification")}</Badge>{item.provider ? <Badge>{String(item.provider)}</Badge> : null}<strong className="font-mono">{String(item.canonicalId || "")}</strong><span className="ml-auto text-xs text-muted">{formatDate(String(item.createdAt || ""))}</span></div><p className="mt-2 text-sm text-muted">{String(item.user || "système")}{item.reason ? ` · ${String(item.reason)}` : ""}</p></article>)}</div>}
       </Modal>
 
-      <Modal open={mergeModal.open} onClose={() => setMergeModal({ open: false, targetId: "", reason: "" })} title="Fusionner des identités" description={`La source ${mergeModal.identity?.canonicalId || ""} sera dépréciée, jamais supprimée.`} footer={<div className="flex justify-end gap-2"><Button onClick={() => setMergeModal({ open: false, targetId: "", reason: "" })}>Annuler</Button><Button variant="danger" disabled={busy} onClick={() => void mergeIdentity()}>Fusionner</Button></div>}><div className="space-y-4"><Field label="ObjectId de l’identité cible"><Input value={mergeModal.targetId} onChange={(event) => setMergeModal((current) => ({ ...current, targetId: event.target.value }))} /></Field><Field label="Motif obligatoire"><Textarea value={mergeModal.reason} onChange={(event) => setMergeModal((current) => ({ ...current, reason: event.target.value }))} /></Field></div></Modal>
+      <Modal open={mergeModal.open} onClose={() => setMergeModal({ open: false, targetId: "", reason: "" })} title="Fusionner des identités" description={`La source ${mergeModal.identity?.canonicalId || ""} sera dépréciée, jamais supprimée.`} footer={<div className="flex justify-end gap-2"><Button onClick={() => setMergeModal({ open: false, targetId: "", reason: "" })} disabled={busy}>Annuler</Button><Button variant="danger" loading={busyAction === "merge"} loadingText="Fusion…" disabled={busy} onClick={() => void mergeIdentity()}>Fusionner</Button></div>}><div className="space-y-4"><Field label="ObjectId de l’identité cible"><Input value={mergeModal.targetId} onChange={(event) => setMergeModal((current) => ({ ...current, targetId: event.target.value }))} /></Field><Field label="Motif obligatoire"><Textarea value={mergeModal.reason} onChange={(event) => setMergeModal((current) => ({ ...current, reason: event.target.value }))} /></Field></div></Modal>
 
-      <Modal open={deprecateModal.open} onClose={() => setDeprecateModal({ open: false, reason: "" })} title="Déprécier l’identité" description={`${deprecateModal.identity?.canonicalId || ""} restera dans MongoDB et pourra être restaurée.`} footer={<div className="flex justify-end gap-2"><Button onClick={() => setDeprecateModal({ open: false, reason: "" })}>Annuler</Button><Button variant="danger" disabled={busy || !deprecateModal.reason.trim()} onClick={() => void deprecateIdentity()}>Déprécier</Button></div>}><Field label="Motif obligatoire"><Textarea value={deprecateModal.reason} onChange={(event) => setDeprecateModal((current) => ({ ...current, reason: event.target.value }))} /></Field></Modal>
+      <Modal open={deprecateModal.open} onClose={() => setDeprecateModal({ open: false, reason: "" })} title="Déprécier l’identité" description={`${deprecateModal.identity?.canonicalId || ""} restera dans MongoDB et pourra être restaurée.`} footer={<div className="flex justify-end gap-2"><Button onClick={() => setDeprecateModal({ open: false, reason: "" })} disabled={busy}>Annuler</Button><Button variant="danger" loading={busyAction === "deprecate"} loadingText="Dépréciation…" disabled={busy || !deprecateModal.reason.trim()} onClick={() => void deprecateIdentity()}>Déprécier</Button></div>}><Field label="Motif obligatoire"><Textarea value={deprecateModal.reason} onChange={(event) => setDeprecateModal((current) => ({ ...current, reason: event.target.value }))} /></Field></Modal>
 
-      <Modal open={importModal} onClose={() => setImportModal(false)} title="Importer des identités" description="Aucune écriture n’est possible avant une prévisualisation sans conflit." footer={<div className="flex justify-end gap-2"><Button onClick={() => setImportModal(false)}>Fermer</Button><Button variant="primary" disabled={busy || !importReport || Boolean(importReport.conflicts.length || importReport.duplicates.length || importReport.invalid.length)} onClick={() => void applyImport()}>Valider l’import</Button></div>}><Input type="file" accept="application/json,.json" onChange={(event) => void readImportFile(event.target.files?.[0])} />{importReport ? <div className="mt-4 grid gap-3 sm:grid-cols-3"><Stat label="Créations" value={importReport.create} tone="green" /><Stat label="Mises à jour" value={importReport.update} tone="cyan" /><Stat label="Conflits" value={importReport.conflicts.length + importReport.duplicates.length + importReport.invalid.length} tone="red" /></div> : null}</Modal>
+      <Modal open={importModal} onClose={() => setImportModal(false)} title="Importer des identités" description="Aucune écriture n’est possible avant une prévisualisation sans conflit." footer={<div className="flex justify-end gap-2"><Button onClick={() => setImportModal(false)} disabled={busy}>Fermer</Button><Button variant="primary" loading={busyAction === "import"} loadingText="Import…" disabled={busy || !importReport || Boolean(importReport.conflicts.length || importReport.duplicates.length || importReport.invalid.length)} onClick={() => void applyImport()}>Valider l’import</Button></div>}><Input type="file" accept="application/json,.json" onChange={(event) => void readImportFile(event.target.files?.[0])} />{importReport ? <div className="mt-4 grid gap-3 sm:grid-cols-3"><Stat label="Créations" value={importReport.create} tone="green" /><Stat label="Mises à jour" value={importReport.update} tone="cyan" /><Stat label="Conflits" value={importReport.conflicts.length + importReport.duplicates.length + importReport.invalid.length} tone="red" /></div> : null}</Modal>
 
       <Modal open={associateModal.open} onClose={() => setAssociateModal({ open: false })} title="Associer l’alias" description={`${associateModal.diagnostic?.provider || ""} · ${associateModal.diagnostic?.rawAlias || ""}`} className="max-w-4xl"><label className="relative block"><Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={17} /><Input className="pl-10" value={associateSearch} onChange={(event) => setAssociateSearch(event.target.value)} placeholder="Rechercher un Canonical ID…" /></label><div className="mt-4 space-y-2">{associateCandidates.map((identity) => <button key={identityId(identity)} type="button" disabled={busy} className="flex w-full items-center gap-3 rounded-lg border border-line bg-white/[0.035] p-3 text-left transition hover:border-brand-2/50" onClick={() => void associate(identity)}><UserRoundCheck className="text-cyan-200" /><span className="min-w-0 flex-1"><strong className="block break-all font-mono">{identity.canonicalId}</strong><small className="text-muted">#{identity.pokemonId} · {identity.form || "normal"} · {identity.costume || "sans costume"}</small></span><Badge tone="green">Associer</Badge></button>)}</div></Modal>
     </section>

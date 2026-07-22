@@ -30,6 +30,7 @@ const sourceHistoryStoreKey = "matweb.pokemon.sourceHistory";
 const pokemonModulePattern = `${process.cwd()}/src/server/pokemon-go/`;
 const defaultPokemonApiPublicUrl = "https://pokemon-go-api.vercel.app";
 const pokemonAdminMutationTimeoutMs = 55_000;
+const asynchronousRegenerationDomains = new Set(["pvp-rankings"]);
 const pokemonApiBaseUrl =
   process.env.POKEMON_API_PUBLIC_URL
   || (process.env.VERCEL === "1" ? undefined : process.env.POKEMON_API_URL)
@@ -821,6 +822,20 @@ export async function GET(request: NextRequest) {
 
     if (action === "dataset-history") {
       return json({ data: await readDatasetHistory(request) });
+    }
+
+    if (action === "regeneration-status") {
+      const domain = String(request.nextUrl.searchParams.get("domain") || "").trim();
+      const runId = String(request.nextUrl.searchParams.get("runId") || "").trim();
+      if (!asynchronousRegenerationDomains.has(domain) || !runId) {
+        throw requestError("Suivi de régénération invalide.", 400);
+      }
+      return json({
+        data: await readPokemonApiAdmin(
+          `/api/v1/admin/${domain}/regenerate/${encodeURIComponent(runId)}`,
+          session!.email,
+        ),
+      });
     }
 
     if (action === "game-master-export") {

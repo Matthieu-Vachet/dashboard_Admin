@@ -1,7 +1,8 @@
 "use client";
 
 import { AlertTriangle, CheckCircle2, Download, ImageOff, RefreshCcw, RotateCcw } from "lucide-react";
-import { buttonClass, fieldClass, Panel, primaryButtonClass } from "./admin-ui";
+import { Button } from "@/components/ui/button";
+import { buttonClass, fieldClass, Panel } from "./admin-ui";
 import { DatasetFilterBar } from "./dataset-filter-bar";
 import { DatasetSourceHeader } from "./dataset-source-header";
 
@@ -94,9 +95,9 @@ export function PokemonIdentityMappingsPanel({ dataset, loading, regenerating, o
         title="Résolution des variantes Pokémon"
         action={(
           <div className="flex flex-wrap gap-2">
-            <button className={buttonClass} type="button" onClick={onDownload} disabled={!dataset}><Download size={16} /> JSON</button>
-            <button className={buttonClass} type="button" onClick={onRefresh} disabled={loading}><RefreshCcw className={loading ? "animate-spin" : ""} size={16} /> Actualiser</button>
-            <button className={primaryButtonClass} type="button" onClick={onRegenerate} disabled={regenerating}><RotateCcw className={regenerating ? "animate-spin" : ""} size={16} /> Régénérer les mappings</button>
+            <Button icon={<Download size={16} />} onClick={onDownload} disabled={!dataset}>JSON</Button>
+            <Button icon={<RefreshCcw size={16} />} loading={loading} loadingText="Actualisation…" onClick={onRefresh}>Actualiser</Button>
+            <Button variant="primary" icon={<RotateCcw size={16} />} loading={regenerating} loadingText="Régénération…" onClick={onRegenerate}>Régénérer les mappings</Button>
           </div>
         )}
       >

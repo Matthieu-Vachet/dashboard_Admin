@@ -1,4 +1,5 @@
 import { Slot } from "@radix-ui/react-slot";
+import { LoaderCircle } from "lucide-react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
@@ -10,6 +11,8 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
   size?: ButtonSize;
   icon?: ReactNode;
+  loading?: boolean;
+  loadingText?: ReactNode;
 };
 
 const variants: Record<ButtonVariant, string> = {
@@ -35,6 +38,8 @@ export function Button({
   variant = "secondary",
   size = "md",
   icon,
+  loading = false,
+  loadingText,
   children,
   ...props
 }: ButtonProps) {
@@ -48,7 +53,7 @@ export function Button({
 
   if (asChild) {
     return (
-      <Component className={buttonClassName} {...props}>
+      <Component className={buttonClassName} aria-busy={loading || undefined} {...props}>
         {children}
       </Component>
     );
@@ -58,9 +63,11 @@ export function Button({
     <Component
       className={buttonClassName}
       {...props}
+      aria-busy={loading || undefined}
+      disabled={loading || props.disabled}
     >
-      {icon}
-      {children}
+      {loading ? <LoaderCircle className="animate-spin motion-reduce:animate-none" size={16} aria-hidden="true" /> : icon}
+      {loading && loadingText ? loadingText : children}
     </Component>
   );
 }
