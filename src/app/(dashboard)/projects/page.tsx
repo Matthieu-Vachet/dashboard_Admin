@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Input, Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
+import { Select } from "@/components/ui/select";
 import {
   initialProjects,
   projectStatuses as statuses,
@@ -134,22 +135,22 @@ export default function ProjectsPage() {
             localStorage, tableaux, erreurs et mini dashboards.
           </p>
           <div className="mt-5 grid gap-3">
-            <div className="rounded-lg border border-line bg-white/[0.045] p-3">
+            <Card tone="flat" className="p-3">
               <span className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-muted">
                 <Code2 size={15} /> Objectif
               </span>
               <strong className="mt-2 block text-sm leading-6">
                 Construire petit, vérifier souvent, puis améliorer avec un bonus.
               </strong>
-            </div>
-            <div className="rounded-lg border border-line bg-white/[0.045] p-3">
+            </Card>
+            <Card tone="flat" className="p-3">
               <span className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-muted">
                 <ListChecks size={15} /> Routine
               </span>
               <strong className="mt-2 block text-sm leading-6">
                 1 projet = une version simple, une sauvegarde, puis une amélioration.
               </strong>
-            </div>
+            </Card>
           </div>
         </Card>
         <Card className="p-5">
@@ -167,7 +168,7 @@ export default function ProjectsPage() {
           <div className="mt-4 flex flex-wrap gap-2">
             {jsPracticalProjects.map((project) => (
               <button
-                className="rounded-full border border-line bg-white/[0.055] px-3 py-1.5 text-xs font-black text-muted transition hover:border-brand-2/45 hover:text-white"
+                className="rounded-full border border-line bg-surface-subtle px-3 py-1.5 text-xs font-black text-muted transition hover:border-brand-2/45 hover:text-inverse"
                 key={project.id}
                 type="button"
                 onClick={() => setSelectedId(`js-level6-${project.id}`)}
@@ -211,7 +212,7 @@ export default function ProjectsPage() {
                     <span>Progression</span>
                     <span>{project.progress}%</span>
                   </div>
-                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
+                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-surface-emphasis">
                     <div
                       className="h-full rounded-full bg-gradient-to-r from-brand via-brand-2 to-brand-3"
                       style={{ width: `${project.progress}%` }}
@@ -241,7 +242,7 @@ export default function ProjectsPage() {
                   Site
                 </Button>
               </div>
-              <span className="absolute right-4 top-4 font-mono text-xs font-black text-white/10">
+              <span className="absolute right-4 top-4 font-mono text-xs font-black text-inverse/10">
                 0{index + 1}
               </span>
             </Card>
@@ -302,8 +303,8 @@ export default function ProjectsPage() {
               </Field>
               <label className="block">
                 <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Statut</span>
-                <select
-                  className="mt-2 min-h-11 w-full rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+                <Select
+                  className="mt-2 min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none"
                   value={selectedProject.status}
                   onChange={(event) =>
                     updateProject(selectedProject.id, {
@@ -316,7 +317,7 @@ export default function ProjectsPage() {
                       {status}
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
             </div>
             <Field label="GitHub">

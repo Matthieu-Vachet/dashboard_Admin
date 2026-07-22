@@ -28,14 +28,14 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { PokemonMetrics } from "@/lib/pokemon";
 
-const colors = ["#20d3ff", "#905bf4", "#58f2a9", "#ffd166", "#ff5f7d"];
+const colors = ["var(--brand-2)", "var(--brand)", "var(--brand-3)", "var(--warning)", "var(--danger)"];
 const tooltipStyle = {
-  background: "rgba(10, 13, 24, 0.95)",
-  border: "1px solid rgba(255,255,255,0.12)",
+  background: "var(--panel-strong)",
+  border: "1px solid var(--line)",
   borderRadius: 8,
-  color: "#eef3ff",
+  color: "var(--foreground)",
 };
-const tooltipCursor = { fill: "rgba(32,211,255,0.08)" };
+const tooltipCursor = { fill: "var(--accent-muted)" };
 
 export function PokemonAnalytics() {
   const [metrics, setMetrics] = useState<PokemonMetrics | null>(null);
@@ -52,10 +52,10 @@ export function PokemonAnalytics() {
 
   const catalogData = metrics
     ? [
-        { name: "Types", value: metrics.catalog.types, color: "#20d3ff" },
-        { name: "Météo", value: metrics.catalog.weather, color: "#58f2a9" },
-        { name: "Stickers", value: metrics.catalog.stickers, color: "#905bf4" },
-        { name: "Moves", value: metrics.catalog.moves, color: "#ffd166" },
+        { name: "Types", value: metrics.catalog.types, color: "var(--brand-2)" },
+        { name: "Météo", value: metrics.catalog.weather, color: "var(--brand-3)" },
+        { name: "Stickers", value: metrics.catalog.stickers, color: "var(--brand)" },
+        { name: "Moves", value: metrics.catalog.moves, color: "var(--warning)" },
       ]
     : [];
   const largestGeneration = metrics?.generations.length
@@ -97,15 +97,15 @@ export function PokemonAnalytics() {
             {mounted ? (
               <ResponsiveContainer width="100%" height="100%" minWidth={1}>
               <BarChart data={metrics?.generations || []} margin={{ left: -20 }}>
-                <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                <XAxis dataKey="name" stroke="#94a3b8" tickLine={false} axisLine={false} />
-                <YAxis stroke="#94a3b8" tickLine={false} axisLine={false} />
+                <CartesianGrid stroke="var(--line)" vertical={false} />
+                <XAxis dataKey="name" stroke="var(--muted)" tickLine={false} axisLine={false} />
+                <YAxis stroke="var(--muted)" tickLine={false} axisLine={false} />
                 <Tooltip contentStyle={tooltipStyle} cursor={tooltipCursor} />
-                <Bar dataKey="entries" radius={[8, 8, 0, 0]} fill="#20d3ff" activeBar={{ fill: "#58f2a9" }} />
+                <Bar dataKey="entries" radius={[8, 8, 0, 0]} fill="var(--brand-2)" activeBar={{ fill: "var(--brand-3)" }} />
               </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full rounded-lg border border-line bg-white/[0.035]" />
+              <div className="h-full rounded-lg border border-line bg-surface-faint" />
             )}
           </div>
         </Card>
@@ -127,7 +127,7 @@ export function PokemonAnalytics() {
                   innerRadius={64}
                   outerRadius={112}
                   paddingAngle={3}
-                  stroke="rgba(5,6,13,.88)"
+                  stroke="var(--background)"
                   strokeWidth={3}
                 >
                   {(metrics?.kinds || []).map((entry, index) => (
@@ -137,7 +137,7 @@ export function PokemonAnalytics() {
               </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full rounded-lg border border-line bg-white/[0.035]" />
+              <div className="h-full rounded-lg border border-line bg-surface-faint" />
             )}
           </div>
         </Card>
@@ -153,11 +153,11 @@ export function PokemonAnalytics() {
             {mounted ? (
               <ResponsiveContainer width="100%" height="100%" minWidth={1}>
                 <BarChart data={catalogData} layout="vertical" margin={{ left: 6, right: 20 }}>
-                  <CartesianGrid stroke="rgba(255,255,255,0.06)" horizontal={false} />
-                  <XAxis type="number" stroke="#94a3b8" tickLine={false} axisLine={false} />
-                  <YAxis dataKey="name" type="category" stroke="#94a3b8" tickLine={false} axisLine={false} width={72} />
+                  <CartesianGrid stroke="var(--line)" horizontal={false} />
+                  <XAxis type="number" stroke="var(--muted)" tickLine={false} axisLine={false} />
+                  <YAxis dataKey="name" type="category" stroke="var(--muted)" tickLine={false} axisLine={false} width={72} />
                   <Tooltip contentStyle={tooltipStyle} cursor={tooltipCursor} />
-                  <Bar dataKey="value" radius={[0, 8, 8, 0]} activeBar={{ fill: "#58f2a9" }}>
+                  <Bar dataKey="value" radius={[0, 8, 8, 0]} activeBar={{ fill: "var(--brand-3)" }}>
                     {catalogData.map((entry) => (
                       <Cell key={entry.name} fill={entry.color} />
                     ))}
@@ -175,7 +175,7 @@ export function PokemonAnalytics() {
           </CardHeader>
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             {(metrics?.kinds || []).map((kind, index) => (
-              <div key={kind.name} className="rounded-lg border border-line bg-white/[0.045] p-4">
+              <Card tone="flat" key={kind.name} className="p-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm font-black capitalize">{kind.name}</p>
                   <span className="font-mono text-sm font-black text-brand-2">
@@ -183,7 +183,7 @@ export function PokemonAnalytics() {
                   </span>
                 </div>
                 <p className="mt-2 font-mono text-2xl font-black">{kind.value.toLocaleString("fr-FR")}</p>
-                <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+                <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface-emphasis">
                   <span
                     className="block h-full rounded-full"
                     style={{
@@ -192,7 +192,7 @@ export function PokemonAnalytics() {
                     }}
                   />
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         </Card>

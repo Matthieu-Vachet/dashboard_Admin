@@ -8,7 +8,7 @@ export const LEARNING_STATUS_LABEL: Record<LearningStatus, string> = {
 };
 
 export const LEARNING_STATUS_CLASS: Record<LearningStatus, string> = {
-  not_started: "border-white/10 bg-white/[0.045] text-muted",
+  not_started: "border-line bg-surface-flat text-muted",
   in_progress: "border-brand-2/30 bg-brand-2/10 text-brand-2",
   completed: "border-brand-3/30 bg-brand-3/10 text-brand-3",
   reviewing: "border-brand/30 bg-brand/10 text-brand",

@@ -83,7 +83,7 @@ function RaidCard({ boss, onOpenPokemon, typeCatalog = [], weatherCatalog = [] }
 
   return (
     <button
-      className="group min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/38 text-left shadow-[0_18px_70px_rgba(0,0,0,.2)] transition hover:-translate-y-0.5 hover:border-cyan-200/35 disabled:cursor-default"
+      className="group min-w-0 overflow-hidden rounded-2xl border border-line bg-slate-950/38 text-left shadow-[0_18px_70px_rgba(0,0,0,.2)] transition hover:-translate-y-0.5 hover:border-cyan-200/35 disabled:cursor-default"
       type="button"
       disabled={!canOpen}
       onClick={() => canOpen && onOpenPokemon(boss)}
@@ -102,10 +102,10 @@ function RaidCard({ boss, onOpenPokemon, typeCatalog = [], weatherCatalog = [] }
         ) : null}
         <PokemonArtwork pokemon={boss} alt={name} className="relative z-10 h-28 w-28 border-0 bg-transparent drop-shadow-[0_18px_34px_rgba(0,0,0,.38)]" />
       </div>
-      <div className="space-y-3 border-t border-white/10 p-4">
+      <div className="space-y-3 border-t border-line p-4">
         <div className="min-w-0">
-          <h3 className="truncate text-lg font-black text-white">{name}</h3>
-          {english ? <p className="truncate text-xs font-bold text-slate-400">{english}</p> : null}
+          <h3 className="truncate text-lg font-black text-domain-foreground">{name}</h3>
+          {english ? <p className="truncate text-xs font-bold text-muted">{english}</p> : null}
           {sourceName ? <p className="mt-1 line-clamp-2 text-[11px] font-bold text-cyan-100/65">Source : {sourceName}</p> : null}
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -113,24 +113,24 @@ function RaidCard({ boss, onOpenPokemon, typeCatalog = [], weatherCatalog = [] }
           {boss.form ? <RaidPill tone="border-cyan-200/25 bg-cyan-400/12 text-cyan-50">{boss.form}</RaidPill> : null}
           {boss.costume ? <RaidPill tone="border-fuchsia-200/25 bg-fuchsia-400/12 text-fuchsia-50">{boss.costume}</RaidPill> : null}
           {boss.assets?.sourceImage ? <RaidPill tone="border-emerald-200/20 bg-emerald-400/10 text-emerald-50">Asset source</RaidPill> : null}
-          {boss.raidType ? <RaidPill tone="border-white/10 bg-white/[0.06] text-slate-200">{boss.raidType}</RaidPill> : null}
+          {boss.raidType ? <RaidPill tone="border-line bg-surface-control text-foreground">{boss.raidType}</RaidPill> : null}
         </div>
-        <div className="grid gap-2 text-xs font-bold text-slate-300 sm:grid-cols-2">
-          <span className="rounded-2xl border border-white/10 bg-white/[0.055] p-3">
-            <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">CP</small>
+        <div className="grid gap-2 text-xs font-bold text-foreground-secondary sm:grid-cols-2">
+          <span className="rounded-2xl border border-line bg-surface-subtle p-3">
+            <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">CP</small>
             {cp}
           </span>
-          <span className="rounded-2xl border border-white/10 bg-white/[0.055] p-3">
-            <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Boost météo</small>
+          <span className="rounded-2xl border border-line bg-surface-subtle p-3">
+            <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">Boost météo</small>
             {boosted}
           </span>
         </div>
-        <div className="flex items-center gap-2 text-xs font-bold leading-5 text-slate-400">
+        <div className="flex items-center gap-2 text-xs font-bold leading-5 text-muted">
           <span>Météo</span>
           <WeatherIcons weather={boss.weather} catalog={weatherCatalog} />
           {!values(boss.weather).length ? <span>n/a</span> : null}
         </div>
-        <div className="flex flex-wrap items-center gap-2 text-xs font-bold leading-5 text-slate-400">
+        <div className="flex flex-wrap items-center gap-2 text-xs font-bold leading-5 text-muted">
           <span>Faiblesses</span>
           {counters.length ? counters.map(([type, multiplier]) => (
             <span className="inline-flex items-center gap-1" key={type}>
@@ -257,7 +257,7 @@ export function RaidsPanel({
 
       {loading && !total ? (
         <Panel title="Chargement des raids">
-          <p className="font-bold text-slate-300">Lecture des raids MongoDB en cours.</p>
+          <p className="font-bold text-foreground-secondary">Lecture des raids MongoDB en cours.</p>
         </Panel>
       ) : null}
 

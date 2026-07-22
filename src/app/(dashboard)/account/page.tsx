@@ -15,7 +15,7 @@ export default async function AccountPage() {
           className="relative z-10"
           eyebrow="Compte admin"
           action={
-            <Link className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.06] px-3 text-sm font-black text-slate-100 transition hover:border-cyan-200/40 hover:bg-cyan-400/12" href="/">
+            <Link className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-line bg-surface-control px-3 text-sm font-black text-foreground transition hover:border-cyan-200/40 hover:bg-cyan-400/12" href="/">
               <ArrowLeft size={16} /> Retour
             </Link>
           }

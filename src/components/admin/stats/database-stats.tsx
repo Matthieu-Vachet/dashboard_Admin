@@ -118,7 +118,7 @@ export function DatabaseStats() {
             {stats.keys.length ? (
               stats.keys.map((item, index) => (
                 <motion.div
-                  className="min-w-0 rounded-lg border border-line bg-white/[0.045] p-3"
+                  className="min-w-0 rounded-lg border border-line bg-surface-flat p-3"
                   initial={{ opacity: 0, x: -12 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.025 }}
@@ -128,7 +128,7 @@ export function DatabaseStats() {
                     <span className="min-w-0 break-all text-sm font-black sm:truncate">{item.key}</span>
                     <span className="shrink-0 font-mono text-xs font-black text-muted">{formatBytes(item.approxBytes)}</span>
                   </div>
-                  <span className="block h-2 overflow-hidden rounded-full bg-white/10">
+                  <span className="block h-2 overflow-hidden rounded-full bg-surface-emphasis">
                     <motion.span
                       className="block h-full rounded-full bg-gradient-to-r from-brand-2 via-brand to-brand-3"
                       initial={{ width: 0 }}
@@ -249,7 +249,7 @@ function ApiTimeline({ items }: { items: Array<{ day: string; count: number }> }
   const max = Math.max(...items.map((item) => item.count), 1);
 
   return (
-    <div className="min-w-0 overflow-hidden rounded-lg border border-line bg-black/15 p-3 sm:p-4">
+    <div className="min-w-0 overflow-hidden rounded-lg border border-line bg-surface-recessed p-3 sm:p-4">
       <div className="mb-4 flex items-center justify-between gap-3">
         <strong className="inline-flex items-center gap-2 text-sm font-black">
           <BarChart3 size={16} className="text-brand-2" />
@@ -288,7 +288,7 @@ function EndpointBars({ items }: { items: Array<{ endpoint: string; count: numbe
   const max = Math.max(...items.map((item) => item.count), 1);
 
   return (
-    <div className="min-w-0 overflow-hidden rounded-lg border border-line bg-black/15 p-3 sm:p-4">
+    <div className="min-w-0 overflow-hidden rounded-lg border border-line bg-surface-recessed p-3 sm:p-4">
       <div className="mb-4 flex items-center justify-between gap-3">
         <strong className="text-sm font-black">Top endpoints</strong>
         <span className="text-xs font-black text-muted">{items.length} routes</span>
@@ -301,7 +301,7 @@ function EndpointBars({ items }: { items: Array<{ endpoint: string; count: numbe
                 <span className="min-w-0 break-all text-xs font-black leading-5 sm:truncate">{item.endpoint}</span>
                 <span className="font-mono text-xs font-black text-muted">{item.count}</span>
               </div>
-              <span className="block h-2.5 overflow-hidden rounded-full bg-white/10">
+              <span className="block h-2.5 overflow-hidden rounded-full bg-surface-emphasis">
                 <motion.span
                   className="block h-full rounded-full bg-gradient-to-r from-brand-2 via-brand to-brand-3"
                   initial={{ width: 0 }}
@@ -323,12 +323,12 @@ function EndpointBars({ items }: { items: Array<{ endpoint: string; count: numbe
 
 function MiniRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex min-w-0 flex-col gap-2 rounded-lg border border-line bg-white/[0.045] p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+    <Card tone="flat" className="flex min-w-0 flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
       <span className="inline-flex min-w-0 items-center gap-2 break-words text-[11px] font-black uppercase tracking-[0.12em] text-muted sm:text-xs sm:tracking-[0.16em]">
         <KeyRound size={14} />
         {label}
       </span>
       <strong className="min-w-0 break-words text-sm font-black sm:text-right">{value}</strong>
-    </div>
+    </Card>
   );
 }

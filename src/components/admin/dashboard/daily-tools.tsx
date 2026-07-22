@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input, Textarea } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import {
   initialContacts,
   initialFocusMinutes,
@@ -113,7 +114,7 @@ export function DailyTools() {
           )} />
           <div className="mt-4 space-y-3">
             {links.map((link) => (
-              <div key={link.id} className="grid gap-2 rounded-lg border border-line bg-white/[0.045] p-3 sm:grid-cols-[1fr_1.4fr_auto_auto]">
+              <Card tone="flat" key={link.id} className="grid gap-2 p-3 sm:grid-cols-[1fr_1.4fr_auto_auto]">
                 <Input
                   value={link.label}
                   onChange={(event) =>
@@ -151,7 +152,7 @@ export function DailyTools() {
                 >
                   <Trash2 size={16} />
                 </Button>
-              </div>
+              </Card>
             ))}
           </div>
         </Card>
@@ -180,7 +181,7 @@ export function DailyTools() {
           )} />
           <div className="mt-4 space-y-3">
             {snippets.map((snippet) => (
-              <div key={snippet.id} className="rounded-lg border border-line bg-white/[0.045] p-3">
+              <Card tone="flat" key={snippet.id} className="p-3">
                 <div className="grid gap-2 sm:grid-cols-[1fr_auto_auto]">
                   <Input
                     value={snippet.title}
@@ -216,7 +217,7 @@ export function DailyTools() {
                     )
                   }
                 />
-              </div>
+              </Card>
             ))}
           </div>
         </Card>
@@ -249,7 +250,7 @@ export function DailyTools() {
           </div>
           <div className="mt-4 space-y-3">
             {subscriptions.map((item) => (
-              <div key={item.id} className="grid gap-2 rounded-lg border border-line bg-white/[0.045] p-3 sm:grid-cols-[1fr_120px_120px_auto]">
+              <Card tone="flat" key={item.id} className="grid gap-2 p-3 sm:grid-cols-[1fr_120px_120px_auto]">
                 <Input
                   value={item.name}
                   onChange={(event) =>
@@ -272,8 +273,9 @@ export function DailyTools() {
                     )
                   }
                 />
-                <select
-                  className="min-h-11 rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+                <Select
+                  aria-label={`Fréquence de facturation de ${item.name || "l’abonnement"}`}
+                  className="min-h-11 rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none"
                   value={item.billing}
                   onChange={(event) =>
                     setSubscriptions((current) =>
@@ -287,7 +289,7 @@ export function DailyTools() {
                 >
                   <option value="Mensuel">Mensuel</option>
                   <option value="Annuel">Annuel</option>
-                </select>
+                </Select>
                 <Button
                   size="icon"
                   variant="danger"
@@ -297,7 +299,7 @@ export function DailyTools() {
                 >
                   <Trash2 size={16} />
                 </Button>
-              </div>
+              </Card>
             ))}
           </div>
         </Card>
@@ -326,7 +328,7 @@ export function DailyTools() {
           )} />
           <div className="mt-4 space-y-3">
             {contacts.map((contact) => (
-              <div key={contact.id} className="grid gap-2 rounded-lg border border-line bg-white/[0.045] p-3 sm:grid-cols-[1fr_1fr_1.2fr_auto]">
+              <Card tone="flat" key={contact.id} className="grid gap-2 p-3 sm:grid-cols-[1fr_1fr_1.2fr_auto]">
                 <Input
                   value={contact.name}
                   onChange={(event) =>
@@ -367,7 +369,7 @@ export function DailyTools() {
                 >
                   <Trash2 size={16} />
                 </Button>
-              </div>
+              </Card>
             ))}
           </div>
         </Card>

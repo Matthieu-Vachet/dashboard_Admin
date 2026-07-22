@@ -128,11 +128,11 @@ function TypeIcons({ types }) {
       {list.map((type) => {
         const icon = typeIcon(type);
         return icon ? (
-          <span key={type} className="grid h-7 w-7 place-items-center rounded-full border border-white/10 bg-slate-950/35 p-1" title={type}>
+          <span key={type} className="grid h-7 w-7 place-items-center rounded-full border border-line bg-surface-inset p-1" title={type}>
             <img className="h-full w-full object-contain" src={icon} alt={type} loading="lazy" />
           </span>
         ) : (
-          <span key={type} className="rounded-full border border-white/10 bg-white/10 px-2 py-1 text-[10px] font-black text-white">
+          <span key={type} className="rounded-full border border-line bg-surface-emphasis px-2 py-1 text-[10px] font-black text-domain-foreground">
             {type}
           </span>
         );
@@ -141,7 +141,7 @@ function TypeIcons({ types }) {
   );
 }
 
-function Badge({ children, tone = "border-white/10 bg-white/[0.07] text-white" }) {
+function Badge({ children, tone = "border-line bg-white/[0.07] text-domain-foreground" }) {
   return (
     <DesignSystemBadge className={`inline-flex min-h-7 items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] ${tone}`}>
       {children}
@@ -159,7 +159,7 @@ function PokemonReward({ reward }) {
       <PokemonArtwork pokemon={reward} alt={name} className="h-[72px] w-[72px] drop-shadow-[0_12px_24px_rgba(0,0,0,.36)]" />
       <span className="min-w-0 space-y-2">
         <span className="flex min-w-0 flex-wrap items-center gap-2">
-          <strong className="truncate text-sm font-black text-white">{name}</strong>
+          <strong className="truncate text-sm font-black text-domain-foreground">{name}</strong>
           {reward.shiny ? (
             <Badge tone="border-amber-200/25 bg-amber-300/16 text-amber-50">
               <Sparkles size={11} /> Shiny
@@ -187,15 +187,15 @@ function ItemReward({ reward, items }) {
 
   return (
     <article className="grid min-w-0 grid-cols-[64px_minmax(0,1fr)] gap-3 rounded-2xl border border-amber-200/16 bg-amber-400/9 p-3">
-      <span className="grid h-16 w-16 place-items-center overflow-hidden rounded-2xl border border-amber-100/18 bg-slate-950/40 p-2">
+      <span className="grid h-16 w-16 place-items-center overflow-hidden rounded-2xl border border-amber-100/18 bg-surface-inset-medium p-2">
         {src ? <img className="h-11 max-h-11 w-11 max-w-11 object-contain" src={src} alt={name} loading="lazy" /> : <Package className="text-amber-100" size={24} />}
       </span>
       <span className="min-w-0">
         <span className="flex min-w-0 flex-wrap items-center gap-2">
-          <strong className="truncate text-sm font-black text-white">{name}</strong>
+          <strong className="truncate text-sm font-black text-domain-foreground">{name}</strong>
           {reward.quantity ? <Badge tone="border-amber-200/25 bg-amber-300/16 text-amber-50">x{reward.quantity}</Badge> : null}
         </span>
-        {english ? <span className="mt-1 block truncate text-xs font-bold text-slate-400">{english}</span> : null}
+        {english ? <span className="mt-1 block truncate text-xs font-bold text-muted">{english}</span> : null}
         {sourceName ? <span className="mt-1 block truncate text-[11px] font-bold text-cyan-100/65">Source : {sourceName}</span> : null}
         {item?.id ? <span className="mt-1 block truncate font-mono text-[10px] font-black uppercase text-amber-100/62">{item.id}</span> : null}
         {reward.sourceAsset ? <Badge tone="mt-2 border-emerald-200/25 bg-emerald-400/12 text-emerald-50">Asset source</Badge> : null}
@@ -218,7 +218,7 @@ function ResearchTask({ task, items, sectionId }) {
       : findItemReference(firstReward?.reward, items)?.names?.French || firstReward?.reward?.name;
 
   return (
-    <details className="group overflow-hidden rounded-2xl border border-white/10 bg-slate-950/36 open:border-cyan-200/18 open:bg-slate-950/48">
+    <details className="group overflow-hidden rounded-2xl border border-line bg-slate-950/36 open:border-cyan-200/18 open:bg-slate-950/48">
       <summary className="grid cursor-pointer list-none gap-3 p-4 marker:hidden sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
         <span className="min-w-0">
           <span className="mb-2 flex flex-wrap items-center gap-2">
@@ -226,15 +226,15 @@ function ResearchTask({ task, items, sectionId }) {
             {task.event?.name ? <Badge tone="border-orange-200/25 bg-orange-400/14 text-orange-50">{task.event.name}</Badge> : null}
             {rewards.length > 1 ? <Badge tone="border-cyan-200/25 bg-cyan-400/14 text-cyan-50">{rewards.length} rewards</Badge> : null}
           </span>
-          <strong className="block text-base font-black leading-snug text-white">{task.task}</strong>
-          {summaryReward ? <span className="mt-1 block truncate text-xs font-bold text-slate-400">{summaryReward}</span> : null}
+          <strong className="block text-base font-black leading-snug text-domain-foreground">{task.task}</strong>
+          {summaryReward ? <span className="mt-1 block truncate text-xs font-bold text-muted">{summaryReward}</span> : null}
         </span>
         <span className="flex items-center justify-between gap-3 text-xs font-black uppercase tracking-[0.12em] text-cyan-100/68 sm:justify-end">
           Détails
           <ChevronDown className="transition group-open:rotate-180" size={18} />
         </span>
       </summary>
-      <div className="grid gap-3 border-t border-white/10 bg-black/18 p-3 md:grid-cols-2 2xl:grid-cols-3">
+      <div className="grid gap-3 border-t border-line bg-black/18 p-3 md:grid-cols-2 2xl:grid-cols-3">
         {rewards.map((reward, index) => (
           <RewardCard key={`${task.task}-${reward.rewardType}-${index}`} entry={reward} items={items} />
         ))}
@@ -247,25 +247,25 @@ function ResearchSection({ id, title, tasks, items, defaultOpen }) {
   const [open, setOpen] = useState(Boolean(defaultOpen));
   return (
     <details
-      className={`group overflow-hidden rounded-3xl border ${sectionTones[id] || "border-white/10 bg-white/[0.04]"}`}
+      className={`group overflow-hidden rounded-3xl border ${sectionTones[id] || "border-line bg-surface-minimal"}`}
       open={open}
       onToggle={(event) => setOpen(event.currentTarget.open)}
     >
       <summary className="grid cursor-pointer list-none gap-3 p-4 marker:hidden sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
         <span>
           <span className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-100/62">{id}</span>
-          <span className="mt-1 block text-2xl font-black text-white">{title}</span>
+          <span className="mt-1 block text-2xl font-black text-domain-foreground">{title}</span>
         </span>
-        <span className="inline-flex items-center gap-3 text-sm font-black text-white">
+        <span className="inline-flex items-center gap-3 text-sm font-black text-domain-foreground">
           <span className="rounded-full border border-white/12 bg-white/[0.08] px-3 py-1.5">{tasks.length}</span>
           <ChevronDown className="transition group-open:rotate-180" size={20} />
         </span>
       </summary>
-      <div className="grid gap-3 border-t border-white/10 p-3 sm:p-4">
+      <div className="grid gap-3 border-t border-line p-3 sm:p-4">
         {tasks.length ? (
           tasks.map((task, index) => <ResearchTask key={`${id}-${task.task}-${index}`} task={task} items={items} sectionId={id} />)
         ) : (
-          <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+          <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
             Aucune quête dans cette section.
           </p>
         )}
@@ -373,7 +373,7 @@ export function ResearchPanel({
 
       {loading && !total ? (
         <Panel title="Chargement Research">
-          <p className="font-bold text-slate-300">Lecture des quêtes MongoDB en cours.</p>
+          <p className="font-bold text-foreground-secondary">Lecture des quêtes MongoDB en cours.</p>
         </Panel>
       ) : null}
 

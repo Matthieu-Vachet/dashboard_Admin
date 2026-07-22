@@ -175,7 +175,7 @@ function StatCard({ icon: Icon, label, value, detail, tone, onClick }: {
   );
 
   return onClick ? (
-    <button className="group min-w-0 rounded-lg border border-line bg-white/[0.045] p-4 text-left transition hover:border-brand-2/35 hover:bg-white/[0.075]" type="button" onClick={onClick}>
+    <button className="group min-w-0 rounded-lg border border-line bg-surface-flat p-4 text-left transition hover:border-brand-2/35 hover:bg-white/[0.075]" type="button" onClick={onClick}>
       {content}
     </button>
   ) : <Card className="min-w-0 border border-line p-4">{content}</Card>;
@@ -183,7 +183,7 @@ function StatCard({ icon: Icon, label, value, detail, tone, onClick }: {
 
 function EventLine({ event, label }: { event?: EventItem; label: string }) {
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-line bg-white/[0.035] p-3">
+    <div className="flex items-start gap-3 rounded-lg border border-line bg-surface-faint p-3">
       <CalendarClock className="mt-0.5 shrink-0 text-brand-2" size={17} />
       <div className="min-w-0">
         <span className="text-[9px] font-black uppercase tracking-[0.14em] text-muted">{label}</span>
@@ -359,7 +359,7 @@ export function AdminCommandCenter({
           </div>
           <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
             {regenerationSteps.map((step) => (
-              <div className="min-w-0 rounded-lg border border-line bg-white/[.035] p-3" key={step.id}>
+              <div className="min-w-0 rounded-lg border border-line bg-surface-faint p-3" key={step.id}>
                 <div className="flex items-start gap-2">
                   <span className="mt-0.5 shrink-0"><RegenerationStatusIcon status={step.status} /></span>
                   <div className="min-w-0 flex-1">
@@ -409,9 +409,9 @@ export function AdminCommandCenter({
             <div className="flex items-center justify-between text-sm font-black"><span>Progression globale</span><span>{quality}%</span></div>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-950/60"><div className="h-full rounded-full bg-gradient-to-r from-emerald-300 via-cyan-300 to-brand" style={{ width: `${quality}%` }} /></div>
             <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-              <div className="rounded-lg border border-line bg-white/[.035] p-2"><strong className="block text-lg">{total.toLocaleString("fr-FR")}</strong><small className="text-muted">analysées</small></div>
-              <div className="rounded-lg border border-line bg-white/[.035] p-2"><strong className="block text-lg text-emerald-200">{complete.toLocaleString("fr-FR")}</strong><small className="text-muted">complètes</small></div>
-              <div className="rounded-lg border border-line bg-white/[.035] p-2"><strong className="block text-lg text-amber-200">{Number(summary.issues || 0).toLocaleString("fr-FR")}</strong><small className="text-muted">problèmes</small></div>
+              <div className="rounded-lg border border-line bg-surface-faint p-2"><strong className="block text-lg">{total.toLocaleString("fr-FR")}</strong><small className="text-muted">analysées</small></div>
+              <div className="rounded-lg border border-line bg-surface-faint p-2"><strong className="block text-lg text-emerald-200">{complete.toLocaleString("fr-FR")}</strong><small className="text-muted">complètes</small></div>
+              <div className="rounded-lg border border-line bg-surface-faint p-2"><strong className="block text-lg text-amber-200">{Number(summary.issues || 0).toLocaleString("fr-FR")}</strong><small className="text-muted">problèmes</small></div>
             </div>
           </div>
         </Card>
@@ -430,7 +430,7 @@ export function AdminCommandCenter({
             </div>
           ))}
           {recentHistory.map((item, index) => (
-            <div className="flex items-start gap-3 rounded-lg border border-line bg-white/[.035] p-3" key={item.hash || `${item.date}-${index}`}>
+            <div className="flex items-start gap-3 rounded-lg border border-line bg-surface-faint p-3" key={item.hash || `${item.date}-${index}`}>
               <CheckCircle2 className="mt-0.5 shrink-0 text-emerald-200" size={17} />
               <div className="min-w-0"><strong className="block truncate text-sm">{item.subject || item.message || "Mise à jour du référentiel"}</strong><small className="mt-1 block text-xs text-muted">{formatDate(item.iso || item.date)}{item.hash ? ` · ${item.hash}` : ""}</small></div>
             </div>

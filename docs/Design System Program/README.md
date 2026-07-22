@@ -28,11 +28,16 @@ Le statut courant fait foi dans `backlog/design-system-backlog.md`.
 | Button | validated | sprint famille documenté dans `sprints/button/` |
 | Field, Input et Textarea | validated | sprint famille documenté dans `sprints/field-input-textarea/` ; `Field` conserve son contrat minimal de label + enfant |
 | Accessibilité des formulaires | validated | sprint transverse documenté dans `sprints/form-accessibility/` |
-| Modal | validated | 25 cas classés A11/B0/C10/D4 dans `sprints/modal/` ; 11 usages déjà canoniques et aucune migration source supplémentaire |
-| Modal Stabilisation | planned | prochain sprint proposé, non lancé (`DS-BACKLOG-017`) |
-| Card | planned | lot distinct conservé au backlog (`DS-BACKLOG-010`) |
+| Modal | completed | 38 cas courants classés A22/B0/C0/D10/E6/F0 après stabilisation ; 22 instances canoniques dans 14 fichiers et exceptions métier documentées dans `sprints/modal-complete/` |
+| Modal Stabilisation | completed | contrat canonique, overlay, focus et motion locale stabilisés (`DS-BACKLOG-017`) |
+| Card + Surfaces | completed | 386 racines classées, 20 surfaces sûres migrées, 115 usages canoniques dans 32 fichiers ; preuves dans `sprints/card-surfaces/` (`DS-BACKLOG-010`) |
+| Color System | completed | couverture générique 46,4 % → 91,0 %, 1 504 hardcodes génériques retirés et 66 scénarios dark/light validés ; preuves dans `sprints/color-system/` (`DS-BACKLOG-018`) |
+| Select | completed | 67/67 contrôles compatibles canoniques et nommés, cinq wrappers conservés ; preuves dans `sprints/select-checkbox/` (`DS-BACKLOG-006`) |
+| Checkbox | completed | 10/10 contrôles compatibles canoniques et nommés, sémantiques spécialisées conservées ; preuves dans `sprints/select-checkbox/` (`DS-BACKLOG-007`) |
 
-Métriques de clôture du programme : huit entrées du backlog sont `validated`, cinq dossiers de sprint sont documentés, six familles de composants sont validées (Badge, Button, Field, Input, Textarea et Modal) et un chantier transverse d’accessibilité est validé. Pour Modal, les 36 scénarios de vérification ne montrent aucune différence significative de contrat, style, interaction ou pixels.
+Métriques au 22 juillet 2026 : sept entrées du backlog sont `validated`, six sont `completed` et neuf dossiers de sprint sont documentés. Les familles Badge, Button, Field, Input et Textarea sont validées ; Modal, Card, Color System, Select et Checkbox sont terminés ; le chantier transverse d'accessibilité des formulaires est validé. Pour Modal, 48 scénarios sont référencés, 46 sont exécutés et les deux skips desktop du drawer mobile sont attendus. Pour Card, Color System et Select + Checkbox, 66 scénarios dark/light et responsive couvrent onze pages, sans différence significative de structure, interaction ou layout, erreur React/console ou overflow. Le Color System pilote 91,0 % des 3 221 usages génériques inventoriés ; les couleurs métier restent séparées.
+
+Prochain sprint recommandé, non lancé : **Loading / Empty / Error** (`DS-BACKLOG-008`). Il devra cartographier les états répétés avant toute extraction et conserver les états spécialisés de domaine.
 
 ## Lancer un nouveau sprint
 

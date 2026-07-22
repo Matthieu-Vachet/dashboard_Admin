@@ -6,13 +6,14 @@ import { Gauge, Image as ImageIcon, LayoutDashboard, Sparkles } from "lucide-rea
 import { toast } from "sonner";
 import { pokemonVariantLabel, preferredPokemonImage, typeColors } from "@/components/site/pokemon-style";
 import { uiAssets } from "@/components/site/ui-assets";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const panelClass =
-  "rounded-2xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_22px_90px_rgba(0,0,0,.24)] backdrop-blur-xl sm:p-5";
+  "rounded-2xl border border-line bg-surface-subtle p-4 shadow-[0_22px_90px_rgba(0,0,0,.24)] backdrop-blur-xl sm:p-5";
 const fieldClass =
-  "min-h-12 w-full rounded-2xl border border-white/10 bg-slate-950/45 px-4 text-sm font-bold text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-400/10";
+  "min-h-12 w-full rounded-2xl border border-line bg-surface-inset-strong px-4 text-sm font-bold text-domain-foreground outline-none transition placeholder:text-disabled focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-400/10";
 const primaryButtonClass =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-400 px-4 py-2 text-sm font-black text-white shadow-[0_14px_45px_rgba(14,165,233,.26)] transition hover:scale-[1.01]";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-400 px-4 py-2 text-sm font-black text-domain-foreground shadow-[0_14px_45px_rgba(14,165,233,.26)] transition hover:scale-[1.01]";
 const initialCollectionLimit = 96;
 const collectionLimitStep = 96;
 
@@ -326,20 +327,20 @@ function CollectionStatCard({ label, value, icon, tone = "cyan", detail }) {
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.22),transparent_34%),linear-gradient(135deg,rgba(255,255,255,.1),transparent_45%)]" />
       <div className="relative grid min-w-0 grid-cols-[3rem_minmax(0,1fr)] items-center gap-3">
-        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/10 bg-slate-950/45 p-2 shadow-inner">
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-line bg-surface-inset-strong p-2 shadow-inner">
           {icon ? <img className="max-h-full object-contain" src={icon} alt="" /> : <Gauge size={21} />}
         </span>
         <span className="min-w-0">
-          <span className="block truncate text-xs font-black uppercase tracking-[0.18em] text-white/72">
+          <span className="block truncate text-xs font-black uppercase tracking-[0.18em] text-domain-foreground/72">
             {label}
           </span>
-          <strong className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[clamp(1.6rem,3vw,2.75rem)] font-black leading-none text-white drop-shadow-[0_0_18px_rgba(255,255,255,.16)]">
+          <strong className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[clamp(1.6rem,3vw,2.75rem)] font-black leading-none text-domain-foreground drop-shadow-[0_0_18px_rgba(255,255,255,.16)]">
             {formatCount(value)}
           </strong>
         </span>
       </div>
       {detail ? (
-        <p className="relative mt-3 truncate text-xs font-bold text-white/70">{detail}</p>
+        <p className="relative mt-3 truncate text-xs font-bold text-domain-foreground/70">{detail}</p>
       ) : null}
     </article>
   );
@@ -449,7 +450,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
           <p className="mb-1 text-xs font-black uppercase tracking-[0.22em] text-cyan-200/70">
             experimentation checklist
           </p>
-          <h2 className="text-xl font-black tracking-tight text-white sm:text-2xl">Collections Pokemon GO</h2>
+          <h2 className="text-xl font-black tracking-tight text-domain-foreground sm:text-2xl">Collections Pokemon GO</h2>
         </div>
         <button className={primaryButtonClass} type="button" onClick={() => setModalOpen(true)}>
           <Sparkles size={17} /> Nouvelle collection
@@ -479,9 +480,9 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
       </div>
 
       <div className="mb-5 grid gap-3 xl:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)]">
-        <div className="rounded-3xl border border-white/10 bg-slate-950/35 p-4">
+        <div className="rounded-3xl border border-line bg-surface-inset p-4">
           <div className="mb-3 flex items-center justify-between gap-3">
-            <strong className="font-black text-white">Mes collections</strong>
+            <strong className="font-black text-domain-foreground">Mes collections</strong>
             <span className="rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-1 text-xs font-black text-emerald-100">
               {collections.length}
             </span>
@@ -493,19 +494,19 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
                   className={`rounded-2xl border p-3 text-left transition ${
                     activeCollection?.id === collection.id
                       ? "border-cyan-200/55 bg-cyan-400/18"
-                      : "border-white/10 bg-white/[0.045] hover:border-cyan-200/35"
+                      : "border-line bg-surface-flat hover:border-cyan-200/35"
                   }`}
                   key={collection.id}
                   type="button"
                   onClick={() => setActiveId(collection.id)}
                 >
                   <span className="flex items-center justify-between gap-3">
-                    <strong className="truncate text-sm font-black text-white">{collection.name}</strong>
-                    <small className="shrink-0 rounded-full bg-white/10 px-2 py-1 text-[10px] font-black uppercase text-slate-200">
+                    <strong className="truncate text-sm font-black text-domain-foreground">{collection.name}</strong>
+                    <small className="shrink-0 rounded-full bg-surface-emphasis px-2 py-1 text-[10px] font-black uppercase text-foreground">
                       {collection.shiny ? "shiny" : "standard"}
                     </small>
                   </span>
-                  <small className="mt-2 block truncate text-xs font-bold text-slate-400">
+                  <small className="mt-2 block truncate text-xs font-bold text-muted">
                     {collectionTypes.find(([id]) => id === collection.type)?.[1] || collection.type} -{" "}
                     {collectionVariantModes.find(([id]) => id === collection.variantMode)?.[1]}
                     {collection.hundo ? " - Hundo" : ""}
@@ -513,21 +514,21 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
                 </button>
               ))
             ) : (
-              <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+              <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
                 Cree une premiere collection pour afficher les Pokemon correspondants.
               </p>
             )}
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-sky-500/12 via-cyan-400/8 to-emerald-400/12 p-4">
+        <div className="rounded-3xl border border-line bg-gradient-to-br from-sky-500/12 via-cyan-400/8 to-emerald-400/12 p-4">
           {activeCollection ? (
             <>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-100/70">Collection active</p>
-                  <h3 className="mt-1 text-2xl font-black text-white">{activeCollection.name}</h3>
-                  <p className="mt-1 text-sm font-bold text-slate-300">
+                  <h3 className="mt-1 text-2xl font-black text-domain-foreground">{activeCollection.name}</h3>
+                  <p className="mt-1 text-sm font-bold text-foreground-secondary">
                     {visibleHaveCount}/{allMatching.length} selectionnes sur le filtre actuel - {haveCount} au total
                   </p>
                 </div>
@@ -552,7 +553,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
                   {["all", "have", "need"].map((id) => (
                     <button
                       className={`rounded-2xl border px-4 py-2 text-xs font-black uppercase ${
-                        status === id ? "border-cyan-200/55 bg-cyan-400/20 text-cyan-50" : "border-white/10 bg-white/[0.055] text-slate-300"
+                        status === id ? "border-cyan-200/55 bg-cyan-400/20 text-cyan-50" : "border-line bg-surface-subtle text-foreground-secondary"
                       }`}
                       key={id}
                       type="button"
@@ -568,8 +569,8 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
             <div className="grid min-h-48 place-items-center text-center">
               <div>
                 <Sparkles className="mx-auto mb-3 text-cyan-100" size={30} />
-                <h3 className="text-xl font-black text-white">Aucune collection active</h3>
-                <p className="mt-2 text-sm font-bold text-slate-400">Cree une collection pour generer automatiquement sa grille.</p>
+                <h3 className="text-xl font-black text-domain-foreground">Aucune collection active</h3>
+                <p className="mt-2 text-sm font-bold text-muted">Cree une collection pour generer automatiquement sa grille.</p>
               </div>
             </div>
           )}
@@ -582,7 +583,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
             {collectionRegionFilters.map(([id, label, icon]) => (
               <button
                 className={`relative min-h-[72px] overflow-hidden rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 ${
-                  region === id ? "border-cyan-200/55 bg-cyan-400/20" : "border-white/10 bg-white/[0.045]"
+                  region === id ? "border-cyan-200/55 bg-cyan-400/20" : "border-line bg-surface-flat"
                 }`}
                 key={id}
                 type="button"
@@ -593,10 +594,10 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
                 ) : (
                   <LayoutDashboard className="absolute bottom-3 right-3 text-cyan-100/50" size={24} />
                 )}
-                <small className="relative block text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">
+                <small className="relative block text-[10px] font-black uppercase tracking-[0.16em] text-muted">
                   {id === "all" ? "Regions" : `Gen. ${id}`}
                 </small>
-                <strong className="relative mt-1 block text-sm font-black text-white">{label}</strong>
+                <strong className="relative mt-1 block text-sm font-black text-domain-foreground">{label}</strong>
               </button>
             ))}
           </div>
@@ -609,7 +610,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
                     <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100/65">
                       Generation
                     </p>
-                    <h3 className="text-2xl font-black text-white">
+                    <h3 className="text-2xl font-black text-domain-foreground">
                       {generationLabels[groupId] || `Gen. ${groupId}`}
                     </h3>
                   </div>
@@ -632,7 +633,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
                         className={`group relative min-h-[13rem] overflow-hidden rounded-3xl border p-3 text-left transition hover:-translate-y-1 ${
                           selected
                             ? "border-pink-200/70 bg-pink-400/16 shadow-[0_18px_55px_rgba(244,114,182,.18)]"
-                            : "border-white/10 bg-slate-950/42 hover:border-cyan-200/45"
+                            : "border-line bg-slate-950/42 hover:border-cyan-200/45"
                         }`}
                         key={entry.key}
                         type="button"
@@ -643,7 +644,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
                           className="pointer-events-none absolute inset-x-3 bottom-3 h-16 rounded-2xl opacity-70"
                           style={{ background: `linear-gradient(135deg, ${color}55, rgba(255,255,255,.08))` }}
                         />
-                        <span className="absolute right-3 top-3 grid h-7 w-7 place-items-center rounded-full border border-white/20 bg-slate-950/70 text-xs font-black text-white">
+                        <span className="absolute right-3 top-3 grid h-7 w-7 place-items-center rounded-full border border-white/20 bg-slate-950/70 text-xs font-black text-domain-foreground">
                           {selected ? "OK" : ""}
                         </span>
                         <span className="relative grid h-28 place-items-center p-2">
@@ -654,9 +655,9 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
                           )}
                         </span>
                         <span className="relative mt-2 block">
-                          <strong className="block truncate text-sm font-black text-white">{entry.name}</strong>
-                          <small className="mt-1 block truncate font-mono text-xs font-black text-slate-300">{entry.dexId}</small>
-                          <small className="mt-1 block truncate text-[11px] font-bold text-slate-400">{pokemonVariantLabel(entry)}</small>
+                          <strong className="block truncate text-sm font-black text-domain-foreground">{entry.name}</strong>
+                          <small className="mt-1 block truncate font-mono text-xs font-black text-foreground-secondary">{entry.dexId}</small>
+                          <small className="mt-1 block truncate text-[11px] font-bold text-muted">{pokemonVariantLabel(entry)}</small>
                         </span>
                       </button>
                     );
@@ -682,7 +683,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
             </div>
           ) : null}
           {!collectionEntries.length ? (
-            <p className="mt-4 rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+            <p className="mt-4 rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
               Aucun Pokemon ne correspond a cette combinaison de filtres.
             </p>
           ) : null}
@@ -690,42 +691,42 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
       ) : null}
 
       {canUsePortal && modalOpen ? createPortal(
-        <div className="fixed inset-0 z-[1100] overflow-y-auto bg-slate-950/78 p-3 backdrop-blur-xl sm:p-6" role="dialog" aria-modal="true">
-          <section className="mx-auto my-3 flex max-h-[calc(100dvh-1.5rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[1.5rem] border border-white/10 bg-zinc-900 shadow-[0_32px_120px_rgba(0,0,0,.5)] sm:my-0 sm:max-h-[calc(100dvh-3rem)] sm:rounded-[2rem]">
-            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-white/10 bg-zinc-900/95 p-4 backdrop-blur sm:p-5">
-              <h3 className="text-2xl font-black text-white">Nouvelle collection</h3>
-              <button className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/[0.06] text-xl font-black text-white" type="button" onClick={() => setModalOpen(false)}>
+        <div className="fixed inset-0 z-[1100] overflow-y-auto bg-slate-950/78 p-3 backdrop-blur-xl sm:p-6" role="dialog" aria-modal="true" aria-labelledby="collections-editor-title">
+          <section className="mx-auto my-3 flex max-h-[calc(100dvh-1.5rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[1.5rem] border border-line bg-zinc-900 shadow-[0_32px_120px_rgba(0,0,0,.5)] sm:my-0 sm:max-h-[calc(100dvh-3rem)] sm:rounded-[2rem]">
+            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-line bg-zinc-900/95 p-4 backdrop-blur sm:p-5">
+              <h3 id="collections-editor-title" className="text-2xl font-black text-domain-foreground">Nouvelle collection</h3>
+              <button className="grid h-10 w-10 place-items-center rounded-full border border-line bg-surface-control text-xl font-black text-domain-foreground" type="button" onClick={() => setModalOpen(false)} aria-label="Fermer l’éditeur de collection">
                 x
               </button>
             </div>
 
             <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain p-4 pb-5 sm:p-5">
               <div>
-                <h4 className="mb-3 text-sm font-black uppercase tracking-[0.18em] text-slate-300">Type de collection</h4>
+                <h4 className="mb-3 text-sm font-black uppercase tracking-[0.18em] text-foreground-secondary">Type de collection</h4>
                 <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
                   {collectionTypes.map(([id, label, icon]) => (
                     <button
                       className={`min-h-20 rounded-2xl border p-3 text-center transition sm:min-h-24 sm:p-4 ${
-                        draft.type === id ? "border-emerald-200/65 bg-emerald-400/22" : "border-white/20 bg-white/[0.055] hover:border-cyan-200/45"
+                        draft.type === id ? "border-emerald-200/65 bg-emerald-400/22" : "border-white/20 bg-surface-subtle hover:border-cyan-200/45"
                       }`}
                       key={id}
                       type="button"
                       onClick={() => setDraft((current) => ({ ...current, type: id }))}
                     >
                       <img className="mx-auto mb-2 h-10 w-10 object-contain" src={icon} alt="" />
-                      <strong className="font-black text-white">{label}</strong>
+                      <strong className="font-black text-domain-foreground">{label}</strong>
                     </button>
                   ))}
                 </div>
               </div>
 
               <div>
-                <h4 className="mb-3 text-sm font-black uppercase tracking-[0.18em] text-slate-300">Mode Pokedex</h4>
+                <h4 className="mb-3 text-sm font-black uppercase tracking-[0.18em] text-foreground-secondary">Mode Pokedex</h4>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {collectionVariantModes.map(([id, label]) => (
                     <button
                       className={`rounded-2xl border p-5 text-center font-black transition ${
-                        draft.variantMode === id ? "border-cyan-200/60 bg-cyan-400/18 text-white" : "border-white/20 bg-white/[0.055] text-slate-200"
+                        draft.variantMode === id ? "border-cyan-200/60 bg-cyan-400/18 text-domain-foreground" : "border-white/20 bg-surface-subtle text-foreground"
                       }`}
                       key={id}
                       type="button"
@@ -735,23 +736,22 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
                     </button>
                   ))}
                 </div>
-                <p className="mt-3 rounded-2xl border border-white/10 bg-white/[0.045] p-3 text-sm font-bold leading-6 text-slate-300">
+                <p className="mt-3 rounded-2xl border border-line bg-surface-flat p-3 text-sm font-bold leading-6 text-foreground-secondary">
                   Multi variante inclut les formes disponibles. Non variante limite aux fiches de base normales.
                 </p>
               </div>
 
               <div>
-                <h4 className="mb-3 text-sm font-black uppercase tracking-[0.18em] text-slate-300">Autres caracteristiques</h4>
+                <h4 className="mb-3 text-sm font-black uppercase tracking-[0.18em] text-foreground-secondary">Autres caracteristiques</h4>
                 <div className="grid gap-3">
                   {[
                     ["shiny", "Chromatique"],
                     ["hundo", "Hundo 100%"],
                   ].map(([id, label]) => (
-                    <label className="flex items-center justify-between gap-4 rounded-2xl border border-white/15 bg-white/[0.055] p-4 text-sm font-black text-white" key={id}>
+                    <label className="flex items-center justify-between gap-4 rounded-2xl border border-line-medium bg-surface-subtle p-4 text-sm font-black text-domain-foreground" key={id}>
                       {label}
-                      <input
+                      <Checkbox
                         className="h-6 w-6 accent-cyan-400"
-                        type="checkbox"
                         checked={Boolean(draft[id])}
                         onChange={(event) => setDraft((current) => ({ ...current, [id]: event.target.checked }))}
                       />
@@ -761,7 +761,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
               </div>
 
               <label className="block">
-                <span className="mb-2 block text-sm font-black uppercase tracking-[0.18em] text-slate-300">Nom de la collection</span>
+                <span className="mb-2 block text-sm font-black uppercase tracking-[0.18em] text-foreground-secondary">Nom de la collection</span>
                 <input
                   className={fieldClass}
                   value={draft.name}
@@ -770,8 +770,8 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
                 />
               </label>
             </div>
-            <div className="sticky bottom-0 border-t border-white/10 bg-zinc-900/95 p-4 backdrop-blur sm:p-5">
-              <button className="min-h-12 w-full rounded-2xl bg-white px-5 text-base font-black text-slate-950 transition hover:scale-[1.01]" type="button" onClick={createCollection}>
+            <div className="sticky bottom-0 border-t border-line bg-zinc-900/95 p-4 backdrop-blur sm:p-5">
+              <button className="min-h-12 w-full rounded-2xl bg-white px-5 text-base font-black text-on-accent transition hover:scale-[1.01]" type="button" onClick={createCollection}>
                 Creer une Collection
               </button>
             </div>

@@ -48,7 +48,7 @@ export function PokemonDocsViewer({ docs }: { docs: PokemonDoc[] }) {
           <CardDescription>Structures, templates, API, normalisation et maintenance.</CardDescription>
         </CardHeader>
 
-        <label className="mt-4 flex min-h-11 items-center gap-2 rounded-lg border border-line bg-white/[0.055] px-3 text-muted">
+        <label className="mt-4 flex min-h-11 items-center gap-2 rounded-lg border border-line bg-surface-subtle px-3 text-muted">
           <Search size={16} />
           <Input
             aria-label="Chercher dans les docs"
@@ -66,7 +66,7 @@ export function PokemonDocsViewer({ docs }: { docs: PokemonDoc[] }) {
                 "grid w-full grid-cols-[auto_1fr] gap-3 rounded-lg border p-3 text-left transition",
                 selectedDoc?.slug === doc.slug
                   ? "border-brand-2/45 bg-brand-2/12 text-foreground"
-                  : "border-line bg-white/[0.04] text-muted hover:bg-white/[0.075] hover:text-foreground",
+                  : "border-line bg-surface-minimal text-muted hover:bg-white/[0.075] hover:text-foreground",
               )}
               key={doc.slug}
               type="button"
@@ -82,7 +82,7 @@ export function PokemonDocsViewer({ docs }: { docs: PokemonDoc[] }) {
             </button>
           ))}
           {!filteredDocs.length ? (
-            <p className="rounded-lg border border-line bg-white/[0.04] p-4 text-sm font-bold text-muted">
+            <p className="rounded-lg border border-line bg-surface-minimal p-4 text-sm font-bold text-muted">
               Aucun document trouvé.
             </p>
           ) : null}
@@ -100,7 +100,7 @@ export function PokemonDocsViewer({ docs }: { docs: PokemonDoc[] }) {
                   {selectedDoc.file} · {selectedDoc.lineCount} lignes
                 </p>
               </div>
-              <div className="grid h-12 w-12 place-items-center rounded-lg border border-line bg-white/[0.055] text-brand-2">
+              <div className="grid h-12 w-12 place-items-center rounded-lg border border-line bg-surface-subtle text-brand-2">
                 <BookOpen size={20} />
               </div>
             </div>
@@ -179,7 +179,7 @@ function MarkdownBlocks({ content }: { content: string }) {
 
     if (block.type === "list") {
       return (
-        <ul className="space-y-2 rounded-lg border border-line bg-white/[0.035] p-4" key={index}>
+        <ul className="space-y-2 rounded-lg border border-line bg-surface-faint p-4" key={index}>
           {block.items.map((item, itemIndex) => (
             <li className="flex gap-3" key={itemIndex}>
               <span className="mt-3 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-2" />

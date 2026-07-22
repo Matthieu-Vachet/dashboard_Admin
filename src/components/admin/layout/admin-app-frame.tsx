@@ -60,7 +60,7 @@ export function AdminAppFrame({
     <div className="relative min-h-screen overflow-hidden">
       <a
         href="#dashboard-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-brand-2 focus:px-4 focus:py-2 focus:text-sm focus:font-black focus:text-slate-950"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-brand-2 focus:px-4 focus:py-2 focus:text-sm focus:font-black focus:text-on-accent"
       >
         Aller au contenu principal
       </a>

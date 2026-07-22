@@ -25,7 +25,7 @@ export function LearningAchievementGrid({ achievements }: { achievements: Achiev
         {achievements.map((achievement) => (
           <Card className={achievement.unlocked ? "border-brand-3/30 bg-brand-3/[0.06] p-4" : "p-4 opacity-75"} key={achievement.id}>
             <div className="flex items-start gap-3">
-              <span className={achievement.unlocked ? "grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-brand-3/25 bg-brand-3/10 text-brand-3" : "grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-line bg-white/[0.045] text-muted"}>
+              <span className={achievement.unlocked ? "grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-brand-3/25 bg-brand-3/10 text-brand-3" : "grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-line bg-surface-flat text-muted"}>
                 {achievement.unlocked ? <Trophy size={18} /> : <LockKeyhole size={18} />}
               </span>
               <div className="min-w-0">

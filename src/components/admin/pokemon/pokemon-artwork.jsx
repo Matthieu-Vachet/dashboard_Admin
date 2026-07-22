@@ -18,7 +18,7 @@ export function PokemonArtwork({
   const name = alt || pokemon?.names?.French || pokemon?.names?.English || pokemon?.formId || "Pokémon";
   return (
     <span
-      className={`relative grid shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 p-1 ${className}`}
+      className={`relative grid shrink-0 place-items-center overflow-hidden rounded-2xl border border-line bg-surface-inset-strong p-1 ${className}`}
       data-asset-status={resolution.status}
       data-asset-source={resolution.source}
       data-asset-reason={resolution.reason || undefined}

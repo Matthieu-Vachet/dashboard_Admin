@@ -75,13 +75,13 @@ export function TypeIcons({ types, catalog = [], size = "md" }) {
         return (
           <span
             key={type}
-            className={`grid ${classes} place-items-center rounded-full border border-white/10 bg-slate-950/40`}
+            className={`grid ${classes} place-items-center rounded-full border border-line bg-surface-inset-medium`}
             title={typeName(type, catalog)}
           >
             {icon ? (
               <img className="h-full w-full object-contain" src={icon} alt={typeName(type, catalog)} loading="lazy" />
             ) : (
-              <span className="text-[9px] font-black text-white">{String(type).slice(0, 2).toUpperCase()}</span>
+              <span className="text-[9px] font-black text-domain-foreground">{String(type).slice(0, 2).toUpperCase()}</span>
             )}
           </span>
         );

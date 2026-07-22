@@ -2,7 +2,7 @@
 
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   preferredPokemonImage,
@@ -13,6 +13,7 @@ import {
 } from "@/components/site/pokemon-style";
 import { pokemonVariantBadges } from "@/lib/pokemon-variant-resolver";
 import { uiAssets } from "@/components/site/ui-assets";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const tabLabels = {
   overview: "Aperçu",
@@ -132,9 +133,9 @@ function Section({
             {eyebrow}
           </p>
         ) : null}
-        <h3 className="mb-4 flex items-center gap-3 text-lg font-black tracking-tight text-white sm:text-xl">
+        <h3 className="mb-4 flex items-center gap-3 text-lg font-black tracking-tight text-domain-foreground sm:text-xl">
           {icon ? (
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-white/10 bg-slate-950/35 p-2">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-line bg-surface-inset p-2">
               <img
                 className="pokemon-interface-icon max-h-full object-contain"
                 src={icon}
@@ -221,7 +222,7 @@ function TypeBadge({ type, typeCatalog = [], compact = false }) {
   const icon = typeIcon(type, typeCatalog);
   return (
     <span
-      className={`inline-flex min-w-0 items-center gap-2 rounded-full border border-white/20 bg-slate-950/35 font-black text-white shadow-[0_8px_22px_rgba(0,0,0,.18)] ${compact ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm"}`}
+      className={`inline-flex min-w-0 items-center gap-2 rounded-full border border-white/20 bg-surface-inset font-black text-domain-foreground shadow-[0_8px_22px_rgba(0,0,0,.18)] ${compact ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm"}`}
       style={{
         backgroundColor: `color-mix(in srgb, ${typeColors[type] || "#64748b"} 54%, rgba(2,6,23,.45))`,
       }}
@@ -262,7 +263,7 @@ function DataGrid({ items }) {
           className={`grid min-h-24 grid-cols-[2.45rem_minmax(0,1fr)] gap-3 rounded-2xl border p-4 text-left shadow-[0_12px_38px_rgba(0,0,0,.18)] ${cardTones[index % cardTones.length]}`}
           key={item.label}
         >
-          <span className="grid h-10 w-10 place-items-center rounded-2xl border border-white/10 bg-white/[0.06]">
+          <span className="grid h-10 w-10 place-items-center rounded-2xl border border-line bg-surface-control">
             {item.icon ? (
               <img
                 className="pokemon-interface-icon h-6 w-6 object-contain"
@@ -274,10 +275,10 @@ function DataGrid({ items }) {
             )}
           </span>
           <span className="min-w-0">
-            <span className="block text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
+            <span className="block text-xs font-bold uppercase tracking-[0.16em] text-muted">
               {item.label}
             </span>
-            <strong className="mt-2 block overflow-wrap-anywhere text-base font-black leading-snug text-white [overflow-wrap:anywhere]">
+            <strong className="mt-2 block overflow-wrap-anywhere text-base font-black leading-snug text-domain-foreground [overflow-wrap:anywhere]">
               {item.value}
             </strong>
           </span>
@@ -323,14 +324,14 @@ function TranslationGrid({ names = {} }) {
             className={`grid grid-cols-[2.2rem_minmax(0,1fr)] gap-3 rounded-2xl border p-3 ${cardTones[index % cardTones.length]}`}
             key={language}
           >
-            <span className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.06] p-1.5 text-xs font-black text-cyan-100">
+            <span className="grid h-9 w-9 place-items-center rounded-xl border border-line bg-surface-control p-1.5 text-xs font-black text-cyan-100">
               <span className="text-lg">{languageFlags[language] || "🏳️"}</span>
             </span>
             <span className="min-w-0">
-              <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+              <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
                 {languageLabels[language] || language}
               </span>
-              <strong className="mt-1 block break-words text-white">
+              <strong className="mt-1 block break-words text-domain-foreground">
                 {value}
               </strong>
             </span>
@@ -343,7 +344,7 @@ function TranslationGrid({ names = {} }) {
 
 function EmptyInline({ children }) {
   return (
-    <p className="rounded-2xl border border-dashed border-white/15 bg-white/[0.035] p-4 text-sm font-bold text-slate-300">
+    <p className="rounded-2xl border border-dashed border-line-medium bg-surface-faint p-4 text-sm font-bold text-foreground-secondary">
       {children}
     </p>
   );
@@ -495,13 +496,13 @@ function BuffGrid({ buffs }) {
     <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
       {rows.map(([label, value]) => (
         <span
-          className="rounded-xl border border-white/10 bg-slate-950/45 px-3 py-2"
+          className="rounded-xl border border-line bg-surface-inset-strong px-3 py-2"
           key={label}
         >
-          <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+          <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
             {label}
           </small>
-          <strong className="mt-1 block text-white">{value}</strong>
+          <strong className="mt-1 block text-domain-foreground">{value}</strong>
         </span>
       ))}
     </div>
@@ -539,12 +540,12 @@ function ReleaseStatusGrid({ shinyAvailability, shadowShinyAvailability }) {
               className={`rounded-2xl border p-4 ${
                 released
                   ? "border-emerald-300/25 bg-emerald-400/10"
-                  : "border-white/10 bg-white/[0.045]"
+                  : "border-line bg-surface-flat"
               }`}
               key={label}
             >
               <div className="flex items-start gap-3">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-white/10 bg-slate-950/40 p-2">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-line bg-surface-inset-medium p-2">
                   <img
                     className="pokemon-interface-icon max-h-full object-contain"
                     src={icon}
@@ -552,14 +553,14 @@ function ReleaseStatusGrid({ shinyAvailability, shadowShinyAvailability }) {
                   />
                 </span>
                 <span className="min-w-0">
-                  <strong className="block font-black text-white">
+                  <strong className="block font-black text-domain-foreground">
                     {label}
                   </strong>
                   <span
                     className={
                       released
                         ? "mt-1 block text-sm font-bold text-emerald-100"
-                        : "mt-1 block text-sm font-bold text-slate-400"
+                        : "mt-1 block text-sm font-bold text-muted"
                     }
                   >
                     {released
@@ -569,19 +570,19 @@ function ReleaseStatusGrid({ shinyAvailability, shadowShinyAvailability }) {
                 </span>
               </div>
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                <span className="rounded-xl border border-white/10 bg-slate-950/35 px-3 py-2">
-                  <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+                <span className="rounded-xl border border-line bg-surface-inset px-3 py-2">
+                  <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
                     Date
                   </small>
-                  <strong className="mt-1 block text-white">
+                  <strong className="mt-1 block text-domain-foreground">
                     {formatDate(record?.releaseDate)}
                   </strong>
                 </span>
-                <span className="rounded-xl border border-white/10 bg-slate-950/35 px-3 py-2">
-                  <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+                <span className="rounded-xl border border-line bg-surface-inset px-3 py-2">
+                  <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
                     Évènement
                   </small>
-                  <strong className="mt-1 block break-words text-white">
+                  <strong className="mt-1 block break-words text-domain-foreground">
                     {record?.event || "-"}
                   </strong>
                 </span>
@@ -607,15 +608,15 @@ function MoveList({ title, moves, typeCatalog = [], icon, pokemonTypes = [] }) {
             const stab = isStab(move.type, pokemonTypes);
             return (
               <div
-                className="rounded-2xl border border-white/10 bg-slate-950/45 p-4 text-sm transition hover:border-cyan-200/35 hover:bg-cyan-400/10"
+                className="rounded-2xl border border-line bg-surface-inset-strong p-4 text-sm transition hover:border-cyan-200/35 hover:bg-cyan-400/10"
                 key={move.id || move.slug || moveName(move)}
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <span className="min-w-0">
-                    <strong className="block break-words text-base font-black text-white">
+                    <strong className="block break-words text-base font-black text-domain-foreground">
                       {moveName(move)}
                     </strong>
-                    <small className="mt-1 block font-mono text-xs text-slate-500">
+                    <small className="mt-1 block font-mono text-xs text-disabled">
                       {move.id}
                     </small>
                   </span>
@@ -644,13 +645,13 @@ function MoveList({ title, moves, typeCatalog = [], icon, pokemonTypes = [] }) {
                     ["Énergie PvP", signedEnergy(move.combat?.energy)],
                   ].map(([label, value]) => (
                     <span
-                      className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2"
+                      className="rounded-xl border border-line bg-surface-minimal px-3 py-2"
                       key={label}
                     >
-                      <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+                      <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
                         {label}
                       </small>
-                      <strong className="mt-1 block break-words text-white">
+                      <strong className="mt-1 block break-words text-domain-foreground">
                         {valueOrDash(value)}
                       </strong>
                     </span>
@@ -658,20 +659,20 @@ function MoveList({ title, moves, typeCatalog = [], icon, pokemonTypes = [] }) {
                 </div>
                 <BuffGrid buffs={move.combat?.buffs} />
                 {moveExtraRows(move).length ? (
-                  <div className="mt-3 rounded-2xl border border-white/10 bg-slate-950/35 p-3">
-                    <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+                  <div className="mt-3 rounded-2xl border border-line bg-surface-inset p-3">
+                    <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
                       Données avancées JSON
                     </span>
                     <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                       {moveExtraRows(move).map(([label, value]) => (
                         <span
-                          className="min-w-0 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2"
+                          className="min-w-0 rounded-xl border border-line bg-surface-minimal px-3 py-2"
                           key={label}
                         >
-                          <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+                          <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
                             {label}
                           </small>
-                          <strong className="mt-1 block break-words text-xs text-white">
+                          <strong className="mt-1 block break-words text-xs text-domain-foreground">
                             {value}
                           </strong>
                         </span>
@@ -714,7 +715,7 @@ function PokemonMiniCard({
   const Tag = clickable ? "button" : "div";
   return (
     <Tag
-      className={`w-full rounded-2xl border border-white/10 bg-slate-950/45 text-left transition ${compact ? "p-2 sm:p-3" : "p-3"} ${clickable ? "hover:-translate-y-0.5 hover:border-cyan-200/45 hover:bg-cyan-400/10" : ""}`}
+      className={`w-full rounded-2xl border border-line bg-surface-inset-strong text-left transition ${compact ? "p-2 sm:p-3" : "p-3"} ${clickable ? "hover:-translate-y-0.5 hover:border-cyan-200/45 hover:bg-cyan-400/10" : ""}`}
       type={clickable ? "button" : undefined}
       onClick={clickable ? () => onClick(item) : undefined}
     >
@@ -722,7 +723,7 @@ function PokemonMiniCard({
         className={`flex items-center ${compact ? "gap-2 sm:gap-3" : "gap-3"} ${direction === "previous" ? "sm:flex-row-reverse sm:text-right" : ""}`}
       >
         <span
-          className={`grid shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/10 p-2 ${compact ? "h-10 w-10 sm:h-14 sm:w-14" : "h-14 w-14"}`}
+          className={`grid shrink-0 place-items-center rounded-2xl border border-line bg-surface-emphasis p-2 ${compact ? "h-10 w-10 sm:h-14 sm:w-14" : "h-14 w-14"}`}
         >
           {image ? (
             <img
@@ -734,12 +735,12 @@ function PokemonMiniCard({
         </span>
         <span className="min-w-0">
           <strong
-            className={`block truncate font-black text-white ${compact ? "text-xs sm:text-sm" : "text-sm"}`}
+            className={`block truncate font-black text-domain-foreground ${compact ? "text-xs sm:text-sm" : "text-sm"}`}
           >
             {item.name || item.id || item.formId}
           </strong>
           <small
-            className={`mt-1 truncate font-mono font-bold text-slate-300 ${compact ? "hidden text-[11px] min-[430px]:block sm:block" : "block text-[11px]"}`}
+            className={`mt-1 truncate font-mono font-bold text-foreground-secondary ${compact ? "hidden text-[11px] min-[430px]:block sm:block" : "block text-[11px]"}`}
           >
             N° {item.dexId || "?"} · {formatForm(item.form)}
           </small>
@@ -782,10 +783,10 @@ function CandyFamilyPanel({ entry, payload, allEntries = [], onOpenRelated }) {
       tone="amber"
     >
       <div className="grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.6fr)]">
-        <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
+        <div className="rounded-2xl border border-line bg-surface-inset-strong p-4">
           <div className="flex items-center gap-4">
             <span
-              className="grid h-20 w-20 shrink-0 place-items-center rounded-3xl border border-white/15 bg-white/10 p-3 shadow-inner"
+              className="grid h-20 w-20 shrink-0 place-items-center rounded-3xl border border-line-medium bg-surface-emphasis p-3 shadow-inner"
               style={{
                 background:
                   primary && secondary
@@ -802,13 +803,13 @@ function CandyFamilyPanel({ entry, payload, allEntries = [], onOpenRelated }) {
               ) : null}
             </span>
             <span className="min-w-0">
-              <small className="block text-xs font-black uppercase tracking-[0.16em] text-slate-400">
+              <small className="block text-xs font-black uppercase tracking-[0.16em] text-muted">
                 familyId
               </small>
-              <strong className="mt-1 block text-2xl font-black text-white">
+              <strong className="mt-1 block text-2xl font-black text-domain-foreground">
                 {valueOrDash(familyId)}
               </strong>
-              <span className="mt-2 block text-sm font-bold text-slate-200">
+              <span className="mt-2 block text-sm font-bold text-foreground">
                 {familyMembers.length || 1} membre(s) dans la famille
               </span>
             </span>
@@ -900,7 +901,7 @@ function EvolutionPanel({
                   suffix={suffix || "Coût non renseigné"}
                 />
                 <div className="flex flex-wrap gap-2">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/45 px-3 py-1 text-xs font-black text-white">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface-inset-strong px-3 py-1 text-xs font-black text-domain-foreground">
                     {candyIcon ? (
                       <img
                         className="h-4 w-4 object-contain"
@@ -911,7 +912,7 @@ function EvolutionPanel({
                     {valueOrDash(evolution.candies)} bonbons
                   </span>
                   {itemLabel ? (
-                    <span className="rounded-full border border-white/10 bg-slate-950/45 px-3 py-1 text-xs font-black text-white">
+                    <span className="rounded-full border border-line bg-surface-inset-strong px-3 py-1 text-xs font-black text-domain-foreground">
                       {itemLabel}
                     </span>
                   ) : null}
@@ -1044,15 +1045,15 @@ function AssetGallery({ entry, payload }) {
           {groups.map(([group, groupAssets]) => (
             <div key={group}>
               <div className="mb-3 flex items-center justify-between gap-3">
-                <h4 className="font-black text-white">{group}</h4>
-                <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-black text-slate-300">
+                <h4 className="font-black text-domain-foreground">{group}</h4>
+                <span className="rounded-full border border-line bg-surface-control px-3 py-1 text-xs font-black text-foreground-secondary">
                   {groupAssets.length}
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 {groupAssets.map((asset, index) => (
                   <button
-                    className="overflow-hidden rounded-3xl border border-white/10 bg-slate-950/45 text-left transition hover:-translate-y-0.5 hover:border-cyan-200/40 hover:bg-cyan-400/10"
+                    className="overflow-hidden rounded-3xl border border-line bg-surface-inset-strong text-left transition hover:-translate-y-0.5 hover:border-cyan-200/40 hover:bg-cyan-400/10"
                     key={`${asset.url}-${index}`}
                     type="button"
                     onClick={() => setPreview(asset)}
@@ -1068,11 +1069,11 @@ function AssetGallery({ entry, payload }) {
                         alt={asset.label}
                       />
                     </div>
-                    <div className="border-t border-white/10 p-3">
-                      <strong className="block truncate text-sm font-black text-white">
+                    <div className="border-t border-line p-3">
+                      <strong className="block truncate text-sm font-black text-domain-foreground">
                         {asset.label}
                       </strong>
-                      <span className="mt-1 block truncate text-xs font-bold text-slate-400">
+                      <span className="mt-1 block truncate text-xs font-bold text-muted">
                         {asset.meta || "standard"}
                       </span>
                     </div>
@@ -1084,21 +1085,24 @@ function AssetGallery({ entry, payload }) {
           {preview ? (
             <div
               className="fixed inset-0 z-[1120] grid place-items-center bg-slate-950/86 p-4 backdrop-blur-md"
-              role="presentation"
+              role="dialog"
+              aria-modal="true"
+              aria-label={`Aperçu asset ${preview.label}`}
               onClick={() => setPreview(null)}
             >
               <div
-                className="w-full max-w-5xl overflow-hidden rounded-[2rem] border border-white/10 bg-[#07111f]"
+                className="w-full max-w-5xl overflow-hidden rounded-[2rem] border border-line bg-[#07111f]"
                 onClick={(event) => event.stopPropagation()}
               >
-                <div className="flex items-center justify-between gap-3 border-b border-white/10 p-4">
-                  <strong className="truncate text-xl font-black text-white">
+                <div className="flex items-center justify-between gap-3 border-b border-line p-4">
+                  <strong className="truncate text-xl font-black text-domain-foreground">
                     {preview.label}
                   </strong>
                   <button
-                    className="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-2xl"
+                    className="grid h-10 w-10 place-items-center rounded-full bg-surface-emphasis text-2xl"
                     type="button"
                     onClick={() => setPreview(null)}
+                    aria-label="Fermer l’aperçu de l’asset"
                   >
                     ×
                   </button>
@@ -1258,7 +1262,7 @@ function IssuesPanel({ entry }) {
                 </span>
               ) : null}
               {issue.suggested !== undefined ? (
-                <pre className="mt-3 max-h-44 overflow-auto rounded-xl border border-white/10 bg-slate-950/50 p-3 font-mono text-xs leading-5 text-amber-50">
+                <pre className="mt-3 max-h-44 overflow-auto rounded-xl border border-line bg-slate-950/50 p-3 font-mono text-xs leading-5 text-amber-50">
                   {JSON.stringify(issue.suggested, null, 2)}
                 </pre>
               ) : null}
@@ -1294,7 +1298,7 @@ function PvpPanel({ pvp, moveDetails }) {
           if (!value) {
             return (
               <article
-                className="rounded-2xl border border-white/10 bg-white/[0.035] p-4"
+                className="rounded-2xl border border-line bg-surface-faint p-4"
                 key={key}
               >
                 <div className="flex items-center gap-3">
@@ -1303,11 +1307,11 @@ function PvpPanel({ pvp, moveDetails }) {
                     src={icons[key]}
                     alt=""
                   />
-                  <strong className="block font-black text-white">
+                  <strong className="block font-black text-domain-foreground">
                     {label}
                   </strong>
                 </div>
-                <span className="mt-2 block text-sm font-bold text-slate-500">
+                <span className="mt-2 block text-sm font-bold text-disabled">
                   Aucune donnée PvP renseignée.
                 </span>
               </article>
@@ -1328,11 +1332,11 @@ function PvpPanel({ pvp, moveDetails }) {
                     src={icons[key]}
                     alt=""
                   />
-                  <strong className="text-lg font-black text-white">
+                  <strong className="text-lg font-black text-domain-foreground">
                     {label}
                   </strong>
                 </span>
-                <span className="rounded-full bg-slate-950/45 px-3 py-1 text-xs font-black text-cyan-100">
+                <span className="rounded-full bg-surface-inset-strong px-3 py-1 text-xs font-black text-cyan-100">
                   {value.tierRank || "Non classé"}
                 </span>
               </div>
@@ -1346,23 +1350,23 @@ function PvpPanel({ pvp, moveDetails }) {
                   ],
                 ].map(([name, data]) => (
                   <span
-                    className="rounded-xl border border-white/10 bg-slate-950/35 px-3 py-2"
+                    className="rounded-xl border border-line bg-surface-inset px-3 py-2"
                     key={name}
                   >
-                    <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+                    <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
                       {name}
                     </small>
-                    <strong className="mt-1 block text-white">
+                    <strong className="mt-1 block text-domain-foreground">
                       {valueOrDash(data)}
                     </strong>
                   </span>
                 ))}
               </div>
-              <div className="mt-3 rounded-xl border border-white/10 bg-slate-950/35 p-3">
-                <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+              <div className="mt-3 rounded-xl border border-line bg-surface-inset p-3">
+                <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
                   Meilleur moveset
                 </small>
-                <strong className="mt-1 block break-words text-white">
+                <strong className="mt-1 block break-words text-domain-foreground">
                   {moveName(moves.fast, moveDetails)}
                   {(moves.charged || []).length
                     ? ` + ${(moves.charged || []).map((id) => moveName(id, moveDetails)).join(" / ")}`
@@ -1398,9 +1402,8 @@ function AdminActions({
     <Section title="Outils admin" eyebrow="privé" icon={uiAssets.icons.radar}>
       <div className="flex flex-wrap gap-3">
         <label className="inline-flex min-h-12 items-center gap-3 rounded-2xl border border-emerald-300/25 bg-emerald-400/10 px-4 py-3 text-sm font-black text-emerald-50 transition hover:border-emerald-200/50 hover:bg-emerald-400/18">
-          <input
+          <Checkbox
             className="h-5 w-5 accent-emerald-400"
-            type="checkbox"
             checked={Boolean(assetChecked)}
             onChange={(event) =>
               onAssetChecked?.(entry.key, event.target.checked)
@@ -1409,21 +1412,21 @@ function AdminActions({
           Assets OK
         </label>
         <button
-          className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-black text-white transition hover:border-cyan-200/50 hover:bg-cyan-400/15"
+          className="rounded-2xl border border-line bg-surface-emphasis px-4 py-3 text-sm font-black text-domain-foreground transition hover:border-cyan-200/50 hover:bg-cyan-400/15"
           type="button"
           onClick={() => onCopyPatch?.(entry)}
         >
           Copier le brouillon JSON
         </button>
         <button
-          className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-black text-white transition hover:border-cyan-200/50 hover:bg-cyan-400/15"
+          className="rounded-2xl border border-line bg-surface-emphasis px-4 py-3 text-sm font-black text-domain-foreground transition hover:border-cyan-200/50 hover:bg-cyan-400/15"
           type="button"
           onClick={() => onAuditUrls?.(entry)}
         >
           Vérifier les URLs
         </button>
         <button
-          className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-black text-white transition hover:border-cyan-200/50 hover:bg-cyan-400/15"
+          className="rounded-2xl border border-line bg-surface-emphasis px-4 py-3 text-sm font-black text-domain-foreground transition hover:border-cyan-200/50 hover:bg-cyan-400/15"
           type="button"
           onClick={() => onAssetAudit?.(entry)}
         >
@@ -1431,7 +1434,7 @@ function AdminActions({
         </button>
       </div>
       {extraPanel ? (
-        <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/55 p-4 text-sm text-slate-200">
+        <div className="mt-4 rounded-2xl border border-line bg-slate-950/55 p-4 text-sm text-foreground">
           {extraPanel}
         </div>
       ) : null}
@@ -1460,6 +1463,7 @@ export function DetailModal({
   typeCatalog = [],
   weatherCatalog = [],
 }) {
+  const dialogTitleId = useId();
   const [activeTab, setActiveTab] = useState("overview");
   const payload = useMemo(() => detail?.detail || detail || {}, [detail]);
   const tabs = useMemo(
@@ -1557,16 +1561,17 @@ export function DetailModal({
       onClick={onClose}
     >
       <div
-        className="pokemon-detail-modal flex max-h-[96dvh] w-full max-w-6xl flex-col overflow-hidden rounded-t-[2rem] border border-white/10 text-white shadow-[0_30px_120px_rgba(0,0,0,.65)] sm:max-h-[92dvh] sm:rounded-[2rem]"
+        className="pokemon-detail-modal flex max-h-[96dvh] w-full max-w-6xl flex-col overflow-hidden rounded-t-[2rem] border border-line text-domain-foreground shadow-[0_30px_120px_rgba(0,0,0,.65)] sm:max-h-[92dvh] sm:rounded-[2rem]"
         style={{
           background: `linear-gradient(180deg, color-mix(in srgb, ${mainTypeColor} 24%, #0d1a2b), #08111f 72%)`,
         }}
         role="dialog"
         aria-modal="true"
+        aria-labelledby={dialogTitleId}
         onClick={(event) => event.stopPropagation()}
       >
         <div
-          className="pokemon-detail-modal-header relative shrink-0 overflow-hidden border-b border-white/10 bg-cover bg-center px-4 py-3 sm:px-6 sm:py-4"
+          className="pokemon-detail-modal-header relative shrink-0 overflow-hidden border-b border-line bg-cover bg-center px-4 py-3 sm:px-6 sm:py-4"
           style={{
             backgroundImage: `${
               catchBackground
@@ -1592,12 +1597,12 @@ export function DetailModal({
               <span className="font-mono text-xs font-black uppercase tracking-[0.22em] text-cyan-100/80 sm:text-sm">
                 N° {entry.dexId}
               </span>
-              <h2 className="mt-1 truncate text-3xl font-black tracking-tight text-white sm:text-4xl">
+              <h2 id={dialogTitleId} className="mt-1 truncate text-3xl font-black tracking-tight text-domain-foreground sm:text-4xl">
                 {entry.name}
               </h2>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <TypeBadgeList types={pokemonTypes} typeCatalog={typeCatalog} />
-                <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-sm font-black text-white">
+                <span className="rounded-full border border-white/20 bg-surface-emphasis px-3 py-1.5 text-sm font-black text-domain-foreground">
                   {formatForm(payload.form || entry.form || "normal")}
                 </span>
                 {displayVariantBadges.map((label) => (
@@ -1619,13 +1624,13 @@ export function DetailModal({
                   </span>
                 ) : null}
               </div>
-              <p className="mt-2 text-sm font-bold text-slate-200">
+              <p className="mt-2 text-sm font-bold text-foreground">
                 {region.names?.French || payload.regionId || "Région inconnue"}{" "}
                 · {entry.profile || entry.kind} · Gén. {entry.generation || "?"}
               </p>
             </div>
             <button
-              className="absolute right-0 top-0 grid h-10 w-10 place-items-center rounded-full border border-white/30 bg-white/10 text-2xl font-light text-white transition hover:bg-white/20"
+              className="absolute right-0 top-0 grid h-10 w-10 place-items-center rounded-full border border-white/30 bg-surface-emphasis text-2xl font-light text-domain-foreground transition hover:bg-white/20"
               type="button"
               onClick={onClose}
               aria-label="Fermer"
@@ -1658,11 +1663,11 @@ export function DetailModal({
                 className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm font-black transition sm:px-4 ${
                   activeTab === tab
                     ? tab === "checks"
-                      ? "border-red-200/60 bg-gradient-to-r from-red-500 to-amber-400 text-white shadow-[0_12px_35px_rgba(248,113,113,.24)]"
-                      : "border-cyan-200/50 bg-gradient-to-r from-cyan-400 to-blue-500 text-white shadow-[0_12px_35px_rgba(14,165,233,.25)]"
+                      ? "border-red-200/60 bg-gradient-to-r from-red-500 to-amber-400 text-domain-foreground shadow-[0_12px_35px_rgba(248,113,113,.24)]"
+                      : "border-cyan-200/50 bg-gradient-to-r from-cyan-400 to-blue-500 text-domain-foreground shadow-[0_12px_35px_rgba(14,165,233,.25)]"
                     : tab === "checks"
                       ? "border-red-300/35 bg-red-500/10 text-red-100 hover:bg-red-500/20"
-                      : "border-white/10 bg-white/[0.055] text-slate-200 hover:bg-white/10"
+                      : "border-line bg-surface-subtle text-foreground hover:bg-surface-emphasis"
                 }`}
                 key={tab}
                 type="button"
@@ -1860,7 +1865,7 @@ export function DetailModal({
                         className={`inline-flex min-h-9 items-center justify-between gap-2 rounded-2xl border px-3 py-2 text-xs font-black ${
                           value
                             ? "border-emerald-300/35 bg-emerald-400/15 text-emerald-100"
-                            : "border-white/10 bg-white/[0.045] text-slate-400"
+                            : "border-line bg-surface-flat text-muted"
                         }`}
                         key={key}
                       >
@@ -1954,13 +1959,13 @@ export function DetailModal({
                     <div className="grid max-h-[48dvh] gap-2 overflow-auto pr-1 sm:grid-cols-2 lg:grid-cols-4">
                       {cpByLevel.map((row) => (
                         <div
-                          className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3"
+                          className="flex items-center justify-between rounded-2xl border border-line bg-surface-flat px-4 py-3"
                           key={row.level}
                         >
-                          <span className="font-bold text-slate-300">
+                          <span className="font-bold text-foreground-secondary">
                             Niv. {row.level}
                           </span>
-                          <strong className="font-black text-white">
+                          <strong className="font-black text-domain-foreground">
                             {row.cp ??
                               `${row.minCp ?? "?"} - ${row.maxCp ?? "?"} PC`}
                           </strong>

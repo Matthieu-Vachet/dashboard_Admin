@@ -35,6 +35,8 @@ import { DetailModal } from "@/components/admin/pokemon/detail-modal";
 import { PokemonCard } from "@/components/admin/pokemon/pokemon-card";
 import { SortableWidgetGrid } from "@/components/admin/shared/sortable-widget-grid";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select } from "@/components/ui/select";
 import { MetricCard } from "@/components/site/metric-card";
 import { uiAssets } from "@/components/site/ui-assets";
 import {
@@ -691,19 +693,19 @@ function RulesPanel({
             </p>
           ) : null}
           <div>
-            <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+            <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-disabled">
               Modèles utiles
             </span>
             <div className="grid min-w-0 gap-2 md:grid-cols-2">
               {rulePresets.map((preset) => (
                 <button
-                  className="min-w-0 rounded-2xl border border-white/10 bg-slate-950/35 p-3 text-left transition hover:border-cyan-200/45 hover:bg-cyan-400/10"
+                  className="min-w-0 rounded-2xl border border-line bg-surface-inset p-3 text-left transition hover:border-cyan-200/45 hover:bg-cyan-400/10"
                   key={preset.key}
                   type="button"
                   onClick={() => applyPreset(preset)}
                 >
-                  <strong className="block text-sm font-black text-white">{preset.name}</strong>
-                  <span className="mt-1 block text-xs font-bold leading-5 text-slate-400">
+                  <strong className="block text-sm font-black text-domain-foreground">{preset.name}</strong>
+                  <span className="mt-1 block text-xs font-bold leading-5 text-muted">
                     {preset.description}
                   </span>
                 </button>
@@ -711,7 +713,7 @@ function RulesPanel({
             </div>
           </div>
           <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+            <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-disabled">
               Nom
             </span>
             <input
@@ -720,17 +722,16 @@ function RulesPanel({
               onChange={(event) => onFormChange({ ...form, name: event.target.value })}
             />
           </label>
-          <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/35 p-4 text-sm font-black text-white">
-            <input
+          <label className="flex items-center gap-3 rounded-2xl border border-line bg-surface-inset p-4 text-sm font-black text-domain-foreground">
+            <Checkbox
               className="h-5 w-5 accent-cyan-400"
-              type="checkbox"
               checked={form.enabled !== false}
               onChange={(event) => onFormChange({ ...form, enabled: event.target.checked })}
             />
             Règle active
           </label>
           <div>
-            <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+            <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-disabled">
               Mode de règle
             </span>
             <div className="grid min-w-0 gap-2 min-[480px]:grid-cols-2">
@@ -742,7 +743,7 @@ function RulesPanel({
                   className={`min-w-0 rounded-2xl border px-3 py-3 text-sm font-black leading-5 ${
                     mode === id
                       ? "border-cyan-200/50 bg-cyan-400/20 text-cyan-50"
-                      : "border-white/10 bg-white/[0.055] text-slate-300"
+                      : "border-line bg-surface-subtle text-foreground-secondary"
                   }`}
                   key={id}
                   type="button"
@@ -754,7 +755,7 @@ function RulesPanel({
             </div>
           </div>
           <div>
-            <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+            <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-disabled">
               Appliquer à
             </span>
             <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
@@ -766,7 +767,7 @@ function RulesPanel({
                   className={`min-w-0 rounded-2xl border px-3 py-2 text-xs font-black leading-5 ${
                     form.appliesTo?.includes(id)
                       ? "border-cyan-200/50 bg-cyan-400/20 text-cyan-50"
-                      : "border-white/10 bg-white/[0.055] text-slate-300"
+                      : "border-line bg-surface-subtle text-foreground-secondary"
                   }`}
                 >
                   <span className="break-words">{label}</span>
@@ -776,7 +777,7 @@ function RulesPanel({
           </div>
           <div>
             <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-              <span id="form-a11y-rule-filter-label" className="block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+              <span id="form-a11y-rule-filter-label" className="block text-xs font-black uppercase tracking-[0.18em] text-disabled">
                 Filtrer fichiers / cibles
               </span>
               <button
@@ -787,7 +788,7 @@ function RulesPanel({
                 Toutes les cibles
               </button>
             </div>
-            <p id="form-a11y-rule-filter-description" className="mb-2 text-xs font-bold leading-5 text-slate-500">
+            <p id="form-a11y-rule-filter-description" className="mb-2 text-xs font-bold leading-5 text-disabled">
               Optionnel: vise une forme, un dossier, un fichier ou un id précis, par exemple types/fire, moves/charged, kanto ou WEATHER_BALL_FIRE.
             </p>
             <input
@@ -807,7 +808,7 @@ function RulesPanel({
                   className={`min-w-0 rounded-2xl border px-3 py-2 text-xs font-black leading-5 ${
                     form.formFilters?.includes(id)
                       ? "border-emerald-200/50 bg-emerald-400/20 text-emerald-50"
-                      : "border-white/10 bg-white/[0.055] text-slate-300"
+                      : "border-line bg-surface-subtle text-foreground-secondary"
                   }`}
                 >
                   <span className="break-words">{label}</span>
@@ -815,10 +816,9 @@ function RulesPanel({
               ))}
             </div>
           </div>
-          <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/35 p-4 text-sm font-black text-white">
-            <input
+          <label className="flex items-center gap-3 rounded-2xl border border-line bg-surface-inset p-4 text-sm font-black text-domain-foreground">
+            <Checkbox
               className="h-5 w-5 accent-cyan-400"
-              type="checkbox"
               checked={form.enforceNonEmpty}
               onChange={(event) => onFormChange({ ...form, enforceNonEmpty: event.target.checked })}
             />
@@ -826,7 +826,7 @@ function RulesPanel({
           </label>
           {mode === "template" ? (
             <label className="block">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+              <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-disabled">
                 Modèle JSON attendu
               </span>
               <textarea
@@ -838,7 +838,7 @@ function RulesPanel({
           ) : (
             <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
               <label className="block">
-                <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-disabled">
                   Chemin JSON
                 </span>
                 <input
@@ -849,10 +849,10 @@ function RulesPanel({
                 />
               </label>
               <label className="block">
-                <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-disabled">
                   Type attendu
                 </span>
-                <select
+                <Select
                   className={fieldClass}
                   value={form.expectedType || "presence"}
                   onChange={(event) => onFormChange({ ...form, expectedType: event.target.value, templateSource: "" })}
@@ -862,7 +862,7 @@ function RulesPanel({
                       {label}
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
             </div>
           )}
@@ -887,21 +887,21 @@ function RulesPanel({
           ) : null}
         </section>
 
-        <section className="min-w-0 rounded-2xl border border-white/10 bg-slate-950/25 p-4">
-          <h3 className="text-lg font-black text-white">Règles enregistrées</h3>
+        <section className="min-w-0 rounded-2xl border border-line bg-slate-950/25 p-4">
+          <h3 className="text-lg font-black text-domain-foreground">Règles enregistrées</h3>
           <div className="mt-4 space-y-3">
             {rules.length ? (
               rules.map((rule) => (
-                <article className="rounded-2xl border border-white/10 bg-slate-950/35 p-4" key={rule.id}>
+                <article className="rounded-2xl border border-line bg-surface-inset p-4" key={rule.id}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <strong className="block truncate text-white">{rule.name}</strong>
-                      <small className="mt-1 block truncate text-xs font-bold text-slate-400">
+                      <strong className="block truncate text-domain-foreground">{rule.name}</strong>
+                      <small className="mt-1 block truncate text-xs font-bold text-muted">
                         {(rule.appliesTo || []).join(", ")}
                         {(rule.formFilters || []).length ? ` · ${(rule.formFilters || []).join(", ")}` : ""}
                       </small>
                     </div>
-                    <span className={`rounded-full px-3 py-1 text-xs font-black ${rule.enabled !== false ? "bg-emerald-400/15 text-emerald-100" : "bg-white/10 text-slate-300"}`}>
+                    <span className={`rounded-full px-3 py-1 text-xs font-black ${rule.enabled !== false ? "bg-emerald-400/15 text-emerald-100" : "bg-surface-emphasis text-foreground-secondary"}`}>
                       {rule.enabled !== false ? "active" : "off"}
                     </span>
                   </div>
@@ -919,18 +919,18 @@ function RulesPanel({
                 </article>
               ))
             ) : (
-              <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+              <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
                 Aucune règle personnalisée pour le moment.
               </p>
             )}
           </div>
         </section>
       </div>
-      <section className="mt-5 rounded-2xl border border-white/10 bg-slate-950/30 p-4">
+      <section className="mt-5 rounded-2xl border border-line bg-surface-inset-subtle p-4">
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h3 className="text-lg font-black text-white">Cartes à contrôler</h3>
-            <p className="mt-1 text-sm font-bold leading-6 text-slate-400">
+            <h3 className="text-lg font-black text-domain-foreground">Cartes à contrôler</h3>
+            <p className="mt-1 text-sm font-bold leading-6 text-muted">
               Cartes Pokémon qui ne respectent pas une règle personnalisée.
             </p>
           </div>
@@ -941,16 +941,16 @@ function RulesPanel({
         {customIssueEntries.length ? (
           <MiniCardList entries={customIssueEntries.slice(0, 80)} onOpen={onOpenEntry} />
         ) : (
-          <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+          <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
             Aucune carte à contrôler pour les règles actives.
           </p>
         )}
       </section>
-      <section className="mt-5 rounded-2xl border border-white/10 bg-slate-950/30 p-4">
+      <section className="mt-5 rounded-2xl border border-line bg-surface-inset-subtle p-4">
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h3 className="text-lg font-black text-white">Autres JSON à contrôler</h3>
-            <p className="mt-1 text-sm font-bold leading-6 text-slate-400">
+            <h3 className="text-lg font-black text-domain-foreground">Autres JSON à contrôler</h3>
+            <p className="mt-1 text-sm font-bold leading-6 text-muted">
               Attaques, types, météo, générations et stickers qui ne respectent pas une règle personnalisée.
             </p>
           </div>
@@ -961,7 +961,7 @@ function RulesPanel({
         {customJsonIssueEntries.length ? (
           <JsonIssueList entries={customJsonIssueEntries.slice(0, 80)} />
         ) : (
-          <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+          <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
             Aucun JSON de catalogue à contrôler pour les règles actives.
           </p>
         )}
@@ -2004,7 +2004,7 @@ export function AdminApp() {
 
   if (session.loading && !session.authenticated) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[radial-gradient(circle_at_20%_0%,rgba(14,165,233,.28),transparent_35%),#060914] p-4 text-white">
+      <main className="grid min-h-screen place-items-center bg-[radial-gradient(circle_at_20%_0%,rgba(14,165,233,.28),transparent_35%),#060914] p-4 text-domain-foreground">
         <section className={panelClass}>
           <h2 className="text-xl font-black">Vérification de la session admin...</h2>
         </section>
@@ -2014,7 +2014,7 @@ export function AdminApp() {
 
   if (!session.authenticated) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[radial-gradient(circle_at_18%_0%,rgba(14,165,233,.32),transparent_34%),radial-gradient(circle_at_80%_20%,rgba(34,197,94,.22),transparent_28%),#050815] p-4 text-white">
+      <main className="grid min-h-screen place-items-center bg-[radial-gradient(circle_at_18%_0%,rgba(14,165,233,.32),transparent_34%),radial-gradient(circle_at_80%_20%,rgba(34,197,94,.22),transparent_28%),#050815] p-4 text-domain-foreground">
         <LoginCard
           password={password}
           error={authError}
@@ -2028,11 +2028,11 @@ export function AdminApp() {
 
   return (
     <AdminPokemonSearchProvider query={search} onQueryChange={updateGlobalSearch}>
-    <main className="pokemon-admin-surface text-white">
+    <main className="pokemon-admin-surface text-domain-foreground">
       <div className="w-full">
         <section className="min-w-0">
           <header
-            className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] p-4 shadow-[0_24px_90px_rgba(0,0,0,.25)] backdrop-blur-2xl sm:p-5"
+            className="relative overflow-hidden rounded-2xl border border-line bg-surface-control p-4 shadow-[0_24px_90px_rgba(0,0,0,.25)] backdrop-blur-2xl sm:p-5"
             style={{
               backgroundImage:
                 'linear-gradient(135deg, rgba(15,23,42,.88), rgba(14,165,233,.18)), url("/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png")',
@@ -2040,7 +2040,7 @@ export function AdminApp() {
               backgroundPosition: "center",
             }}
           >
-            <div className="pointer-events-none absolute inset-0 bg-slate-950/45" />
+            <div className="pointer-events-none absolute inset-0 bg-surface-inset-strong" />
             <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.08)_1px,transparent_1px)] [background-size:28px_28px]" />
             <div className="relative">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
@@ -2054,7 +2054,7 @@ export function AdminApp() {
               </div>
               <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] xl:w-[780px]">
                 <label className="relative block">
-                  <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                  <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-disabled" size={18} />
                   <input
                     aria-label="Chercher fiche, type, fichier..."
                     className={`${fieldClass} pl-11`}
@@ -2074,7 +2074,7 @@ export function AdminApp() {
           <div className="mt-5 space-y-5">
             {bootstrap.loading ? (
               <Panel title="Chargement du dashboard">
-                <p className="font-bold text-slate-300">Je recharge les fiches, catalogues, assets et l’historique Git.</p>
+                <p className="font-bold text-foreground-secondary">Je recharge les fiches, catalogues, assets et l’historique Git.</p>
               </Panel>
             ) : bootstrap.error ? (
               <Panel title="Erreur dashboard">
@@ -2110,7 +2110,7 @@ export function AdminApp() {
             {active === "pokedex" ? (
               <>
                 <GenerationFilterBar value={generationFilter} onChange={setGenerationFilter} />
-                <section className="mt-4 rounded-2xl border border-white/10 bg-slate-950/30 p-3 shadow-[0_18px_70px_rgba(0,0,0,.2)]">
+                <section className="mt-4 rounded-2xl border border-line bg-surface-inset-subtle p-3 shadow-[0_18px_70px_rgba(0,0,0,.2)]">
                   <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                     <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-cyan-100/75">
                       <Search size={15} /> Filtres fiches
@@ -2127,7 +2127,7 @@ export function AdminApp() {
                           className={`group relative min-h-[92px] overflow-hidden rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 ${
                             activeFilter
                               ? "border-cyan-200/55 bg-cyan-400/18 shadow-[0_16px_55px_rgba(34,211,238,.18)]"
-                              : "border-white/10 bg-white/[0.045] hover:border-cyan-200/35"
+                              : "border-line bg-surface-flat hover:border-cyan-200/35"
                           }`}
                           key={id}
                           type="button"
@@ -2146,11 +2146,11 @@ export function AdminApp() {
                             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(34,211,238,.25),transparent_42%)]" />
                           )}
                           <div className="absolute inset-0 bg-gradient-to-br from-slate-950/76 via-slate-950/52 to-slate-950/70" />
-                          <span className="relative inline-flex rounded-full border border-white/10 bg-slate-950/45 px-2.5 py-1 text-[11px] font-black text-cyan-50">
+                          <span className="relative inline-flex rounded-full border border-line bg-surface-inset-strong px-2.5 py-1 text-[11px] font-black text-cyan-50">
                             {ficheFilterCounts[id] || 0}
                           </span>
-                          <strong className="relative mt-3 block text-sm font-black text-white">{label}</strong>
-                          <small className="relative mt-1 block truncate text-[11px] font-bold text-slate-300">{detail}</small>
+                          <strong className="relative mt-3 block text-sm font-black text-domain-foreground">{label}</strong>
+                          <small className="relative mt-1 block truncate text-[11px] font-bold text-foreground-secondary">{detail}</small>
                         </button>
                       );
                     })}
@@ -2368,7 +2368,7 @@ export function AdminApp() {
                     <AssetStatCard label="Utilisés" value={assetAudit?.totals?.used || 0} icon={uiAssets.icons.bookSpells} tone="green" detail="Référencés par les fiches" />
                     <AssetStatCard label="Réutilisations" value={assetAudit?.totals?.duplicated || 0} icon={uiAssets.icons.problem} tone="amber" detail="Même URL liée plusieurs fois" />
                   </div>
-                  <p className="mb-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4 text-sm font-bold leading-6 text-slate-300">
+                  <p className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 text-sm font-bold leading-6 text-foreground-secondary">
                     Cette page sert à contrôler les images réellement liées aux fiches et les propositions HD. “Réutilisations” signifie qu’une même URL d’asset est référencée par plusieurs fiches, ce n’est pas forcément une erreur.
                   </p>
                   <div className="mb-4 flex flex-wrap gap-2">
@@ -2389,7 +2389,7 @@ export function AdminApp() {
                         className={`rounded-full border px-4 py-2 text-xs font-black ${
                           assetTab === id
                             ? "border-cyan-200/50 bg-cyan-400/20 text-cyan-50"
-                            : "border-white/10 bg-white/[0.055] text-slate-300"
+                            : "border-line bg-surface-subtle text-foreground-secondary"
                         }`}
                         key={id}
                         type="button"
@@ -2401,13 +2401,13 @@ export function AdminApp() {
                   </div>
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
                     {visibleAssetItems.map((asset, index) => (
-                      <article className="overflow-hidden rounded-3xl border border-white/10 bg-slate-950/40" key={`${asset.group}-${asset.filename || asset.url}-${index}`}>
-                        <div className="grid aspect-square place-items-center bg-white/[0.04] p-3">
+                      <article className="overflow-hidden rounded-3xl border border-line bg-surface-inset-medium" key={`${asset.group}-${asset.filename || asset.url}-${index}`}>
+                        <div className="grid aspect-square place-items-center bg-surface-minimal p-3">
                           <img className="max-h-full object-contain" src={asset.image || asset.url} alt={asset.filename || asset.label || "asset"} />
                         </div>
-                        <div className="border-t border-white/10 p-3">
-                          <strong className="block truncate text-xs font-black text-white">{asset.filename || asset.label}</strong>
-                          <span className="mt-1 block truncate text-xs font-bold text-slate-400">{asset.group} · {asset.label || asset.details || asset.form || "standard"}</span>
+                        <div className="border-t border-line p-3">
+                          <strong className="block truncate text-xs font-black text-domain-foreground">{asset.filename || asset.label}</strong>
+                          <span className="mt-1 block truncate text-xs font-bold text-muted">{asset.group} · {asset.label || asset.details || asset.form || "standard"}</span>
                           <button
                             className="mt-3 inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-2xl border border-cyan-200/20 bg-cyan-400/10 px-3 text-[11px] font-black text-cyan-50 transition hover:border-cyan-200/45 hover:bg-cyan-400/18"
                             type="button"
@@ -2480,34 +2480,34 @@ export function AdminApp() {
 
             {active === "compare" ? (
               <Panel title="Comparaison de fiches" eyebrow="contrôle">
-                <p className="mb-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4 text-sm font-bold leading-6 text-slate-300">
+                <p className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 text-sm font-bold leading-6 text-foreground-secondary">
                   Compare deux fiches côte à côte pour vérifier rapidement les assets, types, problèmes JSON et informations visibles avant une correction.
                 </p>
                 <div className="mb-5 grid gap-3 md:grid-cols-2">
-                  <select className={fieldClass} value={compareA} onChange={(event) => setCompareA(event.target.value)}>
+                  <Select aria-label="Fiche gauche" className={fieldClass} value={compareA} onChange={(event) => setCompareA(event.target.value)}>
                     <option value="">Fiche gauche</option>
                     {entries.slice(0, 1000).map((entry) => (
                       <option key={entry.key} value={entry.key}>
                         {entry.dexId} · {entry.name}
                       </option>
                     ))}
-                  </select>
-                  <select className={fieldClass} value={compareB} onChange={(event) => setCompareB(event.target.value)}>
+                  </Select>
+                  <Select aria-label="Fiche droite" className={fieldClass} value={compareB} onChange={(event) => setCompareB(event.target.value)}>
                     <option value="">Fiche droite</option>
                     {entries.slice(0, 1000).map((entry) => (
                       <option key={entry.key} value={entry.key}>
                         {entry.dexId} · {entry.name}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
                 <div className="grid items-start gap-4 lg:grid-cols-2">
                   {[compareLeft, compareRight].map((entry, index) => (
-                    <div className="rounded-[2rem] border border-white/10 bg-slate-950/30 p-3" key={index}>
+                    <div className="rounded-[2rem] border border-line bg-surface-inset-subtle p-3" key={index}>
                       {entry ? (
                         <PokemonCard entry={entry} typeCatalog={catalog?.types} weatherCatalog={catalog?.weather} onOpen={openDetail} />
                       ) : (
-                        <p className="rounded-2xl border border-dashed border-white/15 p-5 text-sm font-bold text-slate-400">Sélectionne une fiche.</p>
+                        <p className="rounded-2xl border border-dashed border-line-medium p-5 text-sm font-bold text-muted">Sélectionne une fiche.</p>
                       )}
                     </div>
                   ))}
@@ -2554,10 +2554,9 @@ export function AdminApp() {
               <Panel
                 title="Corrections groupées"
                 action={
-                  <label className="inline-flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.055] px-4 py-3 text-sm font-black text-white">
-                    <input
+                  <label className="inline-flex items-center gap-3 rounded-2xl border border-line bg-surface-subtle px-4 py-3 text-sm font-black text-domain-foreground">
+                    <Checkbox
                       className="h-5 w-5 accent-cyan-400"
-                      type="checkbox"
                       checked={bulkOnlyIssues}
                       onChange={(event) => setBulkOnlyIssues(event.target.checked)}
                     />
@@ -2565,7 +2564,7 @@ export function AdminApp() {
                   </label>
                 }
               >
-                <p id="form-a11y-bulk-description" className="mb-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4 text-sm font-bold leading-6 text-slate-300">
+                <p id="form-a11y-bulk-description" className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 text-sm font-bold leading-6 text-foreground-secondary">
                   Génère un brouillon JSON à partir des problèmes détectés. Ce panneau ne modifie pas les fichiers: il sert à préparer des corrections groupées.
                 </p>
                 <textarea aria-label="Corrections groupées" aria-describedby="form-a11y-bulk-description" className={`${fieldClass} min-h-[520px] resize-y font-mono text-xs leading-6`} readOnly value={JSON.stringify(Object.fromEntries(bulkEntries.map((entry) => [entry.key, entry.suggestedPatch])), null, 2)} />
@@ -2581,7 +2580,7 @@ export function AdminApp() {
                   </button>
                 }
               >
-                <p id="form-a11y-export-description" className="mb-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4 text-sm font-bold leading-6 text-slate-300">
+                <p id="form-a11y-export-description" className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 text-sm font-bold leading-6 text-foreground-secondary">
                   Exporte les fiches correspondant à la recherche globale en cours. Pratique pour partager un lot réduit ou conserver un état de contrôle.
                 </p>
                 <textarea aria-label="Export et partage" aria-describedby="form-a11y-export-description" className={`${fieldClass} min-h-[520px] resize-y font-mono text-xs leading-6`} readOnly value={JSON.stringify(exportPayload, null, 2)} />
@@ -2635,9 +2634,9 @@ export function AdminApp() {
           setExtraPanel(
             <div className="space-y-3">
               {(payload.data || []).map((item) => (
-                <div className="rounded-2xl border border-white/10 bg-white/[0.055] p-3" key={item.url}>
+                <div className="rounded-2xl border border-line bg-surface-subtle p-3" key={item.url}>
                   <strong className={item.ok ? "text-emerald-200" : "text-red-200"}>{item.ok ? "Accessible" : "Erreur"}</strong>
-                  <span className="mt-1 block break-all text-xs font-bold text-slate-300">
+                  <span className="mt-1 block break-all text-xs font-bold text-foreground-secondary">
                     HTTP {item.status || "?"} · {item.url}
                   </span>
                 </div>
@@ -2658,25 +2657,25 @@ export function AdminApp() {
               {groups.map(([label, items]) => (
                 <section key={label}>
                   <div className="mb-2 flex items-center justify-between">
-                    <strong className="text-white">{label}</strong>
-                    <span className="rounded-full bg-white/10 px-2 py-1 text-xs font-black text-slate-300">{items.length}</span>
+                    <strong className="text-domain-foreground">{label}</strong>
+                    <span className="rounded-full bg-surface-emphasis px-2 py-1 text-xs font-black text-foreground-secondary">{items.length}</span>
                   </div>
                   {items.length ? (
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                       {items.slice(0, 24).map((asset, index) => (
-                        <article className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/40" key={`${label}-${asset.filename || asset.url}-${index}`}>
+                        <article className="overflow-hidden rounded-2xl border border-line bg-surface-inset-medium" key={`${label}-${asset.filename || asset.url}-${index}`}>
                           <div className="grid aspect-square place-items-center p-3">
                             <img className="max-h-full object-contain" src={asset.url} alt={asset.filename || asset.label || label} />
                           </div>
-                          <div className="border-t border-white/10 p-2">
-                            <strong className="block truncate text-xs text-white">{asset.filename || asset.label}</strong>
-                            <span className="mt-1 block truncate text-xs text-slate-400">{asset.details || asset.form || asset.state || "standard"}</span>
+                          <div className="border-t border-line p-2">
+                            <strong className="block truncate text-xs text-domain-foreground">{asset.filename || asset.label}</strong>
+                            <span className="mt-1 block truncate text-xs text-muted">{asset.details || asset.form || asset.state || "standard"}</span>
                           </div>
                         </article>
                       ))}
                     </div>
                   ) : (
-                    <p className="rounded-2xl border border-dashed border-white/15 p-3 text-sm font-bold text-slate-400">Aucun résultat.</p>
+                    <p className="rounded-2xl border border-dashed border-line-medium p-3 text-sm font-bold text-muted">Aucun résultat.</p>
                   )}
                 </section>
               ))}

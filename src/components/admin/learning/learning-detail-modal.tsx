@@ -55,7 +55,7 @@ export function LearningDetailModal({
           <Info label="XP" value={`${stats.earnedXP} / ${stats.totalXP}`} />
         </section>
 
-        <section className="grid gap-4 rounded-lg border border-line bg-white/[0.035] p-4 sm:p-5">
+        <section className="grid gap-4 rounded-lg border border-line bg-surface-faint p-4 sm:p-5">
           <div className="flex items-center gap-2">
             <Library size={18} className="text-brand-2" />
             <h3 className="text-lg font-black">Prérequis et ressources</h3>
@@ -94,7 +94,7 @@ export function LearningDetailModal({
           <div className="flex items-center gap-2"><Trophy size={18} className="text-brand-3" /><h3 className="font-black">Achievements liés</h3></div>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {topic.achievements.map((achievement) => (
-              <div className="rounded-lg border border-line bg-black/15 p-3" key={achievement.id}>
+              <div className="rounded-lg border border-line bg-surface-recessed p-3" key={achievement.id}>
                 <div className="flex items-center gap-2 text-sm font-black"><Trophy size={14} /> {achievement.title}</div>
                 <p className="mt-1 text-xs font-semibold text-muted">{achievement.description}</p>
               </div>
@@ -284,7 +284,7 @@ function TheorySections({ sections }: { sections: LearningTheorySection[] }) {
         const warnings = [...(section.warnings || []), ...(Array.isArray(section.warning) ? section.warning : section.warning ? [section.warning] : [])];
         const questions = [...(section.comprehensionQuestions || []), ...(section.questions || [])];
         return (
-        <section className="rounded-lg border border-line bg-black/15 p-4" key={section.id} aria-labelledby={`theory-section-${section.id}`}>
+        <section className="rounded-lg border border-line bg-surface-recessed p-4" key={section.id} aria-labelledby={`theory-section-${section.id}`}>
           <h4 id={`theory-section-${section.id}`} className="text-lg font-black text-brand-2">{section.title}</h4>
           <LearningMarkdown content={section.content} />
           {codeExamples.map((example, index) => (
@@ -330,7 +330,7 @@ function renderInlineMarkdown(value: string) {
 
 function UnitSection({ icon, title, completed, total, children }: { icon: ReactNode; title: string; completed: number; total: number; children: ReactNode }) {
   return (
-    <section className="rounded-lg border border-line bg-white/[0.035] p-4 sm:p-5">
+    <section className="rounded-lg border border-line bg-surface-faint p-4 sm:p-5">
       <div className="flex items-center justify-between gap-3">
         <h3 className="inline-flex items-center gap-2 text-lg font-black"><span className="text-brand-2">{icon}</span>{title}</h3>
         <span className="font-mono text-xs font-black text-muted">{completed}/{total}</span>
@@ -341,7 +341,7 @@ function UnitSection({ icon, title, completed, total, children }: { icon: ReactN
 }
 
 function UnitCard({ children }: { children: ReactNode }) {
-  return <article className="rounded-lg border border-line bg-black/15 p-4">{children}</article>;
+  return <article className="rounded-lg border border-line bg-surface-recessed p-4">{children}</article>;
 }
 
 function MetaBlock({ label, value }: { label: string; value: string }) {
@@ -356,7 +356,7 @@ function ListBlock({ title, items, tone = "default" }: { title: string; items: s
   const Icon = tone === "danger" ? ShieldAlert : tone === "success" ? CheckCircle2 : Lightbulb;
   const toneClass = tone === "danger" ? "text-danger" : tone === "success" ? "text-brand-3" : "text-brand-2";
   return (
-    <div className="rounded-lg border border-line bg-black/15 p-3">
+    <div className="rounded-lg border border-line bg-surface-recessed p-3">
       <h4 className={`flex items-center gap-2 text-sm font-black ${toneClass}`}><Icon size={15} /> {title}</h4>
       {items.length ? <ul className="mt-2 space-y-1.5 text-sm font-semibold leading-5 text-muted">{items.map((item) => <li className="flex gap-2" key={item}><span aria-hidden>•</span><span>{item}</span></li>)}</ul> : <p className="mt-2 text-sm font-semibold text-muted">Aucun.</p>}
     </div>
@@ -368,5 +368,5 @@ function Validation({ items }: { items: string[] }) {
 }
 
 function Info({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-lg border border-line bg-black/15 p-3"><span className="block text-[11px] font-black uppercase tracking-[0.16em] text-muted">{label}</span><strong className="mt-2 block text-sm leading-6">{value}</strong></div>;
+  return <div className="rounded-lg border border-line bg-surface-recessed p-3"><span className="block text-[11px] font-black uppercase tracking-[0.16em] text-muted">{label}</span><strong className="mt-2 block text-sm leading-6">{value}</strong></div>;
 }

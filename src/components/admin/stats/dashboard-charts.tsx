@@ -17,10 +17,10 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/ca
 import { focusBlocks, revenueData } from "@/data/dashboard";
 
 const tooltipStyle = {
-  background: "rgba(10, 13, 24, 0.95)",
-  border: "1px solid rgba(255,255,255,0.12)",
+  background: "var(--panel-strong)",
+  border: "1px solid var(--line)",
   borderRadius: 8,
-  color: "#eef3ff",
+  color: "var(--foreground)",
 };
 
 export function DashboardCharts() {
@@ -44,32 +44,32 @@ export function DashboardCharts() {
             <AreaChart data={revenueData} margin={{ left: -18, right: 8, top: 16 }}>
               <defs>
                 <linearGradient id="revenueGradient" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="5%" stopColor="#20d3ff" stopOpacity={0.38} />
-                  <stop offset="95%" stopColor="#20d3ff" stopOpacity={0} />
+                  <stop offset="5%" stopColor="var(--brand-2)" stopOpacity={0.38} />
+                  <stop offset="95%" stopColor="var(--brand-2)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-              <XAxis dataKey="name" stroke="#94a3b8" tickLine={false} axisLine={false} />
-              <YAxis stroke="#94a3b8" tickLine={false} axisLine={false} />
+              <CartesianGrid stroke="var(--line)" vertical={false} />
+              <XAxis dataKey="name" stroke="var(--muted)" tickLine={false} axisLine={false} />
+              <YAxis stroke="var(--muted)" tickLine={false} axisLine={false} />
               <Tooltip contentStyle={tooltipStyle} />
               <Area
                 type="monotone"
                 dataKey="revenue"
-                stroke="#20d3ff"
+                stroke="var(--brand-2)"
                 strokeWidth={3}
                 fill="url(#revenueGradient)"
               />
               <Area
                 type="monotone"
                 dataKey="projects"
-                stroke="#58f2a9"
+                stroke="var(--brand-3)"
                 strokeWidth={2}
                 fill="transparent"
               />
             </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-full rounded-lg border border-line bg-white/[0.035]" />
+            <div className="h-full rounded-lg border border-line bg-surface-faint" />
           )}
         </div>
       </Card>
@@ -83,12 +83,12 @@ export function DashboardCharts() {
           {mounted ? (
             <ResponsiveContainer width="100%" height="100%" minWidth={1}>
             <BarChart data={focusBlocks} layout="vertical" margin={{ left: 18, right: 12 }}>
-              <CartesianGrid stroke="rgba(255,255,255,0.06)" horizontal={false} />
-              <XAxis type="number" stroke="#94a3b8" tickLine={false} axisLine={false} />
+              <CartesianGrid stroke="var(--line)" horizontal={false} />
+              <XAxis type="number" stroke="var(--muted)" tickLine={false} axisLine={false} />
               <YAxis
                 dataKey="label"
                 type="category"
-                stroke="#94a3b8"
+                stroke="var(--muted)"
                 tickLine={false}
                 axisLine={false}
                 width={78}
@@ -102,7 +102,7 @@ export function DashboardCharts() {
             </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-full rounded-lg border border-line bg-white/[0.035]" />
+            <div className="h-full rounded-lg border border-line bg-surface-faint" />
           )}
         </div>
       </Card>

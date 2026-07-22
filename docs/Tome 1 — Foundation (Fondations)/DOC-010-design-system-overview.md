@@ -2,10 +2,10 @@
 id: DOC-010
 title: Vue d'ensemble du Design System
 slug: design-system-overview
-version: 1.1.1
+version: 1.1.5
 status: Active
 created: 2026-07-12
-last_updated: 2026-07-14
+last_updated: 2026-07-22
 author: Matthieu Vachet
 owner: MatWeb Innovation
 
@@ -58,7 +58,7 @@ rules:
 >
 > Les couches Atomic, Composite, Complex et Templates décrites dans ce document constituent la **cible de gouvernance et de reconstruction Figma**. Elles ne doivent pas être confondues avec l'implémentation React actuelle.
 >
-> L'implémentation confirmée du Dashboard repose sur les variables CSS/Tailwind, deux thèmes, huit palettes, six fichiers UI atomiques partagés et de nombreux composants métier avec styles locaux. Les documents Phase 3C/3D/3E/4A annoncent respectivement 401, 520, 895 variantes futures et six templates cibles ; aucune preuve locale ne confirme leur génération dans Figma ou leur réalisation complète dans React.
+> L'implémentation confirmée du Dashboard repose sur les variables CSS/Tailwind, deux thèmes, huit palettes, huit fichiers UI atomiques partagés et de nombreux composants métier avec styles locaux. Les documents Phase 3C/3D/3E/4A annoncent respectivement 401, 520, 895 variantes futures et six templates cibles ; aucune preuve locale ne confirme leur génération dans Figma ou leur réalisation complète dans React.
 
 ---
 
@@ -513,7 +513,7 @@ Un composant atomique :
 - ne dépend d'aucune page ;
 - est entièrement réutilisable.
 
-La spécification Phase 3C décrit **401 variantes atomiques futures**. L'implémentation React confirmée contient six fichiers UI partagés : Badge, Button, Card, Field, Input/Textarea et Modal, soit sept familles de composants exportées. `Field` compose seulement un label et son enfant ; il n’expose ni description, ni erreur, ni validation. IconButton, Select, Checkbox, Switch, Chip, Label autonome, Divider, ProgressBar, Tooltip et Tabs ne possèdent pas de primitive partagée dédiée.
+La spécification Phase 3C décrit **401 variantes atomiques futures**. L'implémentation React confirmée contient huit fichiers UI partagés : Badge, Button, Card, Field, Input/Textarea, Modal, Select et Checkbox, soit neuf familles de composants exportées. `Field` compose seulement un label et son enfant ; il n’expose ni description, ni erreur, ni validation. Select et Checkbox sont des contrôles natifs stylés qui transmettent leurs attributs HTML et leurs refs ; IconButton, Switch, Chip, Label autonome, Divider, ProgressBar, Tooltip et Tabs ne possèdent pas de primitive partagée dédiée.
 
 ---
 
@@ -1213,7 +1213,7 @@ Les Tokens rendent ces règles exploitables.
 
 Dans la cible, les composants utilisent exclusivement les Tokens et n'accèdent pas directement aux Foundations.
 
-État observé : le code implémente des variables CSS sémantiques (`--background`, `--panel`, `--line`, `--brand`, accents, états), un mapping `@theme inline` vers Tailwind et huit palettes dark/light. Les collections Figma Primitive/Semantic/Component et leur export vers React ne sont pas trouvés dans le workspace.
+État observé après le Sprint Color System : le Dashboard expose 48 variables couleur dark/light dans `globals.css` et leurs alias Tailwind sémantiques pour le fond, les surfaces, les textes, les bordures, les interactions, les accents et les statuts. Le scan reproductible mesure 3 221 usages génériques, dont 2 931 tokenisés et 290 hardcodés justifiés, soit 91,0 % de couverture contre 46,4 % avant migration. Les huit palettes runtime continuent de piloter les accents ; les 1 593 usages métier Pokémon/Events restent séparés des tokens UI. Les collections Figma Primitive/Semantic/Component et leur export vers React ne sont pas trouvés dans le workspace.
 
 ---
 
@@ -2039,7 +2039,7 @@ Chaque composant possède :
 
 # Les Atomic Components dans le projet
 
-D'après le code courant, la bibliothèque React partagée comporte sept familles de composants : Badge, Button, Card, Field, Input, Textarea et Modal. Les **401 variantes** de `phase-3c-prep-atomic-component-spec.md` sont une spécification future, pas un inventaire de variantes réalisées.
+D'après le code courant, la bibliothèque React partagée comporte neuf familles de composants : Badge, Button, Card, Field, Input, Textarea, Modal, Select et Checkbox. Les **401 variantes** de `phase-3c-prep-atomic-component-spec.md` sont une spécification future, pas un inventaire de variantes réalisées.
 
 Ces composants servent de base à tous les composants composites et complexes.
 
@@ -6002,6 +6002,8 @@ Une Glass Card est généralement composée de :
 
 Chaque couche possède un rôle précis.
 
+**État observé après le Sprint Card + Surfaces :** la primitive React `Card` rend un `div`, transmet les attributs HTML et le ref, et expose trois tons finis : `soft` (`glass-panel`), `strong` (`glass-panel-strong`) et `flat` (bordure `line` avec fond `bg-white/[0.045]`, sans ombre ni blur). `CardHeader`, `CardTitle` et `CardDescription` conservent leur anatomie minimale. Le code courant compte 115 instances Card dans 32 fichiers ; 255 surfaces spécialisées et 16 structures non-Card restent locales et documentées. Card n'impose ni padding, largeur, interaction ni breakpoint.
+
 ---
 
 # Les composants concernés
@@ -6969,7 +6971,7 @@ Une modale doit :
 
 L'utilisateur ne doit jamais "perdre" le focus.
 
-État observé : la primitive Modal gère `role="dialog"`, `aria-modal`, Escape, focus initial, boucle Tab/Shift+Tab, retour du focus et scroll lock. Elle utilise `aria-label={title}` sans relier le titre ou la description visibles, et son bouton d’overlay focusable reste hors de la section dialog. Plusieurs modales métier possèdent encore une sémantique, un nom accessible ou un cycle de focus incomplet.
+État observé : la primitive Modal gère `role="dialog"`, `aria-modal`, Escape, focus initial avec fallback sur la section, boucle Tab/Shift+Tab, retour du focus et scroll lock. Le dialog est relié à son titre visible par `aria-labelledby` et, lorsqu’elle existe, à sa description par `aria-describedby`. L’overlay fermant est non focusable et hors du tab order ; le bouton de fermeture reste nommé. Plusieurs modales métier spécialisées conservent un cycle de focus ou un scroll lock incomplet et restent documentées comme exceptions locales.
 
 ---
 
@@ -9331,11 +9333,11 @@ Cette organisation garantit une documentation cohérente, évolutive et durable.
 
 **Document :** DOC-010 — Design System Overview
 
-**Version :** 1.1.0
+**Version :** 1.1.5
 
 **Statut :** Actif — état implémenté distingué de la cible Figma
 
-**Dernière mise à jour :** 2026-07-13 — réconciliation avec le méga-audit code-only
+**Dernière mise à jour :** 2026-07-22 — consolidation Color System, Card, Modal, Select et Checkbox
 
 **Auteur :** Matthieu Vachet
 

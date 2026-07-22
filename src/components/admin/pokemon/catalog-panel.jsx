@@ -50,7 +50,7 @@ function TypeChip({ type, catalog = [], multiplier }) {
   const color = typeColors[id] || "#64748b";
   return (
     <span
-      className="inline-flex min-h-8 items-center gap-2 rounded-full border px-3 py-1 text-xs font-black text-white"
+      className="inline-flex min-h-8 items-center gap-2 rounded-full border px-3 py-1 text-xs font-black text-domain-foreground"
       style={{
         borderColor: `color-mix(in srgb, ${color} 45%, rgba(255,255,255,.16))`,
         background: `color-mix(in srgb, ${color} 38%, rgba(15,23,42,.72))`,
@@ -92,7 +92,7 @@ function TypeCatalogCard({ item, typeCatalog = [], weatherCatalog = [] }) {
 
   return (
     <article
-      className="relative overflow-hidden rounded-3xl border bg-slate-950/45 shadow-[0_20px_80px_rgba(0,0,0,.22)]"
+      className="relative overflow-hidden rounded-3xl border bg-surface-inset-strong shadow-[0_20px_80px_rgba(0,0,0,.22)]"
       style={{
         borderColor: `color-mix(in srgb, ${color} 34%, rgba(255,255,255,.12))`,
         backgroundImage: background
@@ -110,21 +110,21 @@ function TypeCatalogCard({ item, typeCatalog = [], weatherCatalog = [] }) {
           </span>
           <span className="min-w-0">
             <span className="text-xs font-black uppercase tracking-[0.22em] text-cyan-100/70">Type</span>
-            <strong className="mt-1 block text-3xl font-black text-white">{item.names?.French || typeName(id, typeCatalog)}</strong>
-            <span className="mt-1 block font-mono text-sm font-black uppercase text-slate-300">{item.names?.English || id}</span>
+            <strong className="mt-1 block text-3xl font-black text-domain-foreground">{item.names?.French || typeName(id, typeCatalog)}</strong>
+            <span className="mt-1 block font-mono text-sm font-black uppercase text-foreground-secondary">{item.names?.English || id}</span>
           </span>
         </div>
 
-        <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.055] p-4">
-          <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">Boost météo</span>
-          <strong className="mt-2 block text-white">{weatherName(item.weatherBoost, weatherCatalog)}</strong>
+        <div className="mt-5 rounded-2xl border border-line bg-surface-subtle p-4">
+          <span className="text-xs font-black uppercase tracking-[0.18em] text-muted">Boost météo</span>
+          <strong className="mt-2 block text-domain-foreground">{weatherName(item.weatherBoost, weatherCatalog)}</strong>
         </div>
 
         <div className="mt-5 grid gap-4 xl:grid-cols-2">
           <section>
             <h4 className="text-xs font-black uppercase tracking-[0.18em] text-red-100/78">Faiblesses</h4>
             <div className="mt-2 flex flex-wrap gap-2">
-              {weaknesses.length ? weaknesses.map((type) => <TypeChip key={type} type={type} catalog={typeCatalog} multiplier="1.6" />) : <span className="text-sm font-bold text-slate-400">Aucune</span>}
+              {weaknesses.length ? weaknesses.map((type) => <TypeChip key={type} type={type} catalog={typeCatalog} multiplier="1.6" />) : <span className="text-sm font-bold text-muted">Aucune</span>}
             </div>
           </section>
           <section>
@@ -132,7 +132,7 @@ function TypeCatalogCard({ item, typeCatalog = [], weatherCatalog = [] }) {
             <div className="mt-2 flex flex-wrap gap-2">
               {resistances.map((type) => <TypeChip key={type} type={type} catalog={typeCatalog} multiplier="0.625" />)}
               {immunities.map((type) => <TypeChip key={type} type={type} catalog={typeCatalog} multiplier="0.391" />)}
-              {!resistances.length && !immunities.length ? <span className="text-sm font-bold text-slate-400">Aucune</span> : null}
+              {!resistances.length && !immunities.length ? <span className="text-sm font-bold text-muted">Aucune</span> : null}
             </div>
           </section>
         </div>
@@ -141,9 +141,9 @@ function TypeCatalogCard({ item, typeCatalog = [], weatherCatalog = [] }) {
           <h4 className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100/78">Multiplicateurs offensifs</h4>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {multipliers.map((row) => (
-              <span className="flex min-w-0 items-center justify-between gap-3 rounded-full border border-white/10 bg-white/[0.06] px-3 py-2" key={row.type}>
+              <span className="flex min-w-0 items-center justify-between gap-3 rounded-full border border-line bg-surface-control px-3 py-2" key={row.type}>
                 <TypeChip type={row.type} catalog={typeCatalog} />
-                <strong className="font-mono text-xs text-white">x{row.multiplier}</strong>
+                <strong className="font-mono text-xs text-domain-foreground">x{row.multiplier}</strong>
               </span>
             ))}
           </div>
@@ -186,17 +186,17 @@ function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
       style={{ backgroundImage: typePanelBackground(type, typeCatalog), borderColor: `color-mix(in srgb, ${color} ${open ? "68%" : "34%"}, rgba(255,255,255,.14))` }}
     >
       <button
-        className={`grid w-full gap-3 p-4 text-left transition sm:grid-cols-[minmax(0,1fr)_auto_auto_auto] ${open ? "bg-white/[0.07]" : "hover:bg-white/[0.04]"}`}
+        className={`grid w-full gap-3 p-4 text-left transition sm:grid-cols-[minmax(0,1fr)_auto_auto_auto] ${open ? "bg-white/[0.07]" : "hover:bg-surface-minimal"}`}
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
       >
         <span className="min-w-0">
-          <strong className="block truncate text-base font-black text-white">{moveTitle(move)}</strong>
-          <small className="mt-1 block truncate font-mono text-xs font-bold text-slate-400">{move.id}</small>
+          <strong className="block truncate text-base font-black text-domain-foreground">{moveTitle(move)}</strong>
+          <small className="mt-1 block truncate font-mono text-xs font-bold text-muted">{move.id}</small>
         </span>
         <span
-          className="inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-xs font-black text-white"
+          className="inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-xs font-black text-domain-foreground"
           style={{ background: `color-mix(in srgb, ${color} 52%, rgba(255,255,255,.12))` }}
         >
           {typeIcon(type, typeCatalog) ? (
@@ -213,42 +213,42 @@ function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
         </span>
       </button>
       {open ? (
-        <div className="border-t border-white/10 p-4">
+        <div className="border-t border-line p-4">
           <div className="grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
             {rows.map(([label, value]) => (
-              <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-3" key={label}>
-                <span className="block text-xs font-black uppercase tracking-[0.16em] text-slate-500">{label}</span>
-                <strong className="mt-1 block break-words text-white">{value}</strong>
+              <div className="rounded-2xl border border-line bg-surface-inset-strong p-3" key={label}>
+                <span className="block text-xs font-black uppercase tracking-[0.16em] text-disabled">{label}</span>
+                <strong className="mt-1 block break-words text-domain-foreground">{value}</strong>
               </div>
             ))}
           </div>
-          <div className="mt-3 rounded-2xl border border-white/10 bg-slate-950/35 p-3">
-            <span className="block text-xs font-black uppercase tracking-[0.16em] text-slate-500">Traductions</span>
+          <div className="mt-3 rounded-2xl border border-line bg-surface-inset p-3">
+            <span className="block text-xs font-black uppercase tracking-[0.16em] text-disabled">Traductions</span>
             <div className="mt-2 flex flex-wrap gap-2">
               {Object.entries(move.names || {}).map(([lang, value]) => (
-                <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-bold text-slate-200" key={lang}>
+                <span className="rounded-full border border-line bg-surface-control px-3 py-1 text-xs font-bold text-foreground" key={lang}>
                   {lang}: {value}
                 </span>
               ))}
             </div>
           </div>
-          <div className="mt-3 rounded-2xl border border-white/10 bg-slate-950/35 p-3">
-            <span className="block text-xs font-black uppercase tracking-[0.16em] text-slate-500">Buffs PvP</span>
+          <div className="mt-3 rounded-2xl border border-line bg-surface-inset p-3">
+            <span className="block text-xs font-black uppercase tracking-[0.16em] text-disabled">Buffs PvP</span>
             {buffRows.length ? (
               <div className="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
                 {buffRows.map(([label, value]) => (
-                  <span className="rounded-xl bg-white/[0.06] px-3 py-2 text-sm font-bold text-white" key={label}>
+                  <span className="rounded-xl bg-surface-control px-3 py-2 text-sm font-bold text-domain-foreground" key={label}>
                     {label}: {value}
                   </span>
                 ))}
               </div>
             ) : (
-              <p className="mt-2 text-sm font-bold text-slate-400">Aucun buff PvP renseigné.</p>
+              <p className="mt-2 text-sm font-bold text-muted">Aucun buff PvP renseigné.</p>
             )}
           </div>
-          <div className="mt-3 rounded-2xl border border-white/10 bg-slate-950/35 p-3">
+          <div className="mt-3 rounded-2xl border border-line bg-surface-inset p-3">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <span className="block text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+              <span className="block text-xs font-black uppercase tracking-[0.16em] text-disabled">
                 Pokémon liés
               </span>
               <span className="rounded-full border border-cyan-200/20 bg-cyan-400/10 px-3 py-1 text-xs font-black text-cyan-50">
@@ -259,7 +259,7 @@ function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
               <div className="flex max-h-72 flex-wrap gap-2 overflow-auto pr-1">
                 {linkedPokemon.map((pokemon) => (
                   <button
-                    className="inline-flex min-w-0 items-center gap-2 rounded-full border border-white/10 bg-white/[0.065] px-2.5 py-1.5 text-xs font-black text-slate-100 transition hover:border-cyan-200/45 hover:bg-cyan-400/15"
+                    className="inline-flex min-w-0 items-center gap-2 rounded-full border border-line bg-white/[0.065] px-2.5 py-1.5 text-xs font-black text-foreground transition hover:border-cyan-200/45 hover:bg-cyan-400/15"
                     key={pokemon.key}
                     type="button"
                     onClick={() => onOpen?.(pokemon)}
@@ -268,14 +268,14 @@ function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
                     <span className="max-w-[12rem] truncate">
                       {pokemon.dexId} · {pokemon.name}
                     </span>
-                    <small className="rounded-full bg-slate-950/40 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em]">
+                    <small className="rounded-full bg-surface-inset-medium px-2 py-0.5 text-[10px] uppercase tracking-[0.12em]">
                       {(pokemon.moveSlots || []).join(", ")}
                     </small>
                   </button>
                 ))}
               </div>
             ) : (
-              <p className="text-sm font-bold text-slate-400">
+              <p className="text-sm font-bold text-muted">
                 Aucun Pokémon lié à cette attaque dans les JSON chargés.
               </p>
             )}
@@ -321,7 +321,7 @@ export function CatalogPanel({ catalog = {}, onOpen }) {
               className={`shrink-0 rounded-full border px-4 py-2 text-sm font-black transition ${
                 tab === value
                   ? "border-cyan-200/40 bg-cyan-400/20 text-cyan-50"
-                  : "border-white/10 bg-white/[0.06] text-slate-300 hover:bg-white/10"
+                  : "border-line bg-surface-control text-foreground-secondary hover:bg-surface-emphasis"
               }`}
               key={value}
               type="button"
@@ -337,7 +337,7 @@ export function CatalogPanel({ catalog = {}, onOpen }) {
       }
     >
       <label className="mb-4 block">
-        <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+        <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-disabled">
           Recherche dans {labels[tab]}
         </span>
         <input
@@ -372,11 +372,11 @@ export function CatalogPanel({ catalog = {}, onOpen }) {
             const boosted = Array.isArray(item.boostedTypes) ? item.boostedTypes : [];
             return (
               <article
-                className="overflow-hidden rounded-3xl border border-white/10 bg-slate-950/40"
+                className="overflow-hidden rounded-3xl border border-line bg-surface-inset-medium"
                 key={`${tab}-${item.id || item.filename || label}-${index}`}
               >
                 <div
-                  className="grid aspect-[4/3] place-items-center bg-white/[0.04] p-4"
+                  className="grid aspect-[4/3] place-items-center bg-surface-minimal p-4"
                   style={{
                     backgroundImage: item.assets?.background
                       ? `linear-gradient(135deg, rgba(2,6,23,.45), rgba(2,6,23,.7)), url("${item.assets.background}")`
@@ -387,20 +387,20 @@ export function CatalogPanel({ catalog = {}, onOpen }) {
                   {image ? (
                     <img className="max-h-full object-contain drop-shadow-2xl" src={item.assets?.icon || item.image || image} alt={label} />
                   ) : (
-                    <span className="h-10 w-10 rounded-full bg-white/10" />
+                    <span className="h-10 w-10 rounded-full bg-surface-emphasis" />
                   )}
                 </div>
-                <div className="border-t border-white/10 p-3">
-                  <strong className="block truncate text-sm font-black text-white">
+                <div className="border-t border-line p-3">
+                  <strong className="block truncate text-sm font-black text-domain-foreground">
                     {label}
                   </strong>
-                  <span className="mt-1 block truncate text-xs font-bold text-slate-400">
+                  <span className="mt-1 block truncate text-xs font-bold text-muted">
                     {tab === "weather" ? "Météo" : tab === "stickers" ? item.filename || "Sticker" : item.category || item.id}
                   </span>
                   {boosted.length ? (
                     <div className="mt-2 flex flex-wrap gap-1">
                       {boosted.map((type) => (
-                        <span className="rounded-full bg-white/10 px-2 py-1 text-[10px] font-black text-slate-200" key={type}>
+                        <span className="rounded-full bg-surface-emphasis px-2 py-1 text-[10px] font-black text-foreground" key={type}>
                           {typeName(type, data.types)}
                         </span>
                       ))}
@@ -413,7 +413,7 @@ export function CatalogPanel({ catalog = {}, onOpen }) {
         </div>
       )}
       {!items.length ? (
-        <p className="mt-4 rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+        <p className="mt-4 rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
           Aucun résultat dans {labels[tab]}.
         </p>
       ) : null}

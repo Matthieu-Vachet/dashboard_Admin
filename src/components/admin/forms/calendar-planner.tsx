@@ -19,6 +19,7 @@ import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Input, Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
+import { Select } from "@/components/ui/select";
 import {
   initialEvents,
   type CalendarEvent,
@@ -237,7 +238,7 @@ export function CalendarPlanner() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Badge tone={ready ? "green" : "neutral"}>{ready ? "Sauvegarde active" : "Chargement"}</Badge>
-            <div className="flex rounded-lg border border-line bg-white/[0.045] p-1">
+            <div className="flex rounded-lg border border-line bg-surface-flat p-1">
               {views.map((item) => (
                 <button
                   key={item}
@@ -245,7 +246,7 @@ export function CalendarPlanner() {
                   onClick={() => setView(item)}
                   className={cn(
                     "rounded-md px-3 py-2 text-xs font-black capitalize transition",
-                    view === item ? "bg-brand-2 text-slate-950" : "text-muted hover:text-foreground",
+                    view === item ? "bg-brand-2 text-on-accent" : "text-muted hover:text-foreground",
                   )}
                 >
                   {item}
@@ -288,13 +289,14 @@ export function CalendarPlanner() {
           </div>
         </div>
 
-        <div className="mt-5 grid gap-3 rounded-lg border border-line bg-white/[0.035] p-3 md:grid-cols-[auto_1fr_1fr]">
+        <div className="mt-5 grid gap-3 rounded-lg border border-line bg-surface-faint p-3 md:grid-cols-[auto_1fr_1fr]">
           <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-brand-2">
             <Filter size={15} />
             Filtres
           </span>
-          <select
-            className="min-h-11 rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+          <Select
+            aria-label="Filtrer par statut"
+            className="min-h-11 rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none"
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
           >
@@ -304,9 +306,10 @@ export function CalendarPlanner() {
                 {status}
               </option>
             ))}
-          </select>
-          <select
-            className="min-h-11 rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+          </Select>
+          <Select
+            aria-label="Filtrer par catégorie"
+            className="min-h-11 rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none"
             value={categoryFilter}
             onChange={(event) => setCategoryFilter(event.target.value as CategoryFilter)}
           >
@@ -316,7 +319,7 @@ export function CalendarPlanner() {
                 {category}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
         {view === "jour" ? (
@@ -371,7 +374,7 @@ export function CalendarPlanner() {
                 />
               ))
             ) : (
-              <p className="rounded-lg border border-line bg-white/[0.045] p-3 text-sm font-semibold text-muted">
+              <p className="rounded-lg border border-line bg-surface-flat p-3 text-sm font-semibold text-muted">
                 Aucun event sur cette journée.
               </p>
             )}
@@ -432,8 +435,8 @@ export function CalendarPlanner() {
               </Field>
               <label className="block">
                 <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Statut</span>
-                <select
-                  className="mt-2 min-h-11 w-full rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+                <Select
+                  className="mt-2 min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none"
                   value={selectedEvent.status}
                   onChange={(event) => updateEvent(selectedEvent.id, { status: event.target.value as CalendarEventStatus })}
                 >
@@ -442,13 +445,13 @@ export function CalendarPlanner() {
                       {status}
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
             </div>
             <label className="block">
               <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Catégorie</span>
-              <select
-                className="mt-2 min-h-11 w-full rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+              <Select
+                className="mt-2 min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none"
                 value={selectedEvent.category}
                 onChange={(event) => updateEvent(selectedEvent.id, { category: event.target.value as CalendarEventCategory })}
               >
@@ -457,7 +460,7 @@ export function CalendarPlanner() {
                     {category}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
             <div>
               <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">Couleur</p>
@@ -471,7 +474,7 @@ export function CalendarPlanner() {
                       "rounded-full border px-3 py-2 text-xs font-black transition",
                       selectedEvent.color === tone
                         ? "border-brand-2/45 bg-white/[0.1]"
-                        : "border-line bg-white/[0.04]",
+                        : "border-line bg-surface-minimal",
                     )}
                   >
                     <span className={cn("mr-2 inline-block h-2 w-4 rounded-full", toneClasses[tone])} />
@@ -534,7 +537,7 @@ function MonthGrid({
             className={cn(
               "min-h-24 rounded-lg border p-2 text-center transition sm:aspect-square sm:min-h-0",
               isSameMonth(day, cursor)
-                ? "border-line bg-white/[0.045]"
+                ? "border-line bg-surface-flat"
                 : "border-line/60 bg-white/[0.02] text-muted/60",
               selected && "border-brand-2/60 bg-brand-2/12 text-foreground",
             )}
@@ -568,7 +571,7 @@ function MiniMonth({
   onSelect: (day: Date) => void;
 }) {
   return (
-    <div className="rounded-lg border border-line bg-white/[0.035] p-3">
+    <div className="rounded-lg border border-line bg-surface-faint p-3">
       <h3 className="text-center text-sm font-black capitalize">{format(month, "MMMM", { locale: fr })}</h3>
       <div className="mt-3 grid grid-cols-7 gap-1">
         {monthDays(month).map((day) => {
@@ -581,7 +584,7 @@ function MiniMonth({
               onClick={() => onSelect(day)}
               className={cn(
                 "grid aspect-square place-items-center rounded-md text-[11px] font-black transition",
-                isSameMonth(day, month) ? "bg-white/[0.055] hover:bg-brand-2/16" : "text-muted/45",
+                isSameMonth(day, month) ? "bg-surface-subtle hover:bg-brand-2/16" : "text-muted/45",
                 count && "border border-brand-2/45 text-brand-2",
               )}
             >
@@ -604,7 +607,7 @@ function DayView({
   onOpen: (event: CalendarEvent) => void;
 }) {
   return (
-    <div className="mt-6 rounded-lg border border-line bg-white/[0.035] p-4">
+    <div className="mt-6 rounded-lg border border-line bg-surface-faint p-4">
       <h3 className="text-xl font-black capitalize">{format(date, "EEEE d MMMM yyyy", { locale: fr })}</h3>
       <div className="mt-4 grid gap-3">
         {events.length ? (
@@ -613,7 +616,7 @@ function DayView({
               key={event.id}
               type="button"
               onClick={() => onOpen(event)}
-              className="grid gap-3 rounded-lg border border-line bg-white/[0.045] p-4 text-left transition hover:border-brand-2/45 sm:grid-cols-[90px_1fr]"
+              className="grid gap-3 rounded-lg border border-line bg-surface-flat p-4 text-left transition hover:border-brand-2/45 sm:grid-cols-[90px_1fr]"
             >
               <span className="font-mono text-sm font-black text-brand-2">{event.time}</span>
               <span>
@@ -656,7 +659,7 @@ function EventList({
         {events.length ? (
           events.map((event) => <EventButton key={event.id} event={event} onOpen={onOpen} />)
         ) : (
-          <p className="rounded-lg border border-line bg-white/[0.045] p-3 text-sm font-semibold text-muted">
+          <p className="rounded-lg border border-line bg-surface-flat p-3 text-sm font-semibold text-muted">
             {empty}
           </p>
         )}
@@ -682,7 +685,7 @@ function EventButton({
         "w-full rounded-lg border p-3 text-left transition",
         selected
           ? "border-brand-2/55 bg-brand-2/12"
-          : "border-line bg-white/[0.045] hover:bg-white/[0.075]",
+          : "border-line bg-surface-flat hover:bg-white/[0.075]",
       )}
     >
       <span className={cn("block h-1.5 w-12 rounded-full", toneClasses[event.color])} />

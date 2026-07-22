@@ -17,10 +17,10 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    "dashboard-primary-button border-transparent text-white hover:brightness-110",
+    "dashboard-primary-button border-transparent text-inverse hover:brightness-110",
   secondary:
-    "border-line bg-white/[0.075] text-foreground hover:border-line-strong hover:bg-white/[0.11]",
-  ghost: "border-transparent bg-transparent text-muted hover:bg-white/[0.08] hover:text-foreground",
+    "border-line bg-surface-interactive text-foreground hover:border-line-strong hover:bg-surface-interactive-hover",
+  ghost: "border-transparent bg-transparent text-muted hover:bg-surface-hover hover:text-foreground",
   danger:
     "border-danger/30 bg-danger/15 text-danger hover:border-danger/50 hover:bg-danger/20",
 };

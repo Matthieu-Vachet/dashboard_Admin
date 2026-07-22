@@ -17,6 +17,7 @@ import { Card } from "@/components/ui/card";
 import { Field as FieldRoot } from "@/components/ui/field";
 import { Input, Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
+import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/cn";
 
 type BacklogType = "bug" | "feature" | "refactor" | "ui" | "data";
@@ -111,7 +112,7 @@ const typeClasses: Record<BacklogType, string> = {
 };
 
 const statusClasses: Record<BacklogStatus, string> = {
-  todo: "border-slate-400/35 bg-slate-400/10 text-slate-200",
+  todo: "border-slate-400/35 bg-slate-400/10 text-foreground",
   in_progress: "border-brand-2/50 bg-brand-2/16 text-brand-2 shadow-[0_0_24px_rgba(34,211,238,.12)]",
   blocked: "border-danger/55 bg-danger/16 text-danger shadow-[0_0_24px_rgba(248,113,113,.12)]",
   done: "border-brand-3/60 bg-brand-3/18 text-brand-3 shadow-[0_0_28px_rgba(52,211,153,.14)]",
@@ -499,7 +500,7 @@ export function DashboardBacklog() {
 
       <Card className="p-4">
         <div className="grid gap-3 xl:grid-cols-[1.3fr_repeat(6,minmax(130px,1fr))]">
-          <label className="flex min-h-11 items-center gap-2 rounded-lg border border-line bg-white/[0.055] px-3 text-muted">
+          <label className="flex min-h-11 items-center gap-2 rounded-lg border border-line bg-surface-subtle px-3 text-muted">
             <Search size={16} />
             <Input
               aria-label="Rechercher titre, page, composant..."
@@ -582,11 +583,11 @@ export function DashboardBacklog() {
           onUpdate={updateDraft}
         />
         {editingTicket?.history.length ? (
-          <div className="mt-5 rounded-lg border border-line bg-white/[0.04] p-3">
+          <div className="mt-5 rounded-lg border border-line bg-surface-minimal p-3">
             <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">Historique</p>
             <div className="mt-3 grid gap-2">
               {editingTicket.history.slice(-5).reverse().map((entry) => (
-                <div key={`${entry.at}-${entry.action}`} className="flex items-center justify-between gap-3 rounded-lg border border-line bg-white/[0.035] p-2 text-xs font-bold text-muted">
+                <div key={`${entry.at}-${entry.action}`} className="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface-faint p-2 text-xs font-bold text-muted">
                   <span>{entry.action}</span>
                   <span>{formatDate(entry.at)}</span>
                 </div>
@@ -643,8 +644,8 @@ function FilterSelect<T extends string>({
   return (
     <label>
       <span className="sr-only">{label}</span>
-      <select
-        className="min-h-11 w-full rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+      <Select
+        className="min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none"
         value={value}
         onChange={(event) => onChange(event.target.value)}
       >
@@ -654,7 +655,7 @@ function FilterSelect<T extends string>({
             {labels?.[item] || item || label}
           </option>
         ))}
-      </select>
+      </Select>
     </label>
   );
 }
@@ -710,10 +711,10 @@ function TicketCard({
         </div>
       </div>
       <div className="mt-4 grid gap-3 text-xs font-bold text-muted sm:grid-cols-2 lg:grid-cols-4">
-        <span className="rounded-lg border border-line bg-white/[0.04] p-2">Page: {ticket.page || "Non renseignée"}</span>
-        <span className="rounded-lg border border-line bg-white/[0.04] p-2">Composant: {ticket.component || "Non renseigné"}</span>
-        <span className="rounded-lg border border-line bg-white/[0.04] p-2">Créé: {formatDate(ticket.createdAt)}</span>
-        <span className="rounded-lg border border-line bg-white/[0.04] p-2">MAJ: {formatDate(ticket.updatedAt)}</span>
+        <span className="rounded-lg border border-line bg-surface-minimal p-2">Page: {ticket.page || "Non renseignée"}</span>
+        <span className="rounded-lg border border-line bg-surface-minimal p-2">Composant: {ticket.component || "Non renseigné"}</span>
+        <span className="rounded-lg border border-line bg-surface-minimal p-2">Créé: {formatDate(ticket.createdAt)}</span>
+        <span className="rounded-lg border border-line bg-surface-minimal p-2">MAJ: {formatDate(ticket.updatedAt)}</span>
       </div>
     </Card>
   );
@@ -766,9 +767,9 @@ function TicketForm({
         <Area label="Notes" value={draft.notes} onChange={(value) => onUpdate({ notes: value })} />
         <Area label="Screenshots / références" value={screenshotsText(draft.screenshots)} onChange={(value) => onUpdate({ screenshots: parseScreenshots(value) })} placeholder="Une URL par ligne" />
       </div>
-      <div className="rounded-lg border border-line bg-white/[0.04] p-3">
+      <div className="rounded-lg border border-line bg-surface-minimal p-3">
         <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">Aperçu contexte Codex</p>
-        <pre className="mt-3 max-h-56 overflow-auto whitespace-pre-wrap rounded-lg border border-line bg-slate-950/45 p-3 font-mono text-xs leading-6 text-brand-3">
+        <pre className="mt-3 max-h-56 overflow-auto whitespace-pre-wrap rounded-lg border border-line bg-surface-inset-strong p-3 font-mono text-xs leading-6 text-brand-3">
           {ticketCodexContext(draft)}
         </pre>
       </div>
@@ -802,8 +803,8 @@ function SelectField<T extends string>({
   return (
     <label className="block">
       <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">{label}</span>
-      <select
-        className="mt-2 min-h-11 w-full rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+      <Select
+        className="mt-2 min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none"
         value={value}
         onChange={(event) => onChange(event.target.value)}
       >
@@ -812,7 +813,7 @@ function SelectField<T extends string>({
             {labels?.[item] || item}
           </option>
         ))}
-      </select>
+      </Select>
     </label>
   );
 }

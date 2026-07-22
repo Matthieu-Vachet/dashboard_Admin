@@ -109,7 +109,7 @@ export function AdminSidebar({
                     "flex min-h-9 w-full items-center justify-between gap-2 rounded-lg px-3 text-left text-[0.68rem] font-black uppercase tracking-[0.18em] transition",
                     groupActive
                       ? "text-brand-2"
-                      : "text-muted hover:bg-white/[0.045] hover:text-foreground",
+                      : "text-muted hover:bg-surface-flat hover:text-foreground",
                   )}
                   aria-expanded={groupOpen}
                 >
@@ -156,7 +156,7 @@ export function AdminSidebar({
             <div className="mt-3 grid grid-cols-2 gap-2">
               <Link
                 href="/account"
-                className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.055] px-2 text-[0.68rem] font-black text-foreground transition hover:border-cyan-200/35 hover:bg-cyan-400/10"
+                className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-line bg-surface-subtle px-2 text-[0.68rem] font-black text-foreground transition hover:border-cyan-200/35 hover:bg-cyan-400/10"
                 title="Préférences du compte"
               >
                 <Settings size={13} /> Réglages
@@ -215,7 +215,7 @@ function AdminSidebarLink({
         "dashboard-sidebar-link group relative flex min-h-10 items-center gap-2.5 overflow-hidden rounded-lg border px-3 text-sm font-black transition",
         active
           ? "border-brand-2/35 bg-brand-2/12 text-foreground shadow-[0_12px_36px_rgba(32,211,255,0.12)]"
-          : "border-transparent text-muted hover:border-line hover:bg-white/[0.055] hover:text-foreground",
+          : "border-transparent text-muted hover:border-line hover:bg-surface-subtle hover:text-foreground",
         collapsed && "justify-center px-0",
       )}
     >

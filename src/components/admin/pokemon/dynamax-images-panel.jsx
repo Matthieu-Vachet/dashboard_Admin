@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { buttonClass, Panel } from "./admin-ui";
 
 function Stat({ label, value }) {
-  return <div className="rounded-2xl border border-white/10 bg-slate-950/35 p-4"><span className="text-xs font-black uppercase tracking-[.14em] text-slate-400">{label}</span><strong className="mt-2 block text-3xl font-black text-white">{Number(value) || 0}</strong></div>;
+  return <div className="rounded-2xl border border-line bg-surface-inset p-4"><span className="text-xs font-black uppercase tracking-[.14em] text-muted">{label}</span><strong className="mt-2 block text-3xl font-black text-domain-foreground">{Number(value) || 0}</strong></div>;
 }
 
 function wait(delayMs) {
@@ -94,17 +94,17 @@ export function DynamaxImagesPanel() {
       <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4">
         <Stat label="Images détectées" value={counts.detected} /><Stat label="Images téléchargées" value={counts.downloaded} /><Stat label="Doublons ignorés" value={counts.duplicatesIgnored} /><Stat label="Échecs" value={counts.failed} />
       </div>
-      {state?.lastScanAt ? <p className="mt-3 text-xs font-bold text-slate-400">Dernier scan : {new Date(state.lastScanAt).toLocaleString("fr-FR")}</p> : null}
+      {state?.lastScanAt ? <p className="mt-3 text-xs font-bold text-muted">Dernier scan : {new Date(state.lastScanAt).toLocaleString("fr-FR")}</p> : null}
     </Panel>
     {state?.images?.length ? <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5">
-      {state.images.map((item) => <article className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/35 p-3" key={`${item.sourceImageUrl}-${item.filename}`}>
-        <div className="grid aspect-square place-items-center rounded-xl bg-white/[.045]">{item.downloadStatus === "success" ? <img className="h-full w-full object-contain p-3" src={`/api/admin/dynamax-images/image?file=${encodeURIComponent(item.filename)}`} alt={item.name} loading="lazy" /> : <ImageIcon className="text-slate-600" size={38} />}</div>
-        <h3 className="mt-3 truncate font-black text-white">{item.name}</h3>
-        <p className="text-xs font-bold text-slate-400">{item.dexNr ? `Pokédex #${String(item.dexNr).padStart(4, "0")}` : "Numéro Pokédex indisponible"}</p>
+      {state.images.map((item) => <article className="min-w-0 overflow-hidden rounded-2xl border border-line bg-surface-inset p-3" key={`${item.sourceImageUrl}-${item.filename}`}>
+        <div className="grid aspect-square place-items-center rounded-xl bg-surface-flat">{item.downloadStatus === "success" ? <img className="h-full w-full object-contain p-3" src={`/api/admin/dynamax-images/image?file=${encodeURIComponent(item.filename)}`} alt={item.name} loading="lazy" /> : <ImageIcon className="text-slate-600" size={38} />}</div>
+        <h3 className="mt-3 truncate font-black text-domain-foreground">{item.name}</h3>
+        <p className="text-xs font-bold text-muted">{item.dexNr ? `Pokédex #${String(item.dexNr).padStart(4, "0")}` : "Numéro Pokédex indisponible"}</p>
         <p className="mt-2 break-all font-mono text-[10px] text-cyan-100">{item.filename}</p>
         <span className={`mt-2 inline-flex rounded-full border px-2 py-1 text-[10px] font-black uppercase ${item.downloadStatus === "success" ? "border-emerald-200/20 bg-emerald-300/10 text-emerald-100" : "border-red-200/20 bg-red-300/10 text-red-100"}`}>{item.downloadStatus}</span>
         {item.error ? <p className="mt-2 text-xs font-bold text-red-100">{item.error}</p> : null}
       </article>)}
-    </section> : <div className="rounded-2xl border border-dashed border-white/15 p-10 text-center text-sm font-bold text-slate-400"><Archive className="mx-auto mb-3" />Aucun scan en cache.</div>}
+    </section> : <div className="rounded-2xl border border-dashed border-line-medium p-10 text-center text-sm font-bold text-muted"><Archive className="mx-auto mb-3" />Aucun scan en cache.</div>}
   </section>;
 }

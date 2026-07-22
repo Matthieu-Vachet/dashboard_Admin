@@ -2,12 +2,12 @@ import { Button } from "@/components/ui/button";
 
 export function LoginCard({ password, error, loading, onPasswordChange, onSubmit }) {
   return (
-    <section className="w-full max-w-xl rounded-lg border border-white/10 bg-zinc-950/85 p-5 shadow-[0_30px_90px_rgba(0,0,0,0.38)] backdrop-blur md:p-8">
+    <section className="w-full max-w-xl rounded-lg border border-line bg-zinc-950/85 p-5 shadow-[0_30px_90px_rgba(0,0,0,0.38)] backdrop-blur md:p-8">
       <span className="text-xs font-black uppercase tracking-wide text-sky-300">
         Accès administrateur
       </span>
       <h2 className="mt-2 text-3xl font-black">Connexion sécurisée</h2>
-      <p className="mt-3 text-sm leading-6 text-slate-400">
+      <p className="mt-3 text-sm leading-6 text-muted">
         Le dashboard admin débloque les audits, la lecture source, les patches et
         les outils de contrôle avancés.
       </p>
@@ -23,7 +23,7 @@ export function LoginCard({ password, error, loading, onPasswordChange, onSubmit
           aria-label="Mot de passe admin"
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? "form-a11y-pokemon-admin-password-error" : undefined}
-          className="min-h-11 rounded-lg border border-white/10 bg-white/[0.06] px-3 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-sky-300"
+          className="min-h-11 rounded-lg border border-line bg-surface-control px-3 text-foreground outline-none transition placeholder:text-disabled focus:border-sky-300"
           type="password"
           value={password}
           placeholder="Mot de passe admin"

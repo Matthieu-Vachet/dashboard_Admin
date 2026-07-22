@@ -54,7 +54,7 @@ function MaxBattleCard({ pokemon, onOpenPokemon, typeCatalog = [] }) {
 
   return (
     <button
-      className="group min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/38 text-left shadow-[0_18px_70px_rgba(0,0,0,.2)] transition hover:-translate-y-0.5 hover:border-cyan-200/35 disabled:cursor-default"
+      className="group min-w-0 overflow-hidden rounded-2xl border border-line bg-slate-950/38 text-left shadow-[0_18px_70px_rgba(0,0,0,.2)] transition hover:-translate-y-0.5 hover:border-cyan-200/35 disabled:cursor-default"
       type="button"
       disabled={!canOpen}
       onClick={() => canOpen && onOpenPokemon(pokemon)}
@@ -76,10 +76,10 @@ function MaxBattleCard({ pokemon, onOpenPokemon, typeCatalog = [] }) {
         ) : null}
         <PokemonArtwork pokemon={pokemon} alt={name} className="relative z-10 h-28 w-28 border-0 bg-transparent drop-shadow-[0_18px_34px_rgba(0,0,0,.38)]" />
       </div>
-      <div className="space-y-3 border-t border-white/10 p-4">
+      <div className="space-y-3 border-t border-line p-4">
         <div className="min-w-0">
-          <h3 className="truncate text-lg font-black text-white">{name}</h3>
-          {english ? <p className="truncate text-xs font-bold text-slate-400">{english}</p> : null}
+          <h3 className="truncate text-lg font-black text-domain-foreground">{name}</h3>
+          {english ? <p className="truncate text-xs font-bold text-muted">{english}</p> : null}
           {sourceName ? <p className="mt-1 truncate text-[11px] font-bold text-cyan-100/65">Source : {sourceName}</p> : null}
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -89,8 +89,8 @@ function MaxBattleCard({ pokemon, onOpenPokemon, typeCatalog = [] }) {
           {pokemon.maxForm ? <MaxPill tone="border-violet-200/25 bg-violet-400/12 text-violet-50">{pokemon.maxForm}</MaxPill> : null}
           {pokemon.assets?.sourceImage ? <MaxPill tone="border-emerald-200/20 bg-emerald-400/10 text-emerald-50">Asset source</MaxPill> : null}
         </div>
-        <p className="rounded-2xl border border-white/10 bg-white/[0.055] p-3 text-sm font-black text-slate-200">
-          <small className="block text-[10px] uppercase tracking-[0.16em] text-slate-500">CP Max Battle</small>
+        <p className="rounded-2xl border border-line bg-surface-subtle p-3 text-sm font-black text-foreground">
+          <small className="block text-[10px] uppercase tracking-[0.16em] text-disabled">CP Max Battle</small>
           {cp}
         </p>
       </div>
@@ -190,7 +190,7 @@ export function MaxBattlesPanel({
 
       {loading && !total ? (
         <Panel title="Chargement des Max Battles">
-          <p className="font-bold text-slate-300">Lecture des Max Battles MongoDB en cours.</p>
+          <p className="font-bold text-foreground-secondary">Lecture des Max Battles MongoDB en cours.</p>
         </Panel>
       ) : null}
 

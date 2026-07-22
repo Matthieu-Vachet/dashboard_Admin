@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { initialTodos, type Todo } from "@/data/personal-dashboard-defaults";
 import { cn } from "@/lib/cn";
 import { usePersistentState } from "@/lib/use-persistent-state";
@@ -49,7 +50,7 @@ export function TodoList() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Badge tone={ready ? "green" : "neutral"}>{ready ? "Sauvegarde active" : "Chargement"}</Badge>
-            <div className="flex rounded-lg border border-line bg-white/[0.045] p-1">
+            <div className="flex rounded-lg border border-line bg-surface-flat p-1">
             {[
               ["all", "Tout"],
               ["open", "Ouvert"],
@@ -61,7 +62,7 @@ export function TodoList() {
                 onClick={() => setFilter(id as typeof filter)}
                 className={cn(
                   "min-h-9 rounded-md px-3 text-xs font-black transition",
-                  filter === id ? "bg-brand-2 text-slate-950" : "text-muted hover:text-foreground",
+                  filter === id ? "bg-brand-2 text-on-accent" : "text-muted hover:text-foreground",
                 )}
               >
                 {label}
@@ -88,9 +89,10 @@ export function TodoList() {
 
         <div className="mt-5 space-y-3">
           {filteredTodos.map((todo) => (
-            <div
+            <Card
+              tone="flat"
               key={todo.id}
-              className="grid gap-3 rounded-lg border border-line bg-white/[0.045] p-3 sm:grid-cols-[auto_1fr_150px_auto] sm:items-center"
+              className="grid gap-3 p-3 sm:grid-cols-[auto_1fr_150px_auto] sm:items-center"
             >
               <button
                 type="button"
@@ -105,7 +107,7 @@ export function TodoList() {
                   "grid h-8 w-8 place-items-center rounded-lg border transition",
                   todo.done
                     ? "border-brand-3/40 bg-brand-3/20 text-brand-3"
-                    : "border-line bg-white/[0.04] text-muted",
+                    : "border-line bg-surface-minimal text-muted",
                 )}
                 aria-label="Basculer la tâche"
               >
@@ -125,8 +127,9 @@ export function TodoList() {
                   )
                 }
               />
-              <select
-                className="min-h-10 rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+              <Select
+                aria-label={`Priorité de ${todo.title || "la tâche"}`}
+                className="min-h-10 rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none"
                 value={todo.priority}
                 onChange={(event) =>
                   setTodos((current) =>
@@ -143,7 +146,7 @@ export function TodoList() {
                     {priority}
                   </option>
                 ))}
-              </select>
+              </Select>
               <button
                 type="button"
                 onClick={() => setTodos((current) => current.filter((item) => item.id !== todo.id))}
@@ -152,7 +155,7 @@ export function TodoList() {
               >
                 <Trash2 size={16} />
               </button>
-            </div>
+            </Card>
           ))}
         </div>
       </Card>
@@ -163,7 +166,7 @@ export function TodoList() {
             Progression
           </p>
           <p className="mt-4 font-mono text-5xl font-black">{completion}%</p>
-          <div className="mt-4 h-3 overflow-hidden rounded-full bg-white/10">
+          <div className="mt-4 h-3 overflow-hidden rounded-full bg-surface-emphasis">
             <div
               className="h-full rounded-full bg-gradient-to-r from-brand-3 to-brand-2"
               style={{ width: `${completion}%` }}

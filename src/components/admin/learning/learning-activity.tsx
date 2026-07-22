@@ -28,7 +28,7 @@ export function LearningActivityTimeline({ activity }: { activity: LearningActiv
         <div className="grid grid-flow-col grid-rows-7 gap-1 overflow-x-auto pb-2" aria-label="Activité des 12 dernières semaines">
           {calendar.map((day) => (
             <span
-              className={day.count === 0 ? "h-3 w-3 rounded-sm bg-white/[0.06]" : day.count === 1 ? "h-3 w-3 rounded-sm bg-brand-3/45" : day.count === 2 ? "h-3 w-3 rounded-sm bg-brand-3/70" : "h-3 w-3 rounded-sm bg-brand-3"}
+              className={day.count === 0 ? "h-3 w-3 rounded-sm bg-surface-control" : day.count === 1 ? "h-3 w-3 rounded-sm bg-brand-3/45" : day.count === 2 ? "h-3 w-3 rounded-sm bg-brand-3/70" : "h-3 w-3 rounded-sm bg-brand-3"}
               key={day.key}
               title={`${day.date.toLocaleDateString("fr-FR")} · ${day.count} activité${day.count > 1 ? "s" : ""}`}
             />
@@ -36,7 +36,7 @@ export function LearningActivityTimeline({ activity }: { activity: LearningActiv
         </div>
         <div className="mt-4 grid gap-2">
           {activity.length ? activity.slice(0, 20).map((item) => (
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-black/15 p-3" key={item.id}>
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-surface-recessed p-3" key={item.id}>
               <div className="flex min-w-0 items-center gap-3">
                 <span className={item.action === "completed" ? "grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brand-3/10 text-brand-3" : "grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brand-2/10 text-brand-2"}>
                   {item.action === "completed" ? <CheckCircle2 size={17} /> : <Play size={17} />}

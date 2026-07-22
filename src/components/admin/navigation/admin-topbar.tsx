@@ -34,7 +34,7 @@ export function AdminTopbar({
     <header className="sticky top-0 z-30 border-b border-line bg-background/72 px-4 py-3 backdrop-blur-2xl sm:px-6">
       <div className="mx-auto flex max-w-[1680px] items-center gap-3">
         <button
-          className="grid h-10 w-10 place-items-center rounded-lg border border-line bg-white/[0.06] text-foreground lg:hidden"
+          className="grid h-10 w-10 place-items-center rounded-lg border border-line bg-surface-control text-foreground lg:hidden"
           type="button"
           onClick={onOpenSidebar}
           aria-label="Ouvrir le menu"
@@ -42,7 +42,7 @@ export function AdminTopbar({
           <Menu size={18} />
         </button>
         <button
-          className="hidden h-10 w-10 place-items-center rounded-lg border border-line bg-white/[0.06] text-muted transition hover:text-foreground lg:grid"
+          className="hidden h-10 w-10 place-items-center rounded-lg border border-line bg-surface-control text-muted transition hover:text-foreground lg:grid"
           type="button"
           onClick={onToggleCollapsed}
           aria-label={collapsed ? "Déplier la navigation" : "Replier la navigation"}
@@ -59,7 +59,7 @@ export function AdminTopbar({
           </h1>
         </div>
 
-        <div className="hidden min-h-10 w-full max-w-sm items-center gap-2 rounded-lg border border-line bg-white/[0.055] px-3 text-sm font-bold text-muted md:flex">
+        <div className="hidden min-h-10 w-full max-w-sm items-center gap-2 rounded-lg border border-line bg-surface-subtle px-3 text-sm font-bold text-muted md:flex">
           <Search size={16} />
           <span>Rechercher une note, tâche ou projet</span>
         </div>

@@ -44,11 +44,12 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { EventEditorModal, ImportModal } from "@/components/admin/events/event-editor-modal";
 import { ModalPortal } from "@/components/admin/shared/modal-portal";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import {
   defaultPokemonEvents,
   POKEMON_EVENT_STATUS_LABELS,
@@ -718,7 +719,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
         />
         <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_180px_180px_170px_auto]">
           <label className="relative block">
-            <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={17} />
+            <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-disabled" size={17} />
             <input
               aria-label="Rechercher event, bonus, Pokémon..."
               className={`${fieldClass} pl-11`}
@@ -727,17 +728,17 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
               onChange={(event) => setQuery(event.target.value)}
             />
           </label>
-          <select className={fieldClass} value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)}>
+          <Select aria-label="Type d’événement" className={fieldClass} value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)}>
             <option value="all">Tous types</option>
             {POKEMON_EVENT_TYPES.map((type) => (
               <option key={type.id} value={type.id}>{type.label}</option>
             ))}
-          </select>
-          <select className={fieldClass} value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+          </Select>
+          <Select aria-label="Statut d’événement" className={fieldClass} value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
             {statusOptions.map(([id, label]) => (
               <option key={id} value={id}>{label}</option>
             ))}
-          </select>
+          </Select>
           <input className={fieldClass} type="date" value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} />
           <button className={buttonClass} type="button" onClick={() => setCompact((value) => !value)}>
             <Filter size={17} /> {compact ? "Détaillé" : "Compact"}
@@ -751,7 +752,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
       </Panel>
 
       <section className="grid min-w-0 gap-5 2xl:grid-cols-[minmax(0,1fr)_420px]">
-        <div className="min-w-0 rounded-2xl border border-white/10 bg-slate-950/30 p-3 shadow-[0_22px_90px_rgba(0,0,0,.22)] sm:p-4">
+        <div className="min-w-0 rounded-2xl border border-line bg-surface-inset-subtle p-3 shadow-[0_22px_90px_rgba(0,0,0,.22)] sm:p-4">
           <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-2">
               <button className={buttonClass} type="button" onClick={() => setCursor(subMonths(cursor, 1))} aria-label="Mois précédent">
@@ -765,7 +766,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
               </button>
             </div>
             <h3 className="text-2xl font-black capitalize text-foreground">{monthFormat.format(cursor)}</h3>
-            <div className="flex rounded-2xl border border-white/10 bg-slate-950/45 p-1">
+            <div className="flex rounded-2xl border border-line bg-surface-inset-strong p-1">
               {[
                 ["calendar", CalendarDays, "Mois"],
                 ["list", List, "Liste"],
@@ -775,7 +776,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
                   type="button"
                   onClick={() => setView(id)}
                   className={`${id === "calendar" ? "hidden sm:inline-flex" : "inline-flex"} items-center gap-2 rounded-xl px-3 py-2 text-xs font-black transition ${
-                    view === id ? "bg-brand-2 text-slate-950" : "text-muted hover:text-foreground"
+                    view === id ? "bg-brand-2 text-on-accent" : "text-muted hover:text-foreground"
                   }`}
                 >
                   <Icon size={15} /> {label}
@@ -794,7 +795,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
               <div className="hidden sm:block">
                 <div className="grid grid-cols-7 gap-2">
                   {dayNames.map((day) => (
-                    <span key={day} className="rounded-xl border border-white/10 bg-white/[0.045] px-1 py-2 text-center text-xs font-black uppercase tracking-[0.12em] text-muted">
+                    <span key={day} className="rounded-xl border border-line bg-surface-flat px-1 py-2 text-center text-xs font-black uppercase tracking-[0.12em] text-muted">
                       {day}
                     </span>
                   ))}
@@ -890,11 +891,11 @@ function StatTile({ icon, label, value, tone = "cyan" }) {
   }[tone];
   return (
     <article className={`min-w-0 rounded-xl border p-2.5 ${toneClass}`}>
-      <div className="mb-1.5 inline-grid h-8 w-8 place-items-center rounded-xl border border-white/10 bg-slate-950/35">
+      <div className="mb-1.5 inline-grid h-8 w-8 place-items-center rounded-xl border border-line bg-surface-inset">
         {icon}
       </div>
-      <span className="block text-[10px] font-black uppercase leading-tight tracking-[0.14em] text-white/65">{label}</span>
-      <strong className="mt-0.5 block text-2xl font-black leading-none text-white">{value}</strong>
+      <span className="block text-[10px] font-black uppercase leading-tight tracking-[0.14em] text-domain-foreground/65">{label}</span>
+      <strong className="mt-0.5 block text-2xl font-black leading-none text-domain-foreground">{value}</strong>
     </article>
   );
 }
@@ -915,7 +916,7 @@ function CalendarWeek({ week, cursor, events, todayKey, compact, onOpen, onCreat
   );
 
   return (
-    <div className="relative min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/25">
+    <div className="relative min-w-0 overflow-hidden rounded-2xl border border-line bg-slate-950/25">
       <div className="grid grid-cols-7">
         {week.map((day) => (
           <CalendarDayCell
@@ -950,15 +951,15 @@ function CalendarDayCell({ day, cursor, events, today, compact, laneCount, onOpe
   const key = dayKey(day);
   return (
     <article
-      className={`relative min-h-[166px] min-w-0 border-r border-white/10 p-1.5 last:border-r-0 sm:min-h-[188px] sm:p-2 ${
-        isSameMonth(day, cursor) ? "bg-white/[0.035]" : "bg-slate-950/45 opacity-55"
+      className={`relative min-h-[166px] min-w-0 border-r border-line p-1.5 last:border-r-0 sm:min-h-[188px] sm:p-2 ${
+        isSameMonth(day, cursor) ? "bg-surface-faint" : "bg-surface-inset-strong opacity-55"
       } ${today ? "bg-cyan-300/10 ring-1 ring-inset ring-cyan-300/55" : ""}`}
       style={{ paddingTop: `${3.25 + laneCount * 1.7}rem` }}
     >
       <div className="absolute left-1.5 right-1.5 top-1.5 flex items-center justify-between gap-1">
         <button
           className={`grid h-7 min-w-7 place-items-center rounded-full px-1 text-xs font-black ${
-            today ? "bg-brand-2 text-slate-950" : "text-muted hover:bg-white/10 hover:text-foreground"
+            today ? "bg-brand-2 text-on-accent" : "text-muted hover:bg-surface-emphasis hover:text-foreground"
           }`}
           type="button"
           onClick={() => onOpenDay(key)}
@@ -966,7 +967,7 @@ function CalendarDayCell({ day, cursor, events, today, compact, laneCount, onOpe
           {format(day, "d", { locale: fr })}
         </button>
         <button
-          className="hidden h-7 w-7 place-items-center rounded-full border border-white/10 bg-white/[0.055] text-brand-2 hover:bg-brand-2/15 sm:grid"
+          className="hidden h-7 w-7 place-items-center rounded-full border border-line bg-surface-subtle text-brand-2 hover:bg-brand-2/15 sm:grid"
           type="button"
           onClick={() => onCreate(day)}
           aria-label={`Ajouter un event le ${key}`}
@@ -979,7 +980,7 @@ function CalendarDayCell({ day, cursor, events, today, compact, laneCount, onOpe
           <SingleDayEvent key={`${key}-${event.id}`} event={event} onOpen={onOpen} compact={compact} />
         ))}
         {events.length > (compact ? 2 : 5) ? (
-          <button className="w-full rounded-lg border border-white/10 bg-slate-950/45 px-2 py-1 text-[10px] font-black text-slate-300" type="button" onClick={() => onOpenDay(key)}>
+          <button className="w-full rounded-lg border border-line bg-surface-inset-strong px-2 py-1 text-[10px] font-black text-foreground-secondary" type="button" onClick={() => onOpenDay(key)}>
             +{events.length - (compact ? 2 : 5)} autres
           </button>
         ) : null}
@@ -992,7 +993,7 @@ function MultiDaySegment({ segment, onOpen }) {
   const type = eventType(segment.event);
   return (
     <button
-      className="min-w-0 truncate rounded-md border px-2 text-left text-xs font-black text-white shadow-[0_5px_18px_rgba(0,0,0,.16)] transition hover:border-white/35 hover:brightness-110"
+      className="min-w-0 truncate rounded-md border px-2 text-left text-xs font-black text-domain-foreground shadow-[0_5px_18px_rgba(0,0,0,.16)] transition hover:border-white/35 hover:brightness-110"
       style={{
         gridColumn: `${segment.startIndex + 1} / ${segment.endIndex + 2}`,
         gridRow: `${segment.lane + 1}`,
@@ -1016,7 +1017,7 @@ function SingleDayEvent({ event, onOpen, compact }) {
   const images = eventImages(event, compact ? 2 : 4);
   return (
     <button
-      className="w-full min-w-0 rounded-xl border p-1.5 text-left transition hover:-translate-y-0.5 hover:bg-white/10"
+      className="w-full min-w-0 rounded-xl border p-1.5 text-left transition hover:-translate-y-0.5 hover:bg-surface-emphasis"
       style={{
         borderColor: hexToRgba(type.color, 0.22),
         background: `linear-gradient(135deg, ${hexToRgba(type.color, 0.08)}, rgba(2,6,23,.18))`,
@@ -1024,8 +1025,8 @@ function SingleDayEvent({ event, onOpen, compact }) {
       type="button"
       onClick={() => onOpen(event)}
     >
-      <span className="block min-w-0 truncate text-xs font-black text-white">{event.title}</span>
-      <span className="mt-0.5 flex items-center gap-1 text-[11px] font-bold text-slate-300">
+      <span className="block min-w-0 truncate text-xs font-black text-domain-foreground">{event.title}</span>
+      <span className="mt-0.5 flex items-center gap-1 text-[11px] font-bold text-foreground-secondary">
         <span className="h-2 w-2 rounded-full" style={{ backgroundColor: type.color }} />
         {format(new Date(event.startDate), "HH:mm", { locale: fr })}
       </span>
@@ -1042,10 +1043,10 @@ function SingleDayEvent({ event, onOpen, compact }) {
 
 function EventGroup({ title, events, onOpen, empty }) {
   return (
-    <section className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+    <section className="rounded-2xl border border-line bg-surface-flat p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <h3 className="text-lg font-black text-white">{title}</h3>
-        <span className="rounded-full border border-white/10 bg-slate-950/45 px-2.5 py-1 font-mono text-xs font-black text-cyan-100">
+        <h3 className="text-lg font-black text-domain-foreground">{title}</h3>
+        <span className="rounded-full border border-line bg-surface-inset-strong px-2.5 py-1 font-mono text-xs font-black text-cyan-100">
           {events.length}
         </span>
       </div>
@@ -1053,7 +1054,7 @@ function EventGroup({ title, events, onOpen, empty }) {
         {events.length ? (
           events.map((event) => <EventRow key={`${title}-${event.id}`} event={event} onOpen={onOpen} />)
         ) : (
-          <p className="rounded-2xl border border-dashed border-white/10 p-4 text-sm font-bold text-slate-400">{empty}</p>
+          <p className="rounded-2xl border border-dashed border-line p-4 text-sm font-bold text-muted">{empty}</p>
         )}
       </div>
     </section>
@@ -1063,24 +1064,24 @@ function EventGroup({ title, events, onOpen, empty }) {
 function TimelineSection({ title, count, events, onOpen, empty, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.045]">
+    <section className="overflow-hidden rounded-2xl border border-line bg-surface-flat">
       <button
-        className="flex w-full items-center justify-between gap-3 bg-white/[0.055] px-4 py-3 text-left"
+        className="flex w-full items-center justify-between gap-3 bg-surface-subtle px-4 py-3 text-left"
         type="button"
         onClick={() => setOpen((value) => !value)}
       >
         <span className="flex min-w-0 items-center gap-3">
           <span className="grid h-7 min-w-7 place-items-center rounded-full bg-slate-200/85 px-2 font-mono text-xs font-black text-slate-700">{count}</span>
-          <strong className="truncate text-sm font-black text-white sm:text-base">{title}</strong>
+          <strong className="truncate text-sm font-black text-domain-foreground sm:text-base">{title}</strong>
         </span>
-        {open ? <ChevronUp size={18} className="shrink-0 text-slate-300" /> : <ChevronDown size={18} className="shrink-0 text-slate-300" />}
+        {open ? <ChevronUp size={18} className="shrink-0 text-foreground-secondary" /> : <ChevronDown size={18} className="shrink-0 text-foreground-secondary" />}
       </button>
       {open ? (
         <div className="space-y-2 p-2">
           {events.length ? (
             events.map((event) => <TimelineCard key={`${title}-${event.id}`} event={event} onOpen={onOpen} />)
           ) : (
-            <p className="rounded-xl border border-dashed border-white/10 p-4 text-sm font-bold text-slate-400">{empty}</p>
+            <p className="rounded-xl border border-dashed border-line p-4 text-sm font-bold text-muted">{empty}</p>
           )}
         </div>
       ) : null}
@@ -1104,13 +1105,13 @@ function TimelineCard({ event, onOpen }) {
       onClick={() => onOpen(event)}
     >
       <span
-        className="inline-flex rounded-md border px-2 py-1 text-[11px] font-black text-white"
+        className="inline-flex rounded-md border px-2 py-1 text-[11px] font-black text-domain-foreground"
         style={{ borderColor: hexToRgba(type.color, 0.48), backgroundColor: hexToRgba(type.color, 0.52) }}
       >
         {event.category || type.label}
       </span>
-      <strong className="mt-2 block text-lg font-black leading-tight text-white">{event.title}</strong>
-      <span className="mt-2 block text-sm font-bold text-slate-300">{eventTimeLabel(event)}</span>
+      <strong className="mt-2 block text-lg font-black leading-tight text-domain-foreground">{event.title}</strong>
+      <span className="mt-2 block text-sm font-bold text-foreground-secondary">{eventTimeLabel(event)}</span>
       <span className="mt-1 block text-xs font-bold italic text-emerald-200">{eventRemainingLabel(event)}</span>
       {images.length ? (
         <span className="mt-3 flex flex-wrap gap-1.5">
@@ -1119,7 +1120,7 @@ function TimelineCard({ event, onOpen }) {
           ))}
         </span>
       ) : banner ? (
-        <EventBannerImage className="mt-3 max-h-36 w-full rounded-xl border border-white/10 object-contain p-2" src={banner} />
+        <EventBannerImage className="mt-3 max-h-36 w-full rounded-xl border border-line object-contain p-2" src={banner} />
       ) : null}
     </button>
   );
@@ -1137,18 +1138,18 @@ function EventRow({ event, onOpen }) {
       type="button"
       onClick={() => onOpen(event)}
     >
-      <span className="grid h-12 w-12 place-items-center rounded-2xl border border-white/10 bg-slate-950/45">
+      <span className="grid h-12 w-12 place-items-center rounded-2xl border border-line bg-surface-inset-strong">
         {type.icon ? <img className="max-h-8 max-w-8 object-contain" src={type.icon} alt="" loading="lazy" /> : <CalendarDays size={20} />}
       </span>
       <span className="min-w-0">
         <span className="mb-1 flex flex-wrap items-center gap-2">
-          <strong className="min-w-0 truncate text-sm font-black text-white">{event.title}</strong>
-          <small className="rounded-full px-2 py-0.5 text-[10px] font-black text-slate-950" style={{ backgroundColor: type.color }}>
+          <strong className="min-w-0 truncate text-sm font-black text-domain-foreground">{event.title}</strong>
+          <small className="rounded-full px-2 py-0.5 text-[10px] font-black text-on-accent" style={{ backgroundColor: type.color }}>
             {type.label}
           </small>
         </span>
-        <small className="block truncate text-xs font-bold text-slate-300">{dateRangeLabel(event)}</small>
-        {event.description ? <small className="mt-1 block truncate text-xs font-semibold text-slate-500">{event.description}</small> : null}
+        <small className="block truncate text-xs font-bold text-foreground-secondary">{dateRangeLabel(event)}</small>
+        {event.description ? <small className="mt-1 block truncate text-xs font-semibold text-disabled">{event.description}</small> : null}
       </span>
     </button>
   );
@@ -1222,7 +1223,7 @@ function TypePills({ types, id }) {
       {types.map((type) => {
         const icon = typeIconUrl(type);
         return (
-          <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/10 px-2 py-0.5 text-[10px] font-black text-cyan-50" key={`${id}-${type}`}>
+          <span className="inline-flex items-center gap-1 rounded-full border border-line bg-surface-emphasis px-2 py-0.5 text-[10px] font-black text-cyan-50" key={`${id}-${type}`}>
             {icon ? <img className="h-3.5 w-3.5 object-contain" src={icon} alt="" loading="lazy" /> : null}
             {String(type).toLowerCase()}
           </span>
@@ -1271,14 +1272,14 @@ function EventBadge({ label, value, tone = "neutral" }) {
   const theme = modalToneMap[tone] || modalToneMap.neutral;
   return (
     <span
-      className="inline-flex min-h-9 items-center gap-2 rounded-full border px-3 py-1 text-xs font-black text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.09)]"
+      className="inline-flex min-h-9 items-center gap-2 rounded-full border px-3 py-1 text-xs font-black text-domain-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.09)]"
       style={{
         borderColor: hexToRgba(theme.color, 0.34),
         background: `linear-gradient(135deg, ${hexToRgba(theme.color, 0.18)}, rgba(2,6,23,.42))`,
         boxShadow: `0 0 22px ${hexToRgba(theme.color, 0.10)}`,
       }}
     >
-      <span className="text-[10px] uppercase tracking-[0.16em] text-white/55">{label}</span>
+      <span className="text-[10px] uppercase tracking-[0.16em] text-domain-foreground/55">{label}</span>
       <span>{value}</span>
     </span>
   );
@@ -1305,20 +1306,20 @@ function DetailSection({ title, eyebrow, count, tone = "neutral", children, clas
               backgroundColor: hexToRgba(theme.color, 0.14),
             }}
           >
-            <Icon size={18} className="text-white" />
+            <Icon size={18} className="text-domain-foreground" />
           </span>
           <span className="min-w-0">
             {eyebrow ? (
-              <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-white/45">
+              <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-domain-foreground/45">
                 {eyebrow}
               </span>
             ) : null}
-            <h3 className="text-xl font-black leading-tight text-white">{title}</h3>
+            <h3 className="text-xl font-black leading-tight text-domain-foreground">{title}</h3>
           </span>
         </span>
         {typeof count === "number" ? (
           <span
-            className="rounded-full border px-3 py-1 font-mono text-xs font-black text-white"
+            className="rounded-full border px-3 py-1 font-mono text-xs font-black text-domain-foreground"
             style={{
               borderColor: hexToRgba(theme.color, 0.28),
               backgroundColor: hexToRgba(theme.color, 0.13),
@@ -1334,6 +1335,7 @@ function DetailSection({ title, eyebrow, count, tone = "neutral", children, clas
 }
 
 function EventDetailModal({ event, busyAction, onClose, onEdit, onDuplicate, onArchive, onRestore, onDelete, onOpenPokemon }) {
+  const eventDetailTitleId = useId();
   const type = eventType(event);
   const rewards = eventRewards(event, 120);
   const pokemonGroups = eventPokemonGroups(event);
@@ -1355,7 +1357,7 @@ function EventDetailModal({ event, busyAction, onClose, onEdit, onDuplicate, onA
   return (
     <ModalPortal>
       <div className="event-detail-overlay fixed inset-0 z-[1200] grid place-items-center overflow-y-auto bg-slate-950/84 p-3 backdrop-blur-xl sm:p-5" onClick={onClose}>
-      <article className="event-detail-modal flex max-h-[94dvh] w-full max-w-6xl flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-[#07111f] shadow-[0_30px_120px_rgba(0,0,0,.58)]" role="dialog" aria-modal="true" aria-label={`Détail event ${event.title}`} onClick={(clickEvent) => clickEvent.stopPropagation()}>
+      <article className="event-detail-modal flex max-h-[94dvh] w-full max-w-6xl flex-col overflow-hidden rounded-[2rem] border border-line bg-[#07111f] shadow-[0_30px_120px_rgba(0,0,0,.58)]" role="dialog" aria-modal="true" aria-labelledby={eventDetailTitleId} onClick={(clickEvent) => clickEvent.stopPropagation()}>
         <header
           className="relative shrink-0 overflow-hidden rounded-t-[2rem] border-b border-cyan-200/20 p-5 sm:p-7"
           style={{
@@ -1364,15 +1366,15 @@ function EventDetailModal({ event, busyAction, onClose, onEdit, onDuplicate, onA
             backgroundPosition: "center",
           }}
         >
-          <div className="absolute inset-0 bg-slate-950/45" />
+          <div className="absolute inset-0 bg-surface-inset-strong" />
           <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0">
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/55 px-3 py-1 text-xs font-black text-cyan-50">
+              <span className="inline-flex items-center gap-2 rounded-full border border-line bg-slate-950/55 px-3 py-1 text-xs font-black text-cyan-50">
                 {type.icon ? <img className="h-5 w-5 object-contain" src={type.icon} alt="" /> : null}
                 {event.category || type.label}
               </span>
-              <h2 className="mt-3 max-w-4xl text-3xl font-black leading-tight tracking-tight text-white sm:text-5xl">{event.title}</h2>
-              <p className="mt-3 text-sm font-bold text-slate-200 sm:text-base">{dateRangeLabel(event)}</p>
+              <h2 id={eventDetailTitleId} className="mt-3 max-w-4xl text-3xl font-black leading-tight tracking-tight text-domain-foreground sm:text-5xl">{event.title}</h2>
+              <p className="mt-3 text-sm font-bold text-foreground sm:text-base">{dateRangeLabel(event)}</p>
               <p className="mt-1 text-sm font-black italic text-emerald-200">{eventRemainingLabel(event)}</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <EventBadge label="Statut" value={POKEMON_EVENT_STATUS_LABELS[status] || status} tone="dates" />
@@ -1380,7 +1382,7 @@ function EventDetailModal({ event, busyAction, onClose, onEdit, onDuplicate, onA
                 <EventBadge label="Source" value={event.source || "manual"} tone="source" />
               </div>
             </div>
-            <button className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-white/10 bg-white/10 text-white hover:bg-white/20" type="button" onClick={onClose}>
+            <button className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-line bg-surface-emphasis text-domain-foreground hover:bg-white/20" type="button" onClick={onClose} aria-label="Fermer le détail de l’event">
               <X size={22} />
             </button>
           </div>
@@ -1399,12 +1401,12 @@ function EventDetailModal({ event, busyAction, onClose, onEdit, onDuplicate, onA
             <DetailSection title="Résumé" eyebrow="Infos importantes" tone="summary">
               <div className={`grid gap-4 ${banner ? "lg:grid-cols-[minmax(0,1fr)_260px]" : ""}`}>
                 {event.description ? (
-                  <p className="rounded-xl border border-white/10 bg-slate-950/42 px-4 py-3 text-sm font-semibold leading-7 text-slate-300">
+                  <p className="rounded-xl border border-line bg-slate-950/42 px-4 py-3 text-sm font-semibold leading-7 text-foreground-secondary">
                     {event.description}
                   </p>
                 ) : null}
                 {banner ? (
-                  <EventBannerImage className="max-h-44 w-full rounded-xl border border-white/10 bg-slate-950/35 object-cover" src={banner} />
+                  <EventBannerImage className="max-h-44 w-full rounded-xl border border-line bg-surface-inset object-cover" src={banner} />
                 ) : null}
               </div>
             </DetailSection>
@@ -1435,17 +1437,17 @@ function EventDetailModal({ event, busyAction, onClose, onEdit, onDuplicate, onA
             <div className="grid gap-2 sm:grid-cols-2">
               {sourceLinks.length ? (
                 sourceLinks.map((link) => (
-                  <a className="inline-flex min-w-0 items-center gap-2 rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm font-bold text-cyan-100 hover:bg-cyan-300/10" key={`${link.label}-${link.url}`} href={link.url} target="_blank" rel="noreferrer">
+                  <a className="inline-flex min-w-0 items-center gap-2 rounded-xl border border-line bg-surface-inset-medium px-3 py-2 text-sm font-bold text-cyan-100 hover:bg-cyan-300/10" key={`${link.label}-${link.url}`} href={link.url} target="_blank" rel="noreferrer">
                     <ExternalLink size={15} /> <span className="truncate">{link.label || link.url}</span>
                   </a>
                 ))
               ) : (
-                <p className="text-sm font-bold text-slate-500">Aucun lien source.</p>
+                <p className="text-sm font-bold text-disabled">Aucun lien source.</p>
               )}
             </div>
           </DetailSection>
 
-          <div className="flex flex-wrap justify-end gap-2 rounded-2xl border border-white/10 bg-slate-950/35 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+          <div className="flex flex-wrap justify-end gap-2 rounded-2xl border border-line bg-surface-inset p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
             <button className={buttonClass} type="button" onClick={onDuplicate}>
               <Copy size={17} /> Dupliquer
             </button>
@@ -1468,9 +1470,9 @@ function EventDetailModal({ event, busyAction, onClose, onEdit, onDuplicate, onA
 
 function InfoPill({ label, value }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-slate-950/35 p-3">
-      <span className="block text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">{label}</span>
-      <strong className="mt-1 block break-words text-sm font-black text-white">{value}</strong>
+    <div className="rounded-2xl border border-line bg-surface-inset p-3">
+      <span className="block text-[10px] font-black uppercase tracking-[0.18em] text-disabled">{label}</span>
+      <strong className="mt-1 block break-words text-sm font-black text-domain-foreground">{value}</strong>
     </div>
   );
 }
@@ -1484,8 +1486,8 @@ function EventPokemonGroups({ groups, onOpenPokemon }) {
       {groups.map((group) => (
         <details key={group.title} className="rounded-xl border border-cyan-200/12 bg-slate-950/32 p-3">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
-            <span className="text-sm font-black text-white">{group.title}</span>
-            <span className="rounded-full bg-white/10 px-2 py-0.5 font-mono text-[11px] font-black text-cyan-100">{group.pokemon.length}</span>
+            <span className="text-sm font-black text-domain-foreground">{group.title}</span>
+            <span className="rounded-full bg-surface-emphasis px-2 py-0.5 font-mono text-[11px] font-black text-cyan-100">{group.pokemon.length}</span>
           </summary>
           <PokemonCardGrid pokemon={group.pokemon} onOpenPokemon={onOpenPokemon} />
         </details>
@@ -1505,14 +1507,14 @@ function PokemonCardGrid({ pokemon, onOpenPokemon, compact = false }) {
           <>
             <PokemonArtwork pokemon={entry} alt={entry.name || entry.id} className={`${compact ? "h-11 w-11" : "h-14 w-14"} drop-shadow-[0_0_16px_rgba(56,189,248,.12)]`} />
             <span className="min-w-0">
-              <strong className="block whitespace-normal break-words text-sm font-black leading-tight text-white">{entry.name || entry.id}</strong>
-              <small className="block truncate text-xs font-bold text-slate-400">{entry.form || entry.dexId || "Pokemon"}</small>
+              <strong className="block whitespace-normal break-words text-sm font-black leading-tight text-domain-foreground">{entry.name || entry.id}</strong>
+              <small className="block truncate text-xs font-bold text-muted">{entry.form || entry.dexId || "Pokemon"}</small>
               <TypePills types={entry.types} id={entry.id || entry.name} />
               {entry.shiny ? <small className="mt-1 inline-flex rounded-full border border-amber-200/20 bg-amber-300/10 px-2 py-0.5 text-[10px] font-black text-amber-100">Shiny</small> : null}
             </span>
           </>
         );
-        const className = `${compact ? "grid-cols-[3.25rem_minmax(0,1fr)] p-2.5" : "grid-cols-[3.8rem_minmax(0,1fr)] p-3"} grid min-w-0 items-center gap-3 rounded-xl border border-white/10 bg-slate-950/35 text-left transition hover:-translate-y-0.5 hover:border-cyan-200/40 hover:bg-cyan-300/10`;
+        const className = `${compact ? "grid-cols-[3.25rem_minmax(0,1fr)] p-2.5" : "grid-cols-[3.8rem_minmax(0,1fr)] p-3"} grid min-w-0 items-center gap-3 rounded-xl border border-line bg-surface-inset text-left transition hover:-translate-y-0.5 hover:border-cyan-200/40 hover:bg-cyan-300/10`;
         return clickable ? (
           <button key={pokemonKey(entry)} className={className} type="button" onClick={() => onOpenPokemon(entry)}>
             {content}
@@ -1550,13 +1552,13 @@ function ScrapedSectionCard({ section, tone, open, onOpenPokemon }) {
   const images = section.usefulImages || sectionUsefulImages(section);
   const showImages = images.length && !(section.rewards || []).length;
   return (
-    <details className="rounded-xl border border-white/10 bg-slate-950/32 p-3" open={open}>
+    <details className="rounded-xl border border-line bg-slate-950/32 p-3" open={open}>
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
         <span className="min-w-0">
-          <strong className="block whitespace-normal break-words text-sm font-black text-white">{section.title}</strong>
+          <strong className="block whitespace-normal break-words text-sm font-black text-domain-foreground">{section.title}</strong>
           <small className="text-[11px] font-black uppercase tracking-[0.14em] text-cyan-100/60">{section.category}</small>
         </span>
-        <span className="flex shrink-0 flex-wrap justify-end gap-2 text-[11px] font-black text-slate-300">
+        <span className="flex shrink-0 flex-wrap justify-end gap-2 text-[11px] font-black text-foreground-secondary">
           {section.pokemon?.length ? <span>{section.pokemon.length} Pokémon</span> : null}
           {section.rewards?.length ? <span>{section.rewards.length} items</span> : null}
           {showImages ? <span>{images.length} images</span> : null}
@@ -1565,7 +1567,7 @@ function ScrapedSectionCard({ section, tone, open, onOpenPokemon }) {
       {section.text?.length ? (
         <div className="mt-3 grid gap-2">
           {section.text.slice(0, 10).map((text) => (
-            <p className="rounded-xl border border-white/10 bg-slate-950/45 px-3 py-2 text-sm font-semibold leading-6 text-slate-300" key={`${section.id}-${text}`}>
+            <p className="rounded-xl border border-line bg-surface-inset-strong px-3 py-2 text-sm font-semibold leading-6 text-foreground-secondary" key={`${section.id}-${text}`}>
               {text}
             </p>
           ))}
@@ -1576,7 +1578,7 @@ function ScrapedSectionCard({ section, tone, open, onOpenPokemon }) {
       {showImages ? (
         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {images.map((image) => (
-            <EventBannerImage key={`${section.id}-${image}`} className="max-h-40 w-full rounded-xl border border-white/10 bg-slate-950/40 object-contain p-2" src={image} />
+            <EventBannerImage key={`${section.id}-${image}`} className="max-h-40 w-full rounded-xl border border-line bg-surface-inset-medium object-contain p-2" src={image} />
           ))}
         </div>
       ) : null}
@@ -1592,12 +1594,12 @@ function RewardGrid({ rewards, compact = false, title = "Rewards", tone = "rewar
           {rewards.map((reward) => {
             const src = reward.src || rewardImageUrl(reward.image);
             return (
-              <span className="grid grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-2 rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm font-bold text-slate-200" key={`${reward.id || reward.text}-${src || ""}`}>
+              <span className="grid grid-cols-[2.5rem_minmax(0,1fr)] items-center gap-2 rounded-xl border border-line bg-surface-inset-medium px-3 py-2 text-sm font-bold text-foreground" key={`${reward.id || reward.text}-${src || ""}`}>
                 {src ? <img className="h-10 w-10 object-contain" src={src} alt="" loading="lazy" /> : <span className="h-10 w-10 rounded-xl bg-white/5" />}
                 <span className="min-w-0">
                   <span className="block truncate">{reward.text}</span>
                   {reward.id || reward.sourceName ? (
-                    <small className="block truncate text-[10px] font-black uppercase tracking-[0.12em] text-slate-500">
+                    <small className="block truncate text-[10px] font-black uppercase tracking-[0.12em] text-disabled">
                       {reward.id || reward.sourceName}
                     </small>
                   ) : null}
@@ -1607,7 +1609,7 @@ function RewardGrid({ rewards, compact = false, title = "Rewards", tone = "rewar
           })}
         </div>
       ) : (
-        <p className="text-sm font-bold text-slate-500">Aucune reward scrapée.</p>
+        <p className="text-sm font-bold text-disabled">Aucune reward scrapée.</p>
       )}
     </DetailSection>
   );
@@ -1638,12 +1640,12 @@ function DetailList({ title, items, empty = "", tone = "neutral" }) {
       <div className="grid gap-2">
         {items.length ? (
           items.map((item) => (
-            <span className="rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-sm font-bold leading-6 text-slate-200" key={item}>
+            <span className="rounded-xl border border-line bg-surface-inset-medium px-3 py-2 text-sm font-bold leading-6 text-foreground" key={item}>
               {item}
             </span>
           ))
         ) : (
-          <p className="text-sm font-bold text-slate-500">{empty}</p>
+          <p className="text-sm font-bold text-disabled">{empty}</p>
         )}
       </div>
     </DetailSection>

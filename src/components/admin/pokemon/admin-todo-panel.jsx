@@ -111,10 +111,10 @@ export function AdminTodoPanel() {
         {todos.map((todo) => {
           const editing = editingId === todo.id;
           return (
-            <article className="flex gap-3 rounded-2xl border border-white/10 bg-slate-950/35 p-3" key={todo.id}>
+            <article className="flex gap-3 rounded-2xl border border-line bg-surface-inset p-3" key={todo.id}>
               <button
                 aria-label={todo.done ? "Marquer la tâche comme ouverte" : "Marquer la tâche comme terminée"}
-                className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl border transition ${todo.done ? "border-emerald-300/35 bg-emerald-400/18 text-emerald-100" : "border-white/15 bg-white/[0.05] text-slate-300 hover:border-cyan-200/45"}`}
+                className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl border transition ${todo.done ? "border-emerald-300/35 bg-emerald-400/18 text-emerald-100" : "border-line-medium bg-white/[0.05] text-foreground-secondary hover:border-cyan-200/45"}`}
                 type="button"
                 onClick={() => void persist(todos.map((item) => (item.id === todo.id ? { ...item, done: !item.done } : item)))}
               >
@@ -134,7 +134,7 @@ export function AdminTodoPanel() {
                     }}
                   />
                 ) : (
-                  <p className={`py-2 text-sm font-bold ${todo.done ? "text-slate-500 line-through" : "text-white"}`}>{todo.text}</p>
+                  <p className={`py-2 text-sm font-bold ${todo.done ? "text-disabled line-through" : "text-domain-foreground"}`}>{todo.text}</p>
                 )}
               </div>
               <div className="flex shrink-0 items-center gap-1">
@@ -143,7 +143,7 @@ export function AdminTodoPanel() {
                     <Check size={16} />
                   </button>
                 ) : (
-                  <button className="rounded-xl border border-white/12 bg-white/[0.05] p-2 text-slate-200 transition hover:border-cyan-200/45" type="button" onClick={() => { setEditingId(todo.id); setEditingText(todo.text); }} aria-label="Modifier la tâche">
+                  <button className="rounded-xl border border-white/12 bg-white/[0.05] p-2 text-foreground transition hover:border-cyan-200/45" type="button" onClick={() => { setEditingId(todo.id); setEditingText(todo.text); }} aria-label="Modifier la tâche">
                     <Pencil size={16} />
                   </button>
                 )}
@@ -155,7 +155,7 @@ export function AdminTodoPanel() {
           );
         })}
         {!todos.length && storageState !== "loading" ? (
-          <p className="rounded-2xl border border-dashed border-white/15 p-5 text-sm font-bold text-slate-400">Aucune tâche pour le moment.</p>
+          <p className="rounded-2xl border border-dashed border-line-medium p-5 text-sm font-bold text-muted">Aucune tâche pour le moment.</p>
         ) : null}
       </div>
     </Panel>

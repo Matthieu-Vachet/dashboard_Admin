@@ -3,6 +3,7 @@
 import { Download, Layers3, RefreshCcw, RotateCcw, Swords, Trophy } from "lucide-react";
 import { typeColors, typeIcon, typeLabels } from "@/components/site/pokemon-style";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { TypeIcons } from "./asset-icons";
 import { buttonClass, fieldClass, Panel } from "./admin-ui";
 import { DatasetFilterBar } from "./dataset-filter-bar";
@@ -71,7 +72,7 @@ function typeSurface(entry) {
 function TypeFilter({ availableTypes, value, onChange }) {
   return (
     <fieldset className="min-w-0 sm:col-span-2 xl:col-span-4">
-      <legend className="mb-2 text-[10px] font-black uppercase tracking-[.16em] text-slate-500">
+      <legend className="mb-2 text-[10px] font-black uppercase tracking-[.16em] text-disabled">
         Type d’attaque
       </legend>
       <div className="flex snap-x gap-2 overflow-x-auto pb-2 lg:grid lg:grid-cols-[repeat(10,minmax(2.75rem,1fr))] lg:overflow-visible xl:grid-cols-[repeat(19,minmax(2.75rem,1fr))]" role="radiogroup" aria-label="Type d’attaque">
@@ -82,7 +83,7 @@ function TypeFilter({ availableTypes, value, onChange }) {
           const label = type === "ANY" ? "Tous" : typeLabels[type] || type;
           return (
             <button
-              className={`group relative grid h-11 w-11 min-w-11 snap-start place-items-center rounded-xl border transition sm:h-12 sm:w-12 sm:min-w-12 lg:w-full lg:min-w-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 ${selected ? "border-cyan-100/60 bg-cyan-300/18 text-white shadow-[0_0_22px_rgba(34,211,238,.18)]" : "border-line bg-white/[0.06] text-muted hover:border-white/25 hover:text-foreground"}`}
+              className={`group relative grid h-11 w-11 min-w-11 snap-start place-items-center rounded-xl border transition sm:h-12 sm:w-12 sm:min-w-12 lg:w-full lg:min-w-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 ${selected ? "border-cyan-100/60 bg-cyan-300/18 text-domain-foreground shadow-[0_0_22px_rgba(34,211,238,.18)]" : "border-line bg-surface-control text-muted hover:border-white/25 hover:text-foreground"}`}
               key={type}
               type="button"
               role="radio"
@@ -150,7 +151,7 @@ export function BestAttackersPanel({
           dataset={dataset}
           total={meta.total || entries.length}
         />
-        <p className="mt-4 rounded-2xl border border-cyan-200/15 bg-cyan-300/[0.07] p-4 text-sm font-bold leading-6 text-slate-300">
+        <p className="mt-4 rounded-2xl border border-cyan-200/15 bg-cyan-300/[0.07] p-4 text-sm font-bold leading-6 text-foreground-secondary">
           Les formules sont wrappées depuis DialgaDex avec l’accord du
           propriétaire. Pokémon, formes, attaques, sorties et images viennent
           exclusivement des référentiels locaux.
@@ -170,10 +171,10 @@ export function BestAttackersPanel({
       >
         <TypeFilter availableTypes={apiOptions.types} value={options.type} onChange={(type) => setOption("type", type)} />
         <label>
-          <span className="mb-1 block text-[10px] font-black uppercase tracking-[.16em] text-slate-500">
+          <span className="mb-1 block text-[10px] font-black uppercase tracking-[.16em] text-disabled">
             Niveau
           </span>
-          <select
+          <Select
             className={fieldClass}
             value={options.level}
             onChange={(event) => setOption("level", Number(event.target.value))}
@@ -183,13 +184,13 @@ export function BestAttackersPanel({
                 Niveau {level}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
         <label>
-          <span className="mb-1 block text-[10px] font-black uppercase tracking-[.16em] text-slate-500">
+          <span className="mb-1 block text-[10px] font-black uppercase tracking-[.16em] text-disabled">
             Métrique
           </span>
-          <select
+          <Select
             className={fieldClass}
             value={options.metric}
             onChange={(event) => setOption("metric", event.target.value)}
@@ -199,13 +200,13 @@ export function BestAttackersPanel({
                 {metricLabels[metric] || metric}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
         <label>
-          <span className="mb-1 block text-[10px] font-black uppercase tracking-[.16em] text-slate-500">
+          <span className="mb-1 block text-[10px] font-black uppercase tracking-[.16em] text-disabled">
             Moveset
           </span>
-          <select
+          <Select
             className={fieldClass}
             value={options.movesetClass}
             onChange={(event) => setOption("movesetClass", event.target.value)}
@@ -215,13 +216,13 @@ export function BestAttackersPanel({
                 {label}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
         <label>
-          <span className="mb-1 block text-[10px] font-black uppercase tracking-[.16em] text-slate-500">
+          <span className="mb-1 block text-[10px] font-black uppercase tracking-[.16em] text-disabled">
             Classe
           </span>
-          <select
+          <Select
             className={fieldClass}
             value={options.class}
             onChange={(event) => setOption("class", event.target.value)}
@@ -230,7 +231,7 @@ export function BestAttackersPanel({
             <option value="LEGENDARY">Légendaire</option>
             <option value="MYTHIC">Fabuleux</option>
             <option value="ULTRA_BEAST">Ultra-Chimère</option>
-          </select>
+          </Select>
         </label>
       </section>
       <section
@@ -239,7 +240,7 @@ export function BestAttackersPanel({
       >
         {entries.map((entry) => (
           <article
-            className="grid min-w-0 grid-cols-[4.75rem_minmax(0,1fr)] items-center gap-2 rounded-2xl border border-white/10 p-2.5 sm:grid-cols-[3rem_4.5rem_minmax(0,1fr)_auto] sm:gap-3 sm:p-3"
+            className="grid min-w-0 grid-cols-[4.75rem_minmax(0,1fr)] items-center gap-2 rounded-2xl border border-line p-2.5 sm:grid-cols-[3rem_4.5rem_minmax(0,1fr)_auto] sm:gap-3 sm:p-3"
             style={typeSurface(entry)}
             key={`${entry.pokemonKey}-${entry.rank}`}
           >
@@ -260,7 +261,7 @@ export function BestAttackersPanel({
             </div>
             <div className="col-start-2 row-start-1 min-w-0 self-center sm:col-start-3">
               <button
-                className="block max-w-full truncate text-left text-sm font-black text-white hover:text-cyan-100 sm:text-base"
+                className="block max-w-full truncate text-left text-sm font-black text-domain-foreground hover:text-cyan-100 sm:text-base"
                 type="button"
                 onClick={() => onOpenPokemon?.(entry.pokemon)}
               >
@@ -270,11 +271,11 @@ export function BestAttackersPanel({
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 <TypeIcons types={entry.pokemon?.types} size="sm" />
                 <PokemonStateIndicators pokemon={entry.pokemon} />
-                <span className="rounded-full border border-white/10 bg-white/[.06] px-2 py-1 text-[9px] font-black uppercase text-slate-300">
+                <span className="rounded-full border border-line bg-surface-control px-2 py-1 text-[9px] font-black uppercase text-foreground-secondary">
                   Tier {entry.tier}
                 </span>
               </div>
-              <p className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1 text-[11px] font-bold text-slate-300 sm:mt-2 sm:text-xs">
+              <p className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1 text-[11px] font-bold text-foreground-secondary sm:mt-2 sm:text-xs">
                 <Swords size={13} />
                 <span className="truncate">
                   {nameOf(entry.fastMove)}
@@ -285,7 +286,7 @@ export function BestAttackersPanel({
             </div>
             <div className="col-span-2 row-start-2 grid grid-cols-3 gap-1.5 sm:col-start-4 sm:row-start-1 sm:min-w-[17rem] sm:gap-2">
               <div className="rounded-xl border border-cyan-200/15 bg-cyan-300/[.08] p-1.5 text-center sm:p-2">
-                <small className="block text-[9px] font-black uppercase text-slate-500">
+                <small className="block text-[9px] font-black uppercase text-disabled">
                   DPS
                 </small>
                 <strong className="font-mono text-sm text-cyan-50">
@@ -293,7 +294,7 @@ export function BestAttackersPanel({
                 </strong>
               </div>
               <div className="rounded-xl border border-violet-200/15 bg-violet-300/[.08] p-1.5 text-center sm:p-2">
-                <small className="block text-[9px] font-black uppercase text-slate-500">
+                <small className="block text-[9px] font-black uppercase text-disabled">
                   TDO
                 </small>
                 <strong className="font-mono text-sm text-violet-50">
@@ -301,7 +302,7 @@ export function BestAttackersPanel({
                 </strong>
               </div>
               <div className="rounded-xl border border-emerald-200/15 bg-emerald-300/[.08] p-1.5 text-center sm:p-2">
-                <small className="block text-[9px] font-black uppercase text-slate-500">
+                <small className="block text-[9px] font-black uppercase text-disabled">
                   eDPS
                 </small>
                 <strong className="font-mono text-sm text-emerald-50">
@@ -318,13 +319,13 @@ export function BestAttackersPanel({
           </article>
         ))}
         {!entries.length ? (
-          <p className="rounded-2xl border border-dashed border-white/12 p-8 text-center font-bold text-slate-400">
+          <p className="rounded-2xl border border-dashed border-white/12 p-8 text-center font-bold text-muted">
             Aucun attaquant pour ces filtres.
           </p>
         ) : null}
       </section>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="font-mono text-xs font-black text-slate-400">
+        <span className="font-mono text-xs font-black text-muted">
           Affichés {entries.length} sur {meta.total || entries.length}
         </span>
         <div className="flex items-center gap-3">
@@ -338,7 +339,7 @@ export function BestAttackersPanel({
           >
             Précédent
           </button>
-          <span className="font-mono text-sm font-black text-slate-300">
+          <span className="font-mono text-sm font-black text-foreground-secondary">
             Page {meta.page || options.page} / {meta.pages || 1}
           </span>
           <button

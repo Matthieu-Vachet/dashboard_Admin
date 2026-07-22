@@ -42,7 +42,7 @@ export function LearningTopicCard({
 
         <div className="mt-3 flex flex-wrap gap-2 text-xs font-bold text-muted">
           {topic.book.references.map((reference) => (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-black/15 px-2.5 py-1.5" key={`${reference.chapter}-${reference.pages}`}>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-recessed px-2.5 py-1.5" key={`${reference.chapter}-${reference.pages}`}>
               <BookMarked size={13} /> Chap. {reference.chapter} · p. {reference.pages}
             </span>
           ))}
@@ -70,7 +70,7 @@ export function LearningTopicCard({
             Voir le détail
             <ArrowUpRight size={16} />
           </button>
-          <a className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-line bg-white/[0.045] px-3 py-2.5 text-xs font-black text-muted transition hover:text-foreground" href={`/api/learning/export?scope=topic&id=${encodeURIComponent(topic.id)}`}>
+          <a className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-line bg-surface-flat px-3 py-2.5 text-xs font-black text-muted transition hover:text-foreground" href={`/api/learning/export?scope=topic&id=${encodeURIComponent(topic.id)}`}>
             <Download size={14} /> Exporter JSON
           </a>
         </div>
@@ -89,7 +89,7 @@ function TopicMetric({
   value: string;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-lg border border-line bg-black/15 px-3 py-2.5">
+    <div className="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface-recessed px-3 py-2.5">
       <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-muted">
         <Icon size={14} /> {label}
       </span>

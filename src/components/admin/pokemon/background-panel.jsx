@@ -43,7 +43,7 @@ function libraryCard(asset) {
 function BackgroundPreview({ background, onOpen, onPreview }) {
   const linked = background.entries || [];
   return (
-    <article className="relative overflow-hidden rounded-3xl border border-white/10 bg-slate-950/42 shadow-[0_18px_70px_rgba(0,0,0,.2)]">
+    <article className="relative overflow-hidden rounded-3xl border border-line bg-slate-950/42 shadow-[0_18px_70px_rgba(0,0,0,.2)]">
       <button
         aria-label={`Agrandir ${background.label}`}
         className="relative block aspect-[16/7] min-h-[180px] w-full overflow-hidden bg-slate-950 p-4"
@@ -56,14 +56,14 @@ function BackgroundPreview({ background, onOpen, onPreview }) {
         <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.14)_1px,transparent_1px)] [background-size:24px_24px]" />
         <div className="relative flex h-full min-h-[148px] flex-col justify-between">
           <div className="flex items-start justify-between gap-3">
-            <span className="rounded-full border border-white/12 bg-slate-950/58 px-3 py-1 text-xs font-black text-white">Location card</span>
+            <span className="rounded-full border border-white/12 bg-slate-950/58 px-3 py-1 text-xs font-black text-domain-foreground">Location card</span>
             <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-black ${linked.length ? "border-emerald-200/30 bg-emerald-400/16 text-emerald-50" : "border-amber-200/30 bg-amber-400/16 text-amber-50"}`}>
               {linked.length ? <CheckCircle2 size={13} /> : <AlertTriangle size={13} />}
               {linked.length ? "Lié" : "Sans lien"}
             </span>
           </div>
           <div>
-            <strong className="block break-words text-xl font-black text-white drop-shadow">{background.label}</strong>
+            <strong className="block break-words text-xl font-black text-domain-foreground drop-shadow">{background.label}</strong>
             <span className="mt-2 inline-flex rounded-full border border-white/12 bg-slate-950/58 px-3 py-1 text-xs font-black text-cyan-50">
               {linked.length} Pokémon
             </span>
@@ -71,17 +71,17 @@ function BackgroundPreview({ background, onOpen, onPreview }) {
         </div>
       </button>
 
-      <div className="border-t border-white/10 p-4">
+      <div className="border-t border-line p-4">
         {linked.length ? (
           <div className="grid max-h-72 gap-2 overflow-auto pr-1">
             {linked.slice(0, 28).map((entry) => (
               <button
-                className="grid min-w-0 grid-cols-[42px_minmax(0,1fr)_auto] items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.055] px-2.5 py-2 text-left transition hover:border-cyan-200/40 hover:bg-cyan-400/12"
+                className="grid min-w-0 grid-cols-[42px_minmax(0,1fr)_auto] items-center gap-2 rounded-2xl border border-line bg-surface-subtle px-2.5 py-2 text-left transition hover:border-cyan-200/40 hover:bg-cyan-400/12"
                 key={entry.key}
                 type="button"
                 onClick={() => onOpen?.(entry)}
               >
-                <span className="grid h-10 w-10 place-items-center rounded-xl bg-slate-950/40 p-1">
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-surface-inset-medium p-1">
                   {preferredPokemonImage(entry) ? (
                     <img className="h-full w-full object-contain" src={preferredPokemonImage(entry)} alt={entry.name || "Pokémon"} loading="lazy" />
                   ) : (
@@ -89,16 +89,16 @@ function BackgroundPreview({ background, onOpen, onPreview }) {
                   )}
                 </span>
                 <span className="min-w-0">
-                  <strong className="block truncate text-sm font-black text-white">{entry.name}</strong>
-                  <small className="block truncate text-xs font-bold text-slate-400">N° {entry.dexId} · {entry.form || "normal"}</small>
+                  <strong className="block truncate text-sm font-black text-domain-foreground">{entry.name}</strong>
+                  <small className="block truncate text-xs font-bold text-muted">N° {entry.dexId} · {entry.form || "normal"}</small>
                 </span>
                 <Link2 className="text-cyan-100/70" size={15} />
               </button>
             ))}
-            {linked.length > 28 ? <p className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-black text-slate-300">+{linked.length - 28} autres fiches</p> : null}
+            {linked.length > 28 ? <p className="rounded-xl border border-line bg-surface-minimal px-3 py-2 text-xs font-black text-foreground-secondary">+{linked.length - 28} autres fiches</p> : null}
           </div>
         ) : (
-          <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">Aucun Pokémon n’utilise cette location card pour le moment.</p>
+          <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">Aucun Pokémon n’utilise cette location card pour le moment.</p>
         )}
       </div>
     </article>
@@ -111,7 +111,7 @@ export function BackgroundPanel({ entries = [], library = [], linkedAssets = [],
   if (loading) {
     return (
       <Panel title="Backgrounds Pokémon" eyebrow="LocationCards + liens fiches">
-        <p className="rounded-2xl border border-white/10 bg-slate-950/35 p-5 text-sm font-bold text-slate-300">
+        <p className="rounded-2xl border border-line bg-surface-inset p-5 text-sm font-bold text-foreground-secondary">
           Chargement de la bibliothèque LocationCards et des liens avec les fiches Pokémon...
         </p>
       </Panel>
@@ -195,7 +195,7 @@ export function BackgroundPanel({ entries = [], library = [], linkedAssets = [],
         onClose={() => setPreview(null)}
       >
         {preview ? (
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/40 p-2">
+          <div className="overflow-hidden rounded-2xl border border-line bg-surface-inset-medium p-2">
             <img className="mx-auto max-h-[72dvh] w-full object-contain" src={preview.image} alt={preview.label || "Location card"} />
           </div>
         ) : null}

@@ -17,7 +17,7 @@ function valueTone(value) {
   if (typeof value === "string") return "text-emerald-200";
   if (typeof value === "number") return "text-cyan-200";
   if (typeof value === "boolean") return "text-violet-200";
-  return "text-slate-400";
+  return "text-muted";
 }
 
 function childPath(parent, key, array) {
@@ -67,17 +67,17 @@ function JsonNode({ name, value, path, depth, expandSignal, expandAll, matches, 
   }
 
   return (
-    <div className={depth ? "border-l border-white/8 pl-3" : ""} data-json-path={path}>
-      <div className={`group flex min-h-7 min-w-0 items-center gap-1 rounded-md px-1 font-mono text-xs ${active ? "bg-amber-300/18 ring-1 ring-amber-200/35" : descendantMatch ? "bg-cyan-300/[.06]" : "hover:bg-white/[.04]"}`}>
+    <div className={depth ? "border-l border-line-subtle pl-3" : ""} data-json-path={path}>
+      <div className={`group flex min-h-7 min-w-0 items-center gap-1 rounded-md px-1 font-mono text-xs ${active ? "bg-amber-300/18 ring-1 ring-amber-200/35" : descendantMatch ? "bg-cyan-300/[.06]" : "hover:bg-surface-minimal"}`}>
         {compound ? (
-          <button className="grid h-6 w-6 shrink-0 place-items-center rounded text-slate-400 hover:text-white" type="button" onClick={() => setOpen((current) => !current)} onKeyDown={onKeyDown} aria-expanded={visibleOpen} aria-label={`${visibleOpen ? "Replier" : "Déplier"} ${path}`}>
+          <button className="grid h-6 w-6 shrink-0 place-items-center rounded text-muted hover:text-domain-foreground" type="button" onClick={() => setOpen((current) => !current)} onKeyDown={onKeyDown} aria-expanded={visibleOpen} aria-label={`${visibleOpen ? "Replier" : "Déplier"} ${path}`}>
             {visibleOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
           </button>
         ) : <span className="w-6 shrink-0" />}
         <button className="min-w-0 truncate text-left text-sky-200" type="button" onClick={() => copy(path, "Chemin JSON copié")} title={`Copier ${path}`}>{name}</button>
         <span className="text-slate-600">:</span>
         <span className={`min-w-0 flex-1 truncate ${valueTone(value)}`} title={compound ? `${entries.length} propriété(s)` : valueLabel(value)}>{compound ? valueLabel(value) : valueLabel(value)}</span>
-        <button className="invisible grid h-6 w-6 shrink-0 place-items-center rounded text-slate-500 hover:bg-white/10 hover:text-white group-hover:visible focus:visible" type="button" onClick={() => copy(value, `Valeur de ${path} copiée`)} aria-label={`Copier la valeur ${path}`}><Copy size={12} /></button>
+        <button className="invisible grid h-6 w-6 shrink-0 place-items-center rounded text-disabled hover:bg-surface-emphasis hover:text-domain-foreground group-hover:visible focus:visible" type="button" onClick={() => copy(value, `Valeur de ${path} copiée`)} aria-label={`Copier la valeur ${path}`}><Copy size={12} /></button>
       </div>
       {compound && visibleOpen ? (
         <div>
@@ -110,12 +110,12 @@ export function GameMasterJsonViewer({ value, title = "JSON brut" }) {
   }
 
   return (
-    <section className="min-w-0 rounded-2xl border border-white/10 bg-slate-950/60" aria-label={title}>
-      <header className="flex flex-col gap-2 border-b border-white/8 p-3 lg:flex-row lg:items-center">
+    <section className="min-w-0 rounded-2xl border border-line bg-slate-950/60" aria-label={title}>
+      <header className="flex flex-col gap-2 border-b border-line-subtle p-3 lg:flex-row lg:items-center">
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <Search className="shrink-0 text-slate-500" size={15} />
+          <Search className="shrink-0 text-disabled" size={15} />
           <input className={`${fieldClass} min-h-9 py-1.5`} value={query} onChange={(event) => { setQuery(event.target.value); setMatchIndex(0); }} placeholder="Clé, chemin ou valeur…" aria-label="Rechercher dans le JSON" />
-          <span className="shrink-0 font-mono text-[10px] font-black text-slate-500">{matches.length ? `${matchIndex + 1}/${matches.length}` : "0"}</span>
+          <span className="shrink-0 font-mono text-[10px] font-black text-disabled">{matches.length ? `${matchIndex + 1}/${matches.length}` : "0"}</span>
         </div>
         <div className="flex flex-wrap gap-1.5">
           <button className={`${buttonClass} min-h-9 px-3 py-1.5 text-xs`} type="button" onClick={() => moveMatch(-1)} disabled={!matches.length}>Préc.</button>
@@ -128,7 +128,7 @@ export function GameMasterJsonViewer({ value, title = "JSON brut" }) {
       <div className="max-h-[62vh] overflow-auto p-3" tabIndex={0}>
         <JsonNode key={expandSignal} name="$" value={value} path="$" depth={0} expandSignal={expandSignal} expandAll={expandAll} matches={matches} activePath={activePath} />
       </div>
-      <footer className="flex items-center gap-2 border-t border-white/8 px-3 py-2 text-[10px] font-bold text-slate-500"><Check size={12} /> Une seule entrée brute est chargée à la fois; le Game Master complet reste côté serveur.</footer>
+      <footer className="flex items-center gap-2 border-t border-line-subtle px-3 py-2 text-[10px] font-bold text-disabled"><Check size={12} /> Une seule entrée brute est chargée à la fois; le Game Master complet reste côté serveur.</footer>
     </section>
   );
 }

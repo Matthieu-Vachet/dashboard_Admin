@@ -143,13 +143,13 @@ export function LearningImportModal({ open, topics, onClose, onChanged }: {
           </span>
         </button>
 
-        {file ? <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-black/15 p-3"><span className="inline-flex items-center gap-2 text-sm font-black"><FileJson2 size={17} className="text-brand-2" /> {file.name}</span><span className="font-mono text-xs font-bold text-muted">{new Intl.NumberFormat("fr-FR").format(file.size)} octets</span></div> : null}
+        {file ? <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-surface-recessed p-3"><span className="inline-flex items-center gap-2 text-sm font-black"><FileJson2 size={17} className="text-brand-2" /> {file.name}</span><span className="font-mono text-xs font-bold text-muted">{new Intl.NumberFormat("fr-FR").format(file.size)} octets</span></div> : null}
 
         {issues.length ? (
           <section className="rounded-lg border border-danger/25 bg-danger/[0.05] p-4">
             <h3 className="flex items-center gap-2 font-black text-danger"><XCircle size={17} /> Fichier invalide · {issues.length} erreur(s)</h3>
             <div className="mt-3 max-h-48 space-y-2 overflow-auto">
-              {issues.map((issue, index) => <div className="rounded-md bg-black/15 p-2 font-mono text-xs" key={`${issue.path}-${index}`}><strong className="text-danger">{issue.path}</strong> : {issue.message}</div>)}
+              {issues.map((issue, index) => <div className="rounded-md bg-surface-recessed p-2 font-mono text-xs" key={`${issue.path}-${index}`}><strong className="text-danger">{issue.path}</strong> : {issue.message}</div>)}
             </div>
           </section>
         ) : null}
@@ -161,8 +161,8 @@ export function LearningImportModal({ open, topics, onClose, onChanged }: {
               <Badge tone={preview.exists ? "amber" : "green"}>{preview.exists ? "Thème existant · mise à jour" : "Nouveau thème"}</Badge>
             </div>
             <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
-              {preview.counts.map(([label, count]) => <div className="rounded-lg border border-line bg-black/15 p-3" key={label}><span className="text-[10px] font-black uppercase tracking-[0.12em] text-muted">{label}</span><strong className="mt-1 block text-xl">{count}</strong></div>)}
-              <div className="rounded-lg border border-line bg-black/15 p-3"><span className="text-[10px] font-black uppercase tracking-[0.12em] text-muted">XP possible</span><strong className="mt-1 block text-xl">{preview.totalXp}</strong></div>
+              {preview.counts.map(([label, count]) => <div className="rounded-lg border border-line bg-surface-recessed p-3" key={label}><span className="text-[10px] font-black uppercase tracking-[0.12em] text-muted">{label}</span><strong className="mt-1 block text-xl">{count}</strong></div>)}
+              <div className="rounded-lg border border-line bg-surface-recessed p-3"><span className="text-[10px] font-black uppercase tracking-[0.12em] text-muted">XP possible</span><strong className="mt-1 block text-xl">{preview.totalXp}</strong></div>
             </div>
             <fieldset className="mt-4">
               <legend className="text-xs font-black uppercase tracking-[0.14em] text-muted">Stratégie d’import</legend>
@@ -179,7 +179,7 @@ export function LearningImportModal({ open, topics, onClose, onChanged }: {
           </section>
         ) : null}
 
-        {raw ? <details className="rounded-lg border border-line bg-black/15 p-3"><summary className="cursor-pointer text-sm font-black">Aperçu JSON brut</summary><pre className="mt-3 max-h-72 overflow-auto whitespace-pre-wrap break-all font-mono text-xs leading-5 text-muted">{raw.slice(0, 50_000)}{raw.length > 50_000 ? "\n… aperçu tronqué" : ""}</pre></details> : null}
+        {raw ? <details className="rounded-lg border border-line bg-surface-recessed p-3"><summary className="cursor-pointer text-sm font-black">Aperçu JSON brut</summary><pre className="mt-3 max-h-72 overflow-auto whitespace-pre-wrap break-all font-mono text-xs leading-5 text-muted">{raw.slice(0, 50_000)}{raw.length > 50_000 ? "\n… aperçu tronqué" : ""}</pre></details> : null}
 
         {message ? <div className={message.tone === "success" ? "flex items-center gap-2 rounded-lg border border-brand-3/25 bg-brand-3/[0.06] p-3 text-sm font-black text-brand-3" : "flex items-center gap-2 rounded-lg border border-danger/25 bg-danger/[0.06] p-3 text-sm font-black text-danger"}>{message.tone === "success" ? <CheckCircle2 size={17} /> : <AlertTriangle size={17} />}{message.text}</div> : null}
 
@@ -187,7 +187,7 @@ export function LearningImportModal({ open, topics, onClose, onChanged }: {
           <h3 className="flex items-center gap-2 font-black"><History size={17} className="text-brand-2" /> Historique des imports</h3>
           <div className="mt-3 grid gap-2">
             {history.length ? history.map((item) => (
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-black/15 p-3" key={item.id}>
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-surface-recessed p-3" key={item.id}>
                 <div><strong className="block text-sm">{item.fileName}</strong><span className="text-xs font-semibold text-muted">{item.topicId} · {item.strategy} · {new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.createdAt))}</span></div>
                 {item.canRollback ? <Button size="sm" icon={<RotateCcw size={14} />} disabled={loading} onClick={() => void rollback(item.id)}>Restaurer</Button> : <Badge>Restauré</Badge>}
               </div>
@@ -201,7 +201,7 @@ export function LearningImportModal({ open, topics, onClose, onChanged }: {
 
 function Strategy({ value, current, title, description, onChange }: { value: LearningImportStrategy; current: LearningImportStrategy; title: string; description: string; onChange: (value: LearningImportStrategy) => void }) {
   return (
-    <label className={current === value ? "cursor-pointer rounded-lg border border-brand-2/45 bg-brand-2/10 p-3" : "cursor-pointer rounded-lg border border-line bg-black/15 p-3"}>
+    <label className={current === value ? "cursor-pointer rounded-lg border border-brand-2/45 bg-brand-2/10 p-3" : "cursor-pointer rounded-lg border border-line bg-surface-recessed p-3"}>
       <input className="sr-only" type="radio" name="strategy" value={value} checked={current === value} onChange={() => onChange(value)} />
       <strong className="block text-sm">{title}</strong><span className="mt-1 block text-xs font-semibold leading-5 text-muted">{description}</span>
     </label>

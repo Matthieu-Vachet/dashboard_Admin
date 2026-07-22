@@ -19,7 +19,7 @@ import { usePersistentState } from "@/lib/use-persistent-state";
 
 type PomodoroStats = { sessions: number; focusMinutes: number };
 
-const colors = ["#20d3ff", "#58f2a9", "#905bf4"];
+const colors = ["var(--brand-2)", "var(--brand-3)", "var(--brand)"];
 
 export function LearningAnalytics() {
   const [todos] = usePersistentState("matweb.todos", initialTodos);
@@ -119,12 +119,12 @@ function LevelProgressGrid({ items }: { items: Array<{ name: string; progression
   return (
     <div className="mt-5 grid gap-3">
       {items.map((item, index) => (
-        <div className="rounded-lg border border-line bg-white/[0.045] p-3" key={item.name}>
+        <Card tone="flat" className="p-3" key={item.name}>
           <div className="mb-2 flex items-center justify-between gap-3">
             <strong className="font-black">{item.name}</strong>
             <span className="font-mono text-sm font-black text-muted">{item.progression}%</span>
           </div>
-          <span className="block h-3 overflow-hidden rounded-full bg-white/10">
+          <span className="block h-3 overflow-hidden rounded-full bg-surface-emphasis">
             <motion.span
               className="block h-full rounded-full"
               style={{ background: colors[index % colors.length] }}
@@ -134,7 +134,7 @@ function LevelProgressGrid({ items }: { items: Array<{ name: string; progression
             />
           </span>
           <span className="mt-2 block text-xs font-bold text-muted">{item.accompli} élément(s) terminé(s)</span>
-        </div>
+        </Card>
       ))}
     </div>
   );
@@ -160,13 +160,13 @@ function StatusChart({ items }: { items: Array<{ name: string; value: number }> 
       </div>
       <div className="grid gap-2">
         {items.map((item, index) => (
-          <div className="flex items-center justify-between rounded-lg border border-line bg-white/[0.045] p-3" key={item.name}>
+          <Card tone="flat" className="flex items-center justify-between p-3" key={item.name}>
             <span className="inline-flex items-center gap-2 text-sm font-black">
               <span className="h-2.5 w-2.5 rounded-full" style={{ background: colors[index % colors.length] }} />
               {item.name}
             </span>
             <span className="font-mono text-sm font-black text-muted">{item.value}</span>
-          </div>
+          </Card>
         ))}
       </div>
     </div>

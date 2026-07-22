@@ -1,24 +1,27 @@
 "use client";
 
 import { FileJson, Save, X } from "lucide-react";
+import { useId } from "react";
 import { POKEMON_EVENT_TYPES } from "@/data/pokemon-events";
 import { fieldClass } from "@/components/admin/pokemon/admin-ui";
 import { ModalPortal } from "@/components/admin/shared/modal-portal";
 import { Button } from "@/components/ui/button";
 import { Field as FieldRoot } from "@/components/ui/field";
+import { Select } from "@/components/ui/select";
 
 export function EventEditorModal({ draft, busy, statusOptions, onChange, onClose, onSave }) {
+  const titleId = useId();
   const update = (patch) => onChange((current) => ({ ...current, ...patch }));
   return (
     <ModalPortal>
       <div className="fixed inset-0 z-[1200] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl" onClick={onClose}>
-        <article className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[2rem] border border-white/10 bg-[#07111f] p-4 shadow-[0_30px_120px_rgba(0,0,0,.5)] sm:p-6" onClick={(event) => event.stopPropagation()}>
+        <article className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[2rem] border border-line bg-[#07111f] p-4 shadow-[0_30px_120px_rgba(0,0,0,.5)] sm:p-6" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(event) => event.stopPropagation()}>
           <div className="mb-5 flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200/70">CRUD admin</p>
-              <h2 className="mt-1 text-2xl font-black text-white">{draft.originalId ? "Modifier l'event" : "Ajouter un event"}</h2>
+              <h2 id={titleId} className="mt-1 text-2xl font-black text-domain-foreground">{draft.originalId ? "Modifier l'event" : "Ajouter un event"}</h2>
             </div>
-            <button className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/10 text-white" type="button" onClick={onClose}>
+            <button className="grid h-10 w-10 place-items-center rounded-full border border-line bg-surface-emphasis text-domain-foreground" type="button" onClick={onClose} aria-label="Fermer l’éditeur d’event">
               <X size={19} />
             </button>
           </div>
@@ -51,16 +54,17 @@ export function EventEditorModal({ draft, busy, statusOptions, onChange, onClose
 }
 
 export function ImportModal({ value, busy, onChange, onClose, onImport }) {
+  const titleId = useId();
   return (
     <ModalPortal>
       <div className="fixed inset-0 z-[1200] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl" onClick={onClose}>
-        <article className="w-full max-w-4xl rounded-[2rem] border border-white/10 bg-[#07111f] p-4 shadow-[0_30px_120px_rgba(0,0,0,.5)] sm:p-6" onClick={(event) => event.stopPropagation()}>
+        <article className="w-full max-w-4xl rounded-[2rem] border border-line bg-[#07111f] p-4 shadow-[0_30px_120px_rgba(0,0,0,.5)] sm:p-6" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(event) => event.stopPropagation()}>
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200/70">Import JSON</p>
-              <h2 className="mt-1 text-2xl font-black text-white">Importer des events</h2>
+              <h2 id={titleId} className="mt-1 text-2xl font-black text-domain-foreground">Importer des events</h2>
             </div>
-            <button className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/10 text-white" type="button" onClick={onClose}>
+            <button className="grid h-10 w-10 place-items-center rounded-full border border-line bg-surface-emphasis text-domain-foreground" type="button" onClick={onClose} aria-label="Fermer l’import des events">
               <X size={19} />
             </button>
           </div>
@@ -86,7 +90,7 @@ function Field({ label, value, onChange, type = "text", placeholder = "" }) {
     <FieldRoot
       className="grid gap-1.5"
       label={label}
-      labelClassName="text-xs font-black uppercase tracking-[0.16em] text-slate-500"
+      labelClassName="text-xs font-black uppercase tracking-[0.16em] text-disabled"
     >
       <input className={fieldClass} type={type} value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
     </FieldRoot>
@@ -96,12 +100,12 @@ function Field({ label, value, onChange, type = "text", placeholder = "" }) {
 function SelectField({ label, value, options, onChange }) {
   return (
     <label className="grid gap-1.5">
-      <span className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">{label}</span>
-      <select className={fieldClass} value={value} onChange={(event) => onChange(event.target.value)}>
+      <span className="text-xs font-black uppercase tracking-[0.16em] text-disabled">{label}</span>
+      <Select className={fieldClass} value={value} onChange={(event) => onChange(event.target.value)}>
         {options.map(([id, labelText]) => (
           <option key={id} value={id}>{labelText}</option>
         ))}
-      </select>
+      </Select>
     </label>
   );
 }
@@ -111,7 +115,7 @@ function Area({ label, value, onChange }) {
     <FieldRoot
       className="grid gap-1.5"
       label={label}
-      labelClassName="text-xs font-black uppercase tracking-[0.16em] text-slate-500"
+      labelClassName="text-xs font-black uppercase tracking-[0.16em] text-disabled"
     >
       <textarea className={`${fieldClass} min-h-36 py-3 leading-6`} value={value} onChange={(event) => onChange(event.target.value)} />
     </FieldRoot>

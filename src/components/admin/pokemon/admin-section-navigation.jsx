@@ -17,14 +17,14 @@ function SectionIcon({ icon, active = false, compact = false }) {
   const size = compact ? "h-7 w-7 rounded-lg" : "h-9 w-9 rounded-xl";
   if (typeof icon === "string") {
     return (
-      <span className={`grid ${size} shrink-0 place-items-center border p-1.5 ${active ? "border-cyan-200/40 bg-cyan-300/15" : "border-white/10 bg-black/20"}`}>
+      <span className={`grid ${size} shrink-0 place-items-center border p-1.5 ${active ? "border-cyan-200/40 bg-cyan-300/15" : "border-line bg-black/20"}`}>
         <img className="h-full w-full object-contain" src={icon} alt="" loading="lazy" />
       </span>
     );
   }
   const Icon = icon;
   return (
-    <span className={`grid ${size} shrink-0 place-items-center border ${active ? "border-cyan-200/40 bg-cyan-300/15 text-cyan-100" : "border-white/10 bg-black/20 text-slate-400"}`}>
+    <span className={`grid ${size} shrink-0 place-items-center border ${active ? "border-cyan-200/40 bg-cyan-300/15 text-cyan-100" : "border-line bg-black/20 text-muted"}`}>
       <Icon size={compact ? 15 : 18} aria-hidden="true" />
     </span>
   );
@@ -89,15 +89,15 @@ export function AdminSectionNavigation({ items, active, onSelect }) {
         <SectionIcon icon={activeItem?.icon} active />
         <span className="min-w-0 flex-1">
           <small className="block truncate text-[9px] font-black uppercase tracking-[.17em] text-cyan-200/70">{groupLabels[activeGroup]}</small>
-          <strong className="block truncate text-sm font-black text-white">{activeItem?.label}</strong>
+          <strong className="block truncate text-sm font-black text-domain-foreground">{activeItem?.label}</strong>
         </span>
         <Menu className="mr-1 text-cyan-100" size={20} aria-hidden="true" />
       </button>
 
-      <div className="hidden rounded-2xl border border-white/10 bg-slate-950/45 p-3 lg:block">
+      <div className="hidden rounded-2xl border border-line bg-surface-inset-strong p-3 lg:block">
         <div className="flex items-center gap-2">
           <label className="relative min-w-[17rem] flex-1">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" size={15} />
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-disabled" size={15} />
             <input
               className={`${fieldClass} min-h-10 py-2 pl-10`}
               value={desktopQuery}
@@ -111,7 +111,7 @@ export function AdminSectionNavigation({ items, active, onSelect }) {
               const selected = desktopGroup === id && !desktopQuery;
               return (
                 <button
-                  className={`shrink-0 rounded-xl border px-3 py-2 text-[10px] font-black uppercase tracking-[.08em] transition ${selected ? "border-cyan-200/35 bg-cyan-300/14 text-white" : "border-white/8 bg-white/[.035] text-slate-400 hover:text-white"}`}
+                  className={`shrink-0 rounded-xl border px-3 py-2 text-[10px] font-black uppercase tracking-[.08em] transition ${selected ? "border-cyan-200/35 bg-cyan-300/14 text-domain-foreground" : "border-line-subtle bg-surface-faint text-muted hover:text-domain-foreground"}`}
                   key={id}
                   type="button"
                   onClick={() => { setDesktopGroup(id); setDesktopQuery(""); }}
@@ -128,7 +128,7 @@ export function AdminSectionNavigation({ items, active, onSelect }) {
             const selected = item.id === active;
             return (
               <button
-                className={`flex min-h-10 shrink-0 items-center gap-2 rounded-xl border px-2.5 text-xs font-black transition ${selected ? "border-cyan-200/40 bg-cyan-300/15 text-white" : "border-transparent bg-white/[.025] text-slate-300 hover:border-white/10 hover:bg-white/[.06] hover:text-white"}`}
+                className={`flex min-h-10 shrink-0 items-center gap-2 rounded-xl border px-2.5 text-xs font-black transition ${selected ? "border-cyan-200/40 bg-cyan-300/15 text-domain-foreground" : "border-transparent bg-white/[.025] text-foreground-secondary hover:border-line hover:bg-surface-control hover:text-domain-foreground"}`}
                 key={item.id}
                 type="button"
                 onClick={() => selectItem(item)}
@@ -139,7 +139,7 @@ export function AdminSectionNavigation({ items, active, onSelect }) {
               </button>
             );
           })}
-          {!visibleDesktopItems.length ? <p className="px-3 py-2 text-xs font-bold text-slate-400">Aucune section trouvée.</p> : null}
+          {!visibleDesktopItems.length ? <p className="px-3 py-2 text-xs font-bold text-muted">Aucune section trouvée.</p> : null}
         </div>
       </div>
 
@@ -149,14 +149,14 @@ export function AdminSectionNavigation({ items, active, onSelect }) {
             <header className="flex items-center justify-between gap-3">
               <div>
                 <small className="text-[10px] font-black uppercase tracking-[.2em] text-cyan-200/70">Admin Pokémon</small>
-                <h2 className="text-xl font-black text-white">Changer de section</h2>
+                <h2 className="text-xl font-black text-domain-foreground">Changer de section</h2>
               </div>
-              <button ref={mobileCloseRef} className="grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-white/[.06] text-white" type="button" onClick={() => setMobileOpen(false)} aria-label="Fermer la navigation">
+              <button ref={mobileCloseRef} className="grid h-11 w-11 place-items-center rounded-full border border-line-medium bg-surface-control text-domain-foreground" type="button" onClick={() => setMobileOpen(false)} aria-label="Fermer la navigation">
                 <X size={20} />
               </button>
             </header>
             <label className="relative mt-4 block">
-              <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+              <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-disabled" size={18} />
               <input
                 className={`${fieldClass} min-h-12 pl-12`}
                 value={mobileQuery}
@@ -169,7 +169,7 @@ export function AdminSectionNavigation({ items, active, onSelect }) {
               <div className="mt-3 flex gap-2 overflow-x-auto pb-2" aria-label="Groupes de sections">
                 {Object.entries(groupLabels).map(([id, label]) => (
                   <button
-                    className={`flex shrink-0 items-center gap-1.5 rounded-xl border px-3 py-2 text-[10px] font-black uppercase tracking-[.08em] ${mobileGroup === id ? "border-cyan-200/40 bg-cyan-300/15 text-white" : "border-white/10 bg-white/[.04] text-slate-400"}`}
+                    className={`flex shrink-0 items-center gap-1.5 rounded-xl border px-3 py-2 text-[10px] font-black uppercase tracking-[.08em] ${mobileGroup === id ? "border-cyan-200/40 bg-cyan-300/15 text-domain-foreground" : "border-line bg-surface-minimal text-muted"}`}
                     key={id}
                     type="button"
                     onClick={() => setMobileGroup(id)}
@@ -185,7 +185,7 @@ export function AdminSectionNavigation({ items, active, onSelect }) {
                 const selected = item.id === active;
                 return (
                   <button
-                    className={`flex min-h-16 min-w-0 items-center gap-3 rounded-2xl border p-3 text-left transition ${selected ? "border-cyan-200/45 bg-cyan-300/15 text-white" : "border-white/10 bg-white/[.04] text-slate-300"}`}
+                    className={`flex min-h-16 min-w-0 items-center gap-3 rounded-2xl border p-3 text-left transition ${selected ? "border-cyan-200/45 bg-cyan-300/15 text-domain-foreground" : "border-line bg-surface-minimal text-foreground-secondary"}`}
                     key={item.id}
                     type="button"
                     onClick={() => selectItem(item)}
@@ -194,13 +194,13 @@ export function AdminSectionNavigation({ items, active, onSelect }) {
                     <SectionIcon icon={item.icon} active={selected} />
                     <span className="min-w-0 flex-1">
                       <strong className="block truncate text-sm font-black">{item.label}</strong>
-                      <small className="block truncate text-[9px] font-black uppercase tracking-[.1em] text-slate-500">{groupLabels[item.group]}</small>
+                      <small className="block truncate text-[9px] font-black uppercase tracking-[.1em] text-disabled">{groupLabels[item.group]}</small>
                     </span>
                     {selected ? <Check className="shrink-0 text-cyan-200" size={18} /> : null}
                   </button>
                 );
               })}
-              {!visibleMobileItems.length ? <p className="col-span-full rounded-2xl border border-dashed border-white/15 p-6 text-center text-sm font-bold text-slate-400">Aucune section ne correspond.</p> : null}
+              {!visibleMobileItems.length ? <p className="col-span-full rounded-2xl border border-dashed border-line-medium p-6 text-center text-sm font-bold text-muted">Aucune section ne correspond.</p> : null}
             </div>
           </div>
         </div>

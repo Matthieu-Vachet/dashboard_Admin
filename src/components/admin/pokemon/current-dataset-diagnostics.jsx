@@ -52,9 +52,9 @@ function formatWarning(warning) {
 
 function Metric({ label, value, mono = false }) {
   return (
-    <div className="min-w-0 rounded-xl border border-white/10 bg-slate-950/30 px-3 py-2.5">
-      <dt className="text-[9px] font-black uppercase tracking-[0.16em] text-slate-500">{label}</dt>
-      <dd className={`mt-1 truncate text-xs font-black text-slate-100 ${mono ? "font-mono" : ""}`} title={String(value)}>
+    <div className="min-w-0 rounded-xl border border-line bg-surface-inset-subtle px-3 py-2.5">
+      <dt className="text-[9px] font-black uppercase tracking-[0.16em] text-disabled">{label}</dt>
+      <dd className={`mt-1 truncate text-xs font-black text-foreground ${mono ? "font-mono" : ""}`} title={String(value)}>
         {value}
       </dd>
     </div>
@@ -63,7 +63,7 @@ function Metric({ label, value, mono = false }) {
 
 function DatasetDiffBadge({ changed, hasDiff }) {
   return (
-    <span className={`inline-flex min-h-6 shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-[9px] font-black uppercase leading-4 tracking-[0.08em] sm:px-2.5 sm:py-1 sm:text-[10px] sm:tracking-[0.12em] ${changed ? "border-amber-200/25 bg-amber-300/14 text-amber-50" : "border-emerald-200/25 bg-emerald-300/14 text-emerald-50"}`}>
+    <span className={`inline-flex min-h-6 shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-[9px] font-black uppercase leading-4 tracking-[0.08em] sm:px-2.5 sm:py-1 sm:text-[10px] sm:tracking-[0.12em] ${changed ? "border-warning/25 bg-warning/14 text-warning-foreground" : "border-success/25 bg-success/14 text-success-foreground"}`}>
       {changed ? <GitCompare size={12} aria-hidden="true" /> : <CheckCircle2 size={12} aria-hidden="true" />}
       {hasDiff ? (changed ? "Contenu modifié" : "Contenu inchangé") : "Diff indisponible"}
     </span>
@@ -82,7 +82,7 @@ function DiagnosticCard({ entry, provider, onCopy }) {
     <article className="rounded-xl border border-amber-200/15 bg-amber-300/[.055] p-3">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <strong className="block break-words text-sm text-white">{entry.sourceName || entry.sourceId || "Entrée source inconnue"}</strong>
+          <strong className="block break-words text-sm text-domain-foreground">{entry.sourceName || entry.sourceId || "Entrée source inconnue"}</strong>
           <p className="mt-1 break-words font-mono text-[10px] text-amber-100">{entry.reason || "alias-inconnu"}</p>
         </div>
         <Button size="icon" variant="ghost" type="button" onClick={() => onCopy(entry)} aria-label="Copier le diagnostic">
@@ -105,9 +105,9 @@ function DiagnosticCard({ entry, provider, onCopy }) {
         {entry.localFile ? <Metric label="Fichier local possible" value={entry.localFile} mono /> : null}
       </dl>
       {candidates.length ? (
-        <details className="mt-3 rounded-lg border border-white/10 bg-slate-950/30 text-xs">
+        <details className="mt-3 rounded-lg border border-line bg-surface-inset-subtle text-xs">
           <summary className="cursor-pointer px-3 py-2 font-black text-cyan-100">Voir les {candidates.length} candidat(s)</summary>
-          <pre className="max-h-52 overflow-auto border-t border-white/10 p-3 text-[10px] text-slate-300">{JSON.stringify(candidates, null, 2)}</pre>
+          <pre className="max-h-52 overflow-auto border-t border-line p-3 text-[10px] text-foreground-secondary">{JSON.stringify(candidates, null, 2)}</pre>
         </details>
       ) : null}
       <Button asChild className="mt-3" size="sm" variant="secondary">
@@ -239,18 +239,18 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
   return (
     <section className="mt-4 min-w-0 rounded-2xl border border-cyan-300/15 bg-cyan-400/[0.075] p-3 sm:p-4" aria-label="État de la source de données">
       <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-2 sm:flex sm:flex-wrap sm:gap-3">
-        <div className="flex min-w-0 items-center gap-2 text-sm font-black text-cyan-50 sm:shrink-0">
+        <div className="flex min-w-0 items-center gap-2 text-sm font-black text-foreground sm:shrink-0">
           <Database className="shrink-0" size={18} aria-hidden="true" />
           <span className="min-w-0 truncate" title={`Source active : ${sourceLabel}`}>Source active : {sourceLabel}</span>
         </div>
         <div className="order-3 col-span-2 flex min-w-0 flex-wrap items-center gap-1.5 sm:order-none sm:flex-1 sm:gap-2">
-          <span className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-white/10 bg-white/[0.07] px-2 py-0.5 text-[9px] font-black uppercase leading-4 tracking-[0.08em] text-cyan-100/70 sm:py-1 sm:text-[10px] sm:tracking-[0.12em]">{status}</span>
-          <span className={`inline-flex min-h-6 items-center whitespace-nowrap rounded-full border px-2 py-0.5 text-[9px] font-black uppercase leading-4 tracking-[0.08em] sm:py-1 sm:text-[10px] sm:tracking-[0.12em] ${visibility === "private" ? "border-violet-200/25 bg-violet-300/14 text-violet-50" : "border-emerald-200/25 bg-emerald-300/14 text-emerald-50"}`}>
+          <span className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-line bg-white/[0.07] px-2 py-0.5 text-[9px] font-black uppercase leading-4 tracking-[0.08em] text-muted sm:py-1 sm:text-[10px] sm:tracking-[0.12em]">{status}</span>
+          <span className={`inline-flex min-h-6 items-center whitespace-nowrap rounded-full border px-2 py-0.5 text-[9px] font-black uppercase leading-4 tracking-[0.08em] sm:py-1 sm:text-[10px] sm:tracking-[0.12em] ${visibility === "private" ? "border-brand/25 bg-brand/14 text-foreground" : "border-success/25 bg-success/14 text-success-foreground"}`}>
             {visibility === "private" ? "Privé · Admin" : "Public · API"}
           </span>
-          {warningCount ? <span className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-amber-200/25 bg-amber-300/12 px-2 py-0.5 text-[9px] font-black leading-4 text-amber-100 sm:py-1 sm:text-[10px]">{warningCount} avertissement(s)</span> : null}
+          {warningCount ? <span className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-warning/25 bg-warning/12 px-2 py-0.5 text-[9px] font-black leading-4 text-warning-foreground sm:py-1 sm:text-[10px]">{warningCount} avertissement(s)</span> : null}
           {unmatchedEntries.length ? (
-            <button className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-amber-200/25 bg-amber-300/12 px-2 py-0.5 text-[9px] font-black leading-4 text-amber-100 underline-offset-2 hover:underline sm:py-1 sm:text-[10px]" type="button" onClick={() => openHistory(true)}>
+            <button className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-warning/25 bg-warning/12 px-2 py-0.5 text-[9px] font-black leading-4 text-warning-foreground underline-offset-2 hover:underline sm:py-1 sm:text-[10px]" type="button" onClick={() => openHistory(true)}>
               {unmatchedEntries.length} non matchée(s)
             </button>
           ) : null}
@@ -281,9 +281,9 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
             {metrics.map(([label, value, mono]) => <Metric key={label} label={label} value={value} mono={mono} />)}
           </dl>
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold text-slate-300">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold text-foreground-secondary">
             {sourceUrl ? (
-              <a className="inline-flex min-w-0 items-center gap-1 text-cyan-100 underline decoration-cyan-200/30 underline-offset-4 hover:text-white" href={sourceUrl} target="_blank" rel="noreferrer">
+              <a className="inline-flex min-w-0 items-center gap-1 text-cyan-100 underline decoration-cyan-200/30 underline-offset-4 hover:text-domain-foreground" href={sourceUrl} target="_blank" rel="noreferrer">
                 <span className="max-w-full break-all sm:max-w-[36rem] sm:truncate">{sourceUrl}</span>
                 <ExternalLink className="shrink-0" size={13} aria-hidden="true" />
               </a>
@@ -297,7 +297,7 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
             {resolvedHistoryUrl ? <Button size="sm" variant="ghost" type="button" onClick={() => openHistory(false)} icon={<History size={13} />}>Historique</Button> : null}
           </div>
 
-          {!hasDiff && diagnostics.diffUnavailableReason ? <p className="rounded-xl border border-white/10 bg-slate-950/25 px-3 py-2 text-xs font-bold text-slate-400">Diff indisponible : {diagnostics.diffUnavailableReason}</p> : null}
+          {!hasDiff && diagnostics.diffUnavailableReason ? <p className="rounded-xl border border-line bg-slate-950/25 px-3 py-2 text-xs font-bold text-muted">Diff indisponible : {diagnostics.diffUnavailableReason}</p> : null}
 
           {selection ? (
             <div className="grid gap-2 rounded-xl border border-violet-200/18 bg-violet-400/9 p-3 sm:grid-cols-2">
@@ -320,11 +320,11 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
       <Modal open={historyOpen} onClose={() => setHistoryOpen(false)} title="Historique des exécutions" description={provider} className="max-w-6xl">
         <div className="grid min-h-[56dvh] gap-4 lg:grid-cols-[18rem_minmax(0,1fr)]">
           <aside className="max-h-[65dvh] overflow-y-auto border-b border-line pb-3 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-3">
-            {historyLoading ? <p className="text-sm text-slate-400">Chargement…</p> : historyRuns.map((run, index) => (
-              <button className={`mb-2 w-full rounded-xl border p-3 text-left ${selectedRun === run ? "border-cyan-200/35 bg-cyan-300/10" : "border-white/10 bg-white/[.025]"}`} type="button" onClick={() => setSelectedRun(run)} key={run.id || `${run.startedAt}-${index}`}>
-                <strong className="block text-xs text-white">{run.status || "inconnu"}</strong>
-                <span className="mt-1 block text-[10px] text-slate-500">{formatDate(run.startedAt || run.savedAt)}</span>
-                <span className="mt-1 block font-mono text-[10px] text-slate-400">{run.totalAfter ?? 0} · {run.unmatchedCount ?? 0} non matché(s)</span>
+            {historyLoading ? <p className="text-sm text-muted">Chargement…</p> : historyRuns.map((run, index) => (
+              <button className={`mb-2 w-full rounded-xl border p-3 text-left ${selectedRun === run ? "border-cyan-200/35 bg-cyan-300/10" : "border-line bg-white/[.025]"}`} type="button" onClick={() => setSelectedRun(run)} key={run.id || `${run.startedAt}-${index}`}>
+                <strong className="block text-xs text-domain-foreground">{run.status || "inconnu"}</strong>
+                <span className="mt-1 block text-[10px] text-disabled">{formatDate(run.startedAt || run.savedAt)}</span>
+                <span className="mt-1 block font-mono text-[10px] text-muted">{run.totalAfter ?? 0} · {run.unmatchedCount ?? 0} non matché(s)</span>
               </button>
             ))}
           </aside>
@@ -336,12 +336,12 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
               <Metric label="Non matchés" value={selectedRun?.unmatchedCount ?? diagnostics.unmatchedCount ?? 0} mono />
             </dl>
             <label className="relative mt-4 block">
-              <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
-              <input className="min-h-11 w-full rounded-xl border border-white/10 bg-slate-950/45 pl-10 pr-3 text-sm text-white outline-none focus:border-cyan-200/40" value={diagnosticQuery} onChange={(event) => setDiagnosticQuery(event.target.value)} placeholder="Identifiant, alias, forme, costume, raison…" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-disabled" size={16} />
+              <input className="min-h-11 w-full rounded-xl border border-line bg-surface-inset-strong pl-10 pr-3 text-sm text-domain-foreground outline-none focus:border-cyan-200/40" value={diagnosticQuery} onChange={(event) => setDiagnosticQuery(event.target.value)} placeholder="Identifiant, alias, forme, costume, raison…" />
             </label>
             <div className="mt-3 max-h-[54dvh] space-y-2 overflow-y-auto pr-1">
               {visibleUnmatched.map((entry, index) => <DiagnosticCard entry={entry} provider={provider} onCopy={copyDiagnostic} key={`${entry.sourceId}-${entry.sourceName}-${index}`} />)}
-              {!visibleUnmatched.length ? <p className="rounded-xl border border-dashed border-white/12 p-6 text-center text-sm font-bold text-slate-400">Aucune entrée non matchée pour cette exécution.</p> : null}
+              {!visibleUnmatched.length ? <p className="rounded-xl border border-dashed border-white/12 p-6 text-center text-sm font-bold text-muted">Aucune entrée non matchée pour cette exécution.</p> : null}
             </div>
             {selectedRun?.errors?.length ? <pre className="mt-4 whitespace-pre-wrap rounded-xl border border-red-200/20 bg-red-300/[.07] p-3 text-xs text-red-100">{JSON.stringify(selectedRun.errors, null, 2)}</pre> : null}
           </div>

@@ -48,7 +48,7 @@ export function PokemonWidget() {
       </CardHeader>
 
       {loading ? (
-        <div className="mt-6 grid h-44 place-items-center rounded-lg border border-line bg-white/[0.04] text-sm font-bold text-muted">
+        <div className="mt-6 grid h-44 place-items-center rounded-lg border border-line bg-surface-minimal text-sm font-bold text-muted">
           Synchronisation...
         </div>
       ) : (
@@ -59,18 +59,18 @@ export function PokemonWidget() {
           <div className="sm:col-span-3">
             <div className="grid grid-cols-3 gap-2">
               {metrics?.generations.slice(0, 9).map((item) => (
-                <div key={item.name} className="rounded-lg border border-line bg-white/[0.045] p-2">
+                <Card tone="flat" key={item.name} className="p-2">
                   <div className="flex items-center justify-between text-xs font-black">
                     <span>{item.name}</span>
                     <span className="text-brand-3">{item.completion}%</span>
                   </div>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-emphasis">
                     <div
                       className="h-full rounded-full bg-gradient-to-r from-brand-3 to-brand-2"
                       style={{ width: `${item.completion}%` }}
                     />
                   </div>
-                </div>
+                </Card>
               ))}
             </div>
           </div>
@@ -90,10 +90,10 @@ function Metric({
   value: string;
 }) {
   return (
-    <div className="rounded-lg border border-line bg-white/[0.045] p-3">
+    <Card tone="flat" className="p-3">
       <Icon size={17} className="text-brand-2" />
       <p className="mt-3 text-xs font-black uppercase tracking-[0.16em] text-muted">{label}</p>
       <p className="mt-1 font-mono text-2xl font-black">{value}</p>
-    </div>
+    </Card>
   );
 }

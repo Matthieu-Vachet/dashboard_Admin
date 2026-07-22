@@ -62,7 +62,7 @@ function EggPill({ children, tone = "" }) {
 
 function Rarity({ value }) {
   const count = Math.max(0, Math.min(Number(value) || 0, 5));
-  if (!count) return <span className="text-xs font-black text-slate-500">Rarete n/a</span>;
+  if (!count) return <span className="text-xs font-black text-disabled">Rarete n/a</span>;
   return (
     <div className="flex items-center gap-1" aria-label={`Rarete ${count}`}>
       {Array.from({ length: count }).map((_, index) => (
@@ -80,7 +80,7 @@ function EggCard({ pokemon, onOpenPokemon, typeCatalog = [] }) {
 
   return (
     <button
-      className="group min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/38 text-left shadow-[0_18px_70px_rgba(0,0,0,.2)] transition hover:-translate-y-0.5 hover:border-cyan-200/35 disabled:cursor-default"
+      className="group min-w-0 overflow-hidden rounded-2xl border border-line bg-slate-950/38 text-left shadow-[0_18px_70px_rgba(0,0,0,.2)] transition hover:-translate-y-0.5 hover:border-cyan-200/35 disabled:cursor-default"
       type="button"
       disabled={!canOpen}
       onClick={() => canOpen && onOpenPokemon(pokemon)}
@@ -99,11 +99,11 @@ function EggCard({ pokemon, onOpenPokemon, typeCatalog = [] }) {
         ) : null}
         <PokemonArtwork pokemon={pokemon} alt={name} className="relative z-10 h-28 w-28 border-0 bg-transparent drop-shadow-[0_18px_34px_rgba(0,0,0,.38)]" />
       </div>
-      <div className="space-y-3 border-t border-white/10 p-4">
+      <div className="space-y-3 border-t border-line p-4">
         <div className="flex min-w-0 items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="truncate text-lg font-black text-white">{name}</h3>
-            {english ? <p className="truncate text-xs font-bold text-slate-400">{english}</p> : null}
+            <h3 className="truncate text-lg font-black text-domain-foreground">{name}</h3>
+            {english ? <p className="truncate text-xs font-bold text-muted">{english}</p> : null}
             {sourceName ? <p className="mt-1 truncate text-[11px] font-bold text-cyan-100/65">Source : {sourceName}</p> : null}
           </div>
           <Rarity value={pokemon.rarity} />
@@ -114,8 +114,8 @@ function EggCard({ pokemon, onOpenPokemon, typeCatalog = [] }) {
           {pokemon.costume ? <EggPill tone="border-fuchsia-200/25 bg-fuchsia-400/12 text-fuchsia-50">{pokemon.costume}</EggPill> : null}
           {pokemon.assets?.sourceImage ? <EggPill tone="border-emerald-200/20 bg-emerald-400/10 text-emerald-50">Asset source</EggPill> : null}
         </div>
-        <p className="rounded-2xl border border-white/10 bg-white/[0.055] p-3 text-sm font-black text-slate-200">
-          <small className="block text-[10px] uppercase tracking-[0.16em] text-slate-500">CP oeuf</small>
+        <p className="rounded-2xl border border-line bg-surface-subtle p-3 text-sm font-black text-foreground">
+          <small className="block text-[10px] uppercase tracking-[0.16em] text-disabled">CP oeuf</small>
           {pokemon.cp || "n/a"}
         </p>
       </div>
@@ -220,7 +220,7 @@ export function EggsPanel({
 
       {loading && !total ? (
         <Panel title="Chargement des oeufs">
-          <p className="font-bold text-slate-300">Lecture des oeufs MongoDB en cours.</p>
+          <p className="font-bold text-foreground-secondary">Lecture des oeufs MongoDB en cours.</p>
         </Panel>
       ) : null}
 

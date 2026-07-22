@@ -109,7 +109,7 @@ export function SortableWidgetGrid({
   return (
     <div className="space-y-3">
       {enableHide ? (
-        <div className="widget-toolbar flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/10 bg-slate-950/35 px-3 py-2 text-xs font-black text-slate-300">
+        <div className="widget-toolbar flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-line bg-surface-inset px-3 py-2 text-xs font-black text-foreground-secondary">
           <span className="inline-flex items-center gap-2 text-cyan-100">
             <SlidersHorizontal size={15} />
             Widgets
@@ -128,12 +128,12 @@ export function SortableWidgetGrid({
                 </button>
               ))
             ) : (
-              <span className="widget-toolbar-empty rounded-xl border border-white/10 bg-white/[0.045] px-3 py-2 text-slate-500">
+              <span className="widget-toolbar-empty rounded-xl border border-line bg-surface-flat px-3 py-2 text-disabled">
                 Aucun widget masqué
               </span>
             )}
             <button
-              className="widget-toolbar-button inline-flex min-h-8 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.055] px-3 text-slate-200 transition hover:border-cyan-200/40 hover:bg-cyan-400/12"
+              className="widget-toolbar-button inline-flex min-h-8 items-center gap-2 rounded-xl border border-line bg-surface-subtle px-3 text-foreground transition hover:border-cyan-200/40 hover:bg-cyan-400/12"
               type="button"
               onClick={resetWidgets}
             >
@@ -210,10 +210,10 @@ function SortableWidgetFrame({
         )}
       >
         {children}
-        <div className="widget-frame-actions absolute right-3 top-3 z-20 flex items-center gap-1 rounded-2xl border border-white/10 bg-slate-950/70 p-1 opacity-100 shadow-2xl backdrop-blur transition md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+        <div className="widget-frame-actions absolute right-3 top-3 z-20 flex items-center gap-1 rounded-2xl border border-line bg-slate-950/70 p-1 opacity-100 shadow-2xl backdrop-blur transition md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
           <button
             aria-label={`Déplacer le widget ${label}`}
-            className="widget-frame-button grid h-9 w-9 touch-none place-items-center rounded-xl border border-white/10 bg-white/[0.07] text-slate-100 transition hover:border-cyan-200/40 hover:bg-cyan-400/15"
+            className="widget-frame-button grid h-9 w-9 touch-none place-items-center rounded-xl border border-line bg-white/[0.07] text-foreground transition hover:border-cyan-200/40 hover:bg-cyan-400/15"
             type="button"
             suppressHydrationWarning
             {...attributes}
@@ -224,7 +224,7 @@ function SortableWidgetFrame({
           {onHide ? (
             <button
               aria-label={`Masquer le widget ${label}`}
-              className="widget-frame-button grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.07] text-slate-100 transition hover:border-amber-200/40 hover:bg-amber-400/15"
+              className="widget-frame-button grid h-9 w-9 place-items-center rounded-xl border border-line bg-white/[0.07] text-foreground transition hover:border-amber-200/40 hover:bg-amber-400/15"
               type="button"
               onClick={() => onHide(id)}
             >

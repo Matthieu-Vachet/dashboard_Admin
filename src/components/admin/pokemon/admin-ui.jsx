@@ -4,13 +4,13 @@ import { Filter, Gauge, Image as ImageIcon, Layers } from "lucide-react";
 import { pokemonVariantLabel, preferredPokemonImage } from "@/components/site/pokemon-style";
 
 export const panelClass =
-  "rounded-2xl border border-white/10 bg-white/[0.055] p-4 shadow-[0_22px_90px_rgba(0,0,0,.24)] backdrop-blur-xl sm:p-5";
+  "rounded-2xl border border-line bg-surface-subtle p-4 shadow-[0_22px_90px_rgba(0,0,0,.24)] backdrop-blur-xl sm:p-5";
 export const fieldClass =
-  "min-h-12 w-full rounded-2xl border border-white/10 bg-slate-950/45 px-4 text-sm font-bold text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-400/10";
+  "min-h-12 w-full rounded-2xl border border-line bg-surface-inset-strong px-4 text-sm font-bold text-domain-foreground outline-none transition placeholder:text-disabled focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-400/10";
 export const buttonClass =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.075] px-4 py-2 text-sm font-black text-white transition hover:border-cyan-200/50 hover:bg-cyan-400/15";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-line bg-white/[0.075] px-4 py-2 text-sm font-black text-domain-foreground transition hover:border-cyan-200/50 hover:bg-cyan-400/15";
 export const primaryButtonClass =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-400 px-4 py-2 text-sm font-black text-white shadow-[0_14px_45px_rgba(14,165,233,.26)] transition hover:scale-[1.01]";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-400 px-4 py-2 text-sm font-black text-domain-foreground shadow-[0_14px_45px_rgba(14,165,233,.26)] transition hover:scale-[1.01]";
 
 const generationFilters = [
   ["all", "Toutes", null],
@@ -72,7 +72,7 @@ export function Panel({ title, eyebrow, action, children, className = "" }) {
               {eyebrow}
             </p>
           ) : null}
-          <h2 className="text-xl font-black tracking-tight text-white sm:text-2xl">{title}</h2>
+          <h2 className="text-xl font-black tracking-tight text-domain-foreground sm:text-2xl">{title}</h2>
         </div>
         {action}
       </div>
@@ -89,20 +89,20 @@ export function BarList({ items, labelKey = "id", valueKey = "count" }) {
         items.map((item) => {
           const value = Number(item[valueKey]) || 0;
           return (
-            <div className="rounded-2xl border border-white/10 bg-slate-950/35 p-3" key={item[labelKey]}>
+            <div className="rounded-2xl border border-line bg-surface-inset p-3" key={item[labelKey]}>
               <div className="mb-2 flex items-center justify-between gap-3 text-sm">
-                <span className="min-w-0 truncate font-black text-slate-100">{issueLabel(item[labelKey])}</span>
-                <strong className="shrink-0 rounded-full bg-white/10 px-2.5 py-1 font-mono text-xs font-black text-white">
+                <span className="min-w-0 truncate font-black text-foreground">{issueLabel(item[labelKey])}</span>
+                <strong className="shrink-0 rounded-full bg-surface-emphasis px-2.5 py-1 font-mono text-xs font-black text-domain-foreground">
                   {formatCount(value)}
                 </strong>
               </div>
-              <span className="block h-2.5 overflow-hidden rounded-full bg-white/10">
+              <span className="block h-2.5 overflow-hidden rounded-full bg-surface-emphasis">
                 <i
                   className="block h-full rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500"
                   style={{ width: `${(value / max) * 100}%` }}
                 />
               </span>
-              <p className="mt-2 text-xs font-bold leading-5 text-slate-400">
+              <p className="mt-2 text-xs font-bold leading-5 text-muted">
                 {item[labelKey] === "custom"
                   ? "Issues remontées par tes règles JSON ajoutées."
                   : "Issues détectées par le checker intégré."}
@@ -111,7 +111,7 @@ export function BarList({ items, labelKey = "id", valueKey = "count" }) {
           );
         })
       ) : (
-        <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+        <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
           Aucune donnée à afficher.
         </p>
       )}
@@ -126,20 +126,20 @@ export function AssetStatCard({ label, value, icon, tone = "cyan", detail }) {
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.22),transparent_34%),linear-gradient(135deg,rgba(255,255,255,.1),transparent_45%)]" />
       <div className="relative grid min-w-0 grid-cols-[3rem_minmax(0,1fr)] items-center gap-3">
-        <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 p-2 shadow-inner">
+        <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-2xl border border-line bg-surface-inset-strong p-2 shadow-inner">
           {icon ? <img className="h-8 max-h-8 w-8 max-w-8 object-contain" src={icon} alt="" /> : <Gauge size={21} />}
         </span>
         <span className="min-w-0">
-          <span className="block truncate text-xs font-black uppercase tracking-[0.18em] text-white/72">
+          <span className="block truncate text-xs font-black uppercase tracking-[0.18em] text-domain-foreground/72">
             {label}
           </span>
-          <strong className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[clamp(1.35rem,2.4vw,2.35rem)] font-black leading-none text-white drop-shadow-[0_0_18px_rgba(255,255,255,.16)]" title={String(value ?? "—")}>
+          <strong className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[clamp(1.35rem,2.4vw,2.35rem)] font-black leading-none text-domain-foreground drop-shadow-[0_0_18px_rgba(255,255,255,.16)]" title={String(value ?? "—")}>
             {formatCount(value)}
           </strong>
         </span>
       </div>
       {detail ? (
-        <p className="relative mt-3 truncate text-xs font-bold text-white/70">{detail}</p>
+        <p className="relative mt-3 truncate text-xs font-bold text-domain-foreground/70">{detail}</p>
       ) : null}
     </article>
   );
@@ -147,7 +147,7 @@ export function AssetStatCard({ label, value, icon, tone = "cyan", detail }) {
 
 export function GenerationFilterBar({ value, onChange }) {
   return (
-    <section className="rounded-2xl border border-white/10 bg-slate-950/30 p-3 shadow-[0_18px_70px_rgba(0,0,0,.2)]">
+    <section className="rounded-2xl border border-line bg-surface-inset-subtle p-3 shadow-[0_18px_70px_rgba(0,0,0,.2)]">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-cyan-100/75">
           <Filter size={15} /> Générations
@@ -164,7 +164,7 @@ export function GenerationFilterBar({ value, onChange }) {
               className={`group relative min-h-[74px] overflow-hidden rounded-2xl border px-3 py-2 text-left transition hover:-translate-y-0.5 hover:border-cyan-200/45 ${
                 active
                   ? "border-cyan-200/50 bg-cyan-400/15 shadow-[0_14px_45px_rgba(34,211,238,.16)]"
-                  : "border-white/10 bg-white/[0.045]"
+                  : "border-line bg-surface-flat"
               }`}
               key={id}
               type="button"
@@ -183,10 +183,10 @@ export function GenerationFilterBar({ value, onChange }) {
               ) : (
                 <Layers className="absolute bottom-3 right-3 text-cyan-100/60" size={24} />
               )}
-              <span className="relative block text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">
+              <span className="relative block text-[10px] font-black uppercase tracking-[0.14em] text-muted">
                 {id === "all" ? "Filtre" : `Gén. ${id}`}
               </span>
-              <strong className="relative mt-1 block text-sm font-black text-white">{label}</strong>
+              <strong className="relative mt-1 block text-sm font-black text-domain-foreground">{label}</strong>
             </button>
           );
         })}
@@ -203,24 +203,24 @@ export function CompletionList({ items }) {
           const percent = item.percent ?? Math.round((item.complete / Math.max(item.count, 1)) * 100);
           return (
             <div className="grid grid-cols-[5.5rem_1fr_4.6rem] items-center gap-3 text-sm" key={item.generation || item.id}>
-              <span className="truncate font-bold text-slate-300">
+              <span className="truncate font-bold text-foreground-secondary">
                 {item.generation ? `Gén. ${item.generation}` : item.id}
               </span>
-              <span className="h-3 overflow-hidden rounded-full bg-white/10">
+              <span className="h-3 overflow-hidden rounded-full bg-surface-emphasis">
                 <i
                   className="block h-full rounded-full bg-gradient-to-r from-emerald-300 via-cyan-400 to-sky-500"
                   style={{ width: `${Math.min(100, percent)}%` }}
                 />
               </span>
-              <strong className="text-right font-black text-white">{percent}%</strong>
-              <span className="col-start-2 text-xs font-bold text-slate-500">
+              <strong className="text-right font-black text-domain-foreground">{percent}%</strong>
+              <span className="col-start-2 text-xs font-bold text-disabled">
                 {item.complete || 0}/{item.count || 0} fiches complètes
               </span>
             </div>
           );
         })
       ) : (
-        <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+        <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
           Aucune donnée à afficher.
         </p>
       )}
@@ -234,18 +234,18 @@ export function HistoryList({ history = [] }) {
       {history.length ? (
         history.map((item) => (
           <div
-            className="rounded-2xl border border-white/10 bg-slate-950/35 p-4"
+            className="rounded-2xl border border-line bg-surface-inset p-4"
             key={`${item.hash}-${item.date}`}
           >
-            <span className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+            <span className="text-xs font-black uppercase tracking-[0.18em] text-disabled">
               {item.date}
             </span>
-            <strong className="mt-1 block text-sm font-black text-white">{item.subject}</strong>
+            <strong className="mt-1 block text-sm font-black text-domain-foreground">{item.subject}</strong>
             <small className="mt-1 block font-mono text-xs text-cyan-200/70">{item.hash}</small>
           </div>
         ))
       ) : (
-        <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+        <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
           Historique indisponible pour le moment.
         </p>
       )}
@@ -262,12 +262,12 @@ export function MiniCardList({ entries, onOpen }) {
           const image = preferredPokemonImage(entry);
           return (
             <button
-              className="group grid grid-cols-[3.25rem_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/35 p-3 text-left transition hover:border-cyan-200/40 hover:bg-cyan-400/10"
+              className="group grid grid-cols-[3.25rem_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-line bg-surface-inset p-3 text-left transition hover:border-cyan-200/40 hover:bg-cyan-400/10"
               key={entry.key}
               type="button"
               onClick={() => onOpen(entry)}
             >
-              <span className="grid h-[3.25rem] w-[3.25rem] place-items-center rounded-2xl border border-white/10 bg-white/[0.055] p-1.5 shadow-inner">
+              <span className="grid h-[3.25rem] w-[3.25rem] place-items-center rounded-2xl border border-line bg-surface-subtle p-1.5 shadow-inner">
                 {image ? (
                   <img className="max-h-full object-contain drop-shadow-[0_12px_20px_rgba(0,0,0,.4)] transition group-hover:scale-110" src={image} alt="" />
                 ) : (
@@ -275,8 +275,8 @@ export function MiniCardList({ entries, onOpen }) {
                 )}
               </span>
               <span className="min-w-0">
-                <strong className="block truncate font-black text-white">{entry.name}</strong>
-                <small className="mt-1 block truncate text-xs font-bold text-slate-400">
+                <strong className="block truncate font-black text-domain-foreground">{entry.name}</strong>
+                <small className="mt-1 block truncate text-xs font-bold text-muted">
                   {entry.dexId} · {pokemonVariantLabel(entry)}
                 </small>
               </span>
@@ -287,7 +287,7 @@ export function MiniCardList({ entries, onOpen }) {
           );
         })
       ) : (
-        <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+        <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
           Rien à afficher ici.
         </p>
       )}
@@ -324,13 +324,13 @@ export function JsonIssueList({ entries }) {
           const customIssues = (entry.issues || []).filter((issue) => issue.category === "custom");
           return (
             <article
-              className="rounded-2xl border border-white/10 bg-slate-950/35 p-4"
+              className="rounded-2xl border border-line bg-surface-inset p-4"
               key={entry.key}
             >
               <div className="flex items-start justify-between gap-3">
                 <span className="min-w-0">
-                  <strong className="block truncate font-black text-white">{entry.name}</strong>
-                  <small className="mt-1 block truncate text-xs font-bold text-slate-400">
+                  <strong className="block truncate font-black text-domain-foreground">{entry.name}</strong>
+                  <small className="mt-1 block truncate text-xs font-bold text-muted">
                     {entry.kind} · {entry.file}
                   </small>
                 </span>
@@ -341,7 +341,7 @@ export function JsonIssueList({ entries }) {
               <div className="mt-3 flex flex-wrap gap-2">
                 {customIssues.slice(0, 8).map((issue) => (
                   <span
-                    className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-bold text-slate-200"
+                    className="rounded-full border border-line bg-surface-control px-3 py-1 text-xs font-bold text-foreground"
                     key={`${entry.key}-${issue.ruleId}-${issue.path}`}
                   >
                     {issue.path}
@@ -352,7 +352,7 @@ export function JsonIssueList({ entries }) {
           );
         })
       ) : (
-        <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+        <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
           Rien à afficher ici.
         </p>
       )}

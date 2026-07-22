@@ -46,7 +46,7 @@ for (const category of Object.keys(classifications)) {
 
 const expectedPrimitiveHashes = {
   "src/components/ui/field.tsx": "c5a4830f582800106996f5a7c60369c9f771864fdcaa19e2ab51d0dc44da4c33",
-  "src/components/ui/input.tsx": "695ad5585f477937e30aa6979782a90aefc6102baac1b39e7b355603a95dee21",
+  "src/components/ui/input.tsx": "33cdc47545c8318430884d416efbd98975d6a8bfc961db157ab28fd94dd8c78c",
 };
 
 const correctionContracts = [
@@ -85,9 +85,9 @@ const correctionContracts = [
 
 const migrationApplied = source("src/components/admin/pokemon/login-card.jsx").includes("form-a11y-pokemon-admin-password");
 
-test("l’univers reste composé de 95 contrôles et la cohorte initiale contient exactement 43 cas", () => {
+test("l’univers courant comporte 129 contrôles et la cohorte initiale contient exactement 43 cas", () => {
   const sites = loadFieldInventory();
-  assert.equal(sites.length, 95);
+  assert.equal(sites.length, 129);
   const byId = new Map(sites.map((site) => [site.id, site]));
   assert.equal(initialUnnamedIds.length, 43);
   assert.deepEqual([...new Set(initialUnnamedIds)].sort(), [...initialUnnamedIds].sort());
@@ -103,7 +103,7 @@ test("la classification de la cohorte reste A1, B18, C3 et D21", () => {
   assert.deepEqual([...classified].sort(), [...initialUnnamedIds].sort());
 });
 
-test("Field, Input et Textarea restent strictement inchangés", () => {
+test("Field reste inchangé et Input/Textarea conservent le contrat Color System validé", () => {
   for (const [file, expected] of Object.entries(expectedPrimitiveHashes)) {
     assert.equal(sha256(file), expected, `${file} ne doit pas être modifié par ce sprint`);
   }
@@ -111,8 +111,7 @@ test("Field, Input et Textarea restent strictement inchangés", () => {
 
 test("les contrôles spécialisés et les cas ambigus restent sans correction inventée", () => {
   const kanban = source("src/components/admin/forms/kanban-board.tsx");
-  assert.match(kanban, /type="checkbox"[\s\S]{0,500}<Input\s+value=\{item\.text\}/);
-  assert.doesNotMatch(kanban, /type="checkbox"[^>]*aria-label/);
+  assert.match(kanban, /<Checkbox\s+aria-label=\{item\.text \|\| "Action de checklist"\}[\s\S]{0,500}<Input\s+value=\{item\.text\}/);
   const learning = source("src/components/admin/learning/learning-import-modal.tsx");
   assert.match(learning, /className="sr-only" type="file"/);
   assert.match(learning, /className="sr-only" type="radio"/);

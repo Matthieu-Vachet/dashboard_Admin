@@ -107,7 +107,7 @@ export function JavaScriptExercises() {
               "rounded-lg border px-4 py-2 text-sm font-black transition",
               activeLevel === level
                 ? "border-brand-2/40 bg-brand-2/15 text-brand-2"
-                : cn("border-line bg-white/[0.045] text-muted hover:text-foreground", level !== "Tous" && exerciseLevelBadge[level]),
+                : cn("border-line bg-surface-flat text-muted hover:text-foreground", level !== "Tous" && exerciseLevelBadge[level]),
             )}
             key={level}
             type="button"
@@ -139,7 +139,7 @@ export function JavaScriptExercises() {
                       "rounded-lg border px-3 py-2 text-xs font-black transition",
                       exerciseState.completed
                         ? "border-brand-3/30 bg-brand-3/15 text-brand-3"
-                        : "border-line bg-white/[0.045] text-muted hover:text-foreground",
+                        : "border-line bg-surface-flat text-muted hover:text-foreground",
                     )}
                     type="button"
                     onClick={() => toggleCompleted(exercise.id)}
@@ -150,13 +150,13 @@ export function JavaScriptExercises() {
 
                 <div className="mt-3 flex flex-wrap gap-2">
                   {exercise.concepts.map((concept) => (
-                    <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-[11px] font-black text-muted" key={concept}>
+                    <span className="rounded-full border border-line bg-surface-control px-3 py-1 text-[11px] font-black text-muted" key={concept}>
                       {concept}
                     </span>
                   ))}
                 </div>
 
-                <p className="mt-4 rounded-lg border border-line bg-black/15 p-3 text-sm font-semibold leading-6 text-muted">
+                <p className="mt-4 rounded-lg border border-line bg-surface-recessed p-3 text-sm font-semibold leading-6 text-muted">
                   {exercise.statement}
                 </p>
 

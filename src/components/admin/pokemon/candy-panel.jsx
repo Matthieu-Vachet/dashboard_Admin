@@ -111,7 +111,7 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
           const secondary = colorToCss(group.secondaryColor);
           return (
             <article
-              className="min-w-0 overflow-hidden rounded-3xl border border-white/10 bg-slate-950/55 shadow-[0_22px_70px_rgba(0,0,0,.22)]"
+              className="min-w-0 overflow-hidden rounded-3xl border border-line bg-slate-950/55 shadow-[0_22px_70px_rgba(0,0,0,.22)]"
               key={group.familyId}
             >
               <div
@@ -125,10 +125,10 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
                   {group.image ? (
                     <img className="max-h-full object-contain drop-shadow-xl" src={group.image} alt="" />
                   ) : (
-                    <CircleDot size={30} className="text-slate-500" />
+                    <CircleDot size={30} className="text-disabled" />
                   )}
                 </span>
-                <div className="relative min-w-0 text-white drop-shadow-[0_2px_12px_rgba(0,0,0,.38)]">
+                <div className="relative min-w-0 text-domain-foreground drop-shadow-[0_2px_12px_rgba(0,0,0,.38)]">
                   <p className="text-xs font-black uppercase tracking-[0.18em] opacity-80">FamilyId</p>
                   <strong className="mt-1 block text-3xl font-black">{group.familyId}</strong>
                   <p className="mt-2 text-sm font-black">
@@ -142,14 +142,14 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
                     ["primaryColor", group.primaryColor],
                     ["secondaryColor", group.secondaryColor],
                   ].map(([label, color]) => (
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.055] p-3" key={label}>
-                      <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
+                    <div className="rounded-2xl border border-line bg-surface-subtle p-3" key={label}>
+                      <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
                         {label}
                       </span>
                       <span className="mt-2 flex items-center gap-2">
                         <i className="h-6 w-6 rounded-full border border-white/30" style={{ background: colorToCss(color) }} />
                         <span className="min-w-0">
-                          <strong className="block break-all text-xs text-slate-100">{colorToLabel(color)}</strong>
+                          <strong className="block break-all text-xs text-foreground">{colorToLabel(color)}</strong>
                           {colorToHex(color) ? (
                             <small className="mt-1 block font-mono text-[11px] font-black text-cyan-100/75">{colorToHex(color)}</small>
                           ) : null}
@@ -159,7 +159,7 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
                   ))}
                 </div>
                 <div>
-                  <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+                  <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-disabled">
                     Pokémon associés
                   </span>
                   <div className="flex max-h-52 flex-wrap gap-2 overflow-auto pr-1">
@@ -178,7 +178,7 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
                           <span className="max-w-[11rem] truncate">
                             {entry.dexId} · {entry.name}
                           </span>
-                          <small className="rounded-full bg-slate-950/30 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em]">
+                          <small className="rounded-full bg-surface-inset-subtle px-2 py-0.5 text-[10px] uppercase tracking-[0.12em]">
                             {pokemonVariantLabel(entry)}
                           </small>
                         </button>
@@ -192,7 +192,7 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
         })}
       </div>
       {!filteredGroups.length ? (
-        <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+        <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
           Aucun candy ne correspond à la recherche actuelle.
         </p>
       ) : null}

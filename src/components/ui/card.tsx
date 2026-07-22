@@ -2,7 +2,7 @@ import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 type CardProps = HTMLAttributes<HTMLDivElement> & {
-  tone?: "soft" | "strong";
+  tone?: "soft" | "strong" | "flat";
 };
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
@@ -14,7 +14,11 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
       ref={ref}
       className={cn(
         "rounded-lg",
-        tone === "strong" ? "glass-panel-strong" : "glass-panel",
+        tone === "strong"
+          ? "glass-panel-strong"
+          : tone === "flat"
+            ? "border border-line bg-surface-flat"
+            : "glass-panel",
         className,
       )}
       {...props}

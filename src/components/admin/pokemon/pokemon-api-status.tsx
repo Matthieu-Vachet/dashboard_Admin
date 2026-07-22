@@ -58,7 +58,7 @@ export function PokemonApiStatus({ compact = false }: { compact?: boolean }) {
   }, []);
 
   return (
-    <div className={cn("rounded-lg border border-line bg-white/[0.055] p-3", compact ? "space-y-3" : "space-y-4")}>
+    <div className={cn("rounded-lg border border-line bg-surface-subtle p-3", compact ? "space-y-3" : "space-y-4")}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div
           className={cn(
@@ -120,7 +120,7 @@ function MiniStatus({
   value: string;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-lg border border-line bg-black/15 px-3 py-2">
+    <div className="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface-recessed px-3 py-2">
       <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-muted">
         {icon}
         {label}

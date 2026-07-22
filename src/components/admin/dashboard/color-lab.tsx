@@ -37,7 +37,7 @@ export function ColorLab() {
           </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-[180px_1fr]">
-          <label className="grid aspect-square place-items-center rounded-lg border border-line bg-white/[0.045] p-4">
+          <label className="grid aspect-square place-items-center rounded-lg border border-line bg-surface-flat p-4">
             <input
               className="h-full w-full cursor-pointer rounded-lg border-0 bg-transparent"
               type="color"
@@ -100,10 +100,10 @@ export function ColorLab() {
           <h3 className="text-lg font-black">Nuancier sauvegardé</h3>
           <div className="mt-4 grid gap-2">
             {swatches.map((swatch) => (
-              <div key={swatch} className="grid grid-cols-[48px_1fr_auto_auto] items-center gap-2 rounded-lg border border-line bg-white/[0.045] p-2">
+              <Card tone="flat" key={swatch} className="grid grid-cols-[48px_1fr_auto_auto] items-center gap-2 p-2">
                 <button
                   type="button"
-                  className="h-10 rounded-md border border-white/15"
+                  className="h-10 rounded-md border border-line-medium"
                   style={{ backgroundColor: swatch }}
                   aria-label={`Utiliser ${swatch}`}
                   onClick={() => setColor(swatch)}
@@ -121,7 +121,7 @@ export function ColorLab() {
                 >
                   <Trash2 size={16} />
                 </Button>
-              </div>
+              </Card>
             ))}
           </div>
         </Card>
@@ -145,7 +145,7 @@ function ColorValue({
     <button
       type="button"
       onClick={() => onCopy(value)}
-      className="grid w-full grid-cols-[72px_1fr_auto] items-center gap-3 rounded-lg border border-line bg-white/[0.045] p-3 text-left"
+      className="grid w-full grid-cols-[72px_1fr_auto] items-center gap-3 rounded-lg border border-line bg-surface-flat p-3 text-left"
     >
       <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">{label}</span>
       <span className="font-mono text-sm font-black">{value}</span>

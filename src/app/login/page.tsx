@@ -27,7 +27,7 @@ export default async function LoginPage({
           </p>
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
             {["Design system", "Outils quotidiens", "Projet cockpit"].map((item) => (
-              <div key={item} className="rounded-lg border border-line bg-white/[0.055] p-3">
+              <div key={item} className="rounded-lg border border-line bg-surface-subtle p-3">
                 <Sparkles size={16} className="text-brand-2" />
                 <p className="mt-3 text-sm font-black">{item}</p>
               </div>
@@ -37,7 +37,7 @@ export default async function LoginPage({
 
         <Card tone="strong" className="p-5 sm:p-6">
           <div className="flex items-center gap-3">
-            <span className="grid h-11 w-11 place-items-center rounded-lg bg-gradient-to-br from-brand to-brand-2 text-white">
+            <span className="grid h-11 w-11 place-items-center rounded-lg bg-gradient-to-br from-brand to-brand-2 text-inverse">
               <LockKeyhole size={20} />
             </span>
             <div>

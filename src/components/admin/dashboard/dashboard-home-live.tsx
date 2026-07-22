@@ -223,7 +223,7 @@ export function DashboardHomeLive() {
       <WidgetContent title="Calendrier" eyebrow="À venir" icon={CalendarDays}>
         <div className="space-y-2">
           {upcomingEvents.slice(0, 4).map((event) => (
-            <Link key={event.id} href="/calendar" className="grid grid-cols-[74px_1fr] rounded-lg border border-line bg-white/[0.045] p-3 transition hover:border-brand-2/45">
+            <Link key={event.id} href="/calendar" className="grid grid-cols-[74px_1fr] rounded-lg border border-line bg-surface-flat p-3 transition hover:border-brand-2/45">
               <span className="font-mono text-xs font-black text-brand-2">{event.date.slice(5)}</span>
               <span className="min-w-0">
                 <strong className="block truncate text-sm font-black">{event.title}</strong>
@@ -239,12 +239,12 @@ export function DashboardHomeLive() {
       <WidgetContent title="Projets" eyebrow="Portfolio" icon={FolderKanban}>
         <div className="space-y-3">
           {activeProjects.slice(0, 4).map((project) => (
-            <Link key={project.id} href="/projects" className="block rounded-lg border border-line bg-white/[0.045] p-3 transition hover:border-brand-2/45">
+            <Link key={project.id} href="/projects" className="block rounded-lg border border-line bg-surface-flat p-3 transition hover:border-brand-2/45">
               <div className="flex items-center justify-between gap-3">
                 <strong className="truncate text-sm font-black">{project.name}</strong>
                 <Badge tone={project.status === "Live" ? "green" : "cyan"}>{project.status}</Badge>
               </div>
-              <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface-emphasis">
                 <span className="block h-full rounded-full bg-gradient-to-r from-brand via-brand-2 to-brand-3" style={{ width: `${project.progress}%` }} />
               </div>
             </Link>
@@ -373,7 +373,7 @@ function DailyCodePost({
   }
 
   return (
-    <div className="relative mx-auto w-full max-w-[720px] overflow-hidden rounded-xl border border-brand-2/20 bg-slate-950 text-white shadow-[0_24px_70px_rgba(32,211,255,0.12)]">
+    <div className="relative mx-auto w-full max-w-[720px] overflow-hidden rounded-xl border border-brand-2/20 bg-slate-950 text-inverse shadow-[0_24px_70px_rgba(32,211,255,0.12)]">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_0%,rgba(32,211,255,.28),transparent_34%),radial-gradient(circle_at_86%_22%,rgba(88,242,169,.22),transparent_30%),linear-gradient(145deg,rgba(144,91,244,.18),transparent_46%)]" />
       <div className="pointer-events-none absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.18)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.18)_1px,transparent_1px)] [background-size:28px_28px]" />
       <div className="relative flex min-h-[min(760px,calc(100dvh-7rem))] flex-col p-5 pt-16 sm:aspect-[4/5] sm:min-h-[32rem] sm:p-8 sm:pt-20">
@@ -383,7 +383,7 @@ function DailyCodePost({
             <p className="mt-1 text-xs font-bold text-muted">{date}</p>
           </div>
           <button
-            className="absolute right-5 top-16 inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/10 text-white transition hover:border-brand-2/45 hover:bg-brand-2/20 sm:right-8 sm:top-20"
+            className="absolute right-5 top-16 inline-flex h-10 w-10 items-center justify-center rounded-lg border border-line bg-surface-emphasis text-inverse transition hover:border-brand-2/45 hover:bg-brand-2/20 sm:right-8 sm:top-20"
             type="button"
             onClick={copyCaption}
             aria-label="Copier la légende Instagram"
@@ -396,11 +396,11 @@ function DailyCodePost({
           <h3 className="max-w-[12ch] break-words text-[clamp(2.1rem,9vw,4.8rem)] font-black leading-[0.95] sm:max-w-[11ch]">
             {tip.title}
           </h3>
-          <p className="mt-5 max-w-[34rem] text-sm font-bold leading-7 text-slate-200 sm:text-base">
+          <p className="mt-5 max-w-[34rem] text-sm font-bold leading-7 text-foreground sm:text-base">
             {tip.concept}
           </p>
         </div>
-        <pre className="mt-6 max-w-full overflow-x-auto whitespace-pre rounded-xl border border-white/10 bg-[#050816]/85 p-4 font-mono text-[clamp(.68rem,2.2vw,1rem)] font-bold leading-6 text-cyan-100 shadow-inner">
+        <pre className="mt-6 max-w-full overflow-x-auto whitespace-pre rounded-xl border border-line bg-[#050816]/85 p-4 font-mono text-[clamp(.68rem,2.2vw,1rem)] font-bold leading-6 text-cyan-100 shadow-inner">
           <code>{tip.snippet}</code>
         </pre>
         <p className="mt-5 rounded-xl border border-emerald-300/20 bg-emerald-400/10 p-3 text-sm font-black leading-6 text-emerald-100 sm:text-base">
@@ -408,7 +408,7 @@ function DailyCodePost({
         </p>
         <div className="mt-auto flex flex-wrap gap-2 pt-4">
           {tip.hashtags.map((hashtag) => (
-            <span className="rounded-full border border-white/10 bg-white/10 px-2.5 py-1 text-[0.68rem] font-black text-slate-100" key={hashtag}>
+            <span className="rounded-full border border-line bg-surface-emphasis px-2.5 py-1 text-[0.68rem] font-black text-foreground" key={hashtag}>
               {hashtag}
             </span>
           ))}
@@ -496,7 +496,7 @@ function LiveStat({
 
 function SignalRow({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
   return (
-    <div className="grid grid-cols-[auto_1fr] gap-3 rounded-lg border border-line bg-white/[0.045] p-3">
+    <Card tone="flat" className="grid grid-cols-[auto_1fr] gap-3 p-3">
       <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-2/10 text-brand-2">
         <Icon size={17} />
       </span>
@@ -504,7 +504,7 @@ function SignalRow({ icon: Icon, label, value }: { icon: LucideIcon; label: stri
         <span className="block text-xs font-black uppercase tracking-[0.16em] text-muted">{label}</span>
         <strong className="mt-1 block truncate text-sm font-black text-foreground">{value}</strong>
       </span>
-    </div>
+    </Card>
   );
 }
 
@@ -546,7 +546,7 @@ function GenerationBars({ items }: { items: Array<{ name: string; entries: numbe
             key={item.name}
           >
             <span className="truncate text-muted">{item.name}</span>
-            <span className="h-2 overflow-hidden rounded-full bg-white/10">
+            <span className="h-2 overflow-hidden rounded-full bg-surface-emphasis">
               <span
                 className="block h-full rounded-full"
                 style={{
@@ -577,12 +577,12 @@ function KanbanBars({ items }: { items: Array<{ name: string; count: number }> }
       {items.map((item, index) => {
         const width = Math.max(4, ((item.count || 0) / max) * 100);
         return (
-          <div className="rounded-lg border border-line bg-white/[0.045] p-3" key={item.name}>
+          <Card tone="flat" className="p-3" key={item.name}>
             <div className="mb-2 flex items-center justify-between gap-3 text-xs font-black">
               <span className="truncate text-foreground">{item.name}</span>
               <span className="font-mono text-muted">{item.count}</span>
             </div>
-            <span className="block h-2 overflow-hidden rounded-full bg-white/10">
+            <span className="block h-2 overflow-hidden rounded-full bg-surface-emphasis">
               <span
                 className="block h-full rounded-full"
                 style={{
@@ -591,7 +591,7 @@ function KanbanBars({ items }: { items: Array<{ name: string; count: number }> }
                 }}
               />
             </span>
-          </div>
+          </Card>
         );
       })}
     </div>
@@ -612,7 +612,7 @@ function ActionLink({
   return (
     <Link
       href={href}
-      className="group grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-lg border border-line bg-white/[0.045] p-3 transition hover:border-brand-2/45 hover:bg-brand-2/10"
+      className="group grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-lg border border-line bg-surface-flat p-3 transition hover:border-brand-2/45 hover:bg-brand-2/10"
     >
       <span className="grid h-10 w-10 place-items-center rounded-lg bg-white/[0.07] text-brand-2">
         <Icon size={18} />
@@ -629,7 +629,7 @@ function ActionLink({
 function ExternalButton({ href, label }: { href: string; label: string }) {
   const internal = href.startsWith("/");
   const className =
-    "group flex min-h-11 items-center justify-between gap-3 rounded-lg border border-line bg-white/[0.045] px-3 text-sm font-black transition duration-150 hover:border-brand-2/45 hover:bg-brand-2/10 focus-visible:[outline:revert]! focus-visible:[outline-offset:revert]!";
+    "group flex min-h-11 items-center justify-between gap-3 rounded-lg border border-line bg-surface-flat px-3 text-sm font-black transition duration-150 hover:border-brand-2/45 hover:bg-brand-2/10 focus-visible:[outline:revert]! focus-visible:[outline-offset:revert]!";
 
   if (internal) {
     return (

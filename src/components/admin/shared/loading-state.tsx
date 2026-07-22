@@ -22,8 +22,9 @@ export function DashboardLoadingState({
       </div>
       <div className="mt-8 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: 6 }).map((_, index) => (
-          <div
-            className="h-28 animate-pulse rounded-lg border border-line bg-white/[0.045]"
+          <Card
+            tone="flat"
+            className="h-28 animate-pulse"
             key={index}
           />
         ))}

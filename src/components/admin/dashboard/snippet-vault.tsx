@@ -106,7 +106,7 @@ export function SnippetVault() {
       </Card>
 
       <Card className="p-4">
-        <label className="flex min-h-11 items-center gap-2 rounded-lg border border-line bg-white/[0.055] px-3 text-muted">
+        <label className="flex min-h-11 items-center gap-2 rounded-lg border border-line bg-surface-subtle px-3 text-muted">
           <Search size={16} />
           <Input
             aria-label="Rechercher langage, tag, contenu..."

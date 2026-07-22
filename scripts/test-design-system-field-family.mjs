@@ -227,7 +227,10 @@ export function collectInventory() {
         const rawTag = jsxTagName(node.tagName);
         const primitive = inputAliases.get(rawTag);
         const native = rawTag === "input" || rawTag === "textarea";
-        const isPrimitiveImplementation = relativePath === "src/components/ui/input.tsx" && native;
+        const isPrimitiveImplementation = [
+          "src/components/ui/checkbox.tsx",
+          "src/components/ui/input.tsx",
+        ].includes(relativePath) && native;
         if ((primitive || native) && !isPrimitiveImplementation) {
           const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
           const field = nearestFieldAncestor(node, sourceFile, fieldAliases);
@@ -320,9 +323,9 @@ if (process.argv.includes("--dump-inventory")) {
     assert.match(source, /forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>/);
     assert.match(source, /<input\s+ref=\{ref\}/);
     assert.match(source, /<textarea\s+ref=\{ref\}/);
-    assert.match(source, /min-h-11 w-full rounded-lg border border-line bg-white\/\[0\.06\] px-3/);
-    assert.match(source, /placeholder:text-muted\/70 focus:border-brand-2\/55 focus:bg-white\/\[0\.09\]/);
-    assert.match(source, /min-h-32 w-full resize-none rounded-lg border border-line bg-white\/\[0\.06\] p-3/);
+    assert.match(source, /min-h-11 w-full rounded-lg border border-line bg-surface-control px-3/);
+    assert.match(source, /placeholder:text-muted\/70 focus:border-brand-2\/55 focus:bg-surface-control-focus/);
+    assert.match(source, /min-h-32 w-full resize-none rounded-lg border border-line bg-surface-control p-3/);
     assert.match(source, /cn\([\s\S]*?className,[\s\S]*?\)/);
   });
 
@@ -330,30 +333,30 @@ if (process.argv.includes("--dump-inventory")) {
     assert.match(readFileSync(cnPath, "utf8"), /twMerge\(clsx\(inputs\)\)/);
   });
 
-  test("l’inventaire exhaustif conserve ses 95 sites et ses états observés", () => {
+  test("l’inventaire exhaustif courant conserve ses 129 sites et ses états observés", () => {
     const inventory = collectInventory();
     const kinds = Object.groupBy(inventory.sites, (site) => site.kind);
     assert.deepEqual(
       Object.fromEntries(Object.entries(kinds).map(([kind, sites]) => [kind, sites.length])),
-      { Input: 47, Textarea: 12, "native-input": 29, "native-textarea": 7 },
+      { Input: 67, Textarea: 16, "native-input": 39, "native-textarea": 7 },
     );
-    assert.equal(inventory.semanticLabelSites, 68);
-    assert.equal(inventory.wrappers.length, 5);
-    assert.equal(inventory.sites.filter((site) => site.controlled).length, 91);
+    assert.equal(inventory.semanticLabelSites, 84);
+    assert.equal(inventory.wrappers.length, 6);
+    assert.equal(inventory.sites.filter((site) => site.controlled).length, 124);
     assert.equal(inventory.sites.filter((site) => site.required).length, 2);
-    assert.equal(inventory.sites.filter((site) => site.disabled).length, 2);
+    assert.equal(inventory.sites.filter((site) => site.disabled).length, 6);
     assert.equal(inventory.sites.filter((site) => site.readOnly).length, 2);
-    assert.equal(inventory.sites.filter((site) => site.placeholder).length, 42);
-    assert.equal(inventory.sites.filter((site) => site.named).length, 52);
-    assert.equal(inventory.sites.filter((site) => site.ariaInvalid).length, 0);
-    assert.equal(inventory.sites.filter((site) => site.ariaDescribedby).length, 0);
+    assert.equal(inventory.sites.filter((site) => site.placeholder).length, 76);
+    assert.equal(inventory.sites.filter((site) => site.named).length, 72);
+    assert.equal(inventory.sites.filter((site) => site.ariaInvalid).length, 1);
+    assert.equal(inventory.sites.filter((site) => site.ariaDescribedby).length, 5);
   });
 
-  test("la classification reste A25, B6, C13 et D51", () => {
+  test("la classification courante reste A25, B6, C6 et D92", () => {
     const categories = Object.groupBy(collectInventory().sites, (site) => site.category);
     assert.deepEqual(
       Object.fromEntries(Object.entries(categories).map(([category, sites]) => [category, sites.length])),
-      { A: 25, B: 6, C: 13, D: 51 },
+      { A: 25, B: 6, C: 6, D: 92 },
     );
     assert.equal(collectInventory().sites.filter((site) => site.commonField).length, 27);
   });
@@ -361,8 +364,8 @@ if (process.argv.includes("--dump-inventory")) {
   test("les contrôles spécialisés et RangeFields restent hors migration", () => {
     const inventory = collectInventory();
     for (const site of inventory.sites.filter((item) => specializedTypes.has(item.type))) {
-      assert.equal(site.kind.startsWith("native-"), true, `${site.file}:${site.line}`);
       assert.equal(site.category, "C", `${site.file}:${site.line}`);
+      assert.equal(site.commonField, false, `${site.file}:${site.line}`);
     }
     assert.equal(inventory.sites.filter((site) => site.component === "RangeFields").length, 2);
     assert.ok(inventory.sites.filter((site) => site.component === "RangeFields").every((site) => site.category === "B"));

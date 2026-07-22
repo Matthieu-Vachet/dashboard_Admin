@@ -22,12 +22,12 @@ export function MetricCard({ label, value, accent = "blue", icon }) {
       }`}
     >
       {icon ? (
-        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-lg border border-white/10 bg-slate-950/35 p-2">
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-lg border border-line bg-surface-inset p-2">
           <img className="metric-interface-icon max-h-full object-contain" src={icon} alt="" />
         </span>
       ) : null}
       <span className="min-w-0">
-        <span className="block truncate text-xs font-bold uppercase tracking-wide text-slate-300">
+        <span className="block truncate text-xs font-bold uppercase tracking-wide text-foreground-secondary">
           {label}
         </span>
         <strong

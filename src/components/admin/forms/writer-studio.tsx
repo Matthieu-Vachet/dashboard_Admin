@@ -150,7 +150,7 @@ export function WriterStudio() {
                 "grid w-full grid-cols-[auto_1fr] gap-3 rounded-lg border p-3 text-left transition",
                 selected?.id === document.id
                   ? "border-brand-2/45 bg-brand-2/12"
-                  : "border-line bg-white/[0.04] hover:bg-white/[0.075]",
+                  : "border-line bg-surface-minimal hover:bg-white/[0.075]",
               )}
             >
               <span className="grid h-10 w-10 place-items-center rounded-lg bg-brand-2/10 text-brand-2">
@@ -217,7 +217,7 @@ export function WriterStudio() {
               />
             </div>
 
-            <div className="flex flex-wrap gap-2 rounded-lg border border-line bg-white/[0.04] p-2">
+            <div className="flex flex-wrap gap-2 rounded-lg border border-line bg-surface-minimal p-2">
               <ToolbarButton label="Gras" icon={<Bold size={15} />} onClick={() => applyFormat("**", "**", "gras")} />
               <ToolbarButton label="Italique" icon={<Italic size={15} />} onClick={() => applyFormat("_", "_", "italique")} />
               <ToolbarButton label="Souligné" icon={<Underline size={15} />} onClick={() => applyFormat("<u>", "</u>", "souligné")} />
@@ -241,7 +241,7 @@ export function WriterStudio() {
               {preview ? <DocumentPreview body={selected.body} /> : null}
             </div>
 
-            <div className="grid gap-2 rounded-lg border border-line bg-white/[0.04] p-3 text-xs font-bold text-muted sm:grid-cols-2">
+            <div className="grid gap-2 rounded-lg border border-line bg-surface-minimal p-3 text-xs font-bold text-muted sm:grid-cols-2">
               <span>Créé : {selected.createdAt}</span>
               <span>Modifié : {selected.updatedAt}</span>
             </div>
@@ -276,7 +276,7 @@ function DocumentPreview({ body }: { body: string }) {
   const blocks = body.split("```");
 
   return (
-    <div className="min-h-[58dvh] overflow-y-auto rounded-lg border border-line bg-white/[0.045] p-5">
+    <div className="min-h-[58dvh] overflow-y-auto rounded-lg border border-line bg-surface-flat p-5">
       <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-2">Aperçu</p>
       <div className="mt-4 space-y-3">
         {blocks.map((block, blockIndex) => {

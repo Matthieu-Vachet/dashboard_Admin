@@ -24,6 +24,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select } from "@/components/ui/select";
 import { resolvePokemonVariant } from "@/lib/pokemon-variant-resolver";
 import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
 import {
@@ -45,7 +47,7 @@ import type {
 const numberFormatter = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
 const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" });
 const placeholderImage = "/ui/icons/pokemon.png";
-const selectClass = "min-h-11 w-full rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-bold text-foreground outline-none focus:border-brand-2/55";
+const selectClass = "min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-bold text-foreground outline-none focus:border-brand-2/55";
 
 type QueryState = {
   search: string;
@@ -192,7 +194,7 @@ function PokemonTable({ items }: { items: TrainerPokemon[] }) {
           {['Pokémon', 'Nom et surnom', 'Forme / costume', 'CP', 'IV', 'Attaques', 'Poids', 'Taille', 'Genre', 'États'].map((label) => <th className="border-b border-line px-3 py-3 font-black uppercase tracking-wider" key={label}>{label}</th>)}
         </tr></thead>
         <tbody>{items.map((pokemon) => (
-          <tr className="border-b border-line/70 align-middle last:border-0 hover:bg-white/[0.055]" style={pokemonSurface(pokemon)} key={pokemon.sourceId}>
+          <tr className="border-b border-line/70 align-middle last:border-0 hover:bg-surface-subtle" style={pokemonSurface(pokemon)} key={pokemon.sourceId}>
             <td className="px-3 py-2"><div className="flex items-center gap-2"><PokemonImage pokemon={pokemon} /><strong className="font-mono">#{pokemon.dexNumber}</strong></div></td>
             <td className="max-w-56 px-3 py-2"><strong className="block truncate text-sm">{pokemon.frenchName}</strong><span className="block truncate font-semibold text-muted">{pokemon.nickname || "Aucun surnom"}</span><span className="block truncate text-[10px] text-muted/70">{pokemon.sourceName}</span></td>
             <td className="max-w-48 px-3 py-2"><div className="flex flex-wrap gap-1">{pokemon.form ? <Badge>{pokemon.form}</Badge> : <span className="text-muted">—</span>}{pokemon.costume ? <Badge tone="violet">{pokemon.costume}</Badge> : null}</div></td>
@@ -238,7 +240,7 @@ function ImportModal({
         {preview ? <div className="grid gap-3">
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{[
             ["Nom", preview.sourceFileName], ["Export", preview.sourceExportTime || "Non renseigné"], ["Annoncé", preview.declaredPokemonCount], ["Réel", preview.actualPokemonCount], ["Valides", preview.validPokemonCount], ["Avertissements", Object.values(preview.diagnosticCounts).reduce((sum, count) => sum + count, 0)],
-          ].map(([label, value]) => <div className="rounded-lg border border-line bg-white/[0.04] p-3" key={label}><span className="block text-[10px] font-black uppercase text-muted">{label}</span><strong className="mt-1 block break-words text-sm">{String(value)}</strong></div>)}</div>
+          ].map(([label, value]) => <div className="rounded-lg border border-line bg-surface-minimal p-3" key={label}><span className="block text-[10px] font-black uppercase text-muted">{label}</span><strong className="mt-1 block break-words text-sm">{String(value)}</strong></div>)}</div>
           <div className="rounded-lg border border-warning/30 bg-warning/10 p-3 text-xs font-semibold text-amber-100"><strong className="block text-sm">Diagnostics non bloquants</strong>{Object.entries(preview.diagnosticCounts).filter(([, count]) => count).map(([code, count]) => <span className="mt-1 block" key={code}>{code} : {count}</span>)}</div>
           {preview.diagnostics.length ? <details className="rounded-lg border border-line p-3"><summary className="cursor-pointer text-sm font-black">Voir les premiers diagnostics précis</summary><ul className="mt-3 max-h-44 space-y-2 overflow-auto text-xs">{preview.diagnostics.slice(0, 30).map((item, index) => <li key={`${item.code}-${item.path}-${index}`}><code className="text-brand-2">{item.path}</code><span className="ml-2 text-muted">{item.message}</span></li>)}</ul></details> : null}
         </div> : null}
@@ -358,7 +360,7 @@ export function TrainerPokemonCollectionPanel() {
           <div><p className="text-xs font-black uppercase tracking-[0.2em] text-brand-2">Collection privée · MongoDB</p><h2 className="mt-1 text-2xl font-black sm:text-3xl" id="trainer-pokemon-title">Ma collection Pokémon GO</h2><p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-muted">Import atomique, consultation paginée et diagnostics des correspondances avec les référentiels canoniques.</p></div>
           <div className="flex flex-wrap gap-2"><Button icon={<History size={16} />} loading={historyLoading} loadingText="Historique…" onClick={() => void openHistory()}>Historique</Button><Button icon={<RefreshCcw size={16} />} loading={refreshing} loadingText="Actualisation…" onClick={() => void load(true)}>Rafraîchir</Button><Button variant="primary" icon={<Upload size={16} />} onClick={() => { setImportOpen(true); setImportPhase("idle"); setImportError(null); setImportFileName(""); }}>Importer un JSON</Button></div>
         </div>
-        {data?.snapshot ? <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 rounded-lg border border-line bg-white/[0.04] p-3 text-xs font-semibold text-muted"><span><strong className="text-foreground">Fichier :</strong> {data.snapshot.sourceFileName}</span><span><strong className="text-foreground">Dernier import :</strong> {dateFormatter.format(new Date(data.snapshot.importedAt))}</span><span><strong className="text-foreground">Export :</strong> {data.snapshot.sourceExportTime || "Non renseigné"}</span><span><strong className="text-foreground">Checksum :</strong> <code>{data.snapshot.checksum.slice(0, 12)}</code></span></div> : null}
+        {data?.snapshot ? <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 rounded-lg border border-line bg-surface-minimal p-3 text-xs font-semibold text-muted"><span><strong className="text-foreground">Fichier :</strong> {data.snapshot.sourceFileName}</span><span><strong className="text-foreground">Dernier import :</strong> {dateFormatter.format(new Date(data.snapshot.importedAt))}</span><span><strong className="text-foreground">Export :</strong> {data.snapshot.sourceExportTime || "Non renseigné"}</span><span><strong className="text-foreground">Checksum :</strong> <code>{data.snapshot.checksum.slice(0, 12)}</code></span></div> : null}
       </Card>
 
       {statCards.length ? <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-7">{statCards.map(([label, value, tone]) => <Card className="p-3" key={label}><span className="block text-[10px] font-black uppercase tracking-wider text-muted">{label}</span><strong className="mt-1 block font-mono text-2xl">{value.toLocaleString("fr-FR")}</strong><Badge tone={tone} className="mt-2">collection active</Badge></Card>)}</div> : null}
@@ -372,7 +374,7 @@ export function TrainerPokemonCollectionPanel() {
           <FilterSelect label="Chanceux" value={query.lucky} onChange={(value) => updateQuery({ lucky: value as QueryState["lucky"] })} options={[["all", "Tous"], ["yes", "Oui"], ["no", "Non"]]} />
           <FilterSelect label="Genre" value={query.gender} onChange={(value) => updateQuery({ gender: value })} options={[["", "Tous"], ...Object.entries(genderLabels)]} />
           <FilterSelect label="Alignement" value={query.alignment} onChange={(value) => updateQuery({ alignment: value })} options={[["", "Tous"], ["NORMAL", "Normal"], ["SHADOW", "Obscur"], ["PURIFIED", "Purifié"], ["UNKNOWN", "Inconnu"]]} />
-          <label className="flex min-h-11 items-center gap-2 rounded-lg border border-line bg-white/[0.04] px-3 text-sm font-bold"><input type="checkbox" checked={query.perfect} onChange={(event) => updateQuery({ perfect: event.target.checked })} /> IV 100 % uniquement</label>
+          <label className="flex min-h-11 items-center gap-2 rounded-lg border border-line bg-surface-minimal px-3 text-sm font-bold"><Checkbox checked={query.perfect} onChange={(event) => updateQuery({ perfect: event.target.checked })} /> IV 100 % uniquement</label>
           <Button className="min-h-11" icon={<SlidersHorizontal size={15} />} onClick={() => setMoreFiltersOpen((open) => !open)} aria-expanded={moreFiltersOpen}>Plus de filtres <Badge tone={activeFilterCount ? "cyan" : "neutral"}>{activeFilterCount}</Badge><ChevronDown className={moreFiltersOpen ? "rotate-180 transition" : "transition"} size={15} /></Button>
           <Button className="min-h-11" icon={<RotateCcw size={15} />} onClick={() => { setQuery(initialQuery); setMoreFiltersOpen(false); }}>Réinitialiser les filtres</Button>
         </div>
@@ -403,7 +405,7 @@ export function TrainerPokemonCollectionPanel() {
 }
 
 function FilterSelect({ label, value, options, onChange }: { label: string; value: string; options: Array<readonly [string, string]>; onChange: (value: string) => void }) {
-  return <label className="grid gap-1 text-xs font-black text-muted"><span>{label}</span><select className={selectClass} value={value} onChange={(event) => onChange(event.target.value)}>{options.map(([id, name]) => <option key={id || "all"} value={id}>{name}</option>)}</select></label>;
+  return <label className="grid gap-1 text-xs font-black text-muted"><span>{label}</span><Select className={selectClass} value={value} onChange={(event) => onChange(event.target.value)}>{options.map(([id, name]) => <option key={id || "all"} value={id}>{name}</option>)}</Select></label>;
 }
 
 function RangeFields({ label, min, max, maxValue, step = "1", onMin, onMax }: { label: string; min: string; max: string; maxValue?: number; step?: string; onMin: (value: string) => void; onMax: (value: string) => void }) {
@@ -411,5 +413,5 @@ function RangeFields({ label, min, max, maxValue, step = "1", onMin, onMax }: { 
 }
 
 function Pagination({ query, data, onPage, onLimit }: { query: QueryState; data: TrainerPokemonListResponse; onPage: (page: number) => void; onLimit: (limit: number) => void }) {
-  return <Card className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between"><span className="text-sm font-semibold text-muted">Page <strong className="text-foreground">{data.pagination.page}</strong> sur {Math.max(1, data.pagination.pages)} · {data.pagination.total.toLocaleString("fr-FR")} résultat(s)</span><div className="flex flex-wrap items-center gap-2"><label className="text-xs font-bold text-muted">Par page <select className="ml-2 min-h-9 rounded-lg border border-line bg-panel px-2 text-foreground" value={query.limit} onChange={(event) => onLimit(Number(event.target.value))}><option value="25">25</option><option value="50">50</option><option value="100">100</option></select></label><Button size="icon" aria-label="Page précédente" onClick={() => onPage(query.page - 1)} disabled={query.page <= 1}><ArrowLeft size={16} /></Button><Button size="icon" aria-label="Page suivante" onClick={() => onPage(query.page + 1)} disabled={query.page >= data.pagination.pages}><ArrowRight size={16} /></Button></div></Card>;
+  return <Card className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between"><span className="text-sm font-semibold text-muted">Page <strong className="text-foreground">{data.pagination.page}</strong> sur {Math.max(1, data.pagination.pages)} · {data.pagination.total.toLocaleString("fr-FR")} résultat(s)</span><div className="flex flex-wrap items-center gap-2"><label className="text-xs font-bold text-muted">Par page <Select className="ml-2 min-h-9 rounded-lg border border-line bg-panel px-2 text-foreground" value={query.limit} onChange={(event) => onLimit(Number(event.target.value))}><option value="25">25</option><option value="50">50</option><option value="100">100</option></Select></label><Button size="icon" aria-label="Page précédente" onClick={() => onPage(query.page - 1)} disabled={query.page <= 1}><ArrowLeft size={16} /></Button><Button size="icon" aria-label="Page suivante" onClick={() => onPage(query.page + 1)} disabled={query.page >= data.pagination.pages}><ArrowRight size={16} /></Button></div></Card>;
 }

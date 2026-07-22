@@ -113,7 +113,7 @@ export function Pomodoro() {
                     "rounded-lg border px-4 py-2 text-sm font-black transition",
                     mode === item
                       ? "border-brand-2/40 bg-brand-2/15 text-brand-2"
-                      : "border-line bg-white/[0.045] text-muted hover:text-foreground",
+                      : "border-line bg-surface-flat text-muted hover:text-foreground",
                   )}
                   key={item}
                   type="button"
@@ -152,10 +152,10 @@ export function Pomodoro() {
           </div>
           <div className="mt-5 space-y-2">
             {stats.history.slice(0, 6).map((item) => (
-              <div className="rounded-lg border border-line bg-white/[0.045] p-3 text-sm font-bold" key={`${item.mode}-${item.finishedAt}`}>
+              <Card tone="flat" className="p-3 text-sm font-bold" key={`${item.mode}-${item.finishedAt}`}>
                 {modeLabels[item.mode]} terminé
                 <span className="mt-1 block text-xs text-muted">{new Date(item.finishedAt).toLocaleString("fr-FR")}</span>
-              </div>
+              </Card>
             ))}
             {!stats.history.length ? (
               <p className="rounded-lg border border-dashed border-line p-4 text-sm font-semibold text-muted">
@@ -171,12 +171,12 @@ export function Pomodoro() {
 
 function MiniStat({ icon: Icon, label, value }: { icon: typeof TimerReset; label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between rounded-lg border border-line bg-white/[0.045] p-3">
+    <Card tone="flat" className="flex items-center justify-between p-3">
       <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-muted">
         <Icon size={15} />
         {label}
       </span>
       <strong className="font-mono text-xl font-black">{value}</strong>
-    </div>
+    </Card>
   );
 }

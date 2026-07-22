@@ -1,5 +1,6 @@
 import { catalogItem, pokemonVariantLabel, preferredPokemonImage, typeBackground, typeColors, typeIcon, typeName } from "@/components/site/pokemon-style";
 import { uiAssets } from "@/components/site/ui-assets";
+import { Checkbox } from "@/components/ui/checkbox";
 
 /** Vérifie si une fiche possède au moins un asset exploitable. */
 function hasAssets(entry) {
@@ -28,7 +29,7 @@ function TypeBadge({ type, catalog }) {
   if (!type) return null;
   return (
     <span
-      className="inline-flex min-h-9 min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 px-3 text-xs font-black text-white shadow-sm"
+      className="inline-flex min-h-9 min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border border-line px-3 text-xs font-black text-domain-foreground shadow-sm"
       style={{
         background: `color-mix(in srgb, ${typeColors[type] || "#7aa7ff"} 58%, rgba(255,255,255,.12))`,
       }}
@@ -49,7 +50,7 @@ function TypeBadge({ type, catalog }) {
 function WeatherBadge({ weatherId, catalog }) {
   const item = catalogItem(catalog, weatherId);
   return (
-    <span className="inline-flex min-h-8 min-w-0 max-w-full items-center justify-center gap-2 overflow-hidden rounded-lg border border-white/10 bg-white/10 px-3 text-xs font-black text-slate-100">
+    <span className="inline-flex min-h-8 min-w-0 max-w-full items-center justify-center gap-2 overflow-hidden rounded-lg border border-line bg-surface-emphasis px-3 text-xs font-black text-foreground">
       {item?.assets?.icon ? (
         <img className="h-5 w-5 shrink-0 object-contain" src={item.assets.icon} alt="" />
       ) : null}
@@ -60,7 +61,7 @@ function WeatherBadge({ weatherId, catalog }) {
 
 function MiniInfo({ children, icon }) {
   return (
-    <span className="inline-flex min-h-8 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/10 px-3 text-xs font-black text-slate-200">
+    <span className="inline-flex min-h-8 items-center justify-center gap-2 rounded-lg border border-line bg-surface-emphasis px-3 text-xs font-black text-foreground">
       {icon ? <img className="h-4 w-4 shrink-0 object-contain" src={icon} alt="" /> : null}
       <span className="truncate">{children}</span>
     </span>
@@ -118,20 +119,20 @@ export function PokemonCard({
           )}
         </div>
         <div className="min-w-0">
-          <span className="font-black tracking-widest text-slate-200">N° {entry.dexId}</span>
-          <h3 className="mt-1 break-words text-xl font-black leading-tight text-white">
+          <span className="font-black tracking-widest text-foreground">N° {entry.dexId}</span>
+          <h3 className="mt-1 break-words text-xl font-black leading-tight text-domain-foreground">
             {entry.name}
           </h3>
-          <p className="mt-1 truncate text-sm font-medium text-slate-300">
+          <p className="mt-1 truncate text-sm font-medium text-foreground-secondary">
             {entry.profile || entry.kind} · {entry.form || "normal"} · Gén.{" "}
             {entry.generation || "?"}
           </p>
-          <span className="mt-2 inline-flex rounded-full border border-white/15 bg-white/12 px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-white">
+          <span className="mt-2 inline-flex rounded-full border border-line-medium bg-white/12 px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-domain-foreground">
             {variantLabel}
           </span>
         </div>
         <div
-          className="grid h-[58px] w-[58px] place-items-center rounded-full text-sm font-black text-white max-[520px]:absolute max-[520px]:right-4 max-[520px]:top-4 max-[520px]:h-[54px] max-[520px]:w-[54px]"
+          className="grid h-[58px] w-[58px] place-items-center rounded-full text-sm font-black text-domain-foreground max-[520px]:absolute max-[520px]:right-4 max-[520px]:top-4 max-[520px]:h-[54px] max-[520px]:w-[54px]"
           style={{
             background: `radial-gradient(circle at center, #08090d 54%, transparent 56%), conic-gradient(${typeColors[mainType] || "#7aa7ff"} ${score}%, rgba(255,255,255,.16) 0)`,
           }}
@@ -194,7 +195,7 @@ export function PokemonCard({
       </div>
 
       {missingKeys.length ? (
-        <div className="mt-3 rounded-xl border border-amber-300/25 bg-slate-950/45 p-3">
+        <div className="mt-3 rounded-xl border border-amber-300/25 bg-surface-inset-strong p-3">
           <div className="flex items-center justify-between gap-3">
             <span className="text-xs font-black uppercase tracking-[0.16em] text-amber-100">
               Clés manquantes
@@ -206,7 +207,7 @@ export function PokemonCard({
           <div className="mt-2 flex flex-wrap gap-1.5">
             {missingKeys.slice(0, 5).map((issue) => (
               <span
-                className="max-w-full truncate rounded-lg border border-white/10 bg-white/10 px-2 py-1 font-mono text-[11px] font-bold text-slate-100"
+                className="max-w-full truncate rounded-lg border border-line bg-surface-emphasis px-2 py-1 font-mono text-[11px] font-bold text-foreground"
                 key={`${issue.ruleId || "base"}-${issue.path}-${issue.issue}`}
                 title={issue.ruleName ? `${issue.ruleName}: ${issue.path}` : issue.path}
               >
@@ -214,7 +215,7 @@ export function PokemonCard({
               </span>
             ))}
             {missingKeys.length > 5 ? (
-              <span className="rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-[11px] font-black text-slate-200">
+              <span className="rounded-lg border border-line bg-surface-emphasis px-2 py-1 text-[11px] font-black text-foreground">
                 +{missingKeys.length - 5}
               </span>
             ) : null}
@@ -224,10 +225,9 @@ export function PokemonCard({
 
       <div className="mt-auto grid gap-2 pt-4">
         {admin ? (
-          <label className="flex min-h-10 items-center gap-2 rounded-xl border border-white/10 bg-white/10 px-3 text-sm font-black text-white">
-            <input
+          <label className="flex min-h-10 items-center gap-2 rounded-xl border border-line bg-surface-emphasis px-3 text-sm font-black text-domain-foreground">
+            <Checkbox
               className="h-5 w-5 accent-emerald-400"
-              type="checkbox"
               checked={assetChecked}
               onChange={(event) => onAssetChecked?.(entry.key, event.target.checked)}
             />
@@ -236,7 +236,7 @@ export function PokemonCard({
         ) : null}
         {onOpen ? (
           <button
-            className="min-h-12 rounded-2xl bg-gradient-to-r from-cyan-400 via-sky-500 to-emerald-400 px-4 font-black text-white shadow-[0_16px_45px_rgba(14,165,233,.25)] transition hover:scale-[1.01]"
+            className="min-h-12 rounded-2xl bg-gradient-to-r from-cyan-400 via-sky-500 to-emerald-400 px-4 font-black text-domain-foreground shadow-[0_16px_45px_rgba(14,165,233,.25)] transition hover:scale-[1.01]"
             type="button"
             onClick={() => onOpen(entry)}
           >

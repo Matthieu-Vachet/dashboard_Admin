@@ -43,7 +43,7 @@ export function AdminPaletteSelector() {
             transition={{ duration: 0.16 }}
           >
             <div className="flex items-center gap-2 px-2 pb-2 pt-1">
-              <span className="grid h-8 w-8 place-items-center rounded-lg border border-line bg-white/[0.06] text-brand-2">
+              <span className="grid h-8 w-8 place-items-center rounded-lg border border-line bg-surface-control text-brand-2">
                 <Palette size={15} />
               </span>
               <div className="min-w-0">

@@ -81,7 +81,7 @@ export function TierSection({
             <span className={`block text-[10px] font-black uppercase tracking-[0.22em] ${style.text}`}>
               {id}
             </span>
-            <strong className="mt-1 block truncate text-xl font-black text-white sm:text-2xl">
+            <strong className="mt-1 block truncate text-xl font-black text-domain-foreground sm:text-2xl">
               {title}
             </strong>
           </span>
@@ -90,13 +90,13 @@ export function TierSection({
           <span className={`rounded-full border px-3 py-1.5 text-xs font-black ${style.count}`}>
             {count}
           </span>
-          <ChevronDown className={`text-white/70 transition ${open ? "rotate-180" : ""}`} size={20} />
+          <ChevronDown className={`text-domain-foreground/70 transition ${open ? "rotate-180" : ""}`} size={20} />
         </span>
       </button>
       {open ? (
-        <div className="border-t border-white/10 p-3 sm:p-4">
+        <div className="border-t border-line p-3 sm:p-4">
           {count ? children : (
-            <p className="rounded-2xl border border-dashed border-white/15 p-4 text-sm font-bold text-slate-400">
+            <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
               {emptyText}
             </p>
           )}

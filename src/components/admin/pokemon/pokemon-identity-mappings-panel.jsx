@@ -2,6 +2,7 @@
 
 import { AlertTriangle, CheckCircle2, Download, ImageOff, RefreshCcw, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { buttonClass, fieldClass, Panel } from "./admin-ui";
 import { DatasetFilterBar } from "./dataset-filter-bar";
 import { DatasetSourceHeader } from "./dataset-source-header";
@@ -38,7 +39,7 @@ function StatusBadge({ status }) {
 function MappingArtwork({ mapping, className = "h-14 w-14" }) {
   const image = mapping.localAsset?.image || null;
   return (
-    <span className={`grid shrink-0 place-items-center overflow-hidden rounded-xl border border-white/10 bg-slate-950/55 ${className}`} title={image ? `Asset exact · ${mapping.localAsset.source || "source locale"}` : "Aucun asset exact disponible"}>
+    <span className={`grid shrink-0 place-items-center overflow-hidden rounded-xl border border-line bg-slate-950/55 ${className}`} title={image ? `Asset exact · ${mapping.localAsset.source || "source locale"}` : "Aucun asset exact disponible"}>
       {image ? (
         <img className="h-full w-full object-contain p-1" src={image} alt={`Asset exact de ${mapping.pokemon || "Pokémon"}`} loading="lazy" />
       ) : (
@@ -50,7 +51,7 @@ function MappingArtwork({ mapping, className = "h-14 w-14" }) {
 
 function AssetBundleValue({ mapping }) {
   const value = [mapping.assetBundleValue, mapping.assetBundleSuffix].filter(Boolean).join(" · ");
-  return <><span className="block break-all">{value || "Non fourni par le Game Master"}</span><span className="mt-1 block text-[9px] text-slate-500">{mapping.assetBundleSource || "Aucune source bundle"}</span></>;
+  return <><span className="block break-all">{value || "Non fourni par le Game Master"}</span><span className="mt-1 block text-[9px] text-disabled">{mapping.assetBundleSource || "Aucune source bundle"}</span></>;
 }
 
 function MappingIdentity({ mapping, compact = false }) {
@@ -58,8 +59,8 @@ function MappingIdentity({ mapping, compact = false }) {
     <div className="flex min-w-0 items-center gap-3">
       <MappingArtwork mapping={mapping} className={compact ? "h-12 w-12" : "h-14 w-14"} />
       <div className="min-w-0">
-        <strong className="block truncate font-black text-white">#{mapping.pokemonId} {mapping.pokemon || "Pokémon inconnu"}</strong>
-        <span className="block truncate font-mono text-[10px] text-slate-500">{mapping.templateId || "template inconnu"}</span>
+        <strong className="block truncate font-black text-domain-foreground">#{mapping.pokemonId} {mapping.pokemon || "Pokémon inconnu"}</strong>
+        <span className="block truncate font-mono text-[10px] text-disabled">{mapping.templateId || "template inconnu"}</span>
       </div>
     </div>
   );
@@ -74,7 +75,7 @@ function SummaryCard({ tone, icon: Icon, label, value }) {
   return (
     <div className={`rounded-2xl border p-4 ${styles[tone]}`}>
       <Icon size={18} />
-      <span className="mt-3 block text-[10px] font-black uppercase tracking-[.15em] text-slate-500">{label}</span>
+      <span className="mt-3 block text-[10px] font-black uppercase tracking-[.15em] text-disabled">{label}</span>
       <strong className="font-mono text-3xl">{Number(value || 0).toLocaleString("fr-FR")}</strong>
     </div>
   );
@@ -111,30 +112,30 @@ export function PokemonIdentityMappingsPanel({ dataset, loading, regenerating, o
       </section>
 
       <DatasetFilterBar query={options.search} onQueryChange={(search) => setOption("search", search)} placeholder="Template, forme, asset bundle…" resultCount={mappings.length} totalCount={meta.total || mappings.length} />
-      <select className={fieldClass} value={options.status} onChange={(event) => setOption("status", event.target.value)} aria-label="Statut de résolution">
+      <Select className={fieldClass} value={options.status} onChange={(event) => setOption("status", event.target.value)} aria-label="Statut de résolution">
         <option value="">Tous les statuts</option>
         {Object.entries(statusLabels).map(([id, label]) => <option value={id} key={id}>{label}</option>)}
-      </select>
+      </Select>
 
       <div className="space-y-2 md:hidden" aria-label="Mappings de variantes en cartes">
         {mappings.map((mapping) => (
-          <article className="rounded-2xl border border-white/10 bg-slate-950/45 p-3" key={`${mapping.templateId}-${mapping.form}-${mapping.assetBundleValue || ""}`}>
+          <article className="rounded-2xl border border-line bg-surface-inset-strong p-3" key={`${mapping.templateId}-${mapping.form}-${mapping.assetBundleValue || ""}`}>
             <div className="flex items-start justify-between gap-2">
               <MappingIdentity mapping={mapping} compact />
               <StatusBadge status={mapping.mappingStatus} />
             </div>
             <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
-              <div className="min-w-0 rounded-xl border border-white/8 bg-white/[.035] p-2">
-                <dt className="text-[9px] font-black uppercase tracking-[.1em] text-slate-500">Game Master</dt>
-                <dd className="mt-1 truncate font-mono font-bold text-slate-200">{mapping.form || "—"}</dd>
+              <div className="min-w-0 rounded-xl border border-line-subtle bg-surface-faint p-2">
+                <dt className="text-[9px] font-black uppercase tracking-[.1em] text-disabled">Game Master</dt>
+                <dd className="mt-1 truncate font-mono font-bold text-foreground">{mapping.form || "—"}</dd>
               </div>
-              <div className="min-w-0 rounded-xl border border-white/8 bg-white/[.035] p-2">
-                <dt className="text-[9px] font-black uppercase tracking-[.1em] text-slate-500">Forme locale</dt>
-                <dd className="mt-1 truncate font-mono font-bold text-slate-200">{mapping.localForm || "—"}</dd>
+              <div className="min-w-0 rounded-xl border border-line-subtle bg-surface-faint p-2">
+                <dt className="text-[9px] font-black uppercase tracking-[.1em] text-disabled">Forme locale</dt>
+                <dd className="mt-1 truncate font-mono font-bold text-foreground">{mapping.localForm || "—"}</dd>
               </div>
-              <div className="col-span-2 min-w-0 rounded-xl border border-white/8 bg-white/[.035] p-2">
-                <dt className="text-[9px] font-black uppercase tracking-[.1em] text-slate-500">Asset bundle</dt>
-                <dd className="mt-1 font-mono text-[10px] font-bold text-slate-300"><AssetBundleValue mapping={mapping} /></dd>
+              <div className="col-span-2 min-w-0 rounded-xl border border-line-subtle bg-surface-faint p-2">
+                <dt className="text-[9px] font-black uppercase tracking-[.1em] text-disabled">Asset bundle</dt>
+                <dd className="mt-1 font-mono text-[10px] font-bold text-foreground-secondary"><AssetBundleValue mapping={mapping} /></dd>
               </div>
             </dl>
             {mapping.ambiguityReason ? <p className="mt-2 rounded-xl border border-violet-200/20 bg-violet-300/[.08] p-2 text-[10px] font-bold leading-5 text-violet-100">{mapping.ambiguityReason} — {mapping.ambiguityExplanation}</p> : null}
@@ -142,29 +143,29 @@ export function PokemonIdentityMappingsPanel({ dataset, loading, regenerating, o
         ))}
       </div>
 
-      <div className="hidden overflow-x-auto rounded-2xl border border-white/10 md:block">
+      <div className="hidden overflow-x-auto rounded-2xl border border-line md:block">
         <table className="min-w-full text-left text-sm">
-          <thead className="bg-white/[.05] text-[10px] uppercase tracking-[.14em] text-slate-500"><tr><th className="p-3">Pokémon</th><th className="p-3">Forme Game Master</th><th className="p-3">Forme locale</th><th className="p-3">Asset bundle</th><th className="p-3">Statut</th></tr></thead>
+          <thead className="bg-white/[.05] text-[10px] uppercase tracking-[.14em] text-disabled"><tr><th className="p-3">Pokémon</th><th className="p-3">Forme Game Master</th><th className="p-3">Forme locale</th><th className="p-3">Asset bundle</th><th className="p-3">Statut</th></tr></thead>
           <tbody>
             {mappings.map((mapping) => (
-              <tr className="border-t border-white/8" key={`${mapping.templateId}-${mapping.form}-${mapping.assetBundleValue || ""}`}>
+              <tr className="border-t border-line-subtle" key={`${mapping.templateId}-${mapping.form}-${mapping.assetBundleValue || ""}`}>
                 <td className="p-3"><MappingIdentity mapping={mapping} /></td>
-                <td className="p-3 font-mono text-slate-300">{mapping.form || "—"}</td>
-                <td className="p-3 font-mono text-slate-300">{mapping.localForm || "—"}</td>
-                <td className="p-3 text-xs text-slate-400"><AssetBundleValue mapping={mapping} /></td>
+                <td className="p-3 font-mono text-foreground-secondary">{mapping.form || "—"}</td>
+                <td className="p-3 font-mono text-foreground-secondary">{mapping.localForm || "—"}</td>
+                <td className="p-3 text-xs text-muted"><AssetBundleValue mapping={mapping} /></td>
                 <td className="p-3"><StatusBadge status={mapping.mappingStatus} />{mapping.ambiguityReason ? <span className="mt-1 block max-w-64 text-[10px] leading-4 text-violet-200">{mapping.ambiguityReason} · {mapping.candidateCount || mapping.ambiguityCount || 0} candidat(s)</span> : null}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      {!mappings.length ? <p className="rounded-2xl border border-dashed border-white/12 p-8 text-center font-bold text-slate-400">Aucun mapping pour ces filtres.</p> : null}
+      {!mappings.length ? <p className="rounded-2xl border border-dashed border-white/12 p-8 text-center font-bold text-muted">Aucun mapping pour ces filtres.</p> : null}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="font-mono text-xs font-black text-slate-400">Affichés {mappings.length} sur {meta.total || mappings.length}</span>
+        <span className="font-mono text-xs font-black text-muted">Affichés {mappings.length} sur {meta.total || mappings.length}</span>
         <div className="flex items-center gap-3">
           <button className={buttonClass} type="button" disabled={options.page <= 1} onClick={() => onOptionsChange({ ...options, page: options.page - 1 })}>Précédent</button>
-          <span className="font-mono text-sm font-black text-slate-300">Page {meta.page || options.page} / {meta.pages || 1}</span>
+          <span className="font-mono text-sm font-black text-foreground-secondary">Page {meta.page || options.page} / {meta.pages || 1}</span>
           <button className={buttonClass} type="button" disabled={(meta.page || options.page) >= (meta.pages || 1)} onClick={() => onOptionsChange({ ...options, page: options.page + 1 })}>Suivant</button>
         </div>
       </div>

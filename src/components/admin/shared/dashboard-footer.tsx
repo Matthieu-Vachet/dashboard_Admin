@@ -21,7 +21,7 @@ export function DashboardFooter({
 }) {
   return (
     <footer className={cn("mt-8 border-t border-line pt-4", className)}>
-      <div className="flex flex-col gap-3 rounded-lg border border-line bg-white/[0.035] px-3 py-3 text-[0.68rem] font-bold leading-5 text-muted shadow-[inset_0_1px_0_rgba(255,255,255,0.045)] sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-lg border border-line bg-surface-faint px-3 py-3 text-[0.68rem] font-bold leading-5 text-muted shadow-[inset_0_1px_0_rgba(255,255,255,0.045)] sm:flex-row sm:items-center sm:justify-between">
         <p className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
           <Copyright size={13} className="shrink-0 text-brand-2/85" aria-hidden="true" />
           <span>© {getCopyrightYears()} MatWeb Innovation. Tous droits réservés.</span>

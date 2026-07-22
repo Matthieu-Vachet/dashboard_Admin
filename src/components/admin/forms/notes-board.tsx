@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Input, Textarea } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { initialNotes, type Note } from "@/data/personal-dashboard-defaults";
 import { cn } from "@/lib/cn";
 import { usePersistentState } from "@/lib/use-persistent-state";
@@ -188,7 +189,7 @@ export function NotesBoard() {
           </Button>
         </div>
 
-        <div className="mt-4 flex min-h-11 items-center gap-2 rounded-lg border border-line bg-white/[0.055] px-3 text-muted">
+        <div className="mt-4 flex min-h-11 items-center gap-2 rounded-lg border border-line bg-surface-subtle px-3 text-muted">
           <Search size={16} />
           <Input
             aria-label="Chercher titre, tag, priorité..."
@@ -201,8 +202,8 @@ export function NotesBoard() {
 
         <label className="mt-3 block">
           <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Tri</span>
-          <select
-            className="mt-2 min-h-11 w-full rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none transition focus:border-brand-2/55"
+          <Select
+            className="mt-2 min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none transition focus:border-brand-2/55"
             value={sortKey}
             onChange={(event) => setSortKey(event.target.value as SortKey)}
           >
@@ -211,7 +212,7 @@ export function NotesBoard() {
                 {option.label}
               </option>
             ))}
-          </select>
+          </Select>
         </label>
 
         <div className="mt-4 max-h-[calc(100vh-310px)] space-y-2 overflow-y-auto pr-1">
@@ -227,7 +228,7 @@ export function NotesBoard() {
                 "w-full rounded-lg border p-3 text-left transition",
                 selectedNote?.id === note.id
                   ? "border-brand-2/45 bg-brand-2/12 shadow-[0_18px_42px_rgba(32,211,255,0.10)]"
-                  : "border-line bg-white/[0.04] hover:bg-white/[0.07]",
+                  : "border-line bg-surface-minimal hover:bg-white/[0.07]",
               )}
             >
               <div className="flex items-center justify-between gap-2">
@@ -248,7 +249,7 @@ export function NotesBoard() {
                   </span>
                 ) : null}
                 {note.tags.slice(0, 2).map((tag) => (
-                  <span key={tag} className="rounded-full border border-line bg-white/[0.04] px-2 py-1 text-[10px] font-black text-muted">
+                  <span key={tag} className="rounded-full border border-line bg-surface-minimal px-2 py-1 text-[10px] font-black text-muted">
                     #{tag}
                   </span>
                 ))}
@@ -256,7 +257,7 @@ export function NotesBoard() {
             </button>
           ))}
           {!filteredNotes.length ? (
-            <div className="rounded-lg border border-line bg-white/[0.04] p-4 text-sm font-bold text-muted">
+            <div className="rounded-lg border border-line bg-surface-minimal p-4 text-sm font-bold text-muted">
               Aucune note trouvée.
             </div>
           ) : null}
@@ -296,7 +297,7 @@ export function NotesBoard() {
             </div>
 
             <aside className="space-y-4">
-              <div className="rounded-lg border border-line bg-white/[0.045] p-3">
+              <Card tone="flat" className="p-3">
                 <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">
                   Métadonnées
                 </p>
@@ -312,8 +313,8 @@ export function NotesBoard() {
                   </label>
                   <label>
                     <span className="text-xs font-black uppercase tracking-[0.12em] text-muted">Catégorie</span>
-                    <select
-                      className="mt-2 min-h-11 w-full rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none transition focus:border-brand-2/55"
+                    <Select
+                      className="mt-2 min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none transition focus:border-brand-2/55"
                       value={selectedNote.category}
                       onChange={(event) => updateSelected({ category: event.target.value as Note["category"] })}
                     >
@@ -322,12 +323,12 @@ export function NotesBoard() {
                           {category}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </label>
                   <label>
                     <span className="text-xs font-black uppercase tracking-[0.12em] text-muted">Priorité</span>
-                    <select
-                      className="mt-2 min-h-11 w-full rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none transition focus:border-brand-2/55"
+                    <Select
+                      className="mt-2 min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none transition focus:border-brand-2/55"
                       value={selectedNote.priority}
                       onChange={(event) => updateSelected({ priority: event.target.value as Note["priority"] })}
                     >
@@ -336,7 +337,7 @@ export function NotesBoard() {
                           {priority}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </label>
                   <div>
                     <span className="text-xs font-black uppercase tracking-[0.12em] text-muted">Couleur</span>
@@ -359,7 +360,7 @@ export function NotesBoard() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </Card>
 
               <div className={cn("rounded-lg border p-3", colorClasses[selectedNote.color])}>
                 <p className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.14em]">

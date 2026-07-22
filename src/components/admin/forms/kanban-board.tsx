@@ -37,6 +37,8 @@ import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Input, Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select } from "@/components/ui/select";
 import {
   initialBoard,
   kanbanCategories as categories,
@@ -413,8 +415,8 @@ export function KanbanBoard() {
               </Field>
               <label className="block">
                 <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Statut</span>
-                <select
-                  className="mt-2 min-h-11 w-full rounded-lg border border-line bg-white/[0.06] px-3 text-sm font-black outline-none"
+                <Select
+                  className="mt-2 min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none"
                   value={selectedTask.status}
                   onChange={(event) => updateTask(selectedTask.id, { status: event.target.value as Task["status"] })}
                 >
@@ -423,7 +425,7 @@ export function KanbanBoard() {
                       {status}
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -457,7 +459,7 @@ export function KanbanBoard() {
                         "rounded-full border px-3 py-2 text-xs font-black transition",
                         selectedTask.category === category
                           ? categoryStyles[category]
-                          : "border-line bg-white/[0.04] text-muted hover:text-foreground",
+                          : "border-line bg-surface-minimal text-muted hover:text-foreground",
                       )}
                     >
                       {category}
@@ -477,7 +479,7 @@ export function KanbanBoard() {
                         "rounded-full border px-3 py-2 text-xs font-black transition",
                         selectedTask.priority === priority
                           ? priorityStyles[priority]
-                          : "border-line bg-white/[0.04] text-muted hover:text-foreground",
+                          : "border-line bg-surface-minimal text-muted hover:text-foreground",
                       )}
                     >
                       {priority}
@@ -490,11 +492,11 @@ export function KanbanBoard() {
               <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">Checklist</p>
               <div className="mt-2 space-y-2">
                 {selectedTask.checklist.map((item) => (
-                  <div key={item.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-2 rounded-lg border border-line bg-white/[0.04] p-2">
-                    <input
+                  <div key={item.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-2 rounded-lg border border-line bg-surface-minimal p-2">
+                    <Checkbox
+                      aria-label={item.text || "Action de checklist"}
                       checked={item.done}
                       className="h-5 w-5 accent-cyan-400"
-                      type="checkbox"
                       onChange={(event) =>
                         updateTask(selectedTask.id, {
                           checklist: selectedTask.checklist.map((check) =>
@@ -557,7 +559,7 @@ export function KanbanBoard() {
                       "rounded-lg border px-3 py-2 text-left text-xs font-black transition",
                       selectedColumn === column.id
                         ? "border-brand-2/45 bg-brand-2/12 text-foreground"
-                        : "border-line bg-white/[0.04] text-muted hover:text-foreground",
+                        : "border-line bg-surface-minimal text-muted hover:text-foreground",
                     )}
                   >
                     {column.title}
@@ -670,7 +672,7 @@ function KanbanTaskCard({
         <div className="flex items-center gap-1">
           <button
             type="button"
-            className="grid h-8 w-8 touch-none place-items-center rounded-lg border border-line bg-white/[0.06] text-muted transition hover:text-foreground"
+            className="grid h-8 w-8 touch-none place-items-center rounded-lg border border-line bg-surface-control text-muted transition hover:text-foreground"
             aria-label="Glisser la carte"
             {...attributes}
             {...listeners}
@@ -723,19 +725,19 @@ function KanbanTaskCard({
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
         {task.tags.slice(0, 3).map((tag) => (
-          <span key={tag} className="rounded-full bg-white/[0.055] px-2 py-1 text-[10px] font-black text-muted">
+          <span key={tag} className="rounded-full bg-surface-subtle px-2 py-1 text-[10px] font-black text-muted">
             #{tag}
           </span>
         ))}
       </div>
       <div className="mt-5 flex items-center justify-between gap-3">
-        <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-brand to-brand-2 text-xs font-black text-white">
+        <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-brand to-brand-2 text-xs font-black text-inverse">
           {task.owner}
         </span>
         <span className="flex items-center gap-2">
           {task.links.length ? <Link2 size={14} className="text-brand-2" /> : null}
           {task.images.length ? <ImageIcon size={14} className="text-brand-3" /> : null}
-          <span className="rounded-full border border-line bg-white/[0.06] px-2 py-1 font-mono text-xs font-black text-muted">
+          <span className="rounded-full border border-line bg-surface-control px-2 py-1 font-mono text-xs font-black text-muted">
             {task.points} pts
           </span>
         </span>
@@ -753,10 +755,10 @@ function KanbanTaskPreview({ task }: { task: Task }) {
       <h4 className="mt-4 text-sm font-black leading-6">{task.title}</h4>
       <p className="mt-2 line-clamp-2 text-xs font-semibold leading-5 text-muted">{task.description}</p>
       <div className="mt-5 flex items-center justify-between gap-3">
-        <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-brand to-brand-2 text-xs font-black text-white">
+        <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-brand to-brand-2 text-xs font-black text-inverse">
           {task.owner}
         </span>
-        <span className="rounded-full border border-line bg-white/[0.06] px-2 py-1 font-mono text-xs font-black text-muted">
+        <span className="rounded-full border border-line bg-surface-control px-2 py-1 font-mono text-xs font-black text-muted">
           {task.points} pts
         </span>
       </div>
