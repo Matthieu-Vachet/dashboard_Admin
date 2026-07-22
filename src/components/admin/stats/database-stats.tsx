@@ -6,6 +6,7 @@ import { Activity, BarChart3, Database, HardDrive, KeyRound, RefreshCcw, ShieldC
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SortableWidgetGrid, type SortableWidgetItem } from "@/components/admin/shared/sortable-widget-grid";
+import { EmptyState, ErrorState } from "@/components/admin/shared/state-system";
 
 type DatabaseStatsPayload = {
   configured: boolean;
@@ -139,9 +140,7 @@ export function DatabaseStats() {
                 </motion.div>
               ))
             ) : (
-              <p className="rounded-lg border border-dashed border-line p-4 text-sm font-semibold text-muted">
-                Aucun document stocké pour ce compte.
-              </p>
+              <EmptyState title="Aucun document stocké pour ce compte" />
             )}
           </div>
         </Card>
@@ -175,7 +174,7 @@ export function DatabaseStats() {
           eyebrow="MongoDB"
           action={
             <Button onClick={loadStats} disabled={loading}>
-              <RefreshCcw size={16} className={loading ? "animate-spin" : ""} />
+              <RefreshCcw size={16} className={loading ? "animate-spin motion-reduce:animate-none" : ""} />
               Actualiser
             </Button>
           }
@@ -187,11 +186,7 @@ export function DatabaseStats() {
         </CardHeader>
       </Card>
 
-      {error ? (
-        <Card className="border-amber-300/25 bg-amber-400/10 p-4 text-sm font-bold text-amber-100">
-          {error}
-        </Card>
-      ) : null}
+      {error ? <ErrorState title="Statistiques MongoDB indisponibles" message={error} /> : null}
 
       <section className="grid min-w-0 items-start gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard icon={ShieldCheck} label="Connexion" value={stats.configured ? "Active" : "Non configurée"} tone="green" />
@@ -276,7 +271,7 @@ function ApiTimeline({ items }: { items: Array<{ day: string; count: number }> }
             </div>
           ))
         ) : (
-          <p className="m-auto text-sm font-semibold text-muted">Aucun appel suivi pour le moment.</p>
+          <EmptyState className="m-auto w-full" title="Aucun appel suivi pour le moment" />
         )}
       </div>
     </div>
@@ -312,9 +307,7 @@ function EndpointBars({ items }: { items: Array<{ endpoint: string; count: numbe
             </div>
           ))
         ) : (
-          <p className="rounded-lg border border-dashed border-line p-4 text-sm font-semibold text-muted">
-            Les endpoints apparaîtront après les prochains appels API.
-          </p>
+          <EmptyState title="Aucun endpoint suivi" description="Les endpoints apparaîtront après les prochains appels API." />
         )}
       </div>
     </div>

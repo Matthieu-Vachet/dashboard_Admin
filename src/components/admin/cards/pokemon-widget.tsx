@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Activity, Database, ShieldCheck } from "lucide-react";
+import { FetchLoadingState } from "@/components/admin/shared/state-system";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { PokemonMetrics } from "@/lib/pokemon";
@@ -48,9 +49,7 @@ export function PokemonWidget() {
       </CardHeader>
 
       {loading ? (
-        <div className="mt-6 grid h-44 place-items-center rounded-lg border border-line bg-surface-minimal text-sm font-bold text-muted">
-          Synchronisation...
-        </div>
+        <FetchLoadingState className="mt-6 min-h-44" title="Synchronisation des statistiques…" />
       ) : (
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
           <Metric icon={Database} label="Entrées" value={metrics?.total.toLocaleString("fr-FR") || "0"} />

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { buttonClass, Panel } from "./admin-ui";
+import { EmptyState } from "@/components/admin/shared/state-system";
 
 function Stat({ label, value }) {
   return <div className="rounded-2xl border border-line bg-surface-inset p-4"><span className="text-xs font-black uppercase tracking-[.14em] text-muted">{label}</span><strong className="mt-2 block text-3xl font-black text-domain-foreground">{Number(value) || 0}</strong></div>;
@@ -105,6 +106,6 @@ export function DynamaxImagesPanel() {
         <span className={`mt-2 inline-flex rounded-full border px-2 py-1 text-[10px] font-black uppercase ${item.downloadStatus === "success" ? "border-emerald-200/20 bg-emerald-300/10 text-emerald-100" : "border-red-200/20 bg-red-300/10 text-red-100"}`}>{item.downloadStatus}</span>
         {item.error ? <p className="mt-2 text-xs font-bold text-red-100">{item.error}</p> : null}
       </article>)}
-    </section> : <div className="rounded-2xl border border-dashed border-line-medium p-10 text-center text-sm font-bold text-muted"><Archive className="mx-auto mb-3" />Aucun scan en cache.</div>}
+    </section> : <EmptyState size="section" icon={<Archive aria-hidden="true" />} title="Aucun scan en cache" />}
   </section>;
 }

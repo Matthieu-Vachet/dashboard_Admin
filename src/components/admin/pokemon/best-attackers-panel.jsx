@@ -10,6 +10,7 @@ import { DatasetFilterBar } from "./dataset-filter-bar";
 import { DatasetSourceHeader } from "./dataset-source-header";
 import { PokemonArtwork } from "./pokemon-artwork";
 import { PokemonStateIndicators } from "./pokemon-state-indicators";
+import { EmptyState } from "@/components/admin/shared/state-system";
 
 const typeOrder = [
   "ANY",
@@ -319,9 +320,7 @@ export function BestAttackersPanel({
           </article>
         ))}
         {!entries.length ? (
-          <p className="rounded-2xl border border-dashed border-white/12 p-8 text-center font-bold text-muted">
-            Aucun attaquant pour ces filtres.
-          </p>
+          <EmptyState size="section" title="Aucun attaquant pour ces filtres" />
         ) : null}
       </section>
       <div className="flex flex-wrap items-center justify-between gap-3">

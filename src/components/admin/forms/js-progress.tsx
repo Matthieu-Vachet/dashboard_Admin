@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LearningAchievementGrid } from "@/components/admin/learning/learning-achievement-grid";
 import { LearningActivityTimeline } from "@/components/admin/learning/learning-activity";
+import { ErrorState } from "@/components/admin/shared/state-system";
 import { LearningAdvancedStats } from "@/components/admin/learning/learning-advanced-stats";
 import { LearningDetailModal } from "@/components/admin/learning/learning-detail-modal";
 import { LearningImportModal } from "@/components/admin/learning/learning-import-modal";
@@ -58,7 +59,7 @@ export function JsProgress() {
       </Card>
 
       {warning ? <div className="flex items-start gap-2 rounded-lg border border-warning/25 bg-warning/[0.06] p-3 text-sm font-bold text-warning"><HardDrive className="mt-0.5 shrink-0" size={16} /><span>{warning}</span></div> : null}
-      {error ? <div className="rounded-lg border border-danger/25 bg-danger/[0.06] p-3 text-sm font-bold text-danger">{error}</div> : null}
+      {error ? <ErrorState title="Parcours indisponible" message={error} /> : null}
       {notice ? (
         <div className={notice.tone === "error" ? "flex items-start justify-between gap-3 rounded-lg border border-danger/25 bg-danger/[0.06] p-3 text-sm font-bold text-danger" : notice.tone === "warning" ? "flex items-start justify-between gap-3 rounded-lg border border-warning/25 bg-warning/[0.06] p-3 text-sm font-bold text-warning" : "flex items-start justify-between gap-3 rounded-lg border border-brand-3/25 bg-brand-3/[0.06] p-3 text-sm font-bold text-brand-3"} role="status" aria-live="polite">
           <span className="flex items-start gap-2">{notice.tone === "success" ? <CheckCircle2 className="mt-0.5 shrink-0" size={16} /> : <AlertTriangle className="mt-0.5 shrink-0" size={16} />}{notice.message}</span>

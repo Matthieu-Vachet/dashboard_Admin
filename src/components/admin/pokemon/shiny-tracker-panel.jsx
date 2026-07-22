@@ -12,6 +12,7 @@ import { AssetStatCard, buttonClass, fieldClass, Panel } from "./admin-ui";
 import { DatasetSourceHeader } from "./dataset-source-header";
 import { DatasetFilterBar } from "./dataset-filter-bar";
 import { PokemonArtwork } from "./pokemon-artwork";
+import { EmptyState } from "@/components/admin/shared/state-system";
 
 function formatNumber(value, compact = false) {
   if (value == null) return "—";
@@ -233,7 +234,7 @@ export function ShinyTrackerPanel({ dataset, loading, regenerating, options, onO
             <span className="hidden sm:block"><small className="block text-[9px] font-black uppercase text-disabled">Odds</small><strong className="font-mono text-sm text-amber-100">{entry.shiny?.odds?.raw || "—"}</strong><Trend value={entry.source?.trend} /></span>
           </button>
         ))}
-        {!rankedEntries.length ? <p className="rounded-2xl border border-dashed border-white/12 p-5 text-center text-sm font-bold text-muted">{entries.length ? "Le classement détaillé commence au rang 4 après le podium." : "Aucun résultat Shiny pour ces filtres."}</p> : null}
+        {!rankedEntries.length ? entries.length ? <p className="rounded-2xl border border-line bg-surface-faint p-5 text-center text-sm font-bold text-muted">Le classement détaillé commence au rang 4 après le podium.</p> : <EmptyState title="Aucun résultat Shiny pour ces filtres" /> : null}
       </section>
       <div className="flex flex-wrap items-center justify-between gap-3"><span className="font-mono text-xs font-black text-muted">Affichés {entries.length} sur {meta.total || entries.length}</span><div className="flex items-center gap-3"><button className={buttonClass} type="button" disabled={options.page <= 1} onClick={() => onOptionsChange({ ...options, page: options.page - 1 })}>Précédent</button><span className="font-mono text-sm font-black text-foreground-secondary">Page {meta.page || options.page} / {meta.pages || 1}</span><button className={buttonClass} type="button" disabled={(meta.page || options.page) >= (meta.pages || 1)} onClick={() => onOptionsChange({ ...options, page: options.page + 1 })}>Suivant</button></div></div>
       <Modal open={Boolean(selected)} title={selected ? pokemonName(selected) : "Shiny"} description={selected ? `${selected.shiny?.odds?.raw || 'Odds indisponibles'}${selected.shiny?.rarity ? ` · ${selected.shiny.rarity}` : ''}` : ""} onClose={() => setSelected(null)} className="max-w-5xl"><ShinyDetail entry={selected} history={history} onOpenPokemon={onOpenPokemon} /></Modal>

@@ -13,6 +13,7 @@ import { fr } from "date-fns/locale";
 import { CalendarPlus, ChevronLeft, ChevronRight, Filter, Save, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { DashboardLoadingState } from "@/components/admin/shared/loading-state";
+import { EmptyState } from "@/components/admin/shared/state-system";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -629,9 +630,7 @@ function DayView({
             </button>
           ))
         ) : (
-          <p className="rounded-lg border border-dashed border-line p-4 text-sm font-semibold text-muted">
-            Aucun event prévu sur cette journée.
-          </p>
+          <EmptyState title="Aucun événement prévu sur cette journée" />
         )}
       </div>
     </div>

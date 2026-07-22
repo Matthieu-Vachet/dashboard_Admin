@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select } from "@/components/ui/select";
+import { ErrorState } from "@/components/admin/shared/state-system";
 
 type OpenApiParameter = { name: string; in: "path" | "query"; required?: boolean; example?: unknown; description?: string };
 type Endpoint = { id: string; method: "GET" | "POST"; path: string; testPath: string; label: string; group: string; description: string; parameters: OpenApiParameter[]; auth: boolean; visibility: "public" | "private" };
@@ -124,7 +125,7 @@ export function PokemonApiExplorer() {
       </div>
       {selected ? <div className="mt-3 flex min-w-0 flex-wrap items-center gap-2 text-xs font-bold text-muted"><Badge tone={selected.visibility === "private" ? "violet" : "green"}>{selected.visibility}</Badge><Badge tone={selected.auth ? "amber" : "cyan"}>{selected.auth ? "auth serveur" : "public"}</Badge><span className="min-w-0 break-words">{selected.description}</span>{selected.parameters.length ? <span>{selected.parameters.length} paramètre(s)</span> : null}</div> : null}
       {method === "POST" ? <textarea className="mt-3 min-h-28 w-full rounded-lg border border-line bg-slate-950/70 p-3 font-mono text-xs text-cyan-50 outline-none" value={body} onChange={(event) => setBody(event.target.value)} aria-label="Body JSON" /> : null}
-      {error ? <p className="mt-4 rounded-lg border border-danger/35 bg-danger/12 p-3 text-sm font-bold text-rose-100">{error}</p> : null}
+      {error ? <ErrorState className="mt-4" title="Test API impossible" message={error} /> : null}
       {result ? <div className="mt-4 grid min-w-0 gap-3 xl:grid-cols-[280px_minmax(0,1fr)]"><div className="min-w-0 space-y-2 rounded-lg border border-line bg-surface-minimal p-3"><StatusLine label="Statut" value={`HTTP ${result.status}`} /><StatusLine label="Durée" value={`${result.durationMs} ms`} /><StatusLine label="Type" value={result.contentType || "?"} /><StatusLine label="URL" value={result.url} /></div><pre className="max-h-96 min-w-0 max-w-full overflow-auto rounded-lg border border-line bg-slate-950/75 p-4 font-mono text-xs leading-6 text-cyan-50"><code>{JSON.stringify(result.body, null, 2)}</code></pre></div> : <div className="mt-4 grid min-h-28 min-w-0 place-items-center rounded-lg border border-dashed border-line bg-white/[0.025] p-4 text-center text-sm font-bold text-muted"><span className="inline-flex min-w-0 flex-wrap items-center justify-center gap-2"><Server size={16} />Sélectionne un endpoint puis lance un test.</span></div>}
       {history.length ? <section className="mt-4 rounded-lg border border-line bg-white/[0.03] p-3"><h3 className="flex items-center gap-2 text-sm font-black"><History size={16} />Tests récents</h3><div className="mt-2 grid gap-2 md:grid-cols-2 xl:grid-cols-3">{history.map((item, index) => <button className="truncate rounded-lg border border-line bg-surface-minimal px-3 py-2 text-left font-mono text-xs" key={`${item.method}-${item.path}-${index}`} type="button" onClick={() => { setPath(item.path); setMethod(item.method as "GET" | "POST"); }}>{item.method} · {item.path} · {item.status}</button>)}</div></section> : null}
     </Card>

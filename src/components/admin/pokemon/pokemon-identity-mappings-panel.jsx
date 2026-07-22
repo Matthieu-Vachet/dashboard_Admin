@@ -6,6 +6,7 @@ import { Select } from "@/components/ui/select";
 import { buttonClass, fieldClass, Panel } from "./admin-ui";
 import { DatasetFilterBar } from "./dataset-filter-bar";
 import { DatasetSourceHeader } from "./dataset-source-header";
+import { EmptyState } from "@/components/admin/shared/state-system";
 
 const statusLabels = {
   matched: "Résolu",
@@ -159,7 +160,7 @@ export function PokemonIdentityMappingsPanel({ dataset, loading, regenerating, o
           </tbody>
         </table>
       </div>
-      {!mappings.length ? <p className="rounded-2xl border border-dashed border-white/12 p-8 text-center font-bold text-muted">Aucun mapping pour ces filtres.</p> : null}
+      {!mappings.length ? <EmptyState size="section" title="Aucun mapping pour ces filtres" /> : null}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <span className="font-mono text-xs font-black text-muted">Affichés {mappings.length} sur {meta.total || mappings.length}</span>

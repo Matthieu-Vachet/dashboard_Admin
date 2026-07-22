@@ -2,6 +2,7 @@
 
 import { ExternalLink } from "lucide-react";
 import { createPortal } from "react-dom";
+import { EmptyState, ErrorState, FetchLoadingState } from "@/components/admin/shared/state-system";
 
 type SourceItem = {
   id?: string;
@@ -204,9 +205,7 @@ export function SourceHistoryModal({
               ))}
             </div>
           ) : (
-            <p className="rounded-2xl border border-dashed border-line-medium p-5 text-sm font-bold text-muted">
-              Aucun historique enregistré pour le moment. Lance une vérification des sources pour créer le premier relevé.
-            </p>
+            <EmptyState title="Aucun historique enregistré" description="Lance une vérification des sources pour créer le premier relevé." />
           )}
         </div>
       </section>
@@ -340,18 +339,14 @@ export function DataDeployHistoryModal({
                         ) : null}
                       </div>
                     ) : (
-                      <p className="mt-4 rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
-                        Aucun fichier JSON suivi n&apos;a été détecté entre les deux commits.
-                      </p>
+                      <EmptyState className="mt-4" title="Aucun fichier JSON suivi n’a été détecté entre les deux commits" />
                     )}
                   </article>
                 );
               })}
             </div>
           ) : (
-            <p className="rounded-2xl border border-dashed border-line-medium p-5 text-sm font-bold text-muted">
-              Aucun redéploiement data enregistré pour le moment.
-            </p>
+            <EmptyState title="Aucun redéploiement data enregistré pour le moment" />
           )}
         </div>
       </section>
@@ -362,19 +357,11 @@ export function DataDeployHistoryModal({
 
 export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
   if (sourceWatch?.loading) {
-    return (
-      <p className="rounded-2xl border border-line bg-surface-inset p-4 text-sm font-bold text-foreground-secondary">
-        Vérification en cours...
-      </p>
-    );
+    return <FetchLoadingState layout="inline" title="Vérification des sources en cours…" />;
   }
 
   if (sourceWatch?.error) {
-    return (
-      <p className="rounded-2xl border border-red-300/30 bg-red-500/10 p-4 text-sm font-bold text-red-100">
-        {sourceWatch.error}
-      </p>
-    );
+    return <ErrorState title="Sources indisponibles" message={sourceWatch.error} />;
   }
 
   const sources = sourceWatch?.sources || [];
@@ -464,9 +451,7 @@ export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
           })}
         </div>
       ) : (
-        <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
-          Lance une verification pour afficher les sources.
-        </p>
+        <EmptyState title="Aucune source affichée" description="Lance une vérification pour afficher les sources." />
       )}
     </div>
   );

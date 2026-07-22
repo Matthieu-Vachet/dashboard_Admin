@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { EmptyState } from "@/components/admin/shared/state-system";
 
 const toneStyles = {
   cyan: {
@@ -96,9 +97,7 @@ export function TierSection({
       {open ? (
         <div className="border-t border-line p-3 sm:p-4">
           {count ? children : (
-            <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
-              {emptyText}
-            </p>
+            <EmptyState title={emptyText} />
           )}
         </div>
       ) : null}

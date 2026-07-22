@@ -8,6 +8,7 @@ import { DatasetFilterBar } from "./dataset-filter-bar";
 import { Button } from "@/components/ui/button";
 import { PokemonArtwork } from "./pokemon-artwork";
 import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
+import { EmptyState, FetchLoadingState } from "@/components/admin/shared/state-system";
 
 const rocketTrainerAssets = {
   arlo: "/ui/rocket/leader-arlo.webp",
@@ -414,9 +415,7 @@ export function RocketPanel({
       />
 
       {loading && !totalTrainers ? (
-        <Panel title="Chargement Rocket">
-          <p className="font-bold text-foreground-secondary">Lecture des lineups MongoDB en cours.</p>
-        </Panel>
+        <FetchLoadingState title="Chargement Rocket…" detail="Lecture des lineups MongoDB en cours." />
       ) : null}
 
       {filteredGroups.map(([title, items, group]) => (
@@ -444,9 +443,7 @@ export function RocketPanel({
               ))}
             </div>
           ) : (
-            <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
-              Aucun profil Rocket dans cette section.
-            </p>
+            <EmptyState title="Aucun profil Rocket dans cette section" />
           )}
         </section>
       ))}

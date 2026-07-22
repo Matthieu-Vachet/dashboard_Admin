@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { DashboardLoadingState } from "@/components/admin/shared/loading-state";
+import { EmptyState, ErrorState } from "@/components/admin/shared/state-system";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -482,11 +483,7 @@ export function DashboardBacklog() {
             MongoDB dashboard n&apos;est pas configuré. La lecture reste disponible, mais la création nécessite une URI Mongo.
           </div>
         ) : null}
-        {error ? (
-          <div className="mt-4 rounded-lg border border-danger/35 bg-danger/10 p-3 text-sm font-bold text-danger">
-            {error}
-          </div>
-        ) : null}
+        {error ? <ErrorState className="mt-4" title="Backlog indisponible" message={error} /> : null}
       </Card>
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
@@ -533,12 +530,7 @@ export function DashboardBacklog() {
             />
           ))}
           {!filteredTickets.length ? (
-            <Card className="grid min-h-56 place-items-center p-6 text-center">
-              <div>
-                <p className="text-lg font-black">Aucun ticket dans cette vue.</p>
-                <p className="mt-2 text-sm font-semibold text-muted">Ajuste les filtres ou crée le premier ticket.</p>
-              </div>
-            </Card>
+            <EmptyState size="section" title="Aucun ticket dans cette vue" description="Ajuste les filtres ou crée le premier ticket." />
           ) : null}
         </div>
 

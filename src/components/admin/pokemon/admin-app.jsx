@@ -34,6 +34,7 @@ import { toast } from "sonner";
 import { DetailModal } from "@/components/admin/pokemon/detail-modal";
 import { PokemonCard } from "@/components/admin/pokemon/pokemon-card";
 import { SortableWidgetGrid } from "@/components/admin/shared/sortable-widget-grid";
+import { EmptyState, ErrorState, FetchLoadingState } from "@/components/admin/shared/state-system";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select } from "@/components/ui/select";
@@ -106,12 +107,12 @@ const collectionsKey = "pokedex-v4-admin-collections";
 
 const TrainerPokemonCollectionPanel = dynamic(
   () => import("./trainer-pokemon-collection-panel").then((module) => module.TrainerPokemonCollectionPanel),
-  { loading: () => <div className={`${panelClass} min-h-64 animate-pulse`} aria-label="Chargement de Ma collection" /> },
+  { loading: () => <div className={`${panelClass} min-h-64 animate-pulse motion-reduce:animate-none`} aria-label="Chargement de Ma collection" /> },
 );
 
 const GameMasterExplorerPanel = dynamic(
   () => import("./game-master-explorer-panel").then((module) => module.GameMasterExplorerPanel),
-  { loading: () => <div className={`${panelClass} min-h-64 animate-pulse`} aria-label="Chargement du Game Master Explorer" /> },
+  { loading: () => <div className={`${panelClass} min-h-64 animate-pulse motion-reduce:animate-none`} aria-label="Chargement du Game Master Explorer" /> },
 );
 
 const filtersAssetBase = "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers/Filters";
@@ -919,9 +920,7 @@ function RulesPanel({
                 </article>
               ))
             ) : (
-              <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
-                Aucune règle personnalisée pour le moment.
-              </p>
+              <EmptyState title="Aucune règle personnalisée pour le moment" />
             )}
           </div>
         </section>
@@ -941,9 +940,7 @@ function RulesPanel({
         {customIssueEntries.length ? (
           <MiniCardList entries={customIssueEntries.slice(0, 80)} onOpen={onOpenEntry} />
         ) : (
-          <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
-            Aucune carte à contrôler pour les règles actives.
-          </p>
+          <EmptyState title="Aucune carte à contrôler pour les règles actives" />
         )}
       </section>
       <section className="mt-5 rounded-2xl border border-line bg-surface-inset-subtle p-4">
@@ -961,9 +958,7 @@ function RulesPanel({
         {customJsonIssueEntries.length ? (
           <JsonIssueList entries={customJsonIssueEntries.slice(0, 80)} />
         ) : (
-          <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
-            Aucun JSON de catalogue à contrôler pour les règles actives.
-          </p>
+          <EmptyState title="Aucun JSON de catalogue à contrôler pour les règles actives" />
         )}
       </section>
     </Panel>
@@ -2073,13 +2068,9 @@ export function AdminApp() {
 
           <div className="mt-5 space-y-5">
             {bootstrap.loading ? (
-              <Panel title="Chargement du dashboard">
-                <p className="font-bold text-foreground-secondary">Je recharge les fiches, catalogues, assets et l’historique Git.</p>
-              </Panel>
+              <FetchLoadingState title="Chargement du dashboard…" detail="Je recharge les fiches, catalogues, assets et l’historique Git." />
             ) : bootstrap.error ? (
-              <Panel title="Erreur dashboard">
-                <p className="font-bold text-red-100">{bootstrap.error}</p>
-              </Panel>
+              <ErrorState title="Dashboard indisponible" message={bootstrap.error} />
             ) : null}
 
             {!bootstrap.loading && !bootstrap.error && active === "overview" ? (
@@ -2675,7 +2666,7 @@ export function AdminApp() {
                       ))}
                     </div>
                   ) : (
-                    <p className="rounded-2xl border border-dashed border-line-medium p-3 text-sm font-bold text-muted">Aucun résultat.</p>
+                    <EmptyState title="Aucun résultat" />
                   )}
                 </section>
               ))}

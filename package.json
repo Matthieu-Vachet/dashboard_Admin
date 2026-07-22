@@ -17,6 +17,7 @@
     "test:learning-flow": "node scripts/test-learning-flow.mjs",
     "test:event-references": "tsx --test scripts/test-persistent-event-references.mts",
     "test:version": "node scripts/test-dashboard-version.mjs",
+    "test:design-system-state-system": "node --test scripts/test-design-system-state-system.mjs",
     "check": "npm run lint && npm run build"
   },
   "dependencies": {

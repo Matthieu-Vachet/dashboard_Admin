@@ -33,6 +33,7 @@ import { Input, Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select } from "@/components/ui/select";
+import { EmptyState, ErrorState, FetchLoadingState } from "@/components/admin/shared/state-system";
 import { cn } from "@/lib/cn";
 import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
 
@@ -795,9 +796,9 @@ export function IdentityManagerPanel() {
             </div>
           </div>
 
-          {error ? <p className="rounded-xl border border-danger/30 bg-danger/10 p-4 font-bold text-rose-100">{error}</p> : null}
-          {loading ? <p className="rounded-xl border border-line bg-panel/55 p-8 text-center font-bold text-muted">Chargement du catalogue…</p> : null}
-          {!loading && !identities.length ? <p className="rounded-xl border border-line bg-panel/55 p-8 text-center font-bold text-muted">Aucune identité ne correspond aux filtres.</p> : null}
+          {error ? <ErrorState title="Catalogue indisponible" message={error} /> : null}
+          {loading ? <FetchLoadingState title="Chargement du catalogue…" /> : null}
+          {!loading && !identities.length ? <EmptyState size="section" title="Aucune identité ne correspond aux filtres" /> : null}
           <div className="grid min-w-0 gap-4 xl:grid-cols-2">
             {identities.map((identity) => {
               const previewAsset = localPreviewAsset(identity);
@@ -862,8 +863,8 @@ export function IdentityManagerPanel() {
             <Input placeholder="Costume" value={diagnosticFilters.costume} onChange={(event) => updateDiagnosticFilter("costume", event.target.value)} />
             <Button variant="secondary" icon={<Download size={15} />} onClick={downloadDiagnostics}>Exporter le diagnostic</Button>
           </div>
-          {error ? <p className="rounded-xl border border-danger/30 bg-danger/10 p-4 font-bold text-rose-100">{error}</p> : null}
-          {loading ? <p className="rounded-xl border border-line bg-panel/55 p-8 text-center font-bold text-muted">Chargement des diagnostics…</p> : null}
+          {error ? <ErrorState title="Diagnostics indisponibles" message={error} /> : null}
+          {loading ? <FetchLoadingState title="Chargement des diagnostics…" /> : null}
           <div className="space-y-3">
             {diagnostics.map((diagnostic) => (
               <article key={diagnosticId(diagnostic)} className={cn(cardClass, diagnostic.status === "open" && "border-warning/30")}>
@@ -892,7 +893,7 @@ export function IdentityManagerPanel() {
       )}
 
       <Modal open={syncModalOpen} onClose={() => setSyncModalOpen(false)} title="Synchroniser le catalogue canonique" description="PokemonGo-Data reste la vérité absolue. Cet aperçu compare l’inventaire local à MongoDB sans modifier les alias fournisseurs." className="max-w-4xl" footer={<div className="flex flex-wrap justify-end gap-2"><Button variant="secondary" icon={<RefreshCcw size={15} />} loading={syncLoading} loadingText="Recalcul…" disabled={busy} onClick={() => void loadSyncPreview(true)}>Recalculer l’aperçu</Button><Button variant="primary" icon={<Database size={15} />} loading={busyAction === "sync"} loadingText="Synchronisation…" disabled={busy || syncLoading || !syncReport || syncReport.conflict > 0 || !syncHasChanges} onClick={() => void applyLocalSync()}>{syncHasChanges ? "Appliquer la synchronisation" : "Catalogue déjà synchronisé"}</Button></div>}>
-        {syncLoading && !syncReport ? <p className="p-6 text-center font-bold text-muted">Comparaison du catalogue local et de MongoDB…</p> : null}
+        {syncLoading && !syncReport ? <FetchLoadingState layout="inline" title="Comparaison du catalogue local et de MongoDB…" /> : null}
         {syncReport ? <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-3"><Stat label="Inventaire local" value={syncReport.inventory.total} tone="cyan" /><Stat label="MongoDB avant" value={syncReport.before.identities} tone="violet" /><Stat label="MongoDB après" value={syncReport.after.identities} tone="green" /></div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Stat label="À créer" value={syncReport.create} tone="green" /><Stat label="À mettre à jour" value={syncReport.update} tone="cyan" /><Stat label="Orphelins conservés" value={syncReport.orphan} tone="amber" /><Stat label="Conflits bloquants" value={syncReport.conflict} tone="red" /></div>

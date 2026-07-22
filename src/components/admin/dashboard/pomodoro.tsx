@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { usePersistentState } from "@/lib/use-persistent-state";
 import { cn } from "@/lib/cn";
+import { EmptyState } from "@/components/admin/shared/state-system";
 
 type PomodoroMode = "focus" | "short" | "long";
 
@@ -158,9 +159,7 @@ export function Pomodoro() {
               </Card>
             ))}
             {!stats.history.length ? (
-              <p className="rounded-lg border border-dashed border-line p-4 text-sm font-semibold text-muted">
-                Lance ta première session pour remplir l’historique.
-              </p>
+              <EmptyState title="Aucune session terminée" description="Lance ta première session pour remplir l’historique." />
             ) : null}
           </div>
         </Card>

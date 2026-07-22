@@ -21,6 +21,7 @@ import {
   ShieldAlert,
   XCircle,
 } from "lucide-react";
+import { EmptyState } from "@/components/admin/shared/state-system";
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -435,7 +436,7 @@ export function AdminCommandCenter({
               <div className="min-w-0"><strong className="block truncate text-sm">{item.subject || item.message || "Mise à jour du référentiel"}</strong><small className="mt-1 block text-xs text-muted">{formatDate(item.iso || item.date)}{item.hash ? ` · ${item.hash}` : ""}</small></div>
             </div>
           ))}
-          {!changedSources.length && !recentHistory.length ? <p className="rounded-lg border border-dashed border-line p-5 text-sm font-semibold text-muted">Aucune activité récente détectée.</p> : null}
+          {!changedSources.length && !recentHistory.length ? <EmptyState title="Aucune activité récente détectée" /> : null}
         </div>
       </Card>
     </section>

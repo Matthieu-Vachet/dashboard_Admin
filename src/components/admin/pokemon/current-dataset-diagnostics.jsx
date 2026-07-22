@@ -3,7 +3,6 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 
 import {
-  AlertTriangle,
   CheckCircle2,
   ChevronDown,
   Copy,
@@ -16,6 +15,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
+import { EmptyState, ErrorState, FetchLoadingState } from "@/components/admin/shared/state-system";
 
 function firstDefined(...values) {
   return values.find((value) => value !== undefined && value !== null && value !== "");
@@ -268,12 +268,7 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
         </div>
       </div>
 
-      {error ? (
-        <div className="mt-3 flex items-start gap-2 rounded-xl border border-red-200/25 bg-red-400/12 p-3 text-sm font-bold leading-5 text-red-50" role="alert">
-          <AlertTriangle className="mt-0.5 shrink-0" size={17} aria-hidden="true" />
-          <span>{errorMessage}</span>
-        </div>
-      ) : null}
+      {error ? <ErrorState className="mt-3" title="Diagnostic indisponible" message={errorMessage} /> : null}
 
       {expanded ? (
         <div className="mt-3 space-y-3">
@@ -320,7 +315,7 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
       <Modal open={historyOpen} onClose={() => setHistoryOpen(false)} title="Historique des exécutions" description={provider} className="max-w-6xl">
         <div className="grid min-h-[56dvh] gap-4 lg:grid-cols-[18rem_minmax(0,1fr)]">
           <aside className="max-h-[65dvh] overflow-y-auto border-b border-line pb-3 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-3">
-            {historyLoading ? <p className="text-sm text-muted">Chargement…</p> : historyRuns.map((run, index) => (
+            {historyLoading ? <FetchLoadingState layout="inline" title="Chargement de l’historique…" /> : historyRuns.map((run, index) => (
               <button className={`mb-2 w-full rounded-xl border p-3 text-left ${selectedRun === run ? "border-cyan-200/35 bg-cyan-300/10" : "border-line bg-white/[.025]"}`} type="button" onClick={() => setSelectedRun(run)} key={run.id || `${run.startedAt}-${index}`}>
                 <strong className="block text-xs text-domain-foreground">{run.status || "inconnu"}</strong>
                 <span className="mt-1 block text-[10px] text-disabled">{formatDate(run.startedAt || run.savedAt)}</span>
@@ -341,7 +336,7 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
             </label>
             <div className="mt-3 max-h-[54dvh] space-y-2 overflow-y-auto pr-1">
               {visibleUnmatched.map((entry, index) => <DiagnosticCard entry={entry} provider={provider} onCopy={copyDiagnostic} key={`${entry.sourceId}-${entry.sourceName}-${index}`} />)}
-              {!visibleUnmatched.length ? <p className="rounded-xl border border-dashed border-white/12 p-6 text-center text-sm font-bold text-muted">Aucune entrée non matchée pour cette exécution.</p> : null}
+              {!visibleUnmatched.length ? <EmptyState title="Aucune entrée non matchée pour cette exécution" /> : null}
             </div>
             {selectedRun?.errors?.length ? <pre className="mt-4 whitespace-pre-wrap rounded-xl border border-red-200/20 bg-red-300/[.07] p-3 text-xs text-red-100">{JSON.stringify(selectedRun.errors, null, 2)}</pre> : null}
           </div>

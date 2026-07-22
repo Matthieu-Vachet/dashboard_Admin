@@ -4,6 +4,7 @@ import { Check, ChevronDown, Menu, Search, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { fieldClass } from "./admin-ui";
+import { EmptyState } from "@/components/admin/shared/state-system";
 
 const groupLabels = {
   data: "Données Pokémon",
@@ -139,7 +140,7 @@ export function AdminSectionNavigation({ items, active, onSelect }) {
               </button>
             );
           })}
-          {!visibleDesktopItems.length ? <p className="px-3 py-2 text-xs font-bold text-muted">Aucune section trouvée.</p> : null}
+          {!visibleDesktopItems.length ? <EmptyState title="Aucune section trouvée" /> : null}
         </div>
       </div>
 
@@ -200,7 +201,7 @@ export function AdminSectionNavigation({ items, active, onSelect }) {
                   </button>
                 );
               })}
-              {!visibleMobileItems.length ? <p className="col-span-full rounded-2xl border border-dashed border-line-medium p-6 text-center text-sm font-bold text-muted">Aucune section ne correspond.</p> : null}
+              {!visibleMobileItems.length ? <EmptyState className="col-span-full" title="Aucune section ne correspond" /> : null}
             </div>
           </div>
         </div>

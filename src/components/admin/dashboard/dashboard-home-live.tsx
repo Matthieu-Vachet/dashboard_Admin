@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PokemonApiStatus } from "@/components/admin/pokemon/pokemon-api-status";
 import { SortableWidgetGrid, type SortableWidgetItem } from "@/components/admin/shared/sortable-widget-grid";
+import { EmptyState } from "@/components/admin/shared/state-system";
 import {
   initialBoard,
   initialContacts,
@@ -653,9 +654,5 @@ function ExternalButton({ href, label }: { href: string; label: string }) {
 }
 
 function EmptyLine({ children }: { children: ReactNode }) {
-  return (
-    <p className="rounded-lg border border-dashed border-line p-4 text-sm font-semibold text-muted">
-      {children}
-    </p>
-  );
+  return <EmptyState title={children} />;
 }

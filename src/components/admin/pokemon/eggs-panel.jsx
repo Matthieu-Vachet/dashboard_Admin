@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PokemonArtwork } from "./pokemon-artwork";
 import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
+import { FetchLoadingState } from "@/components/admin/shared/state-system";
 
 const eggSections = [
   ["1km", "1 km", "/ui/eggs/1_km.png", "cyan"],
@@ -219,9 +220,7 @@ export function EggsPanel({
       />
 
       {loading && !total ? (
-        <Panel title="Chargement des oeufs">
-          <p className="font-bold text-foreground-secondary">Lecture des oeufs MongoDB en cours.</p>
-        </Panel>
+        <FetchLoadingState title="Chargement des œufs…" detail="Lecture des œufs MongoDB en cours." />
       ) : null}
 
       <div className="space-y-4">

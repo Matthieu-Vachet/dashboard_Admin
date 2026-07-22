@@ -756,6 +756,11 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .animate-spin,
+  .animate-pulse {
+    animation: none !important;
+  }
+
   .energy-scan {
     animation: none;
   }

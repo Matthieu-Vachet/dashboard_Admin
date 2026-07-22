@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { readDashboardStoreValue, readLocalJson, writeDashboardStoreValue } from "@/services/admin/dashboard-store";
 import { Panel, fieldClass, primaryButtonClass } from "./admin-ui";
+import { EmptyState } from "@/components/admin/shared/state-system";
 
 const storeKey = "matweb.pokemon.todos";
 const legacyStoreKey = "pokedex-v4-admin-todos";
@@ -155,7 +156,7 @@ export function AdminTodoPanel() {
           );
         })}
         {!todos.length && storageState !== "loading" ? (
-          <p className="rounded-2xl border border-dashed border-line-medium p-5 text-sm font-bold text-muted">Aucune tâche pour le moment.</p>
+          <EmptyState title="Aucune tâche pour le moment" />
         ) : null}
       </div>
     </Panel>

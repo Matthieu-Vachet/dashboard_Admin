@@ -2,6 +2,7 @@
 
 import { Filter, Gauge, Image as ImageIcon, Layers } from "lucide-react";
 import { pokemonVariantLabel, preferredPokemonImage } from "@/components/site/pokemon-style";
+import { EmptyState } from "@/components/admin/shared/state-system";
 
 export const panelClass =
   "rounded-2xl border border-line bg-surface-subtle p-4 shadow-[0_22px_90px_rgba(0,0,0,.24)] backdrop-blur-xl sm:p-5";
@@ -111,9 +112,7 @@ export function BarList({ items, labelKey = "id", valueKey = "count" }) {
           );
         })
       ) : (
-        <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
-          Aucune donnée à afficher.
-        </p>
+        <EmptyState title="Aucune donnée à afficher" />
       )}
     </div>
   );
@@ -220,9 +219,7 @@ export function CompletionList({ items }) {
           );
         })
       ) : (
-        <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
-          Aucune donnée à afficher.
-        </p>
+        <EmptyState title="Aucune donnée à afficher" />
       )}
     </div>
   );
@@ -245,9 +242,7 @@ export function HistoryList({ history = [] }) {
           </div>
         ))
       ) : (
-        <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
-          Historique indisponible pour le moment.
-        </p>
+        <EmptyState title="Historique indisponible pour le moment" />
       )}
     </div>
   );
@@ -287,9 +282,7 @@ export function MiniCardList({ entries, onOpen }) {
           );
         })
       ) : (
-        <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
-          Rien à afficher ici.
-        </p>
+        <EmptyState title="Rien à afficher ici" />
       )}
     </div>
   );
@@ -352,9 +345,7 @@ export function JsonIssueList({ entries }) {
           );
         })
       ) : (
-        <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
-          Rien à afficher ici.
-        </p>
+        <EmptyState title="Rien à afficher ici" />
       )}
     </div>
   );

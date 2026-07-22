@@ -14,6 +14,7 @@ import {
 import { pokemonVariantBadges } from "@/lib/pokemon-variant-resolver";
 import { uiAssets } from "@/components/site/ui-assets";
 import { Checkbox } from "@/components/ui/checkbox";
+import { EmptyState } from "@/components/admin/shared/state-system";
 
 const tabLabels = {
   overview: "Aperçu",
@@ -343,11 +344,7 @@ function TranslationGrid({ names = {} }) {
 }
 
 function EmptyInline({ children }) {
-  return (
-    <p className="rounded-2xl border border-dashed border-line-medium bg-surface-faint p-4 text-sm font-bold text-foreground-secondary">
-      {children}
-    </p>
-  );
+  return <EmptyState title={children} />;
 }
 
 function CandyAmount({ value, icon, label = "bonbons" }) {

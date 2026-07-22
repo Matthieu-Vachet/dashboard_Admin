@@ -17,6 +17,7 @@ import {
   subMonths,
 } from "date-fns";
 import { fr } from "date-fns/locale";
+import { EmptyState } from "@/components/admin/shared/state-system";
 import {
   Archive,
   CalendarDays,
@@ -1054,7 +1055,7 @@ function EventGroup({ title, events, onOpen, empty }) {
         {events.length ? (
           events.map((event) => <EventRow key={`${title}-${event.id}`} event={event} onOpen={onOpen} />)
         ) : (
-          <p className="rounded-2xl border border-dashed border-line p-4 text-sm font-bold text-muted">{empty}</p>
+          <EmptyState title={empty} />
         )}
       </div>
     </section>
@@ -1081,7 +1082,7 @@ function TimelineSection({ title, count, events, onOpen, empty, defaultOpen = fa
           {events.length ? (
             events.map((event) => <TimelineCard key={`${title}-${event.id}`} event={event} onOpen={onOpen} />)
           ) : (
-            <p className="rounded-xl border border-dashed border-line p-4 text-sm font-bold text-muted">{empty}</p>
+            <EmptyState title={empty} />
           )}
         </div>
       ) : null}

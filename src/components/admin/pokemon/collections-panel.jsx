@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { pokemonVariantLabel, preferredPokemonImage, typeColors } from "@/components/site/pokemon-style";
 import { uiAssets } from "@/components/site/ui-assets";
 import { Checkbox } from "@/components/ui/checkbox";
+import { EmptyState } from "@/components/admin/shared/state-system";
 
 const panelClass =
   "rounded-2xl border border-line bg-surface-subtle p-4 shadow-[0_22px_90px_rgba(0,0,0,.24)] backdrop-blur-xl sm:p-5";
@@ -514,9 +515,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
                 </button>
               ))
             ) : (
-              <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
-                Cree une premiere collection pour afficher les Pokemon correspondants.
-              </p>
+              <EmptyState title="Aucune collection" description="Crée une première collection pour afficher les Pokémon correspondants." />
             )}
           </div>
         </div>
@@ -683,9 +682,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
             </div>
           ) : null}
           {!collectionEntries.length ? (
-            <p className="mt-4 rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
-              Aucun Pokemon ne correspond a cette combinaison de filtres.
-            </p>
+            <EmptyState className="mt-4" title="Aucun Pokémon ne correspond à cette combinaison de filtres" />
           ) : null}
         </>
       ) : null}

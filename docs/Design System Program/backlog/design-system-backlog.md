@@ -11,7 +11,7 @@ Statuts autorisés : `not-started`, `observing`, `planned`, `in-progress`, `bloc
 | DS-BACKLOG-005 | Formulaires | Textarea | Zones multiligne auditées et cas Field sûrs consolidés | validated | P1 | moyen | S | DS-BACKLOG-003 |
 | DS-BACKLOG-006 | Formulaires | Select | 67 contrôles compatibles canoniques et nommés ; cinq wrappers conservés, palette spécialisée exclue | completed | P1 | élevé | L | DS-BACKLOG-003 |
 | DS-BACKLOG-007 | Formulaires | Checkbox | 10 contrôles compatibles canoniques et nommés ; disabled, labels et exceptions sémantiques conservés | completed | P1 | moyen | M | Accessibility |
-| DS-BACKLOG-008 | États | Loading / Empty / Error | Cartographier puis extraire les états répétés | not-started | P1 | moyen | L | Card, Accessibility |
+| DS-BACKLOG-008 | États | Loading / Empty / Error | 78 racines génériques couvertes ; Fetch Loading animé 15/15, Empty/No Results 52/52, Error 11/11, exceptions documentées | completed | P1 | moyen | L | Card, Accessibility |
 | DS-BACKLOG-009 | Actions | Button | Sprint Famille : contrat, inventaire, ExternalButton et LoadMoreButton | validated | P1 | élevé | M | Badge validé |
 | DS-BACKLOG-010 | Surfaces | Card | 386 racines classées ; 20 surfaces sûres migrées, 115 usages canoniques et exceptions métier documentées | completed | P1 | élevé | L | Responsive vérifié localement sur 3 viewports |
 | DS-BACKLOG-011 | Overlays | Modal | 38 cas courants ; A22/B0/C0/D10/E6/F0 après stabilisation, API publique inchangée et exceptions métier documentées | completed | P1 | élevé | L | Accessibility, Button |
@@ -25,4 +25,4 @@ Statuts autorisés : `not-started`, `observing`, `planned`, `in-progress`, `bloc
 
 ## Prochaine priorité proposée
 
-**Loading / Empty / Error**, non lancé (`DS-BACKLOG-008`) : cartographier les états répétés, distinguer le générique du métier puis extraire uniquement les contrats démontrés. `DS-BACKLOG-012` Responsive reste `planned` au niveau transverse ; les matrices locales Card, Color System et Select + Checkbox ne prétendent pas clore ce chantier global.
+**Visual Consistency**, non lancé : regrouper spacing, radius, shadows et surfaces résiduelles à partir des exceptions déjà inventoriées. `DS-BACKLOG-012` Responsive reste `planned` au niveau transverse ; les matrices locales Card, Color System, Select + Checkbox et State System ne prétendent pas clore ce chantier global.

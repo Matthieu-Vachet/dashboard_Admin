@@ -1,5 +1,6 @@
 import { CheckCircle2, Clock3, Play, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/admin/shared/state-system";
 import type { LearningActivity } from "@/types/admin/learning";
 
 const itemLabels = { theory: "Théorie", exercise: "Exercice", pseudocode: "Pseudo-code", challenge: "Challenge", project: "Projet" } as const;
@@ -51,7 +52,7 @@ export function LearningActivityTimeline({ activity }: { activity: LearningActiv
                 {item.xp ? <span className="inline-flex items-center gap-1 text-brand-3"><Sparkles size={13} /> +{item.xp} XP</span> : null}
               </div>
             </div>
-          )) : <p className="py-6 text-center text-sm font-semibold text-muted">Aucune activité réelle enregistrée. L’historique commencera à ton prochain démarrage de notion.</p>}
+          )) : <EmptyState title="Aucune activité réelle enregistrée" description="L’historique commencera à ton prochain démarrage de notion." />}
         </div>
       </Card>
     </section>

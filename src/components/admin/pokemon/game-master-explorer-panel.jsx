@@ -28,6 +28,7 @@ import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
+import { EmptyState, ErrorState } from "@/components/admin/shared/state-system";
 import { buttonClass, fieldClass, Panel } from "./admin-ui";
 import { combineAdminPokemonSearch, useAdminPokemonSearch } from "./admin-pokemon-search-context";
 import { GameMasterJsonViewer } from "./game-master-json-viewer";
@@ -164,8 +165,8 @@ function TemplateCard({ template, onOpen }) {
 
 function TemplatesView({ resource, loading, onOpen, onPage }) {
   const templates = resource?.data || [];
-  if (loading) return <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{Array.from({ length: 6 }, (_, index) => <div className="h-40 animate-pulse rounded-2xl border border-line-subtle bg-surface-faint" key={index} />)}</div>;
-  if (!templates.length) return <p className="rounded-2xl border border-dashed border-line-medium p-8 text-center text-sm font-bold text-muted">Aucun template ne correspond à ces filtres.</p>;
+  if (loading) return <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{Array.from({ length: 6 }, (_, index) => <div className="h-40 animate-pulse rounded-2xl border border-line-subtle bg-surface-faint motion-reduce:animate-none" key={index} />)}</div>;
+  if (!templates.length) return <EmptyState size="section" title="Aucun template ne correspond à ces filtres" />;
   return (
     <div className="space-y-4">
       <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{templates.map((template) => <TemplateCard template={template} onOpen={onOpen} key={template.templateId} />)}</div>
@@ -306,7 +307,7 @@ function DetailModal({ resource, loading, tab, onTab, onClose }) {
           {detailTabs.map(([id, label]) => <button className={`shrink-0 rounded-xl border px-3 py-2 text-xs font-black ${tab === id ? "border-cyan-200/35 bg-cyan-300/14 text-domain-foreground" : "border-transparent text-muted hover:bg-white/[.05] hover:text-domain-foreground"}`} type="button" role="tab" aria-selected={tab === id} onClick={() => onTab(id)} key={id}>{label}</button>)}
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-5">
-          {loading ? <div className="h-64 animate-pulse rounded-2xl bg-surface-minimal" /> : null}
+          {loading ? <div className="h-64 animate-pulse rounded-2xl bg-surface-minimal motion-reduce:animate-none" /> : null}
           {!loading && tab === "summary" ? <div className="space-y-4"><dl className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3"><DetailDefinition label="Catégorie" value={template.categoryLabel || template.category} /><DetailDefinition label="Groupe" value={template.categoryGroupLabel || template.categoryGroup} /><DetailDefinition label="Setting type" value={template.settingType} /><DetailDefinition label="Chemin principal" value={`data.${template.settingType || "unknown"}`} /><DetailDefinition label="Snapshot" value={template.snapshotId} /><DetailDefinition label="Pokémon" value={template.pokemonId} /><DetailDefinition label="Forme" value={template.form} /><DetailDefinition label="Costume" value={template.costume} /><DetailDefinition label="Taille" value={formatBytes(template.sizeBytes)} /><DetailDefinition label="Propriétés indexées" value={template.propertyCount} /><DetailDefinition label="Hash" value={template.sourceHash} /><DetailDefinition label="Source mise à jour" value={formatDate(template.sourceUpdatedAt)} /><DetailDefinition label="Schéma index" value={template.indexSchemaVersion} /></dl>{interpretedRows.length ? <section><h3 className="mb-2 text-xs font-black uppercase tracking-[.14em] text-disabled">Lecture métier</h3><dl className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{interpretedRows.map(([label, value]) => <DetailDefinition label={label} value={value} key={label} />)}</dl></section> : null}</div> : null}
           {!loading && tab === "json" ? <GameMasterJsonViewer value={template.raw || {}} /> : null}
           {!loading && tab === "properties" ? <PropertiesView rows={template.flattenedPaths || []} /> : null}
@@ -475,7 +476,7 @@ export function GameMasterExplorerPanel() {
         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4"><DetailDefinition label="URL source" value={summary?.snapshot?.sourceUrl} /><DetailDefinition label="Hash global" value={summary?.state?.sourceHash} /><DetailDefinition label="Récupéré" value={formatDate(summary?.state?.retrievedAt)} /><DetailDefinition label="Rétention" value={summary?.retentionPolicy?.mode === "unlimited" ? "Illimitée" : `${summary?.retentionPolicy?.maximumSnapshots} snapshots`} /></div>
       </Panel>
 
-      {error ? <div className="flex items-start gap-3 rounded-2xl border border-rose-200/20 bg-rose-300/[.08] p-4 text-sm font-bold text-rose-100" role="alert"><AlertTriangle className="mt-0.5 shrink-0" size={18} /><span className="min-w-0 break-words">{error}</span></div> : null}
+      {error ? <ErrorState title="Game Master indisponible" message={error} /> : null}
 
       <section className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-7" aria-label="Synthèse Game Master">
         <SummaryMetric icon={Boxes} label="Templates" value={Number(summary?.totalTemplates || 0).toLocaleString("fr-FR")} />
@@ -488,7 +489,13 @@ export function GameMasterExplorerPanel() {
       </section>
 
       {!loading && !summary?.initialized ? (
-        <div className="rounded-3xl border border-dashed border-cyan-200/25 bg-cyan-300/[.05] p-8 text-center"><Database className="mx-auto text-cyan-200" size={28} /><h3 className="mt-3 text-lg font-black text-domain-foreground">Aucun snapshot indexé</h3><p className="mx-auto mt-2 max-w-xl text-sm font-bold leading-6 text-muted">Lance la régénération pour récupérer le Game Master côté serveur, construire l’index et activer le premier snapshot MongoDB.</p><Button className="mt-5" variant="primary" type="button" icon={<RotateCcw size={16} />} loading={busy === "regenerate-game-master"} loadingText="Initialisation…" onClick={() => runMutation("regenerate-game-master", "Premier snapshot Game Master activé.")} disabled={Boolean(busy)}>Initialiser</Button></div>
+        <EmptyState
+          size="section"
+          icon={<Database size={28} aria-hidden="true" />}
+          title="Aucun snapshot indexé"
+          description="Lance la régénération pour récupérer le Game Master côté serveur, construire l’index et activer le premier snapshot MongoDB."
+          action={<Button variant="primary" type="button" icon={<RotateCcw size={16} />} loading={busy === "regenerate-game-master"} loadingText="Initialisation…" onClick={() => runMutation("regenerate-game-master", "Premier snapshot Game Master activé.")} disabled={Boolean(busy)}>Initialiser</Button>}
+        />
       ) : null}
 
       {summary?.initialized ? (

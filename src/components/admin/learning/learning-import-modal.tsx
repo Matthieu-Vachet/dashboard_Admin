@@ -5,6 +5,7 @@ import { AlertTriangle, CheckCircle2, FileJson2, History, RotateCcw, UploadCloud
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
+import { EmptyState } from "@/components/admin/shared/state-system";
 import { validateLearningTopic } from "@/lib/learning/schema";
 import {
   fetchLearningImports,
@@ -191,7 +192,7 @@ export function LearningImportModal({ open, topics, onClose, onChanged }: {
                 <div><strong className="block text-sm">{item.fileName}</strong><span className="text-xs font-semibold text-muted">{item.topicId} · {item.strategy} · {new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.createdAt))}</span></div>
                 {item.canRollback ? <Button size="sm" icon={<RotateCcw size={14} />} disabled={loading} onClick={() => void rollback(item.id)}>Restaurer</Button> : <Badge>Restauré</Badge>}
               </div>
-            )) : <p className="py-4 text-center text-sm font-semibold text-muted">Aucun import enregistré.</p>}
+            )) : <EmptyState title="Aucun import enregistré" />}
           </div>
         </section>
       </div>

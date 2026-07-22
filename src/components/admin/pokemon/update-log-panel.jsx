@@ -1,6 +1,7 @@
 "use client";
 
 import { Cloud, ExternalLink, GitCommitHorizontal, History } from "lucide-react";
+import { EmptyState } from "@/components/admin/shared/state-system";
 
 function formatDate(value) {
   if (!value) return "date inconnue";
@@ -78,9 +79,7 @@ export function UpdateLogPanel({
             ))}
           </div>
         ) : (
-          <p className="rounded-2xl border border-dashed border-line-medium p-5 text-sm font-bold text-muted">
-            Aucun changement enregistré. Lance une veille pour créer les premiers logs.
-          </p>
+          <EmptyState title="Aucun changement enregistré" description="Lance une veille pour créer les premiers logs." />
         )}
       </article>
 
@@ -130,9 +129,7 @@ export function UpdateLogPanel({
             })}
           </div>
         ) : (
-          <p className="rounded-2xl border border-dashed border-line-medium p-5 text-sm font-bold text-muted">
-            Aucun redéploiement data enregistré pour le moment.
-          </p>
+          <EmptyState title="Aucun redéploiement data enregistré pour le moment" />
         )}
       </article>
 
@@ -159,9 +156,7 @@ export function UpdateLogPanel({
             ))}
           </div>
         ) : (
-          <p className="rounded-2xl border border-dashed border-line-medium p-5 text-sm font-bold text-muted">
-            Historique Git indisponible pour le moment.
-          </p>
+          <EmptyState title="Historique Git indisponible pour le moment" />
         )}
       </article>
     </section>

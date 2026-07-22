@@ -6,6 +6,7 @@ import { fieldClass, Panel } from "./admin-ui";
 import { PokemonArtwork } from "./pokemon-artwork";
 import { typeBackground, typeColors, typeIcon, typeName } from "@/components/site/pokemon-style";
 import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
+import { EmptyState } from "@/components/admin/shared/state-system";
 
 function moveTitle(move) {
   return move.names?.French || move.names?.English || move.name || move.id;
@@ -413,9 +414,7 @@ export function CatalogPanel({ catalog = {}, onOpen }) {
         </div>
       )}
       {!items.length ? (
-        <p className="mt-4 rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
-          Aucun résultat dans {labels[tab]}.
-        </p>
+        <EmptyState className="mt-4" title={<>Aucun résultat dans {labels[tab]}</>} />
       ) : null}
     </Panel>
   );

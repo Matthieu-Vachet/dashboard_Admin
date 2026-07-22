@@ -34,8 +34,8 @@ test("Card conserve sa racine, sa ref et son API finie", () => {
 test("les usages canoniques courants sont caractérisés", () => {
   const consumers = files.filter((file) => /<Card\b/.test(sources.get(file)));
   const count = consumers.reduce((total, file) => total + (sources.get(file).match(/<Card\b/g)?.length || 0), 0);
-  assert.equal(consumers.length, 32);
-  assert.equal(count, target ? 115 : 95);
+  assert.equal(consumers.length, target ? 33 : 32);
+  assert.equal(count, target ? 112 : 95);
 });
 
 test("CardHeader, CardTitle et CardDescription gardent leur anatomie", () => {

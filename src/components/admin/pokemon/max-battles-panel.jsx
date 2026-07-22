@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PokemonArtwork } from "./pokemon-artwork";
 import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
+import { FetchLoadingState } from "@/components/admin/shared/state-system";
 
 function values(data) {
   return Array.isArray(data) ? data : [];
@@ -189,9 +190,7 @@ export function MaxBattlesPanel({
       />
 
       {loading && !total ? (
-        <Panel title="Chargement des Max Battles">
-          <p className="font-bold text-foreground-secondary">Lecture des Max Battles MongoDB en cours.</p>
-        </Panel>
+        <FetchLoadingState title="Chargement des Max Battles…" detail="Lecture des Max Battles MongoDB en cours." />
       ) : null}
 
       <div className="space-y-4">

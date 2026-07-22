@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { uiAssets } from "@/components/site/ui-assets";
 import { PokemonArtwork } from "./pokemon-artwork";
 import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
+import { EmptyState, FetchLoadingState } from "@/components/admin/shared/state-system";
 
 const sectionLabels = {
   fieldResearch: "Field Research",
@@ -265,9 +266,7 @@ function ResearchSection({ id, title, tasks, items, defaultOpen }) {
         {tasks.length ? (
           tasks.map((task, index) => <ResearchTask key={`${id}-${task.task}-${index}`} task={task} items={items} sectionId={id} />)
         ) : (
-          <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
-            Aucune quête dans cette section.
-          </p>
+          <EmptyState title="Aucune quête dans cette section" />
         )}
       </div>
     </details>
@@ -372,9 +371,7 @@ export function ResearchPanel({
       />
 
       {loading && !total ? (
-        <Panel title="Chargement Research">
-          <p className="font-bold text-foreground-secondary">Lecture des quêtes MongoDB en cours.</p>
-        </Panel>
+        <FetchLoadingState title="Chargement Research…" detail="Lecture des quêtes MongoDB en cours." />
       ) : null}
 
       <div className="space-y-4">

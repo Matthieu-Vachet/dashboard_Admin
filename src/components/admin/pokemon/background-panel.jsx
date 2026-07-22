@@ -5,6 +5,7 @@ import { useState } from "react";
 import { preferredPokemonImage } from "@/components/site/pokemon-style";
 import { Modal } from "@/components/ui/modal";
 import { AssetStatCard, Panel } from "./admin-ui";
+import { EmptyState, FetchLoadingState } from "@/components/admin/shared/state-system";
 
 function assetKey(value) {
   const source = decodeURIComponent(String(value || "").split("?")[0]);
@@ -98,7 +99,7 @@ function BackgroundPreview({ background, onOpen, onPreview }) {
             {linked.length > 28 ? <p className="rounded-xl border border-line bg-surface-minimal px-3 py-2 text-xs font-black text-foreground-secondary">+{linked.length - 28} autres fiches</p> : null}
           </div>
         ) : (
-          <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">Aucun Pokémon n’utilise cette location card pour le moment.</p>
+          <EmptyState title="Aucun Pokémon n’utilise cette location card pour le moment" />
         )}
       </div>
     </article>
@@ -111,9 +112,11 @@ export function BackgroundPanel({ entries = [], library = [], linkedAssets = [],
   if (loading) {
     return (
       <Panel title="Backgrounds Pokémon" eyebrow="LocationCards + liens fiches">
-        <p className="rounded-2xl border border-line bg-surface-inset p-5 text-sm font-bold text-foreground-secondary">
-          Chargement de la bibliothèque LocationCards et des liens avec les fiches Pokémon...
-        </p>
+        <FetchLoadingState
+          layout="inline"
+          title="Chargement de la bibliothèque LocationCards…"
+          detail="Les liens avec les fiches Pokémon sont en cours de lecture."
+        />
       </Panel>
     );
   }

@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select } from "@/components/ui/select";
+import { EmptyState, ErrorState, FetchLoadingState } from "@/components/admin/shared/state-system";
 import { resolvePokemonVariant } from "@/lib/pokemon-variant-resolver";
 import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
 import {
@@ -235,7 +236,7 @@ function ImportModal({
           <input type="file" accept="application/json,.json" disabled={busy} onChange={(event) => onSelectFile(event.target.files?.[0] || null)} />
           {fileName ? <span className="text-xs text-muted">{fileName}</span> : null}
         </label>
-        {busy ? <div className="flex items-center gap-3 rounded-lg border border-line p-4"><LoaderCircle className="animate-spin text-brand-2" /><span>{phase === "importing" ? "Écriture, read-back et activation…" : "Parsing, validation et normalisation…"}</span></div> : null}
+        {busy ? <div className="flex items-center gap-3 rounded-lg border border-line p-4"><LoaderCircle className="animate-spin text-brand-2 motion-reduce:animate-none" /><span>{phase === "importing" ? "Écriture, read-back et activation…" : "Parsing, validation et normalisation…"}</span></div> : null}
         {error ? <div className="rounded-lg border border-danger/35 bg-danger/10 p-4 text-sm font-semibold text-rose-100" role="alert"><strong className="block">Import impossible</strong>{error}</div> : null}
         {preview ? <div className="grid gap-3">
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{[
@@ -390,15 +391,15 @@ export function TrainerPokemonCollectionPanel() {
         ) : null}
       </Card>
 
-      {loading ? <Card className="grid min-h-52 place-items-center p-6"><div className="text-center"><LoaderCircle className="mx-auto animate-spin text-brand-2" size={30} /><p className="mt-3 font-bold">Chargement de la collection…</p></div></Card> : null}
-      {loadError ? <Card className="border-danger/35 p-5" role="alert"><AlertTriangle className="text-danger" /><strong className="mt-2 block">Collection indisponible</strong><p className="mt-1 text-sm text-muted">{loadError}</p><Button className="mt-4" onClick={() => void load()}>Réessayer</Button></Card> : null}
-      {!loading && !loadError && !data?.snapshot ? <Card className="grid min-h-60 place-items-center p-6 text-center"><div><FileJson className="mx-auto text-brand-2" size={38} /><h3 className="mt-3 text-xl font-black">Aucune collection importée</h3><p className="mt-2 text-sm text-muted">Importe ton export Pokémon GO pour créer le premier snapshot privé.</p><Button className="mt-4" variant="primary" icon={<Upload size={16} />} onClick={() => setImportOpen(true)}>Importer un JSON</Button></div></Card> : null}
-      {!loading && data?.snapshot && data.pagination.total === 0 ? <Card className="grid min-h-44 place-items-center p-6 text-center"><div><Search className="mx-auto text-muted" size={32} /><h3 className="mt-3 text-lg font-black">Aucun résultat</h3><p className="mt-1 text-sm text-muted">Modifie ou réinitialise les filtres.</p></div></Card> : null}
+      {loading ? <FetchLoadingState title="Chargement de la collection…" /> : null}
+      {loadError ? <ErrorState title="Collection indisponible" message={loadError} action={<Button onClick={() => void load()}>Réessayer</Button>} /> : null}
+      {!loading && !loadError && !data?.snapshot ? <EmptyState size="section" icon={<FileJson size={26} aria-hidden="true" />} title="Aucune collection importée" description="Importe ton export Pokémon GO pour créer le premier snapshot privé." action={<Button variant="primary" icon={<Upload size={16} />} onClick={() => setImportOpen(true)}>Importer un JSON</Button>} /> : null}
+      {!loading && data?.snapshot && data.pagination.total === 0 ? <EmptyState size="section" icon={<Search size={24} aria-hidden="true" />} title="Aucun résultat" description="Modifie ou réinitialise les filtres." /> : null}
       {data?.items.length ? <div className="grid gap-3"><PokemonTable items={data.items} />{data.items.map((pokemon) => <PokemonMobileCard pokemon={pokemon} key={pokemon.sourceId} />)}<Pagination query={query} data={data} onPage={(page) => updateQuery({ page })} onLimit={(limit) => updateQuery({ limit })} /></div> : null}
 
       <ImportModal open={importOpen} phase={importPhase} preview={importPreview} fileName={importFileName} error={importError} onClose={() => setImportOpen(false)} onSelectFile={(file) => void selectFile(file)} onConfirm={() => void confirmImport()} />
       <Modal open={historyOpen} onClose={() => setHistoryOpen(false)} title="Historique des imports" description="Les snapshots archivés restent récupérables. Le rollback vérifie le volume avant la bascule.">
-        {historyLoading ? <LoaderCircle className="mx-auto animate-spin text-brand-2" /> : <div className="grid gap-2">{history.length ? history.map((item) => <div className="flex flex-col gap-3 rounded-lg border border-line p-3 sm:flex-row sm:items-center sm:justify-between" key={item.id}><div><strong className="block">{item.sourceFileName}</strong><span className="mt-1 block text-xs text-muted">{dateFormatter.format(new Date(item.importedAt))} · {item.actualPokemonCount.toLocaleString("fr-FR")} Pokémon · {item.status}</span></div>{item.canRollback ? <Button size="sm" icon={<RotateCcw size={14} />} loading={rollbackId === item.id} loadingText="Restauration…" disabled={Boolean(rollbackId)} onClick={() => void rollback(item)}>Restaurer</Button> : <Badge tone={item.status === "active" ? "green" : item.status === "failed" ? "red" : "neutral"}>{item.status}</Badge>}</div>) : <p className="py-8 text-center text-sm text-muted">Aucun historique.</p>}</div>}
+        {historyLoading ? <FetchLoadingState layout="inline" title="Chargement de l’historique…" /> : <div className="grid gap-2">{history.length ? history.map((item) => <div className="flex flex-col gap-3 rounded-lg border border-line p-3 sm:flex-row sm:items-center sm:justify-between" key={item.id}><div><strong className="block">{item.sourceFileName}</strong><span className="mt-1 block text-xs text-muted">{dateFormatter.format(new Date(item.importedAt))} · {item.actualPokemonCount.toLocaleString("fr-FR")} Pokémon · {item.status}</span></div>{item.canRollback ? <Button size="sm" icon={<RotateCcw size={14} />} loading={rollbackId === item.id} loadingText="Restauration…" disabled={Boolean(rollbackId)} onClick={() => void rollback(item)}>Restaurer</Button> : <Badge tone={item.status === "active" ? "green" : item.status === "failed" ? "red" : "neutral"}>{item.status}</Badge>}</div>) : <EmptyState title="Aucun historique" />}</div>}
       </Modal>
     </section>
   );

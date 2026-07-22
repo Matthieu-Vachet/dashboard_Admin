@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PokemonArtwork } from "./pokemon-artwork";
 import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
+import { FetchLoadingState } from "@/components/admin/shared/state-system";
 
 const raidSections = [
   ["super_mega", "Super Méga", "/ui/raids/mega_raids_legendaire_raids.png", "violet"],
@@ -256,9 +257,7 @@ export function RaidsPanel({
       />
 
       {loading && !total ? (
-        <Panel title="Chargement des raids">
-          <p className="font-bold text-foreground-secondary">Lecture des raids MongoDB en cours.</p>
-        </Panel>
+        <FetchLoadingState title="Chargement des raids…" detail="Lecture des raids MongoDB en cours." />
       ) : null}
 
       <div className="space-y-4">

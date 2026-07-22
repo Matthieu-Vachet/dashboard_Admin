@@ -24,7 +24,7 @@ export function DashboardLoadingState({
         {Array.from({ length: 6 }).map((_, index) => (
           <Card
             tone="flat"
-            className="h-28 animate-pulse"
+            className="h-28 animate-pulse motion-reduce:animate-none"
             key={index}
           />
         ))}

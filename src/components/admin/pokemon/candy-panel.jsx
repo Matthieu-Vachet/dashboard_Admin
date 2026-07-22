@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { CircleDot } from "lucide-react";
 import { formatCount, Panel } from "./admin-ui";
 import { pokemonVariantLabel, preferredPokemonImage } from "@/components/site/pokemon-style";
+import { EmptyState } from "@/components/admin/shared/state-system";
 
 function colorChannel(value) {
   const numeric = Number(value ?? 0);
@@ -192,9 +193,7 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
         })}
       </div>
       {!filteredGroups.length ? (
-        <p className="rounded-2xl border border-dashed border-line-medium p-4 text-sm font-bold text-muted">
-          Aucun candy ne correspond à la recherche actuelle.
-        </p>
+        <EmptyState title="Aucun candy ne correspond à la recherche actuelle" />
       ) : null}
     </Panel>
   );
