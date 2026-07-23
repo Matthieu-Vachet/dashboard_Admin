@@ -34,7 +34,11 @@ import { toast } from "sonner";
 import { DetailModal } from "@/components/admin/pokemon/detail-modal";
 import { PokemonCard } from "@/components/admin/pokemon/pokemon-card";
 import { SortableWidgetGrid } from "@/components/admin/shared/sortable-widget-grid";
-import { EmptyState, ErrorState, FetchLoadingState } from "@/components/admin/shared/state-system";
+import {
+  EmptyState,
+  ErrorState,
+  FetchLoadingState,
+} from "@/components/admin/shared/state-system";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select } from "@/components/ui/select";
@@ -74,7 +78,11 @@ import { RaidsPanel } from "./raids-panel";
 import { ResearchPanel } from "./research-panel";
 import { RocketPanel } from "./rocket-panel";
 import { ShinyTrackerPanel } from "./shiny-tracker-panel";
-import { DataDeployHistoryModal, SourceHistoryModal, SourceRows } from "./source-watch-panel";
+import {
+  DataDeployHistoryModal,
+  SourceHistoryModal,
+  SourceRows,
+} from "./source-watch-panel";
 import { UpdateLogPanel } from "./update-log-panel";
 import { AdminTodoPanel } from "./admin-todo-panel";
 import { AdminCommandCenter } from "./admin-command-center";
@@ -106,48 +114,180 @@ const sourceWatchSignatureKey = "pokedex-v4-source-watch-signatures";
 const collectionsKey = "pokedex-v4-admin-collections";
 
 const TrainerPokemonCollectionPanel = dynamic(
-  () => import("./trainer-pokemon-collection-panel").then((module) => module.TrainerPokemonCollectionPanel),
-  { loading: () => <div className={`${panelClass} min-h-64 animate-pulse motion-reduce:animate-none`} aria-label="Chargement de Ma collection" /> },
+  () =>
+    import("./trainer-pokemon-collection-panel").then(
+      (module) => module.TrainerPokemonCollectionPanel,
+    ),
+  {
+    loading: () => (
+      <div
+        className={`${panelClass} min-h-64 animate-pulse motion-reduce:animate-none`}
+        aria-label="Chargement de Ma collection"
+      />
+    ),
+  },
 );
 
 const GameMasterExplorerPanel = dynamic(
-  () => import("./game-master-explorer-panel").then((module) => module.GameMasterExplorerPanel),
-  { loading: () => <div className={`${panelClass} min-h-64 animate-pulse motion-reduce:animate-none`} aria-label="Chargement du Game Master Explorer" /> },
+  () =>
+    import("./game-master-explorer-panel").then(
+      (module) => module.GameMasterExplorerPanel,
+    ),
+  {
+    loading: () => (
+      <div
+        className={`${panelClass} min-h-64 animate-pulse motion-reduce:animate-none`}
+        aria-label="Chargement du Game Master Explorer"
+      />
+    ),
+  },
 );
 
-const filtersAssetBase = "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers/Filters";
-const pokemonAssetBase = "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers";
+const filtersAssetBase =
+  "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers/Filters";
+const pokemonAssetBase =
+  "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers";
 const navItems = [
-  { id: "overview", label: "Accueil", icon: `${pokemonAssetBase}/btn_pokeball_white_shadow.png`, group: "data" },
-  { id: "pokedex", label: "Fiches", icon: `${filtersAssetBase}/ic_alola.png`, group: "data" },
-  { id: "candies", label: "Candies", icon: `${filtersAssetBase}/TodayView_Icon_CandyXL.png`, group: "data" },
-  { id: "backgrounds", label: "Background", icon: `${filtersAssetBase}/TodayView_Icon_PostCard.png`, group: "data" },
+  {
+    id: "overview",
+    label: "Accueil",
+    icon: `${pokemonAssetBase}/btn_pokeball_white_shadow.png`,
+    group: "data",
+  },
+  {
+    id: "pokedex",
+    label: "Fiches",
+    icon: `${filtersAssetBase}/ic_alola.png`,
+    group: "data",
+  },
+  {
+    id: "candies",
+    label: "Candies",
+    icon: `${filtersAssetBase}/TodayView_Icon_CandyXL.png`,
+    group: "data",
+  },
+  {
+    id: "backgrounds",
+    label: "Background",
+    icon: `${filtersAssetBase}/TodayView_Icon_PostCard.png`,
+    group: "data",
+  },
   { id: "collections", label: "Collections", icon: Boxes, group: "data" },
-  { id: "my-collection", label: "Ma collection", icon: PackageOpen, group: "data" },
-  { id: "assets", label: "Assets", icon: `${filtersAssetBase}/TodayView_Icon_Photobomb.png`, group: "data" },
-  { id: "dynamax-images", label: "Images Dynamax", icon: ImageIcon, group: "data" },
+  {
+    id: "my-collection",
+    label: "Ma collection",
+    icon: PackageOpen,
+    group: "data",
+  },
+  {
+    id: "assets",
+    label: "Assets",
+    icon: `${filtersAssetBase}/TodayView_Icon_Photobomb.png`,
+    group: "data",
+  },
+  {
+    id: "dynamax-images",
+    label: "Images Dynamax",
+    icon: ImageIcon,
+    group: "data",
+  },
   { id: "catalogs", label: "Catalogues", icon: Archive, group: "data" },
-  { id: "raids", label: "Raids", icon: `${filtersAssetBase}/TodayView_Icon_Raid.png`, group: "combat" },
-  { id: "max-battles", label: "Max Battles", icon: `${filtersAssetBase}/TodayView_Icon_Evolve.png`, group: "combat" },
-  { id: "rocket", label: "Rocket", icon: `${filtersAssetBase}/TodayView_Icon_TeamRocket.png`, group: "combat" },
-  { id: "pvp-rankings", label: "PvP Rankings", icon: `${filtersAssetBase}/TodayView_Icon_Battle.png`, group: "combat" },
-  { id: "best-attackers", label: "Best Attackers", icon: Swords, group: "combat" },
-  { id: "eggs", label: "Œufs", icon: `${filtersAssetBase}/TodayView_Icon_LuckyEgg.png`, group: "events" },
-  { id: "research", label: "Research", icon: `${filtersAssetBase}/TodayView_Icon_Research.png`, group: "events" },
-  { id: "events", label: "Calendrier Events", icon: `${filtersAssetBase}/TodayView_Icon_Event.png`, group: "events" },
-  { id: "community-days", label: "Community Days", icon: CalendarDays, group: "events" },
-  { id: "events-history", label: "Historique Events", icon: Archive, group: "events" },
-  { id: "shiny", label: "Shiny Tracker", icon: `${filtersAssetBase}/ic_shiny_white.png`, group: "quality" },
-  { id: "identity-manager", label: "Identity Manager", icon: Fingerprint, group: "quality" },
-  { id: "pokemon-identity-mappings", label: "Résolution variantes", icon: Radar, group: "quality" },
-  { id: "game-master-explorer", label: "Game Master Explorer", icon: Database, group: "quality" },
+  {
+    id: "raids",
+    label: "Raids",
+    icon: `${filtersAssetBase}/TodayView_Icon_Raid.png`,
+    group: "combat",
+  },
+  {
+    id: "max-battles",
+    label: "Max Battles",
+    icon: `${filtersAssetBase}/TodayView_Icon_Evolve.png`,
+    group: "combat",
+  },
+  {
+    id: "rocket",
+    label: "Rocket",
+    icon: `${filtersAssetBase}/TodayView_Icon_TeamRocket.png`,
+    group: "combat",
+  },
+  {
+    id: "pvp-rankings",
+    label: "PvP Rankings",
+    icon: `${filtersAssetBase}/TodayView_Icon_Battle.png`,
+    group: "combat",
+  },
+  {
+    id: "best-attackers",
+    label: "Best Attackers",
+    icon: Swords,
+    group: "combat",
+  },
+  {
+    id: "eggs",
+    label: "Œufs",
+    icon: `${filtersAssetBase}/TodayView_Icon_LuckyEgg.png`,
+    group: "events",
+  },
+  {
+    id: "research",
+    label: "Research",
+    icon: `${filtersAssetBase}/TodayView_Icon_Research.png`,
+    group: "events",
+  },
+  {
+    id: "events",
+    label: "Calendrier Events",
+    icon: `${filtersAssetBase}/TodayView_Icon_Event.png`,
+    group: "events",
+  },
+  {
+    id: "community-days",
+    label: "Community Days",
+    icon: CalendarDays,
+    group: "events",
+  },
+  {
+    id: "events-history",
+    label: "Historique Events",
+    icon: Archive,
+    group: "events",
+  },
+  {
+    id: "shiny",
+    label: "Shiny Tracker",
+    icon: `${filtersAssetBase}/ic_shiny_white.png`,
+    group: "quality",
+  },
+  {
+    id: "identity-manager",
+    label: "Identity Manager",
+    icon: Fingerprint,
+    group: "quality",
+  },
+  {
+    id: "pokemon-identity-mappings",
+    label: "Résolution variantes",
+    icon: Radar,
+    group: "quality",
+  },
+  {
+    id: "game-master-explorer",
+    label: "Game Master Explorer",
+    icon: Database,
+    group: "quality",
+  },
   { id: "checks", label: "Contrôles", icon: AlertTriangle, group: "quality" },
   { id: "sources", label: "Veille", icon: Radar, group: "quality" },
   { id: "compare", label: "Comparaison", icon: FileDiff, group: "quality" },
   { id: "todo", label: "Todo-list", icon: ListTodo, group: "quality" },
   { id: "logs", label: "Logs & MAJ", icon: History, group: "maintenance" },
   { id: "rules", label: "Règles JSON", icon: Sparkles, group: "maintenance" },
-  { id: "bulk", label: "Corrections", icon: ClipboardCheck, group: "maintenance" },
+  {
+    id: "bulk",
+    label: "Corrections",
+    icon: ClipboardCheck,
+    group: "maintenance",
+  },
   { id: "export", label: "Export", icon: FileJson, group: "maintenance" },
 ];
 
@@ -174,10 +314,41 @@ const defaultRuleForm = {
 }`,
 };
 
-const initialShinyOptions = { board: "today", search: "", type: "", generation: "", trend: "", page: 1, limit: 50 };
-const initialPvpOptions = { league: "great", search: "", role: "", page: 1, limit: 50 };
-const initialBestAttackersOptions = { type: "ANY", level: 40, metric: "edps", search: "", shadow: "", mega: "", elite: "", class: "", movesetClass: "", page: 1, limit: 50 };
-const initialIdentityMappingOptions = { status: "missing-local-form", search: "", page: 1, limit: 50 };
+const initialShinyOptions = {
+  board: "today",
+  search: "",
+  type: "",
+  generation: "",
+  trend: "",
+  page: 1,
+  limit: 50,
+};
+const initialPvpOptions = {
+  league: "great",
+  search: "",
+  role: "",
+  page: 1,
+  limit: 50,
+};
+const initialBestAttackersOptions = {
+  type: "ANY",
+  level: 40,
+  metric: "edps",
+  search: "",
+  shadow: "",
+  mega: "",
+  elite: "",
+  class: "",
+  movesetClass: "",
+  page: 1,
+  limit: 50,
+};
+const initialIdentityMappingOptions = {
+  status: "missing-local-form",
+  search: "",
+  page: 1,
+  limit: 50,
+};
 
 const rulePresets = [
   {
@@ -363,7 +534,8 @@ const rulePresets = [
   {
     key: "move-combat",
     name: "Attaques: combat complet",
-    description: "Toutes les attaques doivent porter type, power, energy et bloc combat.",
+    description:
+      "Toutes les attaques doivent porter type, power, energy et bloc combat.",
     appliesTo: ["move"],
     formFilters: ["fast", "charged"],
     enforceNonEmpty: false,
@@ -398,7 +570,8 @@ const rulePresets = [
   {
     key: "generation-catalog",
     name: "Générations: identité",
-    description: "Chaque région/génération doit avoir id, slug, numéro et noms.",
+    description:
+      "Chaque région/génération doit avoir id, slug, numéro et noms.",
     appliesTo: ["generation"],
     enforceNonEmpty: true,
     templateSource: `{
@@ -461,10 +634,25 @@ const formFilterOptions = [
 
 const ficheFilterOptions = [
   ["all", "Toutes", null, "Toutes les fiches"],
-  ["chromatic", "Chromatique", "/ui/chromatique_banner.png", "availability.shinyReleased"],
-  ["costume", "Costume / Event", "/ui/costume_banner.png", "assetForms événementiels"],
+  [
+    "chromatic",
+    "Chromatique",
+    "/ui/chromatique_banner.png",
+    "availability.shinyReleased",
+  ],
+  [
+    "costume",
+    "Costume / Event",
+    "/ui/costume_banner.png",
+    "assetForms événementiels",
+  ],
   ["mega", "Méga", "/ui/mega_banner.png", "kind/form méga ou primo"],
-  ["regional", "Régional", "/ui/regional_banner.png", "formes Alola, Galar, Hisui, Paldea"],
+  [
+    "regional",
+    "Régional",
+    "/ui/regional_banner.png",
+    "formes Alola, Galar, Hisui, Paldea",
+  ],
 ];
 
 const initialFicheLimit = 240;
@@ -504,13 +692,23 @@ function markCurrentDatasetFailure(resource, message) {
 
 function downloadCurrentDataset(resource, baseName) {
   const current = resource?.current;
-  const requiredFields = ["source", "generatedAt", "savedAt", "count", "sourceHash", "diagnostics", "data"];
+  const requiredFields = [
+    "source",
+    "generatedAt",
+    "savedAt",
+    "count",
+    "sourceHash",
+    "diagnostics",
+    "data",
+  ];
   if (
-    resource?.meta?.source !== "mongodb"
-    || current?.key !== "current"
-    || requiredFields.some((field) => current[field] === undefined)
+    resource?.meta?.source !== "mongodb" ||
+    current?.key !== "current" ||
+    requiredFields.some((field) => current[field] === undefined)
   ) {
-    toast.error("Le document MongoDB courant confirmé n’est pas disponible au téléchargement.");
+    toast.error(
+      "Le document MongoDB courant confirmé n’est pas disponible au téléchargement.",
+    );
     return;
   }
 
@@ -518,7 +716,9 @@ function downloadCurrentDataset(resource, baseName) {
   const dateLabel = Number.isNaN(savedDate.getTime())
     ? new Date().toISOString().slice(0, 10)
     : savedDate.toISOString().slice(0, 10);
-  const blob = new Blob([JSON.stringify(current, null, 2)], { type: "application/json" });
+  const blob = new Blob([JSON.stringify(current, null, 2)], {
+    type: "application/json",
+  });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -530,7 +730,9 @@ function downloadCurrentDataset(resource, baseName) {
 }
 
 function downloadJsonPayload(value, baseName) {
-  const blob = new Blob([JSON.stringify(value, null, 2)], { type: "application/json" });
+  const blob = new Blob([JSON.stringify(value, null, 2)], {
+    type: "application/json",
+  });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -615,12 +817,16 @@ function RulesPanel({
   );
   const customIssueCount = customIssueEntries.reduce(
     (total, entry) =>
-      total + (entry.issues || []).filter((issue) => issue.category === "custom").length,
+      total +
+      (entry.issues || []).filter((issue) => issue.category === "custom")
+        .length,
     0,
   );
   const customJsonIssueCount = customJsonIssueEntries.reduce(
     (total, entry) =>
-      total + (entry.issues || []).filter((issue) => issue.category === "custom").length,
+      total +
+      (entry.issues || []).filter((issue) => issue.category === "custom")
+        .length,
     0,
   );
 
@@ -628,8 +834,14 @@ function RulesPanel({
     onFormChange({
       ...form,
       mode: nextMode,
-      templateSource: nextMode === "path" ? "" : form.templateSource || defaultRuleForm.templateSource,
-      path: nextMode === "path" ? form.path || "description.French" : form.path || "",
+      templateSource:
+        nextMode === "path"
+          ? ""
+          : form.templateSource || defaultRuleForm.templateSource,
+      path:
+        nextMode === "path"
+          ? form.path || "description.French"
+          : form.path || "",
       expectedType: form.expectedType || "presence",
     });
   }
@@ -676,15 +888,30 @@ function RulesPanel({
       eyebrow="checker dynamique"
       action={
         <div className="flex flex-wrap gap-2">
-          <Button type="button" icon={<Cloud size={17} />} loading={syncingGithub} loadingText="Synchronisation…" onClick={onSyncGithub}>Sync GitHub</Button>
-          <button className={primaryButtonClass} type="button" onClick={() => onFormChange({ ...defaultRuleForm })}>
+          <Button
+            type="button"
+            icon={<Cloud size={17} />}
+            loading={syncingGithub}
+            loadingText="Synchronisation…"
+            onClick={onSyncGithub}
+          >
+            Sync GitHub
+          </Button>
+          <button
+            className={primaryButtonClass}
+            type="button"
+            onClick={() => onFormChange({ ...defaultRuleForm })}
+          >
             <Sparkles size={17} /> Nouvelle règle
           </button>
         </div>
       }
     >
       <div className="mb-5 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-50">
-        La sauvegarde d’une règle est instantanée et relance le contrôle sur le snapshot déjà chargé. Utilise “Sync GitHub” seulement quand tu veux reprendre les JSON distants avant de recalculer toutes les cartes data: Pokémon, formes, attaques, types, météo, générations et stickers.
+        La sauvegarde d’une règle est instantanée et relance le contrôle sur le
+        snapshot déjà chargé. Utilise “Sync GitHub” seulement quand tu veux
+        reprendre les JSON distants avant de recalculer toutes les cartes data:
+        Pokémon, formes, attaques, types, météo, générations et stickers.
       </div>
       <div className="grid min-w-0 gap-5">
         <section className="min-w-0 space-y-4 overflow-hidden">
@@ -705,7 +932,9 @@ function RulesPanel({
                   type="button"
                   onClick={() => applyPreset(preset)}
                 >
-                  <strong className="block text-sm font-black text-domain-foreground">{preset.name}</strong>
+                  <strong className="block text-sm font-black text-domain-foreground">
+                    {preset.name}
+                  </strong>
                   <span className="mt-1 block text-xs font-bold leading-5 text-muted">
                     {preset.description}
                   </span>
@@ -720,14 +949,18 @@ function RulesPanel({
             <input
               className={fieldClass}
               value={form.name}
-              onChange={(event) => onFormChange({ ...form, name: event.target.value })}
+              onChange={(event) =>
+                onFormChange({ ...form, name: event.target.value })
+              }
             />
           </label>
           <label className="flex items-center gap-3 rounded-2xl border border-line bg-surface-inset p-4 text-sm font-black text-domain-foreground">
             <Checkbox
               className="h-5 w-5 accent-cyan-400"
               checked={form.enabled !== false}
-              onChange={(event) => onFormChange({ ...form, enabled: event.target.checked })}
+              onChange={(event) =>
+                onFormChange({ ...form, enabled: event.target.checked })
+              }
             />
             Règle active
           </label>
@@ -778,7 +1011,10 @@ function RulesPanel({
           </div>
           <div>
             <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-              <span id="form-a11y-rule-filter-label" className="block text-xs font-black uppercase tracking-[0.18em] text-disabled">
+              <span
+                id="form-a11y-rule-filter-label"
+                className="block text-xs font-black uppercase tracking-[0.18em] text-disabled"
+              >
                 Filtrer fichiers / cibles
               </span>
               <button
@@ -789,8 +1025,12 @@ function RulesPanel({
                 Toutes les cibles
               </button>
             </div>
-            <p id="form-a11y-rule-filter-description" className="mb-2 text-xs font-bold leading-5 text-disabled">
-              Optionnel: vise une forme, un dossier, un fichier ou un id précis, par exemple types/fire, moves/charged, kanto ou WEATHER_BALL_FIRE.
+            <p
+              id="form-a11y-rule-filter-description"
+              className="mb-2 text-xs font-bold leading-5 text-disabled"
+            >
+              Optionnel: vise une forme, un dossier, un fichier ou un id précis,
+              par exemple types/fire, moves/charged, kanto ou WEATHER_BALL_FIRE.
             </p>
             <input
               aria-labelledby="form-a11y-rule-filter-label"
@@ -821,7 +1061,9 @@ function RulesPanel({
             <Checkbox
               className="h-5 w-5 accent-cyan-400"
               checked={form.enforceNonEmpty}
-              onChange={(event) => onFormChange({ ...form, enforceNonEmpty: event.target.checked })}
+              onChange={(event) =>
+                onFormChange({ ...form, enforceNonEmpty: event.target.checked })
+              }
             />
             Signaler aussi les valeurs vides
           </label>
@@ -833,7 +1075,9 @@ function RulesPanel({
               <textarea
                 className={`${fieldClass} min-h-[260px] max-w-full resize-y font-mono text-xs leading-6`}
                 value={form.templateSource}
-                onChange={(event) => onFormChange({ ...form, templateSource: event.target.value })}
+                onChange={(event) =>
+                  onFormChange({ ...form, templateSource: event.target.value })
+                }
               />
             </label>
           ) : (
@@ -846,7 +1090,13 @@ function RulesPanel({
                   className={fieldClass}
                   placeholder="ex: description.French"
                   value={form.path || ""}
-                  onChange={(event) => onFormChange({ ...form, path: event.target.value, templateSource: "" })}
+                  onChange={(event) =>
+                    onFormChange({
+                      ...form,
+                      path: event.target.value,
+                      templateSource: "",
+                    })
+                  }
                 />
               </label>
               <label className="block">
@@ -856,7 +1106,13 @@ function RulesPanel({
                 <Select
                   className={fieldClass}
                   value={form.expectedType || "presence"}
-                  onChange={(event) => onFormChange({ ...form, expectedType: event.target.value, templateSource: "" })}
+                  onChange={(event) =>
+                    onFormChange({
+                      ...form,
+                      expectedType: event.target.value,
+                      templateSource: "",
+                    })
+                  }
                 >
                   {expectedTypes.map(([id, label]) => (
                     <option key={id} value={id}>
@@ -871,16 +1127,26 @@ function RulesPanel({
             <button className={buttonClass} type="button" onClick={onPreview}>
               Prévisualiser
             </button>
-            <button className={primaryButtonClass} type="button" onClick={onSave}>
+            <button
+              className={primaryButtonClass}
+              type="button"
+              onClick={onSave}
+            >
               Sauvegarder
             </button>
-            <button className={buttonClass} type="button" onClick={() => copyToClipboard(form.templateSource)}>
+            <button
+              className={buttonClass}
+              type="button"
+              onClick={() => copyToClipboard(form.templateSource)}
+            >
               <Copy size={16} /> Copier
             </button>
           </div>
           {preview ? (
             <div className="rounded-2xl border border-emerald-300/20 bg-emerald-400/10 p-4">
-              <strong className="text-sm font-black text-emerald-100">Prévisualisation valide</strong>
+              <strong className="text-sm font-black text-emerald-100">
+                Prévisualisation valide
+              </strong>
               <pre className="mt-3 max-h-72 overflow-auto rounded-2xl bg-slate-950/55 p-3 font-mono text-xs leading-6 text-emerald-50">
                 {JSON.stringify(preview, null, 2)}
               </pre>
@@ -889,31 +1155,54 @@ function RulesPanel({
         </section>
 
         <section className="min-w-0 rounded-2xl border border-line bg-slate-950/25 p-4">
-          <h3 className="text-lg font-black text-domain-foreground">Règles enregistrées</h3>
+          <h3 className="text-lg font-black text-domain-foreground">
+            Règles enregistrées
+          </h3>
           <div className="mt-4 space-y-3">
             {rules.length ? (
               rules.map((rule) => (
-                <article className="rounded-2xl border border-line bg-surface-inset p-4" key={rule.id}>
+                <article
+                  className="rounded-2xl border border-line bg-surface-inset p-4"
+                  key={rule.id}
+                >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <strong className="block truncate text-domain-foreground">{rule.name}</strong>
+                      <strong className="block truncate text-domain-foreground">
+                        {rule.name}
+                      </strong>
                       <small className="mt-1 block truncate text-xs font-bold text-muted">
                         {(rule.appliesTo || []).join(", ")}
-                        {(rule.formFilters || []).length ? ` · ${(rule.formFilters || []).join(", ")}` : ""}
+                        {(rule.formFilters || []).length
+                          ? ` · ${(rule.formFilters || []).join(", ")}`
+                          : ""}
                       </small>
                     </div>
-                    <span className={`rounded-full px-3 py-1 text-xs font-black ${rule.enabled !== false ? "bg-emerald-400/15 text-emerald-100" : "bg-surface-emphasis text-foreground-secondary"}`}>
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-black ${rule.enabled !== false ? "bg-emerald-400/15 text-emerald-100" : "bg-surface-emphasis text-foreground-secondary"}`}
+                    >
                       {rule.enabled !== false ? "active" : "off"}
                     </span>
                   </div>
                   <div className="mt-4 grid gap-2 sm:grid-cols-3">
-                    <button className={buttonClass} type="button" onClick={() => onEdit(rule)}>
+                    <button
+                      className={buttonClass}
+                      type="button"
+                      onClick={() => onEdit(rule)}
+                    >
                       Éditer
                     </button>
-                    <button className={buttonClass} type="button" onClick={() => onToggle(rule)}>
+                    <button
+                      className={buttonClass}
+                      type="button"
+                      onClick={() => onToggle(rule)}
+                    >
                       {rule.enabled !== false ? "Pause" : "Activer"}
                     </button>
-                    <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-red-300/25 bg-red-500/10 px-4 py-2 text-sm font-black text-red-100" type="button" onClick={() => onDelete(rule)}>
+                    <button
+                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-red-300/25 bg-red-500/10 px-4 py-2 text-sm font-black text-red-100"
+                      type="button"
+                      onClick={() => onDelete(rule)}
+                    >
                       Suppr.
                     </button>
                   </div>
@@ -928,7 +1217,9 @@ function RulesPanel({
       <section className="mt-5 rounded-2xl border border-line bg-surface-inset-subtle p-4">
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h3 className="text-lg font-black text-domain-foreground">Cartes à contrôler</h3>
+            <h3 className="text-lg font-black text-domain-foreground">
+              Cartes à contrôler
+            </h3>
             <p className="mt-1 text-sm font-bold leading-6 text-muted">
               Cartes Pokémon qui ne respectent pas une règle personnalisée.
             </p>
@@ -938,7 +1229,10 @@ function RulesPanel({
           </span>
         </div>
         {customIssueEntries.length ? (
-          <MiniCardList entries={customIssueEntries.slice(0, 80)} onOpen={onOpenEntry} />
+          <MiniCardList
+            entries={customIssueEntries.slice(0, 80)}
+            onOpen={onOpenEntry}
+          />
         ) : (
           <EmptyState title="Aucune carte à contrôler pour les règles actives" />
         )}
@@ -946,9 +1240,12 @@ function RulesPanel({
       <section className="mt-5 rounded-2xl border border-line bg-surface-inset-subtle p-4">
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h3 className="text-lg font-black text-domain-foreground">Autres JSON à contrôler</h3>
+            <h3 className="text-lg font-black text-domain-foreground">
+              Autres JSON à contrôler
+            </h3>
             <p className="mt-1 text-sm font-bold leading-6 text-muted">
-              Attaques, types, météo, générations et stickers qui ne respectent pas une règle personnalisée.
+              Attaques, types, météo, générations et stickers qui ne respectent
+              pas une règle personnalisée.
             </p>
           </div>
           <span className="rounded-full border border-amber-300/25 bg-amber-400/10 px-3 py-2 text-xs font-black text-amber-100">
@@ -966,11 +1263,18 @@ function RulesPanel({
 }
 
 export function AdminApp() {
-  const [session, setSession] = useState({ loading: true, authenticated: false });
+  const [session, setSession] = useState({
+    loading: true,
+    authenticated: false,
+  });
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [active, setActive] = useState("overview");
-  const [bootstrap, setBootstrap] = useState({ loading: false, payload: null, error: "" });
+  const [bootstrap, setBootstrap] = useState({
+    loading: false,
+    payload: null,
+    error: "",
+  });
   const [catalog, setCatalog] = useState(null);
   const [assetAudit, setAssetAudit] = useState(null);
   const [assetAuditLoading, setAssetAuditLoading] = useState(false);
@@ -1010,12 +1314,18 @@ export function AdminApp() {
   const [pvpOptions, setPvpOptions] = useState(initialPvpOptions);
   const [bestAttackers, setBestAttackers] = useState(null);
   const [bestAttackersLoading, setBestAttackersLoading] = useState(false);
-  const [bestAttackersRegenerating, setBestAttackersRegenerating] = useState(false);
-  const [bestAttackersOptions, setBestAttackersOptions] = useState(initialBestAttackersOptions);
+  const [bestAttackersRegenerating, setBestAttackersRegenerating] =
+    useState(false);
+  const [bestAttackersOptions, setBestAttackersOptions] = useState(
+    initialBestAttackersOptions,
+  );
   const [identityMappings, setIdentityMappings] = useState(null);
   const [identityMappingsLoading, setIdentityMappingsLoading] = useState(false);
-  const [identityMappingsRegenerating, setIdentityMappingsRegenerating] = useState(false);
-  const [identityMappingOptions, setIdentityMappingOptions] = useState(initialIdentityMappingOptions);
+  const [identityMappingsRegenerating, setIdentityMappingsRegenerating] =
+    useState(false);
+  const [identityMappingOptions, setIdentityMappingOptions] = useState(
+    initialIdentityMappingOptions,
+  );
   const [history, setHistory] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [selectedEntry, setSelectedEntry] = useState(null);
@@ -1047,10 +1357,26 @@ export function AdminApp() {
 
   const updateGlobalSearch = useCallback((value) => {
     setSearch(value);
-    setShinyOptions((current) => current.search === value ? current : { ...current, search: value, page: 1 });
-    setPvpOptions((current) => current.search === value ? current : { ...current, search: value, page: 1 });
-    setBestAttackersOptions((current) => current.search === value ? current : { ...current, search: value, page: 1 });
-    setIdentityMappingOptions((current) => current.search === value ? current : { ...current, search: value, page: 1 });
+    setShinyOptions((current) =>
+      current.search === value
+        ? current
+        : { ...current, search: value, page: 1 },
+    );
+    setPvpOptions((current) =>
+      current.search === value
+        ? current
+        : { ...current, search: value, page: 1 },
+    );
+    setBestAttackersOptions((current) =>
+      current.search === value
+        ? current
+        : { ...current, search: value, page: 1 },
+    );
+    setIdentityMappingOptions((current) =>
+      current.search === value
+        ? current
+        : { ...current, search: value, page: 1 },
+    );
     const url = new URL(window.location.href);
     if (value.trim()) url.searchParams.set("q", value);
     else url.searchParams.delete("q");
@@ -1063,7 +1389,10 @@ export function AdminApp() {
     const requestedParams = new URLSearchParams(window.location.search);
     const requestedSection = requestedParams.get("section");
     const requestedSearch = requestedParams.get("q") || "";
-    if (requestedSection && navItems.some((item) => item.id === requestedSection)) {
+    if (
+      requestedSection &&
+      navItems.some((item) => item.id === requestedSection)
+    ) {
       setActive(requestedSection);
     }
     if (requestedSearch) updateGlobalSearch(requestedSearch);
@@ -1085,7 +1414,10 @@ export function AdminApp() {
 
       if (isPlainObject(legacyValue) && Object.keys(legacyValue).length) {
         setAssetChecks(legacyValue);
-        const saved = await writeDashboardStoreValue(assetChecksStoreKey, legacyValue);
+        const saved = await writeDashboardStoreValue(
+          assetChecksStoreKey,
+          legacyValue,
+        );
         if (saved) localStorage.removeItem(legacyAssetChecksKey);
         return;
       }
@@ -1141,17 +1473,33 @@ export function AdminApp() {
         sourceHistoryResponse.json(),
         redeployResponse.json(),
       ]);
-      if (!checklistResponse.ok) throw new Error(checklistPayload.error || "Erreur de chargement.");
-      setBootstrap({ loading: false, payload: checklistPayload.data, error: "" });
+      if (!checklistResponse.ok)
+        throw new Error(checklistPayload.error || "Erreur de chargement.");
+      setBootstrap({
+        loading: false,
+        payload: checklistPayload.data,
+        error: "",
+      });
       setCatalog(catalogPayload.data || null);
       setHistory(historyPayload.data || []);
-      setCustomRules(rulesPayload.data || checklistPayload.data?.customRules || []);
-      setSourceHistory(Array.isArray(sourceHistoryPayload.data) ? sourceHistoryPayload.data : []);
-      setDeployHistory(Array.isArray(redeployPayload.data?.history) ? redeployPayload.data.history : []);
+      setCustomRules(
+        rulesPayload.data || checklistPayload.data?.customRules || [],
+      );
+      setSourceHistory(
+        Array.isArray(sourceHistoryPayload.data)
+          ? sourceHistoryPayload.data
+          : [],
+      );
+      setDeployHistory(
+        Array.isArray(redeployPayload.data?.history)
+          ? redeployPayload.data.history
+          : [],
+      );
       if (notify) toast.success("Dashboard Pokémon actualisé.");
     } catch (error) {
       setBootstrap({ loading: false, payload: null, error: error.message });
-      if (notify) toast.error(error.message || "Erreur de chargement du dashboard.");
+      if (notify)
+        toast.error(error.message || "Erreur de chargement du dashboard.");
     }
   }
 
@@ -1162,7 +1510,8 @@ export function AdminApp() {
     const request = fetch(`${adminApiPath}?action=assets`)
       .then(async (response) => {
         const payload = await response.json();
-        if (!response.ok) throw new Error(payload.error || "Audit des assets indisponible.");
+        if (!response.ok)
+          throw new Error(payload.error || "Audit des assets indisponible.");
         setAssetAudit(payload.data || null);
         return payload.data || null;
       })
@@ -1198,7 +1547,12 @@ export function AdminApp() {
   }, [search, assetTab]);
 
   useEffect(() => {
-    if (session.authenticated && active === "raids" && !raids && !raidsLoading) {
+    if (
+      session.authenticated &&
+      active === "raids" &&
+      !raids &&
+      !raidsLoading
+    ) {
       loadRaids();
     }
   }, [active, session.authenticated, raids, raidsLoading]);
@@ -1210,19 +1564,34 @@ export function AdminApp() {
   }, [active, session.authenticated, eggs, eggsLoading]);
 
   useEffect(() => {
-    if (session.authenticated && active === "max-battles" && !maxBattles && !maxBattlesLoading) {
+    if (
+      session.authenticated &&
+      active === "max-battles" &&
+      !maxBattles &&
+      !maxBattlesLoading
+    ) {
       loadMaxBattles();
     }
   }, [active, session.authenticated, maxBattles, maxBattlesLoading]);
 
   useEffect(() => {
-    if (session.authenticated && active === "rocket" && !rocket && !rocketLoading) {
+    if (
+      session.authenticated &&
+      active === "rocket" &&
+      !rocket &&
+      !rocketLoading
+    ) {
       loadRocket();
     }
   }, [active, session.authenticated, rocket, rocketLoading]);
 
   useEffect(() => {
-    if (session.authenticated && active === "research" && !research && !researchLoading) {
+    if (
+      session.authenticated &&
+      active === "research" &&
+      !research &&
+      !researchLoading
+    ) {
       loadResearch();
     }
   }, [active, session.authenticated, research, researchLoading]);
@@ -1236,11 +1605,13 @@ export function AdminApp() {
   }, [active, session.authenticated, pvpOptions]);
 
   useEffect(() => {
-    if (session.authenticated && active === "best-attackers") loadBestAttackers();
+    if (session.authenticated && active === "best-attackers")
+      loadBestAttackers();
   }, [active, session.authenticated, bestAttackersOptions]);
 
   useEffect(() => {
-    if (session.authenticated && active === "pokemon-identity-mappings") loadIdentityMappings();
+    if (session.authenticated && active === "pokemon-identity-mappings")
+      loadIdentityMappings();
   }, [active, session.authenticated, identityMappingOptions]);
 
   useEffect(() => {
@@ -1253,10 +1624,19 @@ export function AdminApp() {
     }
   }, [active, session.authenticated, assetAudit]);
 
-  const entries = useMemo(() => bootstrap.payload?.entries || [], [bootstrap.payload]);
-  const customRuleEntries = useMemo(() => bootstrap.payload?.customRuleEntries || [], [bootstrap.payload]);
+  const entries = useMemo(
+    () => bootstrap.payload?.entries || [],
+    [bootstrap.payload],
+  );
+  const customRuleEntries = useMemo(
+    () => bootstrap.payload?.customRuleEntries || [],
+    [bootstrap.payload],
+  );
   const summary = bootstrap.payload?.summary || {};
-  const issueEntries = useMemo(() => entries.filter((entry) => entry.issues.length), [entries]);
+  const issueEntries = useMemo(
+    () => entries.filter((entry) => entry.issues.length),
+    [entries],
+  );
   const customIssueEntries = useMemo(
     () =>
       entries.filter((entry) =>
@@ -1271,13 +1651,17 @@ export function AdminApp() {
   const filtered = useMemo(
     () =>
       sortPokemonEntries(
-        presentationEntries.filter((entry) =>
-          (generationFilter === "all" ||
-            (generationFilter === "hisui"
-              ? String(entry.form || "").toLowerCase().includes("hisui")
-              : String(entry.generation || "") === String(generationFilter))) &&
-          entryMatchesFicheFilter(entry, ficheFilter) &&
-          pokemonPresentationSearchText(entry).includes(search.toLowerCase()),
+        presentationEntries.filter(
+          (entry) =>
+            (generationFilter === "all" ||
+              (generationFilter === "hisui"
+                ? String(entry.form || "")
+                    .toLowerCase()
+                    .includes("hisui")
+                : String(entry.generation || "") ===
+                  String(generationFilter))) &&
+            entryMatchesFicheFilter(entry, ficheFilter) &&
+            pokemonPresentationSearchText(entry).includes(search.toLowerCase()),
         ),
       ),
     [presentationEntries, search, generationFilter, ficheFilter],
@@ -1287,23 +1671,32 @@ export function AdminApp() {
       Object.fromEntries(
         ficheFilterOptions.map(([id]) => [
           id,
-          pokemonPresentationEntries(entries, id)
-            .filter((entry) => entryMatchesFicheFilter(entry, id)).length,
+          pokemonPresentationEntries(entries, id).filter((entry) =>
+            entryMatchesFicheFilter(entry, id),
+          ).length,
         ]),
       ),
     [entries],
   );
-  const selected = selectedEntry || (selectedIndex >= 0 ? filtered[selectedIndex] : null);
-  const selectedBaseIndex = selectedIndex >= 0 ? selectedIndex : filtered.findIndex((item) => item.key === selected?.key);
-  const previousSelectedEntry = filtered.length && selectedBaseIndex >= 0
-    ? filtered[(selectedBaseIndex - 1 + filtered.length) % filtered.length]
-    : null;
-  const nextSelectedEntry = filtered.length && selectedBaseIndex >= 0
-    ? filtered[(selectedBaseIndex + 1) % filtered.length]
-    : null;
+  const selected =
+    selectedEntry || (selectedIndex >= 0 ? filtered[selectedIndex] : null);
+  const selectedBaseIndex =
+    selectedIndex >= 0
+      ? selectedIndex
+      : filtered.findIndex((item) => item.key === selected?.key);
+  const previousSelectedEntry =
+    filtered.length && selectedBaseIndex >= 0
+      ? filtered[(selectedBaseIndex - 1 + filtered.length) % filtered.length]
+      : null;
+  const nextSelectedEntry =
+    filtered.length && selectedBaseIndex >= 0
+      ? filtered[(selectedBaseIndex + 1) % filtered.length]
+      : null;
   const compareLeft = entries.find((entry) => entry.key === compareA);
   const compareRight = entries.find((entry) => entry.key === compareB);
-  const bulkEntries = filtered.filter((entry) => !bulkOnlyIssues || entry.issues.length).slice(0, 80);
+  const bulkEntries = filtered
+    .filter((entry) => !bulkOnlyIssues || entry.issues.length)
+    .slice(0, 80);
   const unchecked = entries.filter((entry) => !assetChecks[entry.key]);
   const assetItems = useMemo(() => {
     const linkedAssets = assetAudit?.goAssets || [];
@@ -1313,42 +1706,50 @@ export function AdminApp() {
         .map((item) => ({ ...item, group, image: item.url }));
     const lists = [
       ...(assetTab === "all" || assetTab === "proposals"
-        ? (assetAudit?.proposals || []).map((item) => ({ ...item, group: "Propositions HD", image: item.url }))
+        ? (assetAudit?.proposals || []).map((item) => ({
+            ...item,
+            group: "Propositions HD",
+            image: item.url,
+          }))
         : []),
       ...(assetTab === "all" || assetTab === "linked"
-        ? linkedAssets.map((item) => ({ ...item, group: "Assets liés", image: item.url }))
+        ? linkedAssets.map((item) => ({
+            ...item,
+            group: "Assets liés",
+            image: item.url,
+          }))
         : []),
-      ...(assetTab === "go"
-        ? linkedByType("go", "GO")
-        : []),
-      ...(assetTab === "home"
-        ? linkedByType("home", "HOME")
-        : []),
-      ...(assetTab === "portrait"
-        ? linkedByType("portrait", "Portraits")
-        : []),
-      ...(assetTab === "variant"
-        ? linkedByType("variant", "Variantes")
-        : []),
+      ...(assetTab === "go" ? linkedByType("go", "GO") : []),
+      ...(assetTab === "home" ? linkedByType("home", "HOME") : []),
+      ...(assetTab === "portrait" ? linkedByType("portrait", "Portraits") : []),
+      ...(assetTab === "variant" ? linkedByType("variant", "Variantes") : []),
       ...(assetTab === "background"
         ? linkedByType("background", "Backgrounds")
         : []),
-      ...(assetTab === "candy"
-        ? linkedByType("candy", "Bonbons")
-        : []),
+      ...(assetTab === "candy" ? linkedByType("candy", "Bonbons") : []),
       ...(assetTab === "all" || assetTab === "shuffle"
         ? [
             ...linkedByType("shuffle", "Shuffle liés"),
-            ...(assetAudit?.shuffleAssets || []).map((item) => ({ ...item, group: "Shuffle bibliothèque", image: item.url })),
+            ...(assetAudit?.shuffleAssets || []).map((item) => ({
+              ...item,
+              group: "Shuffle bibliothèque",
+              image: item.url,
+            })),
           ]
         : []),
       ...(assetTab === "all" || assetTab === "unused"
-        ? (assetAudit?.unused || []).map((item) => ({ ...item, group: "HD non utilisés", image: item.url }))
+        ? (assetAudit?.unused || []).map((item) => ({
+            ...item,
+            group: "HD non utilisés",
+            image: item.url,
+          }))
         : []),
     ];
     const needle = search.trim().toLowerCase();
     if (!needle) return lists;
-    return lists.filter((item) => JSON.stringify(item).toLowerCase().includes(needle));
+    return lists.filter((item) =>
+      JSON.stringify(item).toLowerCase().includes(needle),
+    );
   }, [assetAudit, assetTab, search]);
   const visibleFiches = filtered.slice(0, ficheLimit);
   const visibleAssetItems = assetItems.slice(0, assetLimit);
@@ -1362,17 +1763,63 @@ export function AdminApp() {
       id: "overview-summary",
       label: "Synthèse existante",
       node: (
-        <Panel title="Synthèse des fiches" eyebrow="widgets historiques conservés">
+        <Panel
+          title="Synthèse des fiches"
+          eyebrow="widgets historiques conservés"
+        >
           <section className="grid items-start gap-3 sm:grid-cols-2">
-            <MetricCard label="Fiches analysées" value={summary.total || 0} icon={uiAssets.icons.fiche} />
-            <MetricCard label="Terminées" value={summary.complete || 0} accent="green" icon={uiAssets.icons.bookSpells} />
-            <MetricCard label="Problèmes" value={summary.issues || 0} accent="amber" icon={uiAssets.icons.problem} />
-            <MetricCard label="Assets vérifiés" value={Object.keys(assetChecks).length} accent="violet" icon={uiAssets.icons.result} />
+            <MetricCard
+              label="Fiches analysées"
+              value={summary.total || 0}
+              icon={uiAssets.icons.fiche}
+            />
+            <MetricCard
+              label="Terminées"
+              value={summary.complete || 0}
+              accent="green"
+              icon={uiAssets.icons.bookSpells}
+            />
+            <MetricCard
+              label="Problèmes"
+              value={summary.issues || 0}
+              accent="amber"
+              icon={uiAssets.icons.problem}
+            />
+            <MetricCard
+              label="Assets vérifiés"
+              value={Object.keys(assetChecks).length}
+              accent="violet"
+              icon={uiAssets.icons.result}
+            />
           </section>
           <section className="mt-3 grid items-start gap-3 sm:grid-cols-3">
-            <article className="rounded-2xl border border-emerald-300/15 bg-emerald-400/10 p-4"><Sparkles className="mb-3 text-emerald-200" size={21} /><span className="text-xs font-bold text-emerald-100/80">Données complètes</span><strong className="mt-1 block text-2xl font-black">{summary.complete || 0}</strong></article>
-            <article className="rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4"><ShieldCheck className="mb-3 text-cyan-200" size={21} /><span className="text-xs font-bold text-cyan-100/80">Accès admin</span><strong className="mt-1 block text-2xl font-black">Protégé</strong></article>
-            <article className="rounded-2xl border border-violet-300/15 bg-violet-400/10 p-4"><BarChart3 className="mb-3 text-violet-200" size={21} /><span className="text-xs font-bold text-violet-100/80">Résultat filtre</span><strong className="mt-1 block text-2xl font-black">{filtered.length}</strong></article>
+            <article className="rounded-2xl border border-emerald-300/15 bg-emerald-400/10 p-4">
+              <Sparkles className="mb-3 text-emerald-200" size={21} />
+              <span className="text-xs font-bold text-emerald-100/80">
+                Données complètes
+              </span>
+              <strong className="mt-1 block text-2xl font-black">
+                {summary.complete || 0}
+              </strong>
+            </article>
+            <article className="rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4">
+              <ShieldCheck className="mb-3 text-cyan-200" size={21} />
+              <span className="text-xs font-bold text-cyan-100/80">
+                Accès admin
+              </span>
+              <strong className="mt-1 block text-2xl font-black">
+                Protégé
+              </strong>
+            </article>
+            <article className="rounded-2xl border border-violet-300/15 bg-violet-400/10 p-4">
+              <BarChart3 className="mb-3 text-violet-200" size={21} />
+              <span className="text-xs font-bold text-violet-100/80">
+                Résultat filtre
+              </span>
+              <strong className="mt-1 block text-2xl font-black">
+                {filtered.length}
+              </strong>
+            </article>
           </section>
         </Panel>
       ),
@@ -1399,7 +1846,10 @@ export function AdminApp() {
       id: "history",
       label: "Historique Git",
       node: (
-        <Panel title="Historique Git" action={<History className="text-cyan-200" size={22} />}>
+        <Panel
+          title="Historique Git"
+          action={<History className="text-cyan-200" size={22} />}
+        >
           <HistoryList history={history} />
         </Panel>
       ),
@@ -1409,7 +1859,10 @@ export function AdminApp() {
       label: "Fiches à surveiller",
       node: (
         <Panel title="Fiches à surveiller" eyebrow="premières anomalies">
-          <MiniCardList entries={issueEntries.slice(0, 8)} onOpen={openDetail} />
+          <MiniCardList
+            entries={issueEntries.slice(0, 8)}
+            onOpen={openDetail}
+          />
         </Panel>
       ),
     },
@@ -1452,9 +1905,12 @@ export function AdminApp() {
   async function loadRaids({ notify = false } = {}) {
     setRaidsLoading(true);
     try {
-      const response = await fetch(`${adminApiPath}?action=raids`, { cache: "no-store" });
+      const response = await fetch(`${adminApiPath}?action=raids`, {
+        cache: "no-store",
+      });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Impossible de charger les raids.");
+      if (!response.ok)
+        throw new Error(payload.error || "Impossible de charger les raids.");
       setRaids(payload.data || null);
       if (notify) toast.success("Raids actualisés.");
     } catch (error) {
@@ -1469,17 +1925,28 @@ export function AdminApp() {
   function rankedQuery(action, options) {
     const params = new URLSearchParams({ action });
     for (const [key, value] of Object.entries(options)) {
-      if (value !== "" && value !== null && value !== undefined) params.set(key, String(value));
+      if (value !== "" && value !== null && value !== undefined)
+        params.set(key, String(value));
     }
     return `${adminApiPath}?${params}`;
   }
 
-  async function loadRankedDataset({ action, options, setData, setLoading, label, notify = false }) {
+  async function loadRankedDataset({
+    action,
+    options,
+    setData,
+    setLoading,
+    label,
+    notify = false,
+  }) {
     setLoading(true);
     try {
-      const response = await fetch(rankedQuery(action, options), { cache: "no-store" });
+      const response = await fetch(rankedQuery(action, options), {
+        cache: "no-store",
+      });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || `Impossible de charger ${label}.`);
+      if (!response.ok)
+        throw new Error(payload.error || `Impossible de charger ${label}.`);
       setData(payload.data || null);
       if (notify) toast.success(`${label} actualisé.`);
     } catch (error) {
@@ -1491,11 +1958,19 @@ export function AdminApp() {
     }
   }
 
-  async function regenerateRankedDataset({ action, setRegenerating, reload, label }) {
+  async function regenerateRankedDataset({
+    action,
+    setRegenerating,
+    reload,
+    label,
+  }) {
     setRegenerating(true);
     try {
       const payload = await executePokemonAdminRegeneration(action);
-      const report = assertSuccessfulAdminAction(payload, `Régénération ${label} impossible.`);
+      const report = assertSuccessfulAdminAction(
+        payload,
+        `Régénération ${label} impossible.`,
+      );
       toast.success(regenerationMessage(report));
       await reload();
     } catch (error) {
@@ -1507,9 +1982,13 @@ export function AdminApp() {
 
   async function downloadRankedDataset({ action, options, baseName, label }) {
     try {
-      const response = await fetch(rankedQuery(action, { ...options, full: true, page: 1 }), { cache: "no-store" });
+      const response = await fetch(
+        rankedQuery(action, { ...options, full: true, page: 1 }),
+        { cache: "no-store" },
+      );
       const payload = await response.json();
-      if (!response.ok || !payload.data?.data) throw new Error(payload.error || `Export ${label} impossible.`);
+      if (!response.ok || !payload.data?.data)
+        throw new Error(payload.error || `Export ${label} impossible.`);
       downloadJsonPayload(payload.data, baseName);
       toast.success(`${label} exporté sans modifier MongoDB.`);
     } catch (error) {
@@ -1518,27 +1997,61 @@ export function AdminApp() {
   }
 
   function loadShiny({ notify = false } = {}) {
-    return loadRankedDataset({ action: "shiny", options: shinyOptions, setData: setShiny, setLoading: setShinyLoading, label: "Shiny Tracker", notify });
+    return loadRankedDataset({
+      action: "shiny",
+      options: shinyOptions,
+      setData: setShiny,
+      setLoading: setShinyLoading,
+      label: "Shiny Tracker",
+      notify,
+    });
   }
 
   function loadPvpRankings({ notify = false } = {}) {
-    return loadRankedDataset({ action: "pvp-rankings", options: pvpOptions, setData: setPvpRankings, setLoading: setPvpRankingsLoading, label: "PvP Rankings", notify });
+    return loadRankedDataset({
+      action: "pvp-rankings",
+      options: pvpOptions,
+      setData: setPvpRankings,
+      setLoading: setPvpRankingsLoading,
+      label: "PvP Rankings",
+      notify,
+    });
   }
 
   function loadBestAttackers({ notify = false } = {}) {
-    return loadRankedDataset({ action: "best-attackers", options: bestAttackersOptions, setData: setBestAttackers, setLoading: setBestAttackersLoading, label: "Best Attackers", notify });
+    return loadRankedDataset({
+      action: "best-attackers",
+      options: bestAttackersOptions,
+      setData: setBestAttackers,
+      setLoading: setBestAttackersLoading,
+      label: "Best Attackers",
+      notify,
+    });
   }
 
   function loadIdentityMappings({ notify = false } = {}) {
-    return loadRankedDataset({ action: "pokemon-identity-mappings", options: identityMappingOptions, setData: setIdentityMappings, setLoading: setIdentityMappingsLoading, label: "Résolution des variantes", notify });
+    return loadRankedDataset({
+      action: "pokemon-identity-mappings",
+      options: identityMappingOptions,
+      setData: setIdentityMappings,
+      setLoading: setIdentityMappingsLoading,
+      label: "Résolution des variantes",
+      notify,
+    });
   }
 
   async function loadShinyHistory(identity) {
     try {
-      const response = await fetch(`${adminApiPath}?action=shiny-history&identity=${encodeURIComponent(identity)}&days=30`, { cache: "no-store" });
+      const response = await fetch(
+        `${adminApiPath}?action=shiny-history&identity=${encodeURIComponent(identity)}&days=30`,
+        { cache: "no-store" },
+      );
       const payload = await response.json();
       return response.ok && Array.isArray(payload.data?.data)
-        ? { points: payload.data.data, statistics: payload.data.meta?.statistics || null }
+        ? {
+            points: payload.data.data,
+            statistics: payload.data.meta?.statistics || null,
+          }
         : { points: [], statistics: null };
     } catch {
       return { points: [], statistics: null };
@@ -1558,8 +2071,12 @@ export function AdminApp() {
         body: JSON.stringify({ action: "regenerate-raids" }),
       });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Action raids impossible.");
-      const report = assertSuccessfulAdminAction(payload, "Action raids impossible.");
+      if (!response.ok)
+        throw new Error(payload.error || "Action raids impossible.");
+      const report = assertSuccessfulAdminAction(
+        payload,
+        "Action raids impossible.",
+      );
       const refreshed = currentResourceFromReport(report, "buckets");
       if (refreshed) setRaids(refreshed);
       toast.success(regenerationMessage(report));
@@ -1576,9 +2093,12 @@ export function AdminApp() {
   async function loadEggs({ notify = false } = {}) {
     setEggsLoading(true);
     try {
-      const response = await fetch(`${adminApiPath}?action=eggs`, { cache: "no-store" });
+      const response = await fetch(`${adminApiPath}?action=eggs`, {
+        cache: "no-store",
+      });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Impossible de charger les oeufs.");
+      if (!response.ok)
+        throw new Error(payload.error || "Impossible de charger les oeufs.");
       setEggs(payload.data || null);
       if (notify) toast.success("Oeufs actualisés.");
     } catch (error) {
@@ -1603,8 +2123,12 @@ export function AdminApp() {
         body: JSON.stringify({ action: "regenerate-eggs" }),
       });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Action oeufs impossible.");
-      const report = assertSuccessfulAdminAction(payload, "Action oeufs impossible.");
+      if (!response.ok)
+        throw new Error(payload.error || "Action oeufs impossible.");
+      const report = assertSuccessfulAdminAction(
+        payload,
+        "Action oeufs impossible.",
+      );
       const refreshed = currentResourceFromReport(report, "buckets");
       if (refreshed) setEggs(refreshed);
       toast.success(regenerationMessage(report));
@@ -1621,13 +2145,21 @@ export function AdminApp() {
   async function loadMaxBattles({ notify = false } = {}) {
     setMaxBattlesLoading(true);
     try {
-      const response = await fetch(`${adminApiPath}?action=max-battles`, { cache: "no-store" });
+      const response = await fetch(`${adminApiPath}?action=max-battles`, {
+        cache: "no-store",
+      });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Impossible de charger les Max Battles.");
+      if (!response.ok)
+        throw new Error(
+          payload.error || "Impossible de charger les Max Battles.",
+        );
       setMaxBattles(payload.data || null);
       if (notify) toast.success("Max Battles actualisées.");
     } catch (error) {
-      const message = errorMessage(error, "Erreur de chargement des Max Battles.");
+      const message = errorMessage(
+        error,
+        "Erreur de chargement des Max Battles.",
+      );
       setMaxBattles((current) => markCurrentDatasetFailure(current, message));
       toast.error(message);
     } finally {
@@ -1648,8 +2180,12 @@ export function AdminApp() {
         body: JSON.stringify({ action: "regenerate-max-battles" }),
       });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Action Max Battles impossible.");
-      const report = assertSuccessfulAdminAction(payload, "Action Max Battles impossible.");
+      if (!response.ok)
+        throw new Error(payload.error || "Action Max Battles impossible.");
+      const report = assertSuccessfulAdminAction(
+        payload,
+        "Action Max Battles impossible.",
+      );
       const refreshed = currentResourceFromReport(report, "buckets");
       if (refreshed) setMaxBattles(refreshed);
       toast.success(regenerationMessage(report));
@@ -1670,9 +2206,16 @@ export function AdminApp() {
         fetch(`${adminApiPath}?action=rocket`, { cache: "no-store" }),
         fetch(`${adminApiPath}?action=rocket-texts`, { cache: "no-store" }),
       ]);
-      const [payload, textsPayload] = await Promise.all([response.json(), textsResponse.json()]);
-      if (!response.ok) throw new Error(payload.error || "Impossible de charger Rocket.");
-      if (!textsResponse.ok) throw new Error(textsPayload.error || "Impossible de charger les textes Rocket.");
+      const [payload, textsPayload] = await Promise.all([
+        response.json(),
+        textsResponse.json(),
+      ]);
+      if (!response.ok)
+        throw new Error(payload.error || "Impossible de charger Rocket.");
+      if (!textsResponse.ok)
+        throw new Error(
+          textsPayload.error || "Impossible de charger les textes Rocket.",
+        );
       setRocket(payload.data || null);
       setRocketTexts(textsPayload.data || null);
       if (notify) toast.success("Rocket actualisé.");
@@ -1698,8 +2241,12 @@ export function AdminApp() {
         body: JSON.stringify({ action: "regenerate-rocket" }),
       });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Action Rocket impossible.");
-      const report = assertSuccessfulAdminAction(payload, "Action Rocket impossible.");
+      if (!response.ok)
+        throw new Error(payload.error || "Action Rocket impossible.");
+      const report = assertSuccessfulAdminAction(
+        payload,
+        "Action Rocket impossible.",
+      );
       const refreshed = currentResourceFromReport(report, "summary");
       if (refreshed) setRocket(refreshed);
       toast.success(regenerationMessage(report));
@@ -1721,9 +2268,16 @@ export function AdminApp() {
         fetch(`${adminApiPath}?action=research`, { cache: "no-store" }),
         fetch(`${adminApiPath}?action=items`, { cache: "no-store" }),
       ]);
-      const [payload, itemsPayload] = await Promise.all([response.json(), itemsResponse.json()]);
-      if (!response.ok) throw new Error(payload.error || "Impossible de charger Research.");
-      if (!itemsResponse.ok) throw new Error(itemsPayload.error || "Impossible de charger les items.");
+      const [payload, itemsPayload] = await Promise.all([
+        response.json(),
+        itemsResponse.json(),
+      ]);
+      if (!response.ok)
+        throw new Error(payload.error || "Impossible de charger Research.");
+      if (!itemsResponse.ok)
+        throw new Error(
+          itemsPayload.error || "Impossible de charger les items.",
+        );
       setResearch(payload.data || null);
       setItemsReference(itemsPayload.data || null);
       if (notify) toast.success("Research actualisé.");
@@ -1750,8 +2304,12 @@ export function AdminApp() {
         body: JSON.stringify({ action: "regenerate-research" }),
       });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Action Research impossible.");
-      const report = assertSuccessfulAdminAction(payload, "Action Research impossible.");
+      if (!response.ok)
+        throw new Error(payload.error || "Action Research impossible.");
+      const report = assertSuccessfulAdminAction(
+        payload,
+        "Action Research impossible.",
+      );
       const refreshed = currentResourceFromReport(report, "summary");
       if (refreshed) setResearch(refreshed);
       toast.success(regenerationMessage(report));
@@ -1772,13 +2330,24 @@ export function AdminApp() {
     setExtraPanel(null);
     setDetail(null);
     const detailKey = entry.baseKey || entry.key;
-    const response = await fetch(`${adminApiPath}?action=detail&key=${encodeURIComponent(detailKey)}`);
+    const response = await fetch(
+      `${adminApiPath}?action=detail&key=${encodeURIComponent(detailKey)}`,
+    );
     const payload = await response.json();
-    setDetail(response.ok ? payload.data : { detail: { error: payload.error || "Erreur de chargement." } });
+    setDetail(
+      response.ok
+        ? payload.data
+        : { detail: { error: payload.error || "Erreur de chargement." } },
+    );
   }
 
   function findEntryForPokemonReference(pokemon) {
-    const candidates = [pokemon?.formId, pokemon?.form, pokemon?.id, pokemon?.pokemonId]
+    const candidates = [
+      pokemon?.formId,
+      pokemon?.form,
+      pokemon?.id,
+      pokemon?.pokemonId,
+    ]
       .filter(Boolean)
       .map((value) => String(value).toUpperCase());
     if (!candidates.length) return null;
@@ -1804,8 +2373,13 @@ export function AdminApp() {
 
   function shiftDetail(delta) {
     if (!filtered.length) return;
-    const baseIndex = selectedIndex >= 0 ? selectedIndex : filtered.findIndex((item) => item.key === selected?.key);
-    const nextIndex = ((baseIndex >= 0 ? baseIndex : 0) + delta + filtered.length) % filtered.length;
+    const baseIndex =
+      selectedIndex >= 0
+        ? selectedIndex
+        : filtered.findIndex((item) => item.key === selected?.key);
+    const nextIndex =
+      ((baseIndex >= 0 ? baseIndex : 0) + delta + filtered.length) %
+      filtered.length;
     openDetail(filtered[nextIndex]);
   }
 
@@ -1818,7 +2392,9 @@ export function AdminApp() {
           localStorage.removeItem(legacyAssetChecksKey);
           return;
         }
-        toast.error("La vérification d'asset n'a pas pu être synchronisée sur Mongo.");
+        toast.error(
+          "La vérification d'asset n'a pas pu être synchronisée sur Mongo.",
+        );
       });
       return next;
     });
@@ -1830,19 +2406,26 @@ export function AdminApp() {
   }
 
   async function loadSources({ automatic = false } = {}) {
-    const toastId = automatic ? null : toast.loading("Vérification des sources Pokémon GO...");
+    const toastId = automatic
+      ? null
+      : toast.loading("Vérification des sources Pokémon GO...");
     setSourceWatch({ loading: true, sources: [] });
     try {
       const response = await fetch(`${adminApiPath}?action=source-watch`);
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Veille indisponible.");
-      const watchState = persistSourceSignatures(payload.data, sourceWatchSignatureKey);
+      if (!response.ok)
+        throw new Error(payload.error || "Veille indisponible.");
+      const watchState = persistSourceSignatures(
+        payload.data,
+        sourceWatchSignatureKey,
+      );
       setSourceWatch({
         ...(payload.data || {}),
         sources: watchState?.sources || payload.data?.sources || [],
         changedSources: watchState?.changed || [],
       });
-      if (Array.isArray(payload.data?.history)) setSourceHistory(payload.data.history);
+      if (Array.isArray(payload.data?.history))
+        setSourceHistory(payload.data.history);
       if (watchState?.changed?.length) {
         const names = watchState.changed
           .map((source) => source.name || source.repo || source.url)
@@ -1854,12 +2437,19 @@ export function AdminApp() {
         );
       }
       if (watchState?.blocked?.length && !automatic) {
-        toast.warning(`${watchState.blocked.length} source(s) bloquent le contrôle serveur, mais restent surveillées.`);
+        toast.warning(
+          `${watchState.blocked.length} source(s) bloquent le contrôle serveur, mais restent surveillées.`,
+        );
       }
-      if (!automatic) toast.success(`${payload.data?.sources?.length || 0} source(s) vérifiée(s).`, { id: toastId });
+      if (!automatic)
+        toast.success(
+          `${payload.data?.sources?.length || 0} source(s) vérifiée(s).`,
+          { id: toastId },
+        );
     } catch (error) {
       setSourceWatch({ error: error.message });
-      if (!automatic) toast.error(error.message || "Veille indisponible.", { id: toastId });
+      if (!automatic)
+        toast.error(error.message || "Veille indisponible.", { id: toastId });
     }
   }
 
@@ -1867,7 +2457,10 @@ export function AdminApp() {
     try {
       const response = await fetch(`${adminApiPath}?action=source-history`);
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Historique des sources indisponible.");
+      if (!response.ok)
+        throw new Error(
+          payload.error || "Historique des sources indisponible.",
+        );
       setSourceHistory(Array.isArray(payload.data) ? payload.data : []);
       setSourceHistoryOpen(true);
     } catch (error) {
@@ -1879,8 +2472,11 @@ export function AdminApp() {
     try {
       const response = await fetch(redeployApiPath);
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Historique data indisponible.");
-      setDeployHistory(Array.isArray(payload.data?.history) ? payload.data.history : []);
+      if (!response.ok)
+        throw new Error(payload.error || "Historique data indisponible.");
+      setDeployHistory(
+        Array.isArray(payload.data?.history) ? payload.data.history : [],
+      );
       setDeployHistoryOpen(true);
     } catch (error) {
       toast.error(error.message || "Historique data indisponible.");
@@ -1921,7 +2517,9 @@ export function AdminApp() {
     }
     setRuleForm({ ...defaultRuleForm });
     setRulePreview(payload.data);
-    setRuleMessage("Règle sauvegardée. Contrôle recalculé sur le snapshot local.");
+    setRuleMessage(
+      "Règle sauvegardée. Contrôle recalculé sur le snapshot local.",
+    );
     toast.success("Règle JSON sauvegardée.");
     await loadAdminData();
   }
@@ -1937,14 +2535,23 @@ export function AdminApp() {
         body: JSON.stringify({ action: "sync-github-data" }),
       });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Synchronisation impossible.");
-      setBootstrap({ loading: false, payload: payload.data?.bootstrap, error: "" });
+      if (!response.ok)
+        throw new Error(payload.error || "Synchronisation impossible.");
+      setBootstrap({
+        loading: false,
+        payload: payload.data?.bootstrap,
+        error: "",
+      });
       setCustomRules(payload.data?.bootstrap?.customRules || []);
-      setRuleMessage("Snapshot GitHub synchronisé. Contrôle relancé sur les données à jour.");
+      setRuleMessage(
+        "Snapshot GitHub synchronisé. Contrôle relancé sur les données à jour.",
+      );
       toast.success("Snapshot GitHub synchronisé.", { id: toastId });
     } catch (error) {
       setRuleMessage(error.message || "Synchronisation impossible.");
-      toast.error(error.message || "Synchronisation impossible.", { id: toastId });
+      toast.error(error.message || "Synchronisation impossible.", {
+        id: toastId,
+      });
     } finally {
       setRulesSyncing(false);
     }
@@ -1952,7 +2559,9 @@ export function AdminApp() {
 
   async function redeployDashboard() {
     setRedeployingDashboard(true);
-    const toastId = toast.loading("Je demande a Vercel de reconstruire le Dashboard...");
+    const toastId = toast.loading(
+      "Je demande a Vercel de reconstruire le Dashboard...",
+    );
     try {
       const response = await fetch(redeployApiPath, {
         method: "POST",
@@ -1960,8 +2569,11 @@ export function AdminApp() {
         body: JSON.stringify({ reason: "Manual PokemonGo-Data refresh" }),
       });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Redéploiement impossible.");
-      const history = Array.isArray(payload.data?.history) ? payload.data.history : [];
+      if (!response.ok)
+        throw new Error(payload.error || "Redéploiement impossible.");
+      const history = Array.isArray(payload.data?.history)
+        ? payload.data.history
+        : [];
       setDeployHistory(history);
       const changed = payload.data?.event?.dataChanges?.trackedFiles || 0;
       toast.success(
@@ -1971,7 +2583,9 @@ export function AdminApp() {
         { id: toastId },
       );
     } catch (error) {
-      toast.error(error.message || "Redéploiement impossible.", { id: toastId });
+      toast.error(error.message || "Redéploiement impossible.", {
+        id: toastId,
+      });
     } finally {
       setRedeployingDashboard(false);
     }
@@ -1981,9 +2595,15 @@ export function AdminApp() {
     await fetch(adminApiPath, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ action: "toggle-rule", id: rule.id, enabled: rule.enabled === false }),
+      body: JSON.stringify({
+        action: "toggle-rule",
+        id: rule.id,
+        enabled: rule.enabled === false,
+      }),
     });
-    toast.success(rule.enabled === false ? "Règle activée." : "Règle désactivée.");
+    toast.success(
+      rule.enabled === false ? "Règle activée." : "Règle désactivée.",
+    );
     await loadAdminData();
   }
 
@@ -2001,7 +2621,9 @@ export function AdminApp() {
     return (
       <main className="grid min-h-screen place-items-center bg-[radial-gradient(circle_at_20%_0%,rgba(14,165,233,.28),transparent_35%),#060914] p-4 text-domain-foreground">
         <section className={panelClass}>
-          <h2 className="text-xl font-black">Vérification de la session admin...</h2>
+          <h2 className="text-xl font-black">
+            Vérification de la session admin...
+          </h2>
         </section>
       </main>
     );
@@ -2022,659 +2644,964 @@ export function AdminApp() {
   }
 
   return (
-    <AdminPokemonSearchProvider query={search} onQueryChange={updateGlobalSearch}>
-    <main className="pokemon-admin-surface text-domain-foreground">
-      <div className="w-full">
-        <section className="min-w-0">
-          <header
-            className="relative overflow-hidden rounded-2xl border border-line bg-surface-control p-4 shadow-[0_24px_90px_rgba(0,0,0,.25)] backdrop-blur-2xl sm:p-5"
-            style={{
-              backgroundImage:
-                'linear-gradient(135deg, rgba(15,23,42,.88), rgba(14,165,233,.18)), url("/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png")',
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          >
-            <div className="pointer-events-none absolute inset-0 bg-surface-inset-strong" />
-            <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.08)_1px,transparent_1px)] [background-size:28px_28px]" />
-            <div className="relative">
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-              <div>
-                <p className="mb-1 text-xs font-black uppercase tracking-[0.24em] text-cyan-200/70">
-                  Dashboard sécurisé
-                </p>
-                <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
-                  {navItems.find((item) => item.id === active)?.label}
-                </h1>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] xl:w-[780px]">
-                <label className="relative block">
-                  <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-disabled" size={18} />
-                  <input
-                    aria-label="Chercher fiche, type, fichier..."
-                    className={`${fieldClass} pl-11`}
-                    placeholder="Chercher fiche, type, fichier..."
-                    value={search}
-                    onChange={(event) => updateGlobalSearch(event.target.value)}
-                  />
-                </label>
-                <Button type="button" icon={<RefreshCcw size={17} />} loading={bootstrap.loading} loadingText="Actualisation…" onClick={() => loadAdminData({ notify: true })}>Actualiser</Button>
-                <Button variant="primary" type="button" icon={<Cloud size={17} />} loading={redeployingDashboard} loadingText="Déploiement…" onClick={redeployDashboard}>Redéployer</Button>
-              </div>
-            </div>
-            <AdminSectionNavigation key={active} items={navItems} active={active} onSelect={selectSection} />
-            </div>
-          </header>
-
-          <div className="mt-5 space-y-5">
-            {bootstrap.loading ? (
-              <FetchLoadingState title="Chargement du dashboard…" detail="Je recharge les fiches, catalogues, assets et l’historique Git." />
-            ) : bootstrap.error ? (
-              <ErrorState title="Dashboard indisponible" message={bootstrap.error} />
-            ) : null}
-
-            {!bootstrap.loading && !bootstrap.error && active === "overview" ? (
-              <>
-                <AdminCommandCenter
-                  summary={summary}
-                  assetCheckedCount={Object.keys(assetChecks).length}
-                  assetsToVerify={unchecked.length}
-                  filteredCount={filtered.length}
-                  sourceWatch={sourceWatch}
-                  history={history}
-                  freshness={bootstrap.payload?.freshness || null}
-                  search={search}
-                  refreshing={bootstrap.loading || sourceWatch?.loading}
-                  onSearchChange={updateGlobalSearch}
-                  onNavigate={selectSection}
-                  onRefresh={() => { void loadAdminData({ notify: true }); void loadSources(); }}
-                />
-
-                <SortableWidgetGrid
-                  columnsClassName="columns-1 xl:columns-2"
-                  items={overviewWidgets}
-                  storageKey="matweb.pokemonAdmin.widgetOrder"
-                />
-              </>
-            ) : null}
-
-            {active === "pokedex" ? (
-              <>
-                <GenerationFilterBar value={generationFilter} onChange={setGenerationFilter} />
-                <section className="mt-4 rounded-2xl border border-line bg-surface-inset-subtle p-3 shadow-[0_18px_70px_rgba(0,0,0,.2)]">
-                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                    <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-cyan-100/75">
-                      <Search size={15} /> Filtres fiches
-                    </span>
-                    <button className="text-xs font-black text-cyan-100 underline-offset-4 hover:underline" type="button" onClick={() => setFicheFilter("all")}>
-                      Réinitialiser
-                    </button>
+    <AdminPokemonSearchProvider
+      query={search}
+      onQueryChange={updateGlobalSearch}
+    >
+      <main className="pokemon-admin-surface text-domain-foreground">
+        <div className="w-full">
+          <section className="min-w-0">
+            <header
+              className="relative overflow-hidden rounded-2xl border border-line bg-surface-control p-4 shadow-[0_24px_90px_rgba(0,0,0,.25)] backdrop-blur-2xl sm:p-5"
+              style={{
+                backgroundImage:
+                  'linear-gradient(135deg, rgba(15,23,42,.88), rgba(14,165,233,.18)), url("/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png")',
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
+              <div className="pointer-events-none absolute inset-0 bg-surface-inset-strong" />
+              <div className="pointer-events-none absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.08)_1px,transparent_1px)] [background-size:28px_28px]" />
+              <div className="relative">
+                <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                  <div>
+                    <p className="mb-1 text-xs font-black uppercase tracking-[0.24em] text-cyan-200/70">
+                      Dashboard sécurisé
+                    </p>
+                    <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
+                      {navItems.find((item) => item.id === active)?.label}
+                    </h1>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
-                    {ficheFilterOptions.map(([id, label, image, detail]) => {
-                      const activeFilter = ficheFilter === id;
-                      return (
+                  <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] xl:w-[780px]">
+                    <label className="relative block">
+                      <Search
+                        className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-disabled"
+                        size={18}
+                      />
+                      <input
+                        aria-label="Chercher fiche, type, fichier..."
+                        className={`${fieldClass} pl-11`}
+                        placeholder="Chercher fiche, type, fichier..."
+                        value={search}
+                        onChange={(event) =>
+                          updateGlobalSearch(event.target.value)
+                        }
+                      />
+                    </label>
+                    <Button
+                      type="button"
+                      icon={<RefreshCcw size={17} />}
+                      loading={bootstrap.loading}
+                      loadingText="Actualisation…"
+                      onClick={() => loadAdminData({ notify: true })}
+                    >
+                      Actualiser
+                    </Button>
+                    <Button
+                      variant="primary"
+                      type="button"
+                      icon={<Cloud size={17} />}
+                      loading={redeployingDashboard}
+                      loadingText="Déploiement…"
+                      onClick={redeployDashboard}
+                    >
+                      Redéployer
+                    </Button>
+                  </div>
+                </div>
+                <AdminSectionNavigation
+                  key={active}
+                  items={navItems}
+                  active={active}
+                  onSelect={selectSection}
+                />
+              </div>
+            </header>
+
+            <div className="mt-5 space-y-5">
+              {bootstrap.loading ? (
+                <FetchLoadingState
+                  title="Chargement du dashboard…"
+                  detail="Je recharge les fiches, catalogues, assets et l’historique Git."
+                />
+              ) : bootstrap.error ? (
+                <ErrorState
+                  title="Dashboard indisponible"
+                  message={bootstrap.error}
+                />
+              ) : null}
+
+              {!bootstrap.loading &&
+              !bootstrap.error &&
+              active === "overview" ? (
+                <>
+                  <AdminCommandCenter
+                    summary={summary}
+                    assetCheckedCount={Object.keys(assetChecks).length}
+                    assetsToVerify={unchecked.length}
+                    filteredCount={filtered.length}
+                    sourceWatch={sourceWatch}
+                    history={history}
+                    freshness={bootstrap.payload?.freshness || null}
+                    search={search}
+                    refreshing={bootstrap.loading || sourceWatch?.loading}
+                    onSearchChange={updateGlobalSearch}
+                    onNavigate={selectSection}
+                    onRefresh={() => {
+                      void loadAdminData({ notify: true });
+                      void loadSources();
+                    }}
+                  />
+
+                  <SortableWidgetGrid
+                    columnsClassName="columns-1 xl:columns-2"
+                    items={overviewWidgets}
+                    storageKey="matweb.pokemonAdmin.widgetOrder"
+                  />
+                </>
+              ) : null}
+
+              {active === "pokedex" ? (
+                <>
+                  <GenerationFilterBar
+                    value={generationFilter}
+                    onChange={setGenerationFilter}
+                  />
+                  <section className="mt-4 rounded-2xl border border-line bg-surface-inset-subtle p-3 shadow-[0_18px_70px_rgba(0,0,0,.2)]">
+                    <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-cyan-100/75">
+                        <Search size={15} /> Filtres fiches
+                      </span>
+                      <button
+                        className="text-xs font-black text-cyan-100 underline-offset-4 hover:underline"
+                        type="button"
+                        onClick={() => setFicheFilter("all")}
+                      >
+                        Réinitialiser
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
+                      {ficheFilterOptions.map(([id, label, image, detail]) => {
+                        const activeFilter = ficheFilter === id;
+                        return (
+                          <button
+                            className={`group relative min-h-[92px] overflow-hidden rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 ${
+                              activeFilter
+                                ? "border-cyan-200/55 bg-cyan-400/18 shadow-[0_16px_55px_rgba(34,211,238,.18)]"
+                                : "border-line bg-surface-flat hover:border-cyan-200/35"
+                            }`}
+                            key={id}
+                            type="button"
+                            onClick={() => setFicheFilter(id)}
+                          >
+                            {image ? (
+                              <img
+                                className={`absolute inset-0 h-full w-full object-cover transition duration-300 ${
+                                  activeFilter
+                                    ? "opacity-52 saturate-125"
+                                    : "opacity-24 saturate-75 group-hover:opacity-40"
+                                }`}
+                                src={image}
+                                alt=""
+                                loading="lazy"
+                              />
+                            ) : (
+                              <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(34,211,238,.25),transparent_42%)]" />
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-br from-slate-950/76 via-slate-950/52 to-slate-950/70" />
+                            <span className="relative inline-flex rounded-full border border-line bg-surface-inset-strong px-2.5 py-1 text-[11px] font-black text-cyan-50">
+                              {ficheFilterCounts[id] || 0}
+                            </span>
+                            <strong className="relative mt-3 block text-sm font-black text-domain-foreground">
+                              {label}
+                            </strong>
+                            <small className="relative mt-1 block truncate text-[11px] font-bold text-foreground-secondary">
+                              {detail}
+                            </small>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </section>
+                  <section className="mt-4 grid items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                    {visibleFiches.map((entry) => (
+                      <PokemonCard
+                        admin
+                        key={entry.key}
+                        entry={entry}
+                        onOpen={openDetail}
+                        actionLabel="Ouvrir"
+                        assetChecked={Boolean(assetChecks[entry.key])}
+                        onAssetChecked={setAssetChecked}
+                        typeCatalog={catalog?.types}
+                        weatherCatalog={catalog?.weather}
+                      />
+                    ))}
+                  </section>
+                  {visibleFiches.length < filtered.length ? (
+                    <LoadMoreButton
+                      shown={visibleFiches.length}
+                      total={filtered.length}
+                      onClick={() =>
+                        setFicheLimit((current) => current + ficheLimitStep)
+                      }
+                    />
+                  ) : null}
+                </>
+              ) : null}
+
+              {active === "candies" ? (
+                <CandyPanel
+                  entries={entries}
+                  search={search}
+                  onOpen={openDetail}
+                />
+              ) : null}
+
+              {active === "backgrounds" ? (
+                <BackgroundPanel
+                  entries={entries}
+                  library={assetAudit?.locationCards || []}
+                  linkedAssets={(assetAudit?.goAssets || []).filter(
+                    (item) => item.assetType === "background",
+                  )}
+                  loading={assetAuditLoading}
+                  search={search}
+                  onOpen={openDetail}
+                />
+              ) : null}
+
+              {active === "collections" ? (
+                <CollectionsPanel
+                  entries={entries}
+                  collections={collections}
+                  onSave={saveCollections}
+                  onOpen={openDetail}
+                  globalSearch={search}
+                />
+              ) : null}
+
+              {active === "my-collection" ? (
+                <TrainerPokemonCollectionPanel />
+              ) : null}
+
+              {active === "raids" ? (
+                <RaidsPanel
+                  raids={raids}
+                  loading={raidsLoading}
+                  regenerating={raidsRegenerating}
+                  onRefresh={() => loadRaids({ notify: true })}
+                  onDownload={downloadRaidsJson}
+                  onRegenerate={regenerateRaids}
+                  onOpenPokemon={openPokemonReference}
+                  typeCatalog={catalog?.types}
+                  weatherCatalog={catalog?.weather}
+                />
+              ) : null}
+
+              {active === "eggs" ? (
+                <EggsPanel
+                  eggs={eggs}
+                  loading={eggsLoading}
+                  regenerating={eggsRegenerating}
+                  onRefresh={() => loadEggs({ notify: true })}
+                  onDownload={downloadEggsJson}
+                  onRegenerate={regenerateEggs}
+                  onOpenPokemon={openPokemonReference}
+                  typeCatalog={catalog?.types}
+                />
+              ) : null}
+
+              {active === "max-battles" ? (
+                <MaxBattlesPanel
+                  maxBattles={maxBattles}
+                  loading={maxBattlesLoading}
+                  regenerating={maxBattlesRegenerating}
+                  onRefresh={() => loadMaxBattles({ notify: true })}
+                  onDownload={downloadMaxBattlesJson}
+                  onRegenerate={regenerateMaxBattles}
+                  onOpenPokemon={openPokemonReference}
+                  typeCatalog={catalog?.types}
+                />
+              ) : null}
+
+              {active === "rocket" ? (
+                <RocketPanel
+                  rocket={rocket}
+                  rocketTexts={rocketTexts}
+                  loading={rocketLoading}
+                  regenerating={rocketRegenerating}
+                  onRefresh={() => loadRocket({ notify: true })}
+                  onDownload={downloadRocketJson}
+                  onRegenerate={regenerateRocket}
+                  onOpenPokemon={openPokemonReference}
+                />
+              ) : null}
+
+              {active === "research" ? (
+                <ResearchPanel
+                  research={research}
+                  itemsReference={itemsReference}
+                  loading={researchLoading}
+                  refreshError={researchLoadError}
+                  regenerating={researchRegenerating}
+                  onRefresh={() => loadResearch({ notify: true })}
+                  onDownload={downloadResearchJson}
+                  onRegenerate={regenerateResearch}
+                />
+              ) : null}
+
+              {active === "shiny" ? (
+                <ShinyTrackerPanel
+                  dataset={shiny}
+                  loading={shinyLoading}
+                  regenerating={shinyRegenerating}
+                  options={shinyOptions}
+                  onOptionsChange={setShinyOptions}
+                  onRefresh={() => loadShiny({ notify: true })}
+                  onDownload={() =>
+                    downloadCurrentDataset(shiny, "shiny-tracker")
+                  }
+                  onRegenerate={() =>
+                    regenerateRankedDataset({
+                      action: "regenerate-shiny",
+                      setRegenerating: setShinyRegenerating,
+                      reload: loadShiny,
+                      label: "Shiny Tracker",
+                    })
+                  }
+                  onLoadHistory={loadShinyHistory}
+                  onOpenPokemon={openPokemonReference}
+                />
+              ) : null}
+
+              {active === "pvp-rankings" ? (
+                <PvpRankingsPanel
+                  dataset={pvpRankings}
+                  loading={pvpRankingsLoading}
+                  regenerating={pvpRankingsRegenerating}
+                  options={pvpOptions}
+                  onOptionsChange={setPvpOptions}
+                  onRefresh={() => loadPvpRankings({ notify: true })}
+                  onDownload={() =>
+                    downloadCurrentDataset(pvpRankings, "pvp-rankings")
+                  }
+                  onRegenerate={() =>
+                    regenerateRankedDataset({
+                      action: "regenerate-pvp-rankings",
+                      setRegenerating: setPvpRankingsRegenerating,
+                      reload: loadPvpRankings,
+                      label: "PvP Rankings",
+                    })
+                  }
+                  onOpenPokemon={openPokemonReference}
+                />
+              ) : null}
+
+              {active === "best-attackers" ? (
+                <BestAttackersPanel
+                  dataset={bestAttackers}
+                  loading={bestAttackersLoading}
+                  regenerating={bestAttackersRegenerating}
+                  options={bestAttackersOptions}
+                  onOptionsChange={setBestAttackersOptions}
+                  onRefresh={() => loadBestAttackers({ notify: true })}
+                  onDownload={() =>
+                    downloadRankedDataset({
+                      action: "best-attackers",
+                      options: bestAttackersOptions,
+                      baseName: "best-attackers",
+                      label: "Best Attackers",
+                    })
+                  }
+                  onRegenerate={() =>
+                    regenerateRankedDataset({
+                      action: "regenerate-best-attackers",
+                      setRegenerating: setBestAttackersRegenerating,
+                      reload: loadBestAttackers,
+                      label: "Best Attackers",
+                    })
+                  }
+                  onOpenPokemon={openPokemonReference}
+                />
+              ) : null}
+
+              {active === "pokemon-identity-mappings" ? (
+                <PokemonIdentityMappingsPanel
+                  dataset={identityMappings}
+                  loading={identityMappingsLoading}
+                  regenerating={identityMappingsRegenerating}
+                  options={identityMappingOptions}
+                  onOptionsChange={setIdentityMappingOptions}
+                  onRefresh={() => loadIdentityMappings({ notify: true })}
+                  onDownload={() =>
+                    downloadRankedDataset({
+                      action: "pokemon-identity-mappings",
+                      options: identityMappingOptions,
+                      baseName: "pokemon-identity-mappings",
+                      label: "Mappings Game Master",
+                    })
+                  }
+                  onRegenerate={() =>
+                    regenerateRankedDataset({
+                      action: "regenerate-pokemon-identity-mappings",
+                      setRegenerating: setIdentityMappingsRegenerating,
+                      reload: loadIdentityMappings,
+                      label: "Résolution des variantes",
+                    })
+                  }
+                />
+              ) : null}
+
+              {active === "identity-manager" ? <IdentityManagerPanel /> : null}
+
+              {active === "game-master-explorer" ? (
+                <GameMasterExplorerPanel />
+              ) : null}
+
+              {active === "events" ? (
+                <EventsCalendarPanel
+                  globalSearch={search}
+                  onOpenPokemon={openPokemonReference}
+                  onOpenHistory={() => selectSection("events-history")}
+                />
+              ) : null}
+
+              {active === "community-days" ? <CommunityDaysPanel /> : null}
+
+              {active === "events-history" ? <EventsHistoryPanel /> : null}
+
+              {active === "dynamax-images" ? <DynamaxImagesPanel /> : null}
+
+              {active === "assets" ? (
+                <section className="grid items-start gap-5 xl:grid-cols-[1.4fr_.9fr]">
+                  <Panel title="Vérification d’assets" eyebrow="bibliothèque">
+                    {assetAuditError ? (
+                      <p className="mb-4 rounded-2xl border border-red-300/25 bg-red-400/10 p-4 text-sm font-bold text-red-100">
+                        {assetAuditError}
+                      </p>
+                    ) : null}
+                    {(assetAudit?.warnings || []).length ? (
+                      <p className="mb-4 rounded-2xl border border-amber-300/25 bg-amber-400/10 p-4 text-sm font-bold text-amber-100">
+                        Bibliothèques distantes partiellement indisponibles :{" "}
+                        {assetAudit.warnings.join(" · ")}. Les assets déjà liés
+                        aux fiches restent affichés.
+                      </p>
+                    ) : null}
+                    <div className="mb-4 grid min-w-0 items-start gap-3 sm:grid-cols-2 2xl:grid-cols-4">
+                      <AssetStatCard
+                        label="Liés"
+                        value={assetAudit?.totals?.goFiles || 0}
+                        icon={uiAssets.icons.goLogo}
+                        tone="cyan"
+                        detail="Tous assets JSON fiches"
+                      />
+                      <AssetStatCard
+                        label="HOME"
+                        value={assetAudit?.totals?.homeFiles || 0}
+                        icon={uiAssets.icons.pokemon}
+                        tone="green"
+                        detail="Images HOME liées"
+                      />
+                      <AssetStatCard
+                        label="Portraits"
+                        value={assetAudit?.totals?.portraitFiles || 0}
+                        icon={uiAssets.icons.mega}
+                        tone="violet"
+                        detail="Portraits et shiny"
+                      />
+                      <AssetStatCard
+                        label="Shuffle"
+                        value={assetAudit?.totals?.shuffleFiles || 0}
+                        icon={uiAssets.icons.pikachuShuffle}
+                        tone="violet"
+                        detail="Bibliothèque Shuffle"
+                      />
+                      <AssetStatCard
+                        label="Variantes"
+                        value={assetAudit?.totals?.variantFiles || 0}
+                        icon={uiAssets.icons.tag}
+                        tone="amber"
+                        detail="assetForms JSON"
+                      />
+                      <AssetStatCard
+                        label="Backgrounds"
+                        value={assetAudit?.totals?.backgroundFiles || 0}
+                        icon={uiAssets.icons.bookSpells}
+                        tone="cyan"
+                        detail="Location cards"
+                      />
+                      <AssetStatCard
+                        label="Bonbons"
+                        value={assetAudit?.totals?.candyFiles || 0}
+                        icon={uiAssets.icons.candy}
+                        tone="amber"
+                        detail="Candy assets"
+                      />
+                      <AssetStatCard
+                        label="Utilisés"
+                        value={assetAudit?.totals?.used || 0}
+                        icon={uiAssets.icons.bookSpells}
+                        tone="green"
+                        detail="Référencés par les fiches"
+                      />
+                      <AssetStatCard
+                        label="Réutilisations"
+                        value={assetAudit?.totals?.duplicated || 0}
+                        icon={uiAssets.icons.problem}
+                        tone="amber"
+                        detail="Même URL liée plusieurs fois"
+                      />
+                    </div>
+                    <p className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 text-sm font-bold leading-6 text-foreground-secondary">
+                      Cette page sert à contrôler les images réellement liées
+                      aux fiches et les propositions HD. “Réutilisations”
+                      signifie qu’une même URL d’asset est référencée par
+                      plusieurs fiches, ce n’est pas forcément une erreur.
+                    </p>
+                    <div className="mb-4 flex flex-wrap gap-2">
+                      {[
+                        ["all", "Tout"],
+                        ["proposals", "Propositions HD"],
+                        ["linked", "Liés"],
+                        ["go", "GO"],
+                        ["home", "HOME"],
+                        ["portrait", "Portraits"],
+                        ["variant", "Variantes"],
+                        ["background", "Backgrounds"],
+                        ["candy", "Bonbons"],
+                        ["shuffle", "Shuffle"],
+                        ["unused", "HD non utilisés"],
+                      ].map(([id, label]) => (
                         <button
-                          className={`group relative min-h-[92px] overflow-hidden rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 ${
-                            activeFilter
-                              ? "border-cyan-200/55 bg-cyan-400/18 shadow-[0_16px_55px_rgba(34,211,238,.18)]"
-                              : "border-line bg-surface-flat hover:border-cyan-200/35"
+                          className={`rounded-full border px-4 py-2 text-xs font-black ${
+                            assetTab === id
+                              ? "border-cyan-200/50 bg-cyan-400/20 text-cyan-50"
+                              : "border-line bg-surface-subtle text-foreground-secondary"
                           }`}
                           key={id}
                           type="button"
-                          onClick={() => setFicheFilter(id)}
+                          onClick={() => setAssetTab(id)}
                         >
-                          {image ? (
-                            <img
-                              className={`absolute inset-0 h-full w-full object-cover transition duration-300 ${
-                                activeFilter ? "opacity-52 saturate-125" : "opacity-24 saturate-75 group-hover:opacity-40"
-                              }`}
-                              src={image}
-                              alt=""
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(34,211,238,.25),transparent_42%)]" />
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-br from-slate-950/76 via-slate-950/52 to-slate-950/70" />
-                          <span className="relative inline-flex rounded-full border border-line bg-surface-inset-strong px-2.5 py-1 text-[11px] font-black text-cyan-50">
-                            {ficheFilterCounts[id] || 0}
-                          </span>
-                          <strong className="relative mt-3 block text-sm font-black text-domain-foreground">{label}</strong>
-                          <small className="relative mt-1 block truncate text-[11px] font-bold text-foreground-secondary">{detail}</small>
+                          {label}
                         </button>
-                      );
-                    })}
-                  </div>
-                </section>
-                <section className="mt-4 grid items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                  {visibleFiches.map((entry) => (
-                    <PokemonCard
-                      admin
-                      key={entry.key}
-                      entry={entry}
-                      onOpen={openDetail}
-                      actionLabel="Ouvrir"
-                      assetChecked={Boolean(assetChecks[entry.key])}
-                      onAssetChecked={setAssetChecked}
-                      typeCatalog={catalog?.types}
-                      weatherCatalog={catalog?.weather}
-                    />
-                  ))}
-                </section>
-                {visibleFiches.length < filtered.length ? (
-                  <LoadMoreButton
-                    shown={visibleFiches.length}
-                    total={filtered.length}
-                    onClick={() => setFicheLimit((current) => current + ficheLimitStep)}
-                  />
-                ) : null}
-              </>
-            ) : null}
-
-            {active === "candies" ? (
-              <CandyPanel entries={entries} search={search} onOpen={openDetail} />
-            ) : null}
-
-            {active === "backgrounds" ? (
-              <BackgroundPanel
-                entries={entries}
-                library={assetAudit?.locationCards || []}
-                linkedAssets={(assetAudit?.goAssets || []).filter((item) => item.assetType === "background")}
-                loading={assetAuditLoading}
-                search={search}
-                onOpen={openDetail}
-              />
-            ) : null}
-
-            {active === "collections" ? (
-              <CollectionsPanel
-                entries={entries}
-                collections={collections}
-                onSave={saveCollections}
-                onOpen={openDetail}
-                globalSearch={search}
-              />
-            ) : null}
-
-            {active === "my-collection" ? <TrainerPokemonCollectionPanel /> : null}
-
-            {active === "raids" ? (
-              <RaidsPanel
-                raids={raids}
-                loading={raidsLoading}
-                regenerating={raidsRegenerating}
-                onRefresh={() => loadRaids({ notify: true })}
-                onDownload={downloadRaidsJson}
-                onRegenerate={regenerateRaids}
-                onOpenPokemon={openPokemonReference}
-                typeCatalog={catalog?.types}
-                weatherCatalog={catalog?.weather}
-              />
-            ) : null}
-
-            {active === "eggs" ? (
-              <EggsPanel
-                eggs={eggs}
-                loading={eggsLoading}
-                regenerating={eggsRegenerating}
-                onRefresh={() => loadEggs({ notify: true })}
-                onDownload={downloadEggsJson}
-                onRegenerate={regenerateEggs}
-                onOpenPokemon={openPokemonReference}
-                typeCatalog={catalog?.types}
-              />
-            ) : null}
-
-            {active === "max-battles" ? (
-              <MaxBattlesPanel
-                maxBattles={maxBattles}
-                loading={maxBattlesLoading}
-                regenerating={maxBattlesRegenerating}
-                onRefresh={() => loadMaxBattles({ notify: true })}
-                onDownload={downloadMaxBattlesJson}
-                onRegenerate={regenerateMaxBattles}
-                onOpenPokemon={openPokemonReference}
-                typeCatalog={catalog?.types}
-              />
-            ) : null}
-
-            {active === "rocket" ? (
-              <RocketPanel
-                rocket={rocket}
-                rocketTexts={rocketTexts}
-                loading={rocketLoading}
-                regenerating={rocketRegenerating}
-                onRefresh={() => loadRocket({ notify: true })}
-                onDownload={downloadRocketJson}
-                onRegenerate={regenerateRocket}
-                onOpenPokemon={openPokemonReference}
-              />
-            ) : null}
-
-            {active === "research" ? (
-              <ResearchPanel
-                research={research}
-                itemsReference={itemsReference}
-                loading={researchLoading}
-                refreshError={researchLoadError}
-                regenerating={researchRegenerating}
-                onRefresh={() => loadResearch({ notify: true })}
-                onDownload={downloadResearchJson}
-                onRegenerate={regenerateResearch}
-              />
-            ) : null}
-
-            {active === "shiny" ? (
-              <ShinyTrackerPanel
-                dataset={shiny}
-                loading={shinyLoading}
-                regenerating={shinyRegenerating}
-                options={shinyOptions}
-                onOptionsChange={setShinyOptions}
-                onRefresh={() => loadShiny({ notify: true })}
-                onDownload={() => downloadCurrentDataset(shiny, "shiny-tracker")}
-                onRegenerate={() => regenerateRankedDataset({ action: "regenerate-shiny", setRegenerating: setShinyRegenerating, reload: loadShiny, label: "Shiny Tracker" })}
-                onLoadHistory={loadShinyHistory}
-                onOpenPokemon={openPokemonReference}
-              />
-            ) : null}
-
-            {active === "pvp-rankings" ? (
-              <PvpRankingsPanel
-                dataset={pvpRankings}
-                loading={pvpRankingsLoading}
-                regenerating={pvpRankingsRegenerating}
-                options={pvpOptions}
-                onOptionsChange={setPvpOptions}
-                onRefresh={() => loadPvpRankings({ notify: true })}
-                onDownload={() => downloadCurrentDataset(pvpRankings, "pvp-rankings")}
-                onRegenerate={() => regenerateRankedDataset({ action: "regenerate-pvp-rankings", setRegenerating: setPvpRankingsRegenerating, reload: loadPvpRankings, label: "PvP Rankings" })}
-                onOpenPokemon={openPokemonReference}
-              />
-            ) : null}
-
-            {active === "best-attackers" ? (
-              <BestAttackersPanel
-                dataset={bestAttackers}
-                loading={bestAttackersLoading}
-                regenerating={bestAttackersRegenerating}
-                options={bestAttackersOptions}
-                onOptionsChange={setBestAttackersOptions}
-                onRefresh={() => loadBestAttackers({ notify: true })}
-                onDownload={() => downloadRankedDataset({ action: "best-attackers", options: bestAttackersOptions, baseName: "best-attackers", label: "Best Attackers" })}
-                onRegenerate={() => regenerateRankedDataset({ action: "regenerate-best-attackers", setRegenerating: setBestAttackersRegenerating, reload: loadBestAttackers, label: "Best Attackers" })}
-                onOpenPokemon={openPokemonReference}
-              />
-            ) : null}
-
-            {active === "pokemon-identity-mappings" ? (
-              <PokemonIdentityMappingsPanel
-                dataset={identityMappings}
-                loading={identityMappingsLoading}
-                regenerating={identityMappingsRegenerating}
-                options={identityMappingOptions}
-                onOptionsChange={setIdentityMappingOptions}
-                onRefresh={() => loadIdentityMappings({ notify: true })}
-                onDownload={() => downloadRankedDataset({ action: "pokemon-identity-mappings", options: identityMappingOptions, baseName: "pokemon-identity-mappings", label: "Mappings Game Master" })}
-                onRegenerate={() => regenerateRankedDataset({ action: "regenerate-pokemon-identity-mappings", setRegenerating: setIdentityMappingsRegenerating, reload: loadIdentityMappings, label: "Résolution des variantes" })}
-              />
-            ) : null}
-
-            {active === "identity-manager" ? <IdentityManagerPanel /> : null}
-
-            {active === "game-master-explorer" ? <GameMasterExplorerPanel /> : null}
-
-            {active === "events" ? (
-              <EventsCalendarPanel globalSearch={search} onOpenPokemon={openPokemonReference} onOpenHistory={() => selectSection("events-history")} />
-            ) : null}
-
-            {active === "community-days" ? <CommunityDaysPanel /> : null}
-
-            {active === "events-history" ? <EventsHistoryPanel /> : null}
-
-            {active === "dynamax-images" ? <DynamaxImagesPanel /> : null}
-
-            {active === "assets" ? (
-              <section className="grid items-start gap-5 xl:grid-cols-[1.4fr_.9fr]">
-                <Panel title="Vérification d’assets" eyebrow="bibliothèque">
-                  {assetAuditError ? (
-                    <p className="mb-4 rounded-2xl border border-red-300/25 bg-red-400/10 p-4 text-sm font-bold text-red-100">
-                      {assetAuditError}
-                    </p>
-                  ) : null}
-                  {(assetAudit?.warnings || []).length ? (
-                    <p className="mb-4 rounded-2xl border border-amber-300/25 bg-amber-400/10 p-4 text-sm font-bold text-amber-100">
-                      Bibliothèques distantes partiellement indisponibles : {assetAudit.warnings.join(" · ")}. Les assets déjà liés aux fiches restent affichés.
-                    </p>
-                  ) : null}
-                  <div className="mb-4 grid min-w-0 items-start gap-3 sm:grid-cols-2 2xl:grid-cols-4">
-                    <AssetStatCard label="Liés" value={assetAudit?.totals?.goFiles || 0} icon={uiAssets.icons.goLogo} tone="cyan" detail="Tous assets JSON fiches" />
-                    <AssetStatCard label="HOME" value={assetAudit?.totals?.homeFiles || 0} icon={uiAssets.icons.pokemon} tone="green" detail="Images HOME liées" />
-                    <AssetStatCard label="Portraits" value={assetAudit?.totals?.portraitFiles || 0} icon={uiAssets.icons.mega} tone="violet" detail="Portraits et shiny" />
-                    <AssetStatCard label="Shuffle" value={assetAudit?.totals?.shuffleFiles || 0} icon={uiAssets.icons.pikachuShuffle} tone="violet" detail="Bibliothèque Shuffle" />
-                    <AssetStatCard label="Variantes" value={assetAudit?.totals?.variantFiles || 0} icon={uiAssets.icons.tag} tone="amber" detail="assetForms JSON" />
-                    <AssetStatCard label="Backgrounds" value={assetAudit?.totals?.backgroundFiles || 0} icon={uiAssets.icons.bookSpells} tone="cyan" detail="Location cards" />
-                    <AssetStatCard label="Bonbons" value={assetAudit?.totals?.candyFiles || 0} icon={uiAssets.icons.candy} tone="amber" detail="Candy assets" />
-                    <AssetStatCard label="Utilisés" value={assetAudit?.totals?.used || 0} icon={uiAssets.icons.bookSpells} tone="green" detail="Référencés par les fiches" />
-                    <AssetStatCard label="Réutilisations" value={assetAudit?.totals?.duplicated || 0} icon={uiAssets.icons.problem} tone="amber" detail="Même URL liée plusieurs fois" />
-                  </div>
-                  <p className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 text-sm font-bold leading-6 text-foreground-secondary">
-                    Cette page sert à contrôler les images réellement liées aux fiches et les propositions HD. “Réutilisations” signifie qu’une même URL d’asset est référencée par plusieurs fiches, ce n’est pas forcément une erreur.
-                  </p>
-                  <div className="mb-4 flex flex-wrap gap-2">
-                    {[
-                      ["all", "Tout"],
-                      ["proposals", "Propositions HD"],
-                      ["linked", "Liés"],
-                      ["go", "GO"],
-                      ["home", "HOME"],
-                      ["portrait", "Portraits"],
-                      ["variant", "Variantes"],
-                      ["background", "Backgrounds"],
-                      ["candy", "Bonbons"],
-                      ["shuffle", "Shuffle"],
-                      ["unused", "HD non utilisés"],
-                    ].map(([id, label]) => (
-                      <button
-                        className={`rounded-full border px-4 py-2 text-xs font-black ${
-                          assetTab === id
-                            ? "border-cyan-200/50 bg-cyan-400/20 text-cyan-50"
-                            : "border-line bg-surface-subtle text-foreground-secondary"
-                        }`}
-                        key={id}
-                        type="button"
-                        onClick={() => setAssetTab(id)}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-                    {visibleAssetItems.map((asset, index) => (
-                      <article className="overflow-hidden rounded-3xl border border-line bg-surface-inset-medium" key={`${asset.group}-${asset.filename || asset.url}-${index}`}>
-                        <div className="grid aspect-square place-items-center bg-surface-minimal p-3">
-                          <img className="max-h-full object-contain" src={asset.image || asset.url} alt={asset.filename || asset.label || "asset"} />
-                        </div>
-                        <div className="border-t border-line p-3">
-                          <strong className="block truncate text-xs font-black text-domain-foreground">{asset.filename || asset.label}</strong>
-                          <span className="mt-1 block truncate text-xs font-bold text-muted">{asset.group} · {asset.label || asset.details || asset.form || "standard"}</span>
-                          <button
-                            className="mt-3 inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-2xl border border-cyan-200/20 bg-cyan-400/10 px-3 text-[11px] font-black text-cyan-50 transition hover:border-cyan-200/45 hover:bg-cyan-400/18"
-                            type="button"
-                            onClick={() => copyToClipboard(asset.url, "URL GitHub copiée.")}
-                          >
-                            <Copy size={13} /> Copy GitHub URL
-                          </button>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                  {visibleAssetItems.length < assetItems.length ? (
-                    <LoadMoreButton
-                      shown={visibleAssetItems.length}
-                      total={assetItems.length}
-                      onClick={() => setAssetLimit((current) => current + assetLimitStep)}
-                    />
-                  ) : null}
-                </Panel>
-                <Panel title="Fiches à vérifier" eyebrow={`${unchecked.length} restantes`}>
-                  <MiniCardList entries={unchecked.slice(0, 50)} onOpen={openDetail} />
-                </Panel>
-              </section>
-            ) : null}
-
-            {active === "checks" ? (
-              <section className="grid items-start gap-5 xl:grid-cols-[1.2fr_.8fr]">
-                <ControlCardsPanel
-                  title="Fiches à contrôler"
-                  entries={issueEntries}
-                  onOpen={openDetail}
-                  description="Liste dédiée pour ouvrir toutes les fiches qui ont une correction à faire, y compris les nouvelles règles JSON personnalisées."
-                />
-                <Panel title="Règles personnalisées" eyebrow="focus custom" action={<Wand2 className="text-amber-100" size={22} />}>
-                  <MiniCardList entries={customIssueEntries.slice(0, 120)} onOpen={openDetail} />
-                </Panel>
-              </section>
-            ) : null}
-
-            {active === "sources" ? (
-              <Panel
-                title="Veille sources"
-                eyebrow="PokeMiners, Game Master, Shuffle"
-                action={
-                  <div className="flex flex-wrap gap-2">
-                    <button className={buttonClass} type="button" onClick={loadSourceHistory}>
-                      <History size={17} /> Historique
-                    </button>
-                    <button className={primaryButtonClass} type="button" onClick={() => loadSources()}>
-                      <Radar size={17} /> Vérifier maintenant
-                    </button>
-                  </div>
-                }
-              >
-                <SourceRows sourceWatch={sourceWatch} />
-              </Panel>
-            ) : null}
-
-            {active === "logs" ? (
-              <UpdateLogPanel
-                gitHistory={history}
-                sourceHistory={sourceHistory}
-                deployHistory={deployHistory}
-                onOpenSourceHistory={loadSourceHistory}
-                onOpenDeployHistory={loadDeployHistory}
-              />
-            ) : null}
-
-            {active === "catalogs" ? <CatalogPanel catalog={catalog} onOpen={openDetail} /> : null}
-
-            {active === "compare" ? (
-              <Panel title="Comparaison de fiches" eyebrow="contrôle">
-                <p className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 text-sm font-bold leading-6 text-foreground-secondary">
-                  Compare deux fiches côte à côte pour vérifier rapidement les assets, types, problèmes JSON et informations visibles avant une correction.
-                </p>
-                <div className="mb-5 grid gap-3 md:grid-cols-2">
-                  <Select aria-label="Fiche gauche" className={fieldClass} value={compareA} onChange={(event) => setCompareA(event.target.value)}>
-                    <option value="">Fiche gauche</option>
-                    {entries.slice(0, 1000).map((entry) => (
-                      <option key={entry.key} value={entry.key}>
-                        {entry.dexId} · {entry.name}
-                      </option>
-                    ))}
-                  </Select>
-                  <Select aria-label="Fiche droite" className={fieldClass} value={compareB} onChange={(event) => setCompareB(event.target.value)}>
-                    <option value="">Fiche droite</option>
-                    {entries.slice(0, 1000).map((entry) => (
-                      <option key={entry.key} value={entry.key}>
-                        {entry.dexId} · {entry.name}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-                <div className="grid items-start gap-4 lg:grid-cols-2">
-                  {[compareLeft, compareRight].map((entry, index) => (
-                    <div className="rounded-[2rem] border border-line bg-surface-inset-subtle p-3" key={index}>
-                      {entry ? (
-                        <PokemonCard entry={entry} typeCatalog={catalog?.types} weatherCatalog={catalog?.weather} onOpen={openDetail} />
-                      ) : (
-                        <p className="rounded-2xl border border-dashed border-line-medium p-5 text-sm font-bold text-muted">Sélectionne une fiche.</p>
-                      )}
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </Panel>
-            ) : null}
-
-            {active === "rules" ? (
-              <RulesPanel
-                rules={customRules}
-                entries={entries}
-                jsonEntries={customRuleEntries}
-                form={ruleForm}
-                preview={rulePreview}
-                message={ruleMessage}
-                onFormChange={setRuleForm}
-                onPreview={previewRule}
-                onSave={saveRule}
-                onOpenEntry={openDetail}
-                onSyncGithub={syncGithubData}
-                syncingGithub={rulesSyncing}
-                onEdit={(rule) => {
-                  setRuleForm({
-                    ...defaultRuleForm,
-                    ...rule,
-                    mode: rule.mode || (rule.path ? "path" : "template"),
-                    formFilters: rule.formFilters || [],
-                    path: rule.path || "",
-                    expectedType: rule.expectedType || "presence",
-                    templateSource:
-                      rule.mode === "path"
-                        ? ""
-                        : rule.templateSource || JSON.stringify(rule.template || {}, null, 2),
-                  });
-                  setRulePreview(rule);
-                  setRuleMessage("Règle chargée dans l’éditeur.");
-                }}
-                onToggle={toggleRule}
-                onDelete={deleteRule}
-              />
-            ) : null}
-
-            {active === "bulk" ? (
-              <Panel
-                title="Corrections groupées"
-                action={
-                  <label className="inline-flex items-center gap-3 rounded-2xl border border-line bg-surface-subtle px-4 py-3 text-sm font-black text-domain-foreground">
-                    <Checkbox
-                      className="h-5 w-5 accent-cyan-400"
-                      checked={bulkOnlyIssues}
-                      onChange={(event) => setBulkOnlyIssues(event.target.checked)}
-                    />
-                    Seulement les fiches avec problèmes
-                  </label>
-                }
-              >
-                <p id="form-a11y-bulk-description" className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 text-sm font-bold leading-6 text-foreground-secondary">
-                  Génère un brouillon JSON à partir des problèmes détectés. Ce panneau ne modifie pas les fichiers: il sert à préparer des corrections groupées.
-                </p>
-                <textarea aria-label="Corrections groupées" aria-describedby="form-a11y-bulk-description" className={`${fieldClass} min-h-[520px] resize-y font-mono text-xs leading-6`} readOnly value={JSON.stringify(Object.fromEntries(bulkEntries.map((entry) => [entry.key, entry.suggestedPatch])), null, 2)} />
-              </Panel>
-            ) : null}
-
-            {active === "export" ? (
-              <Panel
-                title="Export et partage"
-                action={
-                  <button className={primaryButtonClass} type="button" onClick={() => copyToClipboard(exportPayload)}>
-                    <Copy size={17} /> Copier l’export
-                  </button>
-                }
-              >
-                <p id="form-a11y-export-description" className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 text-sm font-bold leading-6 text-foreground-secondary">
-                  Exporte les fiches correspondant à la recherche globale en cours. Pratique pour partager un lot réduit ou conserver un état de contrôle.
-                </p>
-                <textarea aria-label="Export et partage" aria-describedby="form-a11y-export-description" className={`${fieldClass} min-h-[520px] resize-y font-mono text-xs leading-6`} readOnly value={JSON.stringify(exportPayload, null, 2)} />
-              </Panel>
-            ) : null}
-
-            {active === "todo" ? <AdminTodoPanel /> : null}
-
-          </div>
-        </section>
-      </div>
-
-      <SourceHistoryModal
-        open={sourceHistoryOpen}
-        history={sourceHistory}
-        onClose={() => setSourceHistoryOpen(false)}
-      />
-
-      <DataDeployHistoryModal
-        open={deployHistoryOpen}
-        history={deployHistory}
-        onClose={() => setDeployHistoryOpen(false)}
-      />
-
-      <DetailModal
-        open={Boolean(selected)}
-        entry={selected}
-        detail={detail}
-        mode="admin"
-        typeCatalog={catalog?.types}
-        weatherCatalog={catalog?.weather}
-        assetChecked={Boolean(selected && assetChecks[selected.key])}
-        onAssetChecked={setAssetChecked}
-        extraPanel={extraPanel}
-        onPrevious={() => shiftDetail(-1)}
-        onNext={() => shiftDetail(1)}
-        previousEntry={previousSelectedEntry}
-        nextEntry={nextSelectedEntry}
-        allEntries={entries}
-        onOpenRelated={openDetail}
-        onClose={() => {
-          setSelectedIndex(-1);
-          setSelectedEntry(null);
-          setDetail(null);
-          setExtraPanel(null);
-        }}
-        onCopyPatch={() => copyToClipboard(selected?.suggestedPatch || {})}
-        onAuditUrls={async () => {
-          const response = await fetch(`${adminApiPath}?action=url-audit&key=${encodeURIComponent(selected.key)}`);
-          const payload = await response.json();
-          setExtraPanel(
-            <div className="space-y-3">
-              {(payload.data || []).map((item) => (
-                <div className="rounded-2xl border border-line bg-surface-subtle p-3" key={item.url}>
-                  <strong className={item.ok ? "text-emerald-200" : "text-red-200"}>{item.ok ? "Accessible" : "Erreur"}</strong>
-                  <span className="mt-1 block break-all text-xs font-bold text-foreground-secondary">
-                    HTTP {item.status || "?"} · {item.url}
-                  </span>
-                </div>
-              ))}
-            </div>,
-          );
-        }}
-        onAssetAudit={async () => {
-          const response = await fetch(`${adminApiPath}?action=assets&dexId=${encodeURIComponent(selected.dexId)}`);
-          const payload = await response.json();
-          const groups = [
-            ["Propositions HD", payload.data?.proposals || []],
-            ["Assets liés GO", payload.data?.goAssets || []],
-            ["Shuffle", payload.data?.shuffleAssets || []],
-          ];
-          setExtraPanel(
-            <div className="space-y-4">
-              {groups.map(([label, items]) => (
-                <section key={label}>
-                  <div className="mb-2 flex items-center justify-between">
-                    <strong className="text-domain-foreground">{label}</strong>
-                    <span className="rounded-full bg-surface-emphasis px-2 py-1 text-xs font-black text-foreground-secondary">{items.length}</span>
-                  </div>
-                  {items.length ? (
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                      {items.slice(0, 24).map((asset, index) => (
-                        <article className="overflow-hidden rounded-2xl border border-line bg-surface-inset-medium" key={`${label}-${asset.filename || asset.url}-${index}`}>
-                          <div className="grid aspect-square place-items-center p-3">
-                            <img className="max-h-full object-contain" src={asset.url} alt={asset.filename || asset.label || label} />
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+                      {visibleAssetItems.map((asset, index) => (
+                        <article
+                          className="overflow-hidden rounded-3xl border border-line bg-surface-inset-medium"
+                          key={`${asset.group}-${asset.filename || asset.url}-${index}`}
+                        >
+                          <div className="grid aspect-square place-items-center bg-surface-minimal p-3">
+                            <img
+                              className="max-h-full object-contain"
+                              src={asset.image || asset.url}
+                              alt={asset.filename || asset.label || "asset"}
+                            />
                           </div>
-                          <div className="border-t border-line p-2">
-                            <strong className="block truncate text-xs text-domain-foreground">{asset.filename || asset.label}</strong>
-                            <span className="mt-1 block truncate text-xs text-muted">{asset.details || asset.form || asset.state || "standard"}</span>
+                          <div className="border-t border-line p-3">
+                            <strong className="block truncate text-xs font-black text-domain-foreground">
+                              {asset.filename || asset.label}
+                            </strong>
+                            <span className="mt-1 block truncate text-xs font-bold text-muted">
+                              {asset.group} ·{" "}
+                              {asset.label ||
+                                asset.details ||
+                                asset.form ||
+                                "standard"}
+                            </span>
+                            <button
+                              className="mt-3 inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-2xl border border-cyan-200/20 bg-cyan-400/10 px-3 text-[11px] font-black text-cyan-50 transition hover:border-cyan-200/45 hover:bg-cyan-400/18"
+                              type="button"
+                              onClick={() =>
+                                copyToClipboard(asset.url, "URL GitHub copiée.")
+                              }
+                            >
+                              <Copy size={13} /> Copy GitHub URL
+                            </button>
                           </div>
                         </article>
                       ))}
                     </div>
-                  ) : (
-                    <EmptyState title="Aucun résultat" />
-                  )}
+                    {visibleAssetItems.length < assetItems.length ? (
+                      <LoadMoreButton
+                        shown={visibleAssetItems.length}
+                        total={assetItems.length}
+                        onClick={() =>
+                          setAssetLimit((current) => current + assetLimitStep)
+                        }
+                      />
+                    ) : null}
+                  </Panel>
+                  <Panel
+                    title="Fiches à vérifier"
+                    eyebrow={`${unchecked.length} restantes`}
+                  >
+                    <MiniCardList
+                      entries={unchecked.slice(0, 50)}
+                      onOpen={openDetail}
+                    />
+                  </Panel>
                 </section>
-              ))}
-            </div>,
-          );
-        }}
-      />
-    </main>
+              ) : null}
+
+              {active === "checks" ? (
+                <section className="grid items-start gap-5 xl:grid-cols-[1.2fr_.8fr]">
+                  <ControlCardsPanel
+                    title="Fiches à contrôler"
+                    entries={issueEntries}
+                    onOpen={openDetail}
+                    description="Liste dédiée pour ouvrir toutes les fiches qui ont une correction à faire, y compris les nouvelles règles JSON personnalisées."
+                  />
+                  <Panel
+                    title="Règles personnalisées"
+                    eyebrow="focus custom"
+                    action={<Wand2 className="text-amber-100" size={22} />}
+                  >
+                    <MiniCardList
+                      entries={customIssueEntries.slice(0, 120)}
+                      onOpen={openDetail}
+                    />
+                  </Panel>
+                </section>
+              ) : null}
+
+              {active === "sources" ? (
+                <Panel
+                  title="Veille sources"
+                  eyebrow="PokeMiners, Game Master, Shuffle"
+                  action={
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        className={buttonClass}
+                        type="button"
+                        onClick={loadSourceHistory}
+                      >
+                        <History size={17} /> Historique
+                      </button>
+                      <button
+                        className={primaryButtonClass}
+                        type="button"
+                        onClick={() => loadSources()}
+                      >
+                        <Radar size={17} /> Vérifier maintenant
+                      </button>
+                    </div>
+                  }
+                >
+                  <SourceRows sourceWatch={sourceWatch} />
+                </Panel>
+              ) : null}
+
+              {active === "logs" ? (
+                <UpdateLogPanel
+                  gitHistory={history}
+                  sourceHistory={sourceHistory}
+                  deployHistory={deployHistory}
+                  onOpenSourceHistory={loadSourceHistory}
+                  onOpenDeployHistory={loadDeployHistory}
+                />
+              ) : null}
+
+              {active === "catalogs" ? (
+                <CatalogPanel catalog={catalog} onOpen={openDetail} />
+              ) : null}
+
+              {active === "compare" ? (
+                <Panel title="Comparaison de fiches" eyebrow="contrôle">
+                  <p className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 text-sm font-bold leading-6 text-foreground-secondary">
+                    Compare deux fiches côte à côte pour vérifier rapidement les
+                    assets, types, problèmes JSON et informations visibles avant
+                    une correction.
+                  </p>
+                  <div className="mb-5 grid gap-3 md:grid-cols-2">
+                    <Select
+                      aria-label="Fiche gauche"
+                      className={fieldClass}
+                      value={compareA}
+                      onChange={(event) => setCompareA(event.target.value)}
+                    >
+                      <option value="">Fiche gauche</option>
+                      {entries.slice(0, 1000).map((entry) => (
+                        <option key={entry.key} value={entry.key}>
+                          {entry.dexId} · {entry.name}
+                        </option>
+                      ))}
+                    </Select>
+                    <Select
+                      aria-label="Fiche droite"
+                      className={fieldClass}
+                      value={compareB}
+                      onChange={(event) => setCompareB(event.target.value)}
+                    >
+                      <option value="">Fiche droite</option>
+                      {entries.slice(0, 1000).map((entry) => (
+                        <option key={entry.key} value={entry.key}>
+                          {entry.dexId} · {entry.name}
+                        </option>
+                      ))}
+                    </Select>
+                  </div>
+                  <div className="grid items-start gap-4 lg:grid-cols-2">
+                    {[compareLeft, compareRight].map((entry, index) => (
+                      <div
+                        className="rounded-[2rem] border border-line bg-surface-inset-subtle p-3"
+                        key={index}
+                      >
+                        {entry ? (
+                          <PokemonCard
+                            entry={entry}
+                            typeCatalog={catalog?.types}
+                            weatherCatalog={catalog?.weather}
+                            onOpen={openDetail}
+                          />
+                        ) : (
+                          <p className="rounded-2xl border border-dashed border-line-medium p-5 text-sm font-bold text-muted">
+                            Sélectionne une fiche.
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </Panel>
+              ) : null}
+
+              {active === "rules" ? (
+                <RulesPanel
+                  rules={customRules}
+                  entries={entries}
+                  jsonEntries={customRuleEntries}
+                  form={ruleForm}
+                  preview={rulePreview}
+                  message={ruleMessage}
+                  onFormChange={setRuleForm}
+                  onPreview={previewRule}
+                  onSave={saveRule}
+                  onOpenEntry={openDetail}
+                  onSyncGithub={syncGithubData}
+                  syncingGithub={rulesSyncing}
+                  onEdit={(rule) => {
+                    setRuleForm({
+                      ...defaultRuleForm,
+                      ...rule,
+                      mode: rule.mode || (rule.path ? "path" : "template"),
+                      formFilters: rule.formFilters || [],
+                      path: rule.path || "",
+                      expectedType: rule.expectedType || "presence",
+                      templateSource:
+                        rule.mode === "path"
+                          ? ""
+                          : rule.templateSource ||
+                            JSON.stringify(rule.template || {}, null, 2),
+                    });
+                    setRulePreview(rule);
+                    setRuleMessage("Règle chargée dans l’éditeur.");
+                  }}
+                  onToggle={toggleRule}
+                  onDelete={deleteRule}
+                />
+              ) : null}
+
+              {active === "bulk" ? (
+                <Panel
+                  title="Corrections groupées"
+                  action={
+                    <label className="inline-flex items-center gap-3 rounded-2xl border border-line bg-surface-subtle px-4 py-3 text-sm font-black text-domain-foreground">
+                      <Checkbox
+                        className="h-5 w-5 accent-cyan-400"
+                        checked={bulkOnlyIssues}
+                        onChange={(event) =>
+                          setBulkOnlyIssues(event.target.checked)
+                        }
+                      />
+                      Seulement les fiches avec problèmes
+                    </label>
+                  }
+                >
+                  <p
+                    id="form-a11y-bulk-description"
+                    className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 text-sm font-bold leading-6 text-foreground-secondary"
+                  >
+                    Génère un brouillon JSON à partir des problèmes détectés. Ce
+                    panneau ne modifie pas les fichiers: il sert à préparer des
+                    corrections groupées.
+                  </p>
+                  <textarea
+                    aria-label="Corrections groupées"
+                    aria-describedby="form-a11y-bulk-description"
+                    className={`${fieldClass} min-h-[520px] resize-y font-mono text-xs leading-6`}
+                    readOnly
+                    value={JSON.stringify(
+                      Object.fromEntries(
+                        bulkEntries.map((entry) => [
+                          entry.key,
+                          entry.suggestedPatch,
+                        ]),
+                      ),
+                      null,
+                      2,
+                    )}
+                  />
+                </Panel>
+              ) : null}
+
+              {active === "export" ? (
+                <Panel
+                  title="Export et partage"
+                  action={
+                    <button
+                      className={primaryButtonClass}
+                      type="button"
+                      onClick={() => copyToClipboard(exportPayload)}
+                    >
+                      <Copy size={17} /> Copier l’export
+                    </button>
+                  }
+                >
+                  <p
+                    id="form-a11y-export-description"
+                    className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 text-sm font-bold leading-6 text-foreground-secondary"
+                  >
+                    Exporte les fiches correspondant à la recherche globale en
+                    cours. Pratique pour partager un lot réduit ou conserver un
+                    état de contrôle.
+                  </p>
+                  <textarea
+                    aria-label="Export et partage"
+                    aria-describedby="form-a11y-export-description"
+                    className={`${fieldClass} min-h-[520px] resize-y font-mono text-xs leading-6`}
+                    readOnly
+                    value={JSON.stringify(exportPayload, null, 2)}
+                  />
+                </Panel>
+              ) : null}
+
+              {active === "todo" ? <AdminTodoPanel /> : null}
+            </div>
+          </section>
+        </div>
+
+        <SourceHistoryModal
+          open={sourceHistoryOpen}
+          history={sourceHistory}
+          onClose={() => setSourceHistoryOpen(false)}
+        />
+
+        <DataDeployHistoryModal
+          open={deployHistoryOpen}
+          history={deployHistory}
+          onClose={() => setDeployHistoryOpen(false)}
+        />
+
+        <DetailModal
+          open={Boolean(selected)}
+          entry={selected}
+          detail={detail}
+          mode="admin"
+          typeCatalog={catalog?.types}
+          weatherCatalog={catalog?.weather}
+          assetChecked={Boolean(selected && assetChecks[selected.key])}
+          onAssetChecked={setAssetChecked}
+          extraPanel={extraPanel}
+          onPrevious={() => shiftDetail(-1)}
+          onNext={() => shiftDetail(1)}
+          previousEntry={previousSelectedEntry}
+          nextEntry={nextSelectedEntry}
+          allEntries={entries}
+          onOpenRelated={openDetail}
+          onClose={() => {
+            setSelectedIndex(-1);
+            setSelectedEntry(null);
+            setDetail(null);
+            setExtraPanel(null);
+          }}
+          onCopyPatch={() => copyToClipboard(selected?.suggestedPatch || {})}
+          onAuditUrls={async () => {
+            const response = await fetch(
+              `${adminApiPath}?action=url-audit&key=${encodeURIComponent(selected.key)}`,
+            );
+            const payload = await response.json();
+            setExtraPanel(
+              <div className="space-y-3">
+                {(payload.data || []).map((item) => (
+                  <div
+                    className="rounded-2xl border border-line bg-surface-subtle p-3"
+                    key={item.url}
+                  >
+                    <strong
+                      className={item.ok ? "text-emerald-200" : "text-red-200"}
+                    >
+                      {item.ok ? "Accessible" : "Erreur"}
+                    </strong>
+                    <span className="mt-1 block break-all text-xs font-bold text-foreground-secondary">
+                      HTTP {item.status || "?"} · {item.url}
+                    </span>
+                  </div>
+                ))}
+              </div>,
+            );
+          }}
+          onAssetAudit={async () => {
+            const response = await fetch(
+              `${adminApiPath}?action=assets&dexId=${encodeURIComponent(selected.dexId)}`,
+            );
+            const payload = await response.json();
+            const groups = [
+              ["Propositions HD", payload.data?.proposals || []],
+              ["Assets liés GO", payload.data?.goAssets || []],
+              ["Shuffle", payload.data?.shuffleAssets || []],
+            ];
+            setExtraPanel(
+              <div className="space-y-4">
+                {groups.map(([label, items]) => (
+                  <section key={label}>
+                    <div className="mb-2 flex items-center justify-between">
+                      <strong className="text-domain-foreground">
+                        {label}
+                      </strong>
+                      <span className="rounded-full bg-surface-emphasis px-2 py-1 text-xs font-black text-foreground-secondary">
+                        {items.length}
+                      </span>
+                    </div>
+                    {items.length ? (
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                        {items.slice(0, 24).map((asset, index) => (
+                          <article
+                            className="overflow-hidden rounded-2xl border border-line bg-surface-inset-medium"
+                            key={`${label}-${asset.filename || asset.url}-${index}`}
+                          >
+                            <div className="grid aspect-square place-items-center p-3">
+                              <img
+                                className="max-h-full object-contain"
+                                src={asset.url}
+                                alt={asset.filename || asset.label || label}
+                              />
+                            </div>
+                            <div className="border-t border-line p-2">
+                              <strong className="block truncate text-xs text-domain-foreground">
+                                {asset.filename || asset.label}
+                              </strong>
+                              <span className="mt-1 block truncate text-xs text-muted">
+                                {asset.details ||
+                                  asset.form ||
+                                  asset.state ||
+                                  "standard"}
+                              </span>
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+                    ) : (
+                      <EmptyState title="Aucun résultat" />
+                    )}
+                  </section>
+                ))}
+              </div>,
+            );
+          }}
+        />
+      </main>
     </AdminPokemonSearchProvider>
   );
 }

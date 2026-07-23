@@ -1594,7 +1594,10 @@ export function DetailModal({
               <span className="font-mono text-xs font-black uppercase tracking-[0.22em] text-cyan-100/80 sm:text-sm">
                 N° {entry.dexId}
               </span>
-              <h2 id={dialogTitleId} className="mt-1 truncate text-3xl font-black tracking-tight text-domain-foreground sm:text-4xl">
+              <h2
+                id={dialogTitleId}
+                className="mt-1 truncate text-3xl font-black tracking-tight text-domain-foreground sm:text-4xl"
+              >
                 {entry.name}
               </h2>
               <div className="mt-2 flex flex-wrap items-center gap-2">
