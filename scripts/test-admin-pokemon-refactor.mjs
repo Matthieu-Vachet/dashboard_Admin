@@ -26,6 +26,24 @@ test("la navigation Admin Pokémon est compacte sur desktop et devient une sheet
   assert.doesNotMatch(source, /2xl:grid-cols-5/);
 });
 
+test("le burger global conserve les libellés complets sur mobile", () => {
+  const frame = read("src/components/admin/layout/admin-app-frame.tsx");
+  assert.match(frame, /renderSidebar\(collapsed\)/);
+  assert.match(frame, /renderSidebar\(false\)/);
+  assert.doesNotMatch(frame, /dashboard-sidebar-mobile[^]*\{sidebar\}/);
+});
+
+test("Costumes réhydrate les assets Identity Manager et expose tous les filtres demandés", () => {
+  const panel = read("src/components/admin/pokemon/costume-audit-panel.jsx");
+  const proxy = read("src/app/api/pokemon-admin/route.ts");
+  assert.match(panel, /identity: item\.identity/);
+  for (const field of ["event", "type", "sort", "order"]) assert.match(panel, new RegExp(`options\\.${field}`));
+  for (const sort of ["date", "event", "type", "name", "pokemonId"]) assert.match(panel, new RegExp(`value="${sort}"`));
+  assert.match(panel, /Plus ancien → plus récent/);
+  assert.match(panel, /Plus récent → plus ancien/);
+  assert.match(proxy, /"event", "type", "sort", "order"/);
+});
+
 test("Best Attackers utilise un sélecteur de types visuel et des cartes mobiles compactes", () => {
   const source = read("src/components/admin/pokemon/best-attackers-panel.jsx");
   assert.match(source, /function TypeFilter/);

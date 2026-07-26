@@ -43,10 +43,10 @@ export function AdminAppFrame({
     );
   }
 
-  const sidebar = (
+  const renderSidebar = (isCollapsed: boolean) => (
     <AdminSidebar
       brandLogo={brandLogo}
-      collapsed={collapsed}
+      collapsed={isCollapsed}
       navGroups={navGroups}
       navItems={navItems}
       openNavGroups={openNavGroups}
@@ -76,7 +76,7 @@ export function AdminAppFrame({
           collapsed ? "w-[84px]" : "w-[236px] 2xl:w-[286px]",
         )}
       >
-        {sidebar}
+        {renderSidebar(collapsed)}
       </aside>
 
       <AnimatePresence>
@@ -96,7 +96,7 @@ export function AdminAppFrame({
               transition={MOTION_TRANSITION.drawer}
               onClick={(event) => event.stopPropagation()}
             >
-              {sidebar}
+              {renderSidebar(false)}
             </motion.aside>
           </motion.div>
         ) : null}

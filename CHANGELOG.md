@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.33.2 - 2026-07-26
+
+- Réhydrate à la lecture les assets Costumes résolus depuis la création du snapshot Margxt.
+- Ajoute les filtres événement/type et les tris date, événement, type, nom et numéro Pokédex, ascendants ou descendants.
+- Sépare l’état replié du bureau du drawer mobile afin que le burger affiche à nouveau tous ses libellés.
+
 ## 1.33.1 - 2026-07-26
 
 - Contextualise les diagnostics `ma-collection` par Pokédex, forme et costume afin de ne plus fusionner des variantes distinctes partageant le même alias brut.

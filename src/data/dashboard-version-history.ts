@@ -7,6 +7,16 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.33.2",
+    date: "2026-07-26",
+    title: "Costumes réhydratés et navigation mobile restaurée",
+    changes: [
+      "Relit les alias Margxt dans l’Identity Manager à chaque consultation afin d’afficher immédiatement l’asset canonique résolu, sans attendre une régénération du dataset.",
+      "Ajoute les filtres événement et type ainsi que les tris par date, événement, type, nom et numéro Pokédex dans les deux sens.",
+      "Restaure les libellés et les groupes du menu burger mobile tout en conservant la sidebar bureau repliée par défaut.",
+    ],
+  },
+  {
     version: "V1.33.1",
     date: "2026-07-26",
     title: "Diagnostics Ma Collection contextualisés",

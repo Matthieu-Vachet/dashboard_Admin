@@ -316,7 +316,7 @@ async function readCurrentBestDefenders(request: NextRequest) {
 }
 
 async function readCurrentCostumeAudit(request: NextRequest) {
-  const query = forwardedRankedQuery(request, ["search", "status", "shiny", "page", "limit"]);
+  const query = forwardedRankedQuery(request, ["search", "status", "shiny", "event", "type", "sort", "order", "page", "limit"]);
   return readPokemonApiCurrent(
     `/api/v1/admin/costume-audit${query ? `?${query}` : ""}`,
     (data) => Array.isArray(data.items) && Boolean(data.metadata),

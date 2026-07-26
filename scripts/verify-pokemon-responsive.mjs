@@ -85,8 +85,8 @@ async function installRoutes(page) {
       { rank: 2, tier: "S", score: 62_300, scoreLabel: "62.3k", source: { name: "Leveinard", slug: "113", url: "https://example.test/113" }, pokemon: pokemon(113, "Leveinard", "NORMAL") },
       { rank: 1, tier: "A+", score: 55_800, scoreLabel: "55.8k", source: { name: "Ronflex", slug: "143", url: "https://example.test/143" }, pokemon: pokemon(143, "Ronflex", "NORMAL") },
     ] }, 3));
-    if (action === "costume-audit") return json(route, datasetEnvelope({ metadata: { total: 2, sourceUrl: "https://www.margxt.fr/guide-les-pokemon-deguises-dans-pokemon-go/", statusCounts: { present: 1, missing: 1, shinyAvailable: 2 } }, items: [
-      { id: "costume-1", source: { pokemonName: "Pikachu", costumeName: "Assistant du Professeur Willow" }, shinyAvailable: true, events: ["Ultra Bonus 2026"], notes: [], identity: { pokemonId: 25, form: "NORMAL", costume: "WILLOW", resolution: {} }, pokemonGoData: { status: "present", canonicalId: "PIKACHU_WILLOW", exactNormalAsset: artwork, exactShinyAsset: artwork } },
+    if (action === "costume-audit") return json(route, datasetEnvelope({ metadata: { total: 2, sourceUrl: "https://www.margxt.fr/guide-les-pokemon-deguises-dans-pokemon-go/", statusCounts: { present: 1, missing: 1, shinyAvailable: 2 }, availableEvents: ["Ultra Bonus 2026", "City Safari"], availableTypes: ["ELECTRIC"] }, items: [
+      { id: "costume-1", source: { pokemonName: "Pikachu", costumeName: "Assistant du Professeur Willow" }, shinyAvailable: true, events: ["Ultra Bonus 2026"], notes: [], types: ["ELECTRIC"], eventDate: "2026-07-21T00:00:00.000Z", identity: { pokemonId: 25, canonicalId: "PIKACHU_WILLOW", form: "NORMAL", costume: "WILLOW", image: artwork, shinyImage: artwork, resolutionStatus: "matched", resolution: { status: "matched" } }, pokemonGoData: { status: "present", canonicalId: "PIKACHU_WILLOW", exactNormalAsset: artwork, exactShinyAsset: artwork } },
       { id: "costume-2", source: { pokemonName: "Évoli", costumeName: "Chapeau explorateur" }, shinyAvailable: true, events: ["City Safari"], notes: [], identity: { pokemonId: 133, resolution: { reason: "ALIAS_UNKNOWN" } }, pokemonGoData: { status: "unresolved", canonicalId: null, exactNormalAsset: null, exactShinyAsset: null } },
     ] }, 2));
     if (action === "shiny") return json(route, datasetEnvelope({ rankings: shinyEntries, podium: shinyEntries.slice(0, 3), summary: { today: 381, total: 381, rare: 50 } }, shinyEntries.length));
@@ -187,6 +187,21 @@ try {
           assert.equal(sidebarWidth, 84, `${scenario.id}-${theme}-${width}: navigation initiale non repliée`);
         } else {
           assert.equal(await page.locator(".dashboard-sidebar-mobile").count(), 0, `${scenario.id}-${theme}-${width}: menu mobile ouvert initialement`);
+          if (scenario.id === "overview") {
+            await page.getByRole("button", { name: "Ouvrir le menu" }).click();
+            const mobileSidebar = page.locator(".dashboard-sidebar-mobile");
+            await mobileSidebar.waitFor({ state: "visible" });
+            assert.equal(await mobileSidebar.getByText("Accueil", { exact: true }).count(), 1, `overview-${theme}-${width}: libellé Accueil absent du burger`);
+            assert.equal(await mobileSidebar.getByText("Dashboard Admin", { exact: true }).count(), 1, `overview-${theme}-${width}: identité du menu absente`);
+            await mobileSidebar.getByRole("button", { name: "Fermer le menu" }).click();
+          }
+        }
+        if (scenario.id === "costume-audit") {
+          await page.getByRole("combobox", { name: "Filtrer par événement" }).waitFor({ state: "visible" });
+          await page.getByRole("combobox", { name: "Filtrer par type" }).selectOption("ELECTRIC");
+          await page.getByRole("combobox", { name: "Trier les costumes" }).selectOption("pokemonId");
+          await page.getByRole("combobox", { name: "Ordre du tri" }).selectOption("asc");
+          await page.locator('[data-asset-status="matched"]').first().waitFor({ state: "visible" });
         }
         if (scenario.id === "shiny" && width < 640) {
           const visualOrder = await page.locator('[aria-label="Podium Shiny"] > button').evaluateAll((buttons) => buttons
