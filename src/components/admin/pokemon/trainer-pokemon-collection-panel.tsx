@@ -9,6 +9,7 @@ import {
   ChevronDown,
   FileJson,
   History,
+  ImageOff,
   LoaderCircle,
   RefreshCcw,
   RotateCcw,
@@ -34,6 +35,7 @@ import {
   previewTrainerPokemonImport,
   readTrainerPokemonCollection,
   readTrainerPokemonImports,
+  refreshTrainerPokemonIdentityResolution,
   rollbackTrainerPokemonImport,
 } from "@/services/admin/trainer-pokemon-api";
 import type {
@@ -47,7 +49,6 @@ import type {
 
 const numberFormatter = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
 const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" });
-const placeholderImage = "/ui/icons/pokemon.png";
 const selectClass = "min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-bold text-foreground outline-none focus:border-brand-2/55";
 
 type QueryState = {
@@ -140,14 +141,7 @@ function PokemonImage({ pokemon }: { pokemon: TrainerPokemon }) {
   }).image;
   return (
     <span className="grid h-[4.5rem] w-[4.5rem] shrink-0 place-items-center overflow-hidden rounded-lg border border-line bg-white/[0.05] p-1.5 lg:h-20 lg:w-20">
-      <Image
-        className={resolvedImage ? "h-full w-full object-contain" : "h-8 w-8 object-contain opacity-45"}
-        src={resolvedImage || placeholderImage}
-        alt={resolvedImage ? `${pokemon.frenchName}${pokemon.shiny ? " chromatique" : ""}` : `Image indisponible pour ${pokemon.frenchName}`}
-        width={80}
-        height={80}
-        unoptimized={!resolvedImage}
-      />
+      {resolvedImage ? <Image className="h-full w-full object-contain" src={resolvedImage} alt={`${pokemon.frenchName}${pokemon.shiny ? " chromatique" : ""}`} width={80} height={80} unoptimized /> : <span className="grid place-items-center gap-1 text-center text-[9px] font-black uppercase text-amber-200"><ImageOff size={20} />Asset exact absent</span>}
     </span>
   );
 }
@@ -158,7 +152,8 @@ function StatusBadges({ pokemon }: { pokemon: TrainerPokemon }) {
       {pokemon.shiny ? <Badge tone="amber">Chromatique</Badge> : null}
       {pokemon.lucky ? <Badge tone="green">Chanceux</Badge> : null}
       <Badge tone={pokemon.alignment === "SHADOW" ? "red" : pokemon.alignment === "PURIFIED" ? "cyan" : "neutral"}>{alignmentLabels[pokemon.alignment]}</Badge>
-      {pokemon.imageMatch !== "exact" ? <Badge tone={pokemon.imageMatch === "missing" ? "red" : "neutral"}>{pokemon.imageMatch === "missing" ? "Asset indisponible" : `Fallback ${pokemon.imageMatch}`}</Badge> : null}
+      {pokemon.imageMatch !== "exact" ? <Badge tone="red">Asset exact indisponible</Badge> : null}
+      {pokemon.identityProvider ? <Badge tone={pokemon.identityStatus === "matched" ? "green" : "amber"}>Identity Manager · {pokemon.identityStatus}</Badge> : null}
     </span>
   );
 }
@@ -257,6 +252,7 @@ export function TrainerPokemonCollectionPanel() {
   const [data, setData] = useState<TrainerPokemonListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [resolving, setResolving] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [importPhase, setImportPhase] = useState<"idle" | "parsing" | "previewing" | "ready" | "importing" | "success" | "error">("idle");
@@ -343,6 +339,27 @@ export function TrainerPokemonCollectionPanel() {
     try { await rollbackTrainerPokemonImport(snapshot.id); toast.success("Snapshot restauré."); setHistory((await readTrainerPokemonImports()).imports); await load(true); } catch (error) { toast.error(errorText(error)); } finally { setRollbackId(""); }
   }
 
+  async function refreshIdentityResolution() {
+    setResolving(true);
+    try {
+      const result = await refreshTrainerPokemonIdentityResolution();
+      toast.success(`${result.resolved.toLocaleString("fr-FR")} identités résolues · ${result.unresolved.toLocaleString("fr-FR")} à examiner.`);
+      await load(true);
+    } catch (error) { toast.error(errorText(error)); }
+    finally { setResolving(false); }
+  }
+
+  const identityDiagnosticGroups = useMemo(() => {
+    const groups = new Map<string, { provider: string; rawAlias: string; reason: string; occurrences: number }>();
+    for (const diagnostic of data?.snapshot?.diagnostics.samples || []) {
+      if (!diagnostic.provider || !diagnostic.rawAlias) continue;
+      const key = `${diagnostic.provider}|${diagnostic.rawAlias}|${diagnostic.reason || diagnostic.code}`;
+      const current = groups.get(key);
+      groups.set(key, { provider: diagnostic.provider, rawAlias: diagnostic.rawAlias, reason: diagnostic.reason || diagnostic.code, occurrences: Number(current?.occurrences || 0) + Number(diagnostic.occurrences || 1) });
+    }
+    return [...groups.values()].sort((left, right) => right.occurrences - left.occurrences);
+  }, [data?.snapshot?.diagnostics.samples]);
+
   const statCards = useMemo(() => data ? [
     ["Total", data.stats.total, "neutral"], ["Chromatiques", data.stats.shiny, "amber"], ["Chanceux", data.stats.lucky, "green"],
     ["IV 100 %", data.stats.perfect, "violet"], ["Obscurs", data.stats.shadow, "red"], ["Purifiés", data.stats.purified, "cyan"], ["Costumes", data.stats.costume, "violet"],
@@ -359,10 +376,12 @@ export function TrainerPokemonCollectionPanel() {
       <Card tone="strong" className="p-4 sm:p-5">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div><p className="text-xs font-black uppercase tracking-[0.2em] text-brand-2">Collection privée · MongoDB</p><h2 className="mt-1 text-2xl font-black sm:text-3xl" id="trainer-pokemon-title">Ma collection Pokémon GO</h2><p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-muted">Import atomique, consultation paginée et diagnostics des correspondances avec les référentiels canoniques.</p></div>
-          <div className="flex flex-wrap gap-2"><Button icon={<History size={16} />} loading={historyLoading} loadingText="Historique…" onClick={() => void openHistory()}>Historique</Button><Button icon={<RefreshCcw size={16} />} loading={refreshing} loadingText="Actualisation…" onClick={() => void load(true)}>Rafraîchir</Button><Button variant="primary" icon={<Upload size={16} />} onClick={() => { setImportOpen(true); setImportPhase("idle"); setImportError(null); setImportFileName(""); }}>Importer un JSON</Button></div>
+          <div className="flex flex-wrap gap-2"><Button icon={<History size={16} />} loading={historyLoading} loadingText="Historique…" onClick={() => void openHistory()}>Historique</Button><Button icon={<RefreshCcw size={16} />} loading={refreshing} loadingText="Actualisation…" onClick={() => void load(true)}>Rafraîchir</Button><Button icon={<RotateCcw size={16} />} loading={resolving} loadingText="Résolution…" onClick={() => void refreshIdentityResolution()}>Re-résoudre les identités</Button><Button variant="primary" icon={<Upload size={16} />} onClick={() => { setImportOpen(true); setImportPhase("idle"); setImportError(null); setImportFileName(""); }}>Importer un JSON</Button></div>
         </div>
         {data?.snapshot ? <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 rounded-lg border border-line bg-surface-minimal p-3 text-xs font-semibold text-muted"><span><strong className="text-foreground">Fichier :</strong> {data.snapshot.sourceFileName}</span><span><strong className="text-foreground">Dernier import :</strong> {dateFormatter.format(new Date(data.snapshot.importedAt))}</span><span><strong className="text-foreground">Export :</strong> {data.snapshot.sourceExportTime || "Non renseigné"}</span><span><strong className="text-foreground">Checksum :</strong> <code>{data.snapshot.checksum.slice(0, 12)}</code></span></div> : null}
       </Card>
+
+      {identityDiagnosticGroups.length ? <Card className="min-w-0 p-4"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-black uppercase tracking-[0.18em] text-amber-200">Diagnostics Identity Manager</p><h3 className="mt-1 text-lg font-black">Alias collection à corriger</h3><p className="mt-1 text-sm font-semibold text-muted">Groupés par provider, alias brut et raison. Une association dans l’Identity Manager peut ensuite être rejouée sans réimport.</p></div><Button size="sm" asChild><a href="?section=identity-manager">Ouvrir l’Identity Manager</a></Button></div><div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{identityDiagnosticGroups.slice(0, 12).map((group) => <div className="min-w-0 rounded-lg border border-warning/25 bg-warning/[0.07] p-3" key={`${group.provider}-${group.rawAlias}-${group.reason}`}><div className="flex items-center justify-between gap-2"><Badge tone="amber">{group.provider}</Badge><strong className="font-mono text-sm text-amber-100">× {group.occurrences}</strong></div><code className="mt-2 block truncate text-xs text-foreground" title={group.rawAlias}>{group.rawAlias}</code><span className="mt-1 block text-[10px] font-bold uppercase tracking-wider text-muted">{group.reason}</span></div>)}</div></Card> : null}
 
       {statCards.length ? <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-7">{statCards.map(([label, value, tone]) => <Card className="p-3" key={label}><span className="block text-[10px] font-black uppercase tracking-wider text-muted">{label}</span><strong className="mt-1 block font-mono text-2xl">{value.toLocaleString("fr-FR")}</strong><Badge tone={tone} className="mt-2">collection active</Badge></Card>)}</div> : null}
 

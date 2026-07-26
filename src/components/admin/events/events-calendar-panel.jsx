@@ -1360,7 +1360,7 @@ function EventDetailModal({ event, busyAction, onClose, onEdit, onDuplicate, onA
       <div className="event-detail-overlay fixed inset-0 z-[1200] grid place-items-center overflow-y-auto bg-slate-950/84 p-3 backdrop-blur-xl sm:p-5" onClick={onClose}>
       <article className="event-detail-modal flex max-h-[94dvh] w-full max-w-6xl flex-col overflow-hidden rounded-[2rem] border border-line bg-[#07111f] shadow-[0_30px_120px_rgba(0,0,0,.58)]" role="dialog" aria-modal="true" aria-labelledby={eventDetailTitleId} onClick={(clickEvent) => clickEvent.stopPropagation()}>
         <header
-          className="relative shrink-0 overflow-hidden rounded-t-[2rem] border-b border-cyan-200/20 p-5 sm:p-7"
+          className="relative shrink-0 overflow-hidden rounded-t-[2rem] border-b border-cyan-200/20 p-4 sm:p-7"
           style={{
             backgroundImage: `linear-gradient(135deg, ${hexToRgba(type.color, 0.24)}, rgba(2,6,23,.90)), url("/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png")`,
             backgroundSize: "cover",
@@ -1368,13 +1368,13 @@ function EventDetailModal({ event, busyAction, onClose, onEdit, onDuplicate, onA
           }}
         >
           <div className="absolute inset-0 bg-surface-inset-strong" />
-          <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="relative pr-12 sm:pr-14">
             <div className="min-w-0">
               <span className="inline-flex items-center gap-2 rounded-full border border-line bg-slate-950/55 px-3 py-1 text-xs font-black text-cyan-50">
                 {type.icon ? <img className="h-5 w-5 object-contain" src={type.icon} alt="" /> : null}
                 {event.category || type.label}
               </span>
-              <h2 id={eventDetailTitleId} className="mt-3 max-w-4xl text-3xl font-black leading-tight tracking-tight text-domain-foreground sm:text-5xl">{event.title}</h2>
+              <h2 id={eventDetailTitleId} className="mt-3 max-w-4xl text-2xl font-black leading-tight tracking-tight text-domain-foreground sm:text-5xl">{event.title}</h2>
               <p className="mt-3 text-sm font-bold text-foreground sm:text-base">{dateRangeLabel(event)}</p>
               <p className="mt-1 text-sm font-black italic text-emerald-200">{eventRemainingLabel(event)}</p>
               <div className="mt-4 flex flex-wrap gap-2">
@@ -1383,7 +1383,7 @@ function EventDetailModal({ event, busyAction, onClose, onEdit, onDuplicate, onA
                 <EventBadge label="Source" value={event.source || "manual"} tone="source" />
               </div>
             </div>
-            <button className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-line bg-surface-emphasis text-domain-foreground hover:bg-white/20" type="button" onClick={onClose} aria-label="Fermer le détail de l’event">
+            <button className="absolute right-0 top-0 grid h-10 w-10 place-items-center rounded-full border border-line bg-surface-emphasis text-domain-foreground hover:bg-white/20 sm:h-12 sm:w-12" type="button" onClick={onClose} aria-label="Fermer le détail de l’event">
               <X size={22} />
             </button>
           </div>

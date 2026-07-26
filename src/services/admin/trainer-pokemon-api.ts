@@ -54,3 +54,8 @@ export async function rollbackTrainerPokemonImport(snapshotId: string) {
   const response = await fetch(`${trainerPokemonApiPath}/imports/${encodeURIComponent(snapshotId)}/rollback`, { method: "POST" });
   return readPayload<{ snapshotId: string; restored: number; activatedAt: string }>(response);
 }
+
+export async function refreshTrainerPokemonIdentityResolution() {
+  const response = await fetch(`${trainerPokemonApiPath}/resolve`, { method: "POST" });
+  return readPayload<{ total: number; resolved: number; unresolved: number; diagnosticCounts: Record<string, number> }>(response);
+}

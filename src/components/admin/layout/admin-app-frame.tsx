@@ -21,7 +21,7 @@ export function AdminAppFrame({
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [versionHistoryOpen, setVersionHistoryOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const [openNavGroups, setOpenNavGroups] = usePersistentState(
     "matweb.dashboard.sidebarGroups",
     navGroups.map((group) => group.id),

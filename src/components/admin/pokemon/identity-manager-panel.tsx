@@ -134,6 +134,18 @@ type ListMeta = {
   };
 };
 
+type ManagedProvider = {
+  id: string;
+  label: string;
+  domains: string[];
+  visibility: string;
+  status: string;
+  aliases: number;
+  activeAliases: number;
+  openDiagnostics: number;
+  occurrences: number;
+};
+
 type ImportReport = {
   mode: "preview" | "apply";
   total: number;
@@ -366,6 +378,7 @@ export function IdentityManagerPanel() {
   const [diagnostics, setDiagnostics] = useState<IdentityDiagnostic[]>([]);
   const [diagnosticMeta, setDiagnosticMeta] = useState<ListMeta>({ page: 1, limit: 24, total: 0, pages: 1 });
   const [conflicts, setConflicts] = useState<{ aliasConflicts?: unknown[]; explicitConflicts?: number; incomplete?: number }>({});
+  const [managedProviders, setManagedProviders] = useState<ManagedProvider[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyAction, setBusyAction] = useState("");
   const busy = Boolean(busyAction);
@@ -391,7 +404,9 @@ export function IdentityManagerPanel() {
   const [syncReport, setSyncReport] = useState<IdentitySyncReport | null>(null);
   const effectiveIdentitySearch = combineWith(filters.search);
 
-  const providers = useMemo(() => meta.stats?.providers || [], [meta.stats?.providers]);
+  const providers = useMemo(() => managedProviders.length
+    ? managedProviders.map((provider) => ({ provider: provider.id, count: provider.aliases, label: provider.label }))
+    : meta.stats?.providers || [], [managedProviders, meta.stats?.providers]);
   const aliasProviderOptions = useMemo(() => {
     const names = new Set(
       providers
@@ -428,14 +443,16 @@ export function IdentityManagerPanel() {
     setLoading(true);
     setError("");
     try {
-      const [identityUpstream, conflictUpstream] = await Promise.all([
+      const [identityUpstream, conflictUpstream, providerUpstream] = await Promise.all([
         apiGet("identity-manager", { ...filters, search: effectiveIdentitySearch, limit: 24 }),
         apiGet("identity-manager-conflicts"),
+        apiGet("identity-manager-providers"),
       ]);
       const result = unwrapList<PokemonIdentity>(identityUpstream);
       setIdentities(result.items);
       setMeta(result.meta);
       setConflicts(conflictUpstream?.data || {});
+      setManagedProviders(providerUpstream?.data || []);
       if (notify) toast.success("Catalogue d’identités actualisé.");
     } catch (caught) {
       const message = caught instanceof Error ? caught.message : "Identity Manager indisponible.";
@@ -746,6 +763,16 @@ export function IdentityManagerPanel() {
           <Stat label="Conflits" value={conflictCount} tone="red" onClick={() => { setView("identities"); updateFilter("conflict", true); }} />
           <Stat label="Sans Game Master" value={Number(conflicts.incomplete || 0)} tone="amber" onClick={() => { setView("identities"); updateFilter("withoutGameMaster", true); }} />
         </div>
+        {managedProviders.length ? (
+          <div className="mt-3 flex gap-2 overflow-x-auto pb-1" aria-label="Providers gérés par l’Identity Manager">
+            {managedProviders.map((provider) => (
+              <button className="min-w-[12rem] rounded-xl border border-line bg-surface-faint p-3 text-left transition hover:border-cyan-200/35" type="button" key={provider.id} onClick={() => { setView("identities"); updateFilter("provider", provider.id); }}>
+                <span className="block truncate text-xs font-black text-domain-foreground">{provider.label}</span>
+                <span className="mt-1 block text-[10px] font-bold text-muted">{provider.activeAliases} alias actifs · {provider.openDiagnostics} diagnostics</span>
+              </button>
+            ))}
+          </div>
+        ) : null}
         {syncReport ? (
           <button type="button" className={cn("mt-3 flex w-full flex-wrap items-center gap-2 rounded-xl border p-3 text-left text-sm font-bold transition hover:brightness-110", syncReport.conflict ? "border-danger/35 bg-danger/10 text-rose-100" : syncReport.create || syncReport.update || syncReport.orphan ? "border-warning/35 bg-warning/10 text-amber-100" : "border-brand-3/30 bg-brand-3/10 text-emerald-100")} onClick={() => setSyncModalOpen(true)}>
             <Database size={17} />
@@ -771,7 +798,7 @@ export function IdentityManagerPanel() {
             </label>
             <Select className={inputClass} aria-label="Provider" value={filters.provider} onChange={(event) => updateFilter("provider", event.target.value)}>
               <option value="">Tous les providers</option>
-              {providers.map((provider) => <option key={provider.provider} value={provider.provider}>{provider.provider} ({provider.count})</option>)}
+              {providers.map((provider) => <option key={provider.provider} value={provider.provider}>{"label" in provider && typeof provider.label === "string" ? provider.label : provider.provider} ({provider.count})</option>)}
             </Select>
             <Select className={inputClass} aria-label="Statut" value={filters.status} onChange={(event) => updateFilter("status", event.target.value)}>
               <option value="">Tous les statuts</option>

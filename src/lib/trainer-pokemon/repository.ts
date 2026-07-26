@@ -3,8 +3,10 @@ import { executeAtomicSnapshotImport, executeAtomicSnapshotRollback, trainerPoke
 import { enrichTrainerPokemonEntries, normalizeTrainerPokemonImport, normalizeSearchValue, emptyTrainerPokemonStats } from "@/lib/trainer-pokemon/normalize";
 import { fetchTrainerPokemonReferences, type TrainerPokemonReferences } from "@/lib/trainer-pokemon/references";
 import { validateTrainerPokemonImport } from "@/lib/trainer-pokemon/schema";
+import { resolveTrainerPokemonIdentities } from "@/lib/trainer-pokemon/identity-manager";
 import type {
   TrainerPokemon,
+  TrainerPokemonDiagnostic,
   TrainerPokemonListResponse,
   TrainerPokemonSnapshotSummary,
   TrainerPokemonSortField,
@@ -145,21 +147,52 @@ function snapshotSummary(document: SnapshotDocument, activeId?: ObjectId | null)
     importedBy: document.importedBy,
     checksum: document.checksum,
     status: activeId?.equals(document._id) ? "active" : document.status,
-    diagnostics: document.diagnostics,
+    diagnostics: { ...document.diagnostics, counts: document.diagnosticCounts, samples: document.diagnosticSamples as TrainerPokemonSnapshotSummary["diagnostics"]["samples"] },
     stats: document.stats,
     canRollback: document.status !== "failed" && !activeId?.equals(document._id),
   };
 }
 
-export async function prepareTrainerPokemonImport(raw: unknown, references?: TrainerPokemonReferences) {
+export async function prepareTrainerPokemonImport(raw: unknown, references?: TrainerPokemonReferences, options: { persistIdentityDiagnostics?: boolean } = {}) {
   const file = validateTrainerPokemonImport(raw);
   const canonical = references || await fetchTrainerPokemonReferences();
-  return normalizeTrainerPokemonImport(file, canonical);
+  const normalized = normalizeTrainerPokemonImport(file, canonical);
+  try {
+    const identity = await resolveTrainerPokemonIdentities(normalized.entries, { persistDiagnostics: options.persistIdentityDiagnostics === true });
+    const diagnosticCounts = { ...normalized.preview.diagnosticCounts };
+    for (const diagnostic of identity.diagnostics) diagnosticCounts[diagnostic.code] = (diagnosticCounts[diagnostic.code] || 0) + 1;
+    return {
+      entries: identity.entries,
+      preview: {
+        ...normalized.preview,
+        diagnostics: [...normalized.preview.diagnostics, ...identity.diagnostics].slice(0, 2_000),
+        diagnosticCounts,
+      },
+    };
+  } catch (error) {
+    const diagnostic: TrainerPokemonDiagnostic = {
+      code: "IDENTITY_MANAGER_UNAVAILABLE",
+      path: "$.fileData",
+      provider: "ma-collection",
+      rawAlias: "collection-active",
+      reason: "provider-unavailable",
+      occurrences: normalized.entries.length,
+      message: `Identity Manager indisponible : ${error instanceof Error ? error.message : "erreur inconnue"}. L’import local reste possible sans inventer d’asset.`,
+    };
+    return {
+      entries: normalized.entries,
+      preview: {
+        ...normalized.preview,
+        diagnostics: [...normalized.preview.diagnostics, diagnostic].slice(0, 2_000),
+        diagnosticCounts: { ...normalized.preview.diagnosticCounts, IDENTITY_MANAGER_UNAVAILABLE: normalized.entries.length },
+      },
+    };
+  }
 }
 
 export async function importTrainerPokemon(owner: string, raw: unknown, references?: TrainerPokemonReferences) {
   const canonical = references || await fetchTrainerPokemonReferences();
-  const { entries: normalizedEntries, preview } = await prepareTrainerPokemonImport(raw, canonical);
+  const { entries: normalizedEntries, preview } = await prepareTrainerPokemonImport(raw, canonical, { persistIdentityDiagnostics: true });
   const db = await getDb();
   const now = new Date();
   const idsChecksum = trainerPokemonEntryChecksum(normalizedEntries);
@@ -334,6 +367,53 @@ export async function readTrainerPokemonImports(owner: string) {
     snapshots(db).find({ owner }).sort({ importedAt: -1 }).limit(50).toArray(),
   ]);
   return documents.map((document) => snapshotSummary(document, ownerDocument?.activeSnapshotId));
+}
+
+export async function refreshTrainerPokemonIdentityResolution(owner: string) {
+  const db = await getDb();
+  const ownerDocument = await owners(db).findOne({ owner });
+  if (!ownerDocument?.activeSnapshotId) throw repositoryError("Aucune collection active à résoudre.", 404, "TRAINER_POKEMON_ACTIVE_SNAPSHOT_MISSING");
+  const documents = await entries(db).find({ owner, snapshotId: ownerDocument.activeSnapshotId }, { projection: { owner: 0, snapshotId: 0 } }).toArray() as TrainerPokemon[];
+  const resolved = await resolveTrainerPokemonIdentities(documents, { persistDiagnostics: true });
+  for (let index = 0; index < resolved.entries.length; index += 500) {
+    const operations = resolved.entries.slice(index, index + 500).map((entry) => ({
+      updateOne: {
+        filter: { owner, snapshotId: ownerDocument.activeSnapshotId, sourceId: entry.sourceId },
+        update: { $set: {
+          identityProvider: entry.identityProvider,
+          rawAlias: entry.rawAlias,
+          canonicalId: entry.canonicalId,
+          identityId: entry.identityId,
+          identityStatus: entry.identityStatus,
+          identityReason: entry.identityReason,
+          identityConfidence: entry.identityConfidence,
+          image: entry.image,
+          imageMatch: entry.imageMatch,
+          matchedForm: entry.matchedForm,
+          matchedCostume: entry.matchedCostume,
+          matchedSource: entry.matchedSource,
+          resolutionStatus: entry.resolutionStatus,
+        } },
+      },
+    }));
+    if (operations.length) await entries(db).bulkWrite(operations, { ordered: false });
+  }
+  const identityCodes = new Set(["IDENTITY_UNMATCHED", "IDENTITY_AMBIGUOUS", "CANONICAL_ASSET_MISSING", "IDENTITY_MANAGER_UNAVAILABLE"]);
+  const snapshot = await snapshots(db).findOne({ _id: ownerDocument.activeSnapshotId, owner });
+  const diagnosticCounts = Object.fromEntries(Object.entries(snapshot?.diagnosticCounts || {}).filter(([code]) => !identityCodes.has(code)));
+  for (const diagnostic of resolved.diagnostics) diagnosticCounts[diagnostic.code] = Number(diagnosticCounts[diagnostic.code] || 0) + 1;
+  const samples = [
+    ...((snapshot?.diagnosticSamples || []) as TrainerPokemonDiagnostic[]).filter((diagnostic) => !identityCodes.has(diagnostic.code)),
+    ...resolved.diagnostics,
+  ].slice(0, 2_000);
+  await snapshots(db).updateOne({ _id: ownerDocument.activeSnapshotId, owner }, { $set: {
+    diagnosticCounts,
+    diagnosticSamples: samples,
+    diagnostics: { warnings: Object.values(diagnosticCounts).reduce((sum, count) => sum + Number(count || 0), 0), errors: 0 },
+    "references.identityResolvedAt": new Date().toISOString(),
+    "references.identityProvider": "ma-collection",
+  } });
+  return { total: resolved.entries.length, resolved: resolved.entries.length - resolved.diagnostics.length, unresolved: resolved.diagnostics.length, diagnosticCounts };
 }
 
 export async function rollbackTrainerPokemon(owner: string, snapshotIdValue: string) {

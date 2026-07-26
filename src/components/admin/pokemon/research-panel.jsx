@@ -212,6 +212,11 @@ function RewardCard({ entry, items }) {
 
 function ResearchTask({ task, items, sectionId }) {
   const rewards = rewardsOf(task);
+  const categoryLabel = task.categoryTitle || task.category || "Research";
+  const normalizedCategoryLabel = textKey(categoryLabel);
+  const eventLabel = task.event?.name && textKey(task.event.name) !== normalizedCategoryLabel
+    ? task.event.name
+    : null;
   const firstReward = rewards[0];
   const summaryReward =
     firstReward?.rewardType === "pokemon"
@@ -223,8 +228,8 @@ function ResearchTask({ task, items, sectionId }) {
       <summary className="grid cursor-pointer list-none gap-3 p-4 marker:hidden sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
         <span className="min-w-0">
           <span className="mb-2 flex flex-wrap items-center gap-2">
-            <Badge tone={taskCategoryTones[sectionId] || undefined}>{task.categoryTitle || task.category || "Research"}</Badge>
-            {task.event?.name ? <Badge tone="border-orange-200/25 bg-orange-400/14 text-orange-50">{task.event.name}</Badge> : null}
+            <Badge tone={taskCategoryTones[sectionId] || undefined}>{categoryLabel}</Badge>
+            {eventLabel ? <Badge tone="border-orange-200/25 bg-orange-400/14 text-orange-50">{eventLabel}</Badge> : null}
             {rewards.length > 1 ? <Badge tone="border-cyan-200/25 bg-cyan-400/14 text-cyan-50">{rewards.length} rewards</Badge> : null}
           </span>
           <strong className="block text-base font-black leading-snug text-domain-foreground">{task.task}</strong>

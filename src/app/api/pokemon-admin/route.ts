@@ -75,7 +75,7 @@ async function readPokemonApiCurrent(
   try {
     const target = new URL(path, pokemonApiBaseUrl);
     const headers: Record<string, string> = { accept: "application/json" };
-    if (target.pathname.startsWith("/api/v1/shiny") || target.pathname.startsWith("/api/v1/pokemon-identity-mappings")) {
+    if (target.pathname.startsWith("/api/v1/admin/") || target.pathname.startsWith("/api/v1/shiny") || target.pathname.startsWith("/api/v1/pokemon-identity-mappings")) {
       const secret = process.env.POKEMON_API_ADMIN_SECRET || process.env.API_ADMIN_SECRET;
       if (!secret) throw requestError("POKEMON_API_ADMIN_SECRET est requis pour le Shiny Tracker prive.", 500);
       headers["x-api-admin-secret"] = secret;
@@ -306,6 +306,24 @@ async function readCurrentBestAttackers(request: NextRequest) {
   );
 }
 
+async function readCurrentBestDefenders(request: NextRequest) {
+  const query = forwardedRankedQuery(request, ["tier", "type", "search", "page", "limit"]);
+  return readPokemonApiCurrent(
+    `/api/v1/best-defenders${query ? `?${query}` : ""}`,
+    (data) => Array.isArray(data.rankings) && Array.isArray(data.tiers),
+    (data, meta, current) => ({ data, meta: normalizeCurrentMeta(meta), current }),
+  );
+}
+
+async function readCurrentCostumeAudit(request: NextRequest) {
+  const query = forwardedRankedQuery(request, ["search", "status", "shiny", "page", "limit"]);
+  return readPokemonApiCurrent(
+    `/api/v1/admin/costume-audit${query ? `?${query}` : ""}`,
+    (data) => Array.isArray(data.items) && Boolean(data.metadata),
+    (data, meta, current) => ({ data, meta: normalizeCurrentMeta(meta), current }),
+  );
+}
+
 async function readCurrentPokemonIdentityMappings(request: NextRequest) {
   const query = forwardedRankedQuery(request, ["status", "search", "page", "limit", "full"]);
   return readPokemonApiCurrent(
@@ -330,7 +348,7 @@ async function readShinyHistory(request: NextRequest) {
 
 async function readDatasetHistory(request: NextRequest) {
   const domain = String(request.nextUrl.searchParams.get("domain") || "");
-  const allowed = new Set(["raids", "eggs", "max-battles", "rocket", "research", "shiny", "pvp-rankings", "best-attackers", "pokemon-identity-mappings"]);
+  const allowed = new Set(["raids", "eggs", "max-battles", "rocket", "research", "shiny", "pvp-rankings", "best-attackers", "best-defenders", "costume-audit", "pokemon-identity-mappings"]);
   if (!allowed.has(domain)) throw requestError("Domaine d'historique invalide.", 400);
   const query = forwardedRankedQuery(request, ["page", "limit", "status"]);
   return readPokemonApiAdmin(`/api/v1/${domain}/history${query ? `?${query}` : ""}`);
@@ -783,6 +801,14 @@ export async function GET(request: NextRequest) {
       return json({ data: await readCurrentBestAttackers(request) });
     }
 
+    if (action === "best-defenders") {
+      return json({ data: await readCurrentBestDefenders(request) });
+    }
+
+    if (action === "costume-audit") {
+      return json({ data: await readCurrentCostumeAudit(request) });
+    }
+
     if (action === "pokemon-identity-mappings") {
       return json({ data: await readCurrentPokemonIdentityMappings(request) });
     }
@@ -813,6 +839,10 @@ export async function GET(request: NextRequest) {
     if (action === "identity-manager-diagnostics") {
       const query = identityManagerQuery(request);
       return json({ data: await readPokemonApiAdmin(`/api/v1/admin/pokemon-identities/diagnostics${query ? `?${query}` : ""}`, session!.email) });
+    }
+
+    if (action === "identity-manager-providers") {
+      return json({ data: await readPokemonApiAdmin("/api/v1/admin/pokemon-identities/providers", session!.email) });
     }
 
     if (action === "identity-manager-export") {
@@ -1060,6 +1090,14 @@ export async function POST(request: NextRequest) {
 
     if (action === "regenerate-best-attackers") {
       return json({ data: await callPokemonApiAdmin("/api/v1/admin/best-attackers/regenerate") });
+    }
+
+    if (action === "regenerate-best-defenders") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/best-defenders/regenerate") });
+    }
+
+    if (action === "regenerate-costume-audit") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/costume-audit/regenerate") });
     }
 
     if (action === "regenerate-pokemon-identity-mappings") {

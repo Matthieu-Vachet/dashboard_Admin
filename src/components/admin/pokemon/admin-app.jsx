@@ -143,6 +143,9 @@ const GameMasterExplorerPanel = dynamic(
   },
 );
 
+const BestDefendersPanel = dynamic(() => import("./best-defenders-panel").then((module) => module.BestDefendersPanel));
+const CostumeAuditPanel = dynamic(() => import("./costume-audit-panel").then((module) => module.CostumeAuditPanel));
+
 const filtersAssetBase =
   "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers/Filters";
 const pokemonAssetBase =
@@ -222,6 +225,8 @@ const navItems = [
     icon: Swords,
     group: "combat",
   },
+  { id: "best-defenders", label: "Best Defenders", icon: ShieldCheck, group: "combat" },
+  { id: "costume-audit", label: "Costumes / Event", icon: Sparkles, group: "events" },
   {
     id: "eggs",
     label: "Œufs",
@@ -3025,6 +3030,10 @@ export function AdminApp() {
                   onOpenPokemon={openPokemonReference}
                 />
               ) : null}
+
+              {active === "best-defenders" ? <BestDefendersPanel onOpenPokemon={openPokemonReference} globalSearch={search} onSearchChange={updateGlobalSearch} /> : null}
+
+              {active === "costume-audit" ? <CostumeAuditPanel globalSearch={search} onSearchChange={updateGlobalSearch} /> : null}
 
               {active === "pokemon-identity-mappings" ? (
                 <PokemonIdentityMappingsPanel

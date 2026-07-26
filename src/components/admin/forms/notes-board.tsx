@@ -169,8 +169,8 @@ export function NotesBoard() {
   }
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[390px_1fr]">
-      <Card className="p-4">
+    <div className="grid w-full min-w-0 gap-4 xl:grid-cols-[390px_minmax(0,1fr)]">
+      <Card className="min-w-0 p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">
@@ -264,10 +264,10 @@ export function NotesBoard() {
         </div>
       </Card>
 
-      <Card tone="strong" className="p-4 sm:p-5">
+      <Card tone="strong" className="min-w-0 overflow-hidden p-4 sm:p-5">
         {selectedNote ? (
-          <div className="grid gap-5 xl:grid-cols-[1fr_280px]">
-            <div className="space-y-4">
+          <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
+            <div className="min-w-0 space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <Badge tone={categoryTone[selectedNote.category]}>{selectedNote.category}</Badge>
                 <Button
@@ -296,7 +296,7 @@ export function NotesBoard() {
               </Field>
             </div>
 
-            <aside className="space-y-4">
+            <aside className="min-w-0 space-y-4">
               <Card tone="flat" className="p-3">
                 <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">
                   Métadonnées

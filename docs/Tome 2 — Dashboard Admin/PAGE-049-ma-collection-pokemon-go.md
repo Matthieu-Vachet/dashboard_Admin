@@ -1,13 +1,13 @@
 ---
 id: PAGE-049
 title: Ma collection Pokémon GO
-version: 1.2.0
+version: 1.3.0
 status: Active
 last_updated: 2026-07-15
 owner: Matthieu Vachet
 category: Page privée
 projects: [Dashboard Admin]
-references: [COMP-137, DATASET-020, API-157, API-158, API-159, API-160, WORKFLOW-016, RULE-047]
+references: [COMP-137, DATASET-020, API-157, API-158, API-159, API-160, API-181, WORKFLOW-016, RULE-045]
 ---
 
 # PAGE-049 — Ma collection Pokémon GO
@@ -34,4 +34,6 @@ Vérifié à 375×812, 390×844, 430×932, 768×1024, 1440×900 et 1920×1080 sa
 
 ## Résolution des assets
 
-`assetsRef` hydrate maintenant le bloc d’assets complet, y compris HOME et portraits. Une fiche normale recherche GO principal, référence normale exacte, HOME, portrait puis placeholder ; le shiny suit le même ordre avec les champs shiny. La disponibilité en jeu n’intervient pas. Une variante explicite exige toujours son asset exact et ne peut jamais utiliser l’image normale. Aucun import MongoDB réel n'a été déclenché pendant la livraison.
+Chaque entrée envoie le provider `ma-collection`, son alias brut, son Pokédex, sa forme, son costume, son genre et son état shiny à l’Identity Manager. Le résultat conserve `identityId`, `canonicalId`, confiance, cause et asset exact. Les échecs sont regroupés dans `pokemon_identity_diagnostics` avec leur nombre d’occurrences et restent affichés sans image de remplacement.
+
+L’action « Re-résoudre les identités » rejoue le snapshot actif après la création ou la correction d’un alias, sans réimporter ni supprimer la collection. Une variante explicite ne peut jamais utiliser NORMAL, HOME, un premier costume ou une URL fabriquée comme fallback.

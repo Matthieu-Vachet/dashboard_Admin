@@ -8,13 +8,21 @@ export type TrainerPokemonDiagnosticCode =
   | "PARTIAL_FORM_MATCH"
   | "ASSET_FALLBACK"
   | "UNKNOWN_MOVE"
-  | "MISSING_ASSET";
+  | "MISSING_ASSET"
+  | "IDENTITY_UNMATCHED"
+  | "IDENTITY_AMBIGUOUS"
+  | "CANONICAL_ASSET_MISSING"
+  | "IDENTITY_MANAGER_UNAVAILABLE";
 
 export type TrainerPokemonDiagnostic = {
   code: TrainerPokemonDiagnosticCode;
   path: string;
   message: string;
   sourceId?: string;
+  provider?: string;
+  rawAlias?: string;
+  reason?: string;
+  occurrences?: number;
 };
 
 export type TrainerPokemonValidationIssue = {
@@ -63,6 +71,13 @@ export type TrainerPokemon = {
   matchedCostume?: string | null;
   matchedSource?: string;
   resolutionStatus?: "matched" | "missing-asset";
+  identityProvider?: "ma-collection";
+  rawAlias?: string;
+  canonicalId?: string | null;
+  identityId?: string | null;
+  identityStatus?: string;
+  identityReason?: string | null;
+  identityConfidence?: number;
   searchText: string;
 };
 
@@ -111,7 +126,7 @@ export type TrainerPokemonSnapshotSummary = {
   importedBy: string;
   checksum: string;
   status: "staging" | "active" | "archived" | "failed";
-  diagnostics: { warnings: number; errors: number };
+  diagnostics: { warnings: number; errors: number; counts?: Record<string, number>; samples?: TrainerPokemonDiagnostic[] };
   stats: TrainerPokemonStats;
   canRollback: boolean;
 };

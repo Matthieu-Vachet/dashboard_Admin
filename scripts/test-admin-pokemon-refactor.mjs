@@ -59,7 +59,7 @@ test("l’audit d’assets est paresseux, mutualisé et résilient aux limites G
   const workshop = read("src/server/pokemon-go/apps/checklist/server/workshop.js");
   assert.match(app, /active === "assets" \|\| active === "backgrounds"/);
   assert.match(app, /assetAuditRequestRef/);
-  assert.match(app, /Les assets déjà liés aux fiches restent affichés/);
+  assert.match(app, /Les assets déjà liés\s+aux fiches restent affichés/);
   assert.match(workshop, /function allRemoteAssetTree/);
   assert.match(workshop, /Promise\.allSettled/);
   assert.match(workshop, /warnings,/);
@@ -200,11 +200,13 @@ test("les statistiques Events restent complètes dans des tuiles compactes", () 
   }
 });
 
-test("Events déduplique les assets identiques et la collection sert son placeholder sans optimiseur privé", () => {
+test("Events déduplique les assets identiques et la collection rend l’absence sans fallback", () => {
   const eventsSource = read("src/components/admin/events/events-calendar-panel.jsx");
   const trainerSource = read("src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx");
   assert.match(eventsSource, /uniqueBy\(\(event\.featuredPokemon \|\| \[\]\)[\s\S]*?\(pokemon\) => pokemon\.src\)/);
-  assert.match(trainerSource, /unoptimized=\{!resolvedImage\}/);
+  assert.match(trainerSource, /resolvedImage \?/);
+  assert.match(trainerSource, /<ImageOff/);
+  assert.doesNotMatch(trainerSource, /resolvedImage\s*\|\|/);
 });
 
 test("les diagnostics source restent repliés et l'API Explorer reste contenu sur mobile", () => {
@@ -409,7 +411,7 @@ test("la recherche Admin Pokémon persiste dans l’URL et se propage aux sectio
   const app = read("src/components/admin/pokemon/admin-app.jsx");
   const context = read("src/components/admin/pokemon/admin-pokemon-search-context.tsx");
   const gameMaster = read("src/components/admin/pokemon/game-master-explorer-panel.jsx");
-  assert.match(app, /<AdminPokemonSearchProvider query=\{search\}/);
+  assert.match(app, /<AdminPokemonSearchProvider\s+query=\{search\}/);
   assert.match(app, /url\.searchParams\.set\("q", value\)/);
   assert.match(app, /requestedParams\.get\("q"\)/);
   assert.match(app, /onSearchChange=\{updateGlobalSearch\}/);

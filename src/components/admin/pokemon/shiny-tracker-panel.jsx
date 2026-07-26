@@ -165,13 +165,13 @@ function Podium({ entries, board, onOpen }) {
   if (!entries.length) return null;
   const order = entries.length >= 3 ? [entries[1], entries[0], entries[2]] : entries;
   return (
-    <section className={`grid auto-cols-[minmax(9rem,1fr)] grid-flow-col items-end gap-3 overflow-x-auto pb-1 sm:grid-flow-row sm:auto-cols-auto sm:overflow-visible ${entries.length >= 3 ? "sm:grid-cols-3" : "sm:grid-cols-2"}`} aria-label="Podium Shiny">
+    <section className={`grid grid-cols-1 items-end gap-3 pb-1 sm:grid-cols-2 ${entries.length >= 3 ? "sm:grid-cols-3" : ""}`} aria-label="Podium Shiny">
       {order.map((entry) => {
         const place = entry.rank <= 3 ? entry.rank : entries.indexOf(entry) + 1;
         const tone = place === 1 ? "border-amber-300/55 shadow-[0_20px_70px_rgba(251,191,36,.16)] sm:min-h-[19rem]" : place === 2 ? "border-slate-300/35 sm:min-h-[17rem]" : "border-orange-300/35 sm:min-h-[16rem]";
         const metric = board === "today" ? entry.stats?.daily : board === "rare" ? entry.shiny?.odds?.raw : entry.stats?.allTime;
         return (
-          <button className={`relative flex min-h-[11rem] flex-col items-center justify-end overflow-hidden rounded-2xl border p-3 text-center sm:min-h-[14rem] sm:p-4 ${tone}`} style={typeSurface(entry, 0.15)} key={`${place}-${entry.sourceIdentity?.variantKey || entry.sourceIdentity?.id}`} type="button" onClick={() => onOpen(entry)}>
+          <button className={`relative flex min-h-[11rem] flex-col items-center justify-end overflow-hidden rounded-2xl border p-3 text-center sm:min-h-[14rem] sm:p-4 ${place === 1 ? "order-1 sm:order-2" : place === 2 ? "order-2 sm:order-1" : "order-3"} ${tone}`} style={typeSurface(entry, 0.15)} key={`${place}-${entry.sourceIdentity?.variantKey || entry.sourceIdentity?.id}`} type="button" onClick={() => onOpen(entry)}>
             <span className={`absolute top-3 grid h-9 w-9 place-items-center rounded-full font-mono font-black ${place === 1 ? "bg-amber-400 text-on-accent" : place === 2 ? "bg-slate-300 text-on-accent" : "bg-orange-400 text-on-accent"}`}>{place}</span>
             <PokemonArtwork pokemon={entry.pokemon} shiny alt={pokemonName(entry)} className="mb-2 h-16 w-16 border-0 bg-transparent drop-shadow-[0_18px_30px_rgba(0,0,0,.45)] sm:mb-3 sm:h-24 sm:w-24" />
             <strong className="line-clamp-2 text-base text-domain-foreground">#{entry.pokemon?.dexNr} {pokemonName(entry)}</strong>

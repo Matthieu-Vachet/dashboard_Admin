@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.33.0 - 2026-07-26
+
+- Ajoute Best Defenders sous Combat et l’audit privé Costumes / Event sous Événements, avec filtres, statistiques, JSON, sources, diagnostics et régénération.
+- Relie Ma Collection au provider central `ma-collection`, agrège les assets non résolus et permet une nouvelle résolution après création d’un alias Identity Manager.
+- Centralise la liste des providers affichée et utilisée pour les alias, puis intègre GO Hub et Margxt à la régénération globale Admin Pokémon.
+- Corrige le badge Research dupliqué à la source du rendu, replie le menu de page par défaut et répare les débordements Accueil, Events, Shiny Tracker et Notes.
+
 ## 1.32.0 - 2026-07-22
 
 - Ajoute la régénération globale séquentielle d’Admin Pokémon avec progression, états par étape, diagnostics et rafraîchissement final.

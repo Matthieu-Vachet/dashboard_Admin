@@ -7,6 +7,18 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.33.0",
+    date: "2026-07-26",
+    title: "Défenseurs, costumes et diagnostics canoniques",
+    changes: [
+      "Ajoute Best Defenders depuis Pokémon GO Hub avec six tiers, route publique, persistance MongoDB et assets exacts issus de l’Identity Manager.",
+      "Ajoute l’audit privé Margxt des costumes et variantes événementielles, ses statuts qualité et sa comparaison non destructive avec PokemonGo-Data.",
+      "Relie Ma Collection au provider central et agrège automatiquement les aliases et assets non résolus afin de les traiter depuis Résolution des variantes.",
+      "Corrige le doublon Research et les layouts mobiles de l’accueil, du calendrier Events, du podium Shiny et des Notes.",
+      "Replie le menu de page par défaut sur toutes les largeurs et ajoute les deux datasets à la régénération globale et à la veille.",
+    ],
+  },
+  {
     version: "V1.32.0",
     date: "2026-07-22",
     title: "Régénération globale fiable et actions observables",

@@ -167,6 +167,10 @@ export function normalizeTrainerPokemonImport(
     ASSET_FALLBACK: 0,
     UNKNOWN_MOVE: 0,
     MISSING_ASSET: 0,
+    IDENTITY_UNMATCHED: 0,
+    IDENTITY_AMBIGUOUS: 0,
+    CANONICAL_ASSET_MISSING: 0,
+    IDENTITY_MANAGER_UNAVAILABLE: 0,
   } satisfies Record<TrainerPokemonDiagnosticCode, number>;
   const addDiagnostic = (diagnostic: TrainerPokemonDiagnostic) => {
     diagnosticCounts[diagnostic.code] += 1;
@@ -216,8 +220,8 @@ export function normalizeTrainerPokemonImport(
         path: `${basePath}.${costume ? "mon_costume" : "mon_form"}`,
         sourceId,
         message: costume
-          ? `Asset exact du costume ${costume} non résolu; placeholder officiel utilisé.`
-          : `Asset ${shiny ? "chromatique" : "normal"} exact introuvable; placeholder officiel utilisé.`,
+          ? `Asset exact du costume ${costume} non résolu; aucune image de remplacement n’est affichée.`
+          : `Asset ${shiny ? "chromatique" : "normal"} exact introuvable; aucune image de remplacement n’est affichée.`,
       });
     }
 
@@ -310,8 +314,8 @@ export function enrichTrainerPokemonEntries(
     return {
       ...entry,
       ...referenceTypes(match.reference),
-      image: resolvedAsset.image,
-      imageMatch: resolvedAsset.imageMatch,
+      image: entry.canonicalId ? entry.image : resolvedAsset.image,
+      imageMatch: entry.canonicalId ? entry.imageMatch : resolvedAsset.imageMatch,
     };
   });
 }

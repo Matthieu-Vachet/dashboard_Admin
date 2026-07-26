@@ -25,6 +25,8 @@ export const globalRegenerationDefinitions: GlobalRegenerationDefinition[] = [
   { id: "rocket", label: "Team GO Rocket", action: "regenerate-rocket" },
   { id: "pvp", label: "Classements PvP", action: "regenerate-pvp-rankings" },
   { id: "best-attackers", label: "Best Attackers", action: "regenerate-best-attackers" },
+  { id: "best-defenders", label: "Best Defenders", action: "regenerate-best-defenders" },
+  { id: "costume-audit", label: "Costumes / Event Pokémon", action: "regenerate-costume-audit" },
   { id: "eggs", label: "Œufs", action: "regenerate-eggs" },
   { id: "research", label: "Research", action: "regenerate-research" },
   { id: "events", label: "Calendrier Events", endpoint: "/api/admin/events/scrape" },

@@ -263,6 +263,28 @@ test("les routes privées vérifient la session et restent absentes de l’OpenA
   assert.doesNotMatch(openapi, /trainer-pokemon|trainer_pokemon|ma collection/i);
 });
 
+test("Ma Collection passe par le provider central et agrège les diagnostics Identity Manager", () => {
+  const resolver = fs.readFileSync(path.join(root, "Dashboard Admin/src/lib/trainer-pokemon/identity-manager.ts"), "utf8");
+  const repository = fs.readFileSync(path.join(root, "Dashboard Admin/src/lib/trainer-pokemon/repository.ts"), "utf8");
+  const panel = fs.readFileSync(path.join(root, "Dashboard Admin/src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx"), "utf8");
+  assert.match(resolver, /provider:\s*["']ma-collection["']/);
+  assert.match(resolver, /pokemon-identities\/resolve-assets/);
+  assert.match(resolver, /pokemon-identities\/diagnostics\/batch/);
+  assert.match(resolver, /occurrences:\s*Number\(previous\?\.occurrences/);
+  assert.match(repository, /refreshTrainerPokemonIdentityResolution/);
+  assert.match(repository, /persistIdentityDiagnostics:\s*true/);
+  assert.match(panel, /Re-résoudre les identités/);
+  assert.match(panel, /section=identity-manager/);
+  assert.doesNotMatch(panel, /placeholder[^\n]*(pokemon|asset)/i);
+});
+
+test("Research déduplique seulement deux badges événement strictement identiques", () => {
+  const panel = fs.readFileSync(path.join(root, "Dashboard Admin/src/components/admin/pokemon/research-panel.jsx"), "utf8");
+  assert.match(panel, /const normalizedCategoryLabel = textKey\(categoryLabel\)/);
+  assert.match(panel, /task\.event\?\.name\s*&&\s*textKey\(task\.event\.name\)\s*!==\s*normalizedCategoryLabel/);
+  assert.match(panel, /eventLabel \? <Badge/);
+});
+
 test("l’interface couvre recherche, filtres, tri, pagination, états vides et responsive", () => {
   const panel = fs.readFileSync(path.join(root, "Dashboard Admin/src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx"), "utf8");
   for (const evidence of ["debouncedSearch", "Plus de filtres", "Forme spéciale", "Poids (kg)", "Taille (m)", "IV 100 % uniquement", "Trier par", "Pagination", "Aucune collection importée", "Aucun résultat", "lg:hidden", "hidden overflow-x-auto"]) {

@@ -36,7 +36,7 @@ export function CardHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className={cn("flex items-start justify-between gap-4", className)}>
+    <div className={cn("flex min-w-0 flex-col items-start justify-between gap-3 sm:flex-row sm:gap-4", className)}>
       <div className="min-w-0">
         {eyebrow ? (
           <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">
@@ -45,7 +45,7 @@ export function CardHeader({
         ) : null}
         {children}
       </div>
-      {action ? <div className="shrink-0">{action}</div> : null}
+      {action ? <div className="max-w-full self-start sm:shrink-0">{action}</div> : null}
     </div>
   );
 }
