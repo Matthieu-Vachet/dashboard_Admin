@@ -53,7 +53,14 @@ const noResultsTrainerPayload = {
   ...emptyTrainerPayload,
   data: {
     ...emptyTrainerPayload.data,
-    snapshot: { id: "fixture", sourceFileName: "fixture.json", importedAt: "2026-07-22T08:00:00.000Z", sourceExportTime: null, checksum: "1234567890abcdef" },
+    snapshot: {
+      id: "fixture",
+      sourceFileName: "fixture.json",
+      importedAt: "2026-07-22T08:00:00.000Z",
+      sourceExportTime: null,
+      checksum: "1234567890abcdef",
+      diagnostics: { warnings: 0, errors: 0, counts: {}, samples: [] },
+    },
   },
 };
 
@@ -98,7 +105,7 @@ async function installRoutes(page, options = {}) {
   await page.route("**/api/trainer-pokemon?**", async (route) => {
     trainerCalls += 1;
     if (options.slowTrainer) await new Promise((resolve) => setTimeout(resolve, 900));
-    if (options.errorThenEmpty && trainerCalls <= 2) return json(route, { success: false, error: { message: "Erreur fixture récupérable." } }, 500);
+    if (options.errorThenEmpty && trainerCalls === 1) return json(route, { success: false, error: { message: "Erreur fixture récupérable." } }, 500);
     return json(route, options.noResults ? noResultsTrainerPayload : emptyTrainerPayload);
   });
 }

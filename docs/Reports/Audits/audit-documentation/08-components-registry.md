@@ -21,7 +21,7 @@ sources:
 ## Mise à jour code courant — 13 juillet 2026
 
 - Le registre courant contient 137 fichiers de composants; la catégorie Feature contient 42 entrées.
-- [COMP-137](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/COMP-137-trainer-pokemon-collection-panel.md>) compte 365 lignes, utilise cinq primitives UI et appelle les quatre routes privées trainer-pokemon.
+- [COMP-137](<../../../Tome 3 — Design System/Components/COMP-137-trainer-pokemon-collection-panel.md>) compte 365 lignes, utilise cinq primitives UI et appelle les quatre routes privées trainer-pokemon.
 - AdminApp charge ce composant dynamiquement; les autres panneaux historiques restent importés statiquement.
 
 <!-- current-state-2026-07-13:end -->

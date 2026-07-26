@@ -95,7 +95,7 @@ for (const [id, exactName, auditSources] of coreDocs) {
     category: "core-document",
     auditSources,
     codeFiles: id === "DOC-001" || (id >= "DOC-011" && id <= "DOC-035")
-      ? ["Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"]
+      ? ["Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"]
       : [],
     capturesNeeded: ["diagrammes Mermaid ou captures uniquement si indiqués dans le document source"],
     status: id >= "DOC-011" && id <= "DOC-035"

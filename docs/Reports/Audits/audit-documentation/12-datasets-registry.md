@@ -20,9 +20,9 @@ sources:
 
 ## Mise à jour code courant — 13 juillet 2026
 
-- Le registre courant contient 20 datasets avec [DATASET-020](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/DATASET-020-collection-personnelle-pokemon-go.md>) en private-dashboard.
+- Le registre courant contient 20 datasets avec [DATASET-020](<../../../Tome 6 — Datasets/DATASET-020-collection-personnelle-pokemon-go.md>) en private-dashboard.
 - La source est un JSON choisi par l’administrateur; aucun export personnel n’est conservé dans Git ou localStorage.
-- Le snapshot actif est stocké dans [COL-030](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/COL-030-trainer-pokemon-owners.md>), [COL-031](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/COL-031-trainer-pokemon-snapshots.md>), [COL-032](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/COL-032-trainer-pokemon-entries.md>).
+- Le snapshot actif est stocké dans [COL-030](<../../../Tome 8 — MongoDB/COL-030-trainer-pokemon-owners.md>), [COL-031](<../../../Tome 8 — MongoDB/COL-031-trainer-pokemon-snapshots.md>), [COL-032](<../../../Tome 8 — MongoDB/COL-032-trainer-pokemon-entries.md>).
 
 <!-- current-state-2026-07-13:end -->
 

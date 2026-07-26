@@ -20,9 +20,9 @@ source_files:
   - "Dashboard Admin/src/lib/learning/repository.ts"
   - "Dashboard Admin/src/lib/trainer-pokemon/repository.ts"
 registries:
-  - "audit-documentation/registries/mongodb-collections.json"
-  - "audit-documentation/registries/datasets.json"
-  - "audit-documentation/registries/dependencies.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/mongodb-collections.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/dependencies.json"
 related:
   - "DOC-012"
   - "DOC-013"
@@ -90,16 +90,16 @@ flowchart LR
 
 ### Registres actuels
 
-- [Registre mongo](../../../../audit-documentation/registries/mongodb-collections.json)
-- [Registre datasets](../../../../audit-documentation/registries/datasets.json)
-- [Registre dependencies](../../../../audit-documentation/registries/dependencies.json)
+- [Registre mongo](../Reports/Audits/audit-documentation/registries/mongodb-collections.json)
+- [Registre datasets](../Reports/Audits/audit-documentation/registries/datasets.json)
+- [Registre dependencies](../Reports/Audits/audit-documentation/registries/dependencies.json)
 
 ### Fiches spécialisées présentes
 
-- [COL-030](<../Post-audit 2026-07-13/COL-030-trainer-pokemon-owners.md>)
-- [COL-031](<../Post-audit 2026-07-13/COL-031-trainer-pokemon-snapshots.md>)
-- [COL-032](<../Post-audit 2026-07-13/COL-032-trainer-pokemon-entries.md>)
-- [COL-035 à COL-039](<../Post-audit 2026-07-15/COL-035-game-master-states.md>)
+- [COL-030](<../Tome 8 — MongoDB/COL-030-trainer-pokemon-owners.md>)
+- [COL-031](<../Tome 8 — MongoDB/COL-031-trainer-pokemon-snapshots.md>)
+- [COL-032](<../Tome 8 — MongoDB/COL-032-trainer-pokemon-entries.md>)
+- [COL-035 à COL-039](<../Tome 8 — MongoDB/COL-035-game-master-states.md>)
 
 ## 7. Informations absentes du code
 

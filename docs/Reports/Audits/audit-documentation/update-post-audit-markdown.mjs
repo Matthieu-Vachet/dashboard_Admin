@@ -3,8 +3,15 @@ import path from "node:path";
 
 const directory = import.meta.dirname;
 const postAudit = "[34-post-audit-changes.md](./34-post-audit-changes.md)";
-const featureRoot = "../Dashboard Admin/docs/codex/Post-audit 2026-07-13";
-const link = (id, file) => `[${id}](<${featureRoot}/${file}>)`;
+const featureRoots = {
+  API: "../../../Tome 7 — API",
+  COL: "../../../Tome 8 — MongoDB",
+  COMP: "../../../Tome 3 — Design System/Components",
+  DATASET: "../../../Tome 6 — Datasets",
+  PAGE: "../../../Tome 2 — Dashboard Admin",
+  WORKFLOW: "../../../Tome 18 - Workflow",
+};
+const link = (id, file) => `[${id}](<${featureRoots[id.split("-")[0]]}/${file}>)`;
 const page = link("PAGE-049", "PAGE-049-ma-collection-pokemon-go.md");
 const component = link("COMP-137", "COMP-137-trainer-pokemon-collection-panel.md");
 const dataset = link("DATASET-020", "DATASET-020-collection-personnelle-pokemon-go.md");

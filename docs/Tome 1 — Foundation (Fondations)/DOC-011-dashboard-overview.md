@@ -2,7 +2,7 @@
 id: DOC-011
 title: "Vue d’ensemble du Dashboard"
 description: "Référence du Dashboard Admin, de ses pages, sections, composants, services et dépendances réellement présents."
-version: 2.4.0
+version: 2.5.0
 status: Official
 owner: Matthieu Vachet
 created: 2026-07-13
@@ -20,11 +20,11 @@ source_files:
   - "Dashboard Admin/src/data/dashboard.ts"
   - "Dashboard Admin/src/proxy.ts"
 registries:
-  - "audit-documentation/registries/pages.json"
-  - "audit-documentation/registries/components.json"
-  - "audit-documentation/registries/contexts.json"
-  - "audit-documentation/registries/services.json"
-  - "audit-documentation/registries/dependencies.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/pages.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/components.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/contexts.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/services.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/dependencies.json"
 related:
   - "DOC-006"
   - "DOC-010"
@@ -59,6 +59,8 @@ Le contenu décrit l’état du code au 26 juillet 2026. Les builds, caches, arc
 - La section PAGE-049 charge COMP-137 avec next/dynamic. Elle appelle SERVICE-005 et les routes API-157 à API-160.
 - PAGE-052 charge COMP-329 avec `next/dynamic`. La navigation interne est COMP-331 ; le détail utilise COMP-330. Toutes les lectures passent par le BFF de session puis API-165 à API-176 avec le secret serveur.
 - Le design exécuté utilise les thèmes dark et light, huit palettes et neuf familles partagées : Badge, Button, Card, Field, Input, Textarea, Modal, Select et Checkbox.
+- La consolidation structurelle impose la chaîne tokens → primitives → composants partagés → composants métier → pages. Les candidats génériques compatibles consomment la couche inférieure ; les contrôles riches et palettes Pokémon/Events restent métier.
+- `npm run test:design-system` agrège les contrats de famille et le garde-fou global. Il refuse notamment les Select/Checkbox natifs, les anciennes props ErrorState et les façades Field non composées sans figer le nombre de routes ou de consommateurs.
 - Geist Sans et Geist Mono sont auto-hébergées par `geist@1.7.2` et chargées dans le RootLayout. Quinze rôles `type-*` portent la hiérarchie générique; les primitives partagées possèdent leurs rôles et les styles Mono/métier restent distincts.
 - Le Motion System fournit trois durations, trois easings, des constantes Framer et une politique reduced-motion CSS/Framer globale. Les 69 sites UI génériques et 99 sites reduced-motion éligibles sont couverts; progressions, DnD et motion Pokémon restent spécialisés.
 - Le Responsive System utilise les breakpoints Tailwind `sm` à `2xl` sans branchement JavaScript de rendu. Sous `lg`, le shell fournit un drawer borné au viewport avec Escape, piège et restitution du focus; les surfaces plein écran utilisent `dvh` et les contenus larges gardent un scroll local. Les 20 routes sont validées en 375×812, 768×1024 et 1440×1000 dans les deux thèmes.
@@ -99,29 +101,29 @@ flowchart LR
 
 ### Registres actuels
 
-- [Registre pages](../../../../audit-documentation/registries/pages.json)
-- [Registre components](../../../../audit-documentation/registries/components.json)
-- [Registre contexts](../../../../audit-documentation/registries/contexts.json)
-- [Registre services](../../../../audit-documentation/registries/services.json)
-- [Registre dependencies](../../../../audit-documentation/registries/dependencies.json)
+- [Registre pages](../Reports/Audits/audit-documentation/registries/pages.json)
+- [Registre components](../Reports/Audits/audit-documentation/registries/components.json)
+- [Registre contexts](../Reports/Audits/audit-documentation/registries/contexts.json)
+- [Registre services](../Reports/Audits/audit-documentation/registries/services.json)
+- [Registre dependencies](../Reports/Audits/audit-documentation/registries/dependencies.json)
 
 ### Fiches spécialisées présentes
 
-- [PAGE-049](<../Post-audit 2026-07-13/PAGE-049-ma-collection-pokemon-go.md>)
-- [COMP-137](<../Post-audit 2026-07-13/COMP-137-trainer-pokemon-collection-panel.md>)
-- [API-157](<../Post-audit 2026-07-13/API-157-get-trainer-pokemon.md>)
-- [API-158](<../Post-audit 2026-07-13/API-158-post-trainer-pokemon-import.md>)
-- [API-159](<../Post-audit 2026-07-13/API-159-get-trainer-pokemon-imports.md>)
-- [API-160](<../Post-audit 2026-07-13/API-160-post-trainer-pokemon-rollback.md>)
-- [COL-030](<../Post-audit 2026-07-13/COL-030-trainer-pokemon-owners.md>)
-- [COL-031](<../Post-audit 2026-07-13/COL-031-trainer-pokemon-snapshots.md>)
-- [COL-032](<../Post-audit 2026-07-13/COL-032-trainer-pokemon-entries.md>)
-- [DATASET-020](<../Post-audit 2026-07-13/DATASET-020-collection-personnelle-pokemon-go.md>)
-- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
-- [PAGE-052](<../Post-audit 2026-07-15/PAGE-052-game-master-explorer.md>)
-- [COMP-329](<../Post-audit 2026-07-15/COMP-329-game-master-explorer-panel.md>)
-- [COMP-330](<../Post-audit 2026-07-15/COMP-330-game-master-json-viewer.md>)
-- [COMP-331](<../Post-audit 2026-07-15/COMP-331-admin-pokemon-navigation-responsive.md>)
+- [PAGE-049](<../Tome 2 — Dashboard Admin/PAGE-049-ma-collection-pokemon-go.md>)
+- [COMP-137](<../Tome 3 — Design System/Components/COMP-137-trainer-pokemon-collection-panel.md>)
+- [API-157](<../Tome 7 — API/API-157-get-trainer-pokemon.md>)
+- [API-158](<../Tome 7 — API/API-158-post-trainer-pokemon-import.md>)
+- [API-159](<../Tome 7 — API/API-159-get-trainer-pokemon-imports.md>)
+- [API-160](<../Tome 7 — API/API-160-post-trainer-pokemon-rollback.md>)
+- [COL-030](<../Tome 8 — MongoDB/COL-030-trainer-pokemon-owners.md>)
+- [COL-031](<../Tome 8 — MongoDB/COL-031-trainer-pokemon-snapshots.md>)
+- [COL-032](<../Tome 8 — MongoDB/COL-032-trainer-pokemon-entries.md>)
+- [DATASET-020](<../Tome 6 — Datasets/DATASET-020-collection-personnelle-pokemon-go.md>)
+- [WORKFLOW-016](<../Tome 18 - Workflow/WORKFLOW-016-import-collection-pokemon-go.md>)
+- [PAGE-052](<../Tome 2 — Dashboard Admin/PAGE-052-game-master-explorer.md>)
+- [COMP-329](<../Tome 3 — Design System/Components/COMP-329-game-master-explorer-panel.md>)
+- [COMP-330](<../Tome 3 — Design System/Components/COMP-330-game-master-json-viewer.md>)
+- [COMP-331](<../Tome 3 — Design System/Components/COMP-331-admin-pokemon-navigation-responsive.md>)
 
 Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient uniquement aux registres JSON.
 

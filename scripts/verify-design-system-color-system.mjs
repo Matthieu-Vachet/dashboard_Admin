@@ -145,7 +145,7 @@ async function goto(page, pathname) {
 }
 
 function ancestorFlat(locator) {
-  return locator.locator("xpath=ancestor::div[contains(@class,'rounded-lg') and contains(@class,'border-line')][1]");
+  return locator.locator("xpath=ancestor::div[(contains(@class,'rounded-surface') or contains(@class,'rounded-lg')) and contains(@class,'border-line')][1]");
 }
 
 const focusableSelector = "button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex='-1'])";
@@ -178,17 +178,20 @@ async function colorTokenSnapshot(page) {
     const canvas = document.createElement("canvas");
     canvas.width = 1; canvas.height = 1;
     const context = canvas.getContext("2d", { willReadFrequently: true });
-    const sample = document.createElement("span");
-    document.body.appendChild(sample);
+    const resolved = {};
     const rgba = Object.fromEntries(names.map((name) => {
+      const sample = document.createElement("span");
       sample.style.color = `var(${name})`;
+      document.body.appendChild(sample);
       const computed = getComputedStyle(sample).color;
+      resolved[name] = computed;
       context.clearRect(0, 0, 1, 1);
       context.fillStyle = computed;
       context.fillRect(0, 0, 1, 1);
-      return [name, [...context.getImageData(0, 0, 1, 1).data]];
+      const pixels = [...context.getImageData(0, 0, 1, 1).data];
+      sample.remove();
+      return [name, pixels];
     }));
-    sample.remove();
     const luminance = ([red, green, blue]) => {
       const channels = [red, green, blue].map((channel) => {
         const value = channel / 255;
@@ -202,6 +205,7 @@ async function colorTokenSnapshot(page) {
     };
     return {
       values: Object.fromEntries(names.map((name) => [name, rootStyles.getPropertyValue(name).trim()])),
+      resolved,
       rgba,
       contrasts: {
         foreground: contrast("--foreground", "--background"),
@@ -269,7 +273,7 @@ const scenarios = [
     snippet: (page) => ancestorFlat(page.locator('input[value="Commit propre"]')),
   }, verify: async (page) => {
     const input = page.getByText("Liens rapides", { exact: true })
-      .locator("xpath=ancestor::div[contains(@class,'rounded-lg')][1]").locator("input").first();
+      .locator("xpath=ancestor::div[contains(@class,'rounded-surface') or contains(@class,'rounded-lg')][1]").locator("input").first();
     const initial = await input.inputValue();
     await input.fill(`${initial} test`); assert.equal(await input.inputValue(), `${initial} test`);
     await input.fill(initial);
@@ -282,7 +286,7 @@ const scenarios = [
   } },
   { name: "pomodoro", path: "/pomodoro", ready: "Timer de concentration", targets: {
     stat: (page) => ancestorFlat(page.getByText("Pomodoros", { exact: true })),
-    history: (page) => page.locator("div.rounded-lg.border-line").filter({ hasText: "Focus 25 min terminé" }).last(),
+    history: (page) => page.locator("div.rounded-surface.border-line, div.rounded-lg.border-line").filter({ hasText: "Focus 25 min terminé" }).last(),
   } },
   { name: "palette", path: "/palette", ready: "Labo couleur", targets: {
     swatch: (page) => page.getByRole("button", { name: "Utiliser #20d3ff" }).locator("xpath=.."),
@@ -329,10 +333,13 @@ async function runScenario(browser, cookies, theme, viewport, definition) {
     assert.deepEqual(pageErrors, [], `${key}: erreurs React/page`);
     assert.deepEqual(consoleErrors, [], `${key}: erreurs console`);
     const tokens = await colorTokenSnapshot(page);
-    assert.ok(tokens.contrasts.foreground >= 7, `${key}: contraste foreground`);
-    assert.ok(tokens.contrasts.secondary >= 4.5, `${key}: contraste secondaire`);
-    assert.ok(tokens.contrasts.muted >= 4.5, `${key}: contraste muted`);
-    assert.ok(tokens.contrasts.disabled >= 3, `${key}: contraste disabled`);
+    assert.ok(
+      tokens.contrasts.foreground >= 7,
+      `${key}: contraste foreground ${tokens.contrasts.foreground} ${JSON.stringify({ values: tokens.values, resolved: tokens.resolved, rgba: tokens.rgba })}`,
+    );
+    assert.ok(tokens.contrasts.secondary >= 4.5, `${key}: contraste secondaire ${tokens.contrasts.secondary}`);
+    assert.ok(tokens.contrasts.muted >= 4.5, `${key}: contraste muted ${tokens.contrasts.muted}`);
+    assert.ok(tokens.contrasts.disabled >= 3, `${key}: contraste disabled ${tokens.contrasts.disabled}`);
     return { key, theme, viewport: viewport.name, scenario: definition.name, overflow, consoleErrors, pageErrors, tokens, result };
   } finally { await context.close(); }
 }

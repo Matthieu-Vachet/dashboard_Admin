@@ -19,9 +19,9 @@ source_files:
   - "PokemonGo-API-/package.json"
   - "PokemonGo-Data/package.json"
 registries:
-  - "audit-documentation/registries/components.json"
-  - "audit-documentation/registries/services.json"
-  - "audit-documentation/registries/api-routes.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/components.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/services.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
 related:
   - "DOC-021"
   - "DOC-024"
@@ -88,9 +88,9 @@ flowchart LR
 
 ### Registres actuels
 
-- [Registre components](../../../../audit-documentation/registries/components.json)
-- [Registre services](../../../../audit-documentation/registries/services.json)
-- [Registre api](../../../../audit-documentation/registries/api-routes.json)
+- [Registre components](../Reports/Audits/audit-documentation/registries/components.json)
+- [Registre services](../Reports/Audits/audit-documentation/registries/services.json)
+- [Registre api](../Reports/Audits/audit-documentation/registries/api-routes.json)
 
 ### Fiches spécialisées présentes
 

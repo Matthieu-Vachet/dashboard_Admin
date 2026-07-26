@@ -20,7 +20,7 @@ sources:
 
 ## Mise à jour code courant — 13 juillet 2026
 
-- [WORKFLOW-016](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>) ajoute validation complète, normalisation canonique, preview sans écriture, snapshot staging, read-back, activation du pointeur et archivage de l’ancien actif.
+- [WORKFLOW-016](<../../../Tome 18 - Workflow/WORKFLOW-016-import-collection-pokemon-go.md>) ajoute validation complète, normalisation canonique, preview sans écriture, snapshot staging, read-back, activation du pointeur et archivage de l’ancien actif.
 - Le rollback revalide owner, statut et nombre d’entrées avant la même bascule activeSnapshotId.
 - Le code n’appelle pas deleteMany sur les collections trainer-pokemon.
 

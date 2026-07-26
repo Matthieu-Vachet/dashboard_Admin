@@ -24,7 +24,7 @@ sources:
 ## Mise à jour code courant — 13 juillet 2026
 
 - Le registre Services contient maintenant cinq entrées.
-- SERVICE-005 centralise les appels de [COMP-137](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/COMP-137-trainer-pokemon-collection-panel.md>) vers [API-157](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/API-157-get-trainer-pokemon.md>), [API-158](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/API-158-post-trainer-pokemon-import.md>), [API-159](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/API-159-get-trainer-pokemon-imports.md>), [API-160](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/API-160-post-trainer-pokemon-rollback.md>).
+- SERVICE-005 centralise les appels de [COMP-137](<../../../Tome 3 — Design System/Components/COMP-137-trainer-pokemon-collection-panel.md>) vers [API-157](<../../../Tome 7 — API/API-157-get-trainer-pokemon.md>), [API-158](<../../../Tome 7 — API/API-158-post-trainer-pokemon-import.md>), [API-159](<../../../Tome 7 — API/API-159-get-trainer-pokemon-imports.md>), [API-160](<../../../Tome 7 — API/API-160-post-trainer-pokemon-rollback.md>).
 - Aucun hook ou contexte global n’a été ajouté; les totaux restent trois hooks et un contexte externe.
 
 <!-- current-state-2026-07-13:end -->

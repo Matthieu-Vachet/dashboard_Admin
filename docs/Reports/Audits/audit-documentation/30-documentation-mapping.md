@@ -10,7 +10,7 @@ phase: 25
 sources:
   - audit-documentation/registries/documentation-map.json
   - audit-documentation/registries/dependencies.json
-  - Dashboard Admin/docs/codex
+  - Dashboard Admin/docs
   - docs/design-system
 ---
 
@@ -20,7 +20,7 @@ sources:
 
 ## Mise à jour code courant — 13 juillet 2026
 
-- documentation-map.json contient 567 entrées: 483 générables, 59 avec informations manquantes et 25 Foundation documentées dans l’état courant.
+- documentation-map.json contient 584 entrées, dont 42 documentées dans l’état courant ; les totaux sont vérifiés par auto-cohérence plutôt que figés dans les tests.
 - Les nouvelles fiches spécialisées couvrent PAGE-049, COMP-137, API-157 à API-160, COL-030 à COL-032, DATASET-020 et WORKFLOW-016.
 - DOC-011 à DOC-035 suivent maintenant les intitulés et fichiers Foundation réellement créés.
 

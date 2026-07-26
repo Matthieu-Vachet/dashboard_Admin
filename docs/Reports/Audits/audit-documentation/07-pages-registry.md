@@ -23,7 +23,7 @@ sources:
 ## Mise à jour code courant — 13 juillet 2026
 
 - Le registre courant contient 49 entrées: 25 pages routées publiques/privées et 24 sections Admin Pokémon.
-- [PAGE-049](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/PAGE-049-ma-collection-pokemon-go.md>) rend [COMP-137](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/COMP-137-trainer-pokemon-collection-panel.md>) et consomme [DATASET-020](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/DATASET-020-collection-personnelle-pokemon-go.md>).
+- [PAGE-049](<../../../Tome 2 — Dashboard Admin/PAGE-049-ma-collection-pokemon-go.md>) rend [COMP-137](<../../../Tome 3 — Design System/Components/COMP-137-trainer-pokemon-collection-panel.md>) et consomme [DATASET-020](<../../../Tome 6 — Datasets/DATASET-020-collection-personnelle-pokemon-go.md>).
 - La section exige la session admin et ne possède aucune route publique.
 
 <!-- current-state-2026-07-13:end -->

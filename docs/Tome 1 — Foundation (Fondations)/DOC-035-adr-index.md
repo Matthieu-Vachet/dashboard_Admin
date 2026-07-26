@@ -18,10 +18,10 @@ source_files:
   - "PokemonGo-API-/src/current-datasets/router.js"
   - "Dashboard Admin/src/lib/session-token.ts"
   - "Dashboard Admin/src/lib/trainer-pokemon/repository.ts"
-  - "audit-documentation/registries/documentation-map.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/documentation-map.json"
 registries:
-  - "audit-documentation/registries/documentation-map.json"
-  - "audit-documentation/registries/dependencies.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/documentation-map.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/dependencies.json"
 related:
   - "DOC-006"
   - "DOC-013"
@@ -92,19 +92,19 @@ flowchart TD
 
 ### Registres actuels
 
-- [Registre map](../../../../audit-documentation/registries/documentation-map.json)
-- [Registre dependencies](../../../../audit-documentation/registries/dependencies.json)
+- [Registre map](../Reports/Audits/audit-documentation/registries/documentation-map.json)
+- [Registre dependencies](../Reports/Audits/audit-documentation/registries/dependencies.json)
 
 ### Fiches spécialisées présentes
 
-- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
-- [DATASET-020](<../Post-audit 2026-07-13/DATASET-020-collection-personnelle-pokemon-go.md>)
-- [COL-030](<../Post-audit 2026-07-13/COL-030-trainer-pokemon-owners.md>)
-- [COL-031](<../Post-audit 2026-07-13/COL-031-trainer-pokemon-snapshots.md>)
-- [COL-032](<../Post-audit 2026-07-13/COL-032-trainer-pokemon-entries.md>)
-- [ADR-011](<../Post-audit 2026-07-14/ADR-011-identite-pokemon-canonique.md>)
-- [ADR-012](<../Post-audit 2026-07-15/ADR-012-indexation-snapshots-game-master.md>)
-- [ADR-013](<../Post-audit 2026-07-15/ADR-013-cohabitation-resolution-variantes.md>)
+- [WORKFLOW-016](<../Tome 18 - Workflow/WORKFLOW-016-import-collection-pokemon-go.md>)
+- [DATASET-020](<../Tome 6 — Datasets/DATASET-020-collection-personnelle-pokemon-go.md>)
+- [COL-030](<../Tome 8 — MongoDB/COL-030-trainer-pokemon-owners.md>)
+- [COL-031](<../Tome 8 — MongoDB/COL-031-trainer-pokemon-snapshots.md>)
+- [COL-032](<../Tome 8 — MongoDB/COL-032-trainer-pokemon-entries.md>)
+- [ADR-011](<../Tome 15 — ADR/ADR-011-identite-pokemon-canonique.md>)
+- [ADR-012](<../Tome 15 — ADR/ADR-012-indexation-snapshots-game-master.md>)
+- [ADR-013](<../Tome 15 — ADR/ADR-013-cohabitation-resolution-variantes.md>)
 
 ## 7. Informations absentes du code
 

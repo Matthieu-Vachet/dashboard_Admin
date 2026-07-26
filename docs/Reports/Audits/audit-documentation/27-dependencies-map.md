@@ -23,7 +23,7 @@ sources:
 
 - Le graphe courant contient 890 arêtes après ajout des relations PAGE-049, COMP-137, SERVICE-005, API-157 à API-160, DATASET-020 et COL-030 à COL-032.
 - Les relations couvrent rendu, appels service/API, lectures/écritures dataset et matérialisation MongoDB.
-- La chaîne complète est [PAGE-049](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/PAGE-049-ma-collection-pokemon-go.md>) → [COMP-137](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/COMP-137-trainer-pokemon-collection-panel.md>) → SERVICE-005 → routes privées → [DATASET-020](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/DATASET-020-collection-personnelle-pokemon-go.md>) → collections privées.
+- La chaîne complète est [PAGE-049](<../../../Tome 2 — Dashboard Admin/PAGE-049-ma-collection-pokemon-go.md>) → [COMP-137](<../../../Tome 3 — Design System/Components/COMP-137-trainer-pokemon-collection-panel.md>) → SERVICE-005 → routes privées → [DATASET-020](<../../../Tome 6 — Datasets/DATASET-020-collection-personnelle-pokemon-go.md>) → collections privées.
 
 <!-- current-state-2026-07-13:end -->
 

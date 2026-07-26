@@ -18,5 +18,6 @@ Un dossier de sprint contient un README, un inventaire, un plan écrit avant la 
 | `typography-system/` | Consolidation transverse complète | completed — Geist Sans/Mono activées, 15 rôles, couverture générique 0 % → 100 % et 66 captures validées |
 | `motion-system/` | Consolidation transverse complète | completed — trois durations, trois easings, couverture UI 0 % → 100 %, reduced-motion 13,13 % → 100 % et 96 captures validées |
 | `responsive-system/` | Consolidation transverse complète | completed — couverture générique 99,51 % → 100 %, 120 vues validées aux trois viewports et deux thèmes |
+| `design-system-finalization/` | Clôture globale et anti-régression | completed — audit courant, violations sûres épuisées, gouvernance unifiée et Foundation synchronisée |
 
-La chaîne autorisée est terminée avec **Responsive System** (`DS-BACKLOG-012`) `completed`. Aucun cinquième sprint, composant UI, nouvelle API ou micro-sprint supplémentaire n’est lancé.
+La chaîne structurelle est terminée par **Design System Finalization**. Aucun nouveau sprint Design System n’est proposé sans régression réelle ou nouvelle famille décidée explicitement.

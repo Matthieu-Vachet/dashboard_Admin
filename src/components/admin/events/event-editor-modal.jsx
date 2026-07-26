@@ -7,6 +7,7 @@ import { fieldClass } from "@/components/admin/pokemon/admin-ui";
 import { ModalPortal } from "@/components/admin/shared/modal-portal";
 import { Button } from "@/components/ui/button";
 import { Field as FieldRoot } from "@/components/ui/field";
+import { Input, Textarea } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 
 export function EventEditorModal({ draft, busy, statusOptions, onChange, onClose, onSave }) {
@@ -68,7 +69,7 @@ export function ImportModal({ value, busy, onChange, onClose, onImport }) {
               <X size={19} />
             </button>
           </div>
-          <textarea
+          <Textarea
             aria-label="Import JSON"
             className={`${fieldClass} min-h-[360px] font-mono text-xs leading-5`}
             value={value}
@@ -92,7 +93,7 @@ function Field({ label, value, onChange, type = "text", placeholder = "" }) {
       label={label}
       labelClassName="type-overline text-disabled"
     >
-      <input className={fieldClass} type={type} value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
+      <Input className={fieldClass} type={type} value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
     </FieldRoot>
   );
 }
@@ -117,7 +118,7 @@ function Area({ label, value, onChange }) {
       label={label}
       labelClassName="type-overline text-disabled"
     >
-      <textarea className={`${fieldClass} min-h-36 py-3 leading-6`} value={value} onChange={(event) => onChange(event.target.value)} />
+      <Textarea className={`${fieldClass} min-h-36 py-3 leading-6`} value={value} onChange={(event) => onChange(event.target.value)} />
     </FieldRoot>
   );
 }

@@ -19,7 +19,7 @@ sources:
 
 ## Mise à jour code courant — 13 juillet 2026
 
-- AdminApp expose 24 sections et charge [COMP-137](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/COMP-137-trainer-pokemon-collection-panel.md>) avec next/dynamic.
+- AdminApp expose 24 sections et charge [COMP-137](<../../../Tome 3 — Design System/Components/COMP-137-trainer-pokemon-collection-panel.md>) avec next/dynamic.
 - La section Ma collection utilise les primitives Badge, Button, Card, Input et Modal.
 - Les opérations passent exclusivement par les quatre handlers privés du Dashboard.
 

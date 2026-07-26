@@ -2,7 +2,7 @@
 id: DOC-021
 title: "Tests"
 description: "Référence des suites de tests, commandes et couvertures réellement présentes dans les cinq dépôts."
-version: 2.2.0
+version: 2.3.0
 status: Official
 owner: Matthieu Vachet
 created: 2026-07-13
@@ -20,10 +20,10 @@ source_files:
   - "PokemonGo-API-/.github/workflows"
   - "PokemonGo-Data/.github/workflows"
 registries:
-  - "audit-documentation/registries/api-routes.json"
-  - "audit-documentation/registries/datasets.json"
-  - "audit-documentation/registries/providers.json"
-  - "audit-documentation/registries/components.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/providers.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/components.json"
 related:
   - "DOC-012"
   - "DOC-013"
@@ -37,7 +37,7 @@ related:
 
 Référence des suites de tests, commandes et couvertures réellement présentes dans les cinq dépôts.
 
-Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, archives et rapports historiques ne servent pas de preuve runtime lorsqu’un fichier source actif existe.
+Le contenu décrit l’état du code au 26 juillet 2026. Les builds, caches, archives et rapports historiques ne servent pas de preuve runtime lorsqu’un fichier source actif existe.
 
 ## 2. Inventaire du code
 
@@ -48,7 +48,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | Dashboard Admin Pokémon | 31 tests |
 | Dashboard trainer | 17 tests déclarés, dont 1 fixture volumineux ignoré par défaut |
 | Dashboard Learning | 1 scénario E2E séquentiel Playwright + Mongo temporaire |
-| Dashboard Design System | 90 assertions statiques courantes; vérificateurs Playwright versionnés par sprint |
+| Dashboard Design System | commande unifiée `npm run test:design-system`; vérificateurs Playwright versionnés par sprint |
 | Landing et Assets | 0 test |
 
 ## 3. Implémentation observée
@@ -59,7 +59,9 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - Dashboard expose test:admin-pokemon, test:trainer-pokemon et test:learning-flow; npm run check ne les appelle pas.
 - test-trainer-pokemon valide le contrat, les limites IV, la normalisation, les assets exacts et fallback, le read-back, l’absence de deleteMany, la session, l’absence OpenAPI et les états responsive.
 - test:admin-pokemon couvre désormais navigation, modale clavier, Background, Shiny, agenda mobile, diagnostics compacts, API Explorer et types d’attaques.
-- Les scripts `test-design-system-*.mjs` portent 90 assertions statiques sur les contrats UI courants. Les campagnes de sprint conservent leurs scénarios : Motion valide 96 captures normal/reduced, dark/light et trois viewports avec 48 contrôles reduced-motion et 32 interactions.
+- `npm run test:design-system` agrège les scripts de famille, l’accessibilité des formulaires et le garde-fou global. Les assertions portent sur une couverture à 100 %, l’absence de violations compatibles et les registres d’exceptions finis ; elles ne figent pas le nombre de routes, tables, Card ou consommateurs.
+- Le garde-fou global refuse les Select/Checkbox natifs hors primitive, les props ErrorState obsolètes, la disparition d’un contrat central et les façades Field locales non composées.
+- Les campagnes de sprint conservent leurs scénarios : Motion valide 96 captures normal/reduced, dark/light et trois viewports avec 48 contrôles reduced-motion et 32 interactions.
 - Responsive ajoute 7 assertions statiques et une campagne de 20 parcours × 3 viewports × 2 thèmes : 120 vues, 20 interactions, 12 contrôles de modale et 10 contrôles de tableau, sans overflow horizontal ni erreur console/React. La campagne Admin Pokémon couvre en complément 126 vues sur sept largeurs et deux thèmes.
 - Le workflow sync-mongodb exécute npm ci puis npm run sync sans tests; le workflow Data dispatch ne lance aucune suite.
 
@@ -78,7 +80,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 flowchart LR
   DATA["32 tests Data"] --> API["66 tests API"]
   DASH["48 tests Dashboard + E2E"] --> UI["Dashboard"]
-  RESP["90 assertions DS + matrices Playwright"] --> UI
+  RESP["Gouvernance DS + matrices Playwright"] --> UI
   API -.-> SYNC["Workflow sync Mongo"]
   LAND["Landing: 0"]
   ASSETS["Assets: 0"]
@@ -95,16 +97,16 @@ flowchart LR
 
 ### Registres actuels
 
-- [Registre api](../../../../audit-documentation/registries/api-routes.json)
-- [Registre datasets](../../../../audit-documentation/registries/datasets.json)
-- [Registre providers](../../../../audit-documentation/registries/providers.json)
-- [Registre components](../../../../audit-documentation/registries/components.json)
+- [Registre api](../Reports/Audits/audit-documentation/registries/api-routes.json)
+- [Registre datasets](../Reports/Audits/audit-documentation/registries/datasets.json)
+- [Registre providers](../Reports/Audits/audit-documentation/registries/providers.json)
+- [Registre components](../Reports/Audits/audit-documentation/registries/components.json)
 
 ### Fiches spécialisées présentes
 
-- [PAGE-049](<../Post-audit 2026-07-13/PAGE-049-ma-collection-pokemon-go.md>)
-- [COMP-137](<../Post-audit 2026-07-13/COMP-137-trainer-pokemon-collection-panel.md>)
-- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
+- [PAGE-049](<../Tome 2 — Dashboard Admin/PAGE-049-ma-collection-pokemon-go.md>)
+- [COMP-137](<../Tome 3 — Design System/Components/COMP-137-trainer-pokemon-collection-panel.md>)
+- [WORKFLOW-016](<../Tome 18 - Workflow/WORKFLOW-016-import-collection-pokemon-go.md>)
 
 ## 7. Informations absentes du code
 

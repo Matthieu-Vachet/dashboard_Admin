@@ -64,7 +64,7 @@ Ces routes sont absentes de l'OpenAPI et de l'API Explorer publics.
 
 ## Documentation créée
 
-Onze fiches post-audit ont été ajoutées sous `Dashboard Admin/docs/codex/Post-audit 2026-07-13/` : PAGE-049, COMP-137, API-157 à API-160, COL-030 à COL-032, DATASET-020 et WORKFLOW-016.
+Onze fiches post-audit ont été classées dans leurs tomes documentaires respectifs : PAGE-049, COMP-137, API-157 à API-160, COL-030 à COL-032, DATASET-020 et WORKFLOW-016.
 
 ## Documentation vivante réconciliée
 

@@ -51,7 +51,7 @@
         "33-final-checklist.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -220,7 +220,7 @@
         "08-components-registry.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -239,7 +239,7 @@
         "18-authentication-and-security.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -258,7 +258,7 @@
         "13-data-pipelines.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -276,7 +276,7 @@
         "16-assets-registry.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -295,7 +295,7 @@
         "13-data-pipelines.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -314,7 +314,7 @@
         "29-public-private-matrix.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -332,7 +332,7 @@
         "15-mongodb-registry.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -351,7 +351,7 @@
         "21-performance-audit.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -369,7 +369,7 @@
         "18-authentication-and-security.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -387,7 +387,7 @@
         "18-authentication-and-security.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -405,7 +405,7 @@
         "24-testing-strategy.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -423,7 +423,7 @@
         "21-performance-audit.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -441,7 +441,7 @@
         "19-responsive-audit.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -459,7 +459,7 @@
         "04-folder-structure.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -478,7 +478,7 @@
         "24-testing-strategy.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -498,7 +498,7 @@
         "15-mongodb-registry.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -516,7 +516,7 @@
         "22-error-handling.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -534,7 +534,7 @@
         "23-logging-and-monitoring.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -552,7 +552,7 @@
         "23-logging-and-monitoring.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -571,7 +571,7 @@
         "26-deployment-and-ci.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -590,7 +590,7 @@
         "26-deployment-and-ci.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -608,7 +608,7 @@
         "17-cache-and-local-data.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -626,7 +626,7 @@
         "29-public-private-matrix.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -644,7 +644,7 @@
         "32-final-index.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"
@@ -663,7 +663,7 @@
         "28-workflows.md"
       ],
       "codeFiles": [
-        "Dashboard Admin/docs/codex/Tome 1 — Foundation (Fondations)"
+        "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)"
       ],
       "capturesNeeded": [
         "diagrammes Mermaid ou captures uniquement si indiqués dans le document source"

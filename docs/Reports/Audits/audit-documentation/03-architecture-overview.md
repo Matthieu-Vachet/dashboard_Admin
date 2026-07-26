@@ -21,7 +21,7 @@ sources:
 ## Mise à jour code courant — 13 juillet 2026
 
 - L’architecture courante compte 49 pages/sections, 137 composants, 160 routes, 32 collections, 20 datasets et 16 workflows.
-- [WORKFLOW-016](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>) reste dans le Dashboard et lit les référentiels publics PokemonGo-API avant d’écrire MongoDB Dashboard.
+- [WORKFLOW-016](<../../../Tome 18 - Workflow/WORKFLOW-016-import-collection-pokemon-go.md>) reste dans le Dashboard et lit les référentiels publics PokemonGo-API avant d’écrire MongoDB Dashboard.
 - Le pointeur activeSnapshotId sépare l’activation du stockage des entrées.
 
 <!-- current-state-2026-07-13:end -->

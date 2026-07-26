@@ -107,3 +107,34 @@ Figma et le code partagent les tokens canoniques, primitives, variantes et état
 ## 13. Definition of Done
 
 Un sprint est terminé uniquement si le périmètre est respecté, les tests réussissent, la baseline est comparée, la documentation est créée, le rollback est documenté et le backlog est mis à jour. Aucun commit, push ou déploiement ne doit être effectué sans demande explicite.
+
+## 14. Gouvernance après consolidation structurelle
+
+La phase **STRUCTURAL DESIGN SYSTEM CONSOLIDATION** est close lorsque l’audit global courant démontre qu’aucun candidat générique, compatible et sûrement migrable ne contourne un contrat existant. Les composants métier, contrôles riches, couleurs de domaine, géométries spécialisées et décisions UX ambiguës restent hors de ce dénominateur.
+
+Toute nouvelle feature du Dashboard doit suivre cet ordre avant de créer une implémentation locale :
+
+1. primitive existante ;
+2. composant partagé existant ;
+3. wrapper métier existant ;
+4. token existant ;
+5. composition possible ;
+6. nouvelle abstraction éventuelle, uniquement si une répétition ou un besoin réel la justifie.
+
+Le flux durable est :
+
+```text
+TOKENS
+  ↓
+PRIMITIVES
+  ↓
+COMPOSANTS PARTAGÉS
+  ↓
+COMPOSANTS MÉTIER
+  ↓
+PAGES
+```
+
+`npm run test:design-system` protège les invariants courants. Les tests de gouvernance utilisent des ratios et des violations nulles plutôt que des compteurs de consommateurs ou de routes figés. Une nouvelle feature conforme peut donc augmenter l’inventaire ; une nouvelle implémentation native de Select/Checkbox, une ancienne prop de State System ou une façade Field qui ne compose pas la primitive est refusée.
+
+La phase **FUTURE UX/UI PRODUCT IMPROVEMENTS** est distincte. Elle peut améliorer la hiérarchie, la densité, la navigation, les workflows, la lisibilité et le polish en consommant les contrats consolidés. Elle ne justifie pas automatiquement un nouveau sprint structurel Design System.

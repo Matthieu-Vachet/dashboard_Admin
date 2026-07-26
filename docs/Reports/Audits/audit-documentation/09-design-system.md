@@ -23,7 +23,7 @@ sources:
 
 ## Mise à jour code courant — 13 juillet 2026
 
-- [COMP-137](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/COMP-137-trainer-pokemon-collection-panel.md>) réutilise Badge, Button, Card, Input et Modal sans nouvelle primitive.
+- [COMP-137](<../../../Tome 3 — Design System/Components/COMP-137-trainer-pokemon-collection-panel.md>) réutilise Badge, Button, Card, Input et Modal sans nouvelle primitive.
 - src/components/ui/modal.tsx contient désormais focus initial, boucle Tab, fermeture Escape et restauration du focus.
 - Les images de la collection utilisent next/image et un placeholder local lorsque l’URL canonique est absente.
 

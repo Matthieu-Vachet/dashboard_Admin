@@ -2,7 +2,7 @@
 id: DOC-023
 title: "Responsive"
 description: "Référence des breakpoints, shells, grilles, modales et variantes mobile/desktop présentes dans les interfaces."
-version: 2.1.0
+version: 2.2.0
 status: Official
 owner: Matthieu Vachet
 created: 2026-07-13
@@ -24,8 +24,8 @@ source_files:
   - "PokemonGo-API-/components"
   - "Landing-Page-PogoApi/components/landing-experience.jsx"
 registries:
-  - "audit-documentation/registries/components.json"
-  - "audit-documentation/registries/pages.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/components.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/pages.json"
 related:
   - "DOC-010"
   - "DOC-011"
@@ -47,12 +47,12 @@ Le contenu décrit l’état du code au 26 juillet 2026. Les builds, caches, arc
 | --- | --- |
 | Breakpoints Tailwind utilisés | sm, md, lg, xl, 2xl |
 | Seuils Tailwind | 640, 768, 1024, 1280, 1536 px |
-| Routes / fichiers source Dashboard | 20 / 264 |
+| Routes / fichiers source Dashboard | inventaire dynamique du code courant |
 | Sidebar Dashboard | fixe à partir de lg; drawer mobile 286 px borné au viewport |
 | Contenu Dashboard | max-width 1680 px |
 | Modal commune | w-full et max-height 92dvh |
 | Collection trainer | cartes sous lg; table min-width 1540 px à partir de lg |
-| Couverture générique | 2 266/2 266 racines, 100 % |
+| Couverture générique | 100 % des racines génériques courantes |
 | Matrice de référence | 375×812, 768×1024, 1440×1000; clair et sombre |
 
 ## 3. Implémentation observée
@@ -70,7 +70,7 @@ Le contenu décrit l’état du code au 26 juillet 2026. Les builds, caches, arc
 
 La matrice Design System vérifie automatiquement les 20 parcours en 375×812, 768×1024 et 1440×1000, dans les thèmes sombre et clair : 120 vues, 20 interactions, 12 contrôles de modale et 10 contrôles de tableau sans débordement horizontal global, erreur console ou erreur React. La campagne Admin Pokémon ajoute 126 vues sur sept largeurs.
 
-Les 814 usages de breakpoints génériques réutilisent les cinq paliers Tailwind. Quatorze seuils arbitraires restent limités à des compositions métier finies entre 420 et 521 px; aucun seuil arbitraire générique ni branchement JavaScript sur la largeur n’est présent.
+Les usages de breakpoints génériques réutilisent les cinq paliers Tailwind. Quatorze seuils arbitraires restent limités à des compositions métier finies entre 420 et 521 px; aucun seuil arbitraire générique ni branchement JavaScript sur la largeur n’est présent. Le test courant découvre les routes, tables et racines dynamiquement afin qu’une nouvelle feature conforme ne casse pas un compteur historique.
 
 ## 4. Relations et dépendances
 
@@ -103,13 +103,13 @@ flowchart LR
 
 ### Registres actuels
 
-- [Registre components](../../../../audit-documentation/registries/components.json)
-- [Registre pages](../../../../audit-documentation/registries/pages.json)
+- [Registre components](../Reports/Audits/audit-documentation/registries/components.json)
+- [Registre pages](../Reports/Audits/audit-documentation/registries/pages.json)
 
 ### Fiches spécialisées présentes
 
-- [PAGE-049](<../Post-audit 2026-07-13/PAGE-049-ma-collection-pokemon-go.md>)
-- [COMP-137](<../Post-audit 2026-07-13/COMP-137-trainer-pokemon-collection-panel.md>)
+- [PAGE-049](<../Tome 2 — Dashboard Admin/PAGE-049-ma-collection-pokemon-go.md>)
+- [COMP-137](<../Tome 3 — Design System/Components/COMP-137-trainer-pokemon-collection-panel.md>)
 
 ## 7. Informations absentes du code
 

@@ -24,9 +24,9 @@ source_files:
   - "PokemonGo-API-/components"
   - "Landing-Page-PogoApi/components/landing-experience.jsx"
 registries:
-  - "audit-documentation/registries/components.json"
-  - "audit-documentation/registries/api-routes.json"
-  - "audit-documentation/registries/mongodb-collections.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/components.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/mongodb-collections.json"
 related:
   - "DOC-011"
   - "DOC-012"
@@ -99,14 +99,14 @@ flowchart LR
 
 ### Registres actuels
 
-- [Registre components](../../../../audit-documentation/registries/components.json)
-- [Registre api](../../../../audit-documentation/registries/api-routes.json)
-- [Registre mongo](../../../../audit-documentation/registries/mongodb-collections.json)
+- [Registre components](../Reports/Audits/audit-documentation/registries/components.json)
+- [Registre api](../Reports/Audits/audit-documentation/registries/api-routes.json)
+- [Registre mongo](../Reports/Audits/audit-documentation/registries/mongodb-collections.json)
 
 ### Fiches spécialisées présentes
 
-- [PAGE-049](<../Post-audit 2026-07-13/PAGE-049-ma-collection-pokemon-go.md>)
-- [COMP-137](<../Post-audit 2026-07-13/COMP-137-trainer-pokemon-collection-panel.md>)
+- [PAGE-049](<../Tome 2 — Dashboard Admin/PAGE-049-ma-collection-pokemon-go.md>)
+- [COMP-137](<../Tome 3 — Design System/Components/COMP-137-trainer-pokemon-collection-panel.md>)
 
 Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient uniquement aux registres JSON.
 

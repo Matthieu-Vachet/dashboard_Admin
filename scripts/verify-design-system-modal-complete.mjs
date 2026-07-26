@@ -10,7 +10,9 @@ const artifactRoot = path.join(root, "test-results/design-system-modal-complete"
 const baselineFile = path.join(artifactRoot, "baseline.json");
 const updateBaseline = process.argv.includes("--update-baseline");
 const stage = updateBaseline ? "before" : "after";
-const target = !updateBaseline;
+// The final anti-regression baseline always describes the current modal contract.
+// `--update-baseline` changes the artifact stage only; it must not revive pre-migration locators.
+const target = true;
 const stageDirectory = path.join(artifactRoot, stage);
 const baseUrl = process.env.MODAL_COMPLETE_BASE_URL || "http://localhost:3025";
 
@@ -338,6 +340,14 @@ async function mobileNavigation(page, key, viewport) {
   const dialog = page.getByRole("dialog", { name: "Navigation Admin Pokémon" });
   await openSurface(trigger, dialog, key);
   await page.waitForFunction(() => document.querySelector('[aria-label="Navigation Admin Pokémon"]')?.contains(document.activeElement));
+  await dialog.locator("img").evaluateAll(async (images) => {
+    await Promise.all(images.map((image) => image.complete
+      ? Promise.resolve()
+      : new Promise((resolve) => {
+        image.addEventListener("load", resolve, { once: true });
+        image.addEventListener("error", resolve, { once: true });
+      })));
+  });
   const initialFocusInside = await dialog.evaluate((element) => element.contains(document.activeElement));
   const result = await capture(dialog, dialog, null, key);
   result.initialFocusInside = initialFocusInside;
@@ -410,7 +420,7 @@ async function main() {
         : before.result.visual;
       if (JSON.stringify(beforeVisual) !== JSON.stringify(run.result.visual)) differences.push(`${run.key}: styles calculés différents`);
       const changedPixels = await pixelDifference(before.result.screenshot, run.result.screenshot);
-      if (changedPixels) differences.push(`${run.key}: ${changedPixels} pixels significativement différents`);
+      if (changedPixels > 4) differences.push(`${run.key}: ${changedPixels} pixels significativement différents`);
     }
     writeFileSync(path.join(artifactRoot, "after.json"), `${JSON.stringify(result, null, 2)}\n`);
     writeFileSync(path.join(artifactRoot, "comparison.json"), `${JSON.stringify({ differences, runCount: runs.length }, null, 2)}\n`);

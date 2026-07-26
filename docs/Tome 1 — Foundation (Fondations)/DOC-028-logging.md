@@ -21,9 +21,9 @@ source_files:
   - "Dashboard Admin/src/lib/dashboard-store.ts"
   - "Dashboard Admin/src/lib/trainer-pokemon/repository.ts"
 registries:
-  - "audit-documentation/registries/mongodb-collections.json"
-  - "audit-documentation/registries/api-routes.json"
-  - "audit-documentation/registries/dependencies.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/mongodb-collections.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/dependencies.json"
 related:
   - "DOC-017"
   - "DOC-027"
@@ -90,14 +90,14 @@ flowchart LR
 
 ### Registres actuels
 
-- [Registre mongo](../../../../audit-documentation/registries/mongodb-collections.json)
-- [Registre api](../../../../audit-documentation/registries/api-routes.json)
-- [Registre dependencies](../../../../audit-documentation/registries/dependencies.json)
+- [Registre mongo](../Reports/Audits/audit-documentation/registries/mongodb-collections.json)
+- [Registre api](../Reports/Audits/audit-documentation/registries/api-routes.json)
+- [Registre dependencies](../Reports/Audits/audit-documentation/registries/dependencies.json)
 
 ### Fiches spécialisées présentes
 
-- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
-- [COL-031](<../Post-audit 2026-07-13/COL-031-trainer-pokemon-snapshots.md>)
+- [WORKFLOW-016](<../Tome 18 - Workflow/WORKFLOW-016-import-collection-pokemon-go.md>)
+- [COL-031](<../Tome 8 — MongoDB/COL-031-trainer-pokemon-snapshots.md>)
 
 ## 7. Informations absentes du code
 

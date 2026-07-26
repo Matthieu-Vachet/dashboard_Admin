@@ -23,7 +23,7 @@ sources:
 
 - Dashboard Admin contient 29 fichiers route.ts et 38 méthodes HTTP exportées.
 - src/lib/trainer-pokemon contient atomic.ts, http.ts, normalize.ts, references.ts, repository.ts et schema.ts.
-- Le nouveau composant est [COMP-137](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/COMP-137-trainer-pokemon-collection-panel.md>); les quatre handlers sont documentés par [API-157](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/API-157-get-trainer-pokemon.md>), [API-158](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/API-158-post-trainer-pokemon-import.md>), [API-159](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/API-159-get-trainer-pokemon-imports.md>), [API-160](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/API-160-post-trainer-pokemon-rollback.md>).
+- Le nouveau composant est [COMP-137](<../../../Tome 3 — Design System/Components/COMP-137-trainer-pokemon-collection-panel.md>); les quatre handlers sont documentés par [API-157](<../../../Tome 7 — API/API-157-get-trainer-pokemon.md>), [API-158](<../../../Tome 7 — API/API-158-post-trainer-pokemon-import.md>), [API-159](<../../../Tome 7 — API/API-159-get-trainer-pokemon-imports.md>), [API-160](<../../../Tome 7 — API/API-160-post-trainer-pokemon-rollback.md>).
 
 <!-- current-state-2026-07-13:end -->
 

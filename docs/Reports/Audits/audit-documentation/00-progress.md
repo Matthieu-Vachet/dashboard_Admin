@@ -19,7 +19,7 @@ sources:
 
 ## Mise à jour code courant — 13 juillet 2026
 
-- L’état courant ajoute [PAGE-049](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/PAGE-049-ma-collection-pokemon-go.md>), [COMP-137](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/COMP-137-trainer-pokemon-collection-panel.md>), [DATASET-020](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/DATASET-020-collection-personnelle-pokemon-go.md>) et [WORKFLOW-016](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>).
+- L’état courant ajoute [PAGE-049](<../../../Tome 2 — Dashboard Admin/PAGE-049-ma-collection-pokemon-go.md>), [COMP-137](<../../../Tome 3 — Design System/Components/COMP-137-trainer-pokemon-collection-panel.md>), [DATASET-020](<../../../Tome 6 — Datasets/DATASET-020-collection-personnelle-pokemon-go.md>) et [WORKFLOW-016](<../../../Tome 18 - Workflow/WORKFLOW-016-import-collection-pokemon-go.md>).
 - Les volumes courants sont 49 pages/sections, 137 composants, 160 routes, 32 collections, 20 datasets et 16 workflows.
 - La synthèse de l’écart est [34-post-audit-changes.md](./34-post-audit-changes.md).
 

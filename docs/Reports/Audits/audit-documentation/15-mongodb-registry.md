@@ -20,7 +20,7 @@ sources:
 
 ## Mise à jour code courant — 13 juillet 2026
 
-- Le registre courant contient 32 collections; les nouvelles collections sont [COL-030](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/COL-030-trainer-pokemon-owners.md>), [COL-031](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/COL-031-trainer-pokemon-snapshots.md>), [COL-032](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/COL-032-trainer-pokemon-entries.md>).
+- Le registre courant contient 32 collections; les nouvelles collections sont [COL-030](<../../../Tome 8 — MongoDB/COL-030-trainer-pokemon-owners.md>), [COL-031](<../../../Tome 8 — MongoDB/COL-031-trainer-pokemon-snapshots.md>), [COL-032](<../../../Tome 8 — MongoDB/COL-032-trainer-pokemon-entries.md>).
 - trainer_pokemon_owners possède l’index unique owner; snapshots possède deux index; entries possède neuf index.
 - Aucun TTL n’est déclaré sur ces trois collections.
 

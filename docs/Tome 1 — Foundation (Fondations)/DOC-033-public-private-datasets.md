@@ -18,11 +18,11 @@ source_files:
   - "Dashboard Admin/src/app/api"
   - "Dashboard Admin/src/proxy.ts"
 registries:
-  - "audit-documentation/registries/datasets.json"
-  - "audit-documentation/registries/api-routes.json"
-  - "audit-documentation/registries/mongodb-collections.json"
-  - "audit-documentation/registries/pages.json"
-  - "audit-documentation/registries/providers.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/mongodb-collections.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/pages.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/providers.json"
 related:
   - "DOC-012"
   - "DOC-016"
@@ -91,28 +91,28 @@ flowchart LR
 
 ### Registres actuels
 
-- [Registre datasets](../../../../audit-documentation/registries/datasets.json)
-- [Registre api](../../../../audit-documentation/registries/api-routes.json)
-- [Registre mongo](../../../../audit-documentation/registries/mongodb-collections.json)
-- [Registre pages](../../../../audit-documentation/registries/pages.json)
-- [Registre providers](../../../../audit-documentation/registries/providers.json)
+- [Registre datasets](../Reports/Audits/audit-documentation/registries/datasets.json)
+- [Registre api](../Reports/Audits/audit-documentation/registries/api-routes.json)
+- [Registre mongo](../Reports/Audits/audit-documentation/registries/mongodb-collections.json)
+- [Registre pages](../Reports/Audits/audit-documentation/registries/pages.json)
+- [Registre providers](../Reports/Audits/audit-documentation/registries/providers.json)
 
 ### Fiches spécialisées présentes
 
-- [PAGE-049](<../Post-audit 2026-07-13/PAGE-049-ma-collection-pokemon-go.md>)
-- [COMP-137](<../Post-audit 2026-07-13/COMP-137-trainer-pokemon-collection-panel.md>)
-- [API-157](<../Post-audit 2026-07-13/API-157-get-trainer-pokemon.md>)
-- [API-158](<../Post-audit 2026-07-13/API-158-post-trainer-pokemon-import.md>)
-- [API-159](<../Post-audit 2026-07-13/API-159-get-trainer-pokemon-imports.md>)
-- [API-160](<../Post-audit 2026-07-13/API-160-post-trainer-pokemon-rollback.md>)
-- [COL-030](<../Post-audit 2026-07-13/COL-030-trainer-pokemon-owners.md>)
-- [COL-031](<../Post-audit 2026-07-13/COL-031-trainer-pokemon-snapshots.md>)
-- [COL-032](<../Post-audit 2026-07-13/COL-032-trainer-pokemon-entries.md>)
-- [DATASET-020](<../Post-audit 2026-07-13/DATASET-020-collection-personnelle-pokemon-go.md>)
-- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
-- [PAGE-052](<../Post-audit 2026-07-15/PAGE-052-game-master-explorer.md>)
-- [DATASET-023](<../Post-audit 2026-07-15/DATASET-023-game-master-index-courant.md>)
-- [DATASET-024](<../Post-audit 2026-07-15/DATASET-024-game-master-historique-diffs.md>)
+- [PAGE-049](<../Tome 2 — Dashboard Admin/PAGE-049-ma-collection-pokemon-go.md>)
+- [COMP-137](<../Tome 3 — Design System/Components/COMP-137-trainer-pokemon-collection-panel.md>)
+- [API-157](<../Tome 7 — API/API-157-get-trainer-pokemon.md>)
+- [API-158](<../Tome 7 — API/API-158-post-trainer-pokemon-import.md>)
+- [API-159](<../Tome 7 — API/API-159-get-trainer-pokemon-imports.md>)
+- [API-160](<../Tome 7 — API/API-160-post-trainer-pokemon-rollback.md>)
+- [COL-030](<../Tome 8 — MongoDB/COL-030-trainer-pokemon-owners.md>)
+- [COL-031](<../Tome 8 — MongoDB/COL-031-trainer-pokemon-snapshots.md>)
+- [COL-032](<../Tome 8 — MongoDB/COL-032-trainer-pokemon-entries.md>)
+- [DATASET-020](<../Tome 6 — Datasets/DATASET-020-collection-personnelle-pokemon-go.md>)
+- [WORKFLOW-016](<../Tome 18 - Workflow/WORKFLOW-016-import-collection-pokemon-go.md>)
+- [PAGE-052](<../Tome 2 — Dashboard Admin/PAGE-052-game-master-explorer.md>)
+- [DATASET-023](<../Tome 6 — Datasets/DATASET-023-game-master-index-courant.md>)
+- [DATASET-024](<../Tome 6 — Datasets/DATASET-024-game-master-historique-diffs.md>)
 
 Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient uniquement aux registres JSON.
 

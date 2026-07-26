@@ -21,7 +21,7 @@ sources:
 
 ## Mise à jour code courant — 13 juillet 2026
 
-- [PAGE-049](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/PAGE-049-ma-collection-pokemon-go.md>) est une section client de /pokemon-admin identifiée par section=my-collection; elle ne crée pas un fichier page.tsx supplémentaire.
+- [PAGE-049](<../../../Tome 2 — Dashboard Admin/PAGE-049-ma-collection-pokemon-go.md>) est une section client de /pokemon-admin identifiée par section=my-collection; elle ne crée pas un fichier page.tsx supplémentaire.
 - Quatre fichiers route.ts privés servent lecture, preview/commit, historique et rollback.
 - Le nombre de pages routées Dashboard reste 20; le nombre de sections Admin Pokémon passe à 24.
 

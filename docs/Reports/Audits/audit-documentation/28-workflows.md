@@ -20,7 +20,7 @@ sources:
 
 ## Mise à jour code courant — 13 juillet 2026
 
-- Le registre documentaire contient désormais [WORKFLOW-016](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>); le total passe à 16 workflows.
+- Le registre documentaire contient désormais [WORKFLOW-016](<../../../Tome 18 - Workflow/WORKFLOW-016-import-collection-pokemon-go.md>); le total passe à 16 workflows.
 - Preview n’écrit rien; commit écrit staging et entries, vérifie volume et checksum des identifiants, puis bascule activeSnapshotId.
 - Rollback répète la vérification de propriétaire et de volume avant activation.
 

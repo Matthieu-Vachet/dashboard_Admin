@@ -21,9 +21,9 @@ source_files:
   - "Dashboard Admin/src/lib/trainer-pokemon/references.ts"
   - "PokemonGo-Assets-API/.pokeminers-cache"
 registries:
-  - "audit-documentation/registries/api-routes.json"
-  - "audit-documentation/registries/datasets.json"
-  - "audit-documentation/registries/assets.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/assets.json"
 related:
   - "DOC-012"
   - "DOC-017"
@@ -90,9 +90,9 @@ flowchart LR
 
 ### Registres actuels
 
-- [Registre api](../../../../audit-documentation/registries/api-routes.json)
-- [Registre datasets](../../../../audit-documentation/registries/datasets.json)
-- [Registre assets](../../../../audit-documentation/registries/assets.json)
+- [Registre api](../Reports/Audits/audit-documentation/registries/api-routes.json)
+- [Registre datasets](../Reports/Audits/audit-documentation/registries/datasets.json)
+- [Registre assets](../Reports/Audits/audit-documentation/registries/assets.json)
 
 ### Fiches spécialisées présentes
 

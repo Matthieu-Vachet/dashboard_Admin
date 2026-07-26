@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { typeColors, typeLabels } from "@/components/site/pokemon-style";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Field as DesignSystemField } from "@/components/ui/field";
 import { Input, Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -242,7 +243,6 @@ const emptyAliasForm: AliasForm = {
 
 const customProviderValue = "__custom_provider__";
 
-const inputClass = "min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-bold text-foreground outline-none transition focus:border-brand-2/55";
 const cardClass = "min-w-0 overflow-hidden rounded-surface border border-line bg-surface-inset p-4 shadow-surface";
 
 function identityId(identity: PokemonIdentity) {
@@ -366,10 +366,9 @@ function unwrapList<T>(upstream: { data?: T[]; meta?: ListMeta } | null | undefi
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="grid gap-1.5 type-overline text-muted">
-      {label}
+    <DesignSystemField className="grid gap-1.5" label={label}>
       {children}
-    </label>
+    </DesignSystemField>
   );
 }
 
@@ -816,26 +815,26 @@ export function IdentityManagerPanel() {
           <div className="grid gap-3 rounded-xl border border-line bg-panel/55 p-4 md:grid-cols-2 xl:grid-cols-4">
             <label className="relative md:col-span-2">
               <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={17} />
-              <Input className="pl-10" placeholder="Canonical ID ou alias…" value={filters.search} onChange={(event) => updateFilter("search", event.target.value)} />
+              <Input aria-label="Rechercher une identité par Canonical ID ou alias" className="pl-10" placeholder="Canonical ID ou alias…" value={filters.search} onChange={(event) => updateFilter("search", event.target.value)} />
             </label>
-            <Select className={inputClass} aria-label="Provider" value={filters.provider} onChange={(event) => updateFilter("provider", event.target.value)}>
+            <Select aria-label="Provider" value={filters.provider} onChange={(event) => updateFilter("provider", event.target.value)}>
               <option value="">Tous les providers</option>
               {providers.map((provider) => <option key={provider.provider} value={provider.provider}>{"label" in provider && typeof provider.label === "string" ? provider.label : provider.provider} ({provider.count})</option>)}
             </Select>
-            <Select className={inputClass} aria-label="Statut" value={filters.status} onChange={(event) => updateFilter("status", event.target.value)}>
+            <Select aria-label="Statut" value={filters.status} onChange={(event) => updateFilter("status", event.target.value)}>
               <option value="">Tous les statuts</option>
               {(["active", "draft", "deprecated", "ignored"] as const).map((status) => <option key={status}>{status}</option>)}
             </Select>
-            <Select className={inputClass} aria-label="État de synchronisation" value={filters.syncStatus} onChange={(event) => updateFilter("syncStatus", event.target.value)}>
+            <Select aria-label="État de synchronisation" value={filters.syncStatus} onChange={(event) => updateFilter("syncStatus", event.target.value)}>
               <option value="">Tous les états de synchronisation</option>
               {(["synchronized", "orphaned", "draft", "conflict"] as const).map((status) => <option key={status}>{status}</option>)}
             </Select>
-            <Input inputMode="numeric" placeholder="N° Pokédex" value={filters.pokemonId} onChange={(event) => updateFilter("pokemonId", event.target.value)} />
-            <Input placeholder="Forme" value={filters.form} onChange={(event) => updateFilter("form", event.target.value)} />
-            <Input placeholder="Costume" value={filters.costume} onChange={(event) => updateFilter("costume", event.target.value)} />
+            <Input aria-label="Filtrer par numéro Pokédex" inputMode="numeric" placeholder="N° Pokédex" value={filters.pokemonId} onChange={(event) => updateFilter("pokemonId", event.target.value)} />
+            <Input aria-label="Filtrer par forme" placeholder="Forme" value={filters.form} onChange={(event) => updateFilter("form", event.target.value)} />
+            <Input aria-label="Filtrer par costume" placeholder="Costume" value={filters.costume} onChange={(event) => updateFilter("costume", event.target.value)} />
             <div className="grid grid-cols-2 gap-2">
-              <Select className={inputClass} aria-label="Trier" value={filters.sort} onChange={(event) => updateFilter("sort", event.target.value)}><option value="updatedAt">Modification</option><option value="canonicalId">Canonical ID</option><option value="pokemonId">Pokédex</option><option value="status">Statut</option><option value="syncStatus">Synchronisation</option></Select>
-              <Select className={inputClass} aria-label="Ordre" value={filters.order} onChange={(event) => updateFilter("order", event.target.value)}><option value="desc">Décroissant</option><option value="asc">Croissant</option></Select>
+              <Select aria-label="Trier" value={filters.sort} onChange={(event) => updateFilter("sort", event.target.value)}><option value="updatedAt">Modification</option><option value="canonicalId">Canonical ID</option><option value="pokemonId">Pokédex</option><option value="status">Statut</option><option value="syncStatus">Synchronisation</option></Select>
+              <Select aria-label="Ordre" value={filters.order} onChange={(event) => updateFilter("order", event.target.value)}><option value="desc">Décroissant</option><option value="asc">Croissant</option></Select>
             </div>
             <div className="flex flex-wrap gap-2 md:col-span-2 xl:col-span-4">
               <Button size="sm" variant={filters.conflict ? "danger" : "secondary"} icon={<AlertTriangle size={14} />} onClick={() => updateFilter("conflict", !filters.conflict)}>Avec conflit</Button>
@@ -900,16 +899,16 @@ export function IdentityManagerPanel() {
       ) : (
         <>
           <div className="grid gap-3 rounded-xl border border-line bg-panel/55 p-4 md:grid-cols-2 xl:grid-cols-4">
-            <Select className={inputClass} aria-label="Cause" value={diagnosticFilters.reason} onChange={(event) => updateDiagnosticFilter("reason", event.target.value)}>
+            <Select aria-label="Cause" value={diagnosticFilters.reason} onChange={(event) => updateDiagnosticFilter("reason", event.target.value)}>
               <option value="">Toutes les causes</option>
               {diagnosticReasonOptions.map((reason) => <option key={reason}>{reason}</option>)}
             </Select>
-            <Input placeholder="Provider" value={diagnosticFilters.provider} onChange={(event) => updateDiagnosticFilter("provider", event.target.value)} />
-            <Select className={inputClass} aria-label="Statut de traitement" value={diagnosticFilters.status} onChange={(event) => updateDiagnosticFilter("status", event.target.value)}><option value="">Tous les statuts</option><option value="open">Ouvert</option><option value="resolved">Résolu</option><option value="ignored">Ignoré</option><option value="false-positive">Faux positif</option></Select>
-            <Input inputMode="decimal" placeholder="Confiance minimum (0-1)" value={diagnosticFilters.confidence} onChange={(event) => updateDiagnosticFilter("confidence", event.target.value)} />
-            <Input inputMode="numeric" placeholder="N° Pokédex" value={diagnosticFilters.pokemonId} onChange={(event) => updateDiagnosticFilter("pokemonId", event.target.value)} />
-            <Input placeholder="Forme" value={diagnosticFilters.form} onChange={(event) => updateDiagnosticFilter("form", event.target.value)} />
-            <Input placeholder="Costume" value={diagnosticFilters.costume} onChange={(event) => updateDiagnosticFilter("costume", event.target.value)} />
+            <Input aria-label="Filtrer les diagnostics par provider" placeholder="Provider" value={diagnosticFilters.provider} onChange={(event) => updateDiagnosticFilter("provider", event.target.value)} />
+            <Select aria-label="Statut de traitement" value={diagnosticFilters.status} onChange={(event) => updateDiagnosticFilter("status", event.target.value)}><option value="">Tous les statuts</option><option value="open">Ouvert</option><option value="resolved">Résolu</option><option value="ignored">Ignoré</option><option value="false-positive">Faux positif</option></Select>
+            <Input aria-label="Filtrer par confiance minimum" inputMode="decimal" placeholder="Confiance minimum (0-1)" value={diagnosticFilters.confidence} onChange={(event) => updateDiagnosticFilter("confidence", event.target.value)} />
+            <Input aria-label="Filtrer les diagnostics par numéro Pokédex" inputMode="numeric" placeholder="N° Pokédex" value={diagnosticFilters.pokemonId} onChange={(event) => updateDiagnosticFilter("pokemonId", event.target.value)} />
+            <Input aria-label="Filtrer les diagnostics par forme" placeholder="Forme" value={diagnosticFilters.form} onChange={(event) => updateDiagnosticFilter("form", event.target.value)} />
+            <Input aria-label="Filtrer les diagnostics par costume" placeholder="Costume" value={diagnosticFilters.costume} onChange={(event) => updateDiagnosticFilter("costume", event.target.value)} />
             <Button variant="secondary" icon={<Download size={15} />} onClick={downloadDiagnostics}>Exporter le diagnostic</Button>
           </div>
           {error ? <ErrorState title="Diagnostics indisponibles" message={error} /> : null}
@@ -962,7 +961,7 @@ export function IdentityManagerPanel() {
           <Field label="Numéro Pokédex"><Input disabled={localFieldsLocked} inputMode="numeric" value={identityForm.pokemonId} onChange={(event) => setIdentityForm((current) => ({ ...current, pokemonId: event.target.value }))} /></Field>
           <Field label="Forme"><Input disabled={localFieldsLocked} value={identityForm.form} onChange={(event) => setIdentityForm((current) => ({ ...current, form: event.target.value }))} placeholder="optionnelle" /></Field>
           <Field label="Costume"><Input disabled={localFieldsLocked} value={identityForm.costume} onChange={(event) => setIdentityForm((current) => ({ ...current, costume: event.target.value }))} placeholder="optionnel" /></Field>
-          <Field label="Statut"><Select className={inputClass} value={identityForm.status} onChange={(event) => setIdentityForm((current) => ({ ...current, status: event.target.value as IdentityStatus }))}>{(["active", "draft", "deprecated", "ignored"] as const).map((status) => <option key={status}>{status}</option>)}</Select></Field>
+          <Field label="Statut"><Select value={identityForm.status} onChange={(event) => setIdentityForm((current) => ({ ...current, status: event.target.value as IdentityStatus }))}>{(["active", "draft", "deprecated", "ignored"] as const).map((status) => <option key={status}>{status}</option>)}</Select></Field>
           <div className="grid grid-cols-2 gap-2 pt-5"><label className="flex items-center gap-2 rounded-lg border border-line p-3 text-sm font-bold"><Checkbox disabled={localFieldsLocked} checked={identityForm.male} onChange={(event) => setIdentityForm((current) => ({ ...current, male: event.target.checked }))} /> Mâle</label><label className="flex items-center gap-2 rounded-lg border border-line p-3 text-sm font-bold"><Checkbox disabled={localFieldsLocked} checked={identityForm.female} onChange={(event) => setIdentityForm((current) => ({ ...current, female: event.target.checked }))} /> Femelle</label></div>
           <div className="sm:col-span-2"><Field label="Notes"><Textarea value={identityForm.notes} onChange={(event) => setIdentityForm((current) => ({ ...current, notes: event.target.value }))} /></Field></div>
         </div>
@@ -972,7 +971,6 @@ export function IdentityManagerPanel() {
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Fournisseur">
             <Select
-              className={inputClass}
               value={aliasProviderSelection}
               onChange={(event) => {
                 const provider = event.target.value;
@@ -994,7 +992,7 @@ export function IdentityManagerPanel() {
             <span className="normal-case tracking-normal text-muted">Le nom est normalisé et contrôlé par le serveur avant enregistrement.</span>
           </Field>
           <Field label="Valeur originale"><Input value={aliasForm.value} onChange={(event) => setAliasForm((current) => ({ ...current, value: event.target.value }))} placeholder="pikachu-world-cap" /></Field>
-          <Field label="Statut"><Select className={inputClass} value={aliasForm.status} onChange={(event) => setAliasForm((current) => ({ ...current, status: event.target.value as AliasStatus }))}>{(["active", "deprecated", "ignored", "conflict"] as const).map((status) => <option key={status}>{status}</option>)}</Select></Field>
+          <Field label="Statut"><Select value={aliasForm.status} onChange={(event) => setAliasForm((current) => ({ ...current, status: event.target.value as AliasStatus }))}>{(["active", "deprecated", "ignored", "conflict"] as const).map((status) => <option key={status}>{status}</option>)}</Select></Field>
           <Field label="Confiance (0 à 1)"><Input inputMode="decimal" value={aliasForm.confidence} onChange={(event) => setAliasForm((current) => ({ ...current, confidence: event.target.value }))} /></Field>
           <div className="sm:col-span-2"><Field label="Motif"><Textarea value={aliasForm.reason} onChange={(event) => setAliasForm((current) => ({ ...current, reason: event.target.value }))} /></Field></div>
         </div>
@@ -1008,17 +1006,17 @@ export function IdentityManagerPanel() {
 
       <Modal open={deprecateModal.open} onClose={() => setDeprecateModal({ open: false, reason: "" })} title="Déprécier l’identité" description={`${deprecateModal.identity?.canonicalId || ""} restera dans MongoDB et pourra être restaurée.`} footer={<div className="flex justify-end gap-2"><Button onClick={() => setDeprecateModal({ open: false, reason: "" })} disabled={busy}>Annuler</Button><Button variant="danger" loading={busyAction === "deprecate"} loadingText="Dépréciation…" disabled={busy || !deprecateModal.reason.trim()} onClick={() => void deprecateIdentity()}>Déprécier</Button></div>}><Field label="Motif obligatoire"><Textarea value={deprecateModal.reason} onChange={(event) => setDeprecateModal((current) => ({ ...current, reason: event.target.value }))} /></Field></Modal>
 
-      <Modal open={importModal} onClose={() => setImportModal(false)} title="Importer des identités" description="Aucune écriture n’est possible avant une prévisualisation sans conflit." footer={<div className="flex justify-end gap-2"><Button onClick={() => setImportModal(false)} disabled={busy}>Fermer</Button><Button variant="primary" loading={busyAction === "import"} loadingText="Import…" disabled={busy || !importReport || Boolean(importReport.conflicts.length || importReport.duplicates.length || importReport.invalid.length)} onClick={() => void applyImport()}>Valider l’import</Button></div>}><Input type="file" accept="application/json,.json" onChange={(event) => void readImportFile(event.target.files?.[0])} />{importReport ? <div className="mt-4 grid gap-3 sm:grid-cols-3"><Stat label="Créations" value={importReport.create} tone="green" /><Stat label="Mises à jour" value={importReport.update} tone="cyan" /><Stat label="Conflits" value={importReport.conflicts.length + importReport.duplicates.length + importReport.invalid.length} tone="red" /></div> : null}</Modal>
+      <Modal open={importModal} onClose={() => setImportModal(false)} title="Importer des identités" description="Aucune écriture n’est possible avant une prévisualisation sans conflit." footer={<div className="flex justify-end gap-2"><Button onClick={() => setImportModal(false)} disabled={busy}>Fermer</Button><Button variant="primary" loading={busyAction === "import"} loadingText="Import…" disabled={busy || !importReport || Boolean(importReport.conflicts.length || importReport.duplicates.length || importReport.invalid.length)} onClick={() => void applyImport()}>Valider l’import</Button></div>}><Input aria-label="Fichier JSON d’identités à importer" type="file" accept="application/json,.json" onChange={(event) => void readImportFile(event.target.files?.[0])} />{importReport ? <div className="mt-4 grid gap-3 sm:grid-cols-3"><Stat label="Créations" value={importReport.create} tone="green" /><Stat label="Mises à jour" value={importReport.update} tone="cyan" /><Stat label="Conflits" value={importReport.conflicts.length + importReport.duplicates.length + importReport.invalid.length} tone="red" /></div> : null}</Modal>
 
       <Modal open={associateModal.open} onClose={() => setAssociateModal({ open: false })} title="Associer l’alias" description={`${associateModal.diagnostic?.provider || ""} · ${associateModal.diagnostic?.rawAlias || ""}`} className="max-w-4xl">
         <div className="space-y-4">
-          <div className="rounded-xl border border-brand-2/30 bg-brand-2/10 p-3">
+          <div className="rounded-surface border border-brand-2/30 bg-brand-2/10 p-3">
             <p className="type-overline text-cyan-200/75">Alias proposé</p>
             <code className="mt-1 block break-all font-mono text-sm font-black text-cyan-100">{associateAlias}</code>
-            <p className="mt-1 text-xs font-semibold text-muted">La forme structurée du diagnostic est prioritaire ; le nom et le costume servent de secours.</p>
+            <p className="mt-1 type-caption text-muted">La forme structurée du diagnostic est prioritaire ; le nom et le costume servent de secours.</p>
           </div>
-          <label className="relative block"><Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={17} /><Input className="pl-10" value={associateSearch} onChange={(event) => setAssociateSearch(event.target.value)} placeholder="Rechercher un Canonical ID…" /></label>
-          <div className="space-y-2">{associateCandidates.map((identity) => <button key={identityId(identity)} type="button" disabled={busy} className="flex w-full items-center gap-3 rounded-lg border border-line bg-surface-faint p-3 text-left transition hover:border-brand-2/50" onClick={() => void associate(identity)}><UserRoundCheck className="text-cyan-200" /><span className="min-w-0 flex-1"><strong className="block break-all font-mono">{identity.canonicalId}</strong><small className="text-muted">#{identity.pokemonId} · {identity.form || "normal"} · {identity.costume || "sans costume"}</small></span><Badge tone="green">Associer</Badge></button>)}</div>
+          <label className="relative block"><Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={17} /><Input aria-label="Rechercher une identité canonique à associer" className="pl-10" value={associateSearch} onChange={(event) => setAssociateSearch(event.target.value)} placeholder="Rechercher un Canonical ID…" /></label>
+          <div className="space-y-2">{associateCandidates.map((identity) => <button key={identityId(identity)} type="button" disabled={busy} className="flex w-full items-center gap-3 rounded-lg border border-line bg-surface-faint p-3 text-left transition hover:border-brand-2/50" onClick={() => void associate(identity)}><UserRoundCheck className="text-cyan-200" /><span className="min-w-0 flex-1"><strong className="block break-all font-mono">{identity.canonicalId}</strong><small className="type-caption text-muted">#{identity.pokemonId} · {identity.form || "normal"} · {identity.costume || "sans costume"}</small></span><Badge tone="green">Associer</Badge></button>)}</div>
         </div>
       </Modal>
     </section>

@@ -20,9 +20,9 @@ source_files:
   - "PokemonGo-API-/next.config.mjs"
   - "PokemonGo-API-/src/lib/admin-auth.js"
 registries:
-  - "audit-documentation/registries/api-routes.json"
-  - "audit-documentation/registries/datasets.json"
-  - "audit-documentation/registries/mongodb-collections.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/mongodb-collections.json"
 related:
   - "DOC-012"
   - "DOC-019"
@@ -90,17 +90,17 @@ flowchart TD
 
 ### Registres actuels
 
-- [Registre api](../../../../audit-documentation/registries/api-routes.json)
-- [Registre datasets](../../../../audit-documentation/registries/datasets.json)
-- [Registre mongo](../../../../audit-documentation/registries/mongodb-collections.json)
+- [Registre api](../Reports/Audits/audit-documentation/registries/api-routes.json)
+- [Registre datasets](../Reports/Audits/audit-documentation/registries/datasets.json)
+- [Registre mongo](../Reports/Audits/audit-documentation/registries/mongodb-collections.json)
 
 ### Fiches spécialisées présentes
 
-- [API-157](<../Post-audit 2026-07-13/API-157-get-trainer-pokemon.md>)
-- [API-158](<../Post-audit 2026-07-13/API-158-post-trainer-pokemon-import.md>)
-- [API-159](<../Post-audit 2026-07-13/API-159-get-trainer-pokemon-imports.md>)
-- [API-160](<../Post-audit 2026-07-13/API-160-post-trainer-pokemon-rollback.md>)
-- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
+- [API-157](<../Tome 7 — API/API-157-get-trainer-pokemon.md>)
+- [API-158](<../Tome 7 — API/API-158-post-trainer-pokemon-import.md>)
+- [API-159](<../Tome 7 — API/API-159-get-trainer-pokemon-imports.md>)
+- [API-160](<../Tome 7 — API/API-160-post-trainer-pokemon-rollback.md>)
+- [WORKFLOW-016](<../Tome 18 - Workflow/WORKFLOW-016-import-collection-pokemon-go.md>)
 
 ## 7. Informations absentes du code
 

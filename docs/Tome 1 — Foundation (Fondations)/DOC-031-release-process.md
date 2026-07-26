@@ -22,8 +22,8 @@ source_files:
   - "PokemonGo-API-/.github/workflows"
   - "PokemonGo-Data/.github/workflows"
 registries:
-  - "audit-documentation/registries/dependencies.json"
-  - "audit-documentation/registries/documentation-map.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/dependencies.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/documentation-map.json"
 related:
   - "DOC-005"
   - "DOC-007"
@@ -93,8 +93,8 @@ sequenceDiagram
 
 ### Registres actuels
 
-- [Registre dependencies](../../../../audit-documentation/registries/dependencies.json)
-- [Registre map](../../../../audit-documentation/registries/documentation-map.json)
+- [Registre dependencies](../Reports/Audits/audit-documentation/registries/dependencies.json)
+- [Registre map](../Reports/Audits/audit-documentation/registries/documentation-map.json)
 
 ### Fiches spécialisées présentes
 

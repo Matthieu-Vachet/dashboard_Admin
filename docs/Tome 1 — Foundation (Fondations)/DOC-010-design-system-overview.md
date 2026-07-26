@@ -2,7 +2,7 @@
 id: DOC-010
 title: Vue d'ensemble du Design System
 slug: design-system-overview
-version: 1.2.0
+version: 1.3.0
 status: Active
 created: 2026-07-12
 last_updated: 2026-07-26
@@ -59,6 +59,8 @@ rules:
 > Les couches Atomic, Composite, Complex et Templates décrites dans ce document constituent la **cible de gouvernance et de reconstruction Figma**. Elles ne doivent pas être confondues avec l'implémentation React actuelle.
 >
 > L'implémentation confirmée du Dashboard repose sur les variables CSS/Tailwind, deux thèmes, huit palettes, huit fichiers UI atomiques partagés et de nombreux composants métier avec styles locaux. Les documents Phase 3C/3D/3E/4A annoncent respectivement 401, 520, 895 variantes futures et six templates cibles ; aucune preuve locale ne confirme leur génération dans Figma ou leur réalisation complète dans React.
+>
+> La consolidation structurelle React/CSS est terminée pour les familles implémentées. Les candidats génériques compatibles consomment les tokens, primitives ou composants partagés ; les exceptions restantes sont métier, spécialisées, ambiguës ou relèvent de la QA. Cette clôture ne certifie ni la cible Figma future, ni un niveau WCAG complet, ni les appareils physiques.
 
 ---
 
@@ -143,7 +145,7 @@ Cela garantit :
 - une maintenance simplifiée ;
 - une réduction du code.
 
-État observé : ce principe n'est pas encore uniformément atteint. Le Dashboard contient actuellement 127 fichiers JSX/TSX sous `src/components` ; l’audit du 13 juillet avait identifié 46 façades de compatibilité courtes. Plusieurs familles de boutons, cartes, filtres et modales restent reconstruites dans les composants métier.
+État implémenté : les candidats génériques dont l’équivalence est démontrée réutilisent les primitives. Les composants métier conservent leurs noms, données et interactions, mais composent la couche générique lorsqu’elle est compatible. Les contrôles riches et anatomies métier non équivalentes restent distincts.
 
 ---
 
@@ -360,7 +362,7 @@ Toutes les décisions visuelles doivent partir de lui.
 
 Aucune interface ne doit être conçue en dehors de ce cadre.
 
-L'audit constate une couverture partielle : les primitives et le shell utilisent les tokens globaux, tandis que les composants métier conservent un vocabulaire visuel local important. Les affirmations de cohérence parfaite dans ce document expriment donc la gouvernance attendue et non une certification de l'état actuel.
+L’audit final confirme la couverture complète des candidats génériques compatibles. Le vocabulaire visuel local restant appartient au domaine, à la décoration, à une interaction spécialisée ou à une équivalence non démontrée ; il ne constitue pas une certification Figma, WCAG ou produit globale.
 
 ---
 
@@ -871,7 +873,7 @@ La hiérarchie implémentée est finie :
 | `type-control` | 14 px | 14 px | 600 | 20 px | normal |
 | `type-control-strong` | taille du contrôle | taille du contrôle | 900 | 20 px | normal |
 
-La balise HTML conserve la sémantique de contenu ; le rôle `type-*` décrit seulement l’apparence. Button, Badge, Card, Field, Input, Textarea, Select, Modal et State System portent les contrats génériques. Les visualisations, micro-données, displays fluides, artwork et géométries métier restent locaux et mesurés. La couverture des patterns génériques sûrs est de 618/618; aucune combinaison legacy générique ne subsiste.
+La balise HTML conserve la sémantique de contenu ; le rôle `type-*` décrit seulement l’apparence. Button, Badge, Card, Field, Input, Textarea, Select, Modal et State System portent les contrats génériques. Les visualisations, micro-données, displays fluides, artwork et géométries métier restent locaux et mesurés. Tous les patterns génériques sûrs courants sont couverts ; aucune combinaison legacy générique ne subsiste.
 
 ---
 
@@ -1166,7 +1168,7 @@ Les Foundations doivent respecter plusieurs principes.
 
 ❌ Aucune valeur "magique" ne doit apparaître dans un composant.
 
-État observé : cette règle n'est pas uniformément respectée. Les hardcodes, rayons, shadows, z-index et sélecteurs correctifs du thème light sont inventoriés dans l'audit et doivent rester documentés comme dette existante, non comme tokens officiels réalisés.
+État implémenté : les usages génériques sûrement équivalents consomment les tokens et rôles canoniques. Les valeurs restantes sont des données métier, décorations, corrections Light bornées ou ambiguïtés documentées ; elles ne deviennent pas des tokens officiels par simple répétition lexicale.
 
 ---
 
@@ -1215,7 +1217,7 @@ Les Tokens rendent ces règles exploitables.
 
 Dans la cible, les composants utilisent exclusivement les Tokens et n'accèdent pas directement aux Foundations.
 
-État observé après les Sprints Color System, Visual Consistency et Typography : le Dashboard expose 48 variables couleur dark/light dans `globals.css` et leurs alias Tailwind sémantiques pour le fond, les surfaces, les textes, les bordures, les interactions, les accents et les statuts. Le scan couleur reproductible mesure 3 221 usages génériques, dont 2 931 tokenisés et 290 hardcodés justifiés, soit 91,0 % de couverture contre 46,4 % avant migration. Les huit palettes runtime continuent de piloter les accents ; les 1 593 usages métier Pokémon/Events restent séparés des tokens UI. Le contrat visuel ajoute trois rôles radius et cinq variables d’élévation dark/light, consommés par des utilitaires Tailwind explicites ; la couverture générique spacing/radius/elevation/surfaces est de 100 %. Geist Sans/Mono sont chargées réellement et 15 rôles Typography couvrent 618/618 patterns génériques sûrs. Les collections Figma Primitive/Semantic/Component et leur export vers React ne sont pas trouvés dans le workspace.
+État durable après consolidation : `globals.css` centralise les couleurs sémantiques dark/light et leurs alias Tailwind ; les huit palettes runtime pilotent les accents et les couleurs Pokémon/Events restent séparées des tokens UI. Trois rôles radius, cinq niveaux d’élévation, l’échelle de spacing, Geist Sans/Mono et quinze rôles Typography couvrent les candidats génériques compatibles. Les métriques détaillées et datées restent dans le Design System Program ; les collections Figma Primitive/Semantic/Component et leur export vers React ne sont pas trouvés dans le workspace.
 
 ---
 
@@ -6002,7 +6004,7 @@ Une Glass Card est généralement composée de :
 
 Chaque couche possède un rôle précis.
 
-**État observé après les Sprints Card + Surfaces et Visual Consistency :** la primitive React `Card` rend un `div`, transmet les attributs HTML et le ref, et expose trois tons finis : `soft` (`glass-panel`), `strong` (`glass-panel-strong`) et `flat` (bordure `line` avec fond `bg-surface-flat`, sans ombre ni blur). Elle consomme `rounded-surface`; les recettes glass utilisent les élévations `raised` et `strong`. `CardHeader`, `CardTitle` et `CardDescription` conservent leur anatomie minimale. Le code courant compte 117 instances Card dans 33 fichiers ; 266 racines surface-like locales et 16 structures non-Card exactes restent classées. Card n'impose ni padding, largeur, interaction ni breakpoint.
+**État durable après les Sprints Card + Surfaces et Visual Consistency :** la primitive React `Card` rend un `div`, transmet les attributs HTML et le ref, et expose trois tons finis : `soft` (`glass-panel`), `strong` (`glass-panel-strong`) et `flat` (bordure `line` avec fond `bg-surface-flat`, sans ombre ni blur). Elle consomme `rounded-surface`; les recettes glass utilisent les élévations `raised` et `strong`. `CardHeader`, `CardTitle` et `CardDescription` conservent leur anatomie minimale. Les surfaces métier et layout non équivalentes restent locales. Card n'impose ni padding, largeur, interaction ni breakpoint.
 
 ---
 
@@ -9327,11 +9329,11 @@ Cette organisation garantit une documentation cohérente, évolutive et durable.
 
 **Document :** DOC-010 — Design System Overview
 
-**Version :** 1.1.9
+**Version :** 1.3.0
 
 **Statut :** Actif — état implémenté distingué de la cible Figma
 
-**Dernière mise à jour :** 2026-07-26 — consolidation Motion : durations, easing, transitions et reduced-motion
+**Dernière mise à jour :** 2026-07-26 — clôture structurelle et gouvernance anti-régression
 
 **Auteur :** Matthieu Vachet
 

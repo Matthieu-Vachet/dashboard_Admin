@@ -17,10 +17,10 @@ source_files:
   - "PokemonGo-API-/src"
   - "PokemonGo-Data"
   - "PokemonGo-Assets-API"
-  - "audit-documentation/registries"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries"
 registries:
-  - "audit-documentation/registries/documentation-map.json"
-  - "audit-documentation/registries/dependencies.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/documentation-map.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/dependencies.json"
 related:
   - "DOC-005"
   - "DOC-006"
@@ -105,14 +105,14 @@ flowchart LR
 
 ### Registres actuels
 
-- [Registre map](../../../../audit-documentation/registries/documentation-map.json)
-- [Registre dependencies](../../../../audit-documentation/registries/dependencies.json)
+- [Registre map](../Reports/Audits/audit-documentation/registries/documentation-map.json)
+- [Registre dependencies](../Reports/Audits/audit-documentation/registries/dependencies.json)
 
 ### Fiches spécialisées présentes
 
-- [PAGE-052](<../Post-audit 2026-07-15/PAGE-052-game-master-explorer.md>)
-- [ADR-012](<../Post-audit 2026-07-15/ADR-012-indexation-snapshots-game-master.md>)
-- [RULE-047](<../Post-audit 2026-07-15/RULE-047-fallback-home-formes-normales.md>)
+- [PAGE-052](<../Tome 2 — Dashboard Admin/PAGE-052-game-master-explorer.md>)
+- [ADR-012](<../Tome 15 — ADR/ADR-012-indexation-snapshots-game-master.md>)
+- [RULE-047](<../Tome 19 - Rules/RULE-047-fallback-home-formes-normales.md>)
 
 ## 7. Informations absentes du code
 

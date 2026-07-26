@@ -19,10 +19,10 @@ source_files:
   - "PokemonGo-Assets-API"
   - "PokemonGo-Data"
 registries:
-  - "audit-documentation/registries/pages.json"
-  - "audit-documentation/registries/components.json"
-  - "audit-documentation/registries/datasets.json"
-  - "audit-documentation/registries/assets.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/pages.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/components.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/assets.json"
 related:
   - "DOC-005"
   - "DOC-006"
@@ -93,15 +93,15 @@ flowchart TD
 
 ### Registres actuels
 
-- [Registre pages](../../../../audit-documentation/registries/pages.json)
-- [Registre components](../../../../audit-documentation/registries/components.json)
-- [Registre datasets](../../../../audit-documentation/registries/datasets.json)
-- [Registre assets](../../../../audit-documentation/registries/assets.json)
+- [Registre pages](../Reports/Audits/audit-documentation/registries/pages.json)
+- [Registre components](../Reports/Audits/audit-documentation/registries/components.json)
+- [Registre datasets](../Reports/Audits/audit-documentation/registries/datasets.json)
+- [Registre assets](../Reports/Audits/audit-documentation/registries/assets.json)
 
 ### Fiches spécialisées présentes
 
-- [PAGE-049](<../Post-audit 2026-07-13/PAGE-049-ma-collection-pokemon-go.md>)
-- [COMP-137](<../Post-audit 2026-07-13/COMP-137-trainer-pokemon-collection-panel.md>)
+- [PAGE-049](<../Tome 2 — Dashboard Admin/PAGE-049-ma-collection-pokemon-go.md>)
+- [COMP-137](<../Tome 3 — Design System/Components/COMP-137-trainer-pokemon-collection-panel.md>)
 
 ## 7. Informations absentes du code
 

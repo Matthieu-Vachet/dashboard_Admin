@@ -22,7 +22,7 @@ sources:
 
 ## Mise à jour code courant — 13 juillet 2026
 
-- [PAGE-049](<../Dashboard Admin/docs/codex/Post-audit 2026-07-13/PAGE-049-ma-collection-pokemon-go.md>) rend des cartes sous lg et une table scrollable min-width 1540 px à partir de lg.
+- [PAGE-049](<../../../Tome 2 — Dashboard Admin/PAGE-049-ma-collection-pokemon-go.md>) rend des cartes sous lg et une table scrollable min-width 1540 px à partir de lg.
 - Les viewports 1440×1000, 820×1180 et 390×844 ont été contrôlés pendant la livraison post-audit.
 - La recherche, les filtres, les statistiques et les actions passent de grilles empilées à des groupes desktop.
 

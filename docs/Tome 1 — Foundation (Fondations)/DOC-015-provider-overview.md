@@ -22,9 +22,9 @@ source_files:
   - "PokemonGo-API-/scripts/import"
   - "PokemonGo-Assets-API/scripts/sync-pokeminers-pogo-assets.js"
 registries:
-  - "audit-documentation/registries/providers.json"
-  - "audit-documentation/registries/datasets.json"
-  - "audit-documentation/registries/dependencies.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/providers.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/dependencies.json"
 related:
   - "DOC-013"
   - "DOC-016"
@@ -91,9 +91,9 @@ flowchart LR
 
 ### Registres actuels
 
-- [Registre providers](../../../../audit-documentation/registries/providers.json)
-- [Registre datasets](../../../../audit-documentation/registries/datasets.json)
-- [Registre dependencies](../../../../audit-documentation/registries/dependencies.json)
+- [Registre providers](../Reports/Audits/audit-documentation/registries/providers.json)
+- [Registre datasets](../Reports/Audits/audit-documentation/registries/datasets.json)
+- [Registre dependencies](../Reports/Audits/audit-documentation/registries/dependencies.json)
 
 ### Fiches spécialisées présentes
 

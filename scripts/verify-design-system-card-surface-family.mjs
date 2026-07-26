@@ -135,7 +135,7 @@ async function goto(page, pathname) {
 }
 
 function ancestorFlat(locator) {
-  return locator.locator("xpath=ancestor::div[contains(@class,'rounded-lg') and contains(@class,'border-line')][1]");
+  return locator.locator("xpath=ancestor::div[(contains(@class,'rounded-surface') or contains(@class,'rounded-lg')) and contains(@class,'border-line')][1]");
 }
 
 const focusableSelector = "button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex='-1'])";
@@ -218,7 +218,7 @@ const scenarios = [
     snippet: (page) => ancestorFlat(page.locator('input[value="Commit propre"]')),
   }, verify: async (page) => {
     const input = page.getByText("Liens rapides", { exact: true })
-      .locator("xpath=ancestor::div[contains(@class,'rounded-lg')][1]").locator("input").first();
+      .locator("xpath=ancestor::div[contains(@class,'rounded-surface') or contains(@class,'rounded-lg')][1]").locator("input").first();
     const initial = await input.inputValue();
     await input.fill(`${initial} test`); assert.equal(await input.inputValue(), `${initial} test`);
     await input.fill(initial);
@@ -231,7 +231,7 @@ const scenarios = [
   } },
   { name: "pomodoro", path: "/pomodoro", ready: "Timer de concentration", targets: {
     stat: (page) => ancestorFlat(page.getByText("Pomodoros", { exact: true })),
-    history: (page) => page.locator("div.rounded-lg.border-line").filter({ hasText: "Focus 25 min terminé" }).last(),
+    history: (page) => page.locator("div.rounded-surface.border-line, div.rounded-lg.border-line").filter({ hasText: "Focus 25 min terminé" }).last(),
   } },
   { name: "palette", path: "/palette", ready: "Labo couleur", targets: {
     swatch: (page) => page.getByRole("button", { name: "Utiliser #20d3ff" }).locator("xpath=.."),

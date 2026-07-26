@@ -21,10 +21,10 @@ source_files:
   - "Dashboard Admin/src/lib/learning"
   - "Dashboard Admin/src/lib/trainer-pokemon"
 registries:
-  - "audit-documentation/registries/datasets.json"
-  - "audit-documentation/registries/providers.json"
-  - "audit-documentation/registries/mongodb-collections.json"
-  - "audit-documentation/registries/dependencies.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/providers.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/mongodb-collections.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/dependencies.json"
 related:
   - "DOC-006"
   - "DOC-012"
@@ -94,20 +94,20 @@ flowchart LR
 
 ### Registres actuels
 
-- [Registre datasets](../../../../audit-documentation/registries/datasets.json)
-- [Registre providers](../../../../audit-documentation/registries/providers.json)
-- [Registre mongo](../../../../audit-documentation/registries/mongodb-collections.json)
-- [Registre dependencies](../../../../audit-documentation/registries/dependencies.json)
+- [Registre datasets](../Reports/Audits/audit-documentation/registries/datasets.json)
+- [Registre providers](../Reports/Audits/audit-documentation/registries/providers.json)
+- [Registre mongo](../Reports/Audits/audit-documentation/registries/mongodb-collections.json)
+- [Registre dependencies](../Reports/Audits/audit-documentation/registries/dependencies.json)
 
 ### Fiches spécialisées présentes
 
-- [DATASET-020](<../Post-audit 2026-07-13/DATASET-020-collection-personnelle-pokemon-go.md>)
-- [COL-030](<../Post-audit 2026-07-13/COL-030-trainer-pokemon-owners.md>)
-- [COL-031](<../Post-audit 2026-07-13/COL-031-trainer-pokemon-snapshots.md>)
-- [COL-032](<../Post-audit 2026-07-13/COL-032-trainer-pokemon-entries.md>)
-- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
-- [DATASET-023](<../Post-audit 2026-07-15/DATASET-023-game-master-index-courant.md>)
-- [DATASET-024](<../Post-audit 2026-07-15/DATASET-024-game-master-historique-diffs.md>)
+- [DATASET-020](<../Tome 6 — Datasets/DATASET-020-collection-personnelle-pokemon-go.md>)
+- [COL-030](<../Tome 8 — MongoDB/COL-030-trainer-pokemon-owners.md>)
+- [COL-031](<../Tome 8 — MongoDB/COL-031-trainer-pokemon-snapshots.md>)
+- [COL-032](<../Tome 8 — MongoDB/COL-032-trainer-pokemon-entries.md>)
+- [WORKFLOW-016](<../Tome 18 - Workflow/WORKFLOW-016-import-collection-pokemon-go.md>)
+- [DATASET-023](<../Tome 6 — Datasets/DATASET-023-game-master-index-courant.md>)
+- [DATASET-024](<../Tome 6 — Datasets/DATASET-024-game-master-historique-diffs.md>)
 
 Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient uniquement aux registres JSON.
 

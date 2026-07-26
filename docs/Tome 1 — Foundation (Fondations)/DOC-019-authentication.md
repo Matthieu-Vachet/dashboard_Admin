@@ -20,9 +20,9 @@ source_files:
   - "PokemonGo-API-/src/lib/admin-auth.js"
   - "PokemonGo-API-/src/middleware/read-only.js"
 registries:
-  - "audit-documentation/registries/api-routes.json"
-  - "audit-documentation/registries/pages.json"
-  - "audit-documentation/registries/dependencies.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/pages.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/dependencies.json"
 related:
   - "DOC-011"
   - "DOC-012"
@@ -92,17 +92,17 @@ sequenceDiagram
 
 ### Registres actuels
 
-- [Registre api](../../../../audit-documentation/registries/api-routes.json)
-- [Registre pages](../../../../audit-documentation/registries/pages.json)
-- [Registre dependencies](../../../../audit-documentation/registries/dependencies.json)
+- [Registre api](../Reports/Audits/audit-documentation/registries/api-routes.json)
+- [Registre pages](../Reports/Audits/audit-documentation/registries/pages.json)
+- [Registre dependencies](../Reports/Audits/audit-documentation/registries/dependencies.json)
 
 ### Fiches spécialisées présentes
 
-- [PAGE-049](<../Post-audit 2026-07-13/PAGE-049-ma-collection-pokemon-go.md>)
-- [API-157](<../Post-audit 2026-07-13/API-157-get-trainer-pokemon.md>)
-- [API-158](<../Post-audit 2026-07-13/API-158-post-trainer-pokemon-import.md>)
-- [API-159](<../Post-audit 2026-07-13/API-159-get-trainer-pokemon-imports.md>)
-- [API-160](<../Post-audit 2026-07-13/API-160-post-trainer-pokemon-rollback.md>)
+- [PAGE-049](<../Tome 2 — Dashboard Admin/PAGE-049-ma-collection-pokemon-go.md>)
+- [API-157](<../Tome 7 — API/API-157-get-trainer-pokemon.md>)
+- [API-158](<../Tome 7 — API/API-158-post-trainer-pokemon-import.md>)
+- [API-159](<../Tome 7 — API/API-159-get-trainer-pokemon-imports.md>)
+- [API-160](<../Tome 7 — API/API-160-post-trainer-pokemon-rollback.md>)
 
 ## 7. Informations absentes du code
 

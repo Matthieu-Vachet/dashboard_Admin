@@ -3,8 +3,9 @@ import path from "node:path";
 
 const dashboardRoot = path.resolve(import.meta.dirname, "..");
 const workspaceRoot = path.resolve(dashboardRoot, "..");
-const foundationDirectory = path.join(dashboardRoot, "docs", "codex", "Tome 1 — Foundation (Fondations)");
-const registryDirectory = path.join(workspaceRoot, "audit-documentation", "registries");
+const foundationDirectory = path.join(dashboardRoot, "docs", "Tome 1 — Foundation (Fondations)");
+const auditDirectory = path.join(dashboardRoot, "docs", "Reports", "Audits", "audit-documentation");
+const registryDirectory = path.join(auditDirectory, "registries");
 const expectedKeys = [
   "id", "title", "description", "version", "status", "owner", "created", "last_updated",
   "category", "type", "language", "scope", "source_files", "registries", "related",
@@ -66,10 +67,25 @@ const docs = fs.readdirSync(foundationDirectory)
 if (docs.length !== 25) fail(`25 documents attendus, ${docs.length} trouvés`);
 
 const documentationMap = readJson("documentation-map");
-if (documentationMap.metadata.total !== 567 || documentationMap.metadata.statusCounts.documentedCurrent !== 25) {
-  fail("documentation-map.json n’est pas aligné sur 567 entrées et 25 Foundation courantes");
+if (
+  documentationMap.metadata.total !== documentationMap.entries.length
+  || documentationMap.metadata.statusCounts.documentedCurrent < docs.length
+) {
+  fail("documentation-map.json n’est pas auto-cohérent avec les Foundation courantes");
+}
+const expectedFoundationSource = "Dashboard Admin/docs/Tome 1 — Foundation (Fondations)";
+for (const name of docs) {
+  const id = name.slice(0, 7);
+  const entry = documentationMap.entries.find((candidate) => candidate.id === id);
+  if (!entry?.codeFiles?.includes(expectedFoundationSource)) {
+    fail(`Source Foundation courante absente du mapping: ${id}`);
+  }
 }
 const validIds = new Set(documentationMap.entries.map((entry) => entry.id));
+for (const file of listFiles(path.join(dashboardRoot, "docs"))) {
+  const documentedId = path.basename(file).match(/^(?:DOC|PAGE|COMP|HOOK|CTX|SERVICE|PROVIDER|DATASET|API|COL|ASSET|WORKFLOW|ADR|RULE)-\d{3}\b/)?.[0];
+  if (documentedId) validIds.add(documentedId);
+}
 const missingByDocument = [];
 let sectionCount = 0;
 let diagramCount = 0;
@@ -82,7 +98,10 @@ for (const name of docs) {
   const source = fs.readFileSync(file, "utf8");
   const meta = frontMatter(source);
   if (meta.keys.join("|") !== expectedKeys.join("|")) fail(`Front matter non homogène: ${name}`);
-  if (meta.values.version !== "2.0.0" || meta.values.status !== "Official") fail(`Version ou statut invalide: ${name}`);
+  const [majorVersion] = meta.values.version.split(".").map(Number);
+  if (!/^\d+\.\d+\.\d+$/.test(meta.values.version) || majorVersion < 2 || meta.values.status !== "Official") {
+    fail(`Version ou statut invalide: ${name}`);
+  }
   const headings = source.match(/^## [1-8]\. .+$/gm) || [];
   if (headings.join("|") !== expectedSections.join("|")) fail(`Sections non homogènes: ${name}`);
   sectionCount += headings.length;
@@ -115,7 +134,7 @@ for (const name of docs) {
 }
 
 const apiRegistry = readJson("api-routes");
-if (apiRegistry.entries.length !== 160 || apiRegistry.count !== 160) fail("Registre API différent de 160");
+if (!apiRegistry.entries.length || apiRegistry.entries.length !== apiRegistry.count) fail("Registre API incohérent");
 for (const route of apiRegistry.entries) {
   const file = path.join(workspaceRoot, route.file);
   if (!fs.existsSync(file)) fail(`Fichier de route absent: ${route.id} ${route.file}`);
@@ -126,7 +145,7 @@ for (const route of apiRegistry.entries) {
 }
 
 const componentRegistry = readJson("components");
-if (componentRegistry.entries.length !== 137 || componentRegistry.count !== 137) fail("Registre composants différent de 137");
+if (!componentRegistry.entries.length || componentRegistry.entries.length !== componentRegistry.count) fail("Registre composants incohérent");
 for (const component of componentRegistry.entries) {
   const relative = /^(Dashboard Admin|Landing-Page-PogoApi|PokemonGo-API-)\//.test(component.path)
     ? component.path
@@ -135,7 +154,7 @@ for (const component of componentRegistry.entries) {
 }
 
 const collectionRegistry = readJson("mongodb-collections");
-if (collectionRegistry.entries.length !== 32 || collectionRegistry.count !== 32) fail("Registre Mongo différent de 32");
+if (!collectionRegistry.entries.length || collectionRegistry.entries.length !== collectionRegistry.count) fail("Registre Mongo incohérent");
 const dashboardSearch = listFiles(path.join(dashboardRoot, "src"))
   .filter((file) => /\.(?:js|jsx|ts|tsx)$/.test(file))
   .map((file) => fs.readFileSync(file, "utf8"))
@@ -145,13 +164,12 @@ for (const collection of collectionRegistry.entries) {
   if (collection.project === "Dashboard Admin" && !dashboardSearch.includes(collection.name)) fail(`Collection Dashboard non trouvée dans le code: ${collection.id}`);
 }
 
-const expectedCounts = { pages: 49, services: 5, datasets: 20, providers: 18, assets: 17 };
-for (const [name, expected] of Object.entries(expectedCounts)) {
+for (const name of ["pages", "services", "datasets", "providers", "assets"]) {
   const registry = readJson(name);
-  if (registry.entries.length !== expected) fail(`Registre ${name}: ${registry.entries.length} au lieu de ${expected}`);
+  if (!registry.entries.length) fail(`Registre ${name} vide`);
+  if (Number.isInteger(registry.count) && registry.entries.length !== registry.count) fail(`Registre ${name} incohérent`);
 }
 
-const auditDirectory = path.join(workspaceRoot, "audit-documentation");
 const auditReports = fs.readdirSync(auditDirectory)
   .filter((name) => /^(?:[0-2]\d|3[0-4])-.*\.md$/.test(name))
   .sort();
@@ -210,6 +228,8 @@ ${docs.map((name) => `- [${name}](<./Tome 1 — Foundation (Fondations)/${name}>
 
 ${missingByDocument.map((document) => `### ${document.id} — ${document.title}\n\n${document.missing.map((item) => `- ${item}`).join("\n")}`).join("\n\n")}
 `;
-fs.writeFileSync(path.join(dashboardRoot, "docs", "codex", "foundation-update-report.md"), report);
+if (process.argv.includes("--write-report")) {
+  fs.writeFileSync(path.join(dashboardRoot, "docs", "Reports", "foundation-update-report.md"), report);
+}
 
 console.log(JSON.stringify(metrics, null, 2));

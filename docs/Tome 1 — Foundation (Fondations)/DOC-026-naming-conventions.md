@@ -16,12 +16,12 @@ source_files:
   - "Dashboard Admin/src"
   - "PokemonGo-API-/src"
   - "PokemonGo-Data"
-  - "audit-documentation/registries"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries"
 registries:
-  - "audit-documentation/registries/api-routes.json"
-  - "audit-documentation/registries/mongodb-collections.json"
-  - "audit-documentation/registries/datasets.json"
-  - "audit-documentation/registries/components.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/mongodb-collections.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/components.json"
 related:
   - "DOC-012"
   - "DOC-017"
@@ -87,10 +87,10 @@ flowchart LR
 
 ### Registres actuels
 
-- [Registre api](../../../../audit-documentation/registries/api-routes.json)
-- [Registre mongo](../../../../audit-documentation/registries/mongodb-collections.json)
-- [Registre datasets](../../../../audit-documentation/registries/datasets.json)
-- [Registre components](../../../../audit-documentation/registries/components.json)
+- [Registre api](../Reports/Audits/audit-documentation/registries/api-routes.json)
+- [Registre mongo](../Reports/Audits/audit-documentation/registries/mongodb-collections.json)
+- [Registre datasets](../Reports/Audits/audit-documentation/registries/datasets.json)
+- [Registre components](../Reports/Audits/audit-documentation/registries/components.json)
 
 ### Fiches spécialisées présentes
 

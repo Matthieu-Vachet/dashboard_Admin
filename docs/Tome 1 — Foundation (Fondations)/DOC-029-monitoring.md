@@ -19,9 +19,9 @@ source_files:
   - "Dashboard Admin/src/components/admin/stats/database-stats.tsx"
   - "Dashboard Admin/src/components/admin/pokemon/source-watch-panel.tsx"
 registries:
-  - "audit-documentation/registries/api-routes.json"
-  - "audit-documentation/registries/mongodb-collections.json"
-  - "audit-documentation/registries/components.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/mongodb-collections.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/components.json"
 related:
   - "DOC-018"
   - "DOC-022"
@@ -88,14 +88,14 @@ flowchart LR
 
 ### Registres actuels
 
-- [Registre api](../../../../audit-documentation/registries/api-routes.json)
-- [Registre mongo](../../../../audit-documentation/registries/mongodb-collections.json)
-- [Registre components](../../../../audit-documentation/registries/components.json)
+- [Registre api](../Reports/Audits/audit-documentation/registries/api-routes.json)
+- [Registre mongo](../Reports/Audits/audit-documentation/registries/mongodb-collections.json)
+- [Registre components](../Reports/Audits/audit-documentation/registries/components.json)
 
 ### Fiches spécialisées présentes
 
-- [PAGE-049](<../Post-audit 2026-07-13/PAGE-049-ma-collection-pokemon-go.md>)
-- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
+- [PAGE-049](<../Tome 2 — Dashboard Admin/PAGE-049-ma-collection-pokemon-go.md>)
+- [WORKFLOW-016](<../Tome 18 - Workflow/WORKFLOW-016-import-collection-pokemon-go.md>)
 
 Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient uniquement aux registres JSON.
 

@@ -18,9 +18,9 @@ source_files:
   - "Dashboard Admin/src/hooks/admin/use-javascript-learning.ts"
   - "Dashboard Admin/src/components/admin"
 registries:
-  - "audit-documentation/registries/services.json"
-  - "audit-documentation/registries/components.json"
-  - "audit-documentation/registries/mongodb-collections.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/services.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/components.json"
+  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/mongodb-collections.json"
 related:
   - "DOC-011"
   - "DOC-017"
@@ -88,9 +88,9 @@ flowchart TD
 
 ### Registres actuels
 
-- [Registre services](../../../../audit-documentation/registries/services.json)
-- [Registre components](../../../../audit-documentation/registries/components.json)
-- [Registre mongo](../../../../audit-documentation/registries/mongodb-collections.json)
+- [Registre services](../Reports/Audits/audit-documentation/registries/services.json)
+- [Registre components](../Reports/Audits/audit-documentation/registries/components.json)
+- [Registre mongo](../Reports/Audits/audit-documentation/registries/mongodb-collections.json)
 
 ### Fiches spécialisées présentes
 
