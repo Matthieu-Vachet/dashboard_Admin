@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { dashboardPalettes } from "@/constants/admin/dashboard-palettes";
 import { useDashboardPalette } from "@/hooks/admin/use-dashboard-palette";
+import { MOTION_DURATION_SECONDS } from "@/lib/motion";
 
 export function AdminPaletteSelector() {
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -40,7 +41,7 @@ export function AdminPaletteSelector() {
             initial={{ opacity: 0, y: -6, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.98 }}
-            transition={{ duration: 0.16 }}
+            transition={{ duration: MOTION_DURATION_SECONDS.fast }}
           >
             <div className="flex items-center gap-2 px-2 pb-2 pt-1">
               <span className="grid h-8 w-8 place-items-center rounded-lg border border-line bg-surface-control text-brand-2">

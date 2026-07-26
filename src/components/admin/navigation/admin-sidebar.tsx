@@ -221,14 +221,14 @@ function AdminSidebarLink({
     >
       <span
         className={cn(
-          "absolute inset-y-1 left-1 w-9 rounded-lg opacity-0 blur-sm transition duration-300 group-hover:opacity-70",
+          "absolute inset-y-1 left-1 w-9 rounded-lg opacity-0 blur-sm transition duration-motion-slow group-hover:opacity-70",
           tone.glow,
           active && "opacity-100",
         )}
       />
       {typeof Icon === "string" ? (
         <img
-          className="relative z-10 h-[22px] w-[22px] object-contain drop-shadow-[0_0_12px_rgba(32,211,255,.3)] transition duration-300 group-hover:scale-125 group-hover:-rotate-6"
+          className="relative z-10 h-[22px] w-[22px] object-contain drop-shadow-[0_0_12px_rgba(32,211,255,.3)] transition duration-motion-slow group-hover:scale-125 group-hover:-rotate-6"
           src={Icon}
           alt=""
           loading="lazy"
@@ -237,7 +237,7 @@ function AdminSidebarLink({
         <Icon
           size={17}
           className={cn(
-            "relative z-10 transition duration-300 group-hover:scale-125 group-hover:-rotate-6",
+            "relative z-10 transition duration-motion-slow group-hover:scale-125 group-hover:-rotate-6",
             active ? "text-brand-2 drop-shadow-[0_0_14px_rgba(32,211,255,.55)]" : tone.icon,
           )}
         />

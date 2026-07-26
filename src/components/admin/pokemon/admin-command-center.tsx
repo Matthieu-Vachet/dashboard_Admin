@@ -356,7 +356,7 @@ export function AdminCommandCenter({
             <CardDescription>{regenerationRunning ? regenerationSteps.find((step) => step.status === "running")?.label || "Préparation…" : `${regenerationSteps.length - regenerationErrors} étape(s) exécutée(s) · ${regenerationErrors} échec(s) · ${regenerationWarnings} avertissement(s)`}</CardDescription>
           </CardHeader>
           <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-950/60" role="progressbar" aria-label="Progression de la régénération globale" aria-valuemin={0} aria-valuemax={100} aria-valuenow={regenerationProgress}>
-            <div className="h-full rounded-full bg-gradient-to-r from-cyan-300 via-sky-400 to-violet-400 transition-[width] duration-300 motion-reduce:transition-none" style={{ width: `${regenerationProgress}%` }} />
+            <div className="h-full rounded-full bg-gradient-to-r from-cyan-300 via-sky-400 to-violet-400 transition-[width] duration-motion-slow motion-reduce:transition-none" style={{ width: `${regenerationProgress}%` }} />
           </div>
           <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
             {regenerationSteps.map((step) => (

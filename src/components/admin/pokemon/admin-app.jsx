@@ -786,7 +786,7 @@ function LoadMoreButton({ shown, total, onClick }) {
   return (
     <div className="mt-5 flex justify-center">
       <Button
-        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-cyan-200/30 bg-cyan-400/12 px-5 py-2 text-sm font-black text-cyan-50 transition duration-150 hover:border-cyan-200/55 hover:bg-cyan-400/20 focus-visible:[outline:revert]! focus-visible:[outline-offset:revert]!"
+        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-cyan-200/30 bg-cyan-400/12 px-5 py-2 text-sm font-black text-cyan-50 transition duration-motion-fast hover:border-cyan-200/55 hover:bg-cyan-400/20 focus-visible:[outline:revert]! focus-visible:[outline-offset:revert]!"
         type="button"
         onClick={onClick}
       >
@@ -2801,7 +2801,7 @@ export function AdminApp() {
                           >
                             {image ? (
                               <img
-                                className={`absolute inset-0 h-full w-full object-cover transition duration-300 ${
+                                className={`absolute inset-0 h-full w-full object-cover transition duration-motion-slow ${
                                   activeFilter
                                     ? "opacity-52 saturate-125"
                                     : "opacity-24 saturate-75 group-hover:opacity-40"

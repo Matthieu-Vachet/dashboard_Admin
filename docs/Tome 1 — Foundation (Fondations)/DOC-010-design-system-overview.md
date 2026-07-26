@@ -2,7 +2,7 @@
 id: DOC-010
 title: Vue d'ensemble du Design System
 slug: design-system-overview
-version: 1.1.8
+version: 1.1.9
 status: Active
 created: 2026-07-12
 last_updated: 2026-07-26
@@ -775,7 +775,7 @@ Le Design System repose sur plusieurs familles de Foundations.
 | Radius | rôles `control`, `surface` et `overlay` à 8 px ; 11 rayons arbitraires réservés aux géométries métier/décoratives |
 | Effets | cinq élévations `surface`, `raised`, `strong`, `overlay`, `floating` avec valeurs dark/light ; glows, scanline, sheen, motion-border et artwork restent décoratifs/métier |
 | Breakpoints | préfixes Tailwind `sm`, `md`, `lg`, `xl`, `2xl` ; aucune configuration personnalisée trouvée |
-| Motion | 200/220/300 ms, `energy-scan` 5,5 s, `sheen` 6 s, Framer Motion et transitions Tailwind |
+| Motion | rôles `fast` 150 ms, `normal` 200 ms, `slow` 300 ms ; easings `standard`, `enter`, `exit` ; 69/69 sites UI canoniques et 99/99 sites reduced-motion couverts |
 
 Les noms conceptuels `Neutral-900`, `Surface Primary`, `primitive.spacing.*`, `semantic.color.*` et `component.*` ci-dessous décrivent la cible documentaire. Ils ne sont pas les identifiants du code. Le Dashboard expose toutefois ses propres rôles runtime `rounded-*` et `shadow-*` documentés ci-dessous.
 
@@ -999,25 +999,11 @@ Toutes les Cards utilisant cet effet doivent partager les mêmes paramètres.
 
 # 3.7 Motion
 
-Les animations sont également considérées comme une Foundation.
+Les animations sont une Foundation bornée. Le contrat implémenté expose trois durations — `fast` 150 ms, `normal` 200 ms et `slow` 300 ms — ainsi que trois easings — `standard`, `enter` et `exit`. Les transitions Tailwind utilisent fast/standard par défaut et les choix explicites consomment `duration-motion-fast|normal|slow`.
 
-Exemples :
+Framer réutilise les constantes secondes de `src/lib/motion.ts`; le spring structurel du drawer conserve damping 26 et stiffness 260. Les progressions, graphiques, DnD et animations Pokémon restent fonctionnels ou métier et ne créent pas de niveaux globaux supplémentaires.
 
-```
-Fast
-
-Normal
-
-Slow
-
-Spring
-
-Ease In
-
-Ease Out
-```
-
-Ces noms sont la cible. Aucun token global `Fast/Normal/Slow` n'est trouvé dans le code ; plusieurs durées explicites coexistent.
+La politique reduced-motion combine la media query globale et `MotionConfig reducedMotion="user"` : transitions et délais deviennent instantanés, spin/pulse/sheen/energy-scan s’arrêtent, les transforms/layout Framer suivent la préférence système et l’information textuelle reste présente. La couverture statique est de 69/69 sites UI génériques et 99/99 sites éligibles reduced-motion.
 
 ---
 
@@ -6425,23 +6411,23 @@ Le Design System distingue plusieurs catégories.
 
 Chaque catégorie possède ses propres règles.
 
-État observé : CSS, Tailwind, Framer Motion et DnD coexistent. GSAP est déclaré dans les dépendances du Dashboard, tandis que l'audit Design System confirme surtout les animations CSS/Tailwind/Framer dans le Dashboard.
+État implémenté : CSS, Tailwind, Framer Motion et DnD coexistent sous un contrat commun de durations/easing/reduced-motion. GSAP reste déclaré dans les dépendances mais n’est pas absorbé par le contrat Dashboard sans consommateur générique démontré.
 
 ---
 
 # Les durées
 
-La nomenclature XS/SM/MD/LG/XL reste la cible ; aucun token de durée portant ces noms n'est trouvé dans le code.
+L’échelle runtime est volontairement limitée à trois rôles.
 
 | Durée observée | Utilisation confirmée |
 |----------------|-----------------------|
-| 200 ms | transitions de composants |
-| 220 ms | opacités d'effets globaux |
-| 300 ms | transitions de layout/navigation |
+| 150 ms `fast` | hover, focus, couleurs et feedback immédiat |
+| 200 ms `normal` | contrôle ou changement d’état local |
+| 300 ms `slow` | shell, drawer et déplacement de layout borné |
 | 5,5 s linéaire infinie | `energy-scan` |
 | 6 s ease-in-out infinie | `sheen` |
 
-Les durées sont actuellement encodées dans les utilitaires/classes CSS ou composants.
+Les trois rôles sont encodés dans `globals.css` et `src/lib/motion.ts`. Les boucles longues restent des exceptions décoratives arrêtées en reduced-motion.
 
 ---
 
@@ -6577,13 +6563,7 @@ L'Overlay utilise un Fade.
 
 # Les modales
 
-Les modales utilisent :
-
-- Fade ;
-- Scale légère ;
-- Blur de l'arrière-plan.
-
-La fermeture est plus rapide que l'ouverture.
+La Modal canonique reste sans animation conformément à son contrat completed. Le dialog historique spécialisé conserve fade/scale en mode normal et devient instantané en mode réduit. Les dialogs métier non migrés gardent leur motion locale tant qu’aucune migration structurelle sûre n’est démontrée.
 
 ---
 
@@ -6680,7 +6660,7 @@ Le Dashboard devrait réduire automatiquement :
 - les rotations ;
 - les zooms.
 
-État observé : la media query `prefers-reduced-motion` désactive `.energy-scan` uniquement. Elle ne couvre pas `animated-sheen`, loaders pulse/spin, Framer Motion, DnD ou l'ensemble des transitions.
+État implémenté : la media query réduit globalement transitions, délais, smooth scroll et itérations; elle arrête explicitement spin, pulse, `animated-sheen` et `energy-scan`. `MotionConfig reducedMotion="user"` couvre les 18 éléments Framer courants. Les 99/99 sites éligibles sont couverts sans supprimer texte, statut ou structure informative.
 
 ---
 
@@ -7033,7 +7013,7 @@ Lorsque l'utilisateur active :
 prefers-reduced-motion
 ```
 
-La règle cible est de réduire les animations non essentielles. L'implémentation actuelle ne désactive explicitement que `.energy-scan` et ne couvre pas uniformément sheen, loaders, Framer Motion ou DnD.
+La règle implémentée réduit les animations non essentielles globalement : transitions et délais CSS deviennent instantanés, spin/pulse/sheen/energy-scan s’arrêtent et Framer respecte la préférence système via `MotionConfig`. L’information des loaders et skeletons reste visible; les interactions DnD ne sont pas supprimées.
 
 ---
 
@@ -9349,11 +9329,11 @@ Cette organisation garantit une documentation cohérente, évolutive et durable.
 
 **Document :** DOC-010 — Design System Overview
 
-**Version :** 1.1.8
+**Version :** 1.1.9
 
 **Statut :** Actif — état implémenté distingué de la cible Figma
 
-**Dernière mise à jour :** 2026-07-26 — consolidation Typography : Geist Sans/Mono, hiérarchie sémantique et consommation des composants
+**Dernière mise à jour :** 2026-07-26 — consolidation Motion : durations, easing, transitions et reduced-motion
 
 **Auteur :** Matthieu Vachet
 

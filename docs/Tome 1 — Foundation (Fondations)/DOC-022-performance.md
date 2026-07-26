@@ -2,11 +2,11 @@
 id: DOC-022
 title: "Performance"
 description: "Référence des mécanismes de rendu, pagination, cache, images et requêtes qui influencent le coût runtime."
-version: 2.0.0
+version: 2.1.0
 status: Official
 owner: Matthieu Vachet
 created: 2026-07-13
-last_updated: 2026-07-13
+last_updated: 2026-07-26
 category: Foundation
 type: Reference
 language: fr
@@ -16,6 +16,8 @@ scope:
   - "Landing-Page-PogoApi"
 source_files:
   - "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx"
+  - "Dashboard Admin/src/app/globals.css"
+  - "Dashboard Admin/src/lib/motion.ts"
   - "PokemonGo-API-/src/lib/cache.js"
   - "PokemonGo-API-/src/services"
   - "PokemonGo-API-/components"
@@ -60,6 +62,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - Le repository trainer partage la connexion Mongo par Promise, crée les index au premier accès et exécute pagination, projection, distincts et agrégation de plages en parallèle.
 - Les références trainer lourdes sont hydratées et mises en cache côté serveur, puis enrichissent les lectures existantes en mémoire sans réécriture MongoDB.
 - Les filtres poids et taille restent paginés et indexés comme les plages IV/CP.
+- Le Motion System limite les transitions UI à 150/200/300 ms, privilégie les propriétés ciblées, transform et opacity, et n’ajoute aucune boucle width/height/top/left. En `prefers-reduced-motion`, les boucles CSS/Tailwind s’arrêtent, les transitions deviennent instantanées et Framer neutralise transform/layout via sa politique globale.
 
 ## 4. Relations et dépendances
 
@@ -108,12 +111,15 @@ Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient 
 
 - Aucun résultat Core Web Vitals n’est présent.
 - Aucun budget de bundle n’est présent.
+- Aucun benchmark GPU ou coût de rendu comparatif des animations n’est présent.
 - Aucune mesure p95 ou p99 API/Mongo n’est présente.
 - Aucun explain MongoDB n’est conservé.
 
 ## 8. Fichiers sources
 
 - `Dashboard Admin/src/components/admin/pokemon/admin-app.jsx`
+- `Dashboard Admin/src/app/globals.css`
+- `Dashboard Admin/src/lib/motion.ts`
 - `PokemonGo-API-/src/lib/cache.js`
 - `PokemonGo-API-/src/services`
 - `PokemonGo-API-/components`

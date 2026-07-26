@@ -110,7 +110,7 @@ test("focus, Escape, trap, retour et scroll lock restent contractuels", () => {
 test("AdminVersionHistoryDialog reçoit la stabilisation locale sans devenir Modal", () => {
   const source = read("src/components/admin/layout/admin-version-history-dialog.tsx");
   assert.doesNotMatch(source, /from "@\/components\/ui\/modal"/);
-  assert.match(source, /duration: reduceMotion \? 0 : 0\.18/);
+  assert.match(source, /duration: reduceMotion \? MOTION_DURATION_SECONDS\.instant : MOTION_DURATION_SECONDS\.normal/);
   if (target) {
     for (const contract of [/useReducedMotion/, /aria-labelledby=\{titleId\}/, /aria-describedby=\{descriptionId\}/, /event\.key === "Escape"/, /document\.body\.style\.overflow = "hidden"/, /previouslyFocusedRef/]) assert.match(source, contract);
   } else {

@@ -56,6 +56,12 @@
   --elevation-overlay: 0 30px 120px rgba(0, 0, 0, 0.46);
   --elevation-floating: 0 24px 80px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   --radius: 8px;
+  --motion-duration-fast: 150ms;
+  --motion-duration-normal: 200ms;
+  --motion-duration-slow: 300ms;
+  --motion-ease-standard: ease;
+  --motion-ease-enter: cubic-bezier(0, 0, 0.2, 1);
+  --motion-ease-exit: cubic-bezier(0.4, 0, 1, 1);
 }
 
 .light {
@@ -171,6 +177,8 @@
   --shadow-strong: var(--elevation-strong);
   --shadow-overlay: var(--elevation-overlay);
   --shadow-floating: var(--elevation-floating);
+  --default-transition-duration: var(--motion-duration-fast);
+  --default-transition-timing-function: var(--motion-ease-standard);
 }
 
 @utility rounded-control {
@@ -203,6 +211,30 @@
 
 @utility shadow-floating {
   box-shadow: var(--elevation-floating);
+}
+
+@utility duration-motion-fast {
+  transition-duration: var(--motion-duration-fast);
+}
+
+@utility duration-motion-normal {
+  transition-duration: var(--motion-duration-normal);
+}
+
+@utility duration-motion-slow {
+  transition-duration: var(--motion-duration-slow);
+}
+
+@utility ease-motion-standard {
+  transition-timing-function: var(--motion-ease-standard);
+}
+
+@utility ease-motion-enter {
+  transition-timing-function: var(--motion-ease-enter);
+}
+
+@utility ease-motion-exit {
+  transition-timing-function: var(--motion-ease-exit);
 }
 
 @utility type-display {
@@ -770,7 +802,7 @@ a {
     linear-gradient(90deg, transparent, var(--accent-border), transparent),
     linear-gradient(180deg, transparent, rgba(144, 91, 244, 0.28), transparent);
   opacity: 0;
-  transition: opacity 220ms ease;
+  transition: opacity var(--motion-duration-normal) var(--motion-ease-standard);
 }
 
 .motion-border::after {
@@ -782,7 +814,7 @@ a {
   background:
     linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent) 0 0 / 220% 100%;
   opacity: 0;
-  transition: opacity 220ms ease;
+  transition: opacity var(--motion-duration-normal) var(--motion-ease-standard);
 }
 
 .motion-border:hover::before,
@@ -911,12 +943,20 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-spin,
-  .animate-pulse {
-    animation: none !important;
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
   }
 
+  .animate-spin,
+  .animate-pulse,
+  .animated-sheen,
   .energy-scan {
-    animation: none;
+    animation: none !important;
   }
 }

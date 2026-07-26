@@ -98,7 +98,7 @@ test("les dialogs legacy restent caractérisables sans migration partielle", () 
   assert.match(version, /aria-labelledby=\{titleId\}/);
   assert.match(version, /aria-describedby=\{descriptionId\}/);
   assert.match(version, /max-w-3xl/);
-  assert.match(version, /transition=\{\{ duration: reduceMotion \? 0 : 0\.18 \}\}/);
+  assert.match(version, /transition=\{\{ duration: reduceMotion \? MOTION_DURATION_SECONDS\.instant : MOTION_DURATION_SECONDS\.normal \}\}/);
   assert.match(version, /useReducedMotion/);
   assert.doesNotMatch(version, /@\/components\/ui\/modal/);
 

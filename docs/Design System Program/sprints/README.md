@@ -16,5 +16,6 @@ Un dossier de sprint contient un README, un inventaire, un plan écrit avant la 
 | `state-system/` | Famille complète | completed — 78 racines génériques couvertes, dont 15 Fetch Loading animés, 52 Empty/No Results et 11 Error |
 | `visual-consistency/` | Consolidation transverse complète | completed — couverture générique 98,83 % → 100 %, trois rôles radius, cinq niveaux d’élévation et 102 captures validées |
 | `typography-system/` | Consolidation transverse complète | completed — Geist Sans/Mono activées, 15 rôles, couverture générique 0 % → 100 % et 66 captures validées |
+| `motion-system/` | Consolidation transverse complète | completed — trois durations, trois easings, couverture UI 0 % → 100 %, reduced-motion 13,13 % → 100 % et 96 captures validées |
 
-Le prochain sprint de la chaîne est **Motion System**. Typography n’a créé ni composant, ni nouvelle API, ni micro-sprint supplémentaire. `DS-BACKLOG-012` Responsive reste planifié globalement et `DS-BACKLOG-014` Motion entre dans son sprint dédié.
+Le dernier sprint restant de la chaîne est **Responsive System** (`DS-BACKLOG-012`). Il demeure `planned` et ne sera pas lancé avant le message utilisateur « reprend ». Motion n’a créé ni composant UI, ni nouvelle API, ni micro-sprint supplémentaire.

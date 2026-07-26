@@ -17,7 +17,7 @@ Statuts autorisés : `not-started`, `observing`, `planned`, `in-progress`, `bloc
 | DS-BACKLOG-011 | Overlays | Modal | 38 cas historiques classés ; 23 instances canoniques dans 14 fichiers à la baseline courante, API publique inchangée et exceptions métier documentées | completed | P1 | élevé | L | Accessibility, Button |
 | DS-BACKLOG-012 | Qualité transverse | Responsive | Définir les matrices de viewports par famille | planned | P0 | moyen | M | Aucune |
 | DS-BACKLOG-013 | Qualité transverse | Accessibility | 95 contrôles inventoriés, 43 vérifiés au runtime et 18 défauts sûrs corrigés | validated | P0 | élevé | L | Sprint Field validé |
-| DS-BACKLOG-014 | Qualité transverse | Motion | Inventorier animations et reduced motion | not-started | P1 | moyen | M | Accessibility |
+| DS-BACKLOG-014 | Qualité transverse | Motion | Trois durations et trois easings ; 69/69 sites UI canoniques, 99/99 sites reduced-motion couverts, exceptions fonctionnelles/métier conservées | completed | P1 | moyen | M | Accessibility |
 | DS-BACKLOG-015 | Synchronisation | Figma Sync | Aligner tokens, primitives et variantes validés | not-started | P2 | moyen | L | Familles stabilisées |
 | DS-BACKLOG-016 | Maintenance | Cleanup final | Supprimer code mort et façades devenues inutiles | not-started | P2 | élevé | L | Toutes migrations validées |
 | DS-BACKLOG-017 | Overlays | Modal Stabilisation | Titre/description reliés, overlay hors tab order, focus renforcé et motion réduite sur AdminVersionHistoryDialog | completed | P1 | élevé | M | DS-BACKLOG-011 |
@@ -25,4 +25,4 @@ Statuts autorisés : `not-started`, `observing`, `planned`, `in-progress`, `bloc
 
 ## Prochaine priorité proposée
 
-**Motion System**, prochaine mission autorisée. Typography System est completed avec Geist Sans/Mono réellement chargées, 15 rôles finis et 100 % de couverture des patterns génériques sûrs ; aucun identifiant permanent n’a été inventé pour ce lot transverse. `DS-BACKLOG-014` passe au sprint dédié sans modifier encore son statut durable ; `DS-BACKLOG-012` Responsive reste `planned` jusqu’au dernier sprint de la chaîne.
+**Responsive System** (`DS-BACKLOG-012`) reste la dernière mission autorisée et demeure `planned`. Motion System est completed avec 100 % de couverture UI et reduced-motion ; aucun identifiant permanent n’a été inventé. L’orchestrateur est volontairement en pause jusqu’au message utilisateur « reprend ».

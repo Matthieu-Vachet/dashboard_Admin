@@ -1,5 +1,6 @@
 "use client";
 
+import { MotionConfig } from "framer-motion";
 import { ThemeProvider } from "next-themes";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -12,7 +13,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       storageKey="matweb-theme"
       value={{ dark: "dark", light: "light" }}
     >
-      {children}
+      <MotionConfig reducedMotion="user">{children}</MotionConfig>
     </ThemeProvider>
   );
 }

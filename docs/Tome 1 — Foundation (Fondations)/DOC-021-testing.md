@@ -2,11 +2,11 @@
 id: DOC-021
 title: "Tests"
 description: "Référence des suites de tests, commandes et couvertures réellement présentes dans les cinq dépôts."
-version: 2.0.0
+version: 2.1.0
 status: Official
 owner: Matthieu Vachet
 created: 2026-07-13
-last_updated: 2026-07-13
+last_updated: 2026-07-26
 category: Foundation
 type: Reference
 language: fr
@@ -48,6 +48,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | Dashboard Admin Pokémon | 11 tests |
 | Dashboard trainer | 14 tests déclarés |
 | Dashboard Learning | 1 scénario E2E séquentiel Playwright + Mongo temporaire |
+| Dashboard Design System | 83 assertions statiques courantes; vérificateurs Playwright versionnés par sprint |
 | Landing et Assets | 0 test |
 
 ## 3. Implémentation observée
@@ -58,6 +59,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - Dashboard expose test:admin-pokemon, test:trainer-pokemon et test:learning-flow; npm run check ne les appelle pas.
 - test-trainer-pokemon valide le contrat, les limites IV, la normalisation, les assets exacts et fallback, le read-back, l’absence de deleteMany, la session, l’absence OpenAPI et les états responsive.
 - test:admin-pokemon couvre désormais navigation, modale clavier, Background, Shiny, agenda mobile, diagnostics compacts, API Explorer et types d’attaques.
+- Les scripts `test-design-system-*.mjs` portent 83 assertions statiques sur les contrats UI courants. Les campagnes de sprint conservent leurs scénarios : Motion valide 96 captures normal/reduced, dark/light et trois viewports avec 48 contrôles reduced-motion et 32 interactions.
 - Le workflow sync-mongodb exécute npm ci puis npm run sync sans tests; le workflow Data dispatch ne lance aucune suite.
 
 ## 4. Relations et dépendances

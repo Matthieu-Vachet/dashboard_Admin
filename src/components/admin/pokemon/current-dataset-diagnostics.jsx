@@ -263,7 +263,7 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
             <DatasetDiffBadge changed={changed} hasDiff={hasDiff} />
           </span>
           <Button className="h-9 w-9 sm:h-10 sm:w-10" size="icon" variant="ghost" type="button" onClick={toggleExpanded} aria-expanded={expanded} aria-label={expanded ? "Replier les détails de la source" : "Déplier les détails de la source"}>
-            <ChevronDown className={`transition-transform duration-200 motion-reduce:transition-none ${expanded ? "rotate-180" : ""}`} size={18} />
+            <ChevronDown className={`transition-transform duration-motion-normal motion-reduce:transition-none ${expanded ? "rotate-180" : ""}`} size={18} />
           </Button>
         </div>
       </div>

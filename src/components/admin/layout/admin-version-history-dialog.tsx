@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { X } from "lucide-react";
 import { useEffect, useId, useRef } from "react";
 import type { DashboardVersionEntry } from "@/data/dashboard-version-history";
+import { MOTION_DURATION_SECONDS } from "@/lib/motion";
 
 type AdminVersionHistoryDialogProps = {
   entries: DashboardVersionEntry[];
@@ -74,7 +75,7 @@ export function AdminVersionHistoryDialog({
           initial={reduceMotion ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={reduceMotion ? { opacity: 1 } : { opacity: 0 }}
-          transition={reduceMotion ? { duration: 0 } : undefined}
+          transition={reduceMotion ? { duration: MOTION_DURATION_SECONDS.instant } : undefined}
           onClick={onClose}
         >
           <motion.section
@@ -88,7 +89,7 @@ export function AdminVersionHistoryDialog({
             initial={reduceMotion ? false : { y: 18, scale: 0.98 }}
             animate={{ y: 0, scale: 1 }}
             exit={reduceMotion ? { y: 0, scale: 1 } : { y: 18, scale: 0.98 }}
-            transition={{ duration: reduceMotion ? 0 : 0.18 }}
+            transition={{ duration: reduceMotion ? MOTION_DURATION_SECONDS.instant : MOTION_DURATION_SECONDS.normal }}
             onClick={(event) => event.stopPropagation()}
           >
             <header className="flex items-start justify-between gap-4 border-b border-line bg-surface-minimal p-5">

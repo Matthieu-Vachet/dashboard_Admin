@@ -12,6 +12,7 @@ import { AdminTopbar } from "@/components/admin/navigation/admin-topbar";
 import { useDashboardVersionHistory } from "@/hooks/admin/use-dashboard-version-history";
 import { usePersistentState } from "@/lib/use-persistent-state";
 import { cn } from "@/lib/cn";
+import { MOTION_TRANSITION } from "@/lib/motion";
 import type { AdminFrameProps } from "@/types/admin/dashboard";
 
 export function AdminAppFrame({
@@ -71,7 +72,7 @@ export function AdminAppFrame({
 
       <aside
         className={cn(
-          "dashboard-sidebar fixed inset-y-0 left-0 z-40 hidden border-r border-line backdrop-blur-2xl transition-[width] duration-300 lg:block",
+          "dashboard-sidebar fixed inset-y-0 left-0 z-40 hidden border-r border-line backdrop-blur-2xl transition-[width] duration-motion-slow lg:block",
           collapsed ? "w-[84px]" : "w-[236px] 2xl:w-[286px]",
         )}
       >
@@ -92,7 +93,7 @@ export function AdminAppFrame({
               initial={{ x: -286 }}
               animate={{ x: 0 }}
               exit={{ x: -286 }}
-              transition={{ type: "spring", damping: 26, stiffness: 260 }}
+              transition={MOTION_TRANSITION.drawer}
               onClick={(event) => event.stopPropagation()}
             >
               {sidebar}
@@ -103,7 +104,7 @@ export function AdminAppFrame({
 
       <div
         className={cn(
-          "relative z-10 min-h-screen transition-[padding] duration-300",
+          "relative z-10 min-h-screen transition-[padding] duration-motion-slow",
           collapsed ? "lg:pl-[84px]" : "lg:pl-[236px] 2xl:pl-[286px]",
         )}
       >

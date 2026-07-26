@@ -172,7 +172,7 @@ export function GenerationFilterBar({ value, onChange }) {
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_10%,rgba(34,211,238,.22),transparent_38%)] opacity-0 transition group-hover:opacity-100" />
               {image ? (
                 <img
-                  className={`absolute bottom-1 right-1 h-14 max-w-[68%] object-contain drop-shadow-[0_10px_24px_rgba(0,0,0,.35)] transition duration-300 group-hover:scale-105 group-hover:opacity-100 ${
+                  className={`absolute bottom-1 right-1 h-14 max-w-[68%] object-contain drop-shadow-[0_10px_24px_rgba(0,0,0,.35)] transition duration-motion-slow group-hover:scale-105 group-hover:opacity-100 ${
                     active ? "opacity-100 saturate-125" : "opacity-45 saturate-75"
                   }`}
                   src={image}

@@ -630,7 +630,7 @@ function ActionLink({
 function ExternalButton({ href, label }: { href: string; label: string }) {
   const internal = href.startsWith("/");
   const className =
-    "group flex min-h-11 items-center justify-between gap-3 rounded-lg border border-line bg-surface-flat px-3 text-sm font-black transition duration-150 hover:border-brand-2/45 hover:bg-brand-2/10 focus-visible:[outline:revert]! focus-visible:[outline-offset:revert]!";
+    "group flex min-h-11 items-center justify-between gap-3 rounded-lg border border-line bg-surface-flat px-3 text-sm font-black transition duration-motion-fast hover:border-brand-2/45 hover:bg-brand-2/10 focus-visible:[outline:revert]! focus-visible:[outline-offset:revert]!";
 
   if (internal) {
     return (
