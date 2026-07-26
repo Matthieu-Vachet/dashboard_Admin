@@ -253,6 +253,26 @@ function diagnosticId(diagnostic: IdentityDiagnostic) {
   return diagnostic.id || diagnostic._id || "";
 }
 
+function normalizeDiagnosticAlias(value?: string | null) {
+  return String(value || "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .replace(/_+/g, "_");
+}
+
+function diagnosticAliasValue(diagnostic: IdentityDiagnostic) {
+  const form = normalizeDiagnosticAlias(diagnostic.form);
+  if (form && form !== "normal") return form;
+  const pokemon = normalizeDiagnosticAlias(diagnostic.pokemon);
+  const costume = normalizeDiagnosticAlias(diagnostic.costume);
+  if (pokemon && costume) return `${pokemon}_${costume}`;
+  return diagnostic.rawAlias;
+}
+
 function formatDate(value?: string | null) {
   if (!value) return "Jamais";
   const date = new Date(value);
@@ -421,6 +441,7 @@ export function IdentityManagerPanel() {
   const conflictCount = Number(conflicts.explicitConflicts || 0) + Number(conflicts.aliasConflicts?.length || 0);
   const localFieldsLocked = Boolean(identityModal.identity?.localIdentity && identityModal.identity.syncStatus === "synchronized");
   const syncHasChanges = Boolean(syncReport && (syncReport.create || syncReport.update || syncReport.orphan));
+  const associateAlias = associateModal.diagnostic ? diagnosticAliasValue(associateModal.diagnostic) : "";
 
   const loadSyncPreview = useCallback(async (notify = false) => {
     setSyncLoading(true);
@@ -543,9 +564,10 @@ export function IdentityManagerPanel() {
   }
 
   async function resolveDiagnostic(diagnostic: IdentityDiagnostic, identity: PokemonIdentity) {
+    const alias = diagnosticAliasValue(diagnostic);
     await apiPost("identity-manager-alias-create", {
       identityId: identityId(identity),
-      payload: { provider: diagnostic.provider, value: diagnostic.rawAlias, status: "active", confidence: 1, source: "manual", reason: `Résolu depuis le diagnostic ${diagnosticId(diagnostic)}` },
+      payload: { provider: diagnostic.provider, value: alias, status: "active", confidence: 1, source: "manual", reason: `Résolu depuis le diagnostic ${diagnosticId(diagnostic)} (source : ${diagnostic.rawAlias})` },
     });
     await apiPost("identity-manager-diagnostic-update", { diagnosticId: diagnosticId(diagnostic), payload: { status: "resolved", identityId: identityId(identity) } });
   }
@@ -698,7 +720,7 @@ export function IdentityManagerPanel() {
     setBusyAction(`associate:${identityId(identity)}`);
     try {
       await resolveDiagnostic(associateModal.diagnostic, identity);
-      toast.success(`Alias associé à ${identity.canonicalId}.`);
+      toast.success(`Alias ${diagnosticAliasValue(associateModal.diagnostic)} associé à ${identity.canonicalId}.`);
       setAssociateModal({ open: false });
       await loadDiagnostics();
     } catch (caught) {
@@ -988,7 +1010,17 @@ export function IdentityManagerPanel() {
 
       <Modal open={importModal} onClose={() => setImportModal(false)} title="Importer des identités" description="Aucune écriture n’est possible avant une prévisualisation sans conflit." footer={<div className="flex justify-end gap-2"><Button onClick={() => setImportModal(false)} disabled={busy}>Fermer</Button><Button variant="primary" loading={busyAction === "import"} loadingText="Import…" disabled={busy || !importReport || Boolean(importReport.conflicts.length || importReport.duplicates.length || importReport.invalid.length)} onClick={() => void applyImport()}>Valider l’import</Button></div>}><Input type="file" accept="application/json,.json" onChange={(event) => void readImportFile(event.target.files?.[0])} />{importReport ? <div className="mt-4 grid gap-3 sm:grid-cols-3"><Stat label="Créations" value={importReport.create} tone="green" /><Stat label="Mises à jour" value={importReport.update} tone="cyan" /><Stat label="Conflits" value={importReport.conflicts.length + importReport.duplicates.length + importReport.invalid.length} tone="red" /></div> : null}</Modal>
 
-      <Modal open={associateModal.open} onClose={() => setAssociateModal({ open: false })} title="Associer l’alias" description={`${associateModal.diagnostic?.provider || ""} · ${associateModal.diagnostic?.rawAlias || ""}`} className="max-w-4xl"><label className="relative block"><Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={17} /><Input className="pl-10" value={associateSearch} onChange={(event) => setAssociateSearch(event.target.value)} placeholder="Rechercher un Canonical ID…" /></label><div className="mt-4 space-y-2">{associateCandidates.map((identity) => <button key={identityId(identity)} type="button" disabled={busy} className="flex w-full items-center gap-3 rounded-lg border border-line bg-surface-faint p-3 text-left transition hover:border-brand-2/50" onClick={() => void associate(identity)}><UserRoundCheck className="text-cyan-200" /><span className="min-w-0 flex-1"><strong className="block break-all font-mono">{identity.canonicalId}</strong><small className="text-muted">#{identity.pokemonId} · {identity.form || "normal"} · {identity.costume || "sans costume"}</small></span><Badge tone="green">Associer</Badge></button>)}</div></Modal>
+      <Modal open={associateModal.open} onClose={() => setAssociateModal({ open: false })} title="Associer l’alias" description={`${associateModal.diagnostic?.provider || ""} · ${associateModal.diagnostic?.rawAlias || ""}`} className="max-w-4xl">
+        <div className="space-y-4">
+          <div className="rounded-xl border border-brand-2/30 bg-brand-2/10 p-3">
+            <p className="type-overline text-cyan-200/75">Alias proposé</p>
+            <code className="mt-1 block break-all font-mono text-sm font-black text-cyan-100">{associateAlias}</code>
+            <p className="mt-1 text-xs font-semibold text-muted">La forme structurée du diagnostic est prioritaire ; le nom et le costume servent de secours.</p>
+          </div>
+          <label className="relative block"><Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={17} /><Input className="pl-10" value={associateSearch} onChange={(event) => setAssociateSearch(event.target.value)} placeholder="Rechercher un Canonical ID…" /></label>
+          <div className="space-y-2">{associateCandidates.map((identity) => <button key={identityId(identity)} type="button" disabled={busy} className="flex w-full items-center gap-3 rounded-lg border border-line bg-surface-faint p-3 text-left transition hover:border-brand-2/50" onClick={() => void associate(identity)}><UserRoundCheck className="text-cyan-200" /><span className="min-w-0 flex-1"><strong className="block break-all font-mono">{identity.canonicalId}</strong><small className="text-muted">#{identity.pokemonId} · {identity.form || "normal"} · {identity.costume || "sans costume"}</small></span><Badge tone="green">Associer</Badge></button>)}</div>
+        </div>
+      </Modal>
     </section>
   );
 }

@@ -153,6 +153,14 @@ test("les datasets affichent l'historique centralisé et les diagnostics non mat
   assert.match(events, /événement\(s\) disponible\(s\)/);
 });
 
+test("Identity Manager propose la forme contextuelle pour associer un diagnostic", () => {
+  const source = read("src/components/admin/pokemon/identity-manager-panel.tsx");
+  assert.match(source, /function diagnosticAliasValue/);
+  assert.match(source, /normalizeDiagnosticAlias\(diagnostic\.form\)/);
+  assert.match(source, /value: alias/);
+  assert.match(source, /Alias proposé/);
+});
+
 test("la navigation précédente et suivante reste côte à côte sur mobile", () => {
   const source = read("src/components/admin/pokemon/detail-modal.jsx");
   assert.match(source, /grid grid-cols-2 gap-2 sm:gap-3/);
