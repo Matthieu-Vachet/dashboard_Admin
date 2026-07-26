@@ -125,7 +125,7 @@ export function GameMasterJsonViewer({ value, title = "JSON brut" }) {
           <button className={`${buttonClass} min-h-9 px-3 py-1.5 text-xs`} type="button" onClick={() => copy(value, "JSON complet copié")}><Clipboard size={13} /> Copier</button>
         </div>
       </header>
-      <div className="max-h-[62vh] overflow-auto p-3" tabIndex={0}>
+      <div className="max-h-[62dvh] overflow-auto p-3" tabIndex={0}>
         <JsonNode key={expandSignal} name="$" value={value} path="$" depth={0} expandSignal={expandSignal} expandAll={expandAll} matches={matches} activePath={activePath} />
       </div>
       <footer className="flex items-center gap-2 border-t border-line-subtle px-3 py-2 text-[10px] font-bold text-disabled"><Check size={12} /> Une seule entrée brute est chargée à la fois; le Game Master complet reste côté serveur.</footer>

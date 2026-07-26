@@ -2,7 +2,7 @@
 id: DOC-010
 title: Vue d'ensemble du Design System
 slug: design-system-overview
-version: 1.1.9
+version: 1.2.0
 status: Active
 created: 2026-07-12
 last_updated: 2026-07-26
@@ -4757,7 +4757,7 @@ Le Dashboard distingue plusieurs catégories.
 
 | Type observé | Largeur / seuil |
 |--------------|-----------------|
-| Petit mobile personnalisé | 480 px sur quelques grilles |
+| Seuils métier spécialisés | 420 à 521 px, limités à 14 compositions locales documentées |
 | `sm` | ≥ 640 px |
 | `md` | ≥ 768 px |
 | `lg` | ≥ 1024 px ; apparition de la sidebar desktop |
@@ -4765,13 +4765,13 @@ Le Dashboard distingue plusieurs catégories.
 | `2xl` | ≥ 1536 px |
 | Ultra Wide | aucun breakpoint dédié ; contenu plafonné à 1680 px |
 
-Toutes les interfaces doivent être testées sur ces formats.
+La matrice Design System de référence couvre 375×812, 768×1024 et 1440×1000 dans les thèmes clair et sombre. Les campagnes métier peuvent ajouter des largeurs sans créer un second système de breakpoints.
 
 ---
 
 # Mobile First
 
-Les classes Tailwind suivent majoritairement une approche Mobile First. Plusieurs composants utilisent toutefois des dimensions, hauteurs minimales et grilles denses qui nécessitent une validation spécifique sur petits écrans.
+Les classes Tailwind suivent une approche Mobile First. Les cinq paliers canoniques totalisent 814 usages ; aucun seuil arbitraire générique ni branchement JavaScript de rendu sur la largeur n'est présent.
 
 Chaque nouvelle interface est pensée pour fonctionner sur un petit écran avant d'être enrichie pour les résolutions supérieures.
 
@@ -4855,7 +4855,7 @@ Mobile
 Content
 ```
 
-Implémentation observée : sidebar fixe 236 px, 286 px en `2xl`, repliée à 84 px à partir de `lg` ; drawer mobile 286 px sous `lg`. La navigation reste disponible, mais le drawer n'a pas de `max-width: 100vw` explicite.
+Implémentation observée : sidebar fixe 236 px, 286 px en `2xl`, repliée à 84 px à partir de `lg` ; drawer mobile 286 px sous `lg`, borné à `calc(100vw - 1rem)`. Le drawer verrouille le body, reçoit et piège le focus, ferme sur Escape et restitue le focus au déclencheur.
 
 ---
 
@@ -4889,7 +4889,7 @@ Mobile
 1 colonne
 ```
 
-Cette progression est une règle cible. Certaines sous-grilles restent à deux ou trois colonnes dès le mobile.
+Cette progression est le contrat générique. Une composition métier ne peut conserver une densité différente que si ses données restent lisibles, contenues et validées dans la matrice.
 
 ---
 
@@ -4897,7 +4897,7 @@ Cette progression est une règle cible. Certaines sous-grilles restent à deux o
 
 Les tableaux sont l'un des éléments les plus sensibles.
 
-Le Dashboard privilégie les cards/grilles pour la majorité des données. Une table JSX explicite est confirmée dans le viewer documentaire et utilise un conteneur horizontal scrollable.
+Le Dashboard privilégie les cards/grilles pour la majorité des données. Les trois familles de tableaux détectées utilisent une vue cartes ou un conteneur horizontal scrollable ; le document global ne porte pas leur overflow.
 
 Desktop
 
@@ -4935,7 +4935,7 @@ Mobile
 
 Plein écran ou bottom-sheet selon l'implémentation.
 
-Le composant Modal commun est responsive, mais les modales Event, Collections, Source Watch et détails utilisent des implémentations indépendantes avec risques de scrolls imbriqués.
+Le composant Modal commun et les overlays métier conservent leur anatomie propre, mais partagent le contrat durable : boîte contenue dans le viewport, scroll interne, nom accessible, focus initial et piégé, Escape, verrouillage du body et restitution du focus.
 
 ---
 
@@ -5058,17 +5058,15 @@ Le contenu reste identique.
 
 # Tests Responsive
 
-Chaque page doit être validée sur :
+Chaque page doit être validée au minimum sur :
 
-✅ Mobile
+✅ Mobile — 375×812
 
-✅ Tablet
+✅ Tablet — 768×1024
 
-✅ Laptop
+✅ Desktop — 1440×1000
 
-✅ Desktop
-
-✅ Ultra Wide
+✅ Thèmes clair et sombre
 
 Les tests devraient vérifier :
 
@@ -5086,7 +5084,7 @@ Les tests devraient vérifier :
 
 Avant validation :
 
-État de l'audit : les captures 320/375/768/1024/1440/1920, les tests iOS/Android, le zoom 200/400 %, le clavier virtuel et le parcours tactile complet ne sont pas trouvés. Les éléments ci-dessous restent donc une checklist à exécuter, pas des validations acquises.
+État courant : les 20 parcours Dashboard sont automatisés sur les trois viewports de référence et les deux thèmes. La campagne compte 120 vues, 20 interactions, 12 contrôles de modale et 10 contrôles de tableau, sans overflow global ni erreur console/React. Les tests iOS/Android réels, zoom 200/400 %, clavier virtuel et parcours tactile complet restent absents.
 
 ✅ Aucun débordement horizontal
 
@@ -5144,7 +5142,7 @@ A[Figma]
 -->H[Publication]
 ```
 
-Ce workflow reste la cible. Aucun gate automatisé ne prouve une validation de tous ces viewports avant chaque mise en production.
+Le gate local `scripts/test-design-system-responsive.mjs` vérifie le contrat source et `scripts/verify-design-system-responsive.mjs` exécute la matrice de référence. Ces scripts ne sont pas encore imposés par une CI avant chaque mise en production.
 
 ---
 
@@ -5166,7 +5164,7 @@ Il constitue un élément central du Design System et doit être pris en compte 
 
 - DOC-010 — Design System Overview
 - DOC-013 — Catalogue des pages
-- DOC-025 — Responsive
+- DOC-023 — Responsive
 - TEMPLATE-001 à TEMPLATE-006
 - COMP-001 à COMP-136 dans le registre global audité
 

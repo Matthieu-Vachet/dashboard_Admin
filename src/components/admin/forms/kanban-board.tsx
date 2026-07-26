@@ -748,7 +748,7 @@ function KanbanTaskCard({
 
 function KanbanTaskPreview({ task }: { task: Task }) {
   return (
-    <article className="w-[320px] rounded-lg border border-brand-2/55 bg-[#101522] p-3 shadow-[0_28px_90px_rgba(32,211,255,0.24)]">
+    <article className="w-[320px] max-w-[calc(100vw-2rem)] rounded-lg border border-brand-2/55 bg-[#101522] p-3 shadow-[0_28px_90px_rgba(32,211,255,0.24)]">
       <Badge className={categoryStyles[task.category]}>
         {task.category}
       </Badge>

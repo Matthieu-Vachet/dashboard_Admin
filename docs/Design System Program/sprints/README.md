@@ -17,5 +17,6 @@ Un dossier de sprint contient un README, un inventaire, un plan écrit avant la 
 | `visual-consistency/` | Consolidation transverse complète | completed — couverture générique 98,83 % → 100 %, trois rôles radius, cinq niveaux d’élévation et 102 captures validées |
 | `typography-system/` | Consolidation transverse complète | completed — Geist Sans/Mono activées, 15 rôles, couverture générique 0 % → 100 % et 66 captures validées |
 | `motion-system/` | Consolidation transverse complète | completed — trois durations, trois easings, couverture UI 0 % → 100 %, reduced-motion 13,13 % → 100 % et 96 captures validées |
+| `responsive-system/` | Consolidation transverse complète | completed — couverture générique 99,51 % → 100 %, 120 vues validées aux trois viewports et deux thèmes |
 
-Le dernier sprint restant de la chaîne est **Responsive System** (`DS-BACKLOG-012`). Il demeure `planned` et ne sera pas lancé avant le message utilisateur « reprend ». Motion n’a créé ni composant UI, ni nouvelle API, ni micro-sprint supplémentaire.
+La chaîne autorisée est terminée avec **Responsive System** (`DS-BACKLOG-012`) `completed`. Aucun cinquième sprint, composant UI, nouvelle API ou micro-sprint supplémentaire n’est lancé.

@@ -2,7 +2,7 @@
 id: DOC-021
 title: "Tests"
 description: "Référence des suites de tests, commandes et couvertures réellement présentes dans les cinq dépôts."
-version: 2.1.0
+version: 2.2.0
 status: Official
 owner: Matthieu Vachet
 created: 2026-07-13
@@ -45,10 +45,10 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | --- | --- |
 | PokemonGo-API- | 10 fichiers, 66 tests node:test |
 | PokemonGo-Data | 4 fichiers, 32 tests node:test |
-| Dashboard Admin Pokémon | 11 tests |
-| Dashboard trainer | 14 tests déclarés |
+| Dashboard Admin Pokémon | 31 tests |
+| Dashboard trainer | 17 tests déclarés, dont 1 fixture volumineux ignoré par défaut |
 | Dashboard Learning | 1 scénario E2E séquentiel Playwright + Mongo temporaire |
-| Dashboard Design System | 83 assertions statiques courantes; vérificateurs Playwright versionnés par sprint |
+| Dashboard Design System | 90 assertions statiques courantes; vérificateurs Playwright versionnés par sprint |
 | Landing et Assets | 0 test |
 
 ## 3. Implémentation observée
@@ -59,7 +59,8 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - Dashboard expose test:admin-pokemon, test:trainer-pokemon et test:learning-flow; npm run check ne les appelle pas.
 - test-trainer-pokemon valide le contrat, les limites IV, la normalisation, les assets exacts et fallback, le read-back, l’absence de deleteMany, la session, l’absence OpenAPI et les états responsive.
 - test:admin-pokemon couvre désormais navigation, modale clavier, Background, Shiny, agenda mobile, diagnostics compacts, API Explorer et types d’attaques.
-- Les scripts `test-design-system-*.mjs` portent 83 assertions statiques sur les contrats UI courants. Les campagnes de sprint conservent leurs scénarios : Motion valide 96 captures normal/reduced, dark/light et trois viewports avec 48 contrôles reduced-motion et 32 interactions.
+- Les scripts `test-design-system-*.mjs` portent 90 assertions statiques sur les contrats UI courants. Les campagnes de sprint conservent leurs scénarios : Motion valide 96 captures normal/reduced, dark/light et trois viewports avec 48 contrôles reduced-motion et 32 interactions.
+- Responsive ajoute 7 assertions statiques et une campagne de 20 parcours × 3 viewports × 2 thèmes : 120 vues, 20 interactions, 12 contrôles de modale et 10 contrôles de tableau, sans overflow horizontal ni erreur console/React. La campagne Admin Pokémon couvre en complément 126 vues sur sept largeurs et deux thèmes.
 - Le workflow sync-mongodb exécute npm ci puis npm run sync sans tests; le workflow Data dispatch ne lance aucune suite.
 
 ## 4. Relations et dépendances
@@ -76,7 +77,8 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 ```mermaid
 flowchart LR
   DATA["32 tests Data"] --> API["66 tests API"]
-  DASH["25 tests Dashboard + E2E"] --> UI["Dashboard"]
+  DASH["48 tests Dashboard + E2E"] --> UI["Dashboard"]
+  RESP["90 assertions DS + matrices Playwright"] --> UI
   API -.-> SYNC["Workflow sync Mongo"]
   LAND["Landing: 0"]
   ASSETS["Assets: 0"]
@@ -107,7 +109,7 @@ flowchart LR
 ## 7. Informations absentes du code
 
 - Aucun pourcentage de couverture n’est produit.
-- Aucun test d’accessibilité automatisé n’est présent.
+- Aucun audit WCAG automatisé complet n’est présent; les campagnes UI vérifient toutefois le clavier, le focus et les noms accessibles des parcours couverts.
 - Aucun budget de performance automatisé n’est présent.
 - Aucun test Landing ou Assets n’est présent.
 

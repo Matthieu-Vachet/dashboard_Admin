@@ -2624,7 +2624,7 @@ export function AdminApp() {
 
   if (session.loading && !session.authenticated) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[radial-gradient(circle_at_20%_0%,rgba(14,165,233,.28),transparent_35%),#060914] p-4 text-domain-foreground">
+      <main className="grid min-h-dvh place-items-center bg-[radial-gradient(circle_at_20%_0%,rgba(14,165,233,.28),transparent_35%),#060914] p-4 text-domain-foreground">
         <section className={panelClass}>
           <h2 className="type-title-subsection">
             Vérification de la session admin...
@@ -2636,7 +2636,7 @@ export function AdminApp() {
 
   if (!session.authenticated) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[radial-gradient(circle_at_18%_0%,rgba(14,165,233,.32),transparent_34%),radial-gradient(circle_at_80%_20%,rgba(34,197,94,.22),transparent_28%),#050815] p-4 text-domain-foreground">
+      <main className="grid min-h-dvh place-items-center bg-[radial-gradient(circle_at_18%_0%,rgba(14,165,233,.32),transparent_34%),radial-gradient(circle_at_80%_20%,rgba(34,197,94,.22),transparent_28%),#050815] p-4 text-domain-foreground">
         <LoginCard
           password={password}
           error={authError}

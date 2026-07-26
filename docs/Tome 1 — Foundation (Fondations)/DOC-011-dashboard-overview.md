@@ -2,7 +2,7 @@
 id: DOC-011
 title: "Vue d’ensemble du Dashboard"
 description: "Référence du Dashboard Admin, de ses pages, sections, composants, services et dépendances réellement présents."
-version: 2.3.0
+version: 2.4.0
 status: Official
 owner: Matthieu Vachet
 created: 2026-07-13
@@ -61,6 +61,7 @@ Le contenu décrit l’état du code au 26 juillet 2026. Les builds, caches, arc
 - Le design exécuté utilise les thèmes dark et light, huit palettes et neuf familles partagées : Badge, Button, Card, Field, Input, Textarea, Modal, Select et Checkbox.
 - Geist Sans et Geist Mono sont auto-hébergées par `geist@1.7.2` et chargées dans le RootLayout. Quinze rôles `type-*` portent la hiérarchie générique; les primitives partagées possèdent leurs rôles et les styles Mono/métier restent distincts.
 - Le Motion System fournit trois durations, trois easings, des constantes Framer et une politique reduced-motion CSS/Framer globale. Les 69 sites UI génériques et 99 sites reduced-motion éligibles sont couverts; progressions, DnD et motion Pokémon restent spécialisés.
+- Le Responsive System utilise les breakpoints Tailwind `sm` à `2xl` sans branchement JavaScript de rendu. Sous `lg`, le shell fournit un drawer borné au viewport avec Escape, piège et restitution du focus; les surfaces plein écran utilisent `dvh` et les contenus larges gardent un scroll local. Les 20 routes sont validées en 375×812, 768×1024 et 1440×1000 dans les deux thèmes.
 - Le spacing générique réutilise l’échelle Tailwind. Button/contrôles, Card/Panel/State System et Modal/dialog consomment respectivement les rôles radius `control`, `surface` et `overlay`; cinq niveaux d’élévation `surface`, `raised`, `strong`, `overlay` et `floating` séparent la profondeur UI des glows métier.
 - Le Dashboard lit PokemonGo-Data via un voisin ou .data, PokemonGo-API via ses handlers serveur, les assets via GitHub raw et ses données privées via MongoDB Dashboard.
 

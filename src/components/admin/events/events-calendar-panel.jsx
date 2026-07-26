@@ -45,7 +45,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { EventEditorModal, ImportModal } from "@/components/admin/events/event-editor-modal";
 import { ModalPortal } from "@/components/admin/shared/modal-portal";
@@ -1337,6 +1337,9 @@ function DetailSection({ title, eyebrow, count, tone = "neutral", children, clas
 
 function EventDetailModal({ event, busyAction, onClose, onEdit, onDuplicate, onArchive, onRestore, onDelete, onOpenPokemon }) {
   const eventDetailTitleId = useId();
+  const dialogRef = useRef(null);
+  const onCloseRef = useRef(onClose);
+  const previouslyFocusedRef = useRef(null);
   const type = eventType(event);
   const rewards = eventRewards(event, 120);
   const pokemonGroups = eventPokemonGroups(event);
@@ -1355,10 +1358,62 @@ function EventDetailModal({ event, busyAction, onClose, onEdit, onDuplicate, onA
   const status = eventStatus(event);
   const banner = eventBanner(event);
   const sourceLinks = uniqueBy([...(event.links || []), event.sourceUrl ? { label: "Page LeekDuck", url: event.sourceUrl } : null].filter(Boolean), (link) => link.url);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    const focusableSelector = "button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex='-1'])";
+    previouslyFocusedRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    document.body.style.overflow = "hidden";
+    const frame = window.requestAnimationFrame(() => {
+      const dialog = dialogRef.current;
+      const firstFocusable = dialog?.querySelector(focusableSelector);
+      (firstFocusable || dialog)?.focus();
+    });
+
+    function handleKeyDown(keyEvent) {
+      if (keyEvent.key === "Escape") {
+        keyEvent.preventDefault();
+        onCloseRef.current();
+        return;
+      }
+      if (keyEvent.key !== "Tab" || !dialogRef.current) return;
+      const focusable = [...dialogRef.current.querySelectorAll(focusableSelector)];
+      if (!focusable.length) {
+        keyEvent.preventDefault();
+        dialogRef.current.focus();
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!dialogRef.current.contains(document.activeElement)) {
+        keyEvent.preventDefault();
+        (keyEvent.shiftKey ? last : first).focus();
+      } else if (keyEvent.shiftKey && document.activeElement === first) {
+        keyEvent.preventDefault();
+        last.focus();
+      } else if (!keyEvent.shiftKey && document.activeElement === last) {
+        keyEvent.preventDefault();
+        first.focus();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+      previouslyFocusedRef.current?.focus();
+    };
+  }, []);
+
   return (
     <ModalPortal>
       <div className="event-detail-overlay fixed inset-0 z-[1200] grid place-items-center overflow-y-auto bg-slate-950/84 p-3 backdrop-blur-xl sm:p-5" onClick={onClose}>
-      <article className="event-detail-modal flex max-h-[94dvh] w-full max-w-6xl flex-col overflow-hidden rounded-[2rem] border border-line bg-[#07111f] shadow-overlay" role="dialog" aria-modal="true" aria-labelledby={eventDetailTitleId} onClick={(clickEvent) => clickEvent.stopPropagation()}>
+      <article ref={dialogRef} className="event-detail-modal flex max-h-[94dvh] w-full max-w-6xl flex-col overflow-hidden rounded-[2rem] border border-line bg-[#07111f] shadow-overlay" role="dialog" aria-modal="true" aria-labelledby={eventDetailTitleId} tabIndex={-1} onClick={(clickEvent) => clickEvent.stopPropagation()}>
         <header
           className="relative shrink-0 overflow-hidden rounded-t-[2rem] border-b border-cyan-200/20 p-4 sm:p-7"
           style={{

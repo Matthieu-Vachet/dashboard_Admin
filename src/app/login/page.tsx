@@ -14,7 +14,7 @@ export default async function LoginPage({
   const next = params.next || "/";
 
   return (
-    <main className="relative grid min-h-screen overflow-hidden px-4 py-8">
+    <main className="relative grid min-h-dvh overflow-hidden px-4 py-8">
       <div className="studio-grid pointer-events-none absolute inset-0 opacity-70" />
       <section className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-6 lg:grid-cols-[1.05fr_.95fr]">
         <div className="max-w-2xl">

@@ -2,7 +2,7 @@
 id: DOC-022
 title: "Performance"
 description: "Référence des mécanismes de rendu, pagination, cache, images et requêtes qui influencent le coût runtime."
-version: 2.1.0
+version: 2.2.0
 status: Official
 owner: Matthieu Vachet
 created: 2026-07-13
@@ -16,6 +16,7 @@ scope:
   - "Landing-Page-PogoApi"
 source_files:
   - "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx"
+  - "Dashboard Admin/src/components/admin/layout/admin-app-frame.tsx"
   - "Dashboard Admin/src/app/globals.css"
   - "Dashboard Admin/src/lib/motion.ts"
   - "PokemonGo-API-/src/lib/cache.js"
@@ -63,6 +64,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - Les références trainer lourdes sont hydratées et mises en cache côté serveur, puis enrichissent les lectures existantes en mémoire sans réécriture MongoDB.
 - Les filtres poids et taille restent paginés et indexés comme les plages IV/CP.
 - Le Motion System limite les transitions UI à 150/200/300 ms, privilégie les propriétés ciblées, transform et opacity, et n’ajoute aucune boucle width/height/top/left. En `prefers-reduced-motion`, les boucles CSS/Tailwind s’arrêtent, les transitions deviennent instantanées et Framer neutralise transform/layout via sa politique globale.
+- Le Responsive System laisse CSS piloter les cinq breakpoints canoniques, sans listener resize ni branchement JavaScript de rendu. Les shells utilisent `dvh`, `min-w-0` et des scrolls locaux afin de suivre le viewport mobile sans dupliquer les arbres ni élargir le document.
 
 ## 4. Relations et dépendances
 
@@ -70,6 +72,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | --- | --- | --- |
 | Route Admin Pokémon | charge | AdminApp |
 | AdminApp | charge dynamiquement | COMP-137 |
+| Breakpoints CSS | composent sans dupliquer | shell, grilles et vues métier |
 | API GET | utilise | cache ou no-store |
 | Requêtes listées | utilisent | index, projection et pagination |
 
@@ -118,6 +121,7 @@ Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient 
 ## 8. Fichiers sources
 
 - `Dashboard Admin/src/components/admin/pokemon/admin-app.jsx`
+- `Dashboard Admin/src/components/admin/layout/admin-app-frame.tsx`
 - `Dashboard Admin/src/app/globals.css`
 - `Dashboard Admin/src/lib/motion.ts`
 - `PokemonGo-API-/src/lib/cache.js`

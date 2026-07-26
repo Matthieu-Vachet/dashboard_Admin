@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DashboardFooter } from "@/components/admin/shared/dashboard-footer";
 import { DASHBOARD_VERSION } from "@/data/app-version";
 import { navGroups, navItems } from "@/constants/admin/navigation";
@@ -23,6 +23,8 @@ export function AdminAppFrame({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [versionHistoryOpen, setVersionHistoryOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
+  const mobileSidebarRef = useRef<HTMLElement>(null);
+  const mobileSidebarTriggerRef = useRef<HTMLElement | null>(null);
   const [openNavGroups, setOpenNavGroups] = usePersistentState(
     "matweb.dashboard.sidebarGroups",
     navGroups.map((group) => group.id),
@@ -43,6 +45,54 @@ export function AdminAppFrame({
     );
   }
 
+  function openMobileSidebar() {
+    mobileSidebarTriggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setSidebarOpen(true);
+  }
+
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    const focusableSelector = "button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex='-1'])";
+    const frame = window.requestAnimationFrame(() => mobileSidebarRef.current?.focus());
+    document.body.style.overflow = "hidden";
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setSidebarOpen(false);
+        return;
+      }
+      if (event.key !== "Tab" || !mobileSidebarRef.current) return;
+      const focusable = [...mobileSidebarRef.current.querySelectorAll<HTMLElement>(focusableSelector)];
+      if (!focusable.length) {
+        event.preventDefault();
+        mobileSidebarRef.current.focus();
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!mobileSidebarRef.current.contains(document.activeElement)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+      } else if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+      mobileSidebarTriggerRef.current?.focus();
+    };
+  }, [sidebarOpen]);
+
   const renderSidebar = (isCollapsed: boolean) => (
     <AdminSidebar
       brandLogo={brandLogo}
@@ -58,7 +108,7 @@ export function AdminAppFrame({
   );
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-dvh overflow-hidden">
       <a
         href="#dashboard-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-brand-2 focus:px-4 focus:py-2 focus:text-sm focus:font-black focus:text-on-accent"
@@ -89,7 +139,12 @@ export function AdminAppFrame({
             onClick={() => setSidebarOpen(false)}
           >
             <motion.aside
-              className="dashboard-sidebar-mobile h-full w-[286px] border-r border-line"
+              ref={mobileSidebarRef}
+              className="dashboard-sidebar-mobile h-full w-[286px] max-w-[calc(100vw-1rem)] border-r border-line"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Navigation principale"
+              tabIndex={-1}
               initial={{ x: -286 }}
               animate={{ x: 0 }}
               exit={{ x: -286 }}
@@ -104,14 +159,14 @@ export function AdminAppFrame({
 
       <div
         className={cn(
-          "relative z-10 min-h-screen transition-[padding] duration-motion-slow",
+          "relative z-10 min-h-dvh min-w-0 transition-[padding] duration-motion-slow",
           collapsed ? "lg:pl-[84px]" : "lg:pl-[236px] 2xl:pl-[286px]",
         )}
       >
         <AdminTopbar
           activeLabel={activeLabel}
           collapsed={collapsed}
-          onOpenSidebar={() => setSidebarOpen(true)}
+          onOpenSidebar={openMobileSidebar}
           onToggleCollapsed={() => setCollapsed((value) => !value)}
           onOpenVersionHistory={() => setVersionHistoryOpen(true)}
         />
@@ -119,7 +174,7 @@ export function AdminAppFrame({
         <main
           id="dashboard-content"
           tabIndex={-1}
-          className="mx-auto max-w-[1680px] px-4 py-5 outline-none sm:px-6 lg:py-7"
+          className="mx-auto min-w-0 max-w-[1680px] px-4 py-5 outline-none sm:px-6 lg:py-7"
         >
           {children}
           <DashboardFooter

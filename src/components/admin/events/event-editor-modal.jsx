@@ -15,7 +15,7 @@ export function EventEditorModal({ draft, busy, statusOptions, onChange, onClose
   return (
     <ModalPortal>
       <div className="fixed inset-0 z-[1200] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl" onClick={onClose}>
-        <article className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[2rem] border border-line bg-[#07111f] p-4 shadow-overlay sm:p-6" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(event) => event.stopPropagation()}>
+        <article className="max-h-[92dvh] w-full max-w-5xl overflow-y-auto rounded-[2rem] border border-line bg-[#07111f] p-4 shadow-overlay sm:p-6" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(event) => event.stopPropagation()}>
           <div className="mb-5 flex items-start justify-between gap-4">
             <div>
               <p className="type-overline text-cyan-200/70">CRUD admin</p>

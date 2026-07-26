@@ -215,7 +215,7 @@ export function NotesBoard() {
           </Select>
         </label>
 
-        <div className="mt-4 max-h-[calc(100vh-310px)] space-y-2 overflow-y-auto pr-1">
+        <div className="mt-4 max-h-[calc(100dvh-310px)] space-y-2 overflow-y-auto pr-1">
           {filteredNotes.map((note) => (
             <button
               key={note.id}

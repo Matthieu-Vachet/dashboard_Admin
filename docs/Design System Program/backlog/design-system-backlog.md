@@ -15,7 +15,7 @@ Statuts autorisés : `not-started`, `observing`, `planned`, `in-progress`, `bloc
 | DS-BACKLOG-009 | Actions | Button | Sprint Famille : contrat, inventaire, ExternalButton et LoadMoreButton | validated | P1 | élevé | M | Badge validé |
 | DS-BACKLOG-010 | Surfaces | Card | 386 racines historiques classées ; 20 surfaces sûres migrées, 117 usages canoniques à la baseline courante ; surfaces résiduelles, radius et élévations génériques validés par Visual Consistency | completed | P1 | élevé | L | Responsive vérifié localement sur 3 viewports |
 | DS-BACKLOG-011 | Overlays | Modal | 38 cas historiques classés ; 23 instances canoniques dans 14 fichiers à la baseline courante, API publique inchangée et exceptions métier documentées | completed | P1 | élevé | L | Accessibility, Button |
-| DS-BACKLOG-012 | Qualité transverse | Responsive | Définir les matrices de viewports par famille | planned | P0 | moyen | M | Aucune |
+| DS-BACKLOG-012 | Qualité transverse | Responsive | 2 266/2 266 racines génériques conformes ; 20 parcours validés en 375×812, 768×1024 et 1440×1000, clair/sombre, sans overflow | completed | P0 | moyen | M | Aucune |
 | DS-BACKLOG-013 | Qualité transverse | Accessibility | 95 contrôles inventoriés, 43 vérifiés au runtime et 18 défauts sûrs corrigés | validated | P0 | élevé | L | Sprint Field validé |
 | DS-BACKLOG-014 | Qualité transverse | Motion | Trois durations et trois easings ; 69/69 sites UI canoniques, 99/99 sites reduced-motion couverts, exceptions fonctionnelles/métier conservées | completed | P1 | moyen | M | Accessibility |
 | DS-BACKLOG-015 | Synchronisation | Figma Sync | Aligner tokens, primitives et variantes validés | not-started | P2 | moyen | L | Familles stabilisées |
@@ -25,4 +25,4 @@ Statuts autorisés : `not-started`, `observing`, `planned`, `in-progress`, `bloc
 
 ## Prochaine priorité proposée
 
-**Responsive System** (`DS-BACKLOG-012`) reste la dernière mission autorisée et demeure `planned`. Motion System est completed avec 100 % de couverture UI et reduced-motion ; aucun identifiant permanent n’a été inventé. L’orchestrateur est volontairement en pause jusqu’au message utilisateur « reprend ».
+La chaîne Preflight → Visual Consistency → Typography → Motion → Responsive est close. `DS-BACKLOG-012` est `completed` avec 100 % de couverture générique et 120 vues validées. Aucun identifiant permanent n’a été inventé et aucun cinquième sprint n’est lancé.
