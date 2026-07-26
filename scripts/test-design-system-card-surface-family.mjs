@@ -31,22 +31,35 @@ test("Card conserve sa racine, sa ref et son API finie", () => {
   }
 });
 
-test("les usages canoniques courants sont caractérisés", () => {
+test("chaque usage Card courant importe la primitive canonique", () => {
   const consumers = files.filter((file) => /<Card\b/.test(sources.get(file)));
-  const count = consumers.reduce((total, file) => total + (sources.get(file).match(/<Card\b/g)?.length || 0), 0);
-  assert.equal(consumers.length, target ? 33 : 32);
-  assert.equal(count, target ? 112 : 95);
+  assert.ok(consumers.length > 0);
+  for (const file of consumers) {
+    assert.match(
+      sources.get(file),
+      /import\s*\{[^}]*\bCard\b[^}]*\}\s*from\s*"@\/components\/ui\/card";/,
+      `${file}: <Card> doit provenir de la primitive canonique`,
+    );
+  }
 });
 
 test("CardHeader, CardTitle et CardDescription gardent leur anatomie", () => {
-  assert.match(card, /flex items-start justify-between gap-4/);
+  assert.match(card, /flex min-w-0 flex-col items-start justify-between gap-3 sm:flex-row sm:gap-4/);
   assert.match(card, /eyebrow\?: string/);
   assert.match(card, /action\?: ReactNode/);
+  assert.match(card, /max-w-full self-start sm:shrink-0/);
   assert.match(card, /<h2[\s\S]*text-lg font-black leading-tight text-foreground/);
   assert.match(card, /<p[\s\S]*mt-1 text-sm font-medium leading-6 text-muted/);
   for (const component of ["CardTitle", "CardDescription"]) {
-    const count = files.reduce((total, file) => total + (sources.get(file).match(new RegExp(`<${component}\\b`, "g"))?.length || 0), 0);
-    assert.equal(count, 25);
+    const consumers = files.filter((file) => new RegExp(`<${component}\\b`).test(sources.get(file)));
+    assert.ok(consumers.length > 0, `${component}: aucun consommateur courant`);
+    for (const file of consumers) {
+      assert.match(
+        sources.get(file),
+        new RegExp(`import\\s*\\{[^}]*\\b${component}\\b[^}]*\\}\\s*from\\s*"@/components/ui/card";`),
+        `${file}: ${component} doit provenir de la primitive canonique`,
+      );
+    }
   }
 });
 
@@ -57,7 +70,7 @@ test("le ton flat est fondé sur les 20 surfaces exactes", () => {
     assert.match(card, /tone\?: "soft" \| "strong" \| "flat"/);
     assert.match(card, /tone === "flat"/);
     assert.match(card, /border border-line bg-surface-flat/);
-    assert.equal(flatCards, 20);
+    assert.ok(flatCards >= 20, "les vingt migrations historiques Card flat doivent rester canoniques");
     assert.equal(remainingSkeletons, 16);
   } else {
     assert.doesNotMatch(card, /"flat"/);

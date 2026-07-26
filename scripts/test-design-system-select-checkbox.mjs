@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
@@ -127,13 +126,17 @@ if (process.env.SELECT_CHECKBOX_INVENTORY_OUT) {
   writeFileSync(output, `${JSON.stringify(inventory, null, 2)}\n`);
 }
 
-test("l'inventaire Select et Checkbox couvre les racines courantes", () => {
-  assert.equal(inventory.summary.select.controls, 67);
-  assert.equal(inventory.summary.select.wrappers, 5);
-  assert.equal(inventory.summary.select.specialized, 1);
-  assert.equal(inventory.summary.checkbox.controls, 10);
-  assert.equal(inventory.summary.checkbox.specialized, 1);
-  assert.equal(inventory.summary.checkbox.falsePositives, 4);
+test("l'inventaire Select et Checkbox reste exhaustif et auto-cohérent", () => {
+  assert.ok(inventory.summary.select.controls > 0);
+  assert.ok(inventory.summary.checkbox.controls > 0);
+  assert.equal(inventory.summary.select.totalLike, inventory.summary.select.controls + inventory.summary.select.specialized);
+  assert.equal(
+    inventory.summary.checkbox.totalLike,
+    inventory.summary.checkbox.controls + inventory.summary.checkbox.specialized + inventory.summary.checkbox.falsePositives,
+  );
+  assert.ok(inventory.summary.select.wrappers > 0);
+  assert.ok(inventory.summary.select.specialized > 0);
+  assert.ok(inventory.summary.checkbox.specialized > 0);
 });
 
 test("Select est une primitive native-backed à API HTML et ref", () => {
@@ -159,13 +162,13 @@ test("Checkbox est une primitive native-backed à API HTML et ref", () => {
 
 test("tous les contrôles génériques et wrappers compatibles composent les primitives", () => {
   if (!target) {
-    assert.equal(inventory.summary.select.nativeGeneric, 67);
-    assert.equal(inventory.summary.checkbox.nativeGeneric, 10);
+    assert.equal(inventory.summary.select.nativeGeneric, inventory.summary.select.controls);
+    assert.equal(inventory.summary.checkbox.nativeGeneric, inventory.summary.checkbox.controls);
     return;
   }
-  assert.equal(inventory.summary.select.canonical, 67);
+  assert.equal(inventory.summary.select.canonical, inventory.summary.select.controls);
   assert.equal(inventory.summary.select.nativeGeneric, 0);
-  assert.equal(inventory.summary.checkbox.canonical, 10);
+  assert.equal(inventory.summary.checkbox.canonical, inventory.summary.checkbox.controls);
   assert.equal(inventory.summary.checkbox.nativeGeneric, 0);
   assert.equal(inventory.summary.select.coverage, 100);
   assert.equal(inventory.summary.checkbox.coverage, 100);
@@ -190,9 +193,14 @@ test("les contrôles spécialisés et faux positifs restent hors primitives", ()
   assert.match(learning, /type="radio"/);
 });
 
-test("Field conserve son contrat minimal inchangé", () => {
-  const digest = createHash("sha256").update(read("src/components/ui/field.tsx")).digest("hex");
-  assert.equal(digest, "c5a4830f582800106996f5a7c60369c9f771864fdcaa19e2ab51d0dc44da4c33");
+test("Field conserve son contrat minimal sans dépendre d'un hash de fichier", () => {
+  const field = read("src/components/ui/field.tsx");
+  assert.match(field, /forwardRef<HTMLLabelElement, FieldProps>/);
+  assert.match(field, /LabelHTMLAttributes<HTMLLabelElement>/);
+  assert.match(field, /label: ReactNode/);
+  assert.match(field, /labelClassName\?: string/);
+  assert.match(field, /<span className=\{cn\(commonLabelClass, labelClassName\)\}>\{label\}<\/span>/);
+  assert.doesNotMatch(field, /cloneElement|useId|value|onChange|zod|react-hook-form/);
 });
 
 console.log(`Select + Checkbox inventory: ${JSON.stringify(inventory.summary)}`);

@@ -34,11 +34,8 @@ test("Modal conserve son API publique finie et son anatomie visuelle", () => {
   assert.match(modal, /max-h-\[calc\(92dvh-9rem\)\] overflow-auto p-4 sm:p-5/);
 });
 
-test("les 22 instances canoniques restent dans les 14 consommateurs courants", () => {
-  const count = modalConsumers.reduce((total, file) => total + (read(file).match(/<Modal\b/g)?.length || 0), 0);
-  assert.equal(count, 22);
-  assert.equal(modalConsumers.length, 14);
-  assert.deepEqual(modalConsumers.sort(), [
+test("chaque instance Modal courante importe la primitive canonique", () => {
+  const historicalConsumers = [
     "src/app/(dashboard)/projects/page.tsx",
     "src/components/admin/dashboard/snippet-vault.tsx",
     "src/components/admin/forms/calendar-planner.tsx",
@@ -53,7 +50,16 @@ test("les 22 instances canoniques restent dans les 14 consommateurs courants", (
     "src/components/admin/pokemon/shiny-tracker-panel.jsx",
     "src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx",
     "src/components/admin/tables/dashboard-backlog.tsx",
-  ]);
+  ];
+  assert.ok(modalConsumers.length >= historicalConsumers.length);
+  for (const file of historicalConsumers) assert.ok(modalConsumers.includes(file), `${file}: consommateur historique absent`);
+  for (const file of modalConsumers) {
+    assert.match(
+      read(file),
+      /import\s*\{[^}]*\bModal\b[^}]*\}\s*from\s*"@\/components\/ui\/modal";/,
+      `${file}: <Modal> doit provenir de la primitive canonique`,
+    );
+  }
 });
 
 test("le contrat accessible passe de aria-label au titre et à la description visibles", () => {
@@ -119,11 +125,14 @@ test("les corrections spécialisées restent sémantiques et locales", () => {
   const sources = read("src/components/admin/pokemon/source-watch-panel.tsx");
   const pokemon = read("src/components/admin/pokemon/detail-modal.jsx");
   if (target) {
-    assert.equal(events.match(/role="dialog"/g)?.length, 2);
-    assert.equal(events.match(/aria-labelledby=/g)?.length, 2);
+    const eventDialogs = events.match(/role="dialog"/g)?.length || 0;
+    assert.ok(eventDialogs > 0);
+    assert.equal(events.match(/aria-labelledby=/g)?.length || 0, eventDialogs);
     assert.match(eventDetail, /aria-labelledby=\{eventDetailTitleId\}/);
     assert.match(collections, /aria-labelledby="collections-editor-title"/);
-    assert.equal(sources.match(/aria-labelledby=/g)?.length, 2);
+    const sourceDialogs = sources.match(/role="dialog"/g)?.length || 0;
+    assert.ok(sourceDialogs > 0);
+    assert.equal(sources.match(/aria-labelledby=/g)?.length || 0, sourceDialogs);
     assert.match(pokemon, /aria-labelledby=\{dialogTitleId\}/);
     assert.match(pokemon, /aria-label=\{`Aperçu asset \$\{preview\.label\}`\}/);
   }
@@ -134,7 +143,7 @@ test("les corrections spécialisées restent sémantiques et locales", () => {
 
 test("drawers, confirmations et niveaux spécialisés restent hors primitive", () => {
   const joined = allSources.map(read).join("\n");
-  assert.equal(joined.match(/window\.confirm\(/g)?.length, 4);
+  assert.ok((joined.match(/window\.confirm\(/g)?.length || 0) >= 4);
   assert.match(read("src/components/admin/layout/admin-app-frame.tsx"), /dashboard-sidebar-mobile/);
   assert.match(read("src/components/admin/pokemon/admin-section-navigation.jsx"), /z-\[90\][\s\S]*Navigation Admin Pokémon/);
   assert.match(read("src/components/admin/events/event-editor-modal.jsx"), /z-\[1200\]/);

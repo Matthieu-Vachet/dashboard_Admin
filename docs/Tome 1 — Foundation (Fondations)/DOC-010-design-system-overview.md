@@ -2,10 +2,10 @@
 id: DOC-010
 title: Vue d'ensemble du Design System
 slug: design-system-overview
-version: 1.1.5
+version: 1.1.6
 status: Active
 created: 2026-07-12
-last_updated: 2026-07-22
+last_updated: 2026-07-26
 author: Matthieu Vachet
 owner: MatWeb Innovation
 
@@ -334,11 +334,11 @@ Il constitue aujourd'hui l'une des pierres angulaires de toute la plateforme Pok
 
 # Consolidation State System — 22 juillet 2026
 
-Le contrat implémenté des états génériques repose désormais sur trois composants finis dans `src/components/admin/shared/state-system.tsx` : `FetchLoadingState`, `EmptyState` et `ErrorState`. Ils couvrent 78/78 racines compatibles : 15 Fetch Loading, 52 Empty/No Results et 11 Error.
+Le contrat implémenté des états génériques repose sur trois composants finis dans `src/components/admin/shared/state-system.tsx` : `FetchLoadingState`, `EmptyState` et `ErrorState`. La baseline courante couvre 87/87 racines compatibles : 18 Fetch Loading, 55 Empty/No Results et 14 Error. `ErrorState` reçoit le contenu d’erreur par la prop canonique `message` ; `description` ne fait pas partie de son API.
 
 `FetchLoadingState` reprend le meilleur loader animé existant du Dashboard et remplace les 13 états de fetch statiques ainsi que les deux variantes animées locales. Les skeletons, chargements pleine page, boutons, imports et progressions restent séparés. `prefers-reduced-motion` arrête spin et pulse tout en conservant l’information textuelle et la surface de chargement.
 
-Les contrats, exceptions, preuves et métriques avant/après sont documentés dans `docs/Design System Program/sprints/state-system/`. Le prochain sprint recommandé est Visual Consistency ; il n’est pas lancé.
+Les contrats, exceptions, preuves et métriques de clôture sont documentés dans `docs/Design System Program/sprints/state-system/`. Les tests de santé comptent les consommateurs courants dynamiquement et conservent séparément les cohortes historiques afin que l’ajout d’un consommateur conforme ne rende pas la baseline obsolète.
 
 ---
 

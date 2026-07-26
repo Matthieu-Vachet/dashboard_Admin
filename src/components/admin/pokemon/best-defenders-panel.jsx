@@ -96,7 +96,7 @@ export function BestDefendersPanel({ onOpenPokemon, globalSearch = "", onSearchC
         <Select className={fieldClass} aria-label="Tier" value={options.tier} onChange={(event) => setOption("tier", event.target.value)}>{tiers.map((tier) => <option value={tier} key={tier || "all"}>{tier ? `Tier ${tier}` : "Tous les tiers"}</option>)}</Select>
         <Select className={fieldClass} aria-label="Type" value={options.type} onChange={(event) => setOption("type", event.target.value)}><option value="">Tous les types</option>{Object.entries(typeLabels).map(([id, label]) => <option value={id} key={id}>{label}</option>)}</Select>
       </div>
-      {error ? <ErrorState title="Best Defenders indisponible" description={error} action={<Button onClick={() => void load()}>Réessayer</Button>} /> : null}
+      {error ? <ErrorState title="Best Defenders indisponible" message={error} action={<Button onClick={() => void load()}>Réessayer</Button>} /> : null}
       {loading && !dataset ? <FetchLoadingState title="Chargement des défenseurs" /> : null}
       <section className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4" aria-label="Classement Best Defenders">
         {entries.map((entry) => (

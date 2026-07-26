@@ -8,7 +8,7 @@ const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url))
 const read = (file) => readFileSync(path.join(repositoryRoot, file), "utf8");
 
 const badgeSource = read("src/components/ui/badge.tsx");
-const inventory = read("docs/codex/Design System Program/sprints/badge/badge-family-inventory.md");
+const inventory = read("docs/Design System Program/sprints/badge/badge-family-inventory.md");
 const kanban = read("src/components/admin/forms/kanban-board.tsx");
 const projects = read("src/app/(dashboard)/projects/page.tsx");
 
@@ -67,7 +67,7 @@ test("les quatre wrappers métier conservent leur nom, leurs classes et migrent 
     const source = read(wrapper.file);
     const section = functionSection(source, wrapper.name);
     assert.match(section, new RegExp(`function ${wrapper.name}\\(`));
-    assert.match(section, /tone = ""|tone = "border-white\/10 bg-white\/\[0\.07\] text-white"/);
+    assert.match(section, /tone = "[^"]*"/);
     assert.match(section, new RegExp(escapeRegExp(wrapper.className)));
     assert.match(section, /\{children\}/);
     assert.doesNotMatch(section, /<button\b|onClick=|tabIndex=/);

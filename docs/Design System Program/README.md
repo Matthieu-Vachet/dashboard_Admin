@@ -28,17 +28,17 @@ Le statut courant fait foi dans `backlog/design-system-backlog.md`.
 | Button | validated | sprint famille documenté dans `sprints/button/` |
 | Field, Input et Textarea | validated | sprint famille documenté dans `sprints/field-input-textarea/` ; `Field` conserve son contrat minimal de label + enfant |
 | Accessibilité des formulaires | validated | sprint transverse documenté dans `sprints/form-accessibility/` |
-| Modal | completed | 38 cas courants classés A22/B0/C0/D10/E6/F0 après stabilisation ; 22 instances canoniques dans 14 fichiers et exceptions métier documentées dans `sprints/modal-complete/` |
+| Modal | completed | sprint clos à 22 instances ; baseline courante à 23 instances canoniques dans 14 fichiers, toutes importées depuis la primitive, avec exceptions métier documentées dans `sprints/modal-complete/` |
 | Modal Stabilisation | completed | contrat canonique, overlay, focus et motion locale stabilisés (`DS-BACKLOG-017`) |
-| Card + Surfaces | completed | sprint clos à 115 usages ; le State System courant rationalise les wrappers à 112 usages dans 33 fichiers, sans modifier le contrat Card ; preuves dans `sprints/card-surfaces/` (`DS-BACKLOG-010`) |
-| Color System | completed | couverture générique 46,4 % → 91,0 %, 1 504 hardcodes génériques retirés et 66 scénarios dark/light validés ; preuves dans `sprints/color-system/` (`DS-BACKLOG-018`) |
-| Select | completed | 67/67 contrôles compatibles canoniques et nommés, cinq wrappers conservés ; preuves dans `sprints/select-checkbox/` (`DS-BACKLOG-006`) |
+| Card + Surfaces | completed | sprint clos à 115 usages ; baseline courante à 117 usages dans 33 fichiers, tous importés depuis la primitive, sans modifier le contrat Card ; preuves historiques dans `sprints/card-surfaces/` (`DS-BACKLOG-010`) |
+| Color System | completed | sprint clos à 91,0 % ; baseline courante à 90,8 % de couverture générique après ajout de consommateurs, sans réintroduction des équivalences génériques interdites ; preuves dans `sprints/color-system/` (`DS-BACKLOG-018`) |
+| Select | completed | baseline courante à 72/72 contrôles compatibles canoniques et nommés, cinq wrappers conservés ; preuves historiques dans `sprints/select-checkbox/` (`DS-BACKLOG-006`) |
 | Checkbox | completed | 10/10 contrôles compatibles canoniques et nommés, sémantiques spécialisées conservées ; preuves dans `sprints/select-checkbox/` (`DS-BACKLOG-007`) |
-| State System | completed | 78 racines génériques couvertes : 15 Fetch Loading, 52 Empty/No Results et 11 Error ; 0 legacy compatible, preuves dans `sprints/state-system/` (`DS-BACKLOG-008`) |
+| State System | completed | baseline courante à 87/87 racines génériques : 18 Fetch Loading, 55 Empty/No Results et 14 Error ; 0 legacy compatible, preuves historiques dans `sprints/state-system/` (`DS-BACKLOG-008`) |
 
-Métriques au 22 juillet 2026 : sept entrées du backlog sont `validated`, sept sont `completed` et dix dossiers de sprint sont documentés. Les familles Badge, Button, Field, Input et Textarea sont validées ; Modal, Card, Color System, Select, Checkbox et State System sont terminés ; le chantier transverse d'accessibilité des formulaires est validé. Pour Modal, 48 scénarios sont référencés, 46 sont exécutés et les deux skips desktop du drawer mobile sont attendus. Pour Card, Color System et Select + Checkbox, 66 scénarios dark/light et responsive couvrent onze pages. State System couvre 78/78 racines génériques et consolide 15/15 fetchs génériques sur un loader animé commun. Le Color System pilote 91,0 % des 3 221 usages génériques inventoriés ; les couleurs métier restent séparées.
+Métriques de santé au 26 juillet 2026 : la baseline statique couvre 117 Card dans 33 fichiers, 130 contrôles Field/Input/Textarea, 23 Modal dans 14 fichiers, 72 Select, 10 Checkbox et 87 racines State System. State System consolide 18/18 fetchs génériques sur un loader animé commun. Le Color System pilote 90,8 % des 3 157 usages génériques courants ; les couleurs métier restent séparées. Les métriques de clôture originales et les campagnes visuelles restent immuables dans leurs dossiers de sprint.
 
-Prochain sprint recommandé, non lancé : **Visual Consistency**, regroupant spacing, radius, shadows et surfaces résiduelles. Il devra partir des exceptions documentées sans rouvrir les contrats validés.
+Baseline Design System READY. La prochaine mission de la chaîne autorisée est **Visual Consistency**, regroupant spacing, radius, shadows et surfaces résiduelles ; elle part des exceptions documentées sans rouvrir les contrats validés.
 
 ## Lancer un nouveau sprint
 
