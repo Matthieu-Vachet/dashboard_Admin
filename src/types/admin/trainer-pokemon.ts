@@ -161,3 +161,38 @@ export type TrainerPokemonListResponse = {
   };
   pagination: { page: number; limit: number; total: number; pages: number };
 };
+
+export type TrainerPokemonIdentityDiagnosticGroup = {
+  key: string;
+  dexNumber: number;
+  pokemonName: string;
+  rawAlias: string;
+  form: string | null;
+  costume: string | null;
+  gender: TrainerPokemonGender;
+  shiny: boolean;
+  canonicalId: string | null;
+  identityStatus: string;
+  reason: string;
+  occurrences: number;
+  sourceIds: string[];
+};
+
+export type TrainerPokemonIdentityDiagnosticsResponse = {
+  snapshot: {
+    id: string;
+    sourceFileName: string;
+    importedAt: string;
+    identityResolvedAt: string | null;
+    active: boolean;
+  };
+  items: TrainerPokemonIdentityDiagnosticGroup[];
+  summary: {
+    totalEntries: number;
+    totalGroups: number;
+    filteredEntries: number;
+    filteredGroups: number;
+    reasons: Record<string, number>;
+  };
+  pagination: { page: number; limit: number; total: number; pages: number };
+};

@@ -61,8 +61,16 @@ async function installRoutes(page) {
   await page.route("**/api/pokemon-api-health", (route) => json(route, { data: { connected: true, api: "ok", database: "fixture", statusCode: 200, uptimeSeconds: 600, timestamp: "2026-07-26T10:00:00.000Z", label: "API stable" } }));
   await page.route("**/api/admin/events**", (route) => json(route, { data: { events: [event], configured: true, seeded: false, collection: "events" } }));
   await page.route("**/api/events**", (route) => json(route, { data: { events: [event], configured: true } }));
+  await page.route("**/api/trainer-pokemon/diagnostics**", (route) => json(route, { success: true, data: {
+    snapshot: { id: "fixture-snapshot", sourceFileName: "collection.json", importedAt: "2026-07-26T10:00:00.000Z", identityResolvedAt: "2026-07-26T12:00:00.000Z", active: true },
+    items: [
+      { key: "pikachu-costume", dexNumber: 25, pokemonName: "Pikachu", rawAlias: "COSTUME_2", form: "PIKACHU_NORMAL", costume: "COSTUME_2", gender: "MALE", shiny: false, canonicalId: null, identityStatus: "unmatched", reason: "ALIAS_UNKNOWN", occurrences: 2, sourceIds: ["collection-25-a", "collection-25-b"] },
+    ],
+    summary: { totalEntries: 2, totalGroups: 1, filteredEntries: 2, filteredGroups: 1, reasons: { ALIAS_UNKNOWN: 2 } },
+    pagination: { page: 1, limit: 50, total: 1, pages: 1 },
+  } }));
   await page.route("**/api/trainer-pokemon/imports**", (route) => json(route, { success: true, data: { imports: [] } }));
-  await page.route("**/api/trainer-pokemon?**", (route) => json(route, { success: true, data: { items: [], snapshot: null, stats: { total: 0, shiny: 0, lucky: 0, perfect: 0, shadow: 0, purified: 0, costume: 0 }, filters: { genders: [], alignments: [], forms: [], costumes: [], cp: { min: 0, max: 0 }, ivPercent: { min: 0, max: 0 }, weightKg: { min: 0, max: 0 }, heightM: { min: 0, max: 0 } }, pagination: { page: 1, limit: 50, total: 0, pages: 0 } } }));
+  await page.route("**/api/trainer-pokemon?**", (route) => json(route, { success: true, data: { items: [], snapshot: { id: "fixture-snapshot", sourceFileName: "collection.json", sourceExportTime: "2026-07-26T10:00:00.000Z", sourceExportTimestamp: "2026-07-26T10:00:00.000Z", sourceVersion: "1", declaredPokemonCount: 2, actualPokemonCount: 2, importedAt: "2026-07-26T10:00:00.000Z", importedBy: "fixture", checksum: "fixture-checksum", status: "active", diagnostics: { warnings: 2, errors: 0, counts: { IDENTITY_UNMATCHED: 2 }, samples: [] }, stats: { total: 2, shiny: 0, lucky: 0, perfect: 0, shadow: 0, purified: 0, costume: 2 }, canRollback: false }, stats: { total: 2, shiny: 0, lucky: 0, perfect: 0, shadow: 0, purified: 0, costume: 2 }, filters: { genders: [], alignments: [], forms: [], costumes: [], cp: { min: 0, max: 0 }, ivPercent: { min: 0, max: 0 }, weightKg: { min: 0, max: 0 }, heightM: { min: 0, max: 0 } }, pagination: { page: 1, limit: 50, total: 0, pages: 0 } } }));
   await page.route("**/api/pokemon-admin**", async (route) => {
     const url = new URL(route.request().url());
     const action = url.searchParams.get("action") || "bootstrap";
@@ -138,6 +146,7 @@ const scenarios = [
   { id: "overview", path: "/pokemon-admin?section=overview", ready: /Voici ce qui demande votre attention aujourd’hui/ },
   { id: "best-defenders", path: "/pokemon-admin?section=best-defenders", ready: /Best Defenders/ },
   { id: "costume-audit", path: "/pokemon-admin?section=costume-audit", ready: /Costumes \/ Event Pokémon/ },
+  { id: "collection", path: "/pokemon-admin?section=my-collection", ready: /Ma collection Pokémon GO/, collectionDiagnostics: true },
   { id: "shiny", path: "/pokemon-admin?section=shiny", ready: /Shiny Tracker/ },
   { id: "identity-manager", path: "/pokemon-admin?section=identity-manager", ready: /Identity Manager/ },
   { id: "variants", path: "/pokemon-admin?section=pokemon-identity-mappings", ready: /Résolution/ },
@@ -200,10 +209,16 @@ try {
             assert.ok(positions.closeTop <= positions.headerTop + 22, `events-modal-${theme}-${width}: fermeture trop basse`);
           }
         }
+        if (scenario.collectionDiagnostics) {
+          await page.getByRole("button", { name: /Voir tous les IDs non reconnus/ }).click();
+          await page.getByRole("heading", { name: "IDs non reconnus par les assets" }).waitFor({ state: "visible" });
+          await page.getByText("collection-25-a", { exact: true }).waitFor({ state: "visible" });
+          await assertNoOverflow(page, `collection-diagnostics-${theme}-${width}`);
+        }
         const filteredConsole = consoleErrors.filter((entry) => !/favicon|Failed to load resource.*404/i.test(entry));
         assert.deepEqual(filteredConsole, [], `${scenario.id}-${theme}-${width}: erreurs console`);
         assert.deepEqual(pageErrors, [], `${scenario.id}-${theme}-${width}: erreurs page`);
-        if ((width === 375 && theme === "dark" && ["overview", "best-defenders", "costume-audit", "shiny", "events", "notes"].includes(scenario.id)) || (width === 1440 && theme === "light" && ["best-defenders", "costume-audit"].includes(scenario.id))) {
+        if ((width === 375 && theme === "dark" && ["overview", "best-defenders", "costume-audit", "collection", "shiny", "events", "notes"].includes(scenario.id)) || (width === 1440 && theme === "light" && ["best-defenders", "costume-audit", "collection"].includes(scenario.id))) {
           await page.screenshot({ path: path.join(artifactRoot, `${scenario.id}-${theme}-${width}.png`), fullPage: true });
         }
         results.push({ scenario: scenario.id, theme, width, overflow });

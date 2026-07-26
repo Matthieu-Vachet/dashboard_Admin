@@ -7,6 +7,15 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.33.1",
+    date: "2026-07-26",
+    title: "Diagnostics Ma Collection contextualisés",
+    changes: [
+      "Distingue un même alias brut par Pokédex, forme et costume afin que les diagnostics Ma Collection conservent toutes les variantes concernées et leurs occurrences exactes.",
+      "Ajoute pour chaque snapshot la liste filtrable et exportable de tous les IDs sans liaison canonique, avec les informations nécessaires pour corriger l’alias ou l’asset exact.",
+    ],
+  },
+  {
     version: "V1.33.0",
     date: "2026-07-26",
     title: "Défenseurs, costumes et diagnostics canoniques",

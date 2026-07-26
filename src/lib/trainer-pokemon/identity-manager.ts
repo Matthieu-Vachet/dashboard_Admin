@@ -27,6 +27,16 @@ function rawAlias(entry: TrainerPokemon) {
   return entry.costume || entry.form || entry.sourceName || String(entry.dexNumber);
 }
 
+function diagnosticSourceId(entry: TrainerPokemon) {
+  return [
+    `pokemon:${String(entry.dexNumber).padStart(4, "0")}`,
+    `form:${entry.form || "none"}`,
+    `costume:${entry.costume || "none"}`,
+    `gender:${entry.gender || "unknown"}`,
+    `shiny:${entry.shiny ? 1 : 0}`,
+  ].join("|");
+}
+
 function requests(entries: TrainerPokemon[]) {
   return entries.map((entry) => ({
     provider: "ma-collection",
@@ -76,11 +86,11 @@ async function recordDiagnostics(entries: TrainerPokemon[], resolutions: Resolut
     const entry = entries[index];
     const alias = rawAlias(entry);
     const reason = diagnosticReason(entry, resolution);
-    const key = [alias, entry.dexNumber, entry.form, entry.costume, reason].join("|");
+    const key = [alias, entry.dexNumber, entry.form, entry.costume, entry.gender, entry.shiny, reason].join("|");
     const previous = groups.get(key);
     groups.set(key, {
       provider: "ma-collection",
-      sourceId: alias,
+      sourceId: diagnosticSourceId(entry),
       rawAlias: alias,
       pokemonId: entry.dexNumber,
       pokemon: entry.sourceName,
@@ -91,7 +101,7 @@ async function recordDiagnostics(entries: TrainerPokemon[], resolutions: Resolut
       candidates: resolution.identityResolution?.candidates || [],
       occurrences: Number(previous?.occurrences || 0) + 1,
       proposedAction: resolution.identityResolution?.status === "ambiguous" ? "review-candidates" : "associate",
-      sourcePayload: { provider: "ma-collection", rawAlias: alias, reason: resolution.reason || resolution.identityResolution?.reason || null },
+      sourcePayload: { provider: "ma-collection", rawAlias: alias, gender: entry.gender, shiny: entry.shiny, reason: resolution.reason || resolution.identityResolution?.reason || null },
     });
   });
   const diagnostics = [...groups.values()];

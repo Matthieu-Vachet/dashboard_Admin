@@ -257,7 +257,7 @@ test("simule rollback valide et refus du rollback au read-back invalide", async 
 
 test("les routes privées vérifient la session et restent absentes de l’OpenAPI public", () => {
   const routes = filesUnder(path.join(root, "Dashboard Admin/src/app/api/trainer-pokemon"), ".ts").map((file) => fs.readFileSync(file, "utf8"));
-  assert.ok(routes.length >= 4);
+  assert.ok(routes.length >= 5);
   for (const source of routes) assert.match(source, /getSession\(\)/);
   const openapi = fs.readFileSync(path.join(root, "PokemonGo-API-/src/docs/openapi.js"), "utf8");
   assert.doesNotMatch(openapi, /trainer-pokemon|trainer_pokemon|ma collection/i);
@@ -271,9 +271,19 @@ test("Ma Collection passe par le provider central et agrège les diagnostics Ide
   assert.match(resolver, /pokemon-identities\/resolve-assets/);
   assert.match(resolver, /pokemon-identities\/diagnostics\/batch/);
   assert.match(resolver, /occurrences:\s*Number\(previous\?\.occurrences/);
+  assert.match(resolver, /sourceId:\s*diagnosticSourceId\(entry\)/);
+  assert.match(resolver, /pokemon:\$\{String\(entry\.dexNumber\)\.padStart\(4, ["']0["']\)\}/);
+  assert.match(resolver, /gender:\$\{entry\.gender/);
+  assert.match(resolver, /shiny:\$\{entry\.shiny \? 1 : 0\}/);
   assert.match(repository, /refreshTrainerPokemonIdentityResolution/);
+  assert.match(repository, /readTrainerPokemonIdentityDiagnostics/);
+  assert.match(repository, /identityStatus:\s*\{ \$ne: ["']matched["'] \}/);
+  assert.match(repository, /sourceIds:\s*\[\]/);
   assert.match(repository, /persistIdentityDiagnostics:\s*true/);
   assert.match(panel, /Re-résoudre les identités/);
+  assert.match(panel, /Voir tous les IDs non reconnus/);
+  assert.match(panel, /IDs collection concernés/);
+  assert.match(panel, /readTrainerPokemonIdentityDiagnostics/);
   assert.match(panel, /section=identity-manager/);
   assert.doesNotMatch(panel, /placeholder[^\n]*(pokemon|asset)/i);
 });

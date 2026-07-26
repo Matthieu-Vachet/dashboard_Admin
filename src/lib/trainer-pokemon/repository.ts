@@ -39,7 +39,7 @@ type SnapshotDocument = {
   diagnosticCounts: Record<string, number>;
   diagnosticSamples: unknown[];
   stats: TrainerPokemonStats;
-  references: { fetchedAt: string; source: string };
+  references: { fetchedAt: string; source: string; identityResolvedAt?: string; identityProvider?: string };
   activatedAt: Date | null;
   archivedAt: Date | null;
   failedAt: Date | null;
@@ -68,6 +68,14 @@ export type TrainerPokemonQuery = {
   heightMax?: number;
   sort?: TrainerPokemonSortField;
   order?: "asc" | "desc";
+};
+
+export type TrainerPokemonIdentityDiagnosticsQuery = {
+  snapshotId?: string;
+  search?: string;
+  reason?: string;
+  page?: number;
+  limit?: number;
 };
 
 const dbName = process.env.DASHBOARD_MONGODB_DB || "matweb-dashboard-admin";
@@ -367,6 +375,100 @@ export async function readTrainerPokemonImports(owner: string) {
     snapshots(db).find({ owner }).sort({ importedAt: -1 }).limit(50).toArray(),
   ]);
   return documents.map((document) => snapshotSummary(document, ownerDocument?.activeSnapshotId));
+}
+
+export async function readTrainerPokemonIdentityDiagnostics(owner: string, query: TrainerPokemonIdentityDiagnosticsQuery = {}) {
+  const db = await getDb();
+  const ownerDocument = await owners(db).findOne({ owner });
+  if (!ownerDocument?.activeSnapshotId) throw repositoryError("Aucune collection active à diagnostiquer.", 404, "TRAINER_POKEMON_ACTIVE_SNAPSHOT_MISSING");
+
+  let snapshotId = ownerDocument.activeSnapshotId;
+  if (query.snapshotId) {
+    if (!ObjectId.isValid(query.snapshotId)) throw repositoryError("Identifiant de snapshot invalide.", 400, "TRAINER_POKEMON_INVALID_SNAPSHOT_ID");
+    snapshotId = new ObjectId(query.snapshotId);
+  }
+  const snapshot = await snapshots(db).findOne({ _id: snapshotId, owner });
+  if (!snapshot) throw repositoryError("Snapshot de collection introuvable.", 404, "TRAINER_POKEMON_SNAPSHOT_NOT_FOUND");
+
+  const unresolved = await entries(db).find(
+    { owner, snapshotId, identityStatus: { $ne: "matched" } },
+    { projection: {
+      owner: 0, snapshotId: 0, moves: 0,
+    } },
+  ).toArray();
+  const groups = new Map<string, {
+    key: string;
+    dexNumber: number;
+    pokemonName: string;
+    rawAlias: string;
+    form: string | null;
+    costume: string | null;
+    gender: TrainerPokemon["gender"];
+    shiny: boolean;
+    canonicalId: string | null;
+    identityStatus: string;
+    reason: string;
+    occurrences: number;
+    sourceIds: string[];
+  }>();
+  const reasons: Record<string, number> = {};
+  for (const entry of unresolved) {
+    const reason = entry.identityReason || "UNKNOWN_IDENTITY_REASON";
+    const rawAlias = entry.rawAlias || entry.costume || entry.form || entry.sourceName || String(entry.dexNumber);
+    const key = JSON.stringify([entry.dexNumber, rawAlias, entry.form, entry.costume, entry.gender, entry.shiny, reason]);
+    const current = groups.get(key) || {
+      key,
+      dexNumber: entry.dexNumber,
+      pokemonName: entry.frenchName || entry.sourceName,
+      rawAlias,
+      form: entry.form || null,
+      costume: entry.costume || null,
+      gender: entry.gender,
+      shiny: entry.shiny,
+      canonicalId: entry.canonicalId || null,
+      identityStatus: entry.identityStatus || "unmatched",
+      reason,
+      occurrences: 0,
+      sourceIds: [],
+    };
+    current.occurrences += 1;
+    current.sourceIds.push(entry.sourceId);
+    groups.set(key, current);
+    reasons[reason] = Number(reasons[reason] || 0) + 1;
+  }
+
+  const needle = normalizeSearchValue(query.search);
+  const filtered = [...groups.values()]
+    .filter((group) => !query.reason || group.reason === query.reason)
+    .filter((group) => !needle || normalizeSearchValue([
+      group.dexNumber, group.pokemonName, group.rawAlias, group.form, group.costume,
+      group.gender, group.reason, group.canonicalId, ...group.sourceIds,
+    ].filter(Boolean).join(" ")).includes(needle))
+    .sort((left, right) => right.occurrences - left.occurrences
+      || left.dexNumber - right.dexNumber
+      || left.rawAlias.localeCompare(right.rawAlias, "fr"));
+  for (const group of filtered) group.sourceIds.sort((left, right) => left.localeCompare(right, "fr", { numeric: true }));
+  const page = Math.max(1, Number(query.page) || 1);
+  const limit = Math.min(500, Math.max(1, Number(query.limit) || 50));
+  const start = (page - 1) * limit;
+  return {
+    snapshot: {
+      id: snapshotId.toHexString(),
+      sourceFileName: snapshot.sourceFileName,
+      importedAt: snapshot.importedAt.toISOString(),
+      identityResolvedAt: snapshot.references?.identityResolvedAt || null,
+      active: ownerDocument.activeSnapshotId.equals(snapshotId),
+    },
+    items: filtered.slice(start, start + limit),
+    summary: {
+      totalEntries: unresolved.length,
+      totalGroups: groups.size,
+      filteredEntries: filtered.reduce((sum, group) => sum + group.occurrences, 0),
+      filteredGroups: filtered.length,
+      reasons,
+    },
+    pagination: { page, limit, total: filtered.length, pages: Math.ceil(filtered.length / limit) },
+  };
 }
 
 export async function refreshTrainerPokemonIdentityResolution(owner: string) {

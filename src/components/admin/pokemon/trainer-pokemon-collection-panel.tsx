@@ -7,9 +7,11 @@ import {
   ArrowLeft,
   ArrowRight,
   ChevronDown,
+  Download,
   FileJson,
   History,
   ImageOff,
+  ListX,
   LoaderCircle,
   RefreshCcw,
   RotateCcw,
@@ -34,6 +36,7 @@ import {
   commitTrainerPokemonImport,
   previewTrainerPokemonImport,
   readTrainerPokemonCollection,
+  readTrainerPokemonIdentityDiagnostics,
   readTrainerPokemonImports,
   refreshTrainerPokemonIdentityResolution,
   rollbackTrainerPokemonImport,
@@ -41,6 +44,7 @@ import {
 import type {
   NormalizedTrainerPokemonMove,
   TrainerPokemon,
+  TrainerPokemonIdentityDiagnosticsResponse,
   TrainerPokemonImportPreview,
   TrainerPokemonListResponse,
   TrainerPokemonSnapshotSummary,
@@ -50,6 +54,19 @@ import type {
 const numberFormatter = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
 const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" });
 const selectClass = "min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-bold text-foreground outline-none focus:border-brand-2/55";
+const identityReasonLabels: Record<string, string> = {
+  ALIAS_UNKNOWN: "Alias Identity Manager inconnu",
+  GENDER_VARIANT_NOT_FOUND: "Asset du genre demandé absent",
+  ASSET_ENTRY_NOT_FOUND: "Asset canonique exact absent",
+  UNKNOWN_IDENTITY_REASON: "Cause non renseignée",
+};
+
+function snapshotIdentityIssueCount(snapshot: TrainerPokemonSnapshotSummary) {
+  return Number(snapshot.diagnostics.counts?.IDENTITY_UNMATCHED || 0)
+    + Number(snapshot.diagnostics.counts?.IDENTITY_AMBIGUOUS || 0)
+    + Number(snapshot.diagnostics.counts?.CANONICAL_ASSET_MISSING || 0)
+    + Number(snapshot.diagnostics.counts?.IDENTITY_MANAGER_UNAVAILABLE || 0);
+}
 
 type QueryState = {
   search: string;
@@ -73,6 +90,8 @@ type QueryState = {
   page: number;
   limit: number;
 };
+
+type IdentityDiagnosticQuery = { snapshotId: string; search: string; reason: string; page: number; limit: number };
 
 const initialQuery: QueryState = {
   search: "", shiny: "all", lucky: "all", gender: "", alignment: "", costume: "all",
@@ -264,9 +283,15 @@ export function TrainerPokemonCollectionPanel() {
   const [history, setHistory] = useState<TrainerPokemonSnapshotSummary[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [rollbackId, setRollbackId] = useState("");
+  const [identityDiagnosticsOpen, setIdentityDiagnosticsOpen] = useState(false);
+  const [identityDiagnosticsLoading, setIdentityDiagnosticsLoading] = useState(false);
+  const [identityDiagnosticsError, setIdentityDiagnosticsError] = useState("");
+  const [identityDiagnostics, setIdentityDiagnostics] = useState<TrainerPokemonIdentityDiagnosticsResponse | null>(null);
+  const [identityDiagnosticQuery, setIdentityDiagnosticQuery] = useState<IdentityDiagnosticQuery>({ snapshotId: "", search: "", reason: "", page: 1, limit: 50 });
   const [announcement, setAnnouncement] = useState("");
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
   const requestIdRef = useRef(0);
+  const diagnosticRequestIdRef = useRef(0);
   const combinedSearch = combineWith(query.search);
 
   useEffect(() => {
@@ -333,6 +358,48 @@ export function TrainerPokemonCollectionPanel() {
     try { setHistory((await readTrainerPokemonImports()).imports); } catch (error) { toast.error(errorText(error)); } finally { setHistoryLoading(false); }
   }
 
+  async function loadIdentityDiagnostics(next: IdentityDiagnosticQuery) {
+    const requestId = ++diagnosticRequestIdRef.current;
+    setIdentityDiagnosticQuery(next);
+    setIdentityDiagnosticsLoading(true);
+    setIdentityDiagnosticsError("");
+    try {
+      const params = new URLSearchParams({ page: String(next.page), limit: String(next.limit) });
+      if (next.snapshotId) params.set("snapshotId", next.snapshotId);
+      if (next.search.trim()) params.set("search", next.search.trim());
+      if (next.reason) params.set("reason", next.reason);
+      const result = await readTrainerPokemonIdentityDiagnostics(params);
+      if (requestId === diagnosticRequestIdRef.current) setIdentityDiagnostics(result);
+    } catch (error) {
+      if (requestId === diagnosticRequestIdRef.current) setIdentityDiagnosticsError(errorText(error));
+    } finally {
+      if (requestId === diagnosticRequestIdRef.current) setIdentityDiagnosticsLoading(false);
+    }
+  }
+
+  async function openIdentityDiagnostics(snapshotId = "") {
+    const next = { snapshotId, search: "", reason: "", page: 1, limit: 50 };
+    setHistoryOpen(false);
+    setIdentityDiagnosticsOpen(true);
+    await loadIdentityDiagnostics(next);
+  }
+
+  async function downloadIdentityDiagnostics() {
+    try {
+      const params = new URLSearchParams({ page: "1", limit: "500" });
+      if (identityDiagnosticQuery.snapshotId) params.set("snapshotId", identityDiagnosticQuery.snapshotId);
+      if (identityDiagnosticQuery.search.trim()) params.set("search", identityDiagnosticQuery.search.trim());
+      if (identityDiagnosticQuery.reason) params.set("reason", identityDiagnosticQuery.reason);
+      const result = await readTrainerPokemonIdentityDiagnostics(params);
+      const url = URL.createObjectURL(new Blob([`${JSON.stringify({ exportedAt: new Date().toISOString(), ...result }, null, 2)}\n`], { type: "application/json" }));
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `ma-collection-ids-non-reconnus-${result.snapshot.id}.json`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch (error) { toast.error(errorText(error)); }
+  }
+
   async function rollback(snapshot: TrainerPokemonSnapshotSummary) {
     if (!window.confirm(`Restaurer le snapshot « ${snapshot.sourceFileName} » ?`)) return;
     setRollbackId(snapshot.id);
@@ -345,20 +412,15 @@ export function TrainerPokemonCollectionPanel() {
       const result = await refreshTrainerPokemonIdentityResolution();
       toast.success(`${result.resolved.toLocaleString("fr-FR")} identités résolues · ${result.unresolved.toLocaleString("fr-FR")} à examiner.`);
       await load(true);
+      if (identityDiagnosticsOpen) await loadIdentityDiagnostics({ ...identityDiagnosticQuery, page: 1 });
     } catch (error) { toast.error(errorText(error)); }
     finally { setResolving(false); }
   }
 
-  const identityDiagnosticGroups = useMemo(() => {
-    const groups = new Map<string, { provider: string; rawAlias: string; reason: string; occurrences: number }>();
-    for (const diagnostic of data?.snapshot?.diagnostics.samples || []) {
-      if (!diagnostic.provider || !diagnostic.rawAlias) continue;
-      const key = `${diagnostic.provider}|${diagnostic.rawAlias}|${diagnostic.reason || diagnostic.code}`;
-      const current = groups.get(key);
-      groups.set(key, { provider: diagnostic.provider, rawAlias: diagnostic.rawAlias, reason: diagnostic.reason || diagnostic.code, occurrences: Number(current?.occurrences || 0) + Number(diagnostic.occurrences || 1) });
-    }
-    return [...groups.values()].sort((left, right) => right.occurrences - left.occurrences);
-  }, [data?.snapshot?.diagnostics.samples]);
+  const identityUnrecognizedCount = Number(data?.snapshot?.diagnostics.counts?.IDENTITY_UNMATCHED || 0)
+    + Number(data?.snapshot?.diagnostics.counts?.IDENTITY_AMBIGUOUS || 0)
+    + Number(data?.snapshot?.diagnostics.counts?.CANONICAL_ASSET_MISSING || 0)
+    + Number(data?.snapshot?.diagnostics.counts?.IDENTITY_MANAGER_UNAVAILABLE || 0);
 
   const statCards = useMemo(() => data ? [
     ["Total", data.stats.total, "neutral"], ["Chromatiques", data.stats.shiny, "amber"], ["Chanceux", data.stats.lucky, "green"],
@@ -376,12 +438,12 @@ export function TrainerPokemonCollectionPanel() {
       <Card tone="strong" className="p-4 sm:p-5">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div><p className="text-xs font-black uppercase tracking-[0.2em] text-brand-2">Collection privée · MongoDB</p><h2 className="mt-1 text-2xl font-black sm:text-3xl" id="trainer-pokemon-title">Ma collection Pokémon GO</h2><p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-muted">Import atomique, consultation paginée et diagnostics des correspondances avec les référentiels canoniques.</p></div>
-          <div className="flex flex-wrap gap-2"><Button icon={<History size={16} />} loading={historyLoading} loadingText="Historique…" onClick={() => void openHistory()}>Historique</Button><Button icon={<RefreshCcw size={16} />} loading={refreshing} loadingText="Actualisation…" onClick={() => void load(true)}>Rafraîchir</Button><Button icon={<RotateCcw size={16} />} loading={resolving} loadingText="Résolution…" onClick={() => void refreshIdentityResolution()}>Re-résoudre les identités</Button><Button variant="primary" icon={<Upload size={16} />} onClick={() => { setImportOpen(true); setImportPhase("idle"); setImportError(null); setImportFileName(""); }}>Importer un JSON</Button></div>
+          <div className="flex flex-wrap gap-2"><Button icon={<History size={16} />} loading={historyLoading} loadingText="Historique…" onClick={() => void openHistory()}>Historique</Button>{identityUnrecognizedCount ? <Button variant="secondary" icon={<ListX size={16} />} onClick={() => void openIdentityDiagnostics()}>{identityUnrecognizedCount.toLocaleString("fr-FR")} IDs non reconnus</Button> : null}<Button icon={<RefreshCcw size={16} />} loading={refreshing} loadingText="Actualisation…" onClick={() => void load(true)}>Rafraîchir</Button><Button icon={<RotateCcw size={16} />} loading={resolving} loadingText="Résolution…" onClick={() => void refreshIdentityResolution()}>Re-résoudre les identités</Button><Button variant="primary" icon={<Upload size={16} />} onClick={() => { setImportOpen(true); setImportPhase("idle"); setImportError(null); setImportFileName(""); }}>Importer un JSON</Button></div>
         </div>
         {data?.snapshot ? <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 rounded-lg border border-line bg-surface-minimal p-3 text-xs font-semibold text-muted"><span><strong className="text-foreground">Fichier :</strong> {data.snapshot.sourceFileName}</span><span><strong className="text-foreground">Dernier import :</strong> {dateFormatter.format(new Date(data.snapshot.importedAt))}</span><span><strong className="text-foreground">Export :</strong> {data.snapshot.sourceExportTime || "Non renseigné"}</span><span><strong className="text-foreground">Checksum :</strong> <code>{data.snapshot.checksum.slice(0, 12)}</code></span></div> : null}
       </Card>
 
-      {identityDiagnosticGroups.length ? <Card className="min-w-0 p-4"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-xs font-black uppercase tracking-[0.18em] text-amber-200">Diagnostics Identity Manager</p><h3 className="mt-1 text-lg font-black">Alias collection à corriger</h3><p className="mt-1 text-sm font-semibold text-muted">Groupés par provider, alias brut et raison. Une association dans l’Identity Manager peut ensuite être rejouée sans réimport.</p></div><Button size="sm" asChild><a href="?section=identity-manager">Ouvrir l’Identity Manager</a></Button></div><div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">{identityDiagnosticGroups.slice(0, 12).map((group) => <div className="min-w-0 rounded-lg border border-warning/25 bg-warning/[0.07] p-3" key={`${group.provider}-${group.rawAlias}-${group.reason}`}><div className="flex items-center justify-between gap-2"><Badge tone="amber">{group.provider}</Badge><strong className="font-mono text-sm text-amber-100">× {group.occurrences}</strong></div><code className="mt-2 block truncate text-xs text-foreground" title={group.rawAlias}>{group.rawAlias}</code><span className="mt-1 block text-[10px] font-bold uppercase tracking-wider text-muted">{group.reason}</span></div>)}</div></Card> : null}
+      {identityUnrecognizedCount ? <Card className="min-w-0 border-warning/25 p-4"><div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-black uppercase tracking-[0.18em] text-amber-200">Inventaire des assets non liés</p><h3 className="mt-1 text-lg font-black">{identityUnrecognizedCount.toLocaleString("fr-FR")} entrées à corriger</h3><p className="mt-1 max-w-3xl text-sm font-semibold text-muted">La liste centralisée contient chaque ID de la collection, son Pokédex, l’alias brut, la forme, le costume, le genre, l’état shiny, la cause et l’action attendue.</p></div><div className="flex flex-wrap gap-2"><Button variant="primary" icon={<ListX size={15} />} onClick={() => void openIdentityDiagnostics()}>Voir tous les IDs non reconnus</Button><Button size="sm" asChild><a href="?section=identity-manager">Ouvrir l’Identity Manager</a></Button></div></div></Card> : null}
 
       {statCards.length ? <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-7">{statCards.map(([label, value, tone]) => <Card className="p-3" key={label}><span className="block text-[10px] font-black uppercase tracking-wider text-muted">{label}</span><strong className="mt-1 block font-mono text-2xl">{value.toLocaleString("fr-FR")}</strong><Badge tone={tone} className="mt-2">collection active</Badge></Card>)}</div> : null}
 
@@ -417,8 +479,23 @@ export function TrainerPokemonCollectionPanel() {
       {data?.items.length ? <div className="grid gap-3"><PokemonTable items={data.items} />{data.items.map((pokemon) => <PokemonMobileCard pokemon={pokemon} key={pokemon.sourceId} />)}<Pagination query={query} data={data} onPage={(page) => updateQuery({ page })} onLimit={(limit) => updateQuery({ limit })} /></div> : null}
 
       <ImportModal open={importOpen} phase={importPhase} preview={importPreview} fileName={importFileName} error={importError} onClose={() => setImportOpen(false)} onSelectFile={(file) => void selectFile(file)} onConfirm={() => void confirmImport()} />
-      <Modal open={historyOpen} onClose={() => setHistoryOpen(false)} title="Historique des imports" description="Les snapshots archivés restent récupérables. Le rollback vérifie le volume avant la bascule.">
-        {historyLoading ? <FetchLoadingState layout="inline" title="Chargement de l’historique…" /> : <div className="grid gap-2">{history.length ? history.map((item) => <div className="flex flex-col gap-3 rounded-lg border border-line p-3 sm:flex-row sm:items-center sm:justify-between" key={item.id}><div><strong className="block">{item.sourceFileName}</strong><span className="mt-1 block text-xs text-muted">{dateFormatter.format(new Date(item.importedAt))} · {item.actualPokemonCount.toLocaleString("fr-FR")} Pokémon · {item.status}</span></div>{item.canRollback ? <Button size="sm" icon={<RotateCcw size={14} />} loading={rollbackId === item.id} loadingText="Restauration…" disabled={Boolean(rollbackId)} onClick={() => void rollback(item)}>Restaurer</Button> : <Badge tone={item.status === "active" ? "green" : item.status === "failed" ? "red" : "neutral"}>{item.status}</Badge>}</div>) : <EmptyState title="Aucun historique" />}</div>}
+      <Modal open={historyOpen} onClose={() => setHistoryOpen(false)} title="Historique des imports" description="Chaque snapshot conserve aussi son inventaire d’identités et d’assets non reconnus.">
+        {historyLoading ? <FetchLoadingState layout="inline" title="Chargement de l’historique…" /> : <div className="grid gap-2">{history.length ? history.map((item) => {
+          const unresolved = snapshotIdentityIssueCount(item);
+          return <div className="flex flex-col gap-3 rounded-lg border border-line p-3 sm:flex-row sm:items-center sm:justify-between" key={item.id}><div><strong className="block">{item.sourceFileName}</strong><span className="mt-1 block text-xs text-muted">{dateFormatter.format(new Date(item.importedAt))} · {item.actualPokemonCount.toLocaleString("fr-FR")} Pokémon · {item.status}</span><span className="mt-1 block text-xs font-bold text-amber-200">{unresolved.toLocaleString("fr-FR")} ID(s) sans liaison canonique</span></div><div className="flex flex-wrap gap-2">{unresolved ? <Button size="sm" icon={<ListX size={14} />} onClick={() => void openIdentityDiagnostics(item.id)}>Voir les IDs</Button> : null}{item.canRollback ? <Button size="sm" icon={<RotateCcw size={14} />} loading={rollbackId === item.id} loadingText="Restauration…" disabled={Boolean(rollbackId)} onClick={() => void rollback(item)}>Restaurer</Button> : <Badge tone={item.status === "active" ? "green" : item.status === "failed" ? "red" : "neutral"}>{item.status}</Badge>}</div></div>;
+        }) : <EmptyState title="Aucun historique" />}</div>}
+      </Modal>
+
+      <Modal open={identityDiagnosticsOpen} onClose={() => setIdentityDiagnosticsOpen(false)} title="IDs non reconnus par les assets" description="Inventaire centralisé du snapshot : aucun parcours manuel des cartes n’est nécessaire." className="max-w-6xl">
+        {identityDiagnosticsLoading ? <FetchLoadingState layout="inline" title="Chargement des IDs non reconnus…" /> : null}
+        {identityDiagnosticsError ? <ErrorState title="Diagnostics indisponibles" message={identityDiagnosticsError} action={<Button onClick={() => void loadIdentityDiagnostics(identityDiagnosticQuery)}>Réessayer</Button>} /> : null}
+        {!identityDiagnosticsLoading && !identityDiagnosticsError && identityDiagnostics ? <div className="grid gap-4">
+          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4"><Card className="p-3"><span className="text-[10px] font-black uppercase tracking-wider text-muted">Entrées</span><strong className="mt-1 block font-mono text-2xl">{identityDiagnostics.summary.totalEntries.toLocaleString("fr-FR")}</strong></Card><Card className="p-3"><span className="text-[10px] font-black uppercase tracking-wider text-muted">Groupes exacts</span><strong className="mt-1 block font-mono text-2xl">{identityDiagnostics.summary.totalGroups.toLocaleString("fr-FR")}</strong></Card><Card className="p-3"><span className="text-[10px] font-black uppercase tracking-wider text-muted">Snapshot</span><strong className="mt-1 block truncate font-mono text-sm" title={identityDiagnostics.snapshot.id}>{identityDiagnostics.snapshot.id.slice(0, 12)}</strong></Card><Card className="p-3"><span className="text-[10px] font-black uppercase tracking-wider text-muted">Dernière résolution</span><strong className="mt-1 block text-sm">{identityDiagnostics.snapshot.identityResolvedAt ? dateFormatter.format(new Date(identityDiagnostics.snapshot.identityResolvedAt)) : "Jamais"}</strong></Card></div>
+          <div className="grid gap-2 rounded-xl border border-line bg-surface-minimal p-3 md:grid-cols-[minmax(0,1fr)_minmax(12rem,.45fr)_auto_auto]"><Input value={identityDiagnosticQuery.search} onChange={(event) => setIdentityDiagnosticQuery((current) => ({ ...current, search: event.target.value }))} onKeyDown={(event) => { if (event.key === "Enter") void loadIdentityDiagnostics({ ...identityDiagnosticQuery, page: 1 }); }} placeholder="ID collection, Pokédex, alias, forme, costume…" aria-label="Rechercher dans les IDs non reconnus" /><Select value={identityDiagnosticQuery.reason} onChange={(event) => void loadIdentityDiagnostics({ ...identityDiagnosticQuery, reason: event.target.value, page: 1 })} aria-label="Filtrer par cause"><option value="">Toutes les causes</option>{Object.entries(identityDiagnostics.summary.reasons).map(([reason, count]) => <option value={reason} key={reason}>{identityReasonLabels[reason] || reason} ({count})</option>)}</Select><Button icon={<Search size={15} />} onClick={() => void loadIdentityDiagnostics({ ...identityDiagnosticQuery, page: 1 })}>Rechercher</Button><Button icon={<Download size={15} />} onClick={() => void downloadIdentityDiagnostics()}>JSON</Button></div>
+          <p className="text-sm font-semibold text-muted">{identityDiagnostics.summary.filteredEntries.toLocaleString("fr-FR")} entrée(s) dans {identityDiagnostics.summary.filteredGroups.toLocaleString("fr-FR")} groupe(s). Les IDs ci-dessous sont ceux de ton export Ma Collection.</p>
+          {identityDiagnostics.items.length ? <div className="grid gap-3">{identityDiagnostics.items.map((item) => <article className="min-w-0 rounded-xl border border-warning/25 bg-warning/[0.06] p-3 sm:p-4" key={item.key}><div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><Badge tone="amber">#{item.dexNumber}</Badge><strong className="text-lg">{item.pokemonName}</strong>{item.shiny ? <Badge tone="amber">Shiny</Badge> : null}<Badge tone="neutral">{item.gender}</Badge></div><code className="mt-2 block break-all text-sm font-black text-cyan-100">{item.rawAlias}</code><div className="mt-2 flex flex-wrap gap-2 text-xs font-semibold text-muted"><span>Forme : <strong className="text-foreground">{item.form || "—"}</strong></span><span>Costume : <strong className="text-foreground">{item.costume || "—"}</strong></span><span>Canonical ID : <strong className="text-foreground">{item.canonicalId || "non résolu"}</strong></span></div></div><div className="shrink-0 text-left sm:text-right"><strong className="font-mono text-xl text-amber-100">× {item.occurrences}</strong><span className="mt-1 block text-xs font-black text-rose-200">{identityReasonLabels[item.reason] || item.reason}</span><span className="mt-1 block text-[11px] font-semibold text-muted">{item.reason === "ALIAS_UNKNOWN" ? "Action : associer l’alias" : "Action : ajouter/réparer l’asset exact"}</span></div></div><div className="mt-3 border-t border-line pt-3"><span className="text-[10px] font-black uppercase tracking-wider text-muted">IDs collection concernés</span><div className="mt-2 flex flex-wrap gap-1.5">{item.sourceIds.map((sourceId) => <code className="max-w-full break-all rounded-md border border-line bg-surface-inset-strong px-2 py-1 text-[11px] text-foreground" key={sourceId}>{sourceId}</code>)}</div></div></article>)}</div> : <EmptyState icon={<ListX />} title="Aucun ID non reconnu" description="Aucune entrée ne correspond à ces filtres." />}
+          <div className="flex flex-col gap-3 border-t border-line pt-3 sm:flex-row sm:items-center sm:justify-between"><span className="text-sm font-semibold text-muted">Page {identityDiagnostics.pagination.page} / {Math.max(1, identityDiagnostics.pagination.pages)} · {identityDiagnostics.pagination.total} groupe(s)</span><div className="flex flex-wrap gap-2"><Button size="sm" asChild><a href="?section=identity-manager">Ouvrir l’Identity Manager</a></Button><Button size="icon" aria-label="Page précédente des diagnostics" disabled={identityDiagnosticQuery.page <= 1} onClick={() => void loadIdentityDiagnostics({ ...identityDiagnosticQuery, page: identityDiagnosticQuery.page - 1 })}><ArrowLeft size={16} /></Button><Button size="icon" aria-label="Page suivante des diagnostics" disabled={identityDiagnosticQuery.page >= identityDiagnostics.pagination.pages} onClick={() => void loadIdentityDiagnostics({ ...identityDiagnosticQuery, page: identityDiagnosticQuery.page + 1 })}><ArrowRight size={16} /></Button></div></div>
+        </div> : null}
       </Modal>
     </section>
   );

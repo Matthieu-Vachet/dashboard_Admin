@@ -1,4 +1,5 @@
 import type {
+  TrainerPokemonIdentityDiagnosticsResponse,
   TrainerPokemonImportPreview,
   TrainerPokemonListResponse,
   TrainerPokemonSnapshotSummary,
@@ -58,4 +59,9 @@ export async function rollbackTrainerPokemonImport(snapshotId: string) {
 export async function refreshTrainerPokemonIdentityResolution() {
   const response = await fetch(`${trainerPokemonApiPath}/resolve`, { method: "POST" });
   return readPayload<{ total: number; resolved: number; unresolved: number; diagnosticCounts: Record<string, number> }>(response);
+}
+
+export async function readTrainerPokemonIdentityDiagnostics(params: URLSearchParams) {
+  const response = await fetch(`${trainerPokemonApiPath}/diagnostics?${params}`, { cache: "no-store" });
+  return readPayload<TrainerPokemonIdentityDiagnosticsResponse>(response);
 }

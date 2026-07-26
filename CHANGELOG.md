@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.33.1 - 2026-07-26
+
+- Contextualise les diagnostics `ma-collection` par Pokédex, forme et costume afin de ne plus fusionner des variantes distinctes partageant le même alias brut.
+- Ajoute dans Ma Collection une liste exhaustive et historisée des IDs non reconnus, filtrable et exportable avec alias, forme, costume, genre, shiny, cause et occurrences.
+
 ## 1.33.0 - 2026-07-26
 
 - Ajoute Best Defenders sous Combat et l’audit privé Costumes / Event sous Événements, avec filtres, statistiques, JSON, sources, diagnostics et régénération.
