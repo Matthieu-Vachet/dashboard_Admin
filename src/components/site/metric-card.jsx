@@ -17,7 +17,7 @@ const surfaces = {
 export function MetricCard({ label, value, accent = "blue", icon }) {
   return (
     <article
-      className={`grid min-w-0 items-center gap-3 rounded-lg border p-4 shadow-[0_18px_60px_rgba(0,0,0,0.22)] backdrop-blur ${surfaces[accent] || surfaces.blue} ${
+      className={`grid min-w-0 items-center gap-3 rounded-surface border p-4 shadow-raised backdrop-blur ${surfaces[accent] || surfaces.blue} ${
         icon ? "grid-cols-[3rem_minmax(0,1fr)]" : ""
       }`}
     >

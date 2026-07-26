@@ -46,7 +46,8 @@ test("Modal conserve son API publique et son rendu portal", () => {
     /document\.body/,
   ]) assert.match(modal, contract);
   assert.match(modal, /className="fixed inset-0 z-\[1100\] grid place-items-center bg-overlay p-3 backdrop-blur-xl sm:p-5"/);
-  assert.match(modal, /relative max-h-\[92dvh\] w-full max-w-2xl overflow-hidden rounded-lg/);
+  assert.match(modal, /relative max-h-\[92dvh\] w-full max-w-2xl overflow-hidden rounded-overlay/);
+  assert.match(modal, /shadow-overlay/);
 });
 
 test("Modal conserve le contrat dialog, ses fermetures et le scroll lock", () => {

@@ -112,7 +112,7 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
           const secondary = colorToCss(group.secondaryColor);
           return (
             <article
-              className="min-w-0 overflow-hidden rounded-3xl border border-line bg-slate-950/55 shadow-[0_22px_70px_rgba(0,0,0,.22)]"
+              className="min-w-0 overflow-hidden rounded-surface border border-line bg-slate-950/55 shadow-raised"
               key={group.familyId}
             >
               <div

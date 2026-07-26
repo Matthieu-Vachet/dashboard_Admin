@@ -94,7 +94,7 @@ export function PokemonCard({
 
   return (
     <article
-      className={`relative isolate flex h-full min-h-[430px] flex-col overflow-hidden rounded-[1.65rem] border p-4 shadow-[0_18px_50px_rgba(0,0,0,0.24)] ${
+      className={`relative isolate flex h-full min-h-[430px] flex-col overflow-hidden rounded-[1.65rem] border p-4 shadow-raised ${
         entry.complete ? "border-emerald-300/25" : "border-amber-300/30"
       } ${assetChecked ? "ring-2 ring-emerald-300/50" : ""}`}
       style={{

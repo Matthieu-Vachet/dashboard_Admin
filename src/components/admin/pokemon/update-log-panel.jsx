@@ -31,7 +31,7 @@ export function UpdateLogPanel({
 
   return (
     <section className="grid items-start gap-5 xl:grid-cols-[1.1fr_.9fr]">
-      <article className="rounded-2xl border border-line bg-surface-subtle p-4 shadow-[0_22px_90px_rgba(0,0,0,.24)] backdrop-blur-xl sm:p-5">
+      <article className="rounded-surface border border-line bg-surface-subtle p-4 shadow-raised backdrop-blur-xl sm:p-5">
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200/70">Mongo source history</p>
@@ -83,7 +83,7 @@ export function UpdateLogPanel({
         )}
       </article>
 
-      <article className="rounded-2xl border border-line bg-surface-subtle p-4 shadow-[0_22px_90px_rgba(0,0,0,.24)] backdrop-blur-xl sm:p-5">
+      <article className="rounded-surface border border-line bg-surface-subtle p-4 shadow-raised backdrop-blur-xl sm:p-5">
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-sky-200/70">PokemonGo-Data</p>
@@ -133,7 +133,7 @@ export function UpdateLogPanel({
         )}
       </article>
 
-      <article className="rounded-2xl border border-line bg-surface-subtle p-4 shadow-[0_22px_90px_rgba(0,0,0,.24)] backdrop-blur-xl sm:p-5">
+      <article className="rounded-surface border border-line bg-surface-subtle p-4 shadow-raised backdrop-blur-xl sm:p-5">
         <div className="mb-4 flex items-center gap-3">
           <GitCommitHorizontal className="text-emerald-200" size={22} />
           <div>

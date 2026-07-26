@@ -105,7 +105,7 @@ test("les trois faux positifs flat restent hors Card", () => {
 
 test("Panel legacy et surfaces interactives restent spécialisés", () => {
   const panel = read("src/components/admin/pokemon/admin-ui.jsx");
-  assert.match(panel, /rounded-2xl border border-line bg-surface-subtle/);
+  assert.match(panel, /rounded-surface border border-line bg-surface-subtle p-4 shadow-raised/);
   assert.match(panel, /export function Panel/);
   assert.doesNotMatch(panel, /<Card\b/);
   assert.match(read("src/components/admin/forms/kanban-board.tsx"), /function KanbanTaskCard/);

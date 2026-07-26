@@ -83,7 +83,7 @@ export function EmptyState({
   return (
     <Card
       className={cn(
-        "grid place-items-center rounded-lg border border-dashed border-line bg-surface-faint text-center",
+        "grid place-items-center rounded-surface border border-dashed border-line bg-surface-faint text-center",
         size === "section" ? "min-h-40 p-6" : "min-h-20 p-4",
         className,
       )}
@@ -118,7 +118,7 @@ export function ErrorState({
   return (
     <Card
       className={cn(
-        "rounded-lg border border-danger/30 bg-danger/10 p-4 text-danger",
+        "rounded-surface border border-danger/30 bg-danger/10 p-4 text-danger",
         className,
       )}
       role="alert"

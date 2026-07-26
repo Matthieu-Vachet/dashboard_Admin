@@ -2,11 +2,11 @@
 id: DOC-011
 title: "Vue d’ensemble du Dashboard"
 description: "Référence du Dashboard Admin, de ses pages, sections, composants, services et dépendances réellement présents."
-version: 2.0.0
+version: 2.1.0
 status: Official
 owner: Matthieu Vachet
 created: 2026-07-13
-last_updated: 2026-07-13
+last_updated: 2026-07-26
 category: Foundation
 type: Reference
 language: fr
@@ -15,6 +15,8 @@ scope:
 source_files:
   - "Dashboard Admin/src/app"
   - "Dashboard Admin/src/components/admin"
+  - "Dashboard Admin/src/components/ui"
+  - "Dashboard Admin/src/app/globals.css"
   - "Dashboard Admin/src/data/dashboard.ts"
   - "Dashboard Admin/src/proxy.ts"
 registries:
@@ -36,7 +38,7 @@ related:
 
 Référence du Dashboard Admin, de ses pages, sections, composants, services et dépendances réellement présents.
 
-Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, archives et rapports historiques ne servent pas de preuve runtime lorsqu’un fichier source actif existe.
+Le contenu décrit l’état du code au 26 juillet 2026. Les builds, caches, archives et rapports historiques ne servent pas de preuve runtime lorsqu’un fichier source actif existe.
 
 ## 2. Inventaire du code
 
@@ -56,7 +58,8 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - PokemonAdminStudio rend AdminApp. AdminApp contient les 24 sections overview, pokedex, candies, backgrounds, collections, my-collection, assets, catalogs, raids, max-battles, rocket, pvp-rankings, eggs, research, events, shiny, checks, sources, compare, todo, logs, rules, bulk et export.
 - La section PAGE-049 charge COMP-137 avec next/dynamic. Elle appelle SERVICE-005 et les routes API-157 à API-160.
 - PAGE-052 charge COMP-329 avec `next/dynamic`. La navigation interne est COMP-331 ; le détail utilise COMP-330. Toutes les lectures passent par le BFF de session puis API-165 à API-176 avec le secret serveur.
-- Le design exécuté utilise les thèmes dark et light, huit palettes et les primitives Badge, Button, Card, Input, Textarea et Modal.
+- Le design exécuté utilise les thèmes dark et light, huit palettes et neuf familles partagées : Badge, Button, Card, Field, Input, Textarea, Modal, Select et Checkbox.
+- Le spacing générique réutilise l’échelle Tailwind. Button/contrôles, Card/Panel/State System et Modal/dialog consomment respectivement les rôles radius `control`, `surface` et `overlay`; cinq niveaux d’élévation `surface`, `raised`, `strong`, `overlay` et `floating` séparent la profondeur UI des glows métier.
 - Le Dashboard lit PokemonGo-Data via un voisin ou .data, PokemonGo-API via ses handlers serveur, les assets via GitHub raw et ses données privées via MongoDB Dashboard.
 
 ## 4. Relations et dépendances
@@ -129,5 +132,7 @@ Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient 
 
 - `Dashboard Admin/src/app`
 - `Dashboard Admin/src/components/admin`
+- `Dashboard Admin/src/components/ui`
+- `Dashboard Admin/src/app/globals.css`
 - `Dashboard Admin/src/data/dashboard.ts`
 - `Dashboard Admin/src/proxy.ts`

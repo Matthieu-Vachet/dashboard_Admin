@@ -12,7 +12,7 @@ export function DatasetFilterBar({
   toggles = [],
 }) {
   return (
-    <section className="rounded-2xl border border-line bg-surface-inset-subtle p-3 shadow-[0_16px_55px_rgba(0,0,0,.16)]">
+    <section className="rounded-surface border border-line bg-surface-inset-subtle p-3 shadow-surface">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
         <label className="relative min-w-0 flex-1">
           <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-disabled" size={17} />

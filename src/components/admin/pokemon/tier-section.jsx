@@ -64,7 +64,7 @@ export function TierSection({
 
   return (
     <section
-      className={`relative overflow-hidden rounded-3xl border ${style.shell} shadow-[0_18px_70px_rgba(0,0,0,.18)]`}
+      className={`relative overflow-hidden rounded-surface border ${style.shell} shadow-raised`}
       style={{ boxShadow: `0 18px 70px rgba(0,0,0,.18), inset 0 1px 0 ${style.glow}` }}
     >
       <button

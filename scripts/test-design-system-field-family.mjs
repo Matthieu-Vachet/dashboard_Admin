@@ -326,9 +326,9 @@ if (process.argv.includes("--dump-inventory")) {
     assert.match(source, /forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>/);
     assert.match(source, /<input\s+ref=\{ref\}/);
     assert.match(source, /<textarea\s+ref=\{ref\}/);
-    assert.match(source, /min-h-11 w-full rounded-lg border border-line bg-surface-control px-3/);
+    assert.match(source, /min-h-11 w-full rounded-control border border-line bg-surface-control px-3/);
     assert.match(source, /placeholder:text-muted\/70 focus:border-brand-2\/55 focus:bg-surface-control-focus/);
-    assert.match(source, /min-h-32 w-full resize-none rounded-lg border border-line bg-surface-control p-3/);
+    assert.match(source, /min-h-32 w-full resize-none rounded-control border border-line bg-surface-control p-3/);
     assert.match(source, /cn\([\s\S]*?className,[\s\S]*?\)/);
   });
 

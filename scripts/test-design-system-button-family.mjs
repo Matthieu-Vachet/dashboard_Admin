@@ -351,7 +351,7 @@ if (dumpInventory) {
     assert.match(source, /asChild\?: boolean/);
     assert.match(source, /icon\?: ReactNode/);
     assert.match(source, /const Component = asChild \? Slot : "button"/);
-    assert.match(source, /inline-flex items-center justify-center gap-2 rounded-lg border font-black/);
+    assert.match(source, /inline-flex items-center justify-center gap-2 rounded-control border font-black/);
     assert.match(source, /focus-visible:outline-brand-2/);
     assert.match(source, /disabled:cursor-not-allowed disabled:opacity-50/);
     assert.match(source, /variants\[variant\],\s*sizes\[size\],\s*className/);

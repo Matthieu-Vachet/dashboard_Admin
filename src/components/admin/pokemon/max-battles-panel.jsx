@@ -55,7 +55,7 @@ function MaxBattleCard({ pokemon, onOpenPokemon, typeCatalog = [] }) {
 
   return (
     <button
-      className="group min-w-0 overflow-hidden rounded-2xl border border-line bg-slate-950/38 text-left shadow-[0_18px_70px_rgba(0,0,0,.2)] transition hover:-translate-y-0.5 hover:border-cyan-200/35 disabled:cursor-default"
+      className="group min-w-0 overflow-hidden rounded-surface border border-line bg-slate-950/38 text-left shadow-raised transition hover:-translate-y-0.5 hover:border-cyan-200/35 disabled:cursor-default"
       type="button"
       disabled={!canOpen}
       onClick={() => canOpen && onOpenPokemon(pokemon)}

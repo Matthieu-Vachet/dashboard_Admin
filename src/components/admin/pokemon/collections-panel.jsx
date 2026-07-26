@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { EmptyState } from "@/components/admin/shared/state-system";
 
 const panelClass =
-  "rounded-2xl border border-line bg-surface-subtle p-4 shadow-[0_22px_90px_rgba(0,0,0,.24)] backdrop-blur-xl sm:p-5";
+  "rounded-surface border border-line bg-surface-subtle p-4 shadow-raised backdrop-blur-xl sm:p-5";
 const fieldClass =
   "min-h-12 w-full rounded-2xl border border-line bg-surface-inset-strong px-4 text-sm font-bold text-domain-foreground outline-none transition placeholder:text-disabled focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-400/10";
 const primaryButtonClass =
@@ -324,7 +324,7 @@ function collectionStats(entries) {
 function CollectionStatCard({ label, value, icon, tone = "cyan", detail }) {
   return (
     <article
-      className={`relative min-w-0 overflow-hidden rounded-2xl border bg-gradient-to-br p-3 shadow-[0_18px_65px_rgba(0,0,0,.22)] ${assetStatTone[tone] || assetStatTone.cyan}`}
+      className={`relative min-w-0 overflow-hidden rounded-surface border bg-gradient-to-br p-3 shadow-surface ${assetStatTone[tone] || assetStatTone.cyan}`}
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.22),transparent_34%),linear-gradient(135deg,rgba(255,255,255,.1),transparent_45%)]" />
       <div className="relative grid min-w-0 grid-cols-[3rem_minmax(0,1fr)] items-center gap-3">
@@ -689,7 +689,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
 
       {canUsePortal && modalOpen ? createPortal(
         <div className="fixed inset-0 z-[1100] overflow-y-auto bg-slate-950/78 p-3 backdrop-blur-xl sm:p-6" role="dialog" aria-modal="true" aria-labelledby="collections-editor-title">
-          <section className="mx-auto my-3 flex max-h-[calc(100dvh-1.5rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[1.5rem] border border-line bg-zinc-900 shadow-[0_32px_120px_rgba(0,0,0,.5)] sm:my-0 sm:max-h-[calc(100dvh-3rem)] sm:rounded-[2rem]">
+          <section className="mx-auto my-3 flex max-h-[calc(100dvh-1.5rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[1.5rem] border border-line bg-zinc-900 shadow-overlay sm:my-0 sm:max-h-[calc(100dvh-3rem)] sm:rounded-[2rem]">
             <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-line bg-zinc-900/95 p-4 backdrop-blur sm:p-5">
               <h3 id="collections-editor-title" className="text-2xl font-black text-domain-foreground">Nouvelle collection</h3>
               <button className="grid h-10 w-10 place-items-center rounded-full border border-line bg-surface-control text-xl font-black text-domain-foreground" type="button" onClick={() => setModalOpen(false)} aria-label="Fermer l’éditeur de collection">

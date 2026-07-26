@@ -243,7 +243,7 @@ const emptyAliasForm: AliasForm = {
 const customProviderValue = "__custom_provider__";
 
 const inputClass = "min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-bold text-foreground outline-none transition focus:border-brand-2/55";
-const cardClass = "min-w-0 overflow-hidden rounded-xl border border-line bg-surface-inset p-4 shadow-[0_18px_45px_rgba(0,0,0,.14)]";
+const cardClass = "min-w-0 overflow-hidden rounded-surface border border-line bg-surface-inset p-4 shadow-surface";
 
 function identityId(identity: PokemonIdentity) {
   return identity.id || identity._id || "";

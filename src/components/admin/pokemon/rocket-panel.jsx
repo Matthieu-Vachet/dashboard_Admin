@@ -208,7 +208,7 @@ function PokemonCard({ pokemon, onOpenPokemon, compact = false }) {
       type="button"
       onClick={() => canOpen && onOpenPokemon(pokemon)}
       disabled={!canOpen}
-      className="group grid min-w-0 grid-cols-[72px_minmax(0,1fr)] gap-3 rounded-2xl border border-line bg-slate-950/34 p-3 text-left shadow-[0_14px_40px_rgba(0,0,0,.16)] transition enabled:hover:-translate-y-0.5 enabled:hover:border-cyan-200/35 enabled:hover:bg-cyan-400/8 disabled:cursor-default"
+      className="group grid min-w-0 grid-cols-[72px_minmax(0,1fr)] gap-3 rounded-surface border border-line bg-slate-950/34 p-3 text-left shadow-surface transition enabled:hover:-translate-y-0.5 enabled:hover:border-cyan-200/35 enabled:hover:bg-cyan-400/8 disabled:cursor-default"
     >
       <PokemonArtwork pokemon={pokemon} alt={name} className="h-[72px] w-[72px] drop-shadow-[0_12px_22px_rgba(0,0,0,.4)]" />
       <span className="min-w-0 space-y-2">
@@ -270,7 +270,7 @@ function TrainerCard({ profile, group, rocketText, onOpenPokemon, defaultOpen = 
 
   return (
     <details
-      className="group min-w-0 overflow-hidden rounded-3xl border bg-slate-950/34 shadow-[0_20px_80px_rgba(0,0,0,.24)]"
+      className="group min-w-0 overflow-hidden rounded-surface border bg-slate-950/34 shadow-raised"
       open={open}
       onToggle={(event) => setOpen(event.currentTarget.open)}
       style={{

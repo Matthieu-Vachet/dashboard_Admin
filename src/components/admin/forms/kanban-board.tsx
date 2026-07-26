@@ -660,7 +660,7 @@ function KanbanTaskCard({
         transition,
       }}
       className={cn(
-        "rounded-lg border border-line bg-[#101522]/88 p-3 shadow-[0_14px_38px_rgba(0,0,0,0.18)] transition will-change-transform",
+        "rounded-surface border border-line bg-[#101522]/88 p-3 shadow-surface transition will-change-transform",
         selected && "border-brand-2/55 bg-brand-2/10",
         isDragging && "scale-[1.02] border-brand-2/50 opacity-80",
       )}

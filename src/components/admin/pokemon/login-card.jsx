@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 
 export function LoginCard({ password, error, loading, onPasswordChange, onSubmit }) {
   return (
-    <section className="w-full max-w-xl rounded-lg border border-line bg-zinc-950/85 p-5 shadow-[0_30px_90px_rgba(0,0,0,0.38)] backdrop-blur md:p-8">
+    <section className="w-full max-w-xl rounded-surface border border-line bg-zinc-950/85 p-5 shadow-raised backdrop-blur md:p-8">
       <span className="text-xs font-black uppercase tracking-wide text-sky-300">
         Accès administrateur
       </span>

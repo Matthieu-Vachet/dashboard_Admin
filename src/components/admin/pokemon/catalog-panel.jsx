@@ -93,7 +93,7 @@ function TypeCatalogCard({ item, typeCatalog = [], weatherCatalog = [] }) {
 
   return (
     <article
-      className="relative overflow-hidden rounded-3xl border bg-surface-inset-strong shadow-[0_20px_80px_rgba(0,0,0,.22)]"
+      className="relative overflow-hidden rounded-surface border bg-surface-inset-strong shadow-raised"
       style={{
         borderColor: `color-mix(in srgb, ${color} 34%, rgba(255,255,255,.12))`,
         backgroundImage: background
@@ -183,7 +183,7 @@ function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
 
   return (
     <article
-      className={`overflow-hidden rounded-3xl border bg-cover bg-center transition ${open ? "shadow-[0_18px_70px_rgba(0,0,0,.28)]" : ""}`}
+      className={`overflow-hidden rounded-surface border bg-cover bg-center transition ${open ? "shadow-raised" : ""}`}
       style={{ backgroundImage: typePanelBackground(type, typeCatalog), borderColor: `color-mix(in srgb, ${color} ${open ? "68%" : "34%"}, rgba(255,255,255,.14))` }}
     >
       <button

@@ -13,7 +13,7 @@ Statuts autorisés : `not-started`, `observing`, `planned`, `in-progress`, `bloc
 | DS-BACKLOG-007 | Formulaires | Checkbox | 10 contrôles compatibles canoniques et nommés ; disabled, labels et exceptions sémantiques conservés | completed | P1 | moyen | M | Accessibility |
 | DS-BACKLOG-008 | États | Loading / Empty / Error | 87 racines génériques couvertes à la baseline courante ; Fetch Loading animé 18/18, Empty/No Results 55/55, Error 14/14, exceptions documentées | completed | P1 | moyen | L | Card, Accessibility |
 | DS-BACKLOG-009 | Actions | Button | Sprint Famille : contrat, inventaire, ExternalButton et LoadMoreButton | validated | P1 | élevé | M | Badge validé |
-| DS-BACKLOG-010 | Surfaces | Card | 386 racines historiques classées ; 20 surfaces sûres migrées, 117 usages canoniques à la baseline courante et exceptions métier documentées | completed | P1 | élevé | L | Responsive vérifié localement sur 3 viewports |
+| DS-BACKLOG-010 | Surfaces | Card | 386 racines historiques classées ; 20 surfaces sûres migrées, 117 usages canoniques à la baseline courante ; surfaces résiduelles, radius et élévations génériques validés par Visual Consistency | completed | P1 | élevé | L | Responsive vérifié localement sur 3 viewports |
 | DS-BACKLOG-011 | Overlays | Modal | 38 cas historiques classés ; 23 instances canoniques dans 14 fichiers à la baseline courante, API publique inchangée et exceptions métier documentées | completed | P1 | élevé | L | Accessibility, Button |
 | DS-BACKLOG-012 | Qualité transverse | Responsive | Définir les matrices de viewports par famille | planned | P0 | moyen | M | Aucune |
 | DS-BACKLOG-013 | Qualité transverse | Accessibility | 95 contrôles inventoriés, 43 vérifiés au runtime et 18 défauts sûrs corrigés | validated | P0 | élevé | L | Sprint Field validé |
@@ -25,4 +25,4 @@ Statuts autorisés : `not-started`, `observing`, `planned`, `in-progress`, `bloc
 
 ## Prochaine priorité proposée
 
-**Visual Consistency**, prochaine mission autorisée : regrouper spacing, radius, shadows et surfaces résiduelles à partir des exceptions déjà inventoriées. `DS-BACKLOG-012` Responsive reste `planned` au niveau transverse ; les matrices locales Card, Color System, Select + Checkbox et State System ne prétendent pas clore ce chantier global.
+**Typography System**, prochaine mission autorisée. Visual Consistency est completed avec 100 % de couverture générique sur spacing, radius, elevation et surfaces ; aucun identifiant permanent n’a été inventé pour ce lot transverse. `DS-BACKLOG-012` Responsive reste `planned` au niveau global et `DS-BACKLOG-014` Motion reste `not-started` jusqu’à leur sprint dédié.

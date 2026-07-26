@@ -13,7 +13,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
     <div
       ref={ref}
       className={cn(
-        "rounded-lg",
+        "rounded-surface",
         tone === "strong"
           ? "glass-panel-strong"
           : tone === "flat"

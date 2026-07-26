@@ -753,7 +753,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
       </Panel>
 
       <section className="grid min-w-0 gap-5 2xl:grid-cols-[minmax(0,1fr)_420px]">
-        <div className="min-w-0 rounded-2xl border border-line bg-surface-inset-subtle p-3 shadow-[0_22px_90px_rgba(0,0,0,.22)] sm:p-4">
+        <div className="min-w-0 rounded-surface border border-line bg-surface-inset-subtle p-3 shadow-raised sm:p-4">
           <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-2">
               <button className={buttonClass} type="button" onClick={() => setCursor(subMonths(cursor, 1))} aria-label="Mois précédent">
@@ -994,7 +994,7 @@ function MultiDaySegment({ segment, onOpen }) {
   const type = eventType(segment.event);
   return (
     <button
-      className="min-w-0 truncate rounded-md border px-2 text-left text-xs font-black text-domain-foreground shadow-[0_5px_18px_rgba(0,0,0,.16)] transition hover:border-white/35 hover:brightness-110"
+      className="min-w-0 truncate rounded-control border px-2 text-left text-xs font-black text-domain-foreground shadow-sm transition hover:border-white/35 hover:brightness-110"
       style={{
         gridColumn: `${segment.startIndex + 1} / ${segment.endIndex + 2}`,
         gridRow: `${segment.lane + 1}`,
@@ -1358,7 +1358,7 @@ function EventDetailModal({ event, busyAction, onClose, onEdit, onDuplicate, onA
   return (
     <ModalPortal>
       <div className="event-detail-overlay fixed inset-0 z-[1200] grid place-items-center overflow-y-auto bg-slate-950/84 p-3 backdrop-blur-xl sm:p-5" onClick={onClose}>
-      <article className="event-detail-modal flex max-h-[94dvh] w-full max-w-6xl flex-col overflow-hidden rounded-[2rem] border border-line bg-[#07111f] shadow-[0_30px_120px_rgba(0,0,0,.58)]" role="dialog" aria-modal="true" aria-labelledby={eventDetailTitleId} onClick={(clickEvent) => clickEvent.stopPropagation()}>
+      <article className="event-detail-modal flex max-h-[94dvh] w-full max-w-6xl flex-col overflow-hidden rounded-[2rem] border border-line bg-[#07111f] shadow-overlay" role="dialog" aria-modal="true" aria-labelledby={eventDetailTitleId} onClick={(clickEvent) => clickEvent.stopPropagation()}>
         <header
           className="relative shrink-0 overflow-hidden rounded-t-[2rem] border-b border-cyan-200/20 p-4 sm:p-7"
           style={{

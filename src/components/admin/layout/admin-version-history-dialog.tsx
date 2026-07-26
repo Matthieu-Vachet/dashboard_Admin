@@ -79,7 +79,7 @@ export function AdminVersionHistoryDialog({
         >
           <motion.section
             ref={dialogRef}
-            className="relative z-[1110] max-h-[calc(100dvh-2rem)] w-full max-w-3xl overflow-hidden rounded-3xl border border-line bg-card shadow-[0_24px_120px_rgba(0,0,0,.55)]"
+            className="relative z-[1110] max-h-[calc(100dvh-2rem)] w-full max-w-3xl overflow-hidden rounded-overlay border border-line bg-card shadow-overlay"
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}

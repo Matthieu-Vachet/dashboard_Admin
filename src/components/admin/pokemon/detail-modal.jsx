@@ -120,7 +120,7 @@ function Section({
     ];
   return (
     <section
-      className={`pokemon-detail-section relative overflow-hidden rounded-3xl border bg-gradient-to-br to-slate-950/18 p-4 shadow-[0_20px_70px_rgba(0,0,0,.2)] backdrop-blur sm:p-5 ${toneClass}`}
+      className={`pokemon-detail-section relative overflow-hidden rounded-surface border bg-gradient-to-br to-slate-950/18 p-4 shadow-raised backdrop-blur sm:p-5 ${toneClass}`}
       style={
         plain
           ? undefined
@@ -223,7 +223,7 @@ function TypeBadge({ type, typeCatalog = [], compact = false }) {
   const icon = typeIcon(type, typeCatalog);
   return (
     <span
-      className={`inline-flex min-w-0 items-center gap-2 rounded-full border border-white/20 bg-surface-inset font-black text-domain-foreground shadow-[0_8px_22px_rgba(0,0,0,.18)] ${compact ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm"}`}
+      className={`inline-flex min-w-0 items-center gap-2 rounded-full border border-white/20 bg-surface-inset font-black text-domain-foreground shadow-sm ${compact ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm"}`}
       style={{
         backgroundColor: `color-mix(in srgb, ${typeColors[type] || "#64748b"} 54%, rgba(2,6,23,.45))`,
       }}
@@ -261,7 +261,7 @@ function DataGrid({ items }) {
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       {items.map((item, index) => (
         <div
-          className={`grid min-h-24 grid-cols-[2.45rem_minmax(0,1fr)] gap-3 rounded-2xl border p-4 text-left shadow-[0_12px_38px_rgba(0,0,0,.18)] ${cardTones[index % cardTones.length]}`}
+          className={`grid min-h-24 grid-cols-[2.45rem_minmax(0,1fr)] gap-3 rounded-surface border p-4 text-left shadow-surface ${cardTones[index % cardTones.length]}`}
           key={item.label}
         >
           <span className="grid h-10 w-10 place-items-center rounded-2xl border border-line bg-surface-control">
@@ -1558,7 +1558,7 @@ export function DetailModal({
       onClick={onClose}
     >
       <div
-        className="pokemon-detail-modal flex max-h-[96dvh] w-full max-w-6xl flex-col overflow-hidden rounded-t-[2rem] border border-line text-domain-foreground shadow-[0_30px_120px_rgba(0,0,0,.65)] sm:max-h-[92dvh] sm:rounded-[2rem]"
+        className="pokemon-detail-modal flex max-h-[96dvh] w-full max-w-6xl flex-col overflow-hidden rounded-t-[2rem] border border-line text-domain-foreground shadow-overlay sm:max-h-[92dvh] sm:rounded-[2rem]"
         style={{
           background: `linear-gradient(180deg, color-mix(in srgb, ${mainTypeColor} 24%, #0d1a2b), #08111f 72%)`,
         }}

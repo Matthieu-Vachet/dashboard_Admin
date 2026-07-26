@@ -5,7 +5,7 @@ import { pokemonVariantLabel, preferredPokemonImage } from "@/components/site/po
 import { EmptyState } from "@/components/admin/shared/state-system";
 
 export const panelClass =
-  "rounded-2xl border border-line bg-surface-subtle p-4 shadow-[0_22px_90px_rgba(0,0,0,.24)] backdrop-blur-xl sm:p-5";
+  "rounded-surface border border-line bg-surface-subtle p-4 shadow-raised backdrop-blur-xl sm:p-5";
 export const fieldClass =
   "min-h-12 w-full rounded-2xl border border-line bg-surface-inset-strong px-4 text-sm font-bold text-domain-foreground outline-none transition placeholder:text-disabled focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-400/10";
 export const buttonClass =
@@ -121,7 +121,7 @@ export function BarList({ items, labelKey = "id", valueKey = "count" }) {
 export function AssetStatCard({ label, value, icon, tone = "cyan", detail }) {
   return (
     <article
-      className={`relative min-w-0 overflow-hidden rounded-2xl border bg-gradient-to-br p-3 shadow-[0_18px_65px_rgba(0,0,0,.22)] ${assetStatTone[tone] || assetStatTone.cyan}`}
+      className={`relative min-w-0 overflow-hidden rounded-surface border bg-gradient-to-br p-3 shadow-surface ${assetStatTone[tone] || assetStatTone.cyan}`}
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.22),transparent_34%),linear-gradient(135deg,rgba(255,255,255,.1),transparent_45%)]" />
       <div className="relative grid min-w-0 grid-cols-[3rem_minmax(0,1fr)] items-center gap-3">
@@ -146,7 +146,7 @@ export function AssetStatCard({ label, value, icon, tone = "cyan", detail }) {
 
 export function GenerationFilterBar({ value, onChange }) {
   return (
-    <section className="rounded-2xl border border-line bg-surface-inset-subtle p-3 shadow-[0_18px_70px_rgba(0,0,0,.2)]">
+    <section className="rounded-surface border border-line bg-surface-inset-subtle p-3 shadow-surface">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-cyan-100/75">
           <Filter size={15} /> Générations

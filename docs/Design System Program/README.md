@@ -35,10 +35,11 @@ Le statut courant fait foi dans `backlog/design-system-backlog.md`.
 | Select | completed | baseline courante à 72/72 contrôles compatibles canoniques et nommés, cinq wrappers conservés ; preuves historiques dans `sprints/select-checkbox/` (`DS-BACKLOG-006`) |
 | Checkbox | completed | 10/10 contrôles compatibles canoniques et nommés, sémantiques spécialisées conservées ; preuves dans `sprints/select-checkbox/` (`DS-BACKLOG-007`) |
 | State System | completed | baseline courante à 87/87 racines génériques : 18 Fetch Loading, 55 Empty/No Results et 14 Error ; 0 legacy compatible, preuves historiques dans `sprints/state-system/` (`DS-BACKLOG-008`) |
+| Visual Consistency | completed | spacing générique, rôles radius, cinq niveaux d’élévation et surfaces résiduelles validés à 100 % ; 102 captures dans `sprints/visual-consistency/` |
 
-Métriques de santé au 26 juillet 2026 : la baseline statique couvre 117 Card dans 33 fichiers, 130 contrôles Field/Input/Textarea, 23 Modal dans 14 fichiers, 72 Select, 10 Checkbox et 87 racines State System. State System consolide 18/18 fetchs génériques sur un loader animé commun. Le Color System pilote 90,8 % des 3 157 usages génériques courants ; les couleurs métier restent séparées. Les métriques de clôture originales et les campagnes visuelles restent immuables dans leurs dossiers de sprint.
+Métriques de santé au 26 juillet 2026 : la baseline statique couvre 117 Card dans 33 fichiers, 130 contrôles Field/Input/Textarea, 23 Modal dans 14 fichiers, 72 Select, 10 Checkbox et 87 racines State System. State System consolide 18/18 fetchs génériques sur un loader animé commun. Le Color System pilote 90,8 % des 3 157 usages génériques courants ; les couleurs métier restent séparées. Visual Consistency porte la couverture générique de 98,83 % à 100 % : 3 421 espacements canoniques, 656 rayons génériques canoniques et 108 élévations UI canoniques. Les métriques de clôture originales et les campagnes visuelles restent immuables dans leurs dossiers de sprint.
 
-Baseline Design System READY. La prochaine mission de la chaîne autorisée est **Visual Consistency**, regroupant spacing, radius, shadows et surfaces résiduelles ; elle part des exceptions documentées sans rouvrir les contrats validés.
+Baseline Design System READY et Visual Consistency completed. La prochaine mission de la chaîne autorisée est **Typography System** ; elle doit partir de l’inventaire réel des styles sans rouvrir les contrats visuels validés.
 
 ## Lancer un nouveau sprint
 

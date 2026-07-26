@@ -30,7 +30,8 @@ test("Modal conserve son API publique finie et son anatomie visuelle", () => {
   }
   assert.match(modal, /createPortal\([\s\S]*document\.body/);
   assert.match(modal, /fixed inset-0 z-\[1100\] grid place-items-center bg-overlay p-3 backdrop-blur-xl sm:p-5/);
-  assert.match(modal, /max-h-\[92dvh\] w-full max-w-2xl overflow-hidden rounded-lg/);
+  assert.match(modal, /max-h-\[92dvh\] w-full max-w-2xl overflow-hidden rounded-overlay/);
+  assert.match(modal, /shadow-overlay/);
   assert.match(modal, /max-h-\[calc\(92dvh-9rem\)\] overflow-auto p-4 sm:p-5/);
 });
 

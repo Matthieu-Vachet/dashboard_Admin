@@ -44,7 +44,7 @@ function libraryCard(asset) {
 function BackgroundPreview({ background, onOpen, onPreview }) {
   const linked = background.entries || [];
   return (
-    <article className="relative overflow-hidden rounded-3xl border border-line bg-slate-950/42 shadow-[0_18px_70px_rgba(0,0,0,.2)]">
+    <article className="relative overflow-hidden rounded-surface border border-line bg-slate-950/42 shadow-raised">
       <button
         aria-label={`Agrandir ${background.label}`}
         className="relative block aspect-[16/7] min-h-[180px] w-full overflow-hidden bg-slate-950 p-4"

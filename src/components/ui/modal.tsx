@@ -80,7 +80,7 @@ export function Modal({
       <section
         ref={dialogRef}
         className={cn(
-          "relative max-h-[92dvh] w-full max-w-2xl overflow-hidden rounded-lg border border-line-strong bg-panel-strong shadow-[0_30px_120px_rgba(0,0,0,0.46)]",
+          "relative max-h-[92dvh] w-full max-w-2xl overflow-hidden rounded-overlay border border-line-strong bg-panel-strong shadow-overlay",
           className,
         )}
         role="dialog"
@@ -97,7 +97,7 @@ export function Modal({
             ) : null}
           </div>
           <button
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-line bg-surface-control text-muted transition hover:text-foreground"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-control border border-line bg-surface-control text-muted transition hover:text-foreground"
             type="button"
             onClick={onClose}
             aria-label="Fermer la fenêtre"

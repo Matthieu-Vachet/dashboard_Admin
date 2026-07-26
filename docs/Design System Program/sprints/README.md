@@ -14,5 +14,6 @@ Un dossier de sprint contient un README, un inventaire, un plan écrit avant la 
 | `color-system/` | Consolidation transverse complète | completed — couverture générique 46,4 % → 91,0 %, 1 504 hardcodes retirés, 66 scénarios validés |
 | `select-checkbox/` | Famille double | completed — 67 Select et 10 Checkbox compatibles canoniques, 100 % nommés, 66 scénarios validés |
 | `state-system/` | Famille complète | completed — 78 racines génériques couvertes, dont 15 Fetch Loading animés, 52 Empty/No Results et 11 Error |
+| `visual-consistency/` | Consolidation transverse complète | completed — couverture générique 98,83 % → 100 %, trois rôles radius, cinq niveaux d’élévation et 102 captures validées |
 
-Le prochain sprint proposé, non lancé, est **Visual Consistency**, regroupant spacing, radius, shadows et surfaces résiduelles. `DS-BACKLOG-012` Responsive reste planifié globalement ; les matrices locales Card, Color System, Select + Checkbox et State System ont couvert les trois viewports sans clore le chantier transverse. Aucun micro-sprint Modal, Card, Color System, Select, Checkbox ou State System supplémentaire n'est planifié hors bug nouveau.
+Le prochain sprint de la chaîne est **Typography System**. Visual Consistency n’a créé ni primitive Surface concurrente ni micro-sprint supplémentaire. `DS-BACKLOG-012` Responsive reste planifié globalement et `DS-BACKLOG-014` Motion attend son sprint dédié.

@@ -786,7 +786,7 @@ function LoadMoreButton({ shown, total, onClick }) {
   return (
     <div className="mt-5 flex justify-center">
       <Button
-        className="inline-flex min-h-11 items-center justify-center gap-[normal] rounded-2xl border border-cyan-200/30 bg-cyan-400/12 px-5 py-2 text-sm font-black text-cyan-50 transition duration-150 hover:border-cyan-200/55 hover:bg-cyan-400/20 focus-visible:[outline:revert]! focus-visible:[outline-offset:revert]!"
+        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-cyan-200/30 bg-cyan-400/12 px-5 py-2 text-sm font-black text-cyan-50 transition duration-150 hover:border-cyan-200/55 hover:bg-cyan-400/20 focus-visible:[outline:revert]! focus-visible:[outline-offset:revert]!"
         type="button"
         onClick={onClick}
       >
@@ -2657,7 +2657,7 @@ export function AdminApp() {
         <div className="w-full">
           <section className="min-w-0">
             <header
-              className="relative overflow-hidden rounded-2xl border border-line bg-surface-control p-4 shadow-[0_24px_90px_rgba(0,0,0,.25)] backdrop-blur-2xl sm:p-5"
+              className="relative overflow-hidden rounded-surface border border-line bg-surface-control p-4 shadow-raised backdrop-blur-2xl sm:p-5"
               style={{
                 backgroundImage:
                   'linear-gradient(135deg, rgba(15,23,42,.88), rgba(14,165,233,.18)), url("/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png")',
@@ -2772,7 +2772,7 @@ export function AdminApp() {
                     value={generationFilter}
                     onChange={setGenerationFilter}
                   />
-                  <section className="mt-4 rounded-2xl border border-line bg-surface-inset-subtle p-3 shadow-[0_18px_70px_rgba(0,0,0,.2)]">
+                  <section className="mt-4 rounded-surface border border-line bg-surface-inset-subtle p-3 shadow-surface">
                     <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                       <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-cyan-100/75">
                         <Search size={15} /> Filtres fiches

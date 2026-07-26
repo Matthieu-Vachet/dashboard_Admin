@@ -2,7 +2,7 @@
 id: DOC-010
 title: Vue d'ensemble du Design System
 slug: design-system-overview
-version: 1.1.6
+version: 1.1.7
 status: Active
 created: 2026-07-12
 last_updated: 2026-07-26
@@ -771,12 +771,13 @@ Le Design System repose sur plusieurs familles de Foundations.
 | Couleurs | `--background`, `--foreground`, `--muted`, `--panel`, `--panel-strong`, `--line`, `--line-strong`, `--brand`, `--brand-2`, `--brand-3`, accents, `--warning`, `--danger` |
 | Thèmes | `.dark` et `.light`, dark par défaut, huit palettes (`sapphire`, `ruby`, `fire-red`, `violet`, `leaf-green`, `pink`, `gold`, `electric`) |
 | Typographie | `--font-sans` = Geist/Inter/system ; `--font-mono` = Geist Mono/SFMono ; chargement explicite de Geist non trouvé |
-| Radius | `--radius: 8px`, Tailwind `sm: 6px`, `md` à `2xl: 8px`, plus rayons arbitraires fréquents |
-| Effets | `glass-panel`, `glass-panel-strong`, glows, scanline, sheen, motion-border, widget glow |
+| Spacing | échelle Tailwind existante ; 3 421/3 421 candidats génériques canoniques ; six offsets structurels/safe-area explicitement exclus |
+| Radius | rôles `control`, `surface` et `overlay` à 8 px ; 11 rayons arbitraires réservés aux géométries métier/décoratives |
+| Effets | cinq élévations `surface`, `raised`, `strong`, `overlay`, `floating` avec valeurs dark/light ; glows, scanline, sheen, motion-border et artwork restent décoratifs/métier |
 | Breakpoints | préfixes Tailwind `sm`, `md`, `lg`, `xl`, `2xl` ; aucune configuration personnalisée trouvée |
 | Motion | 200/220/300 ms, `energy-scan` 5,5 s, `sheen` 6 s, Framer Motion et transitions Tailwind |
 
-Les noms conceptuels `Neutral-900`, `Surface Primary`, `primitive.spacing.*`, `semantic.color.*` et `component.*` ci-dessous décrivent la cible documentaire. Ils ne sont pas des identifiants présents dans `src`.
+Les noms conceptuels `Neutral-900`, `Surface Primary`, `primitive.spacing.*`, `semantic.color.*` et `component.*` ci-dessous décrivent la cible documentaire. Ils ne sont pas les identifiants du code. Le Dashboard expose toutefois ses propres rôles runtime `rounded-*` et `shadow-*` documentés ci-dessous.
 
 ---
 
@@ -889,7 +890,7 @@ Chaque style définit :
 
 # 3.3 Spacing
 
-Les espacements suivent une grille régulière.
+Les espacements du Dashboard suivent l’échelle Tailwind existante. Le contrat n’ajoute pas une seconde nomenclature sémantique globale : chaque primitive porte ses paddings et gaps selon sa taille, tandis que les layouts conservent leurs variations responsive.
 
 Exemple :
 
@@ -917,15 +918,23 @@ Exemple :
 64 px
 ```
 
-Cette grille garantit une interface harmonieuse.
-
-La cible limite les composants à ces valeurs. Le code utilise également des espacements et dimensions arbitraires.
+Cette grille garantit une interface harmonieuse. Une valeur arbitraire générique est interdite lorsqu’un équivalent de l’échelle existe. Les six exceptions actuelles sont les offsets de sidebar `84/236/286px`, deux safe-area paddings et le halo décoratif `m-[-38%]`.
 
 ---
 
 # 3.4 Border Radius
 
-Les arrondis sont normalisés.
+Les arrondis génériques sont normalisés par responsabilité :
+
+| Rôle runtime | Valeur | Propriétaires |
+|---|---:|---|
+| `rounded-control` | 8 px | Button, Input, Textarea, Select, fermeture Modal |
+| `rounded-surface` | 8 px | Card, Panel générique, State System |
+| `rounded-overlay` | 8 px | Modal canonique et dialogs génériques |
+
+Les rôles ont la même valeur initiale mais peuvent évoluer indépendamment. Badge/pills, avatars, Checkbox, géométries Pokémon/Events et valeurs imposées par Recharts restent hors contrat générique.
+
+La nomenclature cible Figma reste :
 
 Exemple :
 
@@ -947,13 +956,25 @@ XL
 Full
 ```
 
-Chaque Card, Badge, Button ou Input réutilise ces valeurs.
+Chaque composant générique consomme son rôle runtime plutôt qu’une valeur choisie par apparence.
 
 ---
 
 # 3.5 Shadows
 
-Les ombres définissent la profondeur.
+Les ombres UI définissent une hiérarchie de profondeur finie :
+
+| Niveau runtime | Usage |
+|---|---|
+| `shadow-surface` | sous-surface neutre, Card légère |
+| `shadow-raised` | Card glass et Panel |
+| `shadow-strong` | surface forte/accentuée |
+| `shadow-overlay` | Modal et dialog |
+| `shadow-floating` | menu/popover flottant |
+
+Chaque niveau référence une variable `--elevation-*` dont la valeur diffère entre dark et light. Les utilitaires sont déclarés explicitement dans `globals.css`, y compris `shadow-overlay`, afin de ne pas entrer en collision avec le token couleur `overlay`.
+
+La nomenclature cible Figma reste :
 
 Exemple :
 
@@ -969,9 +990,7 @@ LG
 XL
 ```
 
-Les ombres sont utilisées avec parcimonie.
-
-L'objectif est de créer une hiérarchie visuelle et non des effets décoratifs.
+L'objectif est de créer une hiérarchie visuelle et non des effets décoratifs. Les glows colorés, drop shadows d’images, ombres de statut, drag et artwork sont classés métier/décoratif et ne deviennent pas des niveaux d’élévation.
 
 ---
 
@@ -1017,7 +1036,7 @@ Ces noms sont la cible. Aucun token global `Fast/Normal/Slow` n'est trouvé dans
 
 # 3.8 Elevation
 
-L'élévation définit la hiérarchie visuelle.
+L'élévation définit la hiérarchie visuelle et utilise les cinq niveaux `surface`, `raised`, `strong`, `overlay` et `floating` décrits en 3.5.
 
 Elle combine :
 
@@ -1026,7 +1045,7 @@ Elle combine :
 - glow ;
 - ordre d'affichage.
 
-Exemple :
+La cible documentaire peut distinguer davantage les responsabilités suivantes :
 
 ```
 Surface
@@ -1223,7 +1242,7 @@ Les Tokens rendent ces règles exploitables.
 
 Dans la cible, les composants utilisent exclusivement les Tokens et n'accèdent pas directement aux Foundations.
 
-État observé après le Sprint Color System : le Dashboard expose 48 variables couleur dark/light dans `globals.css` et leurs alias Tailwind sémantiques pour le fond, les surfaces, les textes, les bordures, les interactions, les accents et les statuts. Le scan reproductible mesure 3 221 usages génériques, dont 2 931 tokenisés et 290 hardcodés justifiés, soit 91,0 % de couverture contre 46,4 % avant migration. Les huit palettes runtime continuent de piloter les accents ; les 1 593 usages métier Pokémon/Events restent séparés des tokens UI. Les collections Figma Primitive/Semantic/Component et leur export vers React ne sont pas trouvés dans le workspace.
+État observé après les Sprints Color System et Visual Consistency : le Dashboard expose 48 variables couleur dark/light dans `globals.css` et leurs alias Tailwind sémantiques pour le fond, les surfaces, les textes, les bordures, les interactions, les accents et les statuts. Le scan couleur reproductible mesure 3 221 usages génériques, dont 2 931 tokenisés et 290 hardcodés justifiés, soit 91,0 % de couverture contre 46,4 % avant migration. Les huit palettes runtime continuent de piloter les accents ; les 1 593 usages métier Pokémon/Events restent séparés des tokens UI. Le contrat visuel ajoute trois rôles radius et cinq variables d’élévation dark/light, consommés par des utilitaires Tailwind explicites ; la couverture générique spacing/radius/elevation/surfaces est de 100 %. Les collections Figma Primitive/Semantic/Component et leur export vers React ne sont pas trouvés dans le workspace.
 
 ---
 
@@ -6012,7 +6031,7 @@ Une Glass Card est généralement composée de :
 
 Chaque couche possède un rôle précis.
 
-**État observé après le Sprint Card + Surfaces :** la primitive React `Card` rend un `div`, transmet les attributs HTML et le ref, et expose trois tons finis : `soft` (`glass-panel`), `strong` (`glass-panel-strong`) et `flat` (bordure `line` avec fond `bg-white/[0.045]`, sans ombre ni blur). `CardHeader`, `CardTitle` et `CardDescription` conservent leur anatomie minimale. Le code courant compte 115 instances Card dans 32 fichiers ; 255 surfaces spécialisées et 16 structures non-Card restent locales et documentées. Card n'impose ni padding, largeur, interaction ni breakpoint.
+**État observé après les Sprints Card + Surfaces et Visual Consistency :** la primitive React `Card` rend un `div`, transmet les attributs HTML et le ref, et expose trois tons finis : `soft` (`glass-panel`), `strong` (`glass-panel-strong`) et `flat` (bordure `line` avec fond `bg-surface-flat`, sans ombre ni blur). Elle consomme `rounded-surface`; les recettes glass utilisent les élévations `raised` et `strong`. `CardHeader`, `CardTitle` et `CardDescription` conservent leur anatomie minimale. Le code courant compte 117 instances Card dans 33 fichiers ; 266 racines surface-like locales et 16 structures non-Card exactes restent classées. Card n'impose ni padding, largeur, interaction ni breakpoint.
 
 ---
 
@@ -9343,11 +9362,11 @@ Cette organisation garantit une documentation cohérente, évolutive et durable.
 
 **Document :** DOC-010 — Design System Overview
 
-**Version :** 1.1.6
+**Version :** 1.1.7
 
 **Statut :** Actif — état implémenté distingué de la cible Figma
 
-**Dernière mise à jour :** 2026-07-22 — consolidation Color System, Card, Modal, Select, Checkbox et State System
+**Dernière mise à jour :** 2026-07-26 — consolidation Visual Consistency : spacing, radius, elevation et surfaces
 
 **Auteur :** Matthieu Vachet
 

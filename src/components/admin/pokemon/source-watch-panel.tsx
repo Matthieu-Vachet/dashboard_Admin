@@ -126,7 +126,7 @@ export function SourceHistoryModal({
       aria-labelledby="source-history-title"
       aria-describedby="source-history-description"
     >
-      <section className="relative z-[1001] max-h-[calc(100dvh-2rem)] w-full max-w-5xl overflow-hidden rounded-3xl border border-line bg-slate-950 shadow-[0_24px_120px_rgba(0,0,0,.5)] sm:max-h-[calc(100dvh-3rem)]">
+      <section className="relative z-[1001] max-h-[calc(100dvh-2rem)] w-full max-w-5xl overflow-hidden rounded-overlay border border-line bg-slate-950 shadow-overlay sm:max-h-[calc(100dvh-3rem)]">
         <header className="flex items-start justify-between gap-4 border-b border-line bg-surface-minimal p-5">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200/75">Mongo source history</p>
@@ -237,7 +237,7 @@ export function DataDeployHistoryModal({
       aria-labelledby="data-deploy-history-title"
       aria-describedby="data-deploy-history-description"
     >
-      <section className="relative z-[1001] max-h-[calc(100dvh-2rem)] w-full max-w-5xl overflow-hidden rounded-3xl border border-line bg-slate-950 shadow-[0_24px_120px_rgba(0,0,0,.5)] sm:max-h-[calc(100dvh-3rem)]">
+      <section className="relative z-[1001] max-h-[calc(100dvh-2rem)] w-full max-w-5xl overflow-hidden rounded-overlay border border-line bg-slate-950 shadow-overlay sm:max-h-[calc(100dvh-3rem)]">
         <header className="flex items-start justify-between gap-4 border-b border-line bg-surface-minimal p-5">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200/75">PokemonGo-Data deploy history</p>

@@ -15,7 +15,7 @@ export function EventEditorModal({ draft, busy, statusOptions, onChange, onClose
   return (
     <ModalPortal>
       <div className="fixed inset-0 z-[1200] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl" onClick={onClose}>
-        <article className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[2rem] border border-line bg-[#07111f] p-4 shadow-[0_30px_120px_rgba(0,0,0,.5)] sm:p-6" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(event) => event.stopPropagation()}>
+        <article className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[2rem] border border-line bg-[#07111f] p-4 shadow-overlay sm:p-6" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(event) => event.stopPropagation()}>
           <div className="mb-5 flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200/70">CRUD admin</p>
@@ -58,7 +58,7 @@ export function ImportModal({ value, busy, onChange, onClose, onImport }) {
   return (
     <ModalPortal>
       <div className="fixed inset-0 z-[1200] grid place-items-center bg-slate-950/82 p-3 backdrop-blur-xl" onClick={onClose}>
-        <article className="w-full max-w-4xl rounded-[2rem] border border-line bg-[#07111f] p-4 shadow-[0_30px_120px_rgba(0,0,0,.5)] sm:p-6" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(event) => event.stopPropagation()}>
+        <article className="w-full max-w-4xl rounded-[2rem] border border-line bg-[#07111f] p-4 shadow-overlay sm:p-6" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(event) => event.stopPropagation()}>
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200/70">Import JSON</p>
