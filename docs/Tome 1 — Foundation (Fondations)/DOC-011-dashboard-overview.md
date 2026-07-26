@@ -2,7 +2,7 @@
 id: DOC-011
 title: "Vue d’ensemble du Dashboard"
 description: "Référence du Dashboard Admin, de ses pages, sections, composants, services et dépendances réellement présents."
-version: 2.1.0
+version: 2.2.0
 status: Official
 owner: Matthieu Vachet
 created: 2026-07-13
@@ -59,6 +59,7 @@ Le contenu décrit l’état du code au 26 juillet 2026. Les builds, caches, arc
 - La section PAGE-049 charge COMP-137 avec next/dynamic. Elle appelle SERVICE-005 et les routes API-157 à API-160.
 - PAGE-052 charge COMP-329 avec `next/dynamic`. La navigation interne est COMP-331 ; le détail utilise COMP-330. Toutes les lectures passent par le BFF de session puis API-165 à API-176 avec le secret serveur.
 - Le design exécuté utilise les thèmes dark et light, huit palettes et neuf familles partagées : Badge, Button, Card, Field, Input, Textarea, Modal, Select et Checkbox.
+- Geist Sans et Geist Mono sont auto-hébergées par `geist@1.7.2` et chargées dans le RootLayout. Quinze rôles `type-*` portent la hiérarchie générique; les primitives partagées possèdent leurs rôles et les styles Mono/métier restent distincts.
 - Le spacing générique réutilise l’échelle Tailwind. Button/contrôles, Card/Panel/State System et Modal/dialog consomment respectivement les rôles radius `control`, `surface` et `overlay`; cinq niveaux d’élévation `surface`, `raised`, `strong`, `overlay` et `floating` séparent la profondeur UI des glows métier.
 - Le Dashboard lit PokemonGo-Data via un voisin ou .data, PokemonGo-API via ses handlers serveur, les assets via GitHub raw et ses données privées via MongoDB Dashboard.
 

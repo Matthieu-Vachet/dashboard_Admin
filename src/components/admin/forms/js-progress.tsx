@@ -43,7 +43,7 @@ export function JsProgress() {
           </CardDescription>
         </CardHeader>
         <div className="relative z-10 mt-4 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap gap-2 text-xs font-black text-muted">
+          <div className="flex flex-wrap gap-2 type-label text-muted">
             <span className="inline-flex items-center gap-2 rounded-full border border-brand-2/20 bg-brand-2/10 px-3 py-1.5"><Database size={14} /> Contenu : {source === "mongodb" ? "MongoDB" : "JSON local"}</span>
             <span className="inline-flex items-center gap-2 rounded-full border border-brand-3/20 bg-brand-3/10 px-3 py-1.5"><Sparkles size={14} /> Calculs automatiques</span>
             <span className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-3 py-1.5"><BookOpenCheck size={14} /> Progression séparée</span>
@@ -72,7 +72,7 @@ export function JsProgress() {
 
       <section className="space-y-4" aria-labelledby="learning-topics-title">
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <div><p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">Parcours</p><h2 id="learning-topics-title" className="mt-1 text-2xl font-black">Notions JavaScript</h2></div>
+          <div><p className="type-overline text-brand-2">Parcours</p><h2 id="learning-topics-title" className="mt-1 type-title-section">Notions JavaScript</h2></div>
           <span className="text-sm font-bold text-muted">{topics.length} notions actives · {curriculum.levels.reduce((sum, item) => sum + item.plannedTopics.length, 0)} planifiées</span>
         </div>
         {[...curriculum.levels].sort((left, right) => left.order - right.order).map((curriculumLevel) => {
@@ -81,7 +81,7 @@ export function JsProgress() {
           return (
             <div className="space-y-3" key={curriculumLevel.id}>
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-2">
-                <div><h3 className="text-lg font-black">Niveau {curriculumLevel.order} · {curriculumLevel.title}</h3><p className="mt-1 text-sm font-semibold text-muted">{curriculumLevel.description}</p></div>
+                <div><h3 className="type-title-card">Niveau {curriculumLevel.order} · {curriculumLevel.title}</h3><p className="mt-1 text-sm font-semibold text-muted">{curriculumLevel.description}</p></div>
                 {curriculumLevel.plannedTopics.length ? <Badge>{curriculumLevel.plannedTopics.length} notion(s) à venir</Badge> : null}
               </div>
               <div className="grid gap-4 lg:grid-cols-2">{levelTopics.map((topic) => <LearningTopicCard key={topic.id} topic={topic} onOpen={() => setSelectedTopicId(topic.id)} />)}</div>

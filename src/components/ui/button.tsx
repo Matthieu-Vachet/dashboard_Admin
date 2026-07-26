@@ -45,7 +45,7 @@ export function Button({
 }: ButtonProps) {
   const Component = asChild ? Slot : "button";
   const buttonClassName = cn(
-    "inline-flex items-center justify-center gap-2 rounded-control border font-black transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-2 disabled:cursor-not-allowed disabled:opacity-50",
+    "type-control-strong inline-flex items-center justify-center gap-2 rounded-control border transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-2 disabled:cursor-not-allowed disabled:opacity-50",
     variants[variant],
     sizes[size],
     className,

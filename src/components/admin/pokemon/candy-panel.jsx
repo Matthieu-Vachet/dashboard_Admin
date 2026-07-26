@@ -97,12 +97,12 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
       title="Bonbons par famille"
       eyebrow="candy assets"
       action={
-        <span className="rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-2 text-xs font-black text-emerald-100">
+        <span className="rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-2 type-label text-emerald-100">
           {formatCount(filteredGroups.length)} famille(s)
         </span>
       }
     >
-      <p className="mb-5 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-50/85">
+      <p className="mb-5 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 type-body-strong text-cyan-50/85">
         Chaque carte utilise la donnée ajoutée dans les JSON Pokémon: image de candy, familyId,
         couleurs principales et toutes les fiches Pokémon/formes reliées à cette famille.
       </p>
@@ -130,8 +130,8 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
                   )}
                 </span>
                 <div className="relative min-w-0 text-domain-foreground drop-shadow-[0_2px_12px_rgba(0,0,0,.38)]">
-                  <p className="text-xs font-black uppercase tracking-[0.18em] opacity-80">FamilyId</p>
-                  <strong className="mt-1 block text-3xl font-black">{group.familyId}</strong>
+                  <p className="type-overline opacity-80">FamilyId</p>
+                  <strong className="mt-1 block type-title-page">{group.familyId}</strong>
                   <p className="mt-2 text-sm font-black">
                     {formatCount(group.pokemon.length)} fiche(s) associée(s)
                   </p>
@@ -144,7 +144,7 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
                     ["secondaryColor", group.secondaryColor],
                   ].map(([label, color]) => (
                     <div className="rounded-2xl border border-line bg-surface-subtle p-3" key={label}>
-                      <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
+                      <span className="block type-overline-compact text-disabled">
                         {label}
                       </span>
                       <span className="mt-2 flex items-center gap-2">
@@ -160,7 +160,7 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
                   ))}
                 </div>
                 <div>
-                  <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-disabled">
+                  <span className="mb-2 block type-overline text-disabled">
                     Pokémon associés
                   </span>
                   <div className="flex max-h-52 flex-wrap gap-2 overflow-auto pr-1">

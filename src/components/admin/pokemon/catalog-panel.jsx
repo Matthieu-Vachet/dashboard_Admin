@@ -51,7 +51,7 @@ function TypeChip({ type, catalog = [], multiplier }) {
   const color = typeColors[id] || "#64748b";
   return (
     <span
-      className="inline-flex min-h-8 items-center gap-2 rounded-full border px-3 py-1 text-xs font-black text-domain-foreground"
+      className="inline-flex min-h-8 items-center gap-2 rounded-full border px-3 py-1 type-label text-domain-foreground"
       style={{
         borderColor: `color-mix(in srgb, ${color} 45%, rgba(255,255,255,.16))`,
         background: `color-mix(in srgb, ${color} 38%, rgba(15,23,42,.72))`,
@@ -110,26 +110,26 @@ function TypeCatalogCard({ item, typeCatalog = [], weatherCatalog = [] }) {
             {icon ? <img className="max-h-full object-contain" src={icon} alt="" /> : null}
           </span>
           <span className="min-w-0">
-            <span className="text-xs font-black uppercase tracking-[0.22em] text-cyan-100/70">Type</span>
-            <strong className="mt-1 block text-3xl font-black text-domain-foreground">{item.names?.French || typeName(id, typeCatalog)}</strong>
+            <span className="type-overline text-cyan-100/70">Type</span>
+            <strong className="mt-1 block type-title-page text-domain-foreground">{item.names?.French || typeName(id, typeCatalog)}</strong>
             <span className="mt-1 block font-mono text-sm font-black uppercase text-foreground-secondary">{item.names?.English || id}</span>
           </span>
         </div>
 
         <div className="mt-5 rounded-2xl border border-line bg-surface-subtle p-4">
-          <span className="text-xs font-black uppercase tracking-[0.18em] text-muted">Boost météo</span>
+          <span className="type-overline text-muted">Boost météo</span>
           <strong className="mt-2 block text-domain-foreground">{weatherName(item.weatherBoost, weatherCatalog)}</strong>
         </div>
 
         <div className="mt-5 grid gap-4 xl:grid-cols-2">
           <section>
-            <h4 className="text-xs font-black uppercase tracking-[0.18em] text-red-100/78">Faiblesses</h4>
+            <h4 className="type-overline text-red-100/78">Faiblesses</h4>
             <div className="mt-2 flex flex-wrap gap-2">
               {weaknesses.length ? weaknesses.map((type) => <TypeChip key={type} type={type} catalog={typeCatalog} multiplier="1.6" />) : <span className="text-sm font-bold text-muted">Aucune</span>}
             </div>
           </section>
           <section>
-            <h4 className="text-xs font-black uppercase tracking-[0.18em] text-emerald-100/78">Résistances / immunités</h4>
+            <h4 className="type-overline text-emerald-100/78">Résistances / immunités</h4>
             <div className="mt-2 flex flex-wrap gap-2">
               {resistances.map((type) => <TypeChip key={type} type={type} catalog={typeCatalog} multiplier="0.625" />)}
               {immunities.map((type) => <TypeChip key={type} type={type} catalog={typeCatalog} multiplier="0.391" />)}
@@ -139,7 +139,7 @@ function TypeCatalogCard({ item, typeCatalog = [], weatherCatalog = [] }) {
         </div>
 
         <section className="mt-5">
-          <h4 className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100/78">Multiplicateurs offensifs</h4>
+          <h4 className="type-overline text-cyan-100/78">Multiplicateurs offensifs</h4>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {multipliers.map((row) => (
               <span className="flex min-w-0 items-center justify-between gap-3 rounded-full border border-line bg-surface-control px-3 py-2" key={row.type}>
@@ -197,7 +197,7 @@ function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
           <small className="mt-1 block truncate font-mono text-xs font-bold text-muted">{move.id}</small>
         </span>
         <span
-          className="inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-xs font-black text-domain-foreground"
+          className="inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 type-label text-domain-foreground"
           style={{ background: `color-mix(in srgb, ${color} 52%, rgba(255,255,255,.12))` }}
         >
           {typeIcon(type, typeCatalog) ? (
@@ -209,7 +209,7 @@ function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
           {kind === "fast" ? <Zap size={14} aria-hidden="true" /> : <Swords size={14} aria-hidden="true" />}
           {kind === "fast" ? "Rapide" : "Chargée"}
         </span>
-        <span className="inline-flex items-center justify-end gap-2 text-xs font-black text-cyan-100">
+        <span className="inline-flex items-center justify-end gap-2 type-label text-cyan-100">
           {linkedPokemon.length} Pokémon <ChevronDown className={open ? "rotate-180 transition" : "transition"} size={15} />
         </span>
       </button>
@@ -218,23 +218,23 @@ function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
           <div className="grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
             {rows.map(([label, value]) => (
               <div className="rounded-2xl border border-line bg-surface-inset-strong p-3" key={label}>
-                <span className="block text-xs font-black uppercase tracking-[0.16em] text-disabled">{label}</span>
+                <span className="block type-overline text-disabled">{label}</span>
                 <strong className="mt-1 block break-words text-domain-foreground">{value}</strong>
               </div>
             ))}
           </div>
           <div className="mt-3 rounded-2xl border border-line bg-surface-inset p-3">
-            <span className="block text-xs font-black uppercase tracking-[0.16em] text-disabled">Traductions</span>
+            <span className="block type-overline text-disabled">Traductions</span>
             <div className="mt-2 flex flex-wrap gap-2">
               {Object.entries(move.names || {}).map(([lang, value]) => (
-                <span className="rounded-full border border-line bg-surface-control px-3 py-1 text-xs font-bold text-foreground" key={lang}>
+                <span className="rounded-full border border-line bg-surface-control px-3 py-1 type-caption-strong text-foreground" key={lang}>
                   {lang}: {value}
                 </span>
               ))}
             </div>
           </div>
           <div className="mt-3 rounded-2xl border border-line bg-surface-inset p-3">
-            <span className="block text-xs font-black uppercase tracking-[0.16em] text-disabled">Buffs PvP</span>
+            <span className="block type-overline text-disabled">Buffs PvP</span>
             {buffRows.length ? (
               <div className="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
                 {buffRows.map(([label, value]) => (
@@ -249,10 +249,10 @@ function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
           </div>
           <div className="mt-3 rounded-2xl border border-line bg-surface-inset p-3">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <span className="block text-xs font-black uppercase tracking-[0.16em] text-disabled">
+              <span className="block type-overline text-disabled">
                 Pokémon liés
               </span>
-              <span className="rounded-full border border-cyan-200/20 bg-cyan-400/10 px-3 py-1 text-xs font-black text-cyan-50">
+              <span className="rounded-full border border-cyan-200/20 bg-cyan-400/10 px-3 py-1 type-label text-cyan-50">
                 {linkedPokemon.length}
               </span>
             </div>
@@ -260,7 +260,7 @@ function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
               <div className="flex max-h-72 flex-wrap gap-2 overflow-auto pr-1">
                 {linkedPokemon.map((pokemon) => (
                   <button
-                    className="inline-flex min-w-0 items-center gap-2 rounded-full border border-line bg-white/[0.065] px-2.5 py-1.5 text-xs font-black text-foreground transition hover:border-cyan-200/45 hover:bg-cyan-400/15"
+                    className="inline-flex min-w-0 items-center gap-2 rounded-full border border-line bg-white/[0.065] px-2.5 py-1.5 type-label text-foreground transition hover:border-cyan-200/45 hover:bg-cyan-400/15"
                     key={pokemon.key}
                     type="button"
                     onClick={() => onOpen?.(pokemon)}
@@ -338,7 +338,7 @@ export function CatalogPanel({ catalog = {}, onOpen }) {
       }
     >
       <label className="mb-4 block">
-        <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-disabled">
+        <span className="mb-2 block type-overline text-disabled">
           Recherche dans {labels[tab]}
         </span>
         <input
@@ -395,7 +395,7 @@ export function CatalogPanel({ catalog = {}, onOpen }) {
                   <strong className="block truncate text-sm font-black text-domain-foreground">
                     {label}
                   </strong>
-                  <span className="mt-1 block truncate text-xs font-bold text-muted">
+                  <span className="mt-1 block truncate type-caption-strong text-muted">
                     {tab === "weather" ? "Météo" : tab === "stickers" ? item.filename || "Sticker" : item.category || item.id}
                   </span>
                   {boosted.length ? (

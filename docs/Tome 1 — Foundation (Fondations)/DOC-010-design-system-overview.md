@@ -2,7 +2,7 @@
 id: DOC-010
 title: Vue d'ensemble du Design System
 slug: design-system-overview
-version: 1.1.7
+version: 1.1.8
 status: Active
 created: 2026-07-12
 last_updated: 2026-07-26
@@ -770,7 +770,7 @@ Le Design System repose sur plusieurs familles de Foundations.
 |--------|-------------------|
 | Couleurs | `--background`, `--foreground`, `--muted`, `--panel`, `--panel-strong`, `--line`, `--line-strong`, `--brand`, `--brand-2`, `--brand-3`, accents, `--warning`, `--danger` |
 | Thèmes | `.dark` et `.light`, dark par défaut, huit palettes (`sapphire`, `ruby`, `fire-red`, `violet`, `leaf-green`, `pink`, `gold`, `electric`) |
-| Typographie | `--font-sans` = Geist/Inter/system ; `--font-mono` = Geist Mono/SFMono ; chargement explicite de Geist non trouvé |
+| Typographie | Geist Sans et Geist Mono auto-hébergées par `geist@1.7.2`, chargées dans le RootLayout et exposées par `--font-geist-sans` / `--font-geist-mono`; 15 rôles `type-*` finis |
 | Spacing | échelle Tailwind existante ; 3 421/3 421 candidats génériques canoniques ; six offsets structurels/safe-area explicitement exclus |
 | Radius | rôles `control`, `surface` et `overlay` à 8 px ; 11 rayons arbitraires réservés aux géométries métier/décoratives |
 | Effets | cinq élévations `surface`, `raised`, `strong`, `overlay`, `floating` avec valeurs dark/light ; glows, scanline, sheen, motion-border et artwork restent décoratifs/métier |
@@ -851,40 +851,27 @@ Ainsi, modifier un thème devient extrêmement simple.
 
 # 3.2 Typography
 
-Toutes les règles de texte sont centralisées.
+Geist Sans est la famille générique de l’interface; Geist Mono est réservée au code, aux identifiants, hashes, métriques et timestamps. Les deux familles sont auto-hébergées par le package `geist`, chargées dans `src/app/layout.tsx` et reliées aux alias `--font-sans` et `--font-mono`. Les fallbacks restent Inter/system et SFMono/ui-monospace.
 
-Une hiérarchie claire est définie.
+La hiérarchie implémentée est finie :
 
-Exemple :
+| Rôle | Mobile | ≥ 640 px | Weight | Line height | Tracking |
+|---|---:|---:|---:|---:|---:|
+| `type-display` | 36 px | 60 px | 900 | 0,95 | -0,035 em |
+| `type-title-page` | 30 px | 36 px | 900 | 1,1 | -0,025 em |
+| `type-title-section` | 24 px | 30 px | 900 | 1,2 | -0,02 em |
+| `type-title-subsection` | 20 px | 24 px | 900 | 1,25 | -0,015 em |
+| `type-title-card` | 18 px | 20 px | 900 | 1,3 | -0,01 em |
+| `type-title-inline` | 16 px | 16 px | 900 | 1,5 | normal |
+| `type-body` / `type-body-strong` | 14 px | 14 px | 500 / 700 | 24 px | normal |
+| `type-label` | 12 px | 12 px | 900 | 16 px | normal |
+| `type-caption` / `type-caption-strong` | 12 px | 12 px | 600 / 700 | 20 px | normal |
+| `type-overline` | 12 px | 12 px | 900 | 16 px | 0,16 em |
+| `type-overline-compact` | 10 px | 10 px | 900 | 16 px | 0,12 em |
+| `type-control` | 14 px | 14 px | 600 | 20 px | normal |
+| `type-control-strong` | taille du contrôle | taille du contrôle | 900 | 20 px | normal |
 
-```
-Display XL
-
-Display L
-
-Heading XL
-
-Heading L
-
-Heading M
-
-Body L
-
-Body M
-
-Body S
-
-Caption
-
-Overline
-```
-
-Chaque style définit :
-
-- taille
-- graisse
-- hauteur de ligne
-- espacement
+La balise HTML conserve la sémantique de contenu ; le rôle `type-*` décrit seulement l’apparence. Button, Badge, Card, Field, Input, Textarea, Select, Modal et State System portent les contrats génériques. Les visualisations, micro-données, displays fluides, artwork et géométries métier restent locaux et mesurés. La couverture des patterns génériques sûrs est de 618/618; aucune combinaison legacy générique ne subsiste.
 
 ---
 
@@ -1242,7 +1229,7 @@ Les Tokens rendent ces règles exploitables.
 
 Dans la cible, les composants utilisent exclusivement les Tokens et n'accèdent pas directement aux Foundations.
 
-État observé après les Sprints Color System et Visual Consistency : le Dashboard expose 48 variables couleur dark/light dans `globals.css` et leurs alias Tailwind sémantiques pour le fond, les surfaces, les textes, les bordures, les interactions, les accents et les statuts. Le scan couleur reproductible mesure 3 221 usages génériques, dont 2 931 tokenisés et 290 hardcodés justifiés, soit 91,0 % de couverture contre 46,4 % avant migration. Les huit palettes runtime continuent de piloter les accents ; les 1 593 usages métier Pokémon/Events restent séparés des tokens UI. Le contrat visuel ajoute trois rôles radius et cinq variables d’élévation dark/light, consommés par des utilitaires Tailwind explicites ; la couverture générique spacing/radius/elevation/surfaces est de 100 %. Les collections Figma Primitive/Semantic/Component et leur export vers React ne sont pas trouvés dans le workspace.
+État observé après les Sprints Color System, Visual Consistency et Typography : le Dashboard expose 48 variables couleur dark/light dans `globals.css` et leurs alias Tailwind sémantiques pour le fond, les surfaces, les textes, les bordures, les interactions, les accents et les statuts. Le scan couleur reproductible mesure 3 221 usages génériques, dont 2 931 tokenisés et 290 hardcodés justifiés, soit 91,0 % de couverture contre 46,4 % avant migration. Les huit palettes runtime continuent de piloter les accents ; les 1 593 usages métier Pokémon/Events restent séparés des tokens UI. Le contrat visuel ajoute trois rôles radius et cinq variables d’élévation dark/light, consommés par des utilitaires Tailwind explicites ; la couverture générique spacing/radius/elevation/surfaces est de 100 %. Geist Sans/Mono sont chargées réellement et 15 rôles Typography couvrent 618/618 patterns génériques sûrs. Les collections Figma Primitive/Semantic/Component et leur export vers React ne sont pas trouvés dans le workspace.
 
 ---
 
@@ -9362,11 +9349,11 @@ Cette organisation garantit une documentation cohérente, évolutive et durable.
 
 **Document :** DOC-010 — Design System Overview
 
-**Version :** 1.1.7
+**Version :** 1.1.8
 
 **Statut :** Actif — état implémenté distingué de la cible Figma
 
-**Dernière mise à jour :** 2026-07-26 — consolidation Visual Consistency : spacing, radius, elevation et surfaces
+**Dernière mise à jour :** 2026-07-26 — consolidation Typography : Geist Sans/Mono, hiérarchie sémantique et consommation des composants
 
 **Auteur :** Matthieu Vachet
 

@@ -131,12 +131,12 @@ export function JavaScriptExercises() {
               <Card className={cn("overflow-hidden p-4", exerciseLevelStyle[exercise.level], exerciseState.completed && "border-brand-3/35 bg-brand-3/12")}>
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <span className={cn("inline-flex rounded-full border px-2.5 py-1 text-xs font-black uppercase tracking-[0.16em]", exerciseLevelBadge[exercise.level])}>{exercise.level}</span>
-                    <h2 className="mt-1 text-xl font-black">{exercise.title}</h2>
+                    <span className={cn("inline-flex rounded-full border px-2.5 py-1 type-overline", exerciseLevelBadge[exercise.level])}>{exercise.level}</span>
+                    <h2 className="mt-1 type-title-subsection">{exercise.title}</h2>
                   </div>
                   <button
                     className={cn(
-                      "rounded-lg border px-3 py-2 text-xs font-black transition",
+                      "rounded-lg border px-3 py-2 type-label transition",
                       exerciseState.completed
                         ? "border-brand-3/30 bg-brand-3/15 text-brand-3"
                         : "border-line bg-surface-flat text-muted hover:text-foreground",
@@ -156,12 +156,12 @@ export function JavaScriptExercises() {
                   ))}
                 </div>
 
-                <p className="mt-4 rounded-lg border border-line bg-surface-recessed p-3 text-sm font-semibold leading-6 text-muted">
+                <p className="mt-4 rounded-lg border border-line bg-surface-recessed p-3 type-body-strong text-muted">
                   {exercise.statement}
                 </p>
 
                 <label className="mt-4 block">
-                  <span className="mb-2 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-muted">
+                  <span className="mb-2 inline-flex items-center gap-2 type-overline text-muted">
                     <ListChecks size={14} />
                     Éditeur de pseudo-code
                   </span>
@@ -208,8 +208,8 @@ function Stat({
     <Card className="p-4">
       <div className="flex items-start justify-between gap-3">
         <span>
-          <span className="block text-xs font-black uppercase tracking-[0.16em] text-muted">{label}</span>
-          <strong className="mt-3 block text-3xl font-black">{value}</strong>
+          <span className="block type-overline text-muted">{label}</span>
+          <strong className="mt-3 block type-title-page">{value}</strong>
         </span>
         <span className={`grid h-11 w-11 place-items-center rounded-lg border ${toneClass}`}>
           <Icon size={20} />

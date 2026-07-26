@@ -63,7 +63,7 @@ function EggPill({ children, tone = "" }) {
 
 function Rarity({ value }) {
   const count = Math.max(0, Math.min(Number(value) || 0, 5));
-  if (!count) return <span className="text-xs font-black text-disabled">Rarete n/a</span>;
+  if (!count) return <span className="type-label text-disabled">Rarete n/a</span>;
   return (
     <div className="flex items-center gap-1" aria-label={`Rarete ${count}`}>
       {Array.from({ length: count }).map((_, index) => (
@@ -89,12 +89,12 @@ function EggCard({ pokemon, onOpenPokemon, typeCatalog = [] }) {
       <div className="relative grid min-h-[148px] place-items-center overflow-hidden bg-[radial-gradient(circle_at_50%_18%,rgba(250,204,21,.2),transparent_42%),linear-gradient(135deg,rgba(15,23,42,.88),rgba(14,116,144,.58))] p-4">
         <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.1)_1px,transparent_1px)] [background-size:24px_24px]" />
         {pokemon.shiny ? (
-          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-amber-100/25 bg-amber-300/18 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-amber-50">
+          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-amber-100/25 bg-amber-300/18 px-2.5 py-1 type-overline-compact text-amber-50">
             <Sparkles size={12} /> Shiny
           </span>
         ) : null}
         {pokemon.unmatched ? (
-          <span className="absolute right-3 top-3 rounded-full border border-red-200/30 bg-red-400/16 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-red-50">
+          <span className="absolute right-3 top-3 rounded-full border border-red-200/30 bg-red-400/16 px-2.5 py-1 type-overline-compact text-red-50">
             Non matché
           </span>
         ) : null}
@@ -103,8 +103,8 @@ function EggCard({ pokemon, onOpenPokemon, typeCatalog = [] }) {
       <div className="space-y-3 border-t border-line p-4">
         <div className="flex min-w-0 items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="truncate text-lg font-black text-domain-foreground">{name}</h3>
-            {english ? <p className="truncate text-xs font-bold text-muted">{english}</p> : null}
+            <h3 className="truncate type-title-card text-domain-foreground">{name}</h3>
+            {english ? <p className="truncate type-caption-strong text-muted">{english}</p> : null}
             {sourceName ? <p className="mt-1 truncate text-[11px] font-bold text-cyan-100/65">Source : {sourceName}</p> : null}
           </div>
           <Rarity value={pokemon.rarity} />

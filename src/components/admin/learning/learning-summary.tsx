@@ -27,8 +27,8 @@ export function LearningSummary({
       <Card tone="strong" className="p-4 sm:col-span-2 xl:col-span-1">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <span className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">Niveau actuel</span>
-            <strong className="mt-2 block text-4xl font-black">Niveau {level.level}</strong>
+            <span className="type-overline text-brand-2">Niveau actuel</span>
+            <strong className="mt-2 block type-display">Niveau {level.level}</strong>
             <span className="mt-1 block text-sm font-black text-brand-3">{level.title}</span>
             <p className="mt-1 text-sm font-semibold text-muted">
               {level.currentXP} / {LEARNING_XP_PER_LEVEL} XP
@@ -45,8 +45,8 @@ export function LearningSummary({
         <Card className="p-4" key={label}>
           <div className="flex items-start justify-between gap-3">
             <div>
-              <span className="block text-xs font-black uppercase tracking-[0.16em] text-muted">{label}</span>
-              <strong className="mt-3 block text-3xl font-black">{value}</strong>
+              <span className="block type-overline text-muted">{label}</span>
+              <strong className="mt-3 block type-title-page">{value}</strong>
             </div>
             <span className={`grid h-11 w-11 place-items-center rounded-lg border border-current/20 bg-current/10 ${tone}`}>
               <Icon size={20} />
@@ -58,8 +58,8 @@ export function LearningSummary({
       <Card className="p-4 sm:col-span-2 xl:col-span-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <span className="block text-xs font-black uppercase tracking-[0.16em] text-muted">XP cumulé</span>
-            <strong className="mt-2 block text-2xl font-black">{summary.earnedXP} / {summary.totalXP} XP gagnée</strong>
+            <span className="block type-overline text-muted">XP cumulé</span>
+            <strong className="mt-2 block type-title-section">{summary.earnedXP} / {summary.totalXP} XP gagnée</strong>
           </div>
           <span className="inline-flex items-center gap-2 rounded-full border border-brand-3/25 bg-brand-3/10 px-3 py-2 text-sm font-black text-brand-3">
             <CheckCircle2 size={16} /> {summary.topicsCompleted}/{summary.totalTheory} notions complètes

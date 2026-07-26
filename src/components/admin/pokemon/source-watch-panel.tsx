@@ -129,15 +129,15 @@ export function SourceHistoryModal({
       <section className="relative z-[1001] max-h-[calc(100dvh-2rem)] w-full max-w-5xl overflow-hidden rounded-overlay border border-line bg-slate-950 shadow-overlay sm:max-h-[calc(100dvh-3rem)]">
         <header className="flex items-start justify-between gap-4 border-b border-line bg-surface-minimal p-5">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200/75">Mongo source history</p>
-            <h3 id="source-history-title" className="mt-2 text-2xl font-black text-domain-foreground">Historique des sources</h3>
-            <p id="source-history-description" className="mt-2 max-w-3xl text-sm font-bold leading-6 text-muted">
+            <p className="type-overline text-cyan-200/75">Mongo source history</p>
+            <h3 id="source-history-title" className="mt-2 type-title-section text-domain-foreground">Historique des sources</h3>
+            <p id="source-history-description" className="mt-2 max-w-3xl type-body-strong text-muted">
               Chaque changement de commit, tag, ETag, Last-Modified ou statut HTTP est conservé dans Mongo via
               <span className="font-mono text-cyan-100"> matweb.pokemon.sourceHistory</span>.
             </p>
           </div>
           <button
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-line bg-surface-control text-xl font-black text-domain-foreground hover:bg-surface-emphasis"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-line bg-surface-control type-title-subsection text-domain-foreground hover:bg-surface-emphasis"
             type="button"
             onClick={onClose}
             aria-label="Fermer l'historique des sources"
@@ -156,28 +156,28 @@ export function SourceHistoryModal({
                   <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-cyan-100">
+                        <span className="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-1 type-overline text-cyan-100">
                           {issueLabel(item.category || item.type)}
                         </span>
-                        <span className="rounded-full border border-line bg-surface-control px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-foreground-secondary">
+                        <span className="rounded-full border border-line bg-surface-control px-3 py-1 type-overline text-foreground-secondary">
                           {item.status || "statut inconnu"}
                         </span>
                       </div>
-                      <strong className="mt-3 block break-words text-lg font-black text-domain-foreground">
+                      <strong className="mt-3 block break-words type-title-card text-domain-foreground">
                         {item.name || item.sourceId}
                       </strong>
-                      <small className="mt-1 block text-xs font-bold text-muted">{formatSourceDate(item.checkedAt)}</small>
+                      <small className="mt-1 block type-caption-strong text-muted">{formatSourceDate(item.checkedAt)}</small>
                       {item.message ? (
-                        <p className="mt-3 text-sm font-bold leading-6 text-foreground-secondary">{item.message}</p>
+                        <p className="mt-3 type-body-strong text-foreground-secondary">{item.message}</p>
                       ) : null}
                     </div>
                     <div className="shrink-0 text-left md:text-right">
-                      <span className="inline-flex rounded-full border border-emerald-300/20 bg-emerald-400/10 px-3 py-1.5 text-xs font-black text-emerald-100">
+                      <span className="inline-flex rounded-full border border-emerald-300/20 bg-emerald-400/10 px-3 py-1.5 type-label text-emerald-100">
                         {item.version || "sans version"}
                       </span>
                       {item.remoteUrl ? (
                         <a
-                          className="mt-2 inline-flex items-center gap-1 text-xs font-black text-cyan-100 hover:text-domain-foreground"
+                          className="mt-2 inline-flex items-center gap-1 type-label text-cyan-100 hover:text-domain-foreground"
                           href={item.remoteUrl}
                           target="_blank"
                           rel="noreferrer"
@@ -189,14 +189,14 @@ export function SourceHistoryModal({
                   </div>
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
                     <div className="rounded-2xl border border-line bg-surface-inset-medium p-3">
-                      <p className="text-[11px] font-black uppercase tracking-[0.14em] text-disabled">Avant</p>
-                      <code className="mt-2 block break-all text-xs font-bold leading-5 text-foreground-secondary">
+                      <p className="type-overline text-disabled">Avant</p>
+                      <code className="mt-2 block break-all type-caption-strong text-foreground-secondary">
                         {item.previousVersion || item.previousSignature || "premier relevé"}
                       </code>
                     </div>
                     <div className="rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-3">
-                      <p className="text-[11px] font-black uppercase tracking-[0.14em] text-cyan-100/70">Maintenant</p>
-                      <code className="mt-2 block break-all text-xs font-bold leading-5 text-cyan-50">
+                      <p className="type-overline text-cyan-100/70">Maintenant</p>
+                      <code className="mt-2 block break-all type-caption-strong text-cyan-50">
                         {item.signature || item.version || "signature inconnue"}
                       </code>
                     </div>
@@ -240,15 +240,15 @@ export function DataDeployHistoryModal({
       <section className="relative z-[1001] max-h-[calc(100dvh-2rem)] w-full max-w-5xl overflow-hidden rounded-overlay border border-line bg-slate-950 shadow-overlay sm:max-h-[calc(100dvh-3rem)]">
         <header className="flex items-start justify-between gap-4 border-b border-line bg-surface-minimal p-5">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200/75">PokemonGo-Data deploy history</p>
-            <h3 id="data-deploy-history-title" className="mt-2 text-2xl font-black text-domain-foreground">Historique des déploiements data</h3>
-            <p id="data-deploy-history-description" className="mt-2 max-w-3xl text-sm font-bold leading-6 text-muted">
+            <p className="type-overline text-cyan-200/75">PokemonGo-Data deploy history</p>
+            <h3 id="data-deploy-history-title" className="mt-2 type-title-section text-domain-foreground">Historique des déploiements data</h3>
+            <p id="data-deploy-history-description" className="mt-2 max-w-3xl type-body-strong text-muted">
               Chaque redéploiement demandé depuis le Dashboard conserve le commit PokemonGo-Data visé et les fichiers JSON
               modifiés dans <span className="font-mono text-cyan-100">matweb.dashboard.deployHistory</span>.
             </p>
           </div>
           <button
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-line bg-surface-control text-xl font-black text-domain-foreground hover:bg-surface-emphasis"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-line bg-surface-control type-title-subsection text-domain-foreground hover:bg-surface-emphasis"
             type="button"
             onClick={onClose}
             aria-label="Fermer l'historique data"
@@ -270,19 +270,19 @@ export function DataDeployHistoryModal({
                     <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-cyan-100">
+                          <span className="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-1 type-overline text-cyan-100">
                             {item.status || "deploy"}
                           </span>
-                          <span className="rounded-full border border-line bg-surface-control px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-foreground-secondary">
+                          <span className="rounded-full border border-line bg-surface-control px-3 py-1 type-overline text-foreground-secondary">
                             {changes?.trackedFiles || 0} JSON suivi(s)
                           </span>
                         </div>
-                        <strong className="mt-3 block break-words text-lg font-black text-domain-foreground">
+                        <strong className="mt-3 block break-words type-title-card text-domain-foreground">
                           PokemonGo-Data {changes?.ref || "main"}
                         </strong>
-                        <small className="mt-1 block text-xs font-bold text-muted">{formatSourceDate(item.triggeredAt)}</small>
+                        <small className="mt-1 block type-caption-strong text-muted">{formatSourceDate(item.triggeredAt)}</small>
                         {changes?.note ? (
-                          <p className="mt-3 text-sm font-bold leading-6 text-foreground-secondary">{changes.note}</p>
+                          <p className="mt-3 type-body-strong text-foreground-secondary">{changes.note}</p>
                         ) : null}
                       </div>
                       <div className="shrink-0 text-left md:text-right">
@@ -291,7 +291,7 @@ export function DataDeployHistoryModal({
                         </span>
                         {changes?.compareUrl ? (
                           <a
-                            className="mt-2 inline-flex items-center gap-1 text-xs font-black text-cyan-100 hover:text-domain-foreground"
+                            className="mt-2 inline-flex items-center gap-1 type-label text-cyan-100 hover:text-domain-foreground"
                             href={changes.compareUrl}
                             target="_blank"
                             rel="noreferrer"
@@ -302,7 +302,7 @@ export function DataDeployHistoryModal({
                       </div>
                     </div>
 
-                    <div className="mt-4 grid gap-3 text-xs font-bold text-foreground-secondary sm:grid-cols-3">
+                    <div className="mt-4 grid gap-3 type-caption-strong text-foreground-secondary sm:grid-cols-3">
                       <span className="rounded-2xl border border-line bg-surface-inset p-3">
                         Fiches: {changes?.pokemonFiles || 0}
                       </span>
@@ -322,18 +322,18 @@ export function DataDeployHistoryModal({
                             key={`${item.id}-${file.path}`}
                           >
                             <span className="min-w-0">
-                              <span className="mr-2 inline-flex rounded-full border border-cyan-200/20 bg-cyan-300/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-cyan-100">
+                              <span className="mr-2 inline-flex rounded-full border border-cyan-200/20 bg-cyan-300/10 px-2.5 py-1 type-overline-compact text-cyan-100">
                                 {dataCategoryLabels[file.category || ""] || file.category || "JSON"}
                               </span>
                               <span className="break-all text-sm font-black text-domain-foreground">{file.path}</span>
                             </span>
-                            <span className="shrink-0 rounded-full border border-line bg-surface-subtle px-3 py-1 text-xs font-black text-foreground-secondary">
+                            <span className="shrink-0 rounded-full border border-line bg-surface-subtle px-3 py-1 type-label text-foreground-secondary">
                               {file.status || "modified"} · +{file.additions || 0} / -{file.deletions || 0}
                             </span>
                           </div>
                         ))}
                         {files.length > 48 || changes?.truncated ? (
-                          <p className="rounded-2xl border border-amber-300/20 bg-amber-400/10 p-3 text-xs font-bold text-amber-100">
+                          <p className="rounded-2xl border border-amber-300/20 bg-amber-400/10 p-3 type-caption-strong text-amber-100">
                             Liste raccourcie dans le Dashboard. Utilise le lien de comparaison GitHub pour tout voir.
                           </p>
                         ) : null}
@@ -379,19 +379,19 @@ export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
         <SourceStat label="Erreurs" value={errorCount} tone="red" />
         <SourceStat label="Changements" value={changedSources.length} tone="sky" />
       </div>
-      <p className="rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-100">
+      <p className="rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 type-body-strong text-cyan-100">
         La veille croise maintenant Game Master, assets datamines, annonces officielles, sites communautaires et donnees PvP.
         Un nouveau commit, tag, ETag, Last-Modified ou statut HTTP different remontera au prochain controle.
       </p>
       {changedSources.length ? (
         <div className="rounded-2xl border border-sky-300/25 bg-sky-400/10 p-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-sky-100/75">
+          <p className="type-overline text-sky-100/75">
             Sources modifiees depuis ton dernier passage
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             {changedSources.map((source) => (
               <span
-                className="rounded-full border border-sky-200/25 bg-sky-300/15 px-3 py-1.5 text-xs font-black text-sky-50"
+                className="rounded-full border border-sky-200/25 bg-sky-300/15 px-3 py-1.5 type-label text-sky-50"
                 key={source.id || source.name || source.url}
               >
                 {source.name || source.repo || source.url}
@@ -434,15 +434,15 @@ export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
               >
                 <span className="min-w-0">
                   <strong className="block truncate font-black text-domain-foreground">{source.name || source.repo || source.url}</strong>
-                  <small className="mt-1 block truncate text-xs font-bold text-muted">{source.message || source.description || source.status}</small>
+                  <small className="mt-1 block truncate type-caption-strong text-muted">{source.message || source.description || source.status}</small>
                 </span>
-                <span className="inline-flex w-fit rounded-full border border-line bg-surface-subtle px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-foreground-secondary">
+                <span className="inline-flex w-fit rounded-full border border-line bg-surface-subtle px-2.5 py-1 type-overline text-foreground-secondary">
                   {issueLabel(source.category)}
                 </span>
                 <span className={`inline-flex w-fit rounded-full px-3 py-1.5 text-xs font-black ${tone.badge}`}>
                   {source.changedSinceLastCheck ? "modifiée" : source.status || "statut"}
                 </span>
-                <span className="inline-flex items-center justify-end gap-2 text-xs font-black text-cyan-100">
+                <span className="inline-flex items-center justify-end gap-2 type-label text-cyan-100">
                   <span className="max-w-32 truncate">{source.version || "ouvrir"}</span>
                   <ExternalLink size={14} />
                 </span>
@@ -468,8 +468,8 @@ function SourceStat({ label, value, tone }: { label: string; value: number; tone
 
   return (
     <article className={`rounded-2xl border p-4 ${classes[tone]}`}>
-      <span className="text-xs font-black uppercase tracking-[0.18em]">{label}</span>
-      <strong className="mt-2 block text-2xl font-black text-domain-foreground">{value}</strong>
+      <span className="type-overline">{label}</span>
+      <strong className="mt-2 block type-title-section text-domain-foreground">{value}</strong>
     </article>
   );
 }

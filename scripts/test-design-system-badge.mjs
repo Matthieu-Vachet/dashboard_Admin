@@ -21,8 +21,7 @@ const badgeSkeleton = [
   "rounded-full",
   "border",
   "px-2.5",
-  "text-xs",
-  "font-black",
+  "type-label",
 ];
 
 const expectedCategoryStyles = {

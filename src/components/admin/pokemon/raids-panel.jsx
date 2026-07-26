@@ -92,12 +92,12 @@ function RaidCard({ boss, onOpenPokemon, typeCatalog = [], weatherCatalog = [] }
       <div className="relative grid min-h-[150px] place-items-center overflow-hidden bg-[radial-gradient(circle_at_50%_15%,rgba(34,211,238,.18),transparent_42%),linear-gradient(135deg,rgba(15,23,42,.88),rgba(8,47,73,.68))] p-4">
         <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.1)_1px,transparent_1px)] [background-size:24px_24px]" />
         {boss.shiny ? (
-          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-amber-100/25 bg-amber-300/18 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-amber-50">
+          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-amber-100/25 bg-amber-300/18 px-2.5 py-1 type-overline-compact text-amber-50">
             <Sparkles size={12} /> Shiny
           </span>
         ) : null}
         {boss.unmatched ? (
-          <span className="absolute right-3 top-3 rounded-full border border-red-200/30 bg-red-400/16 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-red-50">
+          <span className="absolute right-3 top-3 rounded-full border border-red-200/30 bg-red-400/16 px-2.5 py-1 type-overline-compact text-red-50">
             Non matché
           </span>
         ) : null}
@@ -105,8 +105,8 @@ function RaidCard({ boss, onOpenPokemon, typeCatalog = [], weatherCatalog = [] }
       </div>
       <div className="space-y-3 border-t border-line p-4">
         <div className="min-w-0">
-          <h3 className="truncate text-lg font-black text-domain-foreground">{name}</h3>
-          {english ? <p className="truncate text-xs font-bold text-muted">{english}</p> : null}
+          <h3 className="truncate type-title-card text-domain-foreground">{name}</h3>
+          {english ? <p className="truncate type-caption-strong text-muted">{english}</p> : null}
           {sourceName ? <p className="mt-1 line-clamp-2 text-[11px] font-bold text-cyan-100/65">Source : {sourceName}</p> : null}
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -116,22 +116,22 @@ function RaidCard({ boss, onOpenPokemon, typeCatalog = [], weatherCatalog = [] }
           {boss.assets?.sourceImage ? <RaidPill tone="border-emerald-200/20 bg-emerald-400/10 text-emerald-50">Asset source</RaidPill> : null}
           {boss.raidType ? <RaidPill tone="border-line bg-surface-control text-foreground">{boss.raidType}</RaidPill> : null}
         </div>
-        <div className="grid gap-2 text-xs font-bold text-foreground-secondary sm:grid-cols-2">
+        <div className="grid gap-2 type-caption-strong text-foreground-secondary sm:grid-cols-2">
           <span className="rounded-2xl border border-line bg-surface-subtle p-3">
-            <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">CP</small>
+            <small className="block type-overline-compact text-disabled">CP</small>
             {cp}
           </span>
           <span className="rounded-2xl border border-line bg-surface-subtle p-3">
-            <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">Boost météo</small>
+            <small className="block type-overline-compact text-disabled">Boost météo</small>
             {boosted}
           </span>
         </div>
-        <div className="flex items-center gap-2 text-xs font-bold leading-5 text-muted">
+        <div className="flex items-center gap-2 type-caption-strong text-muted">
           <span>Météo</span>
           <WeatherIcons weather={boss.weather} catalog={weatherCatalog} />
           {!values(boss.weather).length ? <span>n/a</span> : null}
         </div>
-        <div className="flex flex-wrap items-center gap-2 text-xs font-bold leading-5 text-muted">
+        <div className="flex flex-wrap items-center gap-2 type-caption-strong text-muted">
           <span>Faiblesses</span>
           {counters.length ? counters.map(([type, multiplier]) => (
             <span className="inline-flex items-center gap-1" key={type}>
@@ -141,13 +141,13 @@ function RaidCard({ boss, onOpenPokemon, typeCatalog = [], weatherCatalog = [] }
           )) : <span>n/a</span>}
         </div>
         {habitat || rotation ? (
-          <div className="rounded-2xl border border-violet-200/18 bg-violet-400/10 p-3 text-xs font-bold leading-5 text-violet-50">
-            <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-violet-100/60">Habitat / rotation</span>
+          <div className="rounded-2xl border border-violet-200/18 bg-violet-400/10 p-3 type-caption-strong text-violet-50">
+            <span className="block type-overline-compact text-violet-100/60">Habitat / rotation</span>
             {habitat ? <span className="block">{habitat}</span> : null}
             {rotation && rotation !== habitat ? <span className="block text-violet-100/68">{rotation}</span> : null}
           </div>
         ) : null}
-        {boss.note ? <p className="text-xs font-bold leading-5 text-cyan-100/80">{boss.note}</p> : null}
+        {boss.note ? <p className="type-caption-strong text-cyan-100/80">{boss.note}</p> : null}
       </div>
     </button>
   );

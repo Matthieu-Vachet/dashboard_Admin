@@ -100,7 +100,7 @@ export function Pomodoro() {
               />
               <div className="absolute inset-3 rounded-full bg-background" />
               <div className="relative">
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">{modeLabels[mode]}</p>
+                <p className="type-overline text-brand-2">{modeLabels[mode]}</p>
                 <strong className="mt-3 block font-mono text-6xl font-black">
                   {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
                 </strong>
@@ -171,7 +171,7 @@ export function Pomodoro() {
 function MiniStat({ icon: Icon, label, value }: { icon: typeof TimerReset; label: string; value: string }) {
   return (
     <Card tone="flat" className="flex items-center justify-between p-3">
-      <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-muted">
+      <span className="inline-flex items-center gap-2 type-overline text-muted">
         <Icon size={15} />
         {label}
       </span>

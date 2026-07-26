@@ -39,7 +39,7 @@ export function CardHeader({
     <div className={cn("flex min-w-0 flex-col items-start justify-between gap-3 sm:flex-row sm:gap-4", className)}>
       <div className="min-w-0">
         {eyebrow ? (
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">
+          <p className="type-overline text-brand-2">
             {eyebrow}
           </p>
         ) : null}
@@ -56,7 +56,7 @@ export function CardTitle({
 }: HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h2
-      className={cn("text-lg font-black leading-tight text-foreground", className)}
+      className={cn("type-title-card text-foreground", className)}
       {...props}
     />
   );
@@ -67,6 +67,6 @@ export function CardDescription({
   ...props
 }: HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={cn("mt-1 text-sm font-medium leading-6 text-muted", className)} {...props} />
+    <p className={cn("type-body mt-1 text-muted", className)} {...props} />
   );
 }

@@ -301,8 +301,8 @@ export function KanbanBoard() {
       <Card tone="strong" className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <Badge tone="cyan">Drag handle</Badge>
-          <h2 className="mt-3 text-3xl font-black">Kanban projet</h2>
-          <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-muted">
+          <h2 className="mt-3 type-title-page">Kanban projet</h2>
+          <p className="mt-2 max-w-2xl type-body-strong text-muted">
             Cartes enrichies pour organiser le projet : liens, images, tags, priorité, checklist et échéance.
           </p>
         </div>
@@ -414,7 +414,7 @@ export function KanbanBoard() {
                 />
               </Field>
               <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Statut</span>
+                <span className="type-overline text-muted">Statut</span>
                 <Select
                   className="mt-2 min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none"
                   value={selectedTask.status}
@@ -448,7 +448,7 @@ export function KanbanBoard() {
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">Catégorie</p>
+                <p className="type-overline text-muted">Catégorie</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {categories.map((category) => (
                     <button
@@ -456,7 +456,7 @@ export function KanbanBoard() {
                       type="button"
                       onClick={() => updateTask(selectedTask.id, { category })}
                       className={cn(
-                        "rounded-full border px-3 py-2 text-xs font-black transition",
+                        "rounded-full border px-3 py-2 type-label transition",
                         selectedTask.category === category
                           ? categoryStyles[category]
                           : "border-line bg-surface-minimal text-muted hover:text-foreground",
@@ -468,7 +468,7 @@ export function KanbanBoard() {
                 </div>
               </div>
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">Priorité</p>
+                <p className="type-overline text-muted">Priorité</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {priorities.map((priority) => (
                     <button
@@ -476,7 +476,7 @@ export function KanbanBoard() {
                       type="button"
                       onClick={() => updateTask(selectedTask.id, { priority })}
                       className={cn(
-                        "rounded-full border px-3 py-2 text-xs font-black transition",
+                        "rounded-full border px-3 py-2 type-label transition",
                         selectedTask.priority === priority
                           ? priorityStyles[priority]
                           : "border-line bg-surface-minimal text-muted hover:text-foreground",
@@ -489,7 +489,7 @@ export function KanbanBoard() {
               </div>
             </div>
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">Checklist</p>
+              <p className="type-overline text-muted">Checklist</p>
               <div className="mt-2 space-y-2">
                 {selectedTask.checklist.map((item) => (
                   <div key={item.id} className="grid grid-cols-[auto_1fr_auto] items-center gap-2 rounded-lg border border-line bg-surface-minimal p-2">
@@ -548,7 +548,7 @@ export function KanbanBoard() {
               </div>
             </div>
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">Colonne</p>
+              <p className="type-overline text-muted">Colonne</p>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 {columns.map((column) => (
                   <button
@@ -556,7 +556,7 @@ export function KanbanBoard() {
                     type="button"
                     onClick={() => moveTask(selectedTask.id, column.id)}
                     className={cn(
-                      "rounded-lg border px-3 py-2 text-left text-xs font-black transition",
+                      "rounded-lg border px-3 py-2 text-left type-label transition",
                       selectedColumn === column.id
                         ? "border-brand-2/45 bg-brand-2/12 text-foreground"
                         : "border-line bg-surface-minimal text-muted hover:text-foreground",
@@ -610,7 +610,7 @@ function KanbanColumn({
       <div className="flex items-center justify-between gap-3 px-1 py-2">
         <div>
           <h3 className="font-black">{column.title}</h3>
-          <p className="text-xs font-bold text-muted">{column.hint}</p>
+          <p className="type-caption-strong text-muted">{column.hint}</p>
         </div>
         <Badge tone="neutral">{tasks.length}</Badge>
       </div>
@@ -626,7 +626,7 @@ function KanbanColumn({
             />
           ))}
           {!tasks.length ? (
-            <div className="rounded-lg border border-dashed border-line bg-white/[0.025] p-4 text-center text-xs font-bold text-muted">
+            <div className="rounded-lg border border-dashed border-line bg-white/[0.025] p-4 text-center type-caption-strong text-muted">
               Dépose une carte ici.
             </div>
           ) : null}
@@ -699,7 +699,7 @@ function KanbanTaskCard({
       </div>
       <button type="button" className="block w-full text-left" onClick={() => onSelect(task.id)}>
         <h4 className="mt-4 text-sm font-black leading-6">{task.title}</h4>
-        <p className="mt-2 line-clamp-2 text-xs font-semibold leading-5 text-muted">
+        <p className="mt-2 line-clamp-2 type-caption text-muted">
           {task.description || "Aucune description."}
         </p>
       </button>
@@ -731,7 +731,7 @@ function KanbanTaskCard({
         ))}
       </div>
       <div className="mt-5 flex items-center justify-between gap-3">
-        <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-brand to-brand-2 text-xs font-black text-inverse">
+        <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-brand to-brand-2 type-label text-inverse">
           {task.owner}
         </span>
         <span className="flex items-center gap-2">
@@ -753,9 +753,9 @@ function KanbanTaskPreview({ task }: { task: Task }) {
         {task.category}
       </Badge>
       <h4 className="mt-4 text-sm font-black leading-6">{task.title}</h4>
-      <p className="mt-2 line-clamp-2 text-xs font-semibold leading-5 text-muted">{task.description}</p>
+      <p className="mt-2 line-clamp-2 type-caption text-muted">{task.description}</p>
       <div className="mt-5 flex items-center justify-between gap-3">
-        <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-brand to-brand-2 text-xs font-black text-inverse">
+        <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-brand to-brand-2 type-label text-inverse">
           {task.owner}
         </span>
         <span className="rounded-full border border-line bg-surface-control px-2 py-1 font-mono text-xs font-black text-muted">

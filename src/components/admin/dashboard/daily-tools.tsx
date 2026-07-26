@@ -245,7 +245,7 @@ export function DailyTools() {
             </Button>
           )} />
           <div className="mt-4 rounded-lg border border-brand-2/25 bg-brand-2/10 p-3">
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">Total mensuel estimé</p>
+            <p className="type-overline text-muted">Total mensuel estimé</p>
             <p className="mt-2 font-mono text-3xl font-black">{monthlyTotal.toFixed(2)} €</p>
           </div>
           <div className="mt-4 space-y-3">
@@ -429,7 +429,7 @@ export function DailyTools() {
             onChange={(event) => setJournal(event.target.value)}
             placeholder="Note tes décisions, blocages, idées et actions de demain..."
           />
-          <p id="form-a11y-journal-description" className="mt-3 text-xs font-bold text-muted">Sauvegarde automatique dans ton navigateur.</p>
+          <p id="form-a11y-journal-description" className="mt-3 type-caption-strong text-muted">Sauvegarde automatique dans ton navigateur.</p>
         </Card>
       ),
     },
@@ -439,8 +439,8 @@ export function DailyTools() {
     <div className="space-y-4">
       <Card tone="strong" className="p-5">
         <Badge tone="cyan">Local-first</Badge>
-        <h2 className="mt-3 text-3xl font-black">Outils quotidiens</h2>
-        <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-muted">
+        <h2 className="mt-3 type-title-page">Outils quotidiens</h2>
+        <p className="mt-2 max-w-3xl type-body-strong text-muted">
           Ton panneau rapide pour bosser : liens, snippets, budget, contacts, journal et focus.
         </p>
       </Card>
@@ -470,7 +470,7 @@ function ToolHeader({
         <span className="grid h-10 w-10 place-items-center rounded-lg border border-brand-2/25 bg-brand-2/10 text-brand-2">
           <Icon size={18} />
         </span>
-        <h3 className="text-lg font-black">{title}</h3>
+        <h3 className="type-title-card">{title}</h3>
       </div>
       {action}
     </div>

@@ -109,7 +109,7 @@ export function SortableWidgetGrid({
   return (
     <div className="space-y-3">
       {enableHide ? (
-        <div className="widget-toolbar flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-line bg-surface-inset px-3 py-2 text-xs font-black text-foreground-secondary">
+        <div className="widget-toolbar flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-line bg-surface-inset px-3 py-2 type-label text-foreground-secondary">
           <span className="inline-flex items-center gap-2 text-cyan-100">
             <SlidersHorizontal size={15} />
             Widgets

@@ -73,7 +73,7 @@ function typeSurface(entry) {
 function TypeFilter({ availableTypes, value, onChange }) {
   return (
     <fieldset className="min-w-0 sm:col-span-2 xl:col-span-4">
-      <legend className="mb-2 text-[10px] font-black uppercase tracking-[.16em] text-disabled">
+      <legend className="mb-2 type-overline-compact text-disabled">
         Type d’attaque
       </legend>
       <div className="flex snap-x gap-2 overflow-x-auto pb-2 lg:grid lg:grid-cols-[repeat(10,minmax(2.75rem,1fr))] lg:overflow-visible xl:grid-cols-[repeat(19,minmax(2.75rem,1fr))]" role="radiogroup" aria-label="Type d’attaque">
@@ -152,7 +152,7 @@ export function BestAttackersPanel({
           dataset={dataset}
           total={meta.total || entries.length}
         />
-        <p className="mt-4 rounded-2xl border border-cyan-200/15 bg-cyan-300/[0.07] p-4 text-sm font-bold leading-6 text-foreground-secondary">
+        <p className="mt-4 rounded-2xl border border-cyan-200/15 bg-cyan-300/[0.07] p-4 type-body-strong text-foreground-secondary">
           Les formules sont wrappées depuis DialgaDex avec l’accord du
           propriétaire. Pokémon, formes, attaques, sorties et images viennent
           exclusivement des référentiels locaux.
@@ -172,7 +172,7 @@ export function BestAttackersPanel({
       >
         <TypeFilter availableTypes={apiOptions.types} value={options.type} onChange={(type) => setOption("type", type)} />
         <label>
-          <span className="mb-1 block text-[10px] font-black uppercase tracking-[.16em] text-disabled">
+          <span className="mb-1 block type-overline-compact text-disabled">
             Niveau
           </span>
           <Select
@@ -188,7 +188,7 @@ export function BestAttackersPanel({
           </Select>
         </label>
         <label>
-          <span className="mb-1 block text-[10px] font-black uppercase tracking-[.16em] text-disabled">
+          <span className="mb-1 block type-overline-compact text-disabled">
             Métrique
           </span>
           <Select
@@ -204,7 +204,7 @@ export function BestAttackersPanel({
           </Select>
         </label>
         <label>
-          <span className="mb-1 block text-[10px] font-black uppercase tracking-[.16em] text-disabled">
+          <span className="mb-1 block type-overline-compact text-disabled">
             Moveset
           </span>
           <Select
@@ -220,7 +220,7 @@ export function BestAttackersPanel({
           </Select>
         </label>
         <label>
-          <span className="mb-1 block text-[10px] font-black uppercase tracking-[.16em] text-disabled">
+          <span className="mb-1 block type-overline-compact text-disabled">
             Classe
           </span>
           <Select

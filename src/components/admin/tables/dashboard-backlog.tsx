@@ -461,8 +461,8 @@ export function DashboardBacklog() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <Badge tone="cyan">Issue tracker</Badge>
-            <h2 className="mt-3 text-3xl font-black">Dashboard Backlog</h2>
-            <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-muted">
+            <h2 className="mt-3 type-title-page">Dashboard Backlog</h2>
+            <p className="mt-2 max-w-3xl type-body-strong text-muted">
               Source de vérité interne pour bugs, features, refactors, UI et prompts techniques Codex.
             </p>
           </div>
@@ -535,7 +535,7 @@ export function DashboardBacklog() {
         </div>
 
         <Card className="p-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">Colonnes</p>
+          <p className="type-overline text-brand-2">Colonnes</p>
           <div className="mt-4 space-y-3">
             {(["todo", "in_progress", "blocked", "done"] as BacklogStatus[]).map((status) => {
               const count = tickets.filter((ticket) => ticket.status === status).length;
@@ -576,10 +576,10 @@ export function DashboardBacklog() {
         />
         {editingTicket?.history.length ? (
           <div className="mt-5 rounded-lg border border-line bg-surface-minimal p-3">
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">Historique</p>
+            <p className="type-overline text-muted">Historique</p>
             <div className="mt-3 grid gap-2">
               {editingTicket.history.slice(-5).reverse().map((entry) => (
-                <div key={`${entry.at}-${entry.action}`} className="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface-faint p-2 text-xs font-bold text-muted">
+                <div key={`${entry.at}-${entry.action}`} className="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface-faint p-2 type-caption-strong text-muted">
                   <span>{entry.action}</span>
                   <span>{formatDate(entry.at)}</span>
                 </div>
@@ -610,7 +610,7 @@ function BacklogStat({
 
   return (
     <Card className="p-4">
-      <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">{label}</p>
+      <p className="type-overline text-muted">{label}</p>
       <p className={cn("mt-3 inline-flex rounded-lg border px-3 py-2 font-mono text-3xl font-black", toneClass)}>
         {value}
       </p>
@@ -672,21 +672,21 @@ function TicketCard({
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <button type="button" className="min-w-0 text-left" onClick={onEdit}>
           <div className="flex flex-wrap items-center gap-2">
-            <span className={cn("rounded-full border px-2.5 py-1 text-xs font-black", typeClasses[ticket.type])}>
+            <span className={cn("rounded-full border px-2.5 py-1 type-label", typeClasses[ticket.type])}>
               {typeLabel[ticket.type]}
             </span>
-            <span className={cn("rounded-full border px-2.5 py-1 text-xs font-black", priorityClasses[ticket.priority])}>
+            <span className={cn("rounded-full border px-2.5 py-1 type-label", priorityClasses[ticket.priority])}>
               {priorityLabel[ticket.priority]}
             </span>
-            <span className={cn("rounded-full border px-2.5 py-1 text-xs font-black", statusClasses[ticket.status])}>
+            <span className={cn("rounded-full border px-2.5 py-1 type-label", statusClasses[ticket.status])}>
               {ticket.status === "done" ? "✓ " : ""}
               {statusLabel[ticket.status]}
             </span>
           </div>
-          <h3 className={cn("mt-3 text-xl font-black", ticket.status === "done" && "text-brand-3")}>
+          <h3 className={cn("mt-3 type-title-subsection", ticket.status === "done" && "text-brand-3")}>
             {ticket.title || "Sans titre"}
           </h3>
-          <p className="mt-2 line-clamp-2 text-sm font-semibold leading-6 text-muted">
+          <p className="mt-2 line-clamp-2 type-body-strong text-muted">
             {ticket.description || ticket.expectedBehavior || "Aucune description."}
           </p>
         </button>
@@ -702,7 +702,7 @@ function TicketCard({
           </Button>
         </div>
       </div>
-      <div className="mt-4 grid gap-3 text-xs font-bold text-muted sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-4 grid gap-3 type-caption-strong text-muted sm:grid-cols-2 lg:grid-cols-4">
         <span className="rounded-lg border border-line bg-surface-minimal p-2">Page: {ticket.page || "Non renseignée"}</span>
         <span className="rounded-lg border border-line bg-surface-minimal p-2">Composant: {ticket.component || "Non renseigné"}</span>
         <span className="rounded-lg border border-line bg-surface-minimal p-2">Créé: {formatDate(ticket.createdAt)}</span>
@@ -732,7 +732,7 @@ function TicketForm({
   return (
     <div className="space-y-4">
       <FieldRoot label="Titre">
-        <Input className="mt-2 text-lg font-black" value={draft.title} onChange={(event) => onUpdate({ title: event.target.value })} />
+        <Input className="mt-2 type-title-card" value={draft.title} onChange={(event) => onUpdate({ title: event.target.value })} />
       </FieldRoot>
       <div className="grid gap-3 md:grid-cols-3">
         <SelectField label="Type" value={draft.type} values={ticketTypes} labels={typeLabel} onChange={(value) => onUpdate({ type: value as BacklogType })} />
@@ -760,7 +760,7 @@ function TicketForm({
         <Area label="Screenshots / références" value={screenshotsText(draft.screenshots)} onChange={(value) => onUpdate({ screenshots: parseScreenshots(value) })} placeholder="Une URL par ligne" />
       </div>
       <div className="rounded-lg border border-line bg-surface-minimal p-3">
-        <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">Aperçu contexte Codex</p>
+        <p className="type-overline text-muted">Aperçu contexte Codex</p>
         <pre className="mt-3 max-h-56 overflow-auto whitespace-pre-wrap rounded-lg border border-line bg-surface-inset-strong p-3 font-mono text-xs leading-6 text-brand-3">
           {ticketCodexContext(draft)}
         </pre>
@@ -794,7 +794,7 @@ function SelectField<T extends string>({
 }) {
   return (
     <label className="block">
-      <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">{label}</span>
+      <span className="type-overline text-muted">{label}</span>
       <Select
         className="mt-2 min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none"
         value={value}

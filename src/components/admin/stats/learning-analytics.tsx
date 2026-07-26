@@ -133,7 +133,7 @@ function LevelProgressGrid({ items }: { items: Array<{ name: string; progression
               transition={{ duration: 0.45, delay: index * 0.035 }}
             />
           </span>
-          <span className="mt-2 block text-xs font-bold text-muted">{item.accompli} élément(s) terminé(s)</span>
+          <span className="mt-2 block type-caption-strong text-muted">{item.accompli} élément(s) terminé(s)</span>
         </Card>
       ))}
     </div>
@@ -153,8 +153,8 @@ function StatusChart({ items }: { items: Array<{ name: string; value: number }> 
       >
         <div className="grid h-32 w-32 place-items-center rounded-full bg-background text-center">
           <span>
-            <strong className="block text-3xl font-black">{total}</strong>
-            <small className="text-xs font-black uppercase tracking-[0.16em] text-muted">notions</small>
+            <strong className="block type-title-page">{total}</strong>
+            <small className="type-overline text-muted">notions</small>
           </span>
         </div>
       </div>
@@ -196,8 +196,8 @@ function Metric({
       <Card className="p-4">
         <div className="flex items-start justify-between gap-3">
           <span>
-            <span className="block text-xs font-black uppercase tracking-[0.16em] text-muted">{label}</span>
-            <strong className="mt-3 block text-3xl font-black">{value}</strong>
+            <span className="block type-overline text-muted">{label}</span>
+            <strong className="mt-3 block type-title-page">{value}</strong>
           </span>
           <span className={`grid h-11 w-11 place-items-center rounded-lg border ${toneClass}`}>
             <Icon size={20} />

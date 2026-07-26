@@ -766,7 +766,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
                 <ChevronRight size={17} />
               </button>
             </div>
-            <h3 className="text-2xl font-black capitalize text-foreground">{monthFormat.format(cursor)}</h3>
+            <h3 className="type-title-section capitalize text-foreground">{monthFormat.format(cursor)}</h3>
             <div className="flex rounded-2xl border border-line bg-surface-inset-strong p-1">
               {[
                 ["calendar", CalendarDays, "Mois"],
@@ -796,7 +796,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
               <div className="hidden sm:block">
                 <div className="grid grid-cols-7 gap-2">
                   {dayNames.map((day) => (
-                    <span key={day} className="rounded-xl border border-line bg-surface-flat px-1 py-2 text-center text-xs font-black uppercase tracking-[0.12em] text-muted">
+                    <span key={day} className="rounded-xl border border-line bg-surface-flat px-1 py-2 text-center type-overline text-muted">
                       {day}
                     </span>
                   ))}
@@ -895,8 +895,8 @@ function StatTile({ icon, label, value, tone = "cyan" }) {
       <div className="mb-1.5 inline-grid h-8 w-8 place-items-center rounded-xl border border-line bg-surface-inset">
         {icon}
       </div>
-      <span className="block text-[10px] font-black uppercase leading-tight tracking-[0.14em] text-domain-foreground/65">{label}</span>
-      <strong className="mt-0.5 block text-2xl font-black leading-none text-domain-foreground">{value}</strong>
+      <span className="block type-overline-compact text-domain-foreground/65">{label}</span>
+      <strong className="mt-0.5 block type-title-section leading-none text-domain-foreground">{value}</strong>
     </article>
   );
 }
@@ -994,7 +994,7 @@ function MultiDaySegment({ segment, onOpen }) {
   const type = eventType(segment.event);
   return (
     <button
-      className="min-w-0 truncate rounded-control border px-2 text-left text-xs font-black text-domain-foreground shadow-sm transition hover:border-white/35 hover:brightness-110"
+      className="min-w-0 truncate rounded-control border px-2 text-left type-label text-domain-foreground shadow-sm transition hover:border-white/35 hover:brightness-110"
       style={{
         gridColumn: `${segment.startIndex + 1} / ${segment.endIndex + 2}`,
         gridRow: `${segment.lane + 1}`,
@@ -1026,7 +1026,7 @@ function SingleDayEvent({ event, onOpen, compact }) {
       type="button"
       onClick={() => onOpen(event)}
     >
-      <span className="block min-w-0 truncate text-xs font-black text-domain-foreground">{event.title}</span>
+      <span className="block min-w-0 truncate type-label text-domain-foreground">{event.title}</span>
       <span className="mt-0.5 flex items-center gap-1 text-[11px] font-bold text-foreground-secondary">
         <span className="h-2 w-2 rounded-full" style={{ backgroundColor: type.color }} />
         {format(new Date(event.startDate), "HH:mm", { locale: fr })}
@@ -1046,7 +1046,7 @@ function EventGroup({ title, events, onOpen, empty }) {
   return (
     <section className="rounded-2xl border border-line bg-surface-flat p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <h3 className="text-lg font-black text-domain-foreground">{title}</h3>
+        <h3 className="type-title-card text-domain-foreground">{title}</h3>
         <span className="rounded-full border border-line bg-surface-inset-strong px-2.5 py-1 font-mono text-xs font-black text-cyan-100">
           {events.length}
         </span>
@@ -1111,9 +1111,9 @@ function TimelineCard({ event, onOpen }) {
       >
         {event.category || type.label}
       </span>
-      <strong className="mt-2 block text-lg font-black leading-tight text-domain-foreground">{event.title}</strong>
+      <strong className="mt-2 block type-title-card text-domain-foreground">{event.title}</strong>
       <span className="mt-2 block text-sm font-bold text-foreground-secondary">{eventTimeLabel(event)}</span>
-      <span className="mt-1 block text-xs font-bold italic text-emerald-200">{eventRemainingLabel(event)}</span>
+      <span className="mt-1 block type-caption-strong italic text-emerald-200">{eventRemainingLabel(event)}</span>
       {images.length ? (
         <span className="mt-3 flex flex-wrap gap-1.5">
           {images.map((image) => (
@@ -1149,8 +1149,8 @@ function EventRow({ event, onOpen }) {
             {type.label}
           </small>
         </span>
-        <small className="block truncate text-xs font-bold text-foreground-secondary">{dateRangeLabel(event)}</small>
-        {event.description ? <small className="mt-1 block truncate text-xs font-semibold text-disabled">{event.description}</small> : null}
+        <small className="block truncate type-caption-strong text-foreground-secondary">{dateRangeLabel(event)}</small>
+        {event.description ? <small className="mt-1 block truncate type-caption text-disabled">{event.description}</small> : null}
       </span>
     </button>
   );
@@ -1273,7 +1273,7 @@ function EventBadge({ label, value, tone = "neutral" }) {
   const theme = modalToneMap[tone] || modalToneMap.neutral;
   return (
     <span
-      className="inline-flex min-h-9 items-center gap-2 rounded-full border px-3 py-1 text-xs font-black text-domain-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.09)]"
+      className="inline-flex min-h-9 items-center gap-2 rounded-full border px-3 py-1 type-label text-domain-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.09)]"
       style={{
         borderColor: hexToRgba(theme.color, 0.34),
         background: `linear-gradient(135deg, ${hexToRgba(theme.color, 0.18)}, rgba(2,6,23,.42))`,
@@ -1311,11 +1311,11 @@ function DetailSection({ title, eyebrow, count, tone = "neutral", children, clas
           </span>
           <span className="min-w-0">
             {eyebrow ? (
-              <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-domain-foreground/45">
+              <span className="block type-overline-compact text-domain-foreground/45">
                 {eyebrow}
               </span>
             ) : null}
-            <h3 className="text-xl font-black leading-tight text-domain-foreground">{title}</h3>
+            <h3 className="type-title-subsection text-domain-foreground">{title}</h3>
           </span>
         </span>
         {typeof count === "number" ? (
@@ -1370,7 +1370,7 @@ function EventDetailModal({ event, busyAction, onClose, onEdit, onDuplicate, onA
           <div className="absolute inset-0 bg-surface-inset-strong" />
           <div className="relative pr-12 sm:pr-14">
             <div className="min-w-0">
-              <span className="inline-flex items-center gap-2 rounded-full border border-line bg-slate-950/55 px-3 py-1 text-xs font-black text-cyan-50">
+              <span className="inline-flex items-center gap-2 rounded-full border border-line bg-slate-950/55 px-3 py-1 type-label text-cyan-50">
                 {type.icon ? <img className="h-5 w-5 object-contain" src={type.icon} alt="" /> : null}
                 {event.category || type.label}
               </span>
@@ -1472,7 +1472,7 @@ function EventDetailModal({ event, busyAction, onClose, onEdit, onDuplicate, onA
 function InfoPill({ label, value }) {
   return (
     <div className="rounded-2xl border border-line bg-surface-inset p-3">
-      <span className="block text-[10px] font-black uppercase tracking-[0.18em] text-disabled">{label}</span>
+      <span className="block type-overline-compact text-disabled">{label}</span>
       <strong className="mt-1 block break-words text-sm font-black text-domain-foreground">{value}</strong>
     </div>
   );
@@ -1509,7 +1509,7 @@ function PokemonCardGrid({ pokemon, onOpenPokemon, compact = false }) {
             <PokemonArtwork pokemon={entry} alt={entry.name || entry.id} className={`${compact ? "h-11 w-11" : "h-14 w-14"} drop-shadow-[0_0_16px_rgba(56,189,248,.12)]`} />
             <span className="min-w-0">
               <strong className="block whitespace-normal break-words text-sm font-black leading-tight text-domain-foreground">{entry.name || entry.id}</strong>
-              <small className="block truncate text-xs font-bold text-muted">{entry.form || entry.dexId || "Pokemon"}</small>
+              <small className="block truncate type-caption-strong text-muted">{entry.form || entry.dexId || "Pokemon"}</small>
               <TypePills types={entry.types} id={entry.id || entry.name} />
               {entry.shiny ? <small className="mt-1 inline-flex rounded-full border border-amber-200/20 bg-amber-300/10 px-2 py-0.5 text-[10px] font-black text-amber-100">Shiny</small> : null}
             </span>
@@ -1557,7 +1557,7 @@ function ScrapedSectionCard({ section, tone, open, onOpenPokemon }) {
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
         <span className="min-w-0">
           <strong className="block whitespace-normal break-words text-sm font-black text-domain-foreground">{section.title}</strong>
-          <small className="text-[11px] font-black uppercase tracking-[0.14em] text-cyan-100/60">{section.category}</small>
+          <small className="type-overline text-cyan-100/60">{section.category}</small>
         </span>
         <span className="flex shrink-0 flex-wrap justify-end gap-2 text-[11px] font-black text-foreground-secondary">
           {section.pokemon?.length ? <span>{section.pokemon.length} Pokémon</span> : null}
@@ -1568,7 +1568,7 @@ function ScrapedSectionCard({ section, tone, open, onOpenPokemon }) {
       {section.text?.length ? (
         <div className="mt-3 grid gap-2">
           {section.text.slice(0, 10).map((text) => (
-            <p className="rounded-xl border border-line bg-surface-inset-strong px-3 py-2 text-sm font-semibold leading-6 text-foreground-secondary" key={`${section.id}-${text}`}>
+            <p className="rounded-xl border border-line bg-surface-inset-strong px-3 py-2 type-body-strong text-foreground-secondary" key={`${section.id}-${text}`}>
               {text}
             </p>
           ))}
@@ -1600,7 +1600,7 @@ function RewardGrid({ rewards, compact = false, title = "Rewards", tone = "rewar
                 <span className="min-w-0">
                   <span className="block truncate">{reward.text}</span>
                   {reward.id || reward.sourceName ? (
-                    <small className="block truncate text-[10px] font-black uppercase tracking-[0.12em] text-disabled">
+                    <small className="block truncate type-overline-compact text-disabled">
                       {reward.id || reward.sourceName}
                     </small>
                   ) : null}
@@ -1641,7 +1641,7 @@ function DetailList({ title, items, empty = "", tone = "neutral" }) {
       <div className="grid gap-2">
         {items.length ? (
           items.map((item) => (
-            <span className="rounded-xl border border-line bg-surface-inset-medium px-3 py-2 text-sm font-bold leading-6 text-foreground" key={item}>
+            <span className="rounded-xl border border-line bg-surface-inset-medium px-3 py-2 type-body-strong text-foreground" key={item}>
               {item}
             </span>
           ))

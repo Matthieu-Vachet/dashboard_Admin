@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
+import { GeistMono } from "geist/font/mono";
+import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import { Providers } from "@/components/admin/layout/admin-providers";
 
@@ -18,8 +20,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" suppressHydrationWarning>
-      <body>
+    <html
+      lang="fr"
+      className={`${GeistSans.variable} ${GeistMono.variable}`}
+      suppressHydrationWarning
+    >
+      <body className={GeistSans.className}>
         <Providers>{children}</Providers>
         <Toaster richColors position="top-right" />
       </body>

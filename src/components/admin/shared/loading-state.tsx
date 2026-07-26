@@ -14,11 +14,11 @@ export function DashboardLoadingState({
   return (
     <Card tone="strong" className="min-h-[420px] p-5">
       <div className="max-w-2xl">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">
+        <p className="type-overline text-brand-2">
           {eyebrow}
         </p>
-        <h2 className="mt-3 text-3xl font-black">{title}</h2>
-        <p className="mt-2 text-sm font-semibold leading-6 text-muted">{detail}</p>
+        <h2 className="mt-3 type-title-page">{title}</h2>
+        <p className="mt-2 type-body-strong text-muted">{detail}</p>
       </div>
       <div className="mt-8 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: 6 }).map((_, index) => (

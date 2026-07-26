@@ -276,7 +276,7 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
             {metrics.map(([label, value, mono]) => <Metric key={label} label={label} value={value} mono={mono} />)}
           </dl>
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold text-foreground-secondary">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 type-caption-strong text-foreground-secondary">
             {sourceUrl ? (
               <a className="inline-flex min-w-0 items-center gap-1 text-cyan-100 underline decoration-cyan-200/30 underline-offset-4 hover:text-domain-foreground" href={sourceUrl} target="_blank" rel="noreferrer">
                 <span className="max-w-full break-all sm:max-w-[36rem] sm:truncate">{sourceUrl}</span>
@@ -292,7 +292,7 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
             {resolvedHistoryUrl ? <Button size="sm" variant="ghost" type="button" onClick={() => openHistory(false)} icon={<History size={13} />}>Historique</Button> : null}
           </div>
 
-          {!hasDiff && diagnostics.diffUnavailableReason ? <p className="rounded-xl border border-line bg-slate-950/25 px-3 py-2 text-xs font-bold text-muted">Diff indisponible : {diagnostics.diffUnavailableReason}</p> : null}
+          {!hasDiff && diagnostics.diffUnavailableReason ? <p className="rounded-xl border border-line bg-slate-950/25 px-3 py-2 type-caption-strong text-muted">Diff indisponible : {diagnostics.diffUnavailableReason}</p> : null}
 
           {selection ? (
             <div className="grid gap-2 rounded-xl border border-violet-200/18 bg-violet-400/9 p-3 sm:grid-cols-2">
@@ -302,7 +302,7 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
           ) : null}
 
           {warnings.length ? (
-            <details className="group rounded-xl border border-amber-200/20 bg-amber-300/10 text-xs font-bold leading-5 text-amber-50">
+            <details className="group rounded-xl border border-amber-200/20 bg-amber-300/10 type-caption-strong text-amber-50">
               <summary className="cursor-pointer list-none px-3 py-2.5">Afficher les {warnings.length} diagnostic(s)</summary>
               <ul className="space-y-1 border-t border-amber-100/10 p-3">
                 {warnings.map((warning, index) => <li key={`${formatWarning(warning)}-${index}`}>• {formatWarning(warning)}</li>)}

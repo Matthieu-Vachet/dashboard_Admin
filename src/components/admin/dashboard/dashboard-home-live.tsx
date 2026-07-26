@@ -228,7 +228,7 @@ export function DashboardHomeLive() {
               <span className="font-mono text-xs font-black text-brand-2">{event.date.slice(5)}</span>
               <span className="min-w-0">
                 <strong className="block truncate text-sm font-black">{event.title}</strong>
-                <small className="text-xs font-bold text-muted">{event.time}</small>
+                <small className="type-caption-strong text-muted">{event.time}</small>
               </span>
             </Link>
           ))}
@@ -319,10 +319,10 @@ export function DashboardHomeLive() {
             <div className="relative z-10 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
               <div>
                 <Badge tone={ready ? "green" : "amber"}>{ready ? "Dashboard live" : "Synchronisation"}</Badge>
-                <h2 className="mt-3 max-w-3xl text-2xl font-black leading-tight sm:text-3xl">
+                <h2 className="mt-3 max-w-3xl type-title-section">
                   MatWeb Innovation
                 </h2>
-                <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-muted">
+                <p className="mt-2 max-w-2xl type-body-strong text-muted">
                   Cockpit de travail: modules, données live, widgets déplaçables et accès directs.
                 </p>
               </div>
@@ -381,7 +381,7 @@ function DailyCodePost({
         <div className="flex min-w-0 items-start justify-between gap-3 pr-24 sm:pr-20">
           <div className="min-w-0">
             <p className="font-mono text-xs font-black uppercase tracking-[0.2em] text-brand-2">Code du jour</p>
-            <p className="mt-1 text-xs font-bold text-muted">{date}</p>
+            <p className="mt-1 type-caption-strong text-muted">{date}</p>
           </div>
           <button
             className="absolute right-5 top-16 inline-flex h-10 w-10 items-center justify-center rounded-lg border border-line bg-surface-emphasis text-inverse transition hover:border-brand-2/45 hover:bg-brand-2/20 sm:right-8 sm:top-20"
@@ -436,8 +436,8 @@ function WidgetContent({
     <div className="relative z-0">
       <div className="mb-5 flex items-start justify-between gap-12">
         <div className="min-w-0">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">{eyebrow}</p>
-          <h3 className="mt-1 text-xl font-black">{title}</h3>
+          <p className="type-overline text-brand-2">{eyebrow}</p>
+          <h3 className="mt-1 type-title-subsection">{title}</h3>
         </div>
         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-brand-2/25 bg-brand-2/10 text-brand-2">
           <Icon size={19} />
@@ -480,7 +480,7 @@ function LiveStat({
       <Card className="motion-border p-4">
         <div className="relative z-10 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="truncate text-xs font-black uppercase tracking-[0.16em] text-muted">{label}</p>
+            <p className="truncate type-overline text-muted">{label}</p>
             <p className="mt-3 font-mono text-3xl font-black leading-none">
               {value.toLocaleString("fr-FR")}
             </p>
@@ -489,7 +489,7 @@ function LiveStat({
             <Icon size={20} />
           </div>
         </div>
-        <p className="relative z-10 mt-5 truncate text-xs font-black text-muted">{detail}</p>
+        <p className="relative z-10 mt-5 truncate type-label text-muted">{detail}</p>
       </Card>
     </motion.div>
   );
@@ -502,7 +502,7 @@ function SignalRow({ icon: Icon, label, value }: { icon: LucideIcon; label: stri
         <Icon size={17} />
       </span>
       <span className="min-w-0">
-        <span className="block text-xs font-black uppercase tracking-[0.16em] text-muted">{label}</span>
+        <span className="block type-overline text-muted">{label}</span>
         <strong className="mt-1 block truncate text-sm font-black text-foreground">{value}</strong>
       </span>
     </Card>
@@ -526,7 +526,7 @@ function MiniMetric({
   }[tone];
   return (
     <div className={cn("rounded-lg border p-3", color)}>
-      <p className="text-xs font-black uppercase tracking-[0.14em] opacity-75">{label}</p>
+      <p className="type-overline opacity-75">{label}</p>
       <p className="mt-2 font-mono text-xl font-black">
         {typeof value === "number" ? value.toLocaleString("fr-FR") : value}
       </p>
@@ -543,7 +543,7 @@ function GenerationBars({ items }: { items: Array<{ name: string; entries: numbe
         const width = Math.max(4, ((item.entries || 0) / max) * 100);
         return (
           <div
-            className="grid grid-cols-[3rem_minmax(0,1fr)_4rem] items-center gap-2 text-xs font-black"
+            className="grid grid-cols-[3rem_minmax(0,1fr)_4rem] items-center gap-2 type-label"
             key={item.name}
           >
             <span className="truncate text-muted">{item.name}</span>
@@ -579,7 +579,7 @@ function KanbanBars({ items }: { items: Array<{ name: string; count: number }> }
         const width = Math.max(4, ((item.count || 0) / max) * 100);
         return (
           <Card tone="flat" className="p-3" key={item.name}>
-            <div className="mb-2 flex items-center justify-between gap-3 text-xs font-black">
+            <div className="mb-2 flex items-center justify-between gap-3 type-label">
               <span className="truncate text-foreground">{item.name}</span>
               <span className="font-mono text-muted">{item.count}</span>
             </div>
@@ -620,7 +620,7 @@ function ActionLink({
       </span>
       <span className="min-w-0">
         <strong className="block truncate text-sm font-black">{label}</strong>
-        <small className="mt-1 block truncate text-xs font-bold text-muted">{detail}</small>
+        <small className="mt-1 block truncate type-caption-strong text-muted">{detail}</small>
       </span>
       <ArrowUpRight size={16} className="text-muted transition group-hover:text-brand-2" />
     </Link>

@@ -3,10 +3,10 @@ import { Button } from "@/components/ui/button";
 export function LoginCard({ password, error, loading, onPasswordChange, onSubmit }) {
   return (
     <section className="w-full max-w-xl rounded-surface border border-line bg-zinc-950/85 p-5 shadow-raised backdrop-blur md:p-8">
-      <span className="text-xs font-black uppercase tracking-wide text-sky-300">
+      <span className="type-overline text-sky-300">
         Accès administrateur
       </span>
-      <h2 className="mt-2 text-3xl font-black">Connexion sécurisée</h2>
+      <h2 className="mt-2 type-title-page">Connexion sécurisée</h2>
       <p className="mt-3 text-sm leading-6 text-muted">
         Le dashboard admin débloque les audits, la lecture source, les patches et
         les outils de contrôle avancés.

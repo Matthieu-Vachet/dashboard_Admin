@@ -28,16 +28,16 @@ export function LearningAdvancedStats({ stats }: { stats: LearningAdvancedStats 
   return (
     <section className="space-y-3" aria-labelledby="learning-stats-title">
       <div>
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">Mesure réelle</p>
-        <h2 id="learning-stats-title" className="mt-1 text-2xl font-black">Statistiques d’étude</h2>
+        <p className="type-overline text-brand-2">Mesure réelle</p>
+        <h2 id="learning-stats-title" className="mt-1 type-title-section">Statistiques d’étude</h2>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {metrics.map(({ icon: Icon, label, value }) => (
           <Card className="p-4" key={label}>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <span className="block text-[11px] font-black uppercase tracking-[0.14em] text-muted">{label}</span>
-                <strong className="mt-2 block truncate text-xl font-black">{value}</strong>
+                <span className="block type-overline text-muted">{label}</span>
+                <strong className="mt-2 block truncate type-title-subsection">{value}</strong>
               </div>
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-brand-2/20 bg-brand-2/10 text-brand-2"><Icon size={17} /></span>
             </div>

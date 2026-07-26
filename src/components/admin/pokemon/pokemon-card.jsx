@@ -29,7 +29,7 @@ function TypeBadge({ type, catalog }) {
   if (!type) return null;
   return (
     <span
-      className="inline-flex min-h-9 min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border border-line px-3 text-xs font-black text-domain-foreground shadow-sm"
+      className="inline-flex min-h-9 min-w-0 flex-1 items-center justify-center gap-2 rounded-xl border border-line px-3 type-label text-domain-foreground shadow-sm"
       style={{
         background: `color-mix(in srgb, ${typeColors[type] || "#7aa7ff"} 58%, rgba(255,255,255,.12))`,
       }}
@@ -50,7 +50,7 @@ function TypeBadge({ type, catalog }) {
 function WeatherBadge({ weatherId, catalog }) {
   const item = catalogItem(catalog, weatherId);
   return (
-    <span className="inline-flex min-h-8 min-w-0 max-w-full items-center justify-center gap-2 overflow-hidden rounded-lg border border-line bg-surface-emphasis px-3 text-xs font-black text-foreground">
+    <span className="inline-flex min-h-8 min-w-0 max-w-full items-center justify-center gap-2 overflow-hidden rounded-lg border border-line bg-surface-emphasis px-3 type-label text-foreground">
       {item?.assets?.icon ? (
         <img className="h-5 w-5 shrink-0 object-contain" src={item.assets.icon} alt="" />
       ) : null}
@@ -61,7 +61,7 @@ function WeatherBadge({ weatherId, catalog }) {
 
 function MiniInfo({ children, icon }) {
   return (
-    <span className="inline-flex min-h-8 items-center justify-center gap-2 rounded-lg border border-line bg-surface-emphasis px-3 text-xs font-black text-foreground">
+    <span className="inline-flex min-h-8 items-center justify-center gap-2 rounded-lg border border-line bg-surface-emphasis px-3 type-label text-foreground">
       {icon ? <img className="h-4 w-4 shrink-0 object-contain" src={icon} alt="" /> : null}
       <span className="truncate">{children}</span>
     </span>
@@ -120,14 +120,14 @@ export function PokemonCard({
         </div>
         <div className="min-w-0">
           <span className="font-black tracking-widest text-foreground">N° {entry.dexId}</span>
-          <h3 className="mt-1 break-words text-xl font-black leading-tight text-domain-foreground">
+          <h3 className="mt-1 break-words type-title-subsection text-domain-foreground">
             {entry.name}
           </h3>
           <p className="mt-1 truncate text-sm font-medium text-foreground-secondary">
             {entry.profile || entry.kind} · {entry.form || "normal"} · Gén.{" "}
             {entry.generation || "?"}
           </p>
-          <span className="mt-2 inline-flex rounded-full border border-line-medium bg-white/12 px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-domain-foreground">
+          <span className="mt-2 inline-flex rounded-full border border-line-medium bg-white/12 px-2.5 py-1 type-overline text-domain-foreground">
             {variantLabel}
           </span>
         </div>
@@ -197,7 +197,7 @@ export function PokemonCard({
       {missingKeys.length ? (
         <div className="mt-3 rounded-xl border border-amber-300/25 bg-surface-inset-strong p-3">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-xs font-black uppercase tracking-[0.16em] text-amber-100">
+            <span className="type-overline text-amber-100">
               Clés manquantes
             </span>
             <span className="rounded-full bg-amber-300/15 px-2 py-1 text-[11px] font-black text-amber-100">

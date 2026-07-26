@@ -97,19 +97,19 @@ function CommunityDayDetails({ item }) {
         <section className="rounded-xl border border-line bg-surface-inset p-3" aria-labelledby="community-moves-title">
           <h3 id="community-moves-title" className="text-sm font-black text-domain-foreground">Attaques exclusives</h3>
           {moves.length ? <ul className="mt-2 space-y-2">{moves.map((move, index) => (
-            <li className="rounded-lg bg-surface-minimal px-3 py-2 text-xs font-bold text-cyan-50" key={`${move.pokemon}:${move.move}:${index}`}>
+            <li className="rounded-lg bg-surface-minimal px-3 py-2 type-caption-strong text-cyan-50" key={`${move.pokemon}:${move.move}:${index}`}>
               <span className="text-domain-foreground">{move.pokemon}</span><span className="text-disabled"> · </span>{move.move}
             </li>
-          ))}</ul> : <p className="mt-2 text-xs font-bold text-muted">Aucune attaque dans la source.</p>}
+          ))}</ul> : <p className="mt-2 type-caption-strong text-muted">Aucune attaque dans la source.</p>}
         </section>
         <section className="rounded-xl border border-line bg-surface-inset p-3" aria-labelledby="community-bonuses-title">
           <h3 id="community-bonuses-title" className="text-sm font-black text-domain-foreground">Bonus</h3>
-          {bonuses.length ? <ul className="mt-2 space-y-2">{bonuses.map((bonus) => <li className="text-xs font-bold text-foreground-secondary" key={bonus}>• {bonus}</li>)}</ul> : <p className="mt-2 text-xs font-bold text-muted">Aucun bonus dans la source.</p>}
+          {bonuses.length ? <ul className="mt-2 space-y-2">{bonuses.map((bonus) => <li className="type-caption-strong text-foreground-secondary" key={bonus}>• {bonus}</li>)}</ul> : <p className="mt-2 type-caption-strong text-muted">Aucun bonus dans la source.</p>}
         </section>
       </div>
 
       <details className="rounded-xl border border-line bg-surface-inset-strong p-3">
-        <summary className="cursor-pointer text-xs font-black text-foreground">Afficher le JSON d’audit</summary>
+        <summary className="cursor-pointer type-label text-foreground">Afficher le JSON d’audit</summary>
         <pre className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap break-words text-xs text-cyan-50">{JSON.stringify(item, null, 2)}</pre>
       </details>
     </div>
@@ -129,14 +129,14 @@ function CommunityDayCard({ item, onInspect }) {
     <article className="min-w-0 rounded-2xl border border-line bg-surface-inset p-4">
       <header className="flex min-w-0 flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-200/75">Community Day n°{item.sourceId}</p>
-          <h3 className="mt-1 text-lg font-black text-domain-foreground">{featured.length > 1 ? `${featured.length} Pokémon vedettes` : featuredName(featured[0])}</h3>
-          <p className="mt-1 line-clamp-2 text-xs font-bold leading-5 text-muted" title={names}>{names || "Aucun Pokémon structuré"}</p>
+          <p className="type-overline-compact text-cyan-200/75">Community Day n°{item.sourceId}</p>
+          <h3 className="mt-1 type-title-card text-domain-foreground">{featured.length > 1 ? `${featured.length} Pokémon vedettes` : featuredName(featured[0])}</h3>
+          <p className="mt-1 line-clamp-2 type-caption-strong text-muted" title={names}>{names || "Aucun Pokémon structuré"}</p>
         </div>
         <Badge tone={item.status === "active" ? "green" : item.status === "upcoming" ? "cyan" : "neutral"}>{statusLabels[item.status] || item.status}</Badge>
       </header>
 
-      <p className="mt-3 text-xs font-bold text-muted">{new Date(item.startDate).toLocaleDateString("fr-FR")} → {new Date(item.endDate).toLocaleDateString("fr-FR")}</p>
+      <p className="mt-3 type-caption-strong text-muted">{new Date(item.startDate).toLocaleDateString("fr-FR")} → {new Date(item.endDate).toLocaleDateString("fr-FR")}</p>
 
       <div className="mt-3 grid gap-2 xl:grid-cols-2">
         {preview.map((entry) => <FeaturedPokemonTile key={`${featuredCanonicalId(entry)}:${entry.rawAlias || entry.name || "unknown"}`} featured={entry} />)}
@@ -150,7 +150,7 @@ function CommunityDayCard({ item, onInspect }) {
       {moves.length ? (
         <section className="mt-3" aria-label="Aperçu des attaques exclusives">
           <ul className="grid gap-1.5 sm:grid-cols-2">{moves.slice(0, 4).map((move, index) => (
-            <li className="min-w-0 truncate rounded-lg border border-cyan-200/10 bg-cyan-300/[0.04] px-2.5 py-2 text-xs font-bold text-cyan-50" key={`${move.pokemon}:${move.move}:${index}`} title={`${move.move} (${move.pokemon})`}>
+            <li className="min-w-0 truncate rounded-lg border border-cyan-200/10 bg-cyan-300/[0.04] px-2.5 py-2 type-caption-strong text-cyan-50" key={`${move.pokemon}:${move.move}:${index}`} title={`${move.move} (${move.pokemon})`}>
               {move.move} <span className="text-disabled">·</span> {move.pokemon}
             </li>
           ))}</ul>
@@ -158,7 +158,7 @@ function CommunityDayCard({ item, onInspect }) {
         </section>
       ) : null}
 
-      {bonuses.length ? <ul className="mt-3 space-y-1 text-xs font-bold text-foreground-secondary">{bonuses.slice(0, 3).map((bonus) => <li className="line-clamp-2" key={bonus}>• {bonus}</li>)}</ul> : null}
+      {bonuses.length ? <ul className="mt-3 space-y-1 type-caption-strong text-foreground-secondary">{bonuses.slice(0, 3).map((bonus) => <li className="line-clamp-2" key={bonus}>• {bonus}</li>)}</ul> : null}
       {bonuses.length > 3 ? <p className="mt-1 text-[10px] font-black text-disabled">+ {bonuses.length - 3} autre(s) bonus</p> : null}
 
       <footer className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
@@ -236,7 +236,7 @@ export function CommunityDaysPanel() {
   return <section className="space-y-5">
     <Panel title="Community Days" eyebrow="Événements · référentiel permanent" action={<div className="flex flex-wrap gap-2"><Button variant="primary" type="button" icon={<Sparkles size={17} />} loading={busy === "sync"} loadingText="Synchronisation…" disabled={Boolean(busy)} onClick={sync}>Synchroniser les Community Days</Button><Button type="button" icon={<RefreshCcw size={17} />} loading={busy === "load"} loadingText="Actualisation…" disabled={Boolean(busy)} onClick={() => load(true)}>Actualiser</Button><button className={buttonClass} type="button" onClick={() => setInspect({ kind: "json", title: "JSON Community Days", value: visible })}><FileJson size={17} />Voir JSON</button><button className={buttonClass} type="button" onClick={() => setInspect({ kind: "json", title: "Historique des synchronisations", value: resource.history })}><History size={17} />Voir historique</button><button className={buttonClass} type="button" onClick={() => setStatus("unresolved")}><Unlink size={17} />Voir non résolus</button></div>}>
       <div className="flex flex-wrap gap-2">{statusTabs.map(([id, label]) => <button className={`${buttonClass} ${status === id ? "border-cyan-200/50 bg-cyan-300/15" : ""}`} type="button" key={id} onClick={() => setStatus(id)}>{label}</button>)}</div>
-      <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-4"><label className="relative"><Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-disabled" size={16} /><input className={`${fieldClass} pl-11`} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Recherche" /></label><input className={fieldClass} value={year} onChange={(event) => setYear(event.target.value)} placeholder="Année" inputMode="numeric" /><Select aria-label="Mois" className={fieldClass} value={month} onChange={(event) => setMonth(event.target.value)}><option value="">Tous les mois</option>{Array.from({ length: 12 }, (_, index) => <option key={index + 1} value={index + 1}>{new Date(2020, index).toLocaleString("fr-FR", { month: "long" })}</option>)}</Select><input className={fieldClass} value={pokemon} onChange={(event) => setPokemon(event.target.value)} placeholder="Pokémon" /><input className={fieldClass} value={attack} onChange={(event) => setAttack(event.target.value)} placeholder="Attaque exclusive" /><Select aria-label="Disponibilité shiny" className={fieldClass} value={shiny} onChange={(event) => setShiny(event.target.value)}><option value="">Shiny : tous</option><option value="yes">Shiny disponible</option><option value="no">Shiny incomplet</option></Select><Select aria-label="Génération" className={fieldClass} value={generation} onChange={(event) => setGeneration(event.target.value)}><option value="">Toutes générations</option>{Array.from({ length: 9 }, (_, index) => <option key={index + 1} value={index + 1}>Génération {index + 1}</option>)}</Select><div className="rounded-2xl border border-line bg-surface-inset px-4 py-3 text-xs font-bold text-foreground-secondary">{visible.length} résultat(s) · Sync {latest?.savedAt ? new Date(latest.savedAt).toLocaleString("fr-FR") : "jamais"}</div></div>
+      <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-4"><label className="relative"><Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-disabled" size={16} /><input className={`${fieldClass} pl-11`} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Recherche" /></label><input className={fieldClass} value={year} onChange={(event) => setYear(event.target.value)} placeholder="Année" inputMode="numeric" /><Select aria-label="Mois" className={fieldClass} value={month} onChange={(event) => setMonth(event.target.value)}><option value="">Tous les mois</option>{Array.from({ length: 12 }, (_, index) => <option key={index + 1} value={index + 1}>{new Date(2020, index).toLocaleString("fr-FR", { month: "long" })}</option>)}</Select><input className={fieldClass} value={pokemon} onChange={(event) => setPokemon(event.target.value)} placeholder="Pokémon" /><input className={fieldClass} value={attack} onChange={(event) => setAttack(event.target.value)} placeholder="Attaque exclusive" /><Select aria-label="Disponibilité shiny" className={fieldClass} value={shiny} onChange={(event) => setShiny(event.target.value)}><option value="">Shiny : tous</option><option value="yes">Shiny disponible</option><option value="no">Shiny incomplet</option></Select><Select aria-label="Génération" className={fieldClass} value={generation} onChange={(event) => setGeneration(event.target.value)}><option value="">Toutes générations</option>{Array.from({ length: 9 }, (_, index) => <option key={index + 1} value={index + 1}>Génération {index + 1}</option>)}</Select><div className="rounded-2xl border border-line bg-surface-inset px-4 py-3 type-caption-strong text-foreground-secondary">{visible.length} résultat(s) · Sync {latest?.savedAt ? new Date(latest.savedAt).toLocaleString("fr-FR") : "jamais"}</div></div>
     </Panel>
     <section className="grid min-w-0 gap-3 xl:grid-cols-2">{visible.map((item) => <CommunityDayCard item={item} key={item.id} onInspect={(selected) => setInspect({ kind: "community-day", title: `Community Day n°${selected.sourceId}`, item: selected })} />)}</section>
     <Modal open={Boolean(inspect)} onClose={() => setInspect(null)} title={inspect?.title || "Détail Community Day"} description={inspect?.kind === "community-day" ? "Pokémon, assets canoniques, attaques, bonus et diagnostics de résolution." : "Données archivées et payload source conservés sans modification."} className="max-w-6xl">

@@ -152,7 +152,7 @@ export function AdminSidebar({
               </div>
               <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-brand-3 shadow-[0_0_24px_rgba(88,242,169,0.7)]" />
             </div>
-            <p className="mt-3 truncate text-xs font-bold text-muted">{userEmail}</p>
+            <p className="mt-3 truncate type-caption-strong text-muted">{userEmail}</p>
             <div className="mt-3 grid grid-cols-2 gap-2">
               <Link
                 href="/account"

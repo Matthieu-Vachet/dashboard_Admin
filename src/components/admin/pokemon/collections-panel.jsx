@@ -332,7 +332,7 @@ function CollectionStatCard({ label, value, icon, tone = "cyan", detail }) {
           {icon ? <img className="max-h-full object-contain" src={icon} alt="" /> : <Gauge size={21} />}
         </span>
         <span className="min-w-0">
-          <span className="block truncate text-xs font-black uppercase tracking-[0.18em] text-domain-foreground/72">
+          <span className="block truncate type-overline text-domain-foreground/72">
             {label}
           </span>
           <strong className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[clamp(1.6rem,3vw,2.75rem)] font-black leading-none text-domain-foreground drop-shadow-[0_0_18px_rgba(255,255,255,.16)]">
@@ -341,7 +341,7 @@ function CollectionStatCard({ label, value, icon, tone = "cyan", detail }) {
         </span>
       </div>
       {detail ? (
-        <p className="relative mt-3 truncate text-xs font-bold text-domain-foreground/70">{detail}</p>
+        <p className="relative mt-3 truncate type-caption-strong text-domain-foreground/70">{detail}</p>
       ) : null}
     </article>
   );
@@ -448,10 +448,10 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
     <section className={panelClass}>
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="mb-1 text-xs font-black uppercase tracking-[0.22em] text-cyan-200/70">
+          <p className="mb-1 type-overline text-cyan-200/70">
             experimentation checklist
           </p>
-          <h2 className="text-xl font-black tracking-tight text-domain-foreground sm:text-2xl">Collections Pokemon GO</h2>
+          <h2 className="type-title-subsection text-domain-foreground">Collections Pokemon GO</h2>
         </div>
         <button className={primaryButtonClass} type="button" onClick={() => setModalOpen(true)}>
           <Sparkles size={17} /> Nouvelle collection
@@ -484,7 +484,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
         <div className="rounded-3xl border border-line bg-surface-inset p-4">
           <div className="mb-3 flex items-center justify-between gap-3">
             <strong className="font-black text-domain-foreground">Mes collections</strong>
-            <span className="rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-1 text-xs font-black text-emerald-100">
+            <span className="rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-1 type-label text-emerald-100">
               {collections.length}
             </span>
           </div>
@@ -507,7 +507,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
                       {collection.shiny ? "shiny" : "standard"}
                     </small>
                   </span>
-                  <small className="mt-2 block truncate text-xs font-bold text-muted">
+                  <small className="mt-2 block truncate type-caption-strong text-muted">
                     {collectionTypes.find(([id]) => id === collection.type)?.[1] || collection.type} -{" "}
                     {collectionVariantModes.find(([id]) => id === collection.variantMode)?.[1]}
                     {collection.hundo ? " - Hundo" : ""}
@@ -525,17 +525,17 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
             <>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-100/70">Collection active</p>
-                  <h3 className="mt-1 text-2xl font-black text-domain-foreground">{activeCollection.name}</h3>
+                  <p className="type-overline text-cyan-100/70">Collection active</p>
+                  <h3 className="mt-1 type-title-section text-domain-foreground">{activeCollection.name}</h3>
                   <p className="mt-1 text-sm font-bold text-foreground-secondary">
                     {visibleHaveCount}/{allMatching.length} selectionnes sur le filtre actuel - {haveCount} au total
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <button className="rounded-2xl border border-cyan-200/25 bg-cyan-400/10 px-3 py-2 text-xs font-black text-cyan-50" type="button" onClick={() => selectEntries(allMatching)}>
+                  <button className="rounded-2xl border border-cyan-200/25 bg-cyan-400/10 px-3 py-2 type-label text-cyan-50" type="button" onClick={() => selectEntries(allMatching)}>
                     Sélectionner tous
                   </button>
-                  <button className="rounded-2xl border border-rose-300/25 bg-rose-500/10 px-3 py-2 text-xs font-black text-rose-100" type="button" onClick={deleteActive}>
+                  <button className="rounded-2xl border border-rose-300/25 bg-rose-500/10 px-3 py-2 type-label text-rose-100" type="button" onClick={deleteActive}>
                     Supprimer
                   </button>
                 </div>
@@ -568,7 +568,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
             <div className="grid min-h-48 place-items-center text-center">
               <div>
                 <Sparkles className="mx-auto mb-3 text-cyan-100" size={30} />
-                <h3 className="text-xl font-black text-domain-foreground">Aucune collection active</h3>
+                <h3 className="type-title-subsection text-domain-foreground">Aucune collection active</h3>
                 <p className="mt-2 text-sm font-bold text-muted">Cree une collection pour generer automatiquement sa grille.</p>
               </div>
             </div>
@@ -593,7 +593,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
                 ) : (
                   <LayoutDashboard className="absolute bottom-3 right-3 text-cyan-100/50" size={24} />
                 )}
-                <small className="relative block text-[10px] font-black uppercase tracking-[0.16em] text-muted">
+                <small className="relative block type-overline-compact text-muted">
                   {id === "all" ? "Regions" : `Gen. ${id}`}
                 </small>
                 <strong className="relative mt-1 block text-sm font-black text-domain-foreground">{label}</strong>
@@ -606,18 +606,18 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
               <section key={groupId}>
                 <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
                   <div>
-                    <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100/65">
+                    <p className="type-overline text-cyan-100/65">
                       Generation
                     </p>
-                    <h3 className="text-2xl font-black text-domain-foreground">
+                    <h3 className="type-title-section text-domain-foreground">
                       {generationLabels[groupId] || `Gen. ${groupId}`}
                     </h3>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <button className="rounded-full border border-cyan-200/25 bg-cyan-400/12 px-3 py-1.5 text-xs font-black text-cyan-50" type="button" onClick={() => selectEntries(groupEntries)}>
+                    <button className="rounded-full border border-cyan-200/25 bg-cyan-400/12 px-3 py-1.5 type-label text-cyan-50" type="button" onClick={() => selectEntries(groupEntries)}>
                       Sélectionner tous
                     </button>
-                    <span className="rounded-full border border-cyan-200/25 bg-cyan-400/12 px-3 py-1.5 text-xs font-black text-cyan-50">
+                    <span className="rounded-full border border-cyan-200/25 bg-cyan-400/12 px-3 py-1.5 type-label text-cyan-50">
                       {groupEntries.filter((entry) => activeItems[entry.key]).length}/{groupEntries.length}
                     </span>
                   </div>
@@ -643,7 +643,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
                           className="pointer-events-none absolute inset-x-3 bottom-3 h-16 rounded-2xl opacity-70"
                           style={{ background: `linear-gradient(135deg, ${color}55, rgba(255,255,255,.08))` }}
                         />
-                        <span className="absolute right-3 top-3 grid h-7 w-7 place-items-center rounded-full border border-white/20 bg-slate-950/70 text-xs font-black text-domain-foreground">
+                        <span className="absolute right-3 top-3 grid h-7 w-7 place-items-center rounded-full border border-white/20 bg-slate-950/70 type-label text-domain-foreground">
                           {selected ? "OK" : ""}
                         </span>
                         <span className="relative grid h-28 place-items-center p-2">
@@ -691,8 +691,8 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
         <div className="fixed inset-0 z-[1100] overflow-y-auto bg-slate-950/78 p-3 backdrop-blur-xl sm:p-6" role="dialog" aria-modal="true" aria-labelledby="collections-editor-title">
           <section className="mx-auto my-3 flex max-h-[calc(100dvh-1.5rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[1.5rem] border border-line bg-zinc-900 shadow-overlay sm:my-0 sm:max-h-[calc(100dvh-3rem)] sm:rounded-[2rem]">
             <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-line bg-zinc-900/95 p-4 backdrop-blur sm:p-5">
-              <h3 id="collections-editor-title" className="text-2xl font-black text-domain-foreground">Nouvelle collection</h3>
-              <button className="grid h-10 w-10 place-items-center rounded-full border border-line bg-surface-control text-xl font-black text-domain-foreground" type="button" onClick={() => setModalOpen(false)} aria-label="Fermer l’éditeur de collection">
+              <h3 id="collections-editor-title" className="type-title-section text-domain-foreground">Nouvelle collection</h3>
+              <button className="grid h-10 w-10 place-items-center rounded-full border border-line bg-surface-control type-title-subsection text-domain-foreground" type="button" onClick={() => setModalOpen(false)} aria-label="Fermer l’éditeur de collection">
                 x
               </button>
             </div>
@@ -733,7 +733,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
                     </button>
                   ))}
                 </div>
-                <p className="mt-3 rounded-2xl border border-line bg-surface-flat p-3 text-sm font-bold leading-6 text-foreground-secondary">
+                <p className="mt-3 rounded-2xl border border-line bg-surface-flat p-3 type-body-strong text-foreground-secondary">
                   Multi variante inclut les formes disponibles. Non variante limite aux fiches de base normales.
                 </p>
               </div>

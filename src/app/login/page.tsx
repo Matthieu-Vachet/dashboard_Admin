@@ -41,7 +41,7 @@ export default async function LoginPage({
               <LockKeyhole size={20} />
             </span>
             <div>
-              <h2 className="text-xl font-black">Connexion</h2>
+              <h2 className="type-title-subsection">Connexion</h2>
               <p className="text-sm font-semibold text-muted">Un seul admin, toi.</p>
             </div>
           </div>
@@ -79,7 +79,7 @@ export default async function LoginPage({
             </Button>
           </form>
 
-          <p className="mt-5 text-xs font-semibold leading-6 text-muted">
+          <p className="mt-5 type-caption text-muted">
             En local, les valeurs par défaut sont dans `.env.example`. Change-les avant production.
           </p>
         </Card>

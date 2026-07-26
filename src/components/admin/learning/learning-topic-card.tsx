@@ -26,21 +26,21 @@ export function LearningTopicCard({
               <Badge className={LEARNING_STATUS_CLASS[topic.status]}>{LEARNING_STATUS_LABEL[topic.status]}</Badge>
               <Badge className={LEARNING_DIFFICULTY_CLASS[topic.difficulty]}>{topic.difficulty}</Badge>
             </div>
-            <h2 className="mt-3 text-xl font-black">{topic.title}</h2>
-            <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-muted">{topic.description}</p>
+            <h2 className="mt-3 type-title-subsection">{topic.title}</h2>
+            <p className="mt-2 max-w-2xl type-body-strong text-muted">{topic.description}</p>
           </div>
           <span className="shrink-0 rounded-lg border border-brand-2/25 bg-brand-2/10 px-3 py-2 font-mono text-sm font-black text-brand-2">
             {stats.progress}%
           </span>
         </div>
 
-        <div className="mt-4 flex items-center justify-between gap-3 text-xs font-black text-muted">
+        <div className="mt-4 flex items-center justify-between gap-3 type-label text-muted">
           <span>{stats.earnedXP} / {stats.totalXP} XP</span>
           <span>{topic.category}</span>
         </div>
         <LearningProgressBar className="mt-2" value={stats.progress} />
 
-        <div className="mt-3 flex flex-wrap gap-2 text-xs font-bold text-muted">
+        <div className="mt-3 flex flex-wrap gap-2 type-caption-strong text-muted">
           {topic.book.references.map((reference) => (
             <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-recessed px-2.5 py-1.5" key={`${reference.chapter}-${reference.pages}`}>
               <BookMarked size={13} /> Chap. {reference.chapter} · p. {reference.pages}
@@ -70,7 +70,7 @@ export function LearningTopicCard({
             Voir le détail
             <ArrowUpRight size={16} />
           </button>
-          <a className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-line bg-surface-flat px-3 py-2.5 text-xs font-black text-muted transition hover:text-foreground" href={`/api/learning/export?scope=topic&id=${encodeURIComponent(topic.id)}`}>
+          <a className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-line bg-surface-flat px-3 py-2.5 type-label text-muted transition hover:text-foreground" href={`/api/learning/export?scope=topic&id=${encodeURIComponent(topic.id)}`}>
             <Download size={14} /> Exporter JSON
           </a>
         </div>
@@ -90,7 +90,7 @@ function TopicMetric({
 }) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface-recessed px-3 py-2.5">
-      <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.1em] text-muted">
+      <span className="inline-flex items-center gap-2 type-overline text-muted">
         <Icon size={14} /> {label}
       </span>
       <strong className="text-sm font-black text-foreground">{value}</strong>

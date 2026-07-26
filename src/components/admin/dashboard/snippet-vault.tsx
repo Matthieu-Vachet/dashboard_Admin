@@ -90,8 +90,8 @@ export function SnippetVault() {
       <Card tone="strong" className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <Badge tone={ready ? "green" : "neutral"}>{ready ? "Coffre synchronisé" : "Chargement"}</Badge>
-          <h2 className="mt-3 text-3xl font-black">Snippets de code</h2>
-          <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-muted">
+          <h2 className="mt-3 type-title-page">Snippets de code</h2>
+          <p className="mt-2 max-w-2xl type-body-strong text-muted">
             Ajoute, classe et copie tes bouts de code en un clic.
           </p>
         </div>
@@ -123,11 +123,11 @@ export function SnippetVault() {
           <Card key={snippet.id} className={`min-w-0 overflow-hidden p-4 ${snippetTones[index % snippetTones.length]}`}>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-2">
+                <p className="type-overline text-brand-2">
                   {snippet.language || "code"}
                 </p>
-                <h3 className="mt-2 break-words text-lg font-black">{snippet.title}</h3>
-                <p className="mt-1 break-words text-xs font-bold text-muted">
+                <h3 className="mt-2 break-words type-title-card">{snippet.title}</h3>
+                <p className="mt-1 break-words type-caption-strong text-muted">
                   {[snippet.category, snippet.tags].filter(Boolean).join(" · ") || "Sans catégorie"}
                 </p>
               </div>

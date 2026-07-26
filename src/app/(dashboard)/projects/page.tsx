@@ -113,8 +113,8 @@ export default function ProjectsPage() {
       <Card tone="strong" className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <Badge tone="violet">Portfolio cockpit</Badge>
-          <h2 className="mt-3 text-3xl font-black">Projets</h2>
-          <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-muted">
+          <h2 className="mt-3 type-title-page">Projets</h2>
+          <p className="mt-2 max-w-2xl type-body-strong text-muted">
             Clique une carte pour ouvrir sa fiche, modifie les infos et garde tes liens utiles à portée.
           </p>
         </div>
@@ -129,14 +129,14 @@ export default function ProjectsPage() {
       <section className="grid gap-4 xl:grid-cols-[0.82fr_1.18fr]">
         <Card className="p-5">
           <Badge tone="cyan">JS Progress niveau 6</Badge>
-          <h3 className="mt-3 text-2xl font-black">Projets pratiques guidés</h3>
-          <p className="mt-2 text-sm font-semibold leading-6 text-muted">
+          <h3 className="mt-3 type-title-section">Projets pratiques guidés</h3>
+          <p className="mt-2 type-body-strong text-muted">
             Des projets concrets pour transformer les notions JavaScript en automatismes: DOM, fetch,
             localStorage, tableaux, erreurs et mini dashboards.
           </p>
           <div className="mt-5 grid gap-3">
             <Card tone="flat" className="p-3">
-              <span className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-muted">
+              <span className="flex items-center gap-2 type-overline text-muted">
                 <Code2 size={15} /> Objectif
               </span>
               <strong className="mt-2 block text-sm leading-6">
@@ -144,7 +144,7 @@ export default function ProjectsPage() {
               </strong>
             </Card>
             <Card tone="flat" className="p-3">
-              <span className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-muted">
+              <span className="flex items-center gap-2 type-overline text-muted">
                 <ListChecks size={15} /> Routine
               </span>
               <strong className="mt-2 block text-sm leading-6">
@@ -157,18 +157,18 @@ export default function ProjectsPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <Badge tone="green">Synchronisés</Badge>
-              <h3 className="mt-3 text-2xl font-black">{guidedProjectDefaults.length} vrais projets éditables</h3>
+              <h3 className="mt-3 type-title-section">{guidedProjectDefaults.length} vrais projets éditables</h3>
             </div>
             <Badge tone={activeProjects ? "green" : "neutral"}>{activeProjects} actifs</Badge>
           </div>
-          <p className="mt-3 text-sm font-semibold leading-6 text-muted">
+          <p className="mt-3 type-body-strong text-muted">
             Les projets niveau 6 sont ajoutés dans la grille ci-dessous comme des projets normaux:
             progression, statut, description, prochaine action, liens et suppression restent modifiables.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {jsPracticalProjects.map((project) => (
               <button
-                className="rounded-full border border-line bg-surface-subtle px-3 py-1.5 text-xs font-black text-muted transition hover:border-brand-2/45 hover:text-inverse"
+                className="rounded-full border border-line bg-surface-subtle px-3 py-1.5 type-label text-muted transition hover:border-brand-2/45 hover:text-inverse"
                 key={project.id}
                 type="button"
                 onClick={() => setSelectedId(`js-level6-${project.id}`)}
@@ -197,18 +197,18 @@ export default function ProjectsPage() {
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">
+                    <p className="type-overline text-muted">
                       {project.type}
                     </p>
-                    <h3 className="mt-2 text-xl font-black">{project.name}</h3>
+                    <h3 className="mt-2 type-title-subsection">{project.name}</h3>
                   </div>
                   <Badge tone={statusTone[project.status]}>{project.status}</Badge>
                 </div>
-                <p className="mt-4 min-h-12 overflow-hidden text-sm font-semibold leading-6 text-muted [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
+                <p className="mt-4 min-h-12 overflow-hidden type-body-strong text-muted [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:3]">
                   {project.detail}
                 </p>
                 <div className="mt-5">
-                  <div className="flex items-center justify-between text-xs font-black">
+                  <div className="flex items-center justify-between type-label">
                     <span>Progression</span>
                     <span>{project.progress}%</span>
                   </div>
@@ -302,7 +302,7 @@ export default function ProjectsPage() {
                 />
               </Field>
               <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Statut</span>
+                <span className="type-overline text-muted">Statut</span>
                 <Select
                   className="mt-2 min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none"
                   value={selectedProject.status}

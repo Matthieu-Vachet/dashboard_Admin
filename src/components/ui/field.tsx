@@ -1,7 +1,7 @@
 import { forwardRef, type LabelHTMLAttributes, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
-const commonLabelClass = "text-xs font-black uppercase tracking-[0.16em] text-muted";
+const commonLabelClass = "type-overline text-muted";
 
 type FieldProps = Omit<LabelHTMLAttributes<HTMLLabelElement>, "children"> & {
   label: ReactNode;

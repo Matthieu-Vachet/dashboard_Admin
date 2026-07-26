@@ -169,9 +169,9 @@ function StatCard({ icon: Icon, label, value, detail, tone, onClick }: {
         <span className={`grid h-10 w-10 place-items-center rounded-lg border ${tones[tone]}`}><Icon size={19} /></span>
         {onClick ? <ArrowRight className="text-muted transition-transform group-hover:translate-x-1 motion-reduce:transition-none" size={16} /> : null}
       </div>
-      <span className="mt-4 block text-[10px] font-black uppercase tracking-[0.16em] text-muted">{label}</span>
-      <strong className="mt-1 block text-3xl font-black text-foreground">{value}</strong>
-      <small className="mt-1 block text-xs font-semibold text-muted">{detail}</small>
+      <span className="mt-4 block type-overline-compact text-muted">{label}</span>
+      <strong className="mt-1 block type-title-page text-foreground">{value}</strong>
+      <small className="mt-1 block type-caption text-muted">{detail}</small>
     </>
   );
 
@@ -323,8 +323,8 @@ export function AdminCommandCenter({
               <Badge tone={attentionCount ? "amber" : "green"}>{attentionCount ? "Attention requise" : "Tous les systèmes sont opérationnels"}</Badge>
               <Badge tone={providerErrors ? "red" : "cyan"}>{providerErrors ? `${providerErrors} service(s) indisponible(s)` : "Providers disponibles"}</Badge>
             </div>
-            <p className="mt-5 text-xs font-black uppercase tracking-[0.22em] text-brand-2">{greeting}, Admin Pokémon</p>
-            <h2 className="mt-2 max-w-3xl text-2xl font-black leading-tight text-foreground sm:text-3xl">Voici ce qui demande votre attention aujourd’hui.</h2>
+            <p className="mt-5 type-overline text-brand-2">{greeting}, Admin Pokémon</p>
+            <h2 className="mt-2 max-w-3xl type-title-section text-foreground">Voici ce qui demande votre attention aujourd’hui.</h2>
             <p className="mt-3 flex flex-wrap items-center gap-2 text-sm font-semibold text-muted"><Clock3 size={15} /> Dernière synchronisation : <strong className="text-foreground">{formatDate(lastSync)}</strong></p>
             <div className="mt-5 flex flex-wrap gap-2">
               <Button variant="primary" icon={<RefreshCcw size={16} />} loading={refreshing || remote.loading} loadingText="Actualisation…" onClick={refreshAll}>Actualiser le centre</Button>
@@ -334,7 +334,7 @@ export function AdminCommandCenter({
             </div>
           </div>
           <div>
-            <label className="text-xs font-black uppercase tracking-[0.14em] text-muted" htmlFor="pokemon-admin-command-search">Recherche Admin Pokémon</label>
+            <label className="type-overline text-muted" htmlFor="pokemon-admin-command-search">Recherche Admin Pokémon</label>
             <span className="relative mt-2 block"><Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={17} /><Input id="pokemon-admin-command-search" className="pl-10" value={search} onChange={(event) => onSearchChange(event.target.value)} placeholder="Pokémon, forme, costume, diagnostic…" /></span>
             <div className="mt-3 grid grid-cols-2 gap-2">
               <Button size="sm" variant="ghost" icon={<CalendarDays size={15} />} onClick={() => onNavigate("events")}>Événements</Button>
@@ -365,7 +365,7 @@ export function AdminCommandCenter({
                   <span className="mt-0.5 shrink-0"><RegenerationStatusIcon status={step.status} /></span>
                   <div className="min-w-0 flex-1">
                     <strong className="block text-sm text-foreground">{step.label}</strong>
-                    <small className="mt-1 block break-words text-xs font-semibold text-muted">{step.summary || "En attente"}</small>
+                    <small className="mt-1 block break-words type-caption text-muted">{step.summary || "En attente"}</small>
                   </div>
                 </div>
                 {step.diagnostics ? (

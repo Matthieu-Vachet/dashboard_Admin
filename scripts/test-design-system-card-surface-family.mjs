@@ -48,8 +48,8 @@ test("CardHeader, CardTitle et CardDescription gardent leur anatomie", () => {
   assert.match(card, /eyebrow\?: string/);
   assert.match(card, /action\?: ReactNode/);
   assert.match(card, /max-w-full self-start sm:shrink-0/);
-  assert.match(card, /<h2[\s\S]*text-lg font-black leading-tight text-foreground/);
-  assert.match(card, /<p[\s\S]*mt-1 text-sm font-medium leading-6 text-muted/);
+  assert.match(card, /<h2[\s\S]*type-title-card text-foreground/);
+  assert.match(card, /<p[\s\S]*type-body mt-1 text-muted/);
   for (const component of ["CardTitle", "CardDescription"]) {
     const consumers = files.filter((file) => new RegExp(`<${component}\\b`).test(sources.get(file)));
     assert.ok(consumers.length > 0, `${component}: aucun consommateur courant`);

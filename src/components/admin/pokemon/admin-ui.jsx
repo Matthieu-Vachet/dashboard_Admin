@@ -69,11 +69,11 @@ export function Panel({ title, eyebrow, action, children, className = "" }) {
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           {eyebrow ? (
-            <p className="mb-1 text-xs font-black uppercase tracking-[0.22em] text-cyan-200/70">
+            <p className="mb-1 type-overline text-cyan-200/70">
               {eyebrow}
             </p>
           ) : null}
-          <h2 className="text-xl font-black tracking-tight text-domain-foreground sm:text-2xl">{title}</h2>
+          <h2 className="type-title-subsection text-domain-foreground">{title}</h2>
         </div>
         {action}
       </div>
@@ -103,7 +103,7 @@ export function BarList({ items, labelKey = "id", valueKey = "count" }) {
                   style={{ width: `${(value / max) * 100}%` }}
                 />
               </span>
-              <p className="mt-2 text-xs font-bold leading-5 text-muted">
+              <p className="mt-2 type-caption-strong text-muted">
                 {item[labelKey] === "custom"
                   ? "Issues remontées par tes règles JSON ajoutées."
                   : "Issues détectées par le checker intégré."}
@@ -129,7 +129,7 @@ export function AssetStatCard({ label, value, icon, tone = "cyan", detail }) {
           {icon ? <img className="h-8 max-h-8 w-8 max-w-8 object-contain" src={icon} alt="" /> : <Gauge size={21} />}
         </span>
         <span className="min-w-0">
-          <span className="block truncate text-xs font-black uppercase tracking-[0.18em] text-domain-foreground/72">
+          <span className="block truncate type-overline text-domain-foreground/72">
             {label}
           </span>
           <strong className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[clamp(1.35rem,2.4vw,2.35rem)] font-black leading-none text-domain-foreground drop-shadow-[0_0_18px_rgba(255,255,255,.16)]" title={String(value ?? "—")}>
@@ -138,7 +138,7 @@ export function AssetStatCard({ label, value, icon, tone = "cyan", detail }) {
         </span>
       </div>
       {detail ? (
-        <p className="relative mt-3 truncate text-xs font-bold text-domain-foreground/70">{detail}</p>
+        <p className="relative mt-3 truncate type-caption-strong text-domain-foreground/70">{detail}</p>
       ) : null}
     </article>
   );
@@ -148,10 +148,10 @@ export function GenerationFilterBar({ value, onChange }) {
   return (
     <section className="rounded-surface border border-line bg-surface-inset-subtle p-3 shadow-surface">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-cyan-100/75">
+        <span className="inline-flex items-center gap-2 type-overline text-cyan-100/75">
           <Filter size={15} /> Générations
         </span>
-        <button className="text-xs font-black text-cyan-100 underline-offset-4 hover:underline" type="button" onClick={() => onChange("all")}>
+        <button className="type-label text-cyan-100 underline-offset-4 hover:underline" type="button" onClick={() => onChange("all")}>
           Tout afficher
         </button>
       </div>
@@ -182,7 +182,7 @@ export function GenerationFilterBar({ value, onChange }) {
               ) : (
                 <Layers className="absolute bottom-3 right-3 text-cyan-100/60" size={24} />
               )}
-              <span className="relative block text-[10px] font-black uppercase tracking-[0.14em] text-muted">
+              <span className="relative block type-overline-compact text-muted">
                 {id === "all" ? "Filtre" : `Gén. ${id}`}
               </span>
               <strong className="relative mt-1 block text-sm font-black text-domain-foreground">{label}</strong>
@@ -212,7 +212,7 @@ export function CompletionList({ items }) {
                 />
               </span>
               <strong className="text-right font-black text-domain-foreground">{percent}%</strong>
-              <span className="col-start-2 text-xs font-bold text-disabled">
+              <span className="col-start-2 type-caption-strong text-disabled">
                 {item.complete || 0}/{item.count || 0} fiches complètes
               </span>
             </div>
@@ -234,7 +234,7 @@ export function HistoryList({ history = [] }) {
             className="rounded-2xl border border-line bg-surface-inset p-4"
             key={`${item.hash}-${item.date}`}
           >
-            <span className="text-xs font-black uppercase tracking-[0.18em] text-disabled">
+            <span className="type-overline text-disabled">
               {item.date}
             </span>
             <strong className="mt-1 block text-sm font-black text-domain-foreground">{item.subject}</strong>
@@ -271,11 +271,11 @@ export function MiniCardList({ entries, onOpen }) {
               </span>
               <span className="min-w-0">
                 <strong className="block truncate font-black text-domain-foreground">{entry.name}</strong>
-                <small className="mt-1 block truncate text-xs font-bold text-muted">
+                <small className="mt-1 block truncate type-caption-strong text-muted">
                   {entry.dexId} · {pokemonVariantLabel(entry)}
                 </small>
               </span>
-              <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1 text-xs font-black text-amber-100">
+              <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1 type-label text-amber-100">
                 {issues}
               </span>
             </button>
@@ -296,12 +296,12 @@ export function ControlCardsPanel({ title = "Fiches à contrôler", entries, onO
       title={title}
       eyebrow="contrôle de fiche"
       action={
-        <span className="rounded-full border border-amber-300/25 bg-amber-400/10 px-3 py-2 text-xs font-black text-amber-100">
+        <span className="rounded-full border border-amber-300/25 bg-amber-400/10 px-3 py-2 type-label text-amber-100">
           {formatCount(customIssueCount)} clé(s)
         </span>
       }
     >
-      <p className="mb-4 rounded-2xl border border-amber-200/15 bg-amber-400/10 p-4 text-sm font-bold leading-6 text-amber-50/85">
+      <p className="mb-4 rounded-2xl border border-amber-200/15 bg-amber-400/10 p-4 type-body-strong text-amber-50/85">
         {description || "Toutes les fiches Pokémon qui ne respectent pas une règle active sont regroupées ici, avec leur sprite Home quand il existe."}
       </p>
       <MiniCardList entries={entries} onOpen={onOpen} />
@@ -323,18 +323,18 @@ export function JsonIssueList({ entries }) {
               <div className="flex items-start justify-between gap-3">
                 <span className="min-w-0">
                   <strong className="block truncate font-black text-domain-foreground">{entry.name}</strong>
-                  <small className="mt-1 block truncate text-xs font-bold text-muted">
+                  <small className="mt-1 block truncate type-caption-strong text-muted">
                     {entry.kind} · {entry.file}
                   </small>
                 </span>
-                <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1 text-xs font-black text-amber-100">
+                <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1 type-label text-amber-100">
                   {customIssues.length}
                 </span>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
                 {customIssues.slice(0, 8).map((issue) => (
                   <span
-                    className="rounded-full border border-line bg-surface-control px-3 py-1 text-xs font-bold text-foreground"
+                    className="rounded-full border border-line bg-surface-control px-3 py-1 type-caption-strong text-foreground"
                     key={`${entry.key}-${issue.ruleId}-${issue.path}`}
                   >
                     {issue.path}

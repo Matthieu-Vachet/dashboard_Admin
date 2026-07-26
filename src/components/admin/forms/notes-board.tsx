@@ -173,10 +173,10 @@ export function NotesBoard() {
       <Card className="min-w-0 p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">
+            <p className="type-overline text-brand-2">
               Notes app
             </p>
-            <h2 className="mt-2 text-2xl font-black">Carnet central</h2>
+            <h2 className="mt-2 type-title-section">Carnet central</h2>
           </div>
           <Button
             size="icon"
@@ -201,7 +201,7 @@ export function NotesBoard() {
         </div>
 
         <label className="mt-3 block">
-          <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Tri</span>
+          <span className="type-overline text-muted">Tri</span>
           <Select
             className="mt-2 min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none transition focus:border-brand-2/55"
             value={sortKey}
@@ -237,7 +237,7 @@ export function NotesBoard() {
                   {note.priority}
                 </span>
               </div>
-              <p className="mt-2 line-clamp-2 text-sm font-medium leading-6 text-muted">
+              <p className="mt-2 line-clamp-2 type-body text-muted">
                 {note.body || "Aucun contenu pour le moment."}
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -281,7 +281,7 @@ export function NotesBoard() {
               </div>
               <Field label="Titre">
                 <Input
-                  className="mt-2 text-lg font-black"
+                  className="mt-2 type-title-card"
                   value={selectedNote.title}
                   onChange={(event) => updateSelected({ title: event.target.value })}
                 />
@@ -298,12 +298,12 @@ export function NotesBoard() {
 
             <aside className="min-w-0 space-y-4">
               <Card tone="flat" className="p-3">
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">
+                <p className="type-overline text-muted">
                   Métadonnées
                 </p>
                 <div className="mt-3 grid gap-3">
                   <label>
-                    <span className="text-xs font-black uppercase tracking-[0.12em] text-muted">Tags</span>
+                    <span className="type-overline text-muted">Tags</span>
                     <Input
                       className="mt-2"
                       value={selectedNote.tags.join(", ")}
@@ -312,7 +312,7 @@ export function NotesBoard() {
                     />
                   </label>
                   <label>
-                    <span className="text-xs font-black uppercase tracking-[0.12em] text-muted">Catégorie</span>
+                    <span className="type-overline text-muted">Catégorie</span>
                     <Select
                       className="mt-2 min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none transition focus:border-brand-2/55"
                       value={selectedNote.category}
@@ -326,7 +326,7 @@ export function NotesBoard() {
                     </Select>
                   </label>
                   <label>
-                    <span className="text-xs font-black uppercase tracking-[0.12em] text-muted">Priorité</span>
+                    <span className="type-overline text-muted">Priorité</span>
                     <Select
                       className="mt-2 min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none transition focus:border-brand-2/55"
                       value={selectedNote.priority}
@@ -340,7 +340,7 @@ export function NotesBoard() {
                     </Select>
                   </label>
                   <div>
-                    <span className="text-xs font-black uppercase tracking-[0.12em] text-muted">Couleur</span>
+                    <span className="type-overline text-muted">Couleur</span>
                     <div className="mt-2 grid grid-cols-5 gap-2">
                       {colors.map((color) => (
                         <button
@@ -363,7 +363,7 @@ export function NotesBoard() {
               </Card>
 
               <div className={cn("rounded-lg border p-3", colorClasses[selectedNote.color])}>
-                <p className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.14em]">
+                <p className="flex items-center gap-2 type-overline">
                   <CalendarDays size={14} />
                   Dates
                 </p>

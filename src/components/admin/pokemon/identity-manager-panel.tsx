@@ -346,7 +346,7 @@ function unwrapList<T>(upstream: { data?: T[]; meta?: ListMeta } | null | undefi
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="grid gap-1.5 text-xs font-black uppercase tracking-[0.14em] text-muted">
+    <label className="grid gap-1.5 type-overline text-muted">
       {label}
       {children}
     </label>
@@ -364,7 +364,7 @@ function Stat({ label, value, tone = "cyan", onClick }: { label: string; value: 
   const Component = onClick ? "button" : "div";
   return (
     <Component type={onClick ? "button" : undefined} onClick={onClick} className={cn("rounded-xl border p-3 text-left", tones[tone], onClick && "transition hover:-translate-y-0.5 hover:brightness-110")}>
-      <span className="block text-[10px] font-black uppercase tracking-[0.18em] opacity-70">{label}</span>
+      <span className="block type-overline-compact opacity-70">{label}</span>
       <strong className="mt-1 block font-mono text-2xl">{value.toLocaleString("fr-FR")}</strong>
     </Component>
   );
@@ -744,9 +744,9 @@ export function IdentityManagerPanel() {
       <header className="rounded-2xl border border-brand-2/25 bg-[linear-gradient(135deg,rgba(14,165,233,.13),rgba(139,92,246,.1),rgba(2,6,23,.8))] p-4 sm:p-5">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200/75">Catalogue local PokemonGo-Data · MongoDB privé</p>
-            <h2 id="identity-manager-title" className="mt-1 flex items-center gap-3 text-2xl font-black sm:text-3xl"><Fingerprint className="text-cyan-200" /> Identity Manager</h2>
-            <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-muted">Associez chaque identifiant fournisseur à une identité PokemonGo-Data unique, sans altérer sa valeur originale.</p>
+            <p className="type-overline text-cyan-200/75">Catalogue local PokemonGo-Data · MongoDB privé</p>
+            <h2 id="identity-manager-title" className="mt-1 flex items-center gap-3 type-title-section"><Fingerprint className="text-cyan-200" /> Identity Manager</h2>
+            <p className="mt-2 max-w-3xl type-body-strong text-muted">Associez chaque identifiant fournisseur à une identité PokemonGo-Data unique, sans altérer sa valeur originale.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="primary" icon={<PackageCheck size={15} />} loading={syncLoading} loadingText="Vérification…" onClick={() => void openSyncPreview()}>Synchroniser le catalogue</Button>
@@ -767,7 +767,7 @@ export function IdentityManagerPanel() {
           <div className="mt-3 flex gap-2 overflow-x-auto pb-1" aria-label="Providers gérés par l’Identity Manager">
             {managedProviders.map((provider) => (
               <button className="min-w-[12rem] rounded-xl border border-line bg-surface-faint p-3 text-left transition hover:border-cyan-200/35" type="button" key={provider.id} onClick={() => { setView("identities"); updateFilter("provider", provider.id); }}>
-                <span className="block truncate text-xs font-black text-domain-foreground">{provider.label}</span>
+                <span className="block truncate type-label text-domain-foreground">{provider.label}</span>
                 <span className="mt-1 block text-[10px] font-bold text-muted">{provider.activeAliases} alias actifs · {provider.openDiagnostics} diagnostics</span>
               </button>
             ))}
@@ -842,10 +842,10 @@ export function IdentityManagerPanel() {
                     <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2"><Badge tone={statusTone(identity.status)}>{identity.status}</Badge>{identity.syncStatus ? <Badge tone={statusTone(identity.syncStatus)}>{identity.syncStatus}</Badge> : null}</div>
                     <p className="mt-1 text-base font-black text-foreground">{identity.localIdentity?.pokemonName || `Pokémon #${identity.pokemonId}`}</p>
                     <p className="mt-1 text-sm font-bold text-muted">#{String(identity.pokemonId).padStart(4, "0")} · {identity.form || "forme normale"} · {identity.costume || "sans costume"}{identity.transformation ? ` · ${identity.transformation}` : ""}</p>
-                    <p className="mt-1 text-xs font-semibold text-muted">Genre disponible : {identity.genderVariants?.male ? "mâle" : "—"} / {identity.genderVariants?.female ? "femelle" : "—"}</p>
-                    {types.length ? <div className="mt-2 flex flex-wrap gap-1.5">{types.map((type) => <span key={type} className="rounded-full border border-line-medium px-2 py-1 text-[10px] font-black uppercase tracking-[0.08em] text-domain-foreground" style={{ backgroundColor: `color-mix(in srgb, ${typeColors[type] || typeColors.NORMAL} 48%, rgba(2,6,23,.75))` }}>{typeLabels[type] || type}</span>)}</div> : null}
+                    <p className="mt-1 type-caption text-muted">Genre disponible : {identity.genderVariants?.male ? "mâle" : "—"} / {identity.genderVariants?.female ? "femelle" : "—"}</p>
+                    {types.length ? <div className="mt-2 flex flex-wrap gap-1.5">{types.map((type) => <span key={type} className="rounded-full border border-line-medium px-2 py-1 type-overline-compact text-domain-foreground" style={{ backgroundColor: `color-mix(in srgb, ${typeColors[type] || typeColors.NORMAL} 48%, rgba(2,6,23,.75))` }}>{typeLabels[type] || type}</span>)}</div> : null}
                     </div>
-                  <span className="col-span-2 text-xs font-semibold text-muted sm:col-span-1 sm:whitespace-nowrap">MAJ {formatDate(identity.updatedAt)}</span>
+                  <span className="col-span-2 type-caption text-muted sm:col-span-1 sm:whitespace-nowrap">MAJ {formatDate(identity.updatedAt)}</span>
                 </div>
                 <div className="mt-4 grid gap-2 rounded-lg border border-brand-2/20 bg-brand-2/[0.055] p-3 text-xs sm:grid-cols-2">
                   <p className="min-w-0"><span className="font-black uppercase tracking-[0.12em] text-cyan-200/65">Identité locale</span><br /><code className="break-all text-foreground">{identity.localIdentity?.identityKey || "Non reliée à PokemonGo-Data"}</code></p>
@@ -853,12 +853,12 @@ export function IdentityManagerPanel() {
                   <p className="min-w-0"><span className="font-black uppercase tracking-[0.12em] text-cyan-200/65">Source locale</span><br /><code className="break-all text-foreground">{identity.localIdentity?.sourceFile || "Non disponible"}</code></p>
                   <p><span className="font-black uppercase tracking-[0.12em] text-cyan-200/65">Assets sexués</span><br /><strong>{identity.localIdentity?.genderAssets?.length || 0} variante(s) · validé {formatDate(identity.localIdentity?.lastValidatedAt)}</strong></p>
                 </div>
-                {identity.localIdentity?.issues?.length ? <p className="mt-2 rounded-lg border border-warning/30 bg-warning/10 p-2 text-xs font-bold text-amber-100">{identity.localIdentity.issues.join(" · ")}</p> : null}
+                {identity.localIdentity?.issues?.length ? <p className="mt-2 rounded-lg border border-warning/30 bg-warning/10 p-2 type-caption-strong text-amber-100">{identity.localIdentity.issues.join(" · ")}</p> : null}
                 <div className="mt-4 space-y-2">
                   {identity.aliases.length ? identity.aliases.map((alias) => (
                     <button key={alias.aliasId} type="button" className="flex w-full min-w-0 flex-col gap-2 rounded-lg border border-line bg-surface-faint p-2.5 text-left transition hover:border-brand-2/35 sm:flex-row sm:items-center" onClick={() => openAlias(identity, alias)}>
                       <span className="flex w-full min-w-0 items-center gap-2 sm:flex-1"><Badge tone="violet">{alias.provider}</Badge><span className="min-w-0 flex-1 truncate font-mono text-sm font-bold">{alias.value}</span></span>
-                      <span className="flex items-center gap-2"><Badge tone={statusTone(alias.status)}>{alias.status}</Badge><span className="text-xs font-black text-muted">{Math.round(alias.confidence * 100)}%</span></span>
+                      <span className="flex items-center gap-2"><Badge tone={statusTone(alias.status)}>{alias.status}</Badge><span className="type-label text-muted">{Math.round(alias.confidence * 100)}%</span></span>
                     </button>
                   )) : <p className="rounded-lg border border-dashed border-warning/35 bg-warning/5 p-3 text-sm font-bold text-amber-100">Aucun alias fournisseur.</p>}
                 </div>

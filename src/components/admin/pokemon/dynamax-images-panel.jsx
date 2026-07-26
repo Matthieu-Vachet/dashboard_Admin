@@ -9,7 +9,7 @@ import { buttonClass, Panel } from "./admin-ui";
 import { EmptyState } from "@/components/admin/shared/state-system";
 
 function Stat({ label, value }) {
-  return <div className="rounded-2xl border border-line bg-surface-inset p-4"><span className="text-xs font-black uppercase tracking-[.14em] text-muted">{label}</span><strong className="mt-2 block text-3xl font-black text-domain-foreground">{Number(value) || 0}</strong></div>;
+  return <div className="rounded-2xl border border-line bg-surface-inset p-4"><span className="type-overline text-muted">{label}</span><strong className="mt-2 block type-title-page text-domain-foreground">{Number(value) || 0}</strong></div>;
 }
 
 function wait(delayMs) {
@@ -91,20 +91,20 @@ export function DynamaxImagesPanel() {
       <Button type="button" icon={<RefreshCcw size={17} />} loading={busy === "load"} loadingText="Actualisation…" disabled={Boolean(busy)} onClick={() => load(true)}>Actualiser</Button>
       <Button type="button" icon={<Eraser size={17} />} loading={busy === "clear"} loadingText="Suppression…" disabled={!state || Boolean(busy)} onClick={clearCache}>Vider le cache temporaire</Button>
     </div>}>
-      <p className="rounded-2xl border border-violet-200/15 bg-violet-300/[.07] p-4 text-sm font-bold leading-6 text-violet-50">Le scan et les téléchargements sont exécutés côté serveur. Une consultation de cette page ne déclenche jamais de scraping et aucune donnée Pokémon n’est créée.</p>
+      <p className="rounded-2xl border border-violet-200/15 bg-violet-300/[.07] p-4 type-body-strong text-violet-50">Le scan et les téléchargements sont exécutés côté serveur. Une consultation de cette page ne déclenche jamais de scraping et aucune donnée Pokémon n’est créée.</p>
       <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4">
         <Stat label="Images détectées" value={counts.detected} /><Stat label="Images téléchargées" value={counts.downloaded} /><Stat label="Doublons ignorés" value={counts.duplicatesIgnored} /><Stat label="Échecs" value={counts.failed} />
       </div>
-      {state?.lastScanAt ? <p className="mt-3 text-xs font-bold text-muted">Dernier scan : {new Date(state.lastScanAt).toLocaleString("fr-FR")}</p> : null}
+      {state?.lastScanAt ? <p className="mt-3 type-caption-strong text-muted">Dernier scan : {new Date(state.lastScanAt).toLocaleString("fr-FR")}</p> : null}
     </Panel>
     {state?.images?.length ? <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5">
       {state.images.map((item) => <article className="min-w-0 overflow-hidden rounded-2xl border border-line bg-surface-inset p-3" key={`${item.sourceImageUrl}-${item.filename}`}>
         <div className="grid aspect-square place-items-center rounded-xl bg-surface-flat">{item.downloadStatus === "success" ? <img className="h-full w-full object-contain p-3" src={`/api/admin/dynamax-images/image?file=${encodeURIComponent(item.filename)}`} alt={item.name} loading="lazy" /> : <ImageIcon className="text-slate-600" size={38} />}</div>
         <h3 className="mt-3 truncate font-black text-domain-foreground">{item.name}</h3>
-        <p className="text-xs font-bold text-muted">{item.dexNr ? `Pokédex #${String(item.dexNr).padStart(4, "0")}` : "Numéro Pokédex indisponible"}</p>
+        <p className="type-caption-strong text-muted">{item.dexNr ? `Pokédex #${String(item.dexNr).padStart(4, "0")}` : "Numéro Pokédex indisponible"}</p>
         <p className="mt-2 break-all font-mono text-[10px] text-cyan-100">{item.filename}</p>
         <span className={`mt-2 inline-flex rounded-full border px-2 py-1 text-[10px] font-black uppercase ${item.downloadStatus === "success" ? "border-emerald-200/20 bg-emerald-300/10 text-emerald-100" : "border-red-200/20 bg-red-300/10 text-red-100"}`}>{item.downloadStatus}</span>
-        {item.error ? <p className="mt-2 text-xs font-bold text-red-100">{item.error}</p> : null}
+        {item.error ? <p className="mt-2 type-caption-strong text-red-100">{item.error}</p> : null}
       </article>)}
     </section> : <EmptyState size="section" icon={<Archive aria-hidden="true" />} title="Aucun scan en cache" />}
   </section>;

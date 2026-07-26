@@ -41,7 +41,7 @@ export function DatasetFilterBar({
               {toggle.label}
             </button>
           ))}
-          <span className="rounded-xl border border-line bg-black/20 px-3 py-2 text-xs font-black text-foreground-secondary">
+          <span className="rounded-xl border border-line bg-black/20 px-3 py-2 type-label text-foreground-secondary">
             {resultCount} / {totalCount}
           </span>
         </div>

@@ -76,7 +76,7 @@ function SummaryCard({ tone, icon: Icon, label, value }) {
   return (
     <div className={`rounded-2xl border p-4 ${styles[tone]}`}>
       <Icon size={18} />
-      <span className="mt-3 block text-[10px] font-black uppercase tracking-[.15em] text-disabled">{label}</span>
+      <span className="mt-3 block type-overline-compact text-disabled">{label}</span>
       <strong className="font-mono text-3xl">{Number(value || 0).toLocaleString("fr-FR")}</strong>
     </div>
   );

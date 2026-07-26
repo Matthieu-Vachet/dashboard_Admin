@@ -69,8 +69,8 @@ export function PokemonAnalytics() {
         <Badge tone={metrics?.source === "live" ? "green" : "amber"}>
           {metrics?.source === "live" ? "Connecté live" : metrics?.status || "Fallback prêt"}
         </Badge>
-        <h2 className="mt-3 text-3xl font-black">Statistiques Pokémon GO API</h2>
-        <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-muted">
+        <h2 className="mt-3 type-title-page">Statistiques Pokémon GO API</h2>
+        <p className="mt-2 max-w-3xl type-body-strong text-muted">
           {metrics?.detail ||
             "Cette page consomme ton endpoint `checklist-v3` et transforme le résumé en widgets de pilotage."}
         </p>
@@ -223,7 +223,7 @@ function Metric({
     <Card className="p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">{label}</p>
+          <p className="type-overline text-muted">{label}</p>
           <p className="mt-3 font-mono text-3xl font-black">{value}</p>
         </div>
         <span className={`grid h-11 w-11 place-items-center rounded-lg border ${toneClass}`}>

@@ -158,7 +158,7 @@ export function WriterStudio() {
               </span>
               <span className="min-w-0">
                 <strong className="block truncate text-sm font-black">{document.title || "Sans titre"}</strong>
-                <small className="mt-1 block truncate text-xs font-bold text-muted">
+                <small className="mt-1 block truncate type-caption-strong text-muted">
                   {document.updatedAt || "Non daté"}
                 </small>
                 {document.tags.length ? (
@@ -178,7 +178,7 @@ export function WriterStudio() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <Badge tone="cyan">Traitement de texte</Badge>
-                <h2 className="mt-3 text-3xl font-black">Rédaction</h2>
+                <h2 className="mt-3 type-title-page">Rédaction</h2>
               </div>
               <div className="flex flex-wrap gap-2">
                 <Badge tone="violet">{words} mots</Badge>
@@ -206,7 +206,7 @@ export function WriterStudio() {
 
             <div className="grid gap-3 lg:grid-cols-[1fr_280px]">
               <Input
-                className="text-xl font-black"
+                className="type-title-subsection"
                 value={selected.title}
                 onChange={(event) => updateDocument(selected.id, { title: event.target.value })}
               />
@@ -241,7 +241,7 @@ export function WriterStudio() {
               {preview ? <DocumentPreview body={selected.body} /> : null}
             </div>
 
-            <div className="grid gap-2 rounded-lg border border-line bg-surface-minimal p-3 text-xs font-bold text-muted sm:grid-cols-2">
+            <div className="grid gap-2 rounded-lg border border-line bg-surface-minimal p-3 type-caption-strong text-muted sm:grid-cols-2">
               <span>Créé : {selected.createdAt}</span>
               <span>Modifié : {selected.updatedAt}</span>
             </div>
@@ -277,7 +277,7 @@ function DocumentPreview({ body }: { body: string }) {
 
   return (
     <div className="min-h-[58dvh] overflow-y-auto rounded-lg border border-line bg-surface-flat p-5">
-      <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-2">Aperçu</p>
+      <p className="type-overline text-brand-2">Aperçu</p>
       <div className="mt-4 space-y-3">
         {blocks.map((block, blockIndex) => {
           if (blockIndex % 2 === 1) {
@@ -301,10 +301,10 @@ function DocumentPreview({ body }: { body: string }) {
 function PreviewLine({ line }: { line: string }) {
   if (!line.trim()) return <div className="h-2" />;
   if (line.startsWith("# ")) {
-    return <h1 className="text-3xl font-black">{line.replace(/^# /, "")}</h1>;
+    return <h1 className="type-title-page">{line.replace(/^# /, "")}</h1>;
   }
   if (line.startsWith("## ")) {
-    return <h2 className="text-2xl font-black">{line.replace(/^## /, "")}</h2>;
+    return <h2 className="type-title-section">{line.replace(/^## /, "")}</h2>;
   }
   if (line.startsWith("> ")) {
     return (

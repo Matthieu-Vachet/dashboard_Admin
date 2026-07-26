@@ -22,8 +22,8 @@ export function LearningActivityTimeline({ activity }: { activity: LearningActiv
   return (
     <section className="space-y-3" aria-labelledby="learning-activity-title">
       <div>
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">Chronologie</p>
-        <h2 id="learning-activity-title" className="mt-1 text-2xl font-black">Historique d’activité</h2>
+        <p className="type-overline text-brand-2">Chronologie</p>
+        <h2 id="learning-activity-title" className="mt-1 type-title-section">Historique d’activité</h2>
       </div>
       <Card className="overflow-hidden p-4 sm:p-5">
         <div className="grid grid-flow-col grid-rows-7 gap-1 overflow-x-auto pb-2" aria-label="Activité des 12 dernières semaines">
@@ -44,10 +44,10 @@ export function LearningActivityTimeline({ activity }: { activity: LearningActiv
                 </span>
                 <div className="min-w-0">
                   <strong className="block truncate text-sm font-black">{item.title}</strong>
-                  <span className="text-xs font-semibold text-muted">{itemLabels[item.itemType]} · {new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.occurredAt))}</span>
+                  <span className="type-caption text-muted">{itemLabels[item.itemType]} · {new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.occurredAt))}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-3 text-xs font-black">
+              <div className="flex items-center gap-3 type-label">
                 {item.studySeconds ? <span className="inline-flex items-center gap-1 text-muted"><Clock3 size={13} /> {Math.max(1, Math.round(item.studySeconds / 60))} min</span> : null}
                 {item.xp ? <span className="inline-flex items-center gap-1 text-brand-3"><Sparkles size={13} /> +{item.xp} XP</span> : null}
               </div>

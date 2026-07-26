@@ -196,7 +196,7 @@ function ItemReward({ reward, items }) {
           <strong className="truncate text-sm font-black text-domain-foreground">{name}</strong>
           {reward.quantity ? <Badge tone="border-amber-200/25 bg-amber-300/16 text-amber-50">x{reward.quantity}</Badge> : null}
         </span>
-        {english ? <span className="mt-1 block truncate text-xs font-bold text-muted">{english}</span> : null}
+        {english ? <span className="mt-1 block truncate type-caption-strong text-muted">{english}</span> : null}
         {sourceName ? <span className="mt-1 block truncate text-[11px] font-bold text-cyan-100/65">Source : {sourceName}</span> : null}
         {item?.id ? <span className="mt-1 block truncate font-mono text-[10px] font-black uppercase text-amber-100/62">{item.id}</span> : null}
         {reward.sourceAsset ? <Badge tone="mt-2 border-emerald-200/25 bg-emerald-400/12 text-emerald-50">Asset source</Badge> : null}
@@ -233,9 +233,9 @@ function ResearchTask({ task, items, sectionId }) {
             {rewards.length > 1 ? <Badge tone="border-cyan-200/25 bg-cyan-400/14 text-cyan-50">{rewards.length} rewards</Badge> : null}
           </span>
           <strong className="block text-base font-black leading-snug text-domain-foreground">{task.task}</strong>
-          {summaryReward ? <span className="mt-1 block truncate text-xs font-bold text-muted">{summaryReward}</span> : null}
+          {summaryReward ? <span className="mt-1 block truncate type-caption-strong text-muted">{summaryReward}</span> : null}
         </span>
-        <span className="flex items-center justify-between gap-3 text-xs font-black uppercase tracking-[0.12em] text-cyan-100/68 sm:justify-end">
+        <span className="flex items-center justify-between gap-3 type-overline text-cyan-100/68 sm:justify-end">
           Détails
           <ChevronDown className="transition group-open:rotate-180" size={18} />
         </span>
@@ -259,8 +259,8 @@ function ResearchSection({ id, title, tasks, items, defaultOpen }) {
     >
       <summary className="grid cursor-pointer list-none gap-3 p-4 marker:hidden sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
         <span>
-          <span className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-100/62">{id}</span>
-          <span className="mt-1 block text-2xl font-black text-domain-foreground">{title}</span>
+          <span className="type-overline-compact text-cyan-100/62">{id}</span>
+          <span className="mt-1 block type-title-section text-domain-foreground">{title}</span>
         </span>
         <span className="inline-flex items-center gap-3 text-sm font-black text-domain-foreground">
           <span className="rounded-full border border-white/12 bg-white/[0.08] px-3 py-1.5">{tasks.length}</span>

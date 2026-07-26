@@ -47,10 +47,10 @@ export function AdminPaletteSelector() {
                 <Palette size={15} />
               </span>
               <div className="min-w-0">
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-2">
+                <p className="type-overline text-brand-2">
                   Dominance
                 </p>
-                <p className="truncate text-xs font-bold text-muted">Palette globale</p>
+                <p className="truncate type-caption-strong text-muted">Palette globale</p>
               </div>
             </div>
 

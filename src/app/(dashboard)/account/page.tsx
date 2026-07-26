@@ -32,8 +32,8 @@ export default async function AccountPage() {
           <span className="grid h-12 w-12 place-items-center rounded-lg border border-cyan-300/25 bg-cyan-400/10 text-cyan-100">
             <UserRound size={22} />
           </span>
-          <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-muted">Utilisateur</p>
-          <h2 className="mt-2 break-words text-xl font-black">{session?.email || "Admin"}</h2>
+          <p className="mt-4 type-overline text-muted">Utilisateur</p>
+          <h2 className="mt-2 break-words type-title-subsection">{session?.email || "Admin"}</h2>
           <Badge className="mt-4" tone="green">Admin</Badge>
         </Card>
 
@@ -41,9 +41,9 @@ export default async function AccountPage() {
           <span className="grid h-12 w-12 place-items-center rounded-lg border border-emerald-300/25 bg-emerald-400/10 text-emerald-100">
             <ShieldCheck size={22} />
           </span>
-          <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-muted">Session</p>
-          <h2 className="mt-2 text-xl font-black">Session active</h2>
-          <p className="mt-2 text-sm font-semibold leading-6 text-muted">
+          <p className="mt-4 type-overline text-muted">Session</p>
+          <h2 className="mt-2 type-title-subsection">Session active</h2>
+          <p className="mt-2 type-body-strong text-muted">
             La session est protégée par cookie HTTP-only et vérifiée côté serveur sur les routes dashboard.
           </p>
         </Card>
@@ -52,9 +52,9 @@ export default async function AccountPage() {
           <span className="grid h-12 w-12 place-items-center rounded-lg border border-violet-300/25 bg-violet-400/10 text-violet-100">
             <MonitorCog size={22} />
           </span>
-          <p className="mt-4 text-xs font-black uppercase tracking-[0.16em] text-muted">Préférences</p>
-          <h2 className="mt-2 text-xl font-black">Interface dashboard</h2>
-          <p className="mt-2 text-sm font-semibold leading-6 text-muted">
+          <p className="mt-4 type-overline text-muted">Préférences</p>
+          <h2 className="mt-2 type-title-subsection">Interface dashboard</h2>
+          <p className="mt-2 type-body-strong text-muted">
             Les préférences existantes restent gérées localement par les widgets, groupes de menu et thème.
           </p>
         </Card>

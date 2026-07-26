@@ -95,7 +95,7 @@ export function PokemonDocsViewer({ docs }: { docs: PokemonDoc[] }) {
             <div className="flex flex-col gap-4 border-b border-line pb-5 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <Badge tone="green">Copie dashboard</Badge>
-                <h2 className="mt-3 text-2xl font-black sm:text-3xl">{selectedDoc.title}</h2>
+                <h2 className="mt-3 type-title-section">{selectedDoc.title}</h2>
                 <p className="mt-2 font-mono text-xs font-bold text-muted">
                   {selectedDoc.file} · {selectedDoc.lineCount} lignes
                 </p>

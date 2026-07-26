@@ -158,15 +158,15 @@ export function LearningImportModal({ open, topics, onClose, onChanged }: {
         {topic && preview ? (
           <section className="rounded-lg border border-brand-3/25 bg-brand-3/[0.045] p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
-              <div><p className="text-xs font-black uppercase tracking-[0.14em] text-brand-3">Aperçu validé</p><h3 className="mt-1 text-xl font-black">{topic.title}</h3><p className="mt-1 text-sm font-semibold text-muted">{topic.id} · {topic.category} · {topic.difficulty}</p></div>
+              <div><p className="type-overline text-brand-3">Aperçu validé</p><h3 className="mt-1 type-title-subsection">{topic.title}</h3><p className="mt-1 text-sm font-semibold text-muted">{topic.id} · {topic.category} · {topic.difficulty}</p></div>
               <Badge tone={preview.exists ? "amber" : "green"}>{preview.exists ? "Thème existant · mise à jour" : "Nouveau thème"}</Badge>
             </div>
             <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
-              {preview.counts.map(([label, count]) => <div className="rounded-lg border border-line bg-surface-recessed p-3" key={label}><span className="text-[10px] font-black uppercase tracking-[0.12em] text-muted">{label}</span><strong className="mt-1 block text-xl">{count}</strong></div>)}
-              <div className="rounded-lg border border-line bg-surface-recessed p-3"><span className="text-[10px] font-black uppercase tracking-[0.12em] text-muted">XP possible</span><strong className="mt-1 block text-xl">{preview.totalXp}</strong></div>
+              {preview.counts.map(([label, count]) => <div className="rounded-lg border border-line bg-surface-recessed p-3" key={label}><span className="type-overline-compact text-muted">{label}</span><strong className="mt-1 block text-xl">{count}</strong></div>)}
+              <div className="rounded-lg border border-line bg-surface-recessed p-3"><span className="type-overline-compact text-muted">XP possible</span><strong className="mt-1 block text-xl">{preview.totalXp}</strong></div>
             </div>
             <fieldset className="mt-4">
-              <legend className="text-xs font-black uppercase tracking-[0.14em] text-muted">Stratégie d’import</legend>
+              <legend className="type-overline text-muted">Stratégie d’import</legend>
               <div className="mt-2 grid gap-2 sm:grid-cols-3">
                 {preview.exists ? (
                   <>
@@ -189,7 +189,7 @@ export function LearningImportModal({ open, topics, onClose, onChanged }: {
           <div className="mt-3 grid gap-2">
             {history.length ? history.map((item) => (
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-surface-recessed p-3" key={item.id}>
-                <div><strong className="block text-sm">{item.fileName}</strong><span className="text-xs font-semibold text-muted">{item.topicId} · {item.strategy} · {new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.createdAt))}</span></div>
+                <div><strong className="block text-sm">{item.fileName}</strong><span className="type-caption text-muted">{item.topicId} · {item.strategy} · {new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.createdAt))}</span></div>
                 {item.canRollback ? <Button size="sm" icon={<RotateCcw size={14} />} disabled={loading} onClick={() => void rollback(item.id)}>Restaurer</Button> : <Badge>Restauré</Badge>}
               </div>
             )) : <EmptyState title="Aucun import enregistré" />}
@@ -204,7 +204,7 @@ function Strategy({ value, current, title, description, onChange }: { value: Lea
   return (
     <label className={current === value ? "cursor-pointer rounded-lg border border-brand-2/45 bg-brand-2/10 p-3" : "cursor-pointer rounded-lg border border-line bg-surface-recessed p-3"}>
       <input className="sr-only" type="radio" name="strategy" value={value} checked={current === value} onChange={() => onChange(value)} />
-      <strong className="block text-sm">{title}</strong><span className="mt-1 block text-xs font-semibold leading-5 text-muted">{description}</span>
+      <strong className="block text-sm">{title}</strong><span className="mt-1 block type-caption text-muted">{description}</span>
     </label>
   );
 }

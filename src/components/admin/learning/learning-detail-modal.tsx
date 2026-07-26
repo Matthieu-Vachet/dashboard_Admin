@@ -58,7 +58,7 @@ export function LearningDetailModal({
         <section className="grid gap-4 rounded-lg border border-line bg-surface-faint p-4 sm:p-5">
           <div className="flex items-center gap-2">
             <Library size={18} className="text-brand-2" />
-            <h3 className="text-lg font-black">Prérequis et ressources</h3>
+            <h3 className="type-title-card">Prérequis et ressources</h3>
           </div>
           <div className="flex flex-wrap gap-2">
             {topic.prerequisites.length ? topic.prerequisites.map((item) => <Badge key={item}>{item}</Badge>) : <span className="text-sm font-semibold text-muted">Aucun prérequis.</span>}
@@ -96,7 +96,7 @@ export function LearningDetailModal({
             {topic.achievements.map((achievement) => (
               <div className="rounded-lg border border-line bg-surface-recessed p-3" key={achievement.id}>
                 <div className="flex items-center gap-2 text-sm font-black"><Trophy size={14} /> {achievement.title}</div>
-                <p className="mt-1 text-xs font-semibold text-muted">{achievement.description}</p>
+                <p className="mt-1 type-caption text-muted">{achievement.description}</p>
               </div>
             ))}
           </div>
@@ -115,8 +115,8 @@ function TheoryCard({ item, references, saving, onSetProgress }: {
   return (
     <section className="rounded-lg border border-brand-2/25 bg-brand-2/[0.045] p-4 sm:p-5">
       <CardHeader icon={<BookOpen size={18} />} title={item.title} item={item} />
-      <p className="mt-4 text-sm font-bold leading-6 text-foreground">{item.summary}</p>
-      <p className="mt-2 text-sm font-semibold leading-6 text-muted">{item.description}</p>
+      <p className="mt-4 type-body-strong text-foreground">{item.summary}</p>
+      <p className="mt-2 type-body-strong text-muted">{item.description}</p>
       {item.sections?.length ? <TheorySections sections={item.sections} /> : null}
       <div className="mt-4 grid gap-3 lg:grid-cols-2">
         <ListBlock title="Objectifs pédagogiques" items={item.objectives} />
@@ -125,8 +125,8 @@ function TheoryCard({ item, references, saving, onSetProgress }: {
         <ListBlock title="Bonnes pratiques" items={item.bestPractices} tone="success" />
       </div>
       <div className="mt-4 rounded-lg border border-brand-3/20 bg-brand-3/[0.06] p-3">
-        <span className="text-xs font-black uppercase tracking-[0.14em] text-brand-3">Résumé final</span>
-        <p className="mt-2 text-sm font-semibold leading-6">{item.finalSummary}</p>
+        <span className="type-overline text-brand-3">Résumé final</span>
+        <p className="mt-2 type-body-strong">{item.finalSummary}</p>
       </div>
       <div className="mt-4 flex justify-end"><ProgressButton item={item} startLabel="Commencer la théorie" saving={saving} onSetProgress={onSetProgress} /></div>
     </section>
@@ -137,7 +137,7 @@ function ExerciseCard({ item, saving, onSetProgress }: { item: RuntimeLearningEx
   return (
     <UnitCard>
       <CardHeader icon={<CheckCircle2 size={17} />} title={item.title} item={item} />
-      <p className="mt-3 text-sm font-semibold leading-6 text-muted">{item.description}</p>
+      <p className="mt-3 type-body-strong text-muted">{item.description}</p>
       <MetaBlock label="Objectif" value={item.objective} />
       <TagRow label="Compétences" items={item.skills} />
       <TagRow label="Prérequis" items={item.prerequisites} empty="Aucun" />
@@ -179,11 +179,11 @@ function PseudocodeCard({ item, saving, onSetProgress, onNotify }: { item: Runti
       <CardHeader icon={<ScrollText size={17} />} title={item.title} item={item} />
       <MetaBlock label="Objectif" value={item.objective} />
       <MetaBlock label="Situation" value={item.situation} />
-      <p className="mt-3 text-sm font-semibold leading-6 text-muted">{item.description}</p>
-      <label className="mt-4 block text-xs font-black uppercase tracking-[0.14em] text-brand-2" htmlFor={`${item.id}-answer`}>Zone de rédaction</label>
+      <p className="mt-3 type-body-strong text-muted">{item.description}</p>
+      <label className="mt-4 block type-overline text-brand-2" htmlFor={`${item.id}-answer`}>Zone de rédaction</label>
       <Textarea id={`${item.id}-answer`} className="mt-2 font-mono" placeholder={canWrite ? "Écris ton pseudo-code ici…" : "Commence le pseudo-code pour rédiger une réponse."} value={answer} disabled={!canWrite || saving} onChange={(event) => setAnswer(event.target.value)} />
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-        <span className="text-xs font-semibold text-muted">{item.savedAt ? `Sauvegardée le ${new Intl.DateTimeFormat("fr-FR", { dateStyle: "short", timeStyle: "short" }).format(new Date(item.savedAt))}` : "Aucune réponse enregistrée"}</span>
+        <span className="type-caption text-muted">{item.savedAt ? `Sauvegardée le ${new Intl.DateTimeFormat("fr-FR", { dateStyle: "short", timeStyle: "short" }).format(new Date(item.savedAt))}` : "Aucune réponse enregistrée"}</span>
         <Button size="sm" icon={<Save size={14} />} disabled={saving || !canWrite} onClick={() => void saveAnswer()}>Enregistrer</Button>
       </div>
       <div className="mt-3 rounded-lg border border-brand/20 bg-brand/[0.05] p-3">
@@ -203,7 +203,7 @@ function ChallengeCard({ item, saving, onSetProgress }: { item: RuntimeLearningC
   return (
     <UnitCard>
       <CardHeader icon={<Target size={17} />} title={item.title} item={item} />
-      <p className="mt-3 text-sm font-semibold leading-6 text-muted">{item.description}</p>
+      <p className="mt-3 type-body-strong text-muted">{item.description}</p>
       <MetaBlock label="Objectif" value={item.objective} />
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         <ListBlock title="Contraintes" items={item.constraints} />
@@ -224,7 +224,7 @@ function ProjectCard({ item, saving, onSetProgress }: { item: RuntimeLearningPro
       <CardHeader icon={<Rocket size={17} />} title={item.title} item={item} />
       <MetaBlock label="Contexte" value={item.context} />
       <MetaBlock label="Objectif" value={item.objective} />
-      <p className="mt-3 text-sm font-semibold leading-6 text-muted">{item.description}</p>
+      <p className="mt-3 type-body-strong text-muted">{item.description}</p>
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         <ListBlock title="Fonctionnalités" items={item.features} tone="success" />
         <ListBlock title="Contraintes" items={item.constraints} />
@@ -242,7 +242,7 @@ function ProjectCard({ item, saving, onSetProgress }: { item: RuntimeLearningPro
 function CardHeader({ icon, title, item }: { icon: ReactNode; title: string; item: { status: LearningStatus; difficulty?: string; estimatedMinutes: number; xp: number } }) {
   return (
     <div className="flex flex-wrap items-start justify-between gap-3">
-      <div className="flex min-w-0 items-center gap-2 text-lg font-black text-foreground"><span className="text-brand-2">{icon}</span><h3>{title}</h3></div>
+      <div className="flex min-w-0 items-center gap-2 type-title-card text-foreground"><span className="text-brand-2">{icon}</span><h3>{title}</h3></div>
       <div className="flex flex-wrap items-center gap-2">
         <Badge className={LEARNING_STATUS_CLASS[item.status]}>{LEARNING_STATUS_LABEL[item.status]}</Badge>
         {item.difficulty && item.difficulty in LEARNING_DIFFICULTY_CLASS ? <Badge className={LEARNING_DIFFICULTY_CLASS[item.difficulty as keyof typeof LEARNING_DIFFICULTY_CLASS]}>{item.difficulty}</Badge> : null}
@@ -285,19 +285,19 @@ function TheorySections({ sections }: { sections: LearningTheorySection[] }) {
         const questions = [...(section.comprehensionQuestions || []), ...(section.questions || [])];
         return (
         <section className="rounded-lg border border-line bg-surface-recessed p-4" key={section.id} aria-labelledby={`theory-section-${section.id}`}>
-          <h4 id={`theory-section-${section.id}`} className="text-lg font-black text-brand-2">{section.title}</h4>
+          <h4 id={`theory-section-${section.id}`} className="type-title-card text-brand-2">{section.title}</h4>
           <LearningMarkdown content={section.content} />
           {codeExamples.map((example, index) => (
             <div className="mt-4 overflow-hidden rounded-lg border border-line bg-black/30" key={`${section.id}-code-${index}`}>
               <div className="border-b border-line px-3 py-2 font-mono text-[11px] font-black uppercase tracking-[0.12em] text-muted">{example.language}</div>
               <pre className="overflow-x-auto p-3 font-mono text-sm leading-6 text-foreground"><code>{example.code}</code></pre>
-              {example.explanation ? <p className="border-t border-line px-3 py-2 text-sm font-semibold leading-6 text-muted">{example.explanation}</p> : null}
+              {example.explanation ? <p className="border-t border-line px-3 py-2 type-body-strong text-muted">{example.explanation}</p> : null}
             </div>
           ))}
           {warnings.length ? <div className="mt-4 rounded-lg border border-warning/25 bg-warning/[0.06] p-3"><h5 className="flex items-center gap-2 text-sm font-black text-warning"><AlertTriangle size={15} /> Avertissements</h5><ul className="mt-2 space-y-1 text-sm font-semibold text-muted">{warnings.map((warning, index) => <li key={`${warning}-${index}`}>• {warning}</li>)}</ul></div> : null}
           {section.tips?.length ? <ListBlock title="Conseils" items={section.tips} tone="success" /> : null}
           {questions.length ? <div className="mt-4 rounded-lg border border-brand/20 bg-brand/[0.05] p-3"><h5 className="flex items-center gap-2 text-sm font-black text-brand"><CircleHelp size={15} /> Questions de compréhension</h5><ol className="mt-2 list-decimal space-y-1 pl-5 text-sm font-semibold text-muted">{questions.map((question, index) => <li key={`${question}-${index}`}>{question}</li>)}</ol></div> : null}
-          {section.summary ? <div className="mt-4 rounded-lg border border-brand-3/20 bg-brand-3/[0.05] p-3"><span className="text-xs font-black uppercase tracking-[0.13em] text-brand-3">Résumé intermédiaire</span><p className="mt-2 text-sm font-semibold leading-6 text-muted">{section.summary}</p></div> : null}
+          {section.summary ? <div className="mt-4 rounded-lg border border-brand-3/20 bg-brand-3/[0.05] p-3"><span className="type-overline text-brand-3">Résumé intermédiaire</span><p className="mt-2 type-body-strong text-muted">{section.summary}</p></div> : null}
         </section>
       )})}
     </div>
@@ -306,7 +306,7 @@ function TheorySections({ sections }: { sections: LearningTheorySection[] }) {
 
 function LearningMarkdown({ content }: { content: string }) {
   return (
-    <div className="mt-3 space-y-3 text-sm font-semibold leading-6 text-muted">
+    <div className="mt-3 space-y-3 type-body-strong text-muted">
       {content.split(/\n{2,}/).map((block, index) => {
         const lines = block.split("\n");
         if (lines.every((line) => /^[-*]\s+/.test(line))) {
@@ -332,7 +332,7 @@ function UnitSection({ icon, title, completed, total, children }: { icon: ReactN
   return (
     <section className="rounded-lg border border-line bg-surface-faint p-4 sm:p-5">
       <div className="flex items-center justify-between gap-3">
-        <h3 className="inline-flex items-center gap-2 text-lg font-black"><span className="text-brand-2">{icon}</span>{title}</h3>
+        <h3 className="inline-flex items-center gap-2 type-title-card"><span className="text-brand-2">{icon}</span>{title}</h3>
         <span className="font-mono text-xs font-black text-muted">{completed}/{total}</span>
       </div>
       <div className="mt-3 grid gap-3">{children}</div>
@@ -345,11 +345,11 @@ function UnitCard({ children }: { children: ReactNode }) {
 }
 
 function MetaBlock({ label, value }: { label: string; value: string }) {
-  return <div className="mt-3"><span className="text-xs font-black uppercase tracking-[0.13em] text-brand-2">{label}</span><p className="mt-1 text-sm font-semibold leading-6 text-muted">{value}</p></div>;
+  return <div className="mt-3"><span className="type-overline text-brand-2">{label}</span><p className="mt-1 type-body-strong text-muted">{value}</p></div>;
 }
 
 function TagRow({ label, items, empty }: { label: string; items: string[]; empty?: string }) {
-  return <div className="mt-3 flex flex-wrap items-center gap-2"><span className="mr-1 text-xs font-black uppercase tracking-[0.12em] text-muted">{label}</span>{items.length ? items.map((item) => <Badge key={item}>{item}</Badge>) : <span className="text-xs font-semibold text-muted">{empty}</span>}</div>;
+  return <div className="mt-3 flex flex-wrap items-center gap-2"><span className="mr-1 type-overline text-muted">{label}</span>{items.length ? items.map((item) => <Badge key={item}>{item}</Badge>) : <span className="type-caption text-muted">{empty}</span>}</div>;
 }
 
 function ListBlock({ title, items, tone = "default" }: { title: string; items: string[]; tone?: "default" | "danger" | "success" }) {
@@ -358,7 +358,7 @@ function ListBlock({ title, items, tone = "default" }: { title: string; items: s
   return (
     <div className="rounded-lg border border-line bg-surface-recessed p-3">
       <h4 className={`flex items-center gap-2 text-sm font-black ${toneClass}`}><Icon size={15} /> {title}</h4>
-      {items.length ? <ul className="mt-2 space-y-1.5 text-sm font-semibold leading-5 text-muted">{items.map((item) => <li className="flex gap-2" key={item}><span aria-hidden>•</span><span>{item}</span></li>)}</ul> : <p className="mt-2 text-sm font-semibold text-muted">Aucun.</p>}
+      {items.length ? <ul className="mt-2 space-y-1.5 type-body-strong text-muted">{items.map((item) => <li className="flex gap-2" key={item}><span aria-hidden>•</span><span>{item}</span></li>)}</ul> : <p className="mt-2 text-sm font-semibold text-muted">Aucun.</p>}
     </div>
   );
 }
@@ -368,5 +368,5 @@ function Validation({ items }: { items: string[] }) {
 }
 
 function Info({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-lg border border-line bg-surface-recessed p-3"><span className="block text-[11px] font-black uppercase tracking-[0.16em] text-muted">{label}</span><strong className="mt-2 block text-sm leading-6">{value}</strong></div>;
+  return <div className="rounded-lg border border-line bg-surface-recessed p-3"><span className="block type-overline text-muted">{label}</span><strong className="mt-2 block text-sm leading-6">{value}</strong></div>;
 }

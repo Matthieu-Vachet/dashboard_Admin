@@ -104,7 +104,7 @@ export function PokemonApiStatus({ compact = false }: { compact?: boolean }) {
       ) : null}
 
       {health.detail ? (
-        <p className="text-xs font-bold text-amber-100">{health.detail}</p>
+        <p className="type-caption-strong text-amber-100">{health.detail}</p>
       ) : null}
     </div>
   );
@@ -121,11 +121,11 @@ function MiniStatus({
 }) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface-recessed px-3 py-2">
-      <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-muted">
+      <span className="inline-flex items-center gap-2 type-overline text-muted">
         {icon}
         {label}
       </span>
-      <span className="inline-flex items-center gap-1 text-xs font-black text-foreground">
+      <span className="inline-flex items-center gap-1 type-label text-foreground">
         {value}
         <ArrowUpRight size={13} className="text-brand-2" />
       </span>

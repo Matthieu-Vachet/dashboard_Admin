@@ -15,5 +15,6 @@ Un dossier de sprint contient un README, un inventaire, un plan écrit avant la 
 | `select-checkbox/` | Famille double | completed — 67 Select et 10 Checkbox compatibles canoniques, 100 % nommés, 66 scénarios validés |
 | `state-system/` | Famille complète | completed — 78 racines génériques couvertes, dont 15 Fetch Loading animés, 52 Empty/No Results et 11 Error |
 | `visual-consistency/` | Consolidation transverse complète | completed — couverture générique 98,83 % → 100 %, trois rôles radius, cinq niveaux d’élévation et 102 captures validées |
+| `typography-system/` | Consolidation transverse complète | completed — Geist Sans/Mono activées, 15 rôles, couverture générique 0 % → 100 % et 66 captures validées |
 
-Le prochain sprint de la chaîne est **Typography System**. Visual Consistency n’a créé ni primitive Surface concurrente ni micro-sprint supplémentaire. `DS-BACKLOG-012` Responsive reste planifié globalement et `DS-BACKLOG-014` Motion attend son sprint dédié.
+Le prochain sprint de la chaîne est **Motion System**. Typography n’a créé ni composant, ni nouvelle API, ni micro-sprint supplémentaire. `DS-BACKLOG-012` Responsive reste planifié globalement et `DS-BACKLOG-014` Motion entre dans son sprint dédié.

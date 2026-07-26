@@ -46,7 +46,7 @@ export function TodoList() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <Badge tone="green">Todo</Badge>
-            <h2 className="mt-3 text-3xl font-black">Liste d&apos;actions</h2>
+            <h2 className="mt-3 type-title-page">Liste d&apos;actions</h2>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Badge tone={ready ? "green" : "neutral"}>{ready ? "Sauvegarde active" : "Chargement"}</Badge>
@@ -61,7 +61,7 @@ export function TodoList() {
                 type="button"
                 onClick={() => setFilter(id as typeof filter)}
                 className={cn(
-                  "min-h-9 rounded-md px-3 text-xs font-black transition",
+                  "min-h-9 rounded-md px-3 type-label transition",
                   filter === id ? "bg-brand-2 text-on-accent" : "text-muted hover:text-foreground",
                 )}
               >
@@ -162,7 +162,7 @@ export function TodoList() {
 
       <aside className="space-y-4">
         <Card className="p-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">
+          <p className="type-overline text-brand-2">
             Progression
           </p>
           <p className="mt-4 font-mono text-5xl font-black">{completion}%</p>
@@ -172,7 +172,7 @@ export function TodoList() {
               style={{ width: `${completion}%` }}
             />
           </div>
-          <p className="mt-4 text-sm font-semibold leading-6 text-muted">
+          <p className="mt-4 type-body-strong text-muted">
             {todos.filter((todo) => todo.done).length} tâches terminées sur {todos.length}.
           </p>
         </Card>

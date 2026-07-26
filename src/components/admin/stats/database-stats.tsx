@@ -227,8 +227,8 @@ function StatCard({
       <Card className="min-w-0 overflow-hidden p-4">
         <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_2.75rem] items-start gap-3">
           <span className="min-w-0 overflow-hidden">
-            <span className="block break-words text-[11px] font-black uppercase tracking-[0.12em] text-muted sm:text-xs sm:tracking-[0.16em]">{label}</span>
-            <strong className="mt-3 block max-w-full break-words text-xl font-black leading-tight sm:text-2xl">{value}</strong>
+            <span className="block break-words type-overline text-muted">{label}</span>
+            <strong className="mt-3 block max-w-full break-words type-title-subsection">{value}</strong>
           </span>
           <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-lg border ${toneClass}`}>
             <Icon size={20} />
@@ -250,7 +250,7 @@ function ApiTimeline({ items }: { items: Array<{ day: string; count: number }> }
           <BarChart3 size={16} className="text-brand-2" />
           14 derniers jours
         </strong>
-        <span className="text-xs font-black text-muted">
+        <span className="type-label text-muted">
           {items.reduce((sum, item) => sum + item.count, 0).toLocaleString("fr-FR")} appels
         </span>
       </div>
@@ -286,14 +286,14 @@ function EndpointBars({ items }: { items: Array<{ endpoint: string; count: numbe
     <div className="min-w-0 overflow-hidden rounded-lg border border-line bg-surface-recessed p-3 sm:p-4">
       <div className="mb-4 flex items-center justify-between gap-3">
         <strong className="text-sm font-black">Top endpoints</strong>
-        <span className="text-xs font-black text-muted">{items.length} routes</span>
+        <span className="type-label text-muted">{items.length} routes</span>
       </div>
       <div className="space-y-3">
         {items.length ? (
           items.map((item, index) => (
             <div className="min-w-0" key={item.endpoint}>
               <div className="mb-1 flex min-w-0 items-start justify-between gap-3">
-                <span className="min-w-0 break-all text-xs font-black leading-5 sm:truncate">{item.endpoint}</span>
+                <span className="min-w-0 break-all type-label sm:truncate">{item.endpoint}</span>
                 <span className="font-mono text-xs font-black text-muted">{item.count}</span>
               </div>
               <span className="block h-2.5 overflow-hidden rounded-full bg-surface-emphasis">
@@ -317,7 +317,7 @@ function EndpointBars({ items }: { items: Array<{ endpoint: string; count: numbe
 function MiniRow({ label, value }: { label: string; value: string }) {
   return (
     <Card tone="flat" className="flex min-w-0 flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-      <span className="inline-flex min-w-0 items-center gap-2 break-words text-[11px] font-black uppercase tracking-[0.12em] text-muted sm:text-xs sm:tracking-[0.16em]">
+      <span className="inline-flex min-w-0 items-center gap-2 break-words type-overline text-muted">
         <KeyRound size={14} />
         {label}
       </span>

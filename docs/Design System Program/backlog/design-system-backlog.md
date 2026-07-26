@@ -25,4 +25,4 @@ Statuts autorisés : `not-started`, `observing`, `planned`, `in-progress`, `bloc
 
 ## Prochaine priorité proposée
 
-**Typography System**, prochaine mission autorisée. Visual Consistency est completed avec 100 % de couverture générique sur spacing, radius, elevation et surfaces ; aucun identifiant permanent n’a été inventé pour ce lot transverse. `DS-BACKLOG-012` Responsive reste `planned` au niveau global et `DS-BACKLOG-014` Motion reste `not-started` jusqu’à leur sprint dédié.
+**Motion System**, prochaine mission autorisée. Typography System est completed avec Geist Sans/Mono réellement chargées, 15 rôles finis et 100 % de couverture des patterns génériques sûrs ; aucun identifiant permanent n’a été inventé pour ce lot transverse. `DS-BACKLOG-014` passe au sprint dédié sans modifier encore son statut durable ; `DS-BACKLOG-012` Responsive reste `planned` jusqu’au dernier sprint de la chaîne.

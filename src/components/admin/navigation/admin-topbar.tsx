@@ -51,7 +51,7 @@ export function AdminTopbar({
         </button>
 
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">
+          <p className="type-overline text-brand-2">
             {activeLabel}
           </p>
           <h1 className="truncate text-base font-black sm:text-lg">

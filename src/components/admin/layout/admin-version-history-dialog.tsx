@@ -93,11 +93,11 @@ export function AdminVersionHistoryDialog({
           >
             <header className="flex items-start justify-between gap-4 border-b border-line bg-surface-minimal p-5">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-2">
+                <p className="type-overline text-brand-2">
                   Dashboard version history
                 </p>
-                <h2 id={titleId} className="mt-2 text-2xl font-black">Historique des versions</h2>
-                <p id={descriptionId} className="mt-2 max-w-2xl text-sm font-bold leading-6 text-muted">
+                <h2 id={titleId} className="mt-2 type-title-section">Historique des versions</h2>
+                <p id={descriptionId} className="mt-2 max-w-2xl type-body-strong text-muted">
                   Chaque increment de version du Dashboard est note ici pour suivre les
                   corrections, refontes et changements de donnees.
                 </p>
@@ -120,14 +120,14 @@ export function AdminVersionHistoryDialog({
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <span className="inline-flex rounded-full border border-brand-2/25 bg-brand-2/10 px-3 py-1 text-xs font-black text-brand-2">
+                        <span className="inline-flex rounded-full border border-brand-2/25 bg-brand-2/10 px-3 py-1 type-label text-brand-2">
                           {entry.version}
                         </span>
-                        <h3 className="mt-3 text-lg font-black">{entry.title}</h3>
+                        <h3 className="mt-3 type-title-card">{entry.title}</h3>
                       </div>
-                      <time className="text-xs font-black text-muted">{entry.date}</time>
+                      <time className="type-label text-muted">{entry.date}</time>
                     </div>
-                    <ul className="mt-4 grid gap-2 text-sm font-bold leading-6 text-muted">
+                    <ul className="mt-4 grid gap-2 type-body-strong text-muted">
                       {entry.changes.map((change) => (
                         <li
                           className="rounded-xl border border-line bg-slate-950/20 px-3 py-2"

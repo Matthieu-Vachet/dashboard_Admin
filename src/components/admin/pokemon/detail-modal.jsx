@@ -130,11 +130,11 @@ function Section({
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_0%,rgba(255,255,255,.13),transparent_34%)]" />
       <div className="relative">
         {eyebrow ? (
-          <p className="mb-1 text-xs font-black uppercase tracking-[0.24em] text-cyan-200/70">
+          <p className="mb-1 type-overline text-cyan-200/70">
             {eyebrow}
           </p>
         ) : null}
-        <h3 className="mb-4 flex items-center gap-3 text-lg font-black tracking-tight text-domain-foreground sm:text-xl">
+        <h3 className="mb-4 flex items-center gap-3 type-title-card text-domain-foreground">
           {icon ? (
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-line bg-surface-inset p-2">
               <img
@@ -325,11 +325,11 @@ function TranslationGrid({ names = {} }) {
             className={`grid grid-cols-[2.2rem_minmax(0,1fr)] gap-3 rounded-2xl border p-3 ${cardTones[index % cardTones.length]}`}
             key={language}
           >
-            <span className="grid h-9 w-9 place-items-center rounded-xl border border-line bg-surface-control p-1.5 text-xs font-black text-cyan-100">
+            <span className="grid h-9 w-9 place-items-center rounded-xl border border-line bg-surface-control p-1.5 type-label text-cyan-100">
               <span className="text-lg">{languageFlags[language] || "🏳️"}</span>
             </span>
             <span className="min-w-0">
-              <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
+              <span className="block type-overline-compact text-disabled">
                 {languageLabels[language] || language}
               </span>
               <strong className="mt-1 block break-words text-domain-foreground">
@@ -496,7 +496,7 @@ function BuffGrid({ buffs }) {
           className="rounded-xl border border-line bg-surface-inset-strong px-3 py-2"
           key={label}
         >
-          <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
+          <small className="block type-overline-compact text-disabled">
             {label}
           </small>
           <strong className="mt-1 block text-domain-foreground">{value}</strong>
@@ -568,7 +568,7 @@ function ReleaseStatusGrid({ shinyAvailability, shadowShinyAvailability }) {
               </div>
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 <span className="rounded-xl border border-line bg-surface-inset px-3 py-2">
-                  <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
+                  <small className="block type-overline-compact text-disabled">
                     Date
                   </small>
                   <strong className="mt-1 block text-domain-foreground">
@@ -576,7 +576,7 @@ function ReleaseStatusGrid({ shinyAvailability, shadowShinyAvailability }) {
                   </strong>
                 </span>
                 <span className="rounded-xl border border-line bg-surface-inset px-3 py-2">
-                  <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
+                  <small className="block type-overline-compact text-disabled">
                     Évènement
                   </small>
                   <strong className="mt-1 block break-words text-domain-foreground">
@@ -619,7 +619,7 @@ function MoveList({ title, moves, typeCatalog = [], icon, pokemonTypes = [] }) {
                   </span>
                   <span className="flex flex-wrap items-center justify-end gap-2">
                     {stab ? (
-                      <span className="rounded-full border border-amber-200/40 bg-amber-300/18 px-3 py-1 text-xs font-black text-amber-50">
+                      <span className="rounded-full border border-amber-200/40 bg-amber-300/18 px-3 py-1 type-label text-amber-50">
                         STAB
                       </span>
                     ) : null}
@@ -645,7 +645,7 @@ function MoveList({ title, moves, typeCatalog = [], icon, pokemonTypes = [] }) {
                       className="rounded-xl border border-line bg-surface-minimal px-3 py-2"
                       key={label}
                     >
-                      <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
+                      <small className="block type-overline-compact text-disabled">
                         {label}
                       </small>
                       <strong className="mt-1 block break-words text-domain-foreground">
@@ -657,7 +657,7 @@ function MoveList({ title, moves, typeCatalog = [], icon, pokemonTypes = [] }) {
                 <BuffGrid buffs={move.combat?.buffs} />
                 {moveExtraRows(move).length ? (
                   <div className="mt-3 rounded-2xl border border-line bg-surface-inset p-3">
-                    <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
+                    <span className="block type-overline-compact text-disabled">
                       Données avancées JSON
                     </span>
                     <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -666,7 +666,7 @@ function MoveList({ title, moves, typeCatalog = [], icon, pokemonTypes = [] }) {
                           className="min-w-0 rounded-xl border border-line bg-surface-minimal px-3 py-2"
                           key={label}
                         >
-                          <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
+                          <small className="block type-overline-compact text-disabled">
                             {label}
                           </small>
                           <strong className="mt-1 block break-words text-xs text-domain-foreground">
@@ -800,10 +800,10 @@ function CandyFamilyPanel({ entry, payload, allEntries = [], onOpenRelated }) {
               ) : null}
             </span>
             <span className="min-w-0">
-              <small className="block text-xs font-black uppercase tracking-[0.16em] text-muted">
+              <small className="block type-overline text-muted">
                 familyId
               </small>
-              <strong className="mt-1 block text-2xl font-black text-domain-foreground">
+              <strong className="mt-1 block type-title-section text-domain-foreground">
                 {valueOrDash(familyId)}
               </strong>
               <span className="mt-2 block text-sm font-bold text-foreground">
@@ -898,7 +898,7 @@ function EvolutionPanel({
                   suffix={suffix || "Coût non renseigné"}
                 />
                 <div className="flex flex-wrap gap-2">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface-inset-strong px-3 py-1 text-xs font-black text-domain-foreground">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface-inset-strong px-3 py-1 type-label text-domain-foreground">
                     {candyIcon ? (
                       <img
                         className="h-4 w-4 object-contain"
@@ -909,7 +909,7 @@ function EvolutionPanel({
                     {valueOrDash(evolution.candies)} bonbons
                   </span>
                   {itemLabel ? (
-                    <span className="rounded-full border border-line bg-surface-inset-strong px-3 py-1 text-xs font-black text-domain-foreground">
+                    <span className="rounded-full border border-line bg-surface-inset-strong px-3 py-1 type-label text-domain-foreground">
                       {itemLabel}
                     </span>
                   ) : null}
@@ -1043,7 +1043,7 @@ function AssetGallery({ entry, payload }) {
             <div key={group}>
               <div className="mb-3 flex items-center justify-between gap-3">
                 <h4 className="font-black text-domain-foreground">{group}</h4>
-                <span className="rounded-full border border-line bg-surface-control px-3 py-1 text-xs font-black text-foreground-secondary">
+                <span className="rounded-full border border-line bg-surface-control px-3 py-1 type-label text-foreground-secondary">
                   {groupAssets.length}
                 </span>
               </div>
@@ -1070,7 +1070,7 @@ function AssetGallery({ entry, payload }) {
                       <strong className="block truncate text-sm font-black text-domain-foreground">
                         {asset.label}
                       </strong>
-                      <span className="mt-1 block truncate text-xs font-bold text-muted">
+                      <span className="mt-1 block truncate type-caption-strong text-muted">
                         {asset.meta || "standard"}
                       </span>
                     </div>
@@ -1092,7 +1092,7 @@ function AssetGallery({ entry, payload }) {
                 onClick={(event) => event.stopPropagation()}
               >
                 <div className="flex items-center justify-between gap-3 border-b border-line p-4">
-                  <strong className="truncate text-xl font-black text-domain-foreground">
+                  <strong className="truncate type-title-subsection text-domain-foreground">
                     {preview.label}
                   </strong>
                   <button
@@ -1254,7 +1254,7 @@ function IssuesPanel({ entry }) {
                 {issue.issue} · attendu {issue.expected} · actuel {issue.actual}
               </span>
               {issue.ruleName ? (
-                <span className="mt-2 inline-flex rounded-full border border-amber-200/25 bg-amber-200/10 px-3 py-1 text-xs font-black text-amber-100">
+                <span className="mt-2 inline-flex rounded-full border border-amber-200/25 bg-amber-200/10 px-3 py-1 type-label text-amber-100">
                   Règle: {issue.ruleName}
                 </span>
               ) : null}
@@ -1329,11 +1329,11 @@ function PvpPanel({ pvp, moveDetails }) {
                     src={icons[key]}
                     alt=""
                   />
-                  <strong className="text-lg font-black text-domain-foreground">
+                  <strong className="type-title-card text-domain-foreground">
                     {label}
                   </strong>
                 </span>
-                <span className="rounded-full bg-surface-inset-strong px-3 py-1 text-xs font-black text-cyan-100">
+                <span className="rounded-full bg-surface-inset-strong px-3 py-1 type-label text-cyan-100">
                   {value.tierRank || "Non classé"}
                 </span>
               </div>
@@ -1350,7 +1350,7 @@ function PvpPanel({ pvp, moveDetails }) {
                     className="rounded-xl border border-line bg-surface-inset px-3 py-2"
                     key={name}
                   >
-                    <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
+                    <small className="block type-overline-compact text-disabled">
                       {name}
                     </small>
                     <strong className="mt-1 block text-domain-foreground">
@@ -1360,7 +1360,7 @@ function PvpPanel({ pvp, moveDetails }) {
                 ))}
               </div>
               <div className="mt-3 rounded-xl border border-line bg-surface-inset p-3">
-                <small className="block text-[10px] font-black uppercase tracking-[0.16em] text-disabled">
+                <small className="block type-overline-compact text-disabled">
                   Meilleur moveset
                 </small>
                 <strong className="mt-1 block break-words text-domain-foreground">
@@ -1596,7 +1596,7 @@ export function DetailModal({
               </span>
               <h2
                 id={dialogTitleId}
-                className="mt-1 truncate text-3xl font-black tracking-tight text-domain-foreground sm:text-4xl"
+                className="mt-1 truncate type-title-page text-domain-foreground"
               >
                 {entry.name}
               </h2>

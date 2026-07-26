@@ -18,8 +18,8 @@ export function EventEditorModal({ draft, busy, statusOptions, onChange, onClose
         <article className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-[2rem] border border-line bg-[#07111f] p-4 shadow-overlay sm:p-6" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(event) => event.stopPropagation()}>
           <div className="mb-5 flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200/70">CRUD admin</p>
-              <h2 id={titleId} className="mt-1 text-2xl font-black text-domain-foreground">{draft.originalId ? "Modifier l'event" : "Ajouter un event"}</h2>
+              <p className="type-overline text-cyan-200/70">CRUD admin</p>
+              <h2 id={titleId} className="mt-1 type-title-section text-domain-foreground">{draft.originalId ? "Modifier l'event" : "Ajouter un event"}</h2>
             </div>
             <button className="grid h-10 w-10 place-items-center rounded-full border border-line bg-surface-emphasis text-domain-foreground" type="button" onClick={onClose} aria-label="Fermer l’éditeur d’event">
               <X size={19} />
@@ -61,8 +61,8 @@ export function ImportModal({ value, busy, onChange, onClose, onImport }) {
         <article className="w-full max-w-4xl rounded-[2rem] border border-line bg-[#07111f] p-4 shadow-overlay sm:p-6" role="dialog" aria-modal="true" aria-labelledby={titleId} onClick={(event) => event.stopPropagation()}>
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200/70">Import JSON</p>
-              <h2 id={titleId} className="mt-1 text-2xl font-black text-domain-foreground">Importer des events</h2>
+              <p className="type-overline text-cyan-200/70">Import JSON</p>
+              <h2 id={titleId} className="mt-1 type-title-section text-domain-foreground">Importer des events</h2>
             </div>
             <button className="grid h-10 w-10 place-items-center rounded-full border border-line bg-surface-emphasis text-domain-foreground" type="button" onClick={onClose} aria-label="Fermer l’import des events">
               <X size={19} />
@@ -90,7 +90,7 @@ function Field({ label, value, onChange, type = "text", placeholder = "" }) {
     <FieldRoot
       className="grid gap-1.5"
       label={label}
-      labelClassName="text-xs font-black uppercase tracking-[0.16em] text-disabled"
+      labelClassName="type-overline text-disabled"
     >
       <input className={fieldClass} type={type} value={value} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
     </FieldRoot>
@@ -100,7 +100,7 @@ function Field({ label, value, onChange, type = "text", placeholder = "" }) {
 function SelectField({ label, value, options, onChange }) {
   return (
     <label className="grid gap-1.5">
-      <span className="text-xs font-black uppercase tracking-[0.16em] text-disabled">{label}</span>
+      <span className="type-overline text-disabled">{label}</span>
       <Select className={fieldClass} value={value} onChange={(event) => onChange(event.target.value)}>
         {options.map(([id, labelText]) => (
           <option key={id} value={id}>{labelText}</option>
@@ -115,7 +115,7 @@ function Area({ label, value, onChange }) {
     <FieldRoot
       className="grid gap-1.5"
       label={label}
-      labelClassName="text-xs font-black uppercase tracking-[0.16em] text-disabled"
+      labelClassName="type-overline text-disabled"
     >
       <textarea className={`${fieldClass} min-h-36 py-3 leading-6`} value={value} onChange={(event) => onChange(event.target.value)} />
     </FieldRoot>

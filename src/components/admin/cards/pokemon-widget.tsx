@@ -59,7 +59,7 @@ export function PokemonWidget() {
             <div className="grid grid-cols-3 gap-2">
               {metrics?.generations.slice(0, 9).map((item) => (
                 <Card tone="flat" key={item.name} className="p-2">
-                  <div className="flex items-center justify-between text-xs font-black">
+                  <div className="flex items-center justify-between type-label">
                     <span>{item.name}</span>
                     <span className="text-brand-3">{item.completion}%</span>
                   </div>
@@ -91,7 +91,7 @@ function Metric({
   return (
     <Card tone="flat" className="p-3">
       <Icon size={17} className="text-brand-2" />
-      <p className="mt-3 text-xs font-black uppercase tracking-[0.16em] text-muted">{label}</p>
+      <p className="mt-3 type-overline text-muted">{label}</p>
       <p className="mt-1 font-mono text-2xl font-black">{value}</p>
     </Card>
   );

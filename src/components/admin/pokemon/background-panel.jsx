@@ -57,15 +57,15 @@ function BackgroundPreview({ background, onOpen, onPreview }) {
         <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.14)_1px,transparent_1px)] [background-size:24px_24px]" />
         <div className="relative flex h-full min-h-[148px] flex-col justify-between">
           <div className="flex items-start justify-between gap-3">
-            <span className="rounded-full border border-white/12 bg-slate-950/58 px-3 py-1 text-xs font-black text-domain-foreground">Location card</span>
+            <span className="rounded-full border border-white/12 bg-slate-950/58 px-3 py-1 type-label text-domain-foreground">Location card</span>
             <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-black ${linked.length ? "border-emerald-200/30 bg-emerald-400/16 text-emerald-50" : "border-amber-200/30 bg-amber-400/16 text-amber-50"}`}>
               {linked.length ? <CheckCircle2 size={13} /> : <AlertTriangle size={13} />}
               {linked.length ? "Lié" : "Sans lien"}
             </span>
           </div>
           <div>
-            <strong className="block break-words text-xl font-black text-domain-foreground drop-shadow">{background.label}</strong>
-            <span className="mt-2 inline-flex rounded-full border border-white/12 bg-slate-950/58 px-3 py-1 text-xs font-black text-cyan-50">
+            <strong className="block break-words type-title-subsection text-domain-foreground drop-shadow">{background.label}</strong>
+            <span className="mt-2 inline-flex rounded-full border border-white/12 bg-slate-950/58 px-3 py-1 type-label text-cyan-50">
               {linked.length} Pokémon
             </span>
           </div>
@@ -91,12 +91,12 @@ function BackgroundPreview({ background, onOpen, onPreview }) {
                 </span>
                 <span className="min-w-0">
                   <strong className="block truncate text-sm font-black text-domain-foreground">{entry.name}</strong>
-                  <small className="block truncate text-xs font-bold text-muted">N° {entry.dexId} · {entry.form || "normal"}</small>
+                  <small className="block truncate type-caption-strong text-muted">N° {entry.dexId} · {entry.form || "normal"}</small>
                 </span>
                 <Link2 className="text-cyan-100/70" size={15} />
               </button>
             ))}
-            {linked.length > 28 ? <p className="rounded-xl border border-line bg-surface-minimal px-3 py-2 text-xs font-black text-foreground-secondary">+{linked.length - 28} autres fiches</p> : null}
+            {linked.length > 28 ? <p className="rounded-xl border border-line bg-surface-minimal px-3 py-2 type-label text-foreground-secondary">+{linked.length - 28} autres fiches</p> : null}
           </div>
         ) : (
           <EmptyState title="Aucun Pokémon n’utilise cette location card pour le moment" />
@@ -181,7 +181,7 @@ export function BackgroundPanel({ entries = [], library = [], linkedAssets = [],
           <AssetStatCard label="Sans Pokémon" value={emptyCount} icon="/ui/backgrounds/catchCards/ic_catch_card.png" tone="amber" detail="À rattacher" />
           <AssetStatCard label="Avec Pokémon" value={backgrounds.length - emptyCount} icon="/ui/backgrounds/catchCards/ic_catch_card_notification.png" tone="violet" detail="Location cards reliées" />
         </div>
-        <p className="mt-4 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-50/86">
+        <p className="mt-4 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 type-body-strong text-cyan-50/86">
           Cette section lit la bibliothèque <code>LocationCards</code> de PokemonGo-Assets-API et rapproche chaque image des fiches qui la référencent dans <code>assets.locationCards</code>. Les catchCards de capture ne sont pas utilisées ici.
         </p>
       </Panel>

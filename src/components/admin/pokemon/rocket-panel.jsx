@@ -216,7 +216,7 @@ function PokemonCard({ pokemon, onOpenPokemon, compact = false }) {
           <span className="min-w-0">
             <strong className="block truncate text-sm font-black text-domain-foreground">{name}</strong>
             {!compact && pokemon.names?.English && pokemon.names.English !== name ? (
-              <span className="block truncate text-xs font-bold text-muted">{pokemon.names.English}</span>
+              <span className="block truncate type-caption-strong text-muted">{pokemon.names.English}</span>
             ) : null}
             {sourceName ? <span className="block truncate text-[11px] font-bold text-cyan-100/65">Source : {sourceName}</span> : null}
           </span>
@@ -224,7 +224,7 @@ function PokemonCard({ pokemon, onOpenPokemon, compact = false }) {
         </span>
         <span className="flex min-w-0 items-center justify-between gap-2">
           <TypeIcons types={pokemon.types} />
-          {canOpen ? <span className="text-[10px] font-black uppercase tracking-[0.14em] text-cyan-100/60">Ouvrir</span> : null}
+          {canOpen ? <span className="type-overline-compact text-cyan-100/60">Ouvrir</span> : null}
         </span>
         <span className="flex flex-wrap items-center gap-1.5 text-[10px] font-black text-muted">
           {pokemon.form ? <span className="rounded-full border border-cyan-200/20 bg-cyan-400/10 px-2 py-1 text-cyan-50">{pokemon.form}</span> : null}
@@ -241,7 +241,7 @@ function SlotBlock({ label, pokemon, onOpenPokemon }) {
   return (
     <section className="min-w-0 rounded-2xl border border-line bg-slate-950/24 p-3">
       <div className="mb-3 flex items-center justify-between gap-2">
-        <h4 className="text-xs font-black uppercase tracking-[0.18em] text-cyan-100/72">{label}</h4>
+        <h4 className="type-overline text-cyan-100/72">{label}</h4>
         <span className="rounded-full border border-line bg-white/[0.07] px-2 py-1 text-[10px] font-black text-domain-foreground">{pokemon.length}</span>
       </div>
       {pokemon.length ? (
@@ -290,17 +290,17 @@ function TrainerCard({ profile, group, rocketText, onOpenPokemon, defaultOpen = 
             <img className="max-h-full object-contain drop-shadow-[0_16px_28px_rgba(0,0,0,.4)]" src={trainerImage(profile)} alt={name} loading="lazy" />
           </span>
           <span className="min-w-0">
-            <span className="text-[10px] font-black uppercase tracking-[0.22em] text-domain-foreground/62">
+            <span className="type-overline-compact text-domain-foreground/62">
               {profile.trainerType || "rocket"}
             </span>
-            <span className="block truncate text-xl font-black text-domain-foreground sm:text-2xl">{name}</span>
+            <span className="block truncate type-title-subsection text-domain-foreground">{name}</span>
             <span className="mt-1 line-clamp-2 text-sm font-bold text-domain-foreground/78">{frQuote}</span>
-            {englishQuote && englishQuote !== frQuote ? <span className="mt-1 block line-clamp-1 text-xs font-bold text-domain-foreground/45">{englishQuote}</span> : null}
+            {englishQuote && englishQuote !== frQuote ? <span className="mt-1 block line-clamp-1 type-caption-strong text-domain-foreground/45">{englishQuote}</span> : null}
           </span>
         </span>
         <span className="relative flex flex-wrap items-center gap-2 sm:justify-end">
           {profile.rocketType ? <TypeIcons types={[profile.rocketType]} /> : null}
-          <span className="rounded-full border border-red-200/25 bg-red-400/16 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-red-50">
+          <span className="rounded-full border border-red-200/25 bg-red-400/16 px-3 py-1.5 type-overline-compact text-red-50">
             {pokemonCount} Pokémon
           </span>
           <ChevronDown className="text-domain-foreground/70 transition group-open:rotate-180" size={22} />
@@ -315,7 +315,7 @@ function TrainerCard({ profile, group, rocketText, onOpenPokemon, defaultOpen = 
         {values(profile.rewards).length ? (
           <section className="rounded-2xl border border-emerald-200/18 bg-emerald-400/8 p-3">
             <div className="mb-3 flex items-center justify-between gap-2">
-              <h4 className="text-xs font-black uppercase tracking-[0.18em] text-emerald-100/75">Récompenses possibles</h4>
+              <h4 className="type-overline text-emerald-100/75">Récompenses possibles</h4>
               <span className="rounded-full bg-emerald-300/14 px-2 py-1 text-[10px] font-black text-emerald-50">
                 {values(profile.rewards).length}
               </span>
@@ -422,10 +422,10 @@ export function RocketPanel({
         <section key={title} className="space-y-3">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-cyan-100/62">rocket group</p>
-              <h2 className="text-2xl font-black text-domain-foreground">{title}</h2>
+              <p className="type-overline-compact text-cyan-100/62">rocket group</p>
+              <h2 className="type-title-section text-domain-foreground">{title}</h2>
             </div>
-            <span className="rounded-full border border-white/12 bg-white/[0.08] px-3 py-1.5 text-xs font-black text-domain-foreground">
+            <span className="rounded-full border border-white/12 bg-white/[0.08] px-3 py-1.5 type-label text-domain-foreground">
               {items.length}
             </span>
           </div>

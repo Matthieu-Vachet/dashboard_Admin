@@ -16,8 +16,8 @@ export function LearningAchievementGrid({ achievements }: { achievements: Achiev
     <section className="space-y-3" aria-labelledby="learning-achievements-title">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">Récompenses</p>
-          <h2 id="learning-achievements-title" className="mt-1 text-2xl font-black">Achievements</h2>
+          <p className="type-overline text-brand-2">Récompenses</p>
+          <h2 id="learning-achievements-title" className="mt-1 type-title-section">Achievements</h2>
         </div>
         <span className="text-sm font-bold text-muted">Débloqués automatiquement depuis les données d’apprentissage.</span>
       </div>
@@ -33,10 +33,10 @@ export function LearningAchievementGrid({ achievements }: { achievements: Achiev
                   <h3 className="font-black">{achievement.title}</h3>
                   <Badge tone={achievement.unlocked ? "green" : "neutral"}>{achievement.unlocked ? "Débloqué" : "Verrouillé"}</Badge>
                 </div>
-                <p className="mt-1 text-sm font-semibold leading-5 text-muted">{achievement.description}</p>
+                <p className="mt-1 type-body-strong text-muted">{achievement.description}</p>
               </div>
             </div>
-            <div className="mt-4 flex items-center justify-between gap-3 text-xs font-black text-muted">
+            <div className="mt-4 flex items-center justify-between gap-3 type-label text-muted">
               <span>{achievement.value} / {achievement.target} {getLearningMetricLabel(achievement.metric)}</span>
               <span>{achievement.progress}%</span>
             </div>

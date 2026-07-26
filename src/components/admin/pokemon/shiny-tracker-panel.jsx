@@ -61,7 +61,7 @@ function ActivityBar({ label, value, maximum, tone }) {
   const width = maximum > 0 ? Math.max(2, Math.min(100, (Number(value || 0) / maximum) * 100)) : 0;
   return (
     <div className="grid grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center gap-3">
-      <span className="text-[10px] font-black uppercase tracking-[0.14em] text-disabled">{label}</span>
+      <span className="type-overline-compact text-disabled">{label}</span>
       <span className="h-3 overflow-hidden rounded-full bg-black/35"><i className={`block h-full rounded-full ${tone}`} style={{ width: `${width}%` }} /></span>
       <strong className="min-w-14 text-right font-mono text-sm text-domain-foreground">{formatNumber(value, true)}</strong>
     </div>
@@ -103,14 +103,14 @@ function ShinyDetail({ entry, history, onOpenPokemon }) {
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <span className="font-mono text-xs font-black text-muted">#{String(entry.pokemon?.dexNr || entry.sourceIdentity?.id || "—").padStart(4, "0")}</span>
-              <h3 className="text-2xl font-black text-domain-foreground">{pokemonName(entry)} ✦</h3>
+              <h3 className="type-title-section text-domain-foreground">{pokemonName(entry)} ✦</h3>
             </div>
             <span className="rounded-full border border-line-medium bg-white/[0.08] px-3 py-1.5 font-mono text-xs font-black">Rang #{entry.rank} / {entry.rankTotal || "—"}</span>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <TypeIcons types={types} />
-            {types.map((type) => <span className="rounded-full border border-line bg-black/25 px-3 py-1 text-xs font-black" key={type}>{typeLabels[String(type).toUpperCase()] || type}</span>)}
-            {entry.shiny?.rarity ? <span className="rounded-full border border-amber-200/25 bg-amber-300/14 px-3 py-1 text-xs font-black text-amber-50">{entry.shiny.rarity}</span> : null}
+            {types.map((type) => <span className="rounded-full border border-line bg-black/25 px-3 py-1 type-label" key={type}>{typeLabels[String(type).toUpperCase()] || type}</span>)}
+            {entry.shiny?.rarity ? <span className="rounded-full border border-amber-200/25 bg-amber-300/14 px-3 py-1 type-label text-amber-50">{entry.shiny.rarity}</span> : null}
           </div>
           <div className="mt-5 space-y-3">
             <ActivityBar label="Aujourd’hui" value={current} maximum={maximum} tone="bg-gradient-to-r from-emerald-400 to-cyan-400" />
@@ -128,16 +128,16 @@ function ShinyDetail({ entry, history, onOpenPokemon }) {
 
       <section className="rounded-2xl border p-4" style={{ borderColor: `${typeColors[primaryType(entry)] || typeColors.NORMAL}66`, ...typeSurface(entry, 0.2) }}>
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div><span className="text-[10px] font-black uppercase tracking-[0.18em] text-muted">Shiny</span><strong className="mt-1 block font-mono text-3xl text-domain-foreground">{entry.shiny?.odds?.raw || "Odds indisponibles"}</strong></div>
-          {entry.shiny?.rarity ? <span className="rounded-full border border-white/12 bg-black/25 px-3 py-1.5 text-xs font-black">{entry.shiny.rarity}</span> : null}
+          <div><span className="type-overline-compact text-muted">Shiny</span><strong className="mt-1 block font-mono text-3xl text-domain-foreground">{entry.shiny?.odds?.raw || "Odds indisponibles"}</strong></div>
+          {entry.shiny?.rarity ? <span className="rounded-full border border-white/12 bg-black/25 px-3 py-1.5 type-label">{entry.shiny.rarity}</span> : null}
         </div>
         {shinyRate != null ? <div className="mt-3 h-3 overflow-hidden rounded-full border border-line bg-black/30"><i className="block h-full rounded-full bg-gradient-to-r from-amber-300 to-orange-400" style={{ width: `${shinyProgress}%` }} /></div> : null}
         <p className="mt-3 text-sm font-bold text-foreground-secondary">{formatNumber(entry.shiny?.seen, true)} shiny vus{shinyRate == null ? "" : ` · ${formatNumber(shinyRate)} % de taux shiny`}</p>
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2">
-        <div className="rounded-2xl border border-line bg-surface-minimal p-4"><span className="text-[10px] font-black uppercase tracking-wider text-disabled">First Seen</span><strong className="mt-2 block text-domain-foreground">{formatDate(entry.firstSeenAt)}</strong></div>
-        <div className="rounded-2xl border border-line bg-surface-minimal p-4"><span className="text-[10px] font-black uppercase tracking-wider text-disabled">Last Seen</span><strong className="mt-2 block text-domain-foreground">{formatDate(entry.lastSeenAt)}</strong></div>
+        <div className="rounded-2xl border border-line bg-surface-minimal p-4"><span className="type-overline-compact text-disabled">First Seen</span><strong className="mt-2 block text-domain-foreground">{formatDate(entry.firstSeenAt)}</strong></div>
+        <div className="rounded-2xl border border-line bg-surface-minimal p-4"><span className="type-overline-compact text-disabled">Last Seen</span><strong className="mt-2 block text-domain-foreground">{formatDate(entry.lastSeenAt)}</strong></div>
       </section>
 
       <section className="rounded-2xl border border-line bg-surface-inset p-4">
@@ -147,7 +147,7 @@ function ShinyDetail({ entry, history, onOpenPokemon }) {
             {[
               ["Moyenne globale", statistics.average], ["Moyenne 7 jours", sevenDays?.average], ["Moyenne 30 jours", thirtyDays?.average],
               ["Variation", variation?.absolute], ["Meilleure", statistics.best?.value], ["Pire", statistics.worst?.value],
-            ].map(([label, value]) => <div className="rounded-xl border border-line bg-surface-minimal p-3" key={label}><dt className="text-[10px] font-black uppercase tracking-wider text-disabled">{label}</dt><dd className="mt-1 font-mono font-black text-domain-foreground">{value == null ? "—" : label === "Variation" ? `${Number(value) > 0 ? "+" : ""}${formatNumber(value)}` : `1 / ${formatNumber(value)}`}</dd></div>)}
+            ].map(([label, value]) => <div className="rounded-xl border border-line bg-surface-minimal p-3" key={label}><dt className="type-overline-compact text-disabled">{label}</dt><dd className="mt-1 font-mono font-black text-domain-foreground">{value == null ? "—" : label === "Variation" ? `${Number(value) > 0 ? "+" : ""}${formatNumber(value)}` : `1 / ${formatNumber(value)}`}</dd></div>)}
           </dl>
         ) : <p className="mt-3 text-sm font-bold text-muted">Aucune statistique calculable avant plusieurs snapshots réels.</p>}
         {points.length >= 2 ? (
@@ -221,7 +221,7 @@ export function ShinyTrackerPanel({ dataset, loading, regenerating, options, onO
           <button className="grid w-full min-w-0 grid-cols-[2rem_3.5rem_minmax(0,1fr)] gap-2 rounded-2xl border border-line p-3 text-left transition hover:border-cyan-200/35 sm:grid-cols-[3rem_4rem_minmax(0,1fr)_repeat(4,minmax(5rem,auto))] sm:items-center sm:gap-3" style={typeSurface(entry, 0.1)} type="button" key={`${entry.rank}-${entry.sourceIdentity?.variantKey}`} onClick={() => openEntry(entry)}>
             <span className="font-mono text-sm font-black text-muted">#{entry.rank}</span>
             <PokemonArtwork pokemon={entry.pokemon} shiny alt={pokemonName(entry)} className="h-12 w-12 border-0 bg-transparent sm:h-14 sm:w-14" />
-            <span className="min-w-0"><strong className="block truncate text-sm text-domain-foreground">#{entry.pokemon?.dexNr} {pokemonName(entry)}</strong><span className="mt-1 flex flex-wrap items-center gap-2"><TypeIcons types={entry.pokemon?.types} size="sm" /><small className="truncate text-xs font-bold text-muted">Dernière : {formatDate(entry.lastSeenAt)}</small></span></span>
+            <span className="min-w-0"><strong className="block truncate text-sm text-domain-foreground">#{entry.pokemon?.dexNr} {pokemonName(entry)}</strong><span className="mt-1 flex flex-wrap items-center gap-2"><TypeIcons types={entry.pokemon?.types} size="sm" /><small className="truncate type-caption-strong text-muted">Dernière : {formatDate(entry.lastSeenAt)}</small></span></span>
             <span className="col-span-3 grid grid-cols-4 gap-2 border-t border-line pt-2 sm:hidden">
               <span><small className="block text-[9px] font-black uppercase text-disabled">Daily</small><strong className="font-mono text-xs text-domain-foreground">{formatNumber(entry.stats?.daily, true)}</strong></span>
               <span><small className="block text-[9px] font-black uppercase text-disabled">Mois</small><strong className="font-mono text-xs text-domain-foreground">{formatNumber(entry.stats?.monthly, true)}</strong></span>

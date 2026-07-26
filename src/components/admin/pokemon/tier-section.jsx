@@ -82,7 +82,7 @@ export function TierSection({
             <span className={`block text-[10px] font-black uppercase tracking-[0.22em] ${style.text}`}>
               {id}
             </span>
-            <strong className="mt-1 block truncate text-xl font-black text-domain-foreground sm:text-2xl">
+            <strong className="mt-1 block truncate type-title-subsection text-domain-foreground">
               {title}
             </strong>
           </span>

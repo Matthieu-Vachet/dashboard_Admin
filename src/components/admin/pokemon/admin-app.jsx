@@ -912,7 +912,7 @@ function RulesPanel({
         </div>
       }
     >
-      <div className="mb-5 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 text-sm font-bold leading-6 text-cyan-50">
+      <div className="mb-5 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 type-body-strong text-cyan-50">
         La sauvegarde d’une règle est instantanée et relance le contrôle sur le
         snapshot déjà chargé. Utilise “Sync GitHub” seulement quand tu veux
         reprendre les JSON distants avant de recalculer toutes les cartes data:
@@ -926,7 +926,7 @@ function RulesPanel({
             </p>
           ) : null}
           <div>
-            <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-disabled">
+            <span className="mb-2 block type-overline text-disabled">
               Modèles utiles
             </span>
             <div className="grid min-w-0 gap-2 md:grid-cols-2">
@@ -940,7 +940,7 @@ function RulesPanel({
                   <strong className="block text-sm font-black text-domain-foreground">
                     {preset.name}
                   </strong>
-                  <span className="mt-1 block text-xs font-bold leading-5 text-muted">
+                  <span className="mt-1 block type-caption-strong text-muted">
                     {preset.description}
                   </span>
                 </button>
@@ -948,7 +948,7 @@ function RulesPanel({
             </div>
           </div>
           <label className="block">
-            <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-disabled">
+            <span className="mb-2 block type-overline text-disabled">
               Nom
             </span>
             <input
@@ -970,7 +970,7 @@ function RulesPanel({
             Règle active
           </label>
           <div>
-            <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-disabled">
+            <span className="mb-2 block type-overline text-disabled">
               Mode de règle
             </span>
             <div className="grid min-w-0 gap-2 min-[480px]:grid-cols-2">
@@ -994,7 +994,7 @@ function RulesPanel({
             </div>
           </div>
           <div>
-            <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-disabled">
+            <span className="mb-2 block type-overline text-disabled">
               Appliquer à
             </span>
             <div className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
@@ -1018,12 +1018,12 @@ function RulesPanel({
             <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
               <span
                 id="form-a11y-rule-filter-label"
-                className="block text-xs font-black uppercase tracking-[0.18em] text-disabled"
+                className="block type-overline text-disabled"
               >
                 Filtrer fichiers / cibles
               </span>
               <button
-                className="w-fit text-xs font-black text-cyan-100 underline-offset-4 hover:underline"
+                className="w-fit type-label text-cyan-100 underline-offset-4 hover:underline"
                 type="button"
                 onClick={() => onFormChange({ ...form, formFilters: [] })}
               >
@@ -1032,7 +1032,7 @@ function RulesPanel({
             </div>
             <p
               id="form-a11y-rule-filter-description"
-              className="mb-2 text-xs font-bold leading-5 text-disabled"
+              className="mb-2 type-caption-strong text-disabled"
             >
               Optionnel: vise une forme, un dossier, un fichier ou un id précis,
               par exemple types/fire, moves/charged, kanto ou WEATHER_BALL_FIRE.
@@ -1074,7 +1074,7 @@ function RulesPanel({
           </label>
           {mode === "template" ? (
             <label className="block">
-              <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-disabled">
+              <span className="mb-2 block type-overline text-disabled">
                 Modèle JSON attendu
               </span>
               <textarea
@@ -1088,7 +1088,7 @@ function RulesPanel({
           ) : (
             <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
               <label className="block">
-                <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-disabled">
+                <span className="mb-2 block type-overline text-disabled">
                   Chemin JSON
                 </span>
                 <input
@@ -1105,7 +1105,7 @@ function RulesPanel({
                 />
               </label>
               <label className="block">
-                <span className="mb-2 block text-xs font-black uppercase tracking-[0.18em] text-disabled">
+                <span className="mb-2 block type-overline text-disabled">
                   Type attendu
                 </span>
                 <Select
@@ -1160,7 +1160,7 @@ function RulesPanel({
         </section>
 
         <section className="min-w-0 rounded-2xl border border-line bg-slate-950/25 p-4">
-          <h3 className="text-lg font-black text-domain-foreground">
+          <h3 className="type-title-card text-domain-foreground">
             Règles enregistrées
           </h3>
           <div className="mt-4 space-y-3">
@@ -1175,7 +1175,7 @@ function RulesPanel({
                       <strong className="block truncate text-domain-foreground">
                         {rule.name}
                       </strong>
-                      <small className="mt-1 block truncate text-xs font-bold text-muted">
+                      <small className="mt-1 block truncate type-caption-strong text-muted">
                         {(rule.appliesTo || []).join(", ")}
                         {(rule.formFilters || []).length
                           ? ` · ${(rule.formFilters || []).join(", ")}`
@@ -1222,14 +1222,14 @@ function RulesPanel({
       <section className="mt-5 rounded-2xl border border-line bg-surface-inset-subtle p-4">
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h3 className="text-lg font-black text-domain-foreground">
+            <h3 className="type-title-card text-domain-foreground">
               Cartes à contrôler
             </h3>
-            <p className="mt-1 text-sm font-bold leading-6 text-muted">
+            <p className="mt-1 type-body-strong text-muted">
               Cartes Pokémon qui ne respectent pas une règle personnalisée.
             </p>
           </div>
-          <span className="rounded-full border border-amber-300/25 bg-amber-400/10 px-3 py-2 text-xs font-black text-amber-100">
+          <span className="rounded-full border border-amber-300/25 bg-amber-400/10 px-3 py-2 type-label text-amber-100">
             {customIssueCount} clé(s)
           </span>
         </div>
@@ -1245,15 +1245,15 @@ function RulesPanel({
       <section className="mt-5 rounded-2xl border border-line bg-surface-inset-subtle p-4">
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h3 className="text-lg font-black text-domain-foreground">
+            <h3 className="type-title-card text-domain-foreground">
               Autres JSON à contrôler
             </h3>
-            <p className="mt-1 text-sm font-bold leading-6 text-muted">
+            <p className="mt-1 type-body-strong text-muted">
               Attaques, types, météo, générations et stickers qui ne respectent
               pas une règle personnalisée.
             </p>
           </div>
-          <span className="rounded-full border border-amber-300/25 bg-amber-400/10 px-3 py-2 text-xs font-black text-amber-100">
+          <span className="rounded-full border border-amber-300/25 bg-amber-400/10 px-3 py-2 type-label text-amber-100">
             {customJsonIssueCount} clé(s)
           </span>
         </div>
@@ -1800,28 +1800,28 @@ export function AdminApp() {
           <section className="mt-3 grid items-start gap-3 sm:grid-cols-3">
             <article className="rounded-2xl border border-emerald-300/15 bg-emerald-400/10 p-4">
               <Sparkles className="mb-3 text-emerald-200" size={21} />
-              <span className="text-xs font-bold text-emerald-100/80">
+              <span className="type-caption-strong text-emerald-100/80">
                 Données complètes
               </span>
-              <strong className="mt-1 block text-2xl font-black">
+              <strong className="mt-1 block type-title-section">
                 {summary.complete || 0}
               </strong>
             </article>
             <article className="rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4">
               <ShieldCheck className="mb-3 text-cyan-200" size={21} />
-              <span className="text-xs font-bold text-cyan-100/80">
+              <span className="type-caption-strong text-cyan-100/80">
                 Accès admin
               </span>
-              <strong className="mt-1 block text-2xl font-black">
+              <strong className="mt-1 block type-title-section">
                 Protégé
               </strong>
             </article>
             <article className="rounded-2xl border border-violet-300/15 bg-violet-400/10 p-4">
               <BarChart3 className="mb-3 text-violet-200" size={21} />
-              <span className="text-xs font-bold text-violet-100/80">
+              <span className="type-caption-strong text-violet-100/80">
                 Résultat filtre
               </span>
-              <strong className="mt-1 block text-2xl font-black">
+              <strong className="mt-1 block type-title-section">
                 {filtered.length}
               </strong>
             </article>
@@ -2626,7 +2626,7 @@ export function AdminApp() {
     return (
       <main className="grid min-h-screen place-items-center bg-[radial-gradient(circle_at_20%_0%,rgba(14,165,233,.28),transparent_35%),#060914] p-4 text-domain-foreground">
         <section className={panelClass}>
-          <h2 className="text-xl font-black">
+          <h2 className="type-title-subsection">
             Vérification de la session admin...
           </h2>
         </section>
@@ -2670,10 +2670,10 @@ export function AdminApp() {
               <div className="relative">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                   <div>
-                    <p className="mb-1 text-xs font-black uppercase tracking-[0.24em] text-cyan-200/70">
+                    <p className="mb-1 type-overline text-cyan-200/70">
                       Dashboard sécurisé
                     </p>
-                    <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
+                    <h1 className="type-title-page">
                       {navItems.find((item) => item.id === active)?.label}
                     </h1>
                   </div>
@@ -2774,11 +2774,11 @@ export function AdminApp() {
                   />
                   <section className="mt-4 rounded-surface border border-line bg-surface-inset-subtle p-3 shadow-surface">
                     <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                      <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-cyan-100/75">
+                      <span className="inline-flex items-center gap-2 type-overline text-cyan-100/75">
                         <Search size={15} /> Filtres fiches
                       </span>
                       <button
-                        className="text-xs font-black text-cyan-100 underline-offset-4 hover:underline"
+                        className="type-label text-cyan-100 underline-offset-4 hover:underline"
                         type="button"
                         onClick={() => setFicheFilter("all")}
                       >
@@ -3162,7 +3162,7 @@ export function AdminApp() {
                         detail="Même URL liée plusieurs fois"
                       />
                     </div>
-                    <p className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 text-sm font-bold leading-6 text-foreground-secondary">
+                    <p className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 type-body-strong text-foreground-secondary">
                       Cette page sert à contrôler les images réellement liées
                       aux fiches et les propositions HD. “Réutilisations”
                       signifie qu’une même URL d’asset est référencée par
@@ -3210,10 +3210,10 @@ export function AdminApp() {
                             />
                           </div>
                           <div className="border-t border-line p-3">
-                            <strong className="block truncate text-xs font-black text-domain-foreground">
+                            <strong className="block truncate type-label text-domain-foreground">
                               {asset.filename || asset.label}
                             </strong>
-                            <span className="mt-1 block truncate text-xs font-bold text-muted">
+                            <span className="mt-1 block truncate type-caption-strong text-muted">
                               {asset.group} ·{" "}
                               {asset.label ||
                                 asset.details ||
@@ -3319,7 +3319,7 @@ export function AdminApp() {
 
               {active === "compare" ? (
                 <Panel title="Comparaison de fiches" eyebrow="contrôle">
-                  <p className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 text-sm font-bold leading-6 text-foreground-secondary">
+                  <p className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 type-body-strong text-foreground-secondary">
                     Compare deux fiches côte à côte pour vérifier rapidement les
                     assets, types, problèmes JSON et informations visibles avant
                     une correction.
@@ -3430,7 +3430,7 @@ export function AdminApp() {
                 >
                   <p
                     id="form-a11y-bulk-description"
-                    className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 text-sm font-bold leading-6 text-foreground-secondary"
+                    className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 type-body-strong text-foreground-secondary"
                   >
                     Génère un brouillon JSON à partir des problèmes détectés. Ce
                     panneau ne modifie pas les fichiers: il sert à préparer des
@@ -3470,7 +3470,7 @@ export function AdminApp() {
                 >
                   <p
                     id="form-a11y-export-description"
-                    className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 text-sm font-bold leading-6 text-foreground-secondary"
+                    className="mb-4 rounded-2xl border border-line bg-surface-inset p-4 type-body-strong text-foreground-secondary"
                   >
                     Exporte les fiches correspondant à la recherche globale en
                     cours. Pratique pour partager un lot réduit ou conserver un
@@ -3543,7 +3543,7 @@ export function AdminApp() {
                     >
                       {item.ok ? "Accessible" : "Erreur"}
                     </strong>
-                    <span className="mt-1 block break-all text-xs font-bold text-foreground-secondary">
+                    <span className="mt-1 block break-all type-caption-strong text-foreground-secondary">
                       HTTP {item.status || "?"} · {item.url}
                     </span>
                   </div>
@@ -3569,7 +3569,7 @@ export function AdminApp() {
                       <strong className="text-domain-foreground">
                         {label}
                       </strong>
-                      <span className="rounded-full bg-surface-emphasis px-2 py-1 text-xs font-black text-foreground-secondary">
+                      <span className="rounded-full bg-surface-emphasis px-2 py-1 type-label text-foreground-secondary">
                         {items.length}
                       </span>
                     </div>

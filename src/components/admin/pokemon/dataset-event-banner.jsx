@@ -87,13 +87,13 @@ export function DatasetEventBanner({ event, relatedEvent = null }) {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <span className={`rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.15em] ${statusTone(status)}`}>{status}</span>
-            {calendarEvent ? <span className="rounded-full border border-cyan-200/25 bg-cyan-300/12 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.15em] text-cyan-50">Calendrier lié</span> : null}
+            {calendarEvent ? <span className="rounded-full border border-cyan-200/25 bg-cyan-300/12 px-2.5 py-1 type-overline-compact text-cyan-50">Calendrier lié</span> : null}
           </div>
-          <h3 className="mt-3 text-xl font-black text-domain-foreground sm:text-2xl">{name}</h3>
+          <h3 className="mt-3 type-title-subsection text-domain-foreground">{name}</h3>
           {event?.description || calendarEvent?.description ? (
-            <p className="mt-2 max-w-4xl text-sm font-bold leading-6 text-violet-50/78">{event?.description || calendarEvent?.description}</p>
+            <p className="mt-2 max-w-4xl type-body-strong text-violet-50/78">{event?.description || calendarEvent?.description}</p>
           ) : null}
-          <div className="mt-3 flex flex-wrap gap-2 text-xs font-black text-foreground">
+          <div className="mt-3 flex flex-wrap gap-2 type-label text-foreground">
             <span className="inline-flex items-center gap-2 rounded-xl border border-line bg-black/20 px-3 py-2"><Clock3 size={15} /> {formatDate(startsAt)} → {formatDate(endsAt)}</span>
             {event?.timezone ? <span className="rounded-xl border border-line bg-black/20 px-3 py-2">{event.timezone}</span> : null}
             {calendarEvent ? <span className="inline-flex items-center gap-2 rounded-xl border border-line bg-black/20 px-3 py-2"><Layers3 size={15} /> {calendarEvent.raids?.length || 0} raids · {calendarEvent.sections?.length || 0} sections</span> : null}
@@ -108,11 +108,11 @@ export function DatasetEventBanner({ event, relatedEvent = null }) {
             </div>
           ) : <Sparkles className="text-violet-100/70" size={26} />}
           <div className="flex flex-wrap gap-2">
-            <a className="inline-flex items-center gap-2 rounded-xl border border-white/14 bg-white/[0.08] px-3 py-2 text-xs font-black text-domain-foreground hover:bg-white/[0.13]" href="/pokemon-admin?section=events">
+            <a className="inline-flex items-center gap-2 rounded-xl border border-white/14 bg-white/[0.08] px-3 py-2 type-label text-domain-foreground hover:bg-white/[0.13]" href="/pokemon-admin?section=events">
               <CalendarDays size={15} /> Calendrier Events
             </a>
             {calendarEvent?.sourceUrl ? (
-              <a className="inline-flex items-center gap-2 rounded-xl border border-cyan-200/20 bg-cyan-300/10 px-3 py-2 text-xs font-black text-cyan-50" href={calendarEvent.sourceUrl} target="_blank" rel="noreferrer">
+              <a className="inline-flex items-center gap-2 rounded-xl border border-cyan-200/20 bg-cyan-300/10 px-3 py-2 type-label text-cyan-50" href={calendarEvent.sourceUrl} target="_blank" rel="noreferrer">
                 Source event <ExternalLink size={14} />
               </a>
             ) : null}

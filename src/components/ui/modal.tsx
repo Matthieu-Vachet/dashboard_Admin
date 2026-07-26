@@ -91,9 +91,9 @@ export function Modal({
       >
         <header className="flex items-start justify-between gap-4 border-b border-line p-4 sm:p-5">
           <div className="min-w-0">
-            <h2 id={titleId} className="text-xl font-black leading-tight text-foreground">{title}</h2>
+            <h2 id={titleId} className="type-title-subsection text-foreground">{title}</h2>
             {description ? (
-              <p id={descriptionId} className="mt-1 text-sm font-semibold leading-6 text-muted">{description}</p>
+              <p id={descriptionId} className="type-body-strong mt-1 text-muted">{description}</p>
             ) : null}
           </div>
           <button

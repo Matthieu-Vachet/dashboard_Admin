@@ -54,7 +54,7 @@ test("Badge conserve son span non interactif, son API finie et son squelette", (
   assert.match(badgeSource, /HTMLAttributes<HTMLSpanElement>/);
   assert.match(badgeSource, /return\s*\(\s*<span\b/s);
   assert.doesNotMatch(badgeSource, /<button\b/);
-  for (const token of ["inline-flex", "min-h-7", "items-center", "rounded-full", "border", "px-2.5", "text-xs", "font-black"]) {
+  for (const token of ["type-label", "inline-flex", "min-h-7", "items-center", "rounded-full", "border", "px-2.5"]) {
     assert.match(badgeSource, new RegExp(escapeRegExp(token)));
   }
   assert.match(badgeSource, /"cyan" \| "violet" \| "green" \| "amber" \| "red" \| "neutral"/);

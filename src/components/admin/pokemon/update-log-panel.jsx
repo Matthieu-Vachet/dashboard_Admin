@@ -34,9 +34,9 @@ export function UpdateLogPanel({
       <article className="rounded-surface border border-line bg-surface-subtle p-4 shadow-raised backdrop-blur-xl sm:p-5">
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200/70">Mongo source history</p>
-            <h2 className="mt-2 text-2xl font-black text-domain-foreground">Modifications surveillées</h2>
-            <p className="mt-2 text-sm font-bold leading-6 text-muted">
+            <p className="type-overline text-cyan-200/70">Mongo source history</p>
+            <h2 className="mt-2 type-title-section text-domain-foreground">Modifications surveillées</h2>
+            <p className="mt-2 type-body-strong text-muted">
               Les changements de commits, tags, ETag, Last-Modified et statuts HTTP remontent ici.
             </p>
           </div>
@@ -58,16 +58,16 @@ export function UpdateLogPanel({
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <strong className="block break-words font-black text-domain-foreground">{item.name || item.sourceId || "Source"}</strong>
-                    <small className="mt-1 block text-xs font-bold text-muted">{formatDate(item.checkedAt)}</small>
+                    <small className="mt-1 block type-caption-strong text-muted">{formatDate(item.checkedAt)}</small>
                     {item.message ? (
-                      <p className="mt-2 text-sm font-bold leading-6 text-foreground-secondary">{item.message}</p>
+                      <p className="mt-2 type-body-strong text-foreground-secondary">{item.message}</p>
                     ) : null}
                   </div>
                   <span className="shrink-0 rounded-full border border-cyan-200/25 bg-surface-inset px-3 py-1.5 font-mono text-xs font-black text-cyan-100">
                     {shortValue(item.version || item.signature)}
                   </span>
                 </div>
-                <div className="mt-3 grid gap-2 text-xs font-bold text-muted sm:grid-cols-2">
+                <div className="mt-3 grid gap-2 type-caption-strong text-muted sm:grid-cols-2">
                   <span className="truncate rounded-xl border border-line bg-surface-inset px-3 py-2">
                     Avant: {shortValue(item.previousVersion || item.previousSignature)}
                   </span>
@@ -86,9 +86,9 @@ export function UpdateLogPanel({
       <article className="rounded-surface border border-line bg-surface-subtle p-4 shadow-raised backdrop-blur-xl sm:p-5">
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-sky-200/70">PokemonGo-Data</p>
-            <h2 className="mt-2 text-2xl font-black text-domain-foreground">Déploiements data</h2>
-            <p className="mt-2 text-sm font-bold leading-6 text-muted">
+            <p className="type-overline text-sky-200/70">PokemonGo-Data</p>
+            <h2 className="mt-2 type-title-section text-domain-foreground">Déploiements data</h2>
+            <p className="mt-2 type-body-strong text-muted">
               Redéploiements du Dashboard déclenchés après un push data, avec le diff des JSON suivis.
             </p>
           </div>
@@ -114,8 +114,8 @@ export function UpdateLogPanel({
                       <strong className="block break-words font-black text-domain-foreground">
                         {changes.trackedFiles || 0} JSON suivi(s)
                       </strong>
-                      <small className="mt-1 block text-xs font-bold text-muted">{formatDate(item.triggeredAt)}</small>
-                      <p className="mt-2 text-sm font-bold leading-6 text-foreground-secondary">
+                      <small className="mt-1 block type-caption-strong text-muted">{formatDate(item.triggeredAt)}</small>
+                      <p className="mt-2 type-body-strong text-foreground-secondary">
                         Fiches {changes.pokemonFiles || 0} · Assets {changes.assetFiles || 0} · Catalogues{" "}
                         {changes.catalogFiles || 0}
                       </p>
@@ -137,18 +137,18 @@ export function UpdateLogPanel({
         <div className="mb-4 flex items-center gap-3">
           <GitCommitHorizontal className="text-emerald-200" size={22} />
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-emerald-200/70">Git</p>
-            <h2 className="text-2xl font-black text-domain-foreground">Derniers commits</h2>
+            <p className="type-overline text-emerald-200/70">Git</p>
+            <h2 className="type-title-section text-domain-foreground">Derniers commits</h2>
           </div>
         </div>
         {recentGit.length ? (
           <div className="grid gap-3">
             {recentGit.map((item) => (
               <article className="rounded-2xl border border-line bg-surface-inset p-4" key={item.hash || item.message}>
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-disabled">{item.date || "date inconnue"}</p>
+                <p className="type-overline text-disabled">{item.date || "date inconnue"}</p>
                 <strong className="mt-2 block break-words text-sm font-black text-domain-foreground">{item.message || "Commit"}</strong>
                 {item.hash ? (
-                  <code className="mt-2 inline-flex items-center gap-1 rounded-full bg-white/[0.07] px-3 py-1 text-xs font-bold text-cyan-100">
+                  <code className="mt-2 inline-flex items-center gap-1 rounded-full bg-white/[0.07] px-3 py-1 type-caption-strong text-cyan-100">
                     {String(item.hash).slice(0, 12)} <ExternalLink size={12} />
                   </code>
                 ) : null}

@@ -33,7 +33,7 @@ export function StatCard({
     <Card className="motion-border p-4">
       <div className="relative z-10 flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">
+          <p className="type-overline text-muted">
             {label}
           </p>
           <p className="mt-3 font-mono text-3xl font-black leading-none">{value}</p>
@@ -47,7 +47,7 @@ export function StatCard({
           <Icon size={20} />
         </div>
       </div>
-      <div className="relative z-10 mt-5 flex items-center gap-2 text-xs font-black text-muted">
+      <div className="relative z-10 mt-5 flex items-center gap-2 type-label text-muted">
         <TrendIcon
           size={15}
           className={trend === "up" ? "text-brand-3" : "text-danger"}

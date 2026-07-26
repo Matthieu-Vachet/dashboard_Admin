@@ -229,7 +229,7 @@ export function CalendarPlanner() {
         <div className="flex flex-col gap-4 2xl:flex-row 2xl:items-center 2xl:justify-between">
           <div>
             <Badge tone="cyan">Events Pokémon GO</Badge>
-            <h2 className="mt-3 text-3xl font-black capitalize">
+            <h2 className="mt-3 type-title-page capitalize">
               {view === "année"
                 ? cursor.getFullYear()
                 : view === "semestre"
@@ -246,7 +246,7 @@ export function CalendarPlanner() {
                   type="button"
                   onClick={() => setView(item)}
                   className={cn(
-                    "rounded-md px-3 py-2 text-xs font-black capitalize transition",
+                    "rounded-md px-3 py-2 type-label capitalize transition",
                     view === item ? "bg-brand-2 text-on-accent" : "text-muted hover:text-foreground",
                   )}
                 >
@@ -291,7 +291,7 @@ export function CalendarPlanner() {
         </div>
 
         <div className="mt-5 grid gap-3 rounded-lg border border-line bg-surface-faint p-3 md:grid-cols-[auto_1fr_1fr]">
-          <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-brand-2">
+          <span className="inline-flex items-center gap-2 type-overline text-brand-2">
             <Filter size={15} />
             Filtres
           </span>
@@ -358,10 +358,10 @@ export function CalendarPlanner() {
         <EventList title="En cours" events={currentEvents} empty="Aucun event en cours." onOpen={openEvent} />
         <EventList title="À venir" events={upcomingEvents} empty="Aucun event à venir dans ce filtre." onOpen={openEvent} />
         <Card className="p-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">
+          <p className="type-overline text-brand-2">
             Jour sélectionné
           </p>
-          <h3 className="mt-2 text-2xl font-black capitalize">
+          <h3 className="mt-2 type-title-section capitalize">
             {format(selectedDate, "EEEE d MMMM", { locale: fr })}
           </h3>
           <div className="mt-5 space-y-3">
@@ -435,7 +435,7 @@ export function CalendarPlanner() {
                 />
               </Field>
               <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Statut</span>
+                <span className="type-overline text-muted">Statut</span>
                 <Select
                   className="mt-2 min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none"
                   value={selectedEvent.status}
@@ -450,7 +450,7 @@ export function CalendarPlanner() {
               </label>
             </div>
             <label className="block">
-              <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">Catégorie</span>
+              <span className="type-overline text-muted">Catégorie</span>
               <Select
                 className="mt-2 min-h-11 w-full rounded-lg border border-line bg-surface-control px-3 text-sm font-black outline-none"
                 value={selectedEvent.category}
@@ -464,7 +464,7 @@ export function CalendarPlanner() {
               </Select>
             </label>
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-muted">Couleur</p>
+              <p className="type-overline text-muted">Couleur</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {tones.map((tone) => (
                   <button
@@ -472,7 +472,7 @@ export function CalendarPlanner() {
                     type="button"
                     onClick={() => updateEvent(selectedEvent.id, { color: tone, tone })}
                     className={cn(
-                      "rounded-full border px-3 py-2 text-xs font-black transition",
+                      "rounded-full border px-3 py-2 type-label transition",
                       selectedEvent.color === tone
                         ? "border-brand-2/45 bg-white/[0.1]"
                         : "border-line bg-surface-minimal",
@@ -521,7 +521,7 @@ function MonthGrid({
   return (
     <div className="mt-6 grid grid-cols-7 gap-2">
       {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((day) => (
-        <div key={day} className="py-2 text-center text-xs font-black uppercase tracking-[0.14em] text-muted">
+        <div key={day} className="py-2 text-center type-overline text-muted">
           {day}
         </div>
       ))}
@@ -609,7 +609,7 @@ function DayView({
 }) {
   return (
     <div className="mt-6 rounded-lg border border-line bg-surface-faint p-4">
-      <h3 className="text-xl font-black capitalize">{format(date, "EEEE d MMMM yyyy", { locale: fr })}</h3>
+      <h3 className="type-title-subsection capitalize">{format(date, "EEEE d MMMM yyyy", { locale: fr })}</h3>
       <div className="mt-4 grid gap-3">
         {events.length ? (
           events.map((event) => (
@@ -622,10 +622,10 @@ function DayView({
               <span className="font-mono text-sm font-black text-brand-2">{event.time}</span>
               <span>
                 <strong className="block text-sm font-black">{event.title}</strong>
-                <small className="mt-1 block text-xs font-semibold text-muted">
+                <small className="mt-1 block type-caption text-muted">
                   {event.category} · {event.startDate} → {event.endDate}
                 </small>
-                <small className="mt-1 block text-xs font-semibold text-muted">{event.description}</small>
+                <small className="mt-1 block type-caption text-muted">{event.description}</small>
               </span>
             </button>
           ))
@@ -651,7 +651,7 @@ function EventList({
   return (
     <Card className="p-4">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-2">{title}</p>
+        <p className="type-overline text-brand-2">{title}</p>
         <Badge tone="neutral">{events.length}</Badge>
       </div>
       <div className="mt-4 space-y-3">

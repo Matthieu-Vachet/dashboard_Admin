@@ -149,8 +149,8 @@ export function AdminSectionNavigation({ items, active, onSelect }) {
           <div className="mx-auto flex h-full w-full max-w-lg flex-col p-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
             <header className="flex items-center justify-between gap-3">
               <div>
-                <small className="text-[10px] font-black uppercase tracking-[.2em] text-cyan-200/70">Admin Pokémon</small>
-                <h2 className="text-xl font-black text-domain-foreground">Changer de section</h2>
+                <small className="type-overline-compact text-cyan-200/70">Admin Pokémon</small>
+                <h2 className="type-title-subsection text-domain-foreground">Changer de section</h2>
               </div>
               <button ref={mobileCloseRef} className="grid h-11 w-11 place-items-center rounded-full border border-line-medium bg-surface-control text-domain-foreground" type="button" onClick={() => setMobileOpen(false)} aria-label="Fermer la navigation">
                 <X size={20} />

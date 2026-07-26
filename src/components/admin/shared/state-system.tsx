@@ -28,8 +28,8 @@ export function FetchLoadingState({
         aria-hidden="true"
       />
       <div className={layout === "section" ? "mt-3 text-center" : "min-w-0"}>
-        <p className="font-bold text-foreground">{title}</p>
-        {detail ? <p className="mt-1 text-sm font-medium text-muted">{detail}</p> : null}
+        <p className="type-body-strong text-foreground">{title}</p>
+        {detail ? <p className="type-body mt-1 text-muted">{detail}</p> : null}
       </div>
     </>
   );
@@ -94,8 +94,8 @@ export function EmptyState({
         <span className="mx-auto grid h-9 w-9 place-items-center rounded-full bg-surface-interactive text-muted">
           {icon}
         </span>
-        <p className="mt-2 text-sm font-bold text-foreground-secondary">{title}</p>
-        {description ? <p className="mt-1 text-sm font-medium text-muted">{description}</p> : null}
+        <p className="type-body-strong mt-2 text-foreground-secondary">{title}</p>
+        {description ? <p className="type-body mt-1 text-muted">{description}</p> : null}
         {action ? <div className="mt-4 flex justify-center">{action}</div> : null}
       </div>
     </Card>
@@ -128,8 +128,8 @@ export function ErrorState({
       <div className="flex items-start gap-3">
         <CircleAlert className="mt-0.5 shrink-0" size={19} aria-hidden="true" />
         <div className="min-w-0 flex-1">
-          <p className="font-black">{title}</p>
-          <p className="mt-1 break-words text-sm font-semibold">{message}</p>
+          <p className="type-title-inline">{title}</p>
+          <p className="type-body-strong mt-1 break-words">{message}</p>
           {action ? <div className="mt-3">{action}</div> : null}
         </div>
       </div>

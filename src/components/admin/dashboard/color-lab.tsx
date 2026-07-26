@@ -31,8 +31,8 @@ export function ColorLab() {
       <Card tone="strong" className="grid gap-5 p-5 xl:grid-cols-[360px_1fr]">
         <div>
           <Badge tone={ready ? "green" : "neutral"}>{ready ? "Palette sauvegardée" : "Chargement"}</Badge>
-          <h2 className="mt-3 text-3xl font-black">Labo couleur</h2>
-          <p className="mt-2 text-sm font-semibold leading-6 text-muted">
+          <h2 className="mt-3 type-title-page">Labo couleur</h2>
+          <p className="mt-2 type-body-strong text-muted">
             Sélecteur, conversions, contraste et palettes rapides pour tes interfaces.
           </p>
         </div>
@@ -53,7 +53,7 @@ export function ColorLab() {
             <ColorValue label="HSL" value={`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`} copied={copied} onCopy={copy} />
             <div className="rounded-lg border border-line p-3" style={{ backgroundColor: color, color: contrast }}>
               <p className="text-sm font-black">Contraste automatique</p>
-              <p className="mt-1 text-xs font-bold opacity-80">{contrast === "#05060d" ? "Texte sombre conseillé" : "Texte clair conseillé"}</p>
+              <p className="mt-1 type-caption-strong opacity-80">{contrast === "#05060d" ? "Texte sombre conseillé" : "Texte clair conseillé"}</p>
             </div>
           </div>
         </div>
@@ -66,7 +66,7 @@ export function ColorLab() {
               <span className="grid h-10 w-10 place-items-center rounded-lg border border-brand-2/25 bg-brand-2/10 text-brand-2">
                 <Palette size={18} />
               </span>
-              <h3 className="text-lg font-black">Palette générée</h3>
+              <h3 className="type-title-card">Palette générée</h3>
             </div>
             <Button
               size="sm"
@@ -97,7 +97,7 @@ export function ColorLab() {
         </Card>
 
         <Card className="p-4">
-          <h3 className="text-lg font-black">Nuancier sauvegardé</h3>
+          <h3 className="type-title-card">Nuancier sauvegardé</h3>
           <div className="mt-4 grid gap-2">
             {swatches.map((swatch) => (
               <Card tone="flat" key={swatch} className="grid grid-cols-[48px_1fr_auto_auto] items-center gap-2 p-2">
@@ -147,7 +147,7 @@ function ColorValue({
       onClick={() => onCopy(value)}
       className="grid w-full grid-cols-[72px_1fr_auto] items-center gap-3 rounded-lg border border-line bg-surface-flat p-3 text-left"
     >
-      <span className="text-xs font-black uppercase tracking-[0.16em] text-muted">{label}</span>
+      <span className="type-overline text-muted">{label}</span>
       <span className="font-mono text-sm font-black">{value}</span>
       {copied === value ? <Check size={16} className="text-brand-3" /> : <Copy size={16} className="text-muted" />}
     </button>
