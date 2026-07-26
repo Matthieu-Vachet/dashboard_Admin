@@ -45,6 +45,12 @@ const nextConfig: NextConfig = {
       "./.data/PokemonGo-Data/items/**",
     ],
   },
+  // Visual regression artifacts are local test outputs and never participate
+  // in a server route at runtime. Excluding them prevents dynamic fs tracing
+  // from packaging the complete test-results tree into Vercel Functions.
+  outputFileTracingExcludes: {
+    "/*": ["./test-results/**/*"],
+  },
   images: {
     remotePatterns: [
       {
