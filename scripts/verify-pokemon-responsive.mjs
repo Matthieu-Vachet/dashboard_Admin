@@ -43,6 +43,38 @@ const event = {
   startDate: "2026-07-01T04:00:00.000Z", endDate: "2026-08-04T20:00:00.000Z", description: "Raid Battles – Shadow Palkia in Shadow Raids",
   featuredPokemon: [{ name: "Palkia", src: artwork }], bonuses: [], rewards: [], sections: [], links: [], status: "active",
 };
+const pvpMimikyu = {
+  rank: 1,
+  pokemonRef: "MIMIKYU_BUSTED",
+  sourceIdentity: { speciesId: "mimikyu", speciesName: "Mimikyu (Busted)" },
+  pokemon: { ...pokemon(778, "Mimiqui", "GHOST"), types: ["GHOST", "FAIRY"], identity: { canonicalId: "MIMIKYU_BUSTED" } },
+  score: 95.9,
+  rating: 778,
+  roleScores: { lead: 100, switch: 100, charger: 97.7, closer: 100, consistency: 94.2, attacker: 92.5 },
+  rank1: { statProduct: 1863, stats: { attack: 120.076, defense: 143.686, stamina: 108 } },
+  pvp: { cpTarget: 1500, level: 25.5, cp: 1500, ivs: { attack: 1, defense: 14, stamina: 15 }, buddyDistanceKm: 5, secondChargedMoveCost: { stardust: 75_000, candy: 75 }, allMoves: { fast: ["SHADOW_CLAW_FAST"], charged: ["SHADOW_SNEAK", "DRAIN_PUNCH"] } },
+  moveset: { fast: "SHADOW_CLAW_FAST", charged: ["SHADOW_SNEAK"] },
+  matchups: [], counters: [], editor: { score: 95, notes: { English: "Fixture PvP responsive." } },
+};
+const pvpDataset = {
+  league: "great",
+  formats: [{ id: "great", label: "Ligue Super", category: "standards", cp: 1500 }],
+  roles: [{ id: "overall", label: "Classement total" }],
+  references: {
+    pokemon: {},
+    types: {},
+    moves: {
+      SHADOW_CLAW_FAST: { id: "SHADOW_CLAW_FAST", names: { French: "Griffe Ombre" }, type: "GHOST", combat: { power: 6, energy: 8, turns: 2, buffs: null } },
+      SHADOW_SNEAK: { id: "SHADOW_SNEAK", names: { French: "Ombre Portée" }, type: "GHOST", combat: { power: 50, energy: -50, turns: 1, buffs: null } },
+      DRAIN_PUNCH: { id: "DRAIN_PUNCH", names: { French: "Vampi-Poing" }, type: "FIGHTING", combat: { power: 40, energy: -40, turns: 1, buffs: { activationChance: 100, attackerDefenseStatsChange: 1 } } },
+    },
+  },
+  rankings: [pvpMimikyu],
+};
+const gblDataset = {
+  season: { name: "Toujours en avant", start: "2026-06-02T20:00:00.000Z", end: "2026-09-08T20:00:00.000Z" },
+  periods: [{ id: "fixture-current", dateLabel: "21 juil. – 28 juil.", start: "2026-07-21T20:00:00.000Z", end: "2026-07-28T20:00:00.000Z", status: "current", bonuses: [{ id: "stardust", label: "Poussière bonus" }], competitions: [{ order: 1, sourceName: "Ligue Super", tier: "great", cup: "great", cpCap: 1500, eligibleTypes: [], restrictions: [], iconUrl: artwork }, { order: 2, sourceName: "Ligue Master", tier: "master", cup: "master", cpCap: 10000, eligibleTypes: [], restrictions: ["Sans Mythiques/Légendaires"], iconUrl: artwork }] }],
+};
 
 async function json(route, body, status = 200) {
   await route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
@@ -90,6 +122,9 @@ async function installRoutes(page) {
       { id: "costume-2", source: { pokemonName: "Évoli", costumeName: "Chapeau explorateur" }, shinyAvailable: true, events: ["City Safari"], notes: [], identity: { pokemonId: 133, resolution: { reason: "ALIAS_UNKNOWN" } }, pokemonGoData: { status: "unresolved", canonicalId: null, exactNormalAsset: null, exactShinyAsset: null } },
     ] }, 2));
     if (action === "shiny") return json(route, datasetEnvelope({ rankings: shinyEntries, podium: shinyEntries.slice(0, 3), summary: { today: 381, total: 381, rare: 50 } }, shinyEntries.length));
+    if (action === "pvp-rankings") return json(route, datasetEnvelope(pvpDataset, 1));
+    if (action === "pvp-teammates") return json(route, { data: { data: [{ rankOrOrder: 1, rawName: "Forgelina", providerAlias: "tinkaton", canonicalId: "TINKATON_NORMAL", resolutionStatus: "matched", pokemon: pokemon(959, "Forgelina", "FAIRY") }] } });
+    if (action === "gbl-calendar") return json(route, datasetEnvelope(gblDataset, 1));
     if (action === "identity-manager-providers") return json(route, { data: [
       { id: "pokemon-go-hub", label: "Pokémon GO Hub", domains: ["best-defenders"], visibility: "public", status: "active", aliases: 2, activeAliases: 2, openDiagnostics: 1, occurrences: 2 },
       { id: "margxt", label: "Margxt", domains: ["costume-audit"], visibility: "private", status: "active", aliases: 4, activeAliases: 4, openDiagnostics: 193, occurrences: 193 },
@@ -103,7 +138,7 @@ async function installRoutes(page) {
     if (action === "identity-manager-conflicts") return json(route, { data: { data: { explicitConflicts: 0, aliasConflicts: [] } } });
     if (action.startsWith("identity-manager")) return json(route, { data: { data: [], meta: { page: 1, limit: 24, total: 0, pages: 1, stats: { providers: [], statuses: {} } } } });
     if (action === "pokemon-identity-mappings") return json(route, datasetEnvelope({ mappings: [] }, 0));
-    if (["raids", "eggs", "max-battles", "rocket", "research", "pvp-rankings", "best-attackers"].includes(action)) return json(route, datasetEnvelope({ entries: [], rankings: [], raids: [], eggs: [], battles: [], profiles: [], research: [] }, 0));
+    if (["raids", "eggs", "max-battles", "rocket", "research", "best-attackers"].includes(action)) return json(route, datasetEnvelope({ entries: [], rankings: [], raids: [], eggs: [], battles: [], profiles: [], research: [] }, 0));
     return json(route, { data: { entries: [], customRuleEntries: [], customRules: [], summary: {}, sourceWatch: { sources: [] } } });
   });
 }
@@ -148,6 +183,8 @@ const scenarios = [
   { id: "costume-audit", path: "/pokemon-admin?section=costume-audit", ready: /Costumes \/ Event Pokémon/ },
   { id: "collection", path: "/pokemon-admin?section=my-collection", ready: /Ma collection Pokémon GO/, collectionDiagnostics: true },
   { id: "shiny", path: "/pokemon-admin?section=shiny", ready: /Shiny Tracker/ },
+  { id: "pvp-rankings", path: "/pokemon-admin?section=pvp-rankings", ready: /Ma checklist PvP/, pvpDetail: true },
+  { id: "gbl-calendar", path: "/pokemon-admin?section=gbl-calendar", ready: /Saison Toujours en avant/ },
   { id: "identity-manager", path: "/pokemon-admin?section=identity-manager", ready: /Identity Manager/ },
   { id: "variants", path: "/pokemon-admin?section=pokemon-identity-mappings", ready: /Résolution/ },
   { id: "events", path: "/pokemon-admin?section=events", ready: /Calendrier Events Pokémon GO/, eventModal: true },
@@ -208,6 +245,12 @@ try {
             .map((button) => ({ y: button.getBoundingClientRect().y, rank: button.querySelector("span")?.textContent?.trim() }))
             .sort((left, right) => left.y - right.y).map((entry) => entry.rank));
           assert.deepEqual(visualOrder, ["1", "2", "3"], `shiny-${theme}-${width}: ordre podium mobile`);
+        }
+        if (scenario.pvpDetail) {
+          await page.locator('section[aria-label="Classement PvP"] button').first().click();
+          await page.getByText("Coéquipiers suggérés", { exact: true }).waitFor({ state: "visible" });
+          await page.getByText("Forgelina", { exact: true }).waitFor({ state: "visible" });
+          await assertNoOverflow(page, `pvp-detail-${theme}-${width}`);
         }
         if (scenario.eventModal) {
           await page.getByRole("button", { name: new RegExp(event.title) }).filter({ visible: true }).first().click();
