@@ -2,6 +2,8 @@
 
 Dashboard personnel Next.js pour piloter les futurs projets MatWeb : notes, kanban, projets, calendrier, todo list, outils quotidiens, statistiques Pokemon GO API, veille data et design system intégré.
 
+La section Admin Pokémon regroupe les classements PvPoke enrichis, une checklist PvP persistée par compte dans `dashboard_store`, et le calendrier public des rotations GBL Battleflow. Les données métier restent lues depuis PokemonGo-API/MongoDB ; aucune liste de classement ou de calendrier n’est codée en dur dans l’interface.
+
 ## Stack
 
 - Next.js App Router, React, TypeScript

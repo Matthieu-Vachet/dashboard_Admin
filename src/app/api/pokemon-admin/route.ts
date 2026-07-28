@@ -287,10 +287,34 @@ async function readCurrentShiny(request: NextRequest) {
 }
 
 async function readCurrentPvpRankings(request: NextRequest) {
-  const query = forwardedRankedQuery(request, ["league", "search", "role", "page", "limit"]);
+  const query = forwardedRankedQuery(request, ["league", "search", "role", "page", "limit", "full"]);
   return readPokemonApiCurrent(
     `/api/v1/pvp-rankings${query ? `?${query}` : ""}`,
     (data) => Array.isArray(data.rankings) && Array.isArray(data.formats),
+    (data, meta, current) => ({ data, meta: normalizeCurrentMeta(meta), current }),
+  );
+}
+
+async function readPvpSuggestedTeammates(request: NextRequest) {
+  const league = String(request.nextUrl.searchParams.get("league") || "").trim();
+  const speciesId = String(request.nextUrl.searchParams.get("speciesId") || "").trim();
+  if (!/^[a-z0-9_-]+$/.test(league) || !/^[a-z0-9_]+$/.test(speciesId)) {
+    throw requestError("Contexte Suggested Teammates invalide.", 400);
+  }
+  const target = new URL(`/api/v1/pvp-rankings/${encodeURIComponent(league)}/${encodeURIComponent(speciesId)}/teammates`, pokemonApiBaseUrl);
+  const response = await fetch(target, { cache: "no-store", headers: { accept: "application/json" }, signal: AbortSignal.timeout(55_000) });
+  const payload = await response.json().catch(() => null) as { data?: unknown[]; meta?: Record<string, unknown>; error?: string; message?: string } | null;
+  if (!response.ok || !Array.isArray(payload?.data)) {
+    throw requestError(payload?.message || payload?.error || "Suggested Teammates indisponibles.", response.status || 502);
+  }
+  return payload;
+}
+
+async function readCurrentGblCalendar(request: NextRequest) {
+  const query = forwardedRankedQuery(request, ["status", "tier", "cup"]);
+  return readPokemonApiCurrent(
+    `/api/v1/gbl-calendar${query ? `?${query}` : ""}`,
+    (data) => Array.isArray(data.periods) && Boolean(data.season),
     (data, meta, current) => ({ data, meta: normalizeCurrentMeta(meta), current }),
   );
 }
@@ -348,7 +372,7 @@ async function readShinyHistory(request: NextRequest) {
 
 async function readDatasetHistory(request: NextRequest) {
   const domain = String(request.nextUrl.searchParams.get("domain") || "");
-  const allowed = new Set(["raids", "eggs", "max-battles", "rocket", "research", "shiny", "pvp-rankings", "best-attackers", "best-defenders", "costume-audit", "pokemon-identity-mappings"]);
+  const allowed = new Set(["raids", "eggs", "max-battles", "rocket", "research", "shiny", "pvp-rankings", "gbl-calendar", "best-attackers", "best-defenders", "costume-audit", "pokemon-identity-mappings"]);
   if (!allowed.has(domain)) throw requestError("Domaine d'historique invalide.", 400);
   const query = forwardedRankedQuery(request, ["page", "limit", "status"]);
   return readPokemonApiAdmin(`/api/v1/${domain}/history${query ? `?${query}` : ""}`);
@@ -797,6 +821,14 @@ export async function GET(request: NextRequest) {
       return json({ data: await readCurrentPvpRankings(request) });
     }
 
+    if (action === "pvp-teammates") {
+      return json({ data: await readPvpSuggestedTeammates(request) });
+    }
+
+    if (action === "gbl-calendar") {
+      return json({ data: await readCurrentGblCalendar(request) });
+    }
+
     if (action === "best-attackers") {
       return json({ data: await readCurrentBestAttackers(request) });
     }
@@ -1086,6 +1118,10 @@ export async function POST(request: NextRequest) {
 
     if (action === "regenerate-pvp-rankings") {
       return json({ data: await callPokemonApiAdmin("/api/v1/admin/pvp-rankings/regenerate") });
+    }
+
+    if (action === "regenerate-gbl-calendar") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/gbl-calendar/regenerate") });
     }
 
     if (action === "regenerate-best-attackers") {

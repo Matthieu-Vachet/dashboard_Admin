@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.34.0 - 2026-07-28
+
+- Corrige l’affichage Rank 1 de Mimiqui et Forgelina et sépare explicitement le profil de simulation PvPoke.
+- Enrichit le détail PvP avec radar à six axes, statistiques Rank 1, DPT/EPT/DPE, comptes d’attaques chargées et buffs locaux.
+- Ajoute une checklist PvP persistante par compte et par ligue, fondée sur le catalogue actif complet, avec recherche, filtres possédés/manquants et tris.
+- Ajoute le calendrier GBL Battleflow sous Combat et à la régénération globale, avec rotations, bonus, restrictions et statuts.
+
 ## 1.33.2 - 2026-07-26
 
 - Réhydrate à la lecture les assets Costumes résolus depuis la création du snapshot Margxt.

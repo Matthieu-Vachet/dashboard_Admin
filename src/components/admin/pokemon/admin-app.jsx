@@ -72,6 +72,7 @@ import { EventsHistoryPanel } from "./events-history-panel";
 import { LoginCard } from "./login-card";
 import { MaxBattlesPanel } from "./max-battles-panel";
 import { PvpRankingsPanel } from "./pvp-rankings-panel";
+import { GblCalendarPanel } from "./gbl-calendar-panel";
 import { PokemonIdentityMappingsPanel } from "./pokemon-identity-mappings-panel";
 import { IdentityManagerPanel } from "./identity-manager-panel";
 import { RaidsPanel } from "./raids-panel";
@@ -219,6 +220,7 @@ const navItems = [
     icon: `${filtersAssetBase}/TodayView_Icon_Battle.png`,
     group: "combat",
   },
+  { id: "gbl-calendar", label: "Calendrier GBL", icon: CalendarDays, group: "combat" },
   {
     id: "best-attackers",
     label: "Best Attackers",
@@ -1317,6 +1319,9 @@ export function AdminApp() {
   const [pvpRankingsLoading, setPvpRankingsLoading] = useState(false);
   const [pvpRankingsRegenerating, setPvpRankingsRegenerating] = useState(false);
   const [pvpOptions, setPvpOptions] = useState(initialPvpOptions);
+  const [gblCalendar, setGblCalendar] = useState(null);
+  const [gblCalendarLoading, setGblCalendarLoading] = useState(false);
+  const [gblCalendarRegenerating, setGblCalendarRegenerating] = useState(false);
   const [bestAttackers, setBestAttackers] = useState(null);
   const [bestAttackersLoading, setBestAttackersLoading] = useState(false);
   const [bestAttackersRegenerating, setBestAttackersRegenerating] =
@@ -1608,6 +1613,10 @@ export function AdminApp() {
   useEffect(() => {
     if (session.authenticated && active === "pvp-rankings") loadPvpRankings();
   }, [active, session.authenticated, pvpOptions]);
+
+  useEffect(() => {
+    if (session.authenticated && active === "gbl-calendar" && !gblCalendar && !gblCalendarLoading) loadGblCalendar();
+  }, [active, session.authenticated, gblCalendar, gblCalendarLoading]);
 
   useEffect(() => {
     if (session.authenticated && active === "best-attackers")
@@ -2019,6 +2028,17 @@ export function AdminApp() {
       setData: setPvpRankings,
       setLoading: setPvpRankingsLoading,
       label: "PvP Rankings",
+      notify,
+    });
+  }
+
+  function loadGblCalendar({ notify = false } = {}) {
+    return loadRankedDataset({
+      action: "gbl-calendar",
+      options: {},
+      setData: setGblCalendar,
+      setLoading: setGblCalendarLoading,
+      label: "Calendrier GBL",
       notify,
     });
   }
@@ -3000,6 +3020,24 @@ export function AdminApp() {
                     })
                   }
                   onOpenPokemon={openPokemonReference}
+                />
+              ) : null}
+
+              {active === "gbl-calendar" ? (
+                <GblCalendarPanel
+                  dataset={gblCalendar}
+                  loading={gblCalendarLoading}
+                  regenerating={gblCalendarRegenerating}
+                  onRefresh={() => loadGblCalendar({ notify: true })}
+                  onDownload={() => downloadCurrentDataset(gblCalendar, "gbl-calendar")}
+                  onRegenerate={() =>
+                    regenerateRankedDataset({
+                      action: "regenerate-gbl-calendar",
+                      setRegenerating: setGblCalendarRegenerating,
+                      reload: loadGblCalendar,
+                      label: "Calendrier GBL",
+                    })
+                  }
                 />
               ) : null}
 

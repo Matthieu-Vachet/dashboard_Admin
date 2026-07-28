@@ -24,6 +24,7 @@ export const globalRegenerationDefinitions: GlobalRegenerationDefinition[] = [
   { id: "max-battles", label: "Max Battles", action: "regenerate-max-battles" },
   { id: "rocket", label: "Team GO Rocket", action: "regenerate-rocket" },
   { id: "pvp", label: "Classements PvP", action: "regenerate-pvp-rankings" },
+  { id: "gbl-calendar", label: "Calendrier GBL", action: "regenerate-gbl-calendar" },
   { id: "best-attackers", label: "Best Attackers", action: "regenerate-best-attackers" },
   { id: "best-defenders", label: "Best Defenders", action: "regenerate-best-defenders" },
   { id: "costume-audit", label: "Costumes / Event Pokémon", action: "regenerate-costume-audit" },

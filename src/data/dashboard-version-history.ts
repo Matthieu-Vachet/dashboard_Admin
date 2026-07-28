@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.34.0",
+    date: "2026-07-28",
+    title: "Rank 1, checklist PvP et calendrier GBL",
+    changes: [
+      "Affiche les IV Rank 1 exacts de PvPoke et conserve le profil de simulation comme donnée d’audit distincte.",
+      "Ajoute le radar de performances, les statistiques d’attaques locales, leurs effets et les comptes successifs d’attaques chargées.",
+      "Ajoute une checklist persistante par compte et par ligue construite depuis le catalogue PvP actif complet.",
+      "Ajoute les rotations Battleflow dans Calendrier GBL et dans la régénération globale Admin Pokémon.",
+    ],
+  },
+  {
     version: "V1.33.2",
     date: "2026-07-26",
     title: "Costumes réhydratés et navigation mobile restaurée",
