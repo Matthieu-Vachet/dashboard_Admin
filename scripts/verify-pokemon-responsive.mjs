@@ -6,7 +6,7 @@ import { chromium } from "playwright";
 const root = path.resolve(import.meta.dirname, "..");
 const baseUrl = process.env.POKEMON_RESPONSIVE_BASE_URL || "http://localhost:3100";
 const artifactRoot = path.join(root, "test-results/pokemon-responsive");
-const widths = [375, 390, 430, 768, 1024, 1440, 1920];
+const widths = [320, 360, 375, 390, 414, 430, 768, 1024, 1280, 1440, 1920];
 const themes = ["dark", "light"];
 mkdirSync(artifactRoot, { recursive: true });
 
@@ -184,6 +184,7 @@ const scenarios = [
   { id: "collection", path: "/pokemon-admin?section=my-collection", ready: /Ma collection Pokémon GO/, collectionDiagnostics: true },
   { id: "shiny", path: "/pokemon-admin?section=shiny", ready: /Shiny Tracker/ },
   { id: "pvp-rankings", path: "/pokemon-admin?section=pvp-rankings", ready: /Classements PvP/, pvpDetail: true },
+  { id: "pvp-simulator", path: "/pokemon-admin?section=pvp-simulator", ready: /POKÉMON GO · MOTEUR NATIF/, battleLab: true },
   { id: "gbl-calendar", path: "/pokemon-admin?section=gbl-calendar", ready: /Saison Toujours en avant/ },
   { id: "identity-manager", path: "/pokemon-admin?section=identity-manager", ready: /Identity Manager/ },
   { id: "variants", path: "/pokemon-admin?section=pokemon-identity-mappings", ready: /Résolution/ },
@@ -254,6 +255,10 @@ try {
           await page.getByRole("tab", { name: "Ma Checklist" }).click();
           await page.getByText("Ma checklist PvP", { exact: true }).waitFor({ state: "visible" });
           await assertNoOverflow(page, `pvp-checklist-${theme}-${width}`);
+        }
+        if (scenario.battleLab) {
+          assert.equal(await page.locator('input[role="combobox"][placeholder="Nom FR, EN, dex, forme…"]').count(), 2, `pvp-simulator-${theme}-${width}: les deux sélecteurs doivent rester disponibles`);
+          assert.equal(await page.getByRole("button", { name: "SIMULER LE COMBAT" }).isDisabled(), true, `pvp-simulator-${theme}-${width}: la simulation doit rester désactivée à vide`);
         }
         if (scenario.eventModal) {
           await page.getByRole("button", { name: new RegExp(event.title) }).filter({ visible: true }).first().click();
