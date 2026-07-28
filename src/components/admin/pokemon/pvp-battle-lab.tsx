@@ -22,6 +22,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { TypeIcons } from "./asset-icons";
 import { PokemonArtwork } from "./pokemon-artwork";
+import { uiAssets } from "@/components/site/ui-assets";
 import {
   EmptyState,
   ErrorState,
@@ -39,6 +40,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Field } from "@/components/ui/field";
 import { Input, Textarea } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { decodePvpBattle, encodePvpBattle } from "@/lib/pvp-battle-deep-link.mjs";
 import type {
   IvRankResult,
   MatrixBattleResult,
@@ -120,6 +122,7 @@ type FighterConfig = {
   startingEnergy: number;
   startingHpPercent: number;
   startingStages: { attack: number; defense: number };
+  presetLabel?: string;
 };
 
 type HistoryRecord = {
@@ -202,6 +205,40 @@ function baseConfig(pokemon: CatalogPokemon, league: League): FighterConfig {
   };
 }
 
+function hydrateDeepLinkFighter(
+  raw: Partial<FighterConfig> & { canonicalId?: string },
+  catalog: CatalogPokemon[],
+  league: League,
+) {
+  const pokemon = catalog.find((entry) => entry.canonicalId === raw?.canonicalId);
+  if (!pokemon || !pokemonEligibleForLeague(pokemon, league)) return null;
+  const fallback = baseConfig(pokemon, league);
+  const validFast = pokemon.moves.fast.some((move) => move.id === raw.fastMoveId) ? raw.fastMoveId! : fallback.fastMoveId;
+  const validCharged = (raw.chargedMoveIds || []).filter((id) => pokemon.moves.charged.some((move) => move.id === id)).slice(0, 2);
+  const ivs = raw.ivs && [raw.ivs.attack, raw.ivs.defense, raw.ivs.stamina].every((value) => Number.isInteger(value) && value >= 0 && value <= 15)
+    ? raw.ivs
+    : fallback.ivs;
+  const level = Number(raw.level);
+  return {
+    ...fallback,
+    ...raw,
+    canonicalId: pokemon.canonicalId,
+    level: Number.isFinite(level) && level >= 1 && level <= league.levelCap && Number.isInteger(level * 2) ? level : fallback.level,
+    ivs,
+    shadow: Boolean(raw.shadow && pokemon.availability.shadow && league.allowShadow),
+    fastMoveId: validFast,
+    chargedMoveIds: validCharged.length ? validCharged : fallback.chargedMoveIds,
+    shields: [0, 1, 2].includes(Number(raw.shields)) ? Number(raw.shields) : fallback.shields,
+    startingEnergy: Math.max(0, Math.min(100, Math.trunc(Number(raw.startingEnergy) || 0))),
+    startingHpPercent: Math.max(1, Math.min(100, Number(raw.startingHpPercent) || 100)),
+    startingStages: {
+      attack: Math.max(-4, Math.min(4, Math.trunc(Number(raw.startingStages?.attack) || 0))),
+      defense: Math.max(-4, Math.min(4, Math.trunc(Number(raw.startingStages?.defense) || 0))),
+    },
+    presetLabel: raw.presetLabel,
+  } satisfies FighterConfig;
+}
+
 async function api<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, { cache: "no-store", ...init });
   const payload = (await response.json().catch(() => null)) as {
@@ -216,18 +253,6 @@ async function api<T>(url: string, init?: RequestInit): Promise<T> {
         `HTTP ${response.status}`,
     );
   return payload.data as T;
-}
-
-function encodeShare(value: unknown) {
-  const bytes = new TextEncoder().encode(JSON.stringify(value));
-  return btoa(Array.from(bytes, (byte) => String.fromCharCode(byte)).join(""));
-}
-
-function decodeShare(value: string) {
-  const bytes = Uint8Array.from(atob(value), (character) =>
-    character.charCodeAt(0),
-  );
-  return JSON.parse(new TextDecoder().decode(bytes));
 }
 
 function downloadJson(value: unknown, name: string) {
@@ -255,6 +280,7 @@ function PokemonPicker({
 }) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
   const results = useMemo(() => {
     const needle = query
       .normalize("NFD")
@@ -270,7 +296,7 @@ function PokemonPicker({
     <div className="relative">
       <Field label="Pokémon">
         <Input
-          className="mt-1"
+          className="mt-1 bg-panel-strong"
           value={open ? query : pokemonName(pokemon)}
           onFocus={() => {
             setOpen(true);
@@ -285,21 +311,32 @@ function PokemonPicker({
           aria-autocomplete="list"
           aria-expanded={open}
           aria-controls={id}
+          aria-activedescendant={open && results[activeIndex] ? `${id}-${results[activeIndex].canonicalId}` : undefined}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowDown") { event.preventDefault(); setOpen(true); setActiveIndex((index) => Math.min(results.length - 1, index + 1)); }
+            if (event.key === "ArrowUp") { event.preventDefault(); setActiveIndex((index) => Math.max(0, index - 1)); }
+            if (event.key === "Escape") { event.preventDefault(); setOpen(false); }
+            if (event.key === "Enter" && open && results[activeIndex]) { event.preventDefault(); onSelect(results[activeIndex]); setOpen(false); setQuery(""); }
+          }}
         />
       </Field>
       {open ? (
-        <div
-          id={id}
-          className="absolute z-30 mt-2 max-h-72 w-full overflow-y-auto rounded-2xl border border-line bg-surface-elevated p-1.5 shadow-raised"
-          role="listbox"
-        >
+        <div className="fixed inset-0 z-[1150] sm:absolute sm:inset-auto sm:z-30 sm:mt-2 sm:w-full">
+          <button className="absolute inset-0 bg-overlay backdrop-blur-sm sm:hidden" type="button" aria-label="Fermer le sélecteur" onClick={() => setOpen(false)} />
+          <div id={id} className="absolute inset-x-3 bottom-3 max-h-[82dvh] overflow-y-auto rounded-overlay border border-line-strong bg-panel-strong p-2 shadow-overlay sm:relative sm:inset-auto sm:bottom-auto sm:max-h-72 sm:w-full sm:rounded-2xl sm:bg-panel-strong sm:shadow-raised" role="listbox">
+          <div className="sticky top-0 z-10 mb-2 rounded-xl bg-panel-strong p-1 sm:hidden">
+            <p className="mb-2 px-2 text-xs font-black uppercase tracking-wider text-muted">Choisir un combattant</p>
+            <Input value={query} onChange={(event) => { setQuery(event.target.value); setActiveIndex(0); }} placeholder="Rechercher un Pokémon…" aria-label="Recherche Pokémon mobile" autoFocus />
+          </div>
           {results.map((entry) => (
             <button
               className="flex min-h-12 w-full items-center gap-3 rounded-xl px-2 text-left hover:bg-surface-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-2"
               key={entry.canonicalId}
+              id={`${id}-${entry.canonicalId}`}
               type="button"
               role="option"
               aria-selected={entry.canonicalId === pokemon?.canonicalId}
+              onMouseEnter={() => setActiveIndex(results.indexOf(entry))}
               onClick={() => {
                 onSelect(entry);
                 setOpen(false);
@@ -319,6 +356,7 @@ function PokemonPicker({
             </button>
           ))}
           {!results.length ? <EmptyState title="Aucun Pokémon trouvé" /> : null}
+          </div>
         </div>
       ) : null}
     </div>
@@ -358,7 +396,17 @@ function FighterEditor({
   onRankOne: () => void;
   onPerfect: () => void;
 }) {
-  if (!pokemon || !config) return null;
+  if (!pokemon || !config) return (
+    <Card className="min-w-0 overflow-visible border-dashed p-4 sm:p-5" tone="strong">
+      <CardHeader eyebrow={`COMBATTANT ${side}`}>
+        <div className="flex items-center gap-3">
+          <span className="grid h-20 w-20 place-items-center rounded-2xl border border-dashed border-cyan-200/20 bg-cyan-300/[0.05]"><img className="h-12 w-12 object-contain opacity-60" src={uiAssets.icons.pokemon} alt="" /></span>
+          <div><CardTitle>Aucun Pokémon</CardTitle><CardDescription>Sélectionne un combattant pour afficher son build.</CardDescription></div>
+        </div>
+      </CardHeader>
+      <div className="mt-5"><PokemonPicker id={`pvp-pokemon-results-${side.toLowerCase()}`} pokemon={null} catalog={catalog} onSelect={onSelect} /></div>
+    </Card>
+  );
   const patchIv = (key: keyof FighterConfig["ivs"], value: number) =>
     onPatch({ ivs: { ...config.ivs, [key]: value } });
   const charged = config.chargedMoveIds;
@@ -374,6 +422,7 @@ function FighterEditor({
           />
           <div className="min-w-0">
             <CardTitle className="truncate">{pokemonName(pokemon)}</CardTitle>
+            {config.presetLabel ? <Badge tone={config.presetLabel === "Mes IV" ? "violet" : "cyan"}>{config.presetLabel}</Badge> : null}
             <p className="mt-1 truncate text-[10px] font-black uppercase tracking-[.1em] text-muted">
               {pokemon.canonicalId}
             </p>
@@ -474,6 +523,8 @@ function FighterEditor({
         ))}
       </div>
 
+      <details className="mt-4 rounded-2xl border border-line bg-surface-inset-subtle p-3">
+        <summary className="cursor-pointer text-sm font-black text-foreground">Configuration avancée · énergie, HP, stages, Shadow</summary>
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Field label="Énergie initiale">
           <Input
@@ -553,17 +604,53 @@ function FighterEditor({
         Forme Shadow{" "}
         {pokemon.availability.shadow ? "disponible" : "indisponible"}
       </label>
+      </details>
     </Card>
   );
 }
 
-function ResultHeader({ result }: { result: SingleBattleResult }) {
+function BattleArena({
+  pokemon,
+  fighters,
+  league,
+}: {
+  pokemon: [CatalogPokemon | null, CatalogPokemon | null];
+  fighters: [FighterConfig | null, FighterConfig | null];
+  league: League;
+}) {
+  return (
+    <Card className="relative min-h-[18rem] overflow-hidden border-cyan-200/15 p-4 sm:min-h-[22rem] sm:p-6" tone="strong">
+      <img className="absolute inset-0 h-full w-full object-cover opacity-35" src={uiAssets.backgrounds.battle} alt="" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,7,18,.2),rgba(3,7,18,.92))]" />
+      <div className="relative flex h-full min-h-[16rem] flex-col justify-between sm:min-h-[19rem]">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="rounded-full border border-cyan-200/20 bg-slate-950/70 px-3 py-1 text-xs font-black text-cyan-50">{league.name} · {league.cpCap} PC</span>
+          <span className="rounded-full border border-line bg-slate-950/70 px-3 py-1 text-xs font-black text-muted">1 tour = 0,5 s</span>
+        </div>
+        <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-2 sm:gap-6">
+          {([0, 1] as const).map((index) => (
+            <div className={`flex min-w-0 flex-col items-center ${index === 1 ? "order-3" : ""}`} key={index}>
+              {pokemon[index] ? <PokemonArtwork pokemon={pokemon[index]} variant={{ shadow: fighters[index]?.shadow }} priority={index === 0} className="h-28 w-28 border-cyan-100/20 bg-slate-950/55 sm:h-40 sm:w-40" /> : <span className="grid h-28 w-28 place-items-center rounded-full border-2 border-dashed border-cyan-100/20 bg-slate-950/45 sm:h-40 sm:w-40"><img className="h-16 w-16 object-contain opacity-55" src={uiAssets.icons.pokemon} alt="" /></span>}
+              <strong className="mt-3 max-w-full truncate text-center text-sm text-white sm:text-lg">{pokemon[index] ? pokemonName(pokemon[index]) : `Combattant ${index === 0 ? "A" : "B"}`}</strong>
+              <span className="mt-1 text-[10px] font-black uppercase tracking-wider text-slate-300">{fighters[index]?.presetLabel || (pokemon[index] ? "Build personnalisé" : "À sélectionner")}</span>
+            </div>
+          ))}
+          <div className="order-2 mb-12 grid h-14 w-14 place-items-center rounded-full border border-violet-200/25 bg-violet-400/15 shadow-[0_0_40px_rgba(139,92,246,.35)] sm:h-20 sm:w-20"><img className="h-8 w-8 object-contain sm:h-11 sm:w-11" src={uiAssets.icons.swords} alt="Versus" /></div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function ResultHeader({ result, pokemon }: { result: SingleBattleResult; pokemon: [CatalogPokemon | null, CatalogPokemon | null] }) {
   const winner =
     result.winner === null ? null : result.combatants[result.winner];
   return (
     <Card className="overflow-hidden p-5" tone="strong">
       <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-center">
-        <div>
+        <div className="flex items-center gap-4">
+          {winner && result.winner !== null && pokemon[result.winner] ? <PokemonArtwork pokemon={pokemon[result.winner]} className="h-24 w-24 border-emerald-200/25 bg-emerald-400/10" priority /> : <img className="h-16 w-16 object-contain" src={uiAssets.icons.result} alt="" />}
+          <div>
           <p className="type-overline text-brand-2">
             {winner ? "GAGNANT" : "ÉGALITÉ"}
           </p>
@@ -575,6 +662,7 @@ function ResultHeader({ result }: { result: SingleBattleResult }) {
             {(result.durationMs / 1_000).toFixed(1)} s · moteur{" "}
             {result.versions.engine}
           </p>
+          </div>
         </div>
         <div className="rounded-2xl border border-brand-2/25 bg-brand-2/10 p-4 text-center">
           <span className="block text-[10px] font-black uppercase tracking-[.16em] text-accent-text">
@@ -642,7 +730,7 @@ function ShieldScenarioMatrix({
     <Card className="p-4 sm:p-5">
       <CardHeader eyebrow="TOUS LES SCÉNARIOS">
         <div>
-          <CardTitle>Shield Matrix</CardTitle>
+          <CardTitle><span className="inline-flex items-center gap-2"><img className="h-6 w-6 object-contain" src={uiAssets.icons.shieldAlt} alt="" />Shield Matrix</span></CardTitle>
           <CardDescription>
             Cliquer sur une case recharge son résultat et sa timeline.
           </CardDescription>
@@ -695,6 +783,14 @@ function ShieldScenarioMatrix({
       </div>
     </Card>
   );
+}
+
+function timelineEventAsset(action: SingleBattleResult["timeline"][number]["action"]) {
+  if (action === "fast") return uiAssets.icons.attackMove;
+  if (action === "charged" || action === "cmp") return uiAssets.icons.swords;
+  if (action === "shield") return uiAssets.icons.shieldAlt;
+  if (action === "buff" || action === "debuff" || action === "form") return uiAssets.icons.up;
+  return uiAssets.icons.battle;
 }
 
 function Timeline({ result }: { result: SingleBattleResult }) {
@@ -804,9 +900,7 @@ function Timeline({ result }: { result: SingleBattleResult }) {
                     type="button"
                     onClick={() => setSelected(event)}
                   >
-                    <strong className="block truncate text-foreground">
-                      {event.moveName || event.action.toUpperCase()}
-                    </strong>
+                    <strong className="flex items-center gap-1.5 truncate text-foreground"><img className="h-4 w-4 shrink-0 object-contain" src={timelineEventAsset(event.action)} alt="" /><span className="truncate">{event.moveName || event.action.toUpperCase()}</span></strong>
                     <span className="mt-1 block line-clamp-3 text-muted">
                       {event.description}
                     </span>
@@ -848,7 +942,16 @@ function BattleSummary({ result }: { result: SingleBattleResult }) {
         </div>
       </CardHeader>
       <div className="mt-4 grid gap-3 md:grid-cols-2">
-        {result.combatants.map((combatant) => (
+        {result.combatants.map((combatant, combatantIndex) => {
+          const events = result.timeline.filter((event) => event.actor === combatantIndex);
+          const fastDamage = events.filter((event) => event.action === "fast").reduce((sum, event) => sum + Number(event.damage || 0), 0);
+          const chargedDamage = events.filter((event) => event.action === "charged").reduce((sum, event) => sum + Number(event.damage || 0), 0);
+          const totalMoveDamage = fastDamage + chargedDamage;
+          const fastPercent = totalMoveDamage ? `${Math.round((fastDamage / totalMoveDamage) * 100)} %` : "—";
+          const chargedPercent = totalMoveDamage ? `${Math.round((chargedDamage / totalMoveDamage) * 100)} %` : "—";
+          const energyEfficiency = combatant.energyUsed ? (combatant.damageDealt / combatant.energyUsed).toFixed(2) : "—";
+          const turnEfficiency = result.durationTurns ? (combatant.damageDealt / result.durationTurns).toFixed(2) : "—";
+          return (
           <div
             className="rounded-2xl border border-line bg-surface-inset-subtle p-4"
             key={combatant.canonicalId}
@@ -865,11 +968,17 @@ function BattleSummary({ result }: { result: SingleBattleResult }) {
                 ["Shields utilisés", combatant.shieldsUsed],
                 ["Dégâts bloqués", combatant.shieldDamageBlocked],
                 ["Buffs / debuffs", combatant.buffActivations],
-                ["CMP gagnées", combatant.cmpWins],
-              ].map(([label, value]) => (
+                ["CMP gagnées", combatant.cmpWins, "Priorité des attaques chargées simultanées, basée sur l’Attaque réelle."],
+                ["Dégâts Fast", fastPercent, "Part des dégâts directs provenant des Fast Moves."],
+                ["Dégâts Charged", chargedPercent, "Part des dégâts directs provenant des Charged Moves."],
+                ["Efficacité énergie", energyEfficiency, "Dégâts infligés divisés par l’énergie dépensée."],
+                ["HP restants", `${combatant.remainingHpPercent} %`, "Pourcentage de points de vie à la fin du combat."],
+                ["Efficacité / tour", turnEfficiency, "Dégâts infligés divisés par la durée totale en tours."],
+              ].map(([label, value, help]) => (
                 <div
                   className="rounded-xl bg-surface-control p-2"
                   key={String(label)}
+                  title={String(help || "Métrique calculée par le moteur natif.")}
                 >
                   <dt>{label}</dt>
                   <dd className="mt-1 text-base font-black text-foreground">
@@ -879,7 +988,8 @@ function BattleSummary({ result }: { result: SingleBattleResult }) {
               ))}
             </dl>
           </div>
-        ))}
+          );
+        })}
       </div>
     </Card>
   );
@@ -978,64 +1088,55 @@ export function PvpBattleLab() {
     api<Catalog>(endpoint)
       .then(async (data) => {
         setCatalog(data);
-        const selectedLeague =
-          data.leagues.find((item) => item.id === "great") || data.leagues[0];
-        const left =
-          data.pokemon.find((item) => item.formId === "MIMIKYU") ||
-          data.pokemon[0];
-        const right =
-          data.pokemon.find((item) => item.formId === "LICKILICKY") ||
-          data.pokemon[1];
-        const configs = [
-          baseConfig(left, selectedLeague),
-          baseConfig(right, selectedLeague),
-        ] as [FighterConfig, FighterConfig];
+        let selectedLeague = data.leagues.find((item) => item.id === "great") || data.leagues[0];
         const eligible = data.pokemon.filter((pokemon) =>
           pokemonEligibleForLeague(pokemon, selectedLeague),
         );
         const shared = new URL(window.location.href).searchParams.get(
           "pvpBattle",
         );
-        let initial = configs;
-        let initialLeague = selectedLeague.id;
+        const initial: [FighterConfig | null, FighterConfig | null] = [null, null];
+        const initialRanks: [IvRankResult | null, IvRankResult | null] = [null, null];
         if (shared) {
           try {
-            const decoded = decodeShare(shared) as {
+            const decoded = decodePvpBattle(shared) as {
               leagueId?: string;
-              pokemon?: [FighterConfig, FighterConfig];
+              pokemon?: Array<Partial<FighterConfig> & { canonicalId?: string }>;
+              strategy?: { baiting?: "off" | "selective" | "on" };
             };
-            if (decoded.leagueId && decoded.pokemon?.length === 2) {
-              initialLeague = decoded.leagueId;
-              initial = decoded.pokemon;
-              setLeagueId(decoded.leagueId);
+            const requestedLeague = data.leagues.find((item) => item.id === decoded.leagueId)
+              || data.leagues.find((item) => item.id === (String(decoded.leagueId).endsWith("-500") ? "little" : String(decoded.leagueId).endsWith("-1500") ? "great" : String(decoded.leagueId).endsWith("-2500") ? "ultra" : String(decoded.leagueId).endsWith("-10000") ? "master" : ""));
+            if (requestedLeague) selectedLeague = requestedLeague;
+            setLeagueId(selectedLeague.id);
+            if (decoded.strategy?.baiting) setBaiting(decoded.strategy.baiting);
+            const requested = (decoded.pokemon || []).slice(0, 2);
+            const hydrated = requested.map((raw) => hydrateDeepLinkFighter(raw, data.pokemon, selectedLeague));
+            for (let index = 0; index < hydrated.length; index += 1) {
+              const config = hydrated[index];
+              if (!config) continue;
+              const raw = requested[index];
+              const exactBuild = Boolean(raw?.ivs && raw?.level && raw?.fastMoveId && raw?.chargedMoveIds?.length);
+              const rank = await api<IvRankResult>(endpoint, {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                  action: "iv-rank",
+                  leagueId: selectedLeague.id,
+                  canonicalId: config.canonicalId,
+                  ...(exactBuild ? { ivs: config.ivs } : {}),
+                }),
+              });
+              initialRanks[index as 0 | 1] = rank;
+              initial[index as 0 | 1] = exactBuild
+                ? config
+                : { ...config, level: rank.level, ivs: rank.ivs, presetLabel: raw?.presetLabel || "Rank 1" };
             }
           } catch {
             toast.error("Le lien partagé est invalide.");
           }
         }
         setFighters(initial);
-        const initialRanks = await Promise.all(
-          initial.map((config) =>
-            api<IvRankResult>(endpoint, {
-              method: "POST",
-              headers: { "content-type": "application/json" },
-              body: JSON.stringify({
-                action: "iv-rank",
-                leagueId: initialLeague,
-                canonicalId: config.canonicalId,
-                ivs: shared ? config.ivs : undefined,
-              }),
-            }),
-          ),
-        );
-        setRanks(initialRanks as [IvRankResult, IvRankResult]);
-        setFighters(
-          initial.map((config, index) => ({
-            ...config,
-            level: initialRanks[index].level,
-            ivs: initialRanks[index].ivs,
-          })) as [FighterConfig, FighterConfig],
-        );
+        setRanks(initialRanks);
         setMatrixA(
           eligible
             .slice(0, 5)
@@ -1087,7 +1188,12 @@ export function PvpBattleLab() {
   async function selectPokemon(index: 0 | 1, pokemon: CatalogPokemon) {
     if (!league) return;
     const next = baseConfig(pokemon, league);
-    patchFighter(index, next);
+    setFighters(
+      (current) =>
+        current.map((item, itemIndex) =>
+          itemIndex === index ? next : item,
+        ) as typeof current,
+    );
     try {
       await rankConfig(index, next);
     } catch (reason) {
@@ -1104,20 +1210,12 @@ export function PvpBattleLab() {
       (item) => item.id === nextLeagueId,
     );
     if (!catalog || !nextLeague) return;
-    const eligible = catalog.pokemon.filter((pokemon) =>
-      pokemonEligibleForLeague(pokemon, nextLeague),
-    );
-    const current = fighters.map((fighter, index) => {
+    const current = fighters.map((fighter) => {
+      if (!fighter) return null;
       const selected = catalog.pokemon.find(
         (pokemon) => pokemon.canonicalId === fighter?.canonicalId,
       );
-      return fighter &&
-        selected &&
-        pokemonEligibleForLeague(selected, nextLeague)
-        ? fighter
-        : eligible[index]
-          ? baseConfig(eligible[index], nextLeague)
-          : null;
+      return selected && pokemonEligibleForLeague(selected, nextLeague) ? fighter : null;
     }) as [FighterConfig | null, FighterConfig | null];
     setFighters(current);
     try {
@@ -1295,7 +1393,7 @@ export function PvpBattleLab() {
     url.searchParams.set("section", "pvp-simulator");
     url.searchParams.set(
       "pvpBattle",
-      encodeShare({ leagueId, pokemon: fighters, strategy: { baiting } }),
+      encodePvpBattle({ leagueId, pokemon: fighters, strategy: { baiting } }),
     );
     await navigator.clipboard.writeText(url.toString());
     window.history.replaceState({}, "", url);
@@ -1355,7 +1453,7 @@ export function PvpBattleLab() {
               calculés depuis <code>combat.*</code> dans PokemonGo-Data.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <Badge tone="cyan">Engine 1.0.0</Badge>
+              <Badge tone="cyan">Engine 1.1.0</Badge>
               <Badge tone="violet">Data {catalog.versions.data}</Badge>
               <Badge tone="green">Déterministe</Badge>
             </div>
@@ -1400,6 +1498,7 @@ export function PvpBattleLab() {
 
       {tab === "single" ? (
         <>
+          <BattleArena pokemon={selectedPokemon} fighters={fighters} league={league} />
           <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] xl:items-start">
             <FighterEditor
               side="A"
@@ -1493,6 +1592,7 @@ export function PvpBattleLab() {
                 loading={Boolean(busy)}
                 loadingText={busy}
                 onClick={simulate}
+                disabled={!fighters[0] || !fighters[1]}
               >
                 SIMULER LE COMBAT
               </Button>
@@ -1500,7 +1600,7 @@ export function PvpBattleLab() {
           </Card>
           {result ? (
             <>
-              <ResultHeader result={result} />
+              <ResultHeader result={result} pokemon={selectedPokemon} />
               <div className="flex flex-wrap gap-2">
                 <Button
                   type="button"

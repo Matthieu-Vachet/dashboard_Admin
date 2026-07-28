@@ -162,6 +162,8 @@ export type BattleTimelineEvent = {
   stagesBefore?: { attack: number; defense: number };
   stagesAfter?: { attack: number; defense: number };
   cmp?: boolean;
+  bait?: boolean;
+  decision?: string;
   effectiveness?: number;
   stab?: number;
   damageBreakdown?: DamageBreakdown;
@@ -211,6 +213,8 @@ export type SingleBattleResult = {
     deterministic: true;
     cmpTieBreak: "attack-then-canonical-id";
     maxTurnsReached: boolean;
+    timingModel: "fast-completion-boundaries";
+    baitModel: "deterministic-shield-and-ko-opportunity";
   };
 };
 

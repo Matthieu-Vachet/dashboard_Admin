@@ -5,6 +5,7 @@ import {
   applyStatStage,
   calculateBattleStats,
   calculateDamage,
+  getStageMultiplier,
   ratingClass,
 } from "./rules";
 import type {
@@ -47,7 +48,8 @@ type RuntimeCombatant = {
   metrics: Metrics;
 };
 
-type SelectedMove = { actor: RuntimeCombatant; defender: RuntimeCombatant; move: CombatMove };
+type ChargedDecision = { move: CombatMove; bait: boolean; reason: string };
+type SelectedMove = { actor: RuntimeCombatant; defender: RuntimeCombatant; decision: ChargedDecision };
 
 function emptyMetrics(): Metrics {
   return {
@@ -150,14 +152,25 @@ function chooseChargedMove(
     Math.abs(left.move.energy) - Math.abs(right.move.energy)
     || right.breakdown.damage - left.breakdown.damage,
   );
-  if ((strategy.baiting || "selective") === "off" || defender.shields === 0) return byDamage[0].move;
-  if (strategy.baiting === "on") return byCost[0].move;
+  if ((strategy.baiting || "selective") === "off" || defender.shields === 0) {
+    return { move: byDamage[0].move, bait: false, reason: defender.shields === 0 ? "no-shield" : "bait-off" };
+  }
+  if (strategy.baiting === "on") {
+    return { move: byCost[0].move, bait: byCost[0].move.id !== byDamage[0].move.id, reason: "forced-bait" };
+  }
   const nuke = byDamage[0];
   const bait = byCost[0];
   const worthwhileBait = Math.abs(nuke.move.energy) - Math.abs(bait.move.energy) >= 10;
-  return defender.shields > 0 && worthwhileBait && nuke.breakdown.damage >= defender.hp
-    ? bait.move
-    : nuke.move;
+  const baitPreservesKo = bait.breakdown.damage < defender.hp;
+  const baitLeavesReachableNuke = actor.energy - Math.abs(bait.move.energy) + actor.build.fastMove.energy >= Math.abs(nuke.move.energy);
+  const shouldBait = worthwhileBait
+    && nuke.move.id !== bait.move.id
+    && nuke.breakdown.damage >= defender.hp
+    && baitPreservesKo
+    && baitLeavesReachableNuke;
+  return shouldBait
+    ? { move: bait.move, bait: true, reason: "predicted-shield-preserve-ko" }
+    : { move: nuke.move, bait: false, reason: "damage-or-energy-efficiency" };
 }
 
 function eventId(turn: number, sequence: number) {
@@ -165,7 +178,10 @@ function eventId(turn: number, sequence: number) {
 }
 
 function cmpOrder(left: SelectedMove, right: SelectedMove) {
-  const attackDelta = right.actor.stats.attack - left.actor.stats.attack;
+  const cmpAttack = (fighter: RuntimeCombatant) => fighter.stats.attack
+    * getStageMultiplier(fighter.stages.attack)
+    * (fighter.build.shadow ? PVP_RULES.shadowAttack : 1);
+  const attackDelta = cmpAttack(right.actor) - cmpAttack(left.actor);
   if (Math.abs(attackDelta) > 1e-10) return attackDelta;
   return left.actor.build.canonicalId.localeCompare(right.actor.build.canonicalId);
 }
@@ -256,8 +272,8 @@ export function simulateSingleBattle(input: SimulateSingleBattleInput): SingleBa
     for (const fighter of fighters) {
       if (fighter.pendingFast || fighter.hp <= 0) continue;
       const defender = fighters[fighter.index === 0 ? 1 : 0];
-      const move = chooseChargedMove(fighter, defender, input, strategy);
-      if (move) charged.push({ actor: fighter, defender, move });
+      const decision = chooseChargedMove(fighter, defender, input, strategy);
+      if (decision) charged.push({ actor: fighter, defender, decision });
       else fighter.pendingFast = {
         move: fighter.build.fastMove,
         completeTurn: turn + fighter.build.fastMove.turns - 1,
@@ -281,7 +297,8 @@ export function simulateSingleBattle(input: SimulateSingleBattleInput): SingleBa
     }
 
     for (const action of charged.sort(cmpOrder)) {
-      const { actor, defender, move } = action;
+      const { actor, defender, decision } = action;
+      const { move } = decision;
       if (actor.hp <= 0 || defender.hp <= 0) continue;
       const energyBefore = actor.energy;
       const cost = Math.abs(move.energy);
@@ -339,7 +356,9 @@ export function simulateSingleBattle(input: SimulateSingleBattleInput): SingleBa
         effectiveness: breakdown.effectiveness,
         stab: breakdown.stab,
         damageBreakdown: breakdown,
-        description: `${actor.build.name} lance ${move.name} · ${damage} dégâts${shielded ? " (bouclier)" : triggersFormMechanic ? ` (${formMechanic.label})` : ""}`,
+        bait: decision.bait,
+        decision: decision.reason,
+        description: `${actor.build.name} lance ${move.name} · ${damage} dégâts${decision.bait ? " · bait" : ""}${shielded ? " (bouclier)" : triggersFormMechanic ? ` (${formMechanic.label})` : ""}`,
       });
       if (triggersFormMechanic) {
         defender.formMechanicTriggered = true;
@@ -452,6 +471,8 @@ export function simulateSingleBattle(input: SimulateSingleBattleInput): SingleBa
       deterministic: true,
       cmpTieBreak: "attack-then-canonical-id",
       maxTurnsReached: durationTurns >= PVP_RULES.battleTimeoutTurns,
+      timingModel: "fast-completion-boundaries",
+      baitModel: "deterministic-shield-and-ko-opportunity",
     },
   };
 }

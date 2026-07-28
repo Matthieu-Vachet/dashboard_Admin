@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.36.0",
+    date: "2026-07-28",
+    title: "Expérience PvP unifiée et Battle Lab V2",
+    changes: [
+      "Sépare Classements et Ma Checklist, migre la persistance par ligue vers des builds multi-IV et relie Rank 1 ou Mes IV au simulateur.",
+      "Refond le Battle Lab vide avec arène Pokémon GO, sélecteur opaque accessible, configuration progressive, Result Hero, Shield Matrix, timeline et métriques enrichies.",
+      "Restaure les assets canoniques des Suggested Teammates et résout scientifiquement 24 des 25 profils Rank 1 atypiques, Volcarona restant explicitement inéligible.",
+      "Passe le moteur à 1.1.0 avec CMP sur Attaque réelle, décisions de bait traçables et campagne déterministe multi-format de 720 scénarios.",
+    ],
+  },
+  {
     version: "V1.35.0",
     date: "2026-07-28",
     title: "Battle Lab PvP complet et vérifiable",

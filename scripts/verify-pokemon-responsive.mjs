@@ -183,7 +183,7 @@ const scenarios = [
   { id: "costume-audit", path: "/pokemon-admin?section=costume-audit", ready: /Costumes \/ Event Pokémon/ },
   { id: "collection", path: "/pokemon-admin?section=my-collection", ready: /Ma collection Pokémon GO/, collectionDiagnostics: true },
   { id: "shiny", path: "/pokemon-admin?section=shiny", ready: /Shiny Tracker/ },
-  { id: "pvp-rankings", path: "/pokemon-admin?section=pvp-rankings", ready: /Ma checklist PvP/, pvpDetail: true },
+  { id: "pvp-rankings", path: "/pokemon-admin?section=pvp-rankings", ready: /Classements PvP/, pvpDetail: true },
   { id: "gbl-calendar", path: "/pokemon-admin?section=gbl-calendar", ready: /Saison Toujours en avant/ },
   { id: "identity-manager", path: "/pokemon-admin?section=identity-manager", ready: /Identity Manager/ },
   { id: "variants", path: "/pokemon-admin?section=pokemon-identity-mappings", ready: /Résolution/ },
@@ -251,6 +251,9 @@ try {
           await page.getByText("Coéquipiers suggérés", { exact: true }).waitFor({ state: "visible" });
           await page.getByText("Forgelina", { exact: true }).waitFor({ state: "visible" });
           await assertNoOverflow(page, `pvp-detail-${theme}-${width}`);
+          await page.getByRole("tab", { name: "Ma Checklist" }).click();
+          await page.getByText("Ma checklist PvP", { exact: true }).waitFor({ state: "visible" });
+          await assertNoOverflow(page, `pvp-checklist-${theme}-${width}`);
         }
         if (scenario.eventModal) {
           await page.getByRole("button", { name: new RegExp(event.title) }).filter({ visible: true }).first().click();

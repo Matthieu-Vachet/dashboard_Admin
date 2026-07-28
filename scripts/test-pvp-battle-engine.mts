@@ -217,3 +217,54 @@ test("les buffs probabilistes utilisent un compteur déterministe", () => {
   assert.ok(debuffs.length >= 1);
   assert.equal(debuffs[0].turn >= 2, true);
 });
+
+test("la CMP utilise l’Attaque réelle après CPM, Shadow et stage", () => {
+  const result = simulateSingleBattle({
+    leagueId: "master",
+    cpCap: 10_000,
+    pokemon: [
+      mimikyu({ startingEnergy: 100, startingStages: { attack: -4, defense: 0 } }),
+      lickilicky({ startingEnergy: 100, shadow: true, startingStages: { attack: 4, defense: 0 } }),
+    ],
+    typeCatalog,
+    strategy: { baiting: "off" },
+  });
+  assert.equal(result.timeline.find((event) => event.action === "cmp")?.actor, 1);
+});
+
+test("le bait sélectif est déterministe et expose sa décision dans la timeline", () => {
+  const cheap = move("CHEAP_BAIT", "charged", "GHOST", 35, -35);
+  const nuke = move("EXPENSIVE_NUKE", "charged", "GHOST", 180, -60);
+  const result = simulateSingleBattle({
+    leagueId: "master",
+    cpCap: 10_000,
+    pokemon: [
+      mimikyu({ chargedMoves: [cheap, nuke], startingEnergy: 100, shields: 0 }),
+      lickilicky({ shields: 1, startingHpPercent: 30 }),
+    ],
+    typeCatalog,
+    strategy: { baiting: "selective" },
+  });
+  const charged = result.timeline.find((event) => event.action === "charged" && event.actor === 0);
+  assert.equal(charged?.moveId, "CHEAP_BAIT");
+  assert.equal(charged?.bait, true);
+  assert.equal(charged?.decision, "predicted-shield-preserve-ko");
+  assert.equal(result.diagnostics.baitModel, "deterministic-shield-and-ko-opportunity");
+});
+
+test("énergie, boucliers et gaspillage respectent leurs bornes après chaque événement", () => {
+  const result = simulateSingleBattle({
+    leagueId: "master",
+    cpCap: 10_000,
+    pokemon: [mimikyu({ startingEnergy: 100, shields: 2 }), lickilicky({ startingEnergy: 100, shields: 2 })],
+    typeCatalog,
+  });
+  for (const event of result.timeline) {
+    if (event.energyAfter !== undefined) assert.ok(event.energyAfter >= 0 && event.energyAfter <= 100);
+  }
+  for (const combatant of result.combatants) {
+    assert.ok(combatant.shieldsUsed >= 0 && combatant.shieldsUsed <= 2);
+    assert.ok(combatant.energyWasted >= 0);
+    assert.ok(combatant.remainingEnergy >= 0 && combatant.remainingEnergy <= 100);
+  }
+});

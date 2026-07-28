@@ -1,9 +1,10 @@
 "use client";
 
-import { Check, ChevronDown, Download, ExternalLink, RefreshCcw, RotateCcw, Shield, Swords } from "lucide-react";
+import { ChevronDown, Download, ExternalLink, Plus, RefreshCcw, RotateCcw, Trash2 } from "lucide-react";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { PolarAngleAxis, PolarGrid, Radar as RadarShape, RadarChart, ResponsiveContainer, Tooltip } from "recharts";
 import { typeColors, typeLabels } from "@/components/site/pokemon-style";
+import { uiAssets } from "@/components/site/ui-assets";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { TypeIcons } from "./asset-icons";
@@ -12,7 +13,8 @@ import { DatasetSourceHeader } from "./dataset-source-header";
 import { DatasetFilterBar } from "./dataset-filter-bar";
 import { PokemonArtwork } from "./pokemon-artwork";
 import { EmptyState } from "@/components/admin/shared/state-system";
-import { buffLabels, checklistIdentity, filterChecklistEntries, moveCounts, performanceRadarData, toggleChecklistEntry } from "@/lib/pvp-rankings-display.mjs";
+import { addChecklistBuild, buffLabels, checklistBuildsForEntry, checklistIdentity, emptyChecklistState, filterChecklistEntries, migrateChecklistState, moveCounts, patchChecklistBuild, performanceRadarData, removeChecklistBuild } from "@/lib/pvp-rankings-display.mjs";
+import { fighterFromChecklistBuild, fighterFromRanking, pvpBattleUrl } from "@/lib/pvp-battle-deep-link.mjs";
 import { readDashboardStoreValue, writeDashboardStoreValue } from "@/services/admin/dashboard-store";
 import { pokemonAdminApiPath } from "@/services/admin/pokemon-admin-api";
 
@@ -94,16 +96,16 @@ function combinedTypeMatchups(types, typeReferences) {
   return { weaknesses: results.filter((item) => item.multiplier > 1.01), resistances: results.filter((item) => item.multiplier < 0.99) };
 }
 
-function TeammateBadge({ item, onOpenPokemon }) {
+function TeammateBadge({ item, onOpenPokemon, onSimulate }) {
   const pokemon = item.pokemon || {};
   const label = pokemon.names?.French || pokemon.names?.English || item.rawName || "Pokémon";
   const className = "inline-flex items-center gap-2 rounded-xl border border-line bg-surface-control px-2 py-1 text-sm font-black";
   const content = <><PokemonArtwork pokemon={pokemon} alt={label} className="h-8 w-8 rounded-lg" /><span>{label}{item.shadow ? " (Obscur)" : ""}</span></>;
-  if (onOpenPokemon && item.resolutionStatus === "matched") return <button className={className} type="button" onClick={() => onOpenPokemon(pokemon)}>{content}</button>;
+  if (onOpenPokemon && item.resolutionStatus === "matched") return <span className="inline-flex flex-wrap items-center gap-1"><button className={className} type="button" onClick={() => onOpenPokemon(pokemon)}>{content}</button>{onSimulate ? <button className="grid h-9 w-9 place-items-center rounded-lg border border-cyan-200/20 bg-cyan-300/10" type="button" onClick={() => onSimulate(item)} aria-label={`Simuler contre ${label}`} title={`Simuler contre ${label}`}><img className="h-5 w-5 object-contain" src={uiAssets.icons.battle} alt="" /></button> : null}</span>;
   return <span className={className}>{content}{item.resolutionStatus !== "matched" ? <small className="text-amber-200">Alias à résoudre</small> : null}</span>;
 }
 
-function PvpDetail({ entry, references, format, onOpenPokemon, suggestedTeammates, teammatesLoading, teammatesError }) {
+function PvpDetail({ entry, references, format, onOpenPokemon, onSimulate, onSimulateTeammate, suggestedTeammates, teammatesLoading, teammatesError }) {
   const fastRecommended = resolveMove(references, entry.moveset?.fast);
   const chargedRecommended = (entry.moveset?.charged || []).map((id) => resolveMove(references, id));
   const allFast = (entry.pvp?.allMoves?.fast || []).map((id) => resolveMove(references, id));
@@ -125,15 +127,15 @@ function PvpDetail({ entry, references, format, onOpenPokemon, suggestedTeammate
       <div className="grid gap-4 xl:grid-cols-2"><section className="rounded-2xl border border-line bg-surface-faint p-4"><h3 className="font-black text-domain-foreground">Attaques immédiates</h3><div className="mt-3 space-y-2">{attacksFast.map((move) => <MoveBadge key={move.id} move={move} fastMove recommended={move.id === entry.moveset?.fast} />)}{!attacksFast.length ? <p className="text-sm font-bold text-amber-200">Aucune attaque immédiate locale reliée.</p> : null}</div></section><section className="rounded-2xl border border-line bg-surface-faint p-4"><h3 className="font-black text-domain-foreground">Attaques chargées</h3><div className="mt-3 space-y-2">{attacksCharged.map((move) => <MoveBadge key={move.id} move={move} fastMove={false} selectedFastMove={fastRecommended} recommended={entry.moveset?.charged?.includes(move.id)} />)}{!attacksCharged.length ? <p className="text-sm font-bold text-amber-200">Aucune attaque chargée locale reliée.</p> : null}</div></section></div>
       <section className="grid gap-3 sm:grid-cols-2"><div className="rounded-2xl border border-line bg-surface-faint p-4"><h3 className="font-black text-domain-foreground">Types</h3><div className="mt-3 flex flex-wrap items-center gap-2"><TypeIcons types={entry.pokemon?.types} />{(entry.pokemon?.types || []).map((type) => <span className="rounded-full border border-line bg-surface-control px-3 py-1 text-sm font-black" key={type}>{typeLabels[String(type).toUpperCase()] || type}</span>)}</div></div><div className="rounded-2xl border border-line bg-surface-faint p-4"><h3 className="font-black text-domain-foreground">Coût et distance</h3><p className="mt-3 text-sm font-bold text-foreground-secondary">Copain : {entry.pvp?.buddyDistanceKm == null ? "Indisponible" : `${entry.pvp.buddyDistanceKm} km`}</p><p className="mt-1 text-sm font-bold text-foreground-secondary">Seconde attaque : {costs.stardust == null ? "coût local indisponible" : `${Number(costs.stardust).toLocaleString("fr-FR")} poussières`}{costs.candy == null ? "" : ` · ${costs.candy} bonbons`}</p></div></section>
       <div className="grid gap-3 sm:grid-cols-2"><section className="rounded-2xl border border-line bg-surface-faint p-4"><h3 className="font-black text-domain-foreground">Faiblesses</h3><div className="mt-3 flex flex-wrap gap-2">{matchupTypes.weaknesses.map((item) => <span className="inline-flex items-center gap-1 rounded-full border border-line bg-surface-control px-2 py-1 type-label" key={item.type}><TypeIcons types={[item.type]} size="sm" />x{item.multiplier}</span>)}</div></section><section className="rounded-2xl border border-line bg-surface-faint p-4"><h3 className="font-black text-domain-foreground">Résistances</h3><div className="mt-3 flex flex-wrap gap-2">{matchupTypes.resistances.map((item) => <span className="inline-flex items-center gap-1 rounded-full border border-line bg-surface-control px-2 py-1 type-label" key={item.type}><TypeIcons types={[item.type]} size="sm" />x{item.multiplier}</span>)}</div></section></div>
-      <section className="grid gap-3 sm:grid-cols-2"><div className="rounded-2xl border border-dashed border-white/12 p-4"><h3 className="font-black text-domain-foreground">Coéquipiers suggérés</h3>{teammatesLoading ? <p className="mt-2 animate-pulse text-sm font-bold text-cyan-100 motion-reduce:animate-none">Calcul PvPoke en cours…</p> : suggestedTeammates?.length ? <div className="mt-3 flex flex-wrap gap-2">{suggestedTeammates.map((item) => <TeammateBadge item={item} onOpenPokemon={onOpenPokemon} key={`${item.rankOrOrder}-${item.providerAlias}`} />)}</div> : <p className={`mt-2 text-sm font-bold ${teammatesError ? "text-amber-200" : "text-muted"}`}>{teammatesError || "Aucun partenaire exact retourné par la fiche PvPoke."}</p>}</div><div className="rounded-2xl border border-dashed border-white/12 p-4"><h3 className="font-black text-domain-foreground">Pokémon similaires</h3><p className="mt-2 text-sm font-bold text-muted">Aucune donnée source exacte n’est publiée dans le snapshot de classement.</p></div></section>
-      <div className="flex flex-wrap gap-2">{onOpenPokemon && !entry.pokemon?.unmatched ? <button className={buttonClass} type="button" onClick={() => onOpenPokemon(entry.pokemon)}><ExternalLink size={16} /> Fiche Pokémon</button> : null}<span className="inline-flex items-center gap-2 rounded-xl border border-line bg-surface-minimal px-3 py-2 type-label text-muted">Comparaison et équipe : liens internes à venir lorsque les données seront disponibles</span></div>
+      <section className="grid gap-3 sm:grid-cols-2"><div className="rounded-2xl border border-dashed border-white/12 p-4"><h3 className="font-black text-domain-foreground">Coéquipiers suggérés</h3>{teammatesLoading ? <p className="mt-2 animate-pulse text-sm font-bold text-cyan-100 motion-reduce:animate-none">Calcul PvPoke en cours…</p> : suggestedTeammates?.length ? <div className="mt-3 flex flex-wrap gap-2">{suggestedTeammates.map((item) => <TeammateBadge item={item} onOpenPokemon={onOpenPokemon} onSimulate={(teammate) => onSimulateTeammate?.(entry, teammate)} key={`${item.rankOrOrder}-${item.providerAlias}`} />)}</div> : <p className={`mt-2 text-sm font-bold ${teammatesError ? "text-amber-200" : "text-muted"}`}>{teammatesError || "Aucun partenaire exact retourné par la fiche PvPoke."}</p>}</div><div className="rounded-2xl border border-dashed border-white/12 p-4"><h3 className="font-black text-domain-foreground">Pokémon similaires</h3><p className="mt-2 text-sm font-bold text-muted">Aucune donnée source exacte n’est publiée dans le snapshot de classement.</p></div></section>
+      <div className="flex flex-wrap gap-2">{onSimulate && fighterFromRanking(entry) ? <Button variant="primary" icon={<img className="h-5 w-5 object-contain" src={uiAssets.icons.battle} alt="" />} onClick={() => onSimulate(entry)}>Simuler · Rank 1</Button> : null}{onOpenPokemon && !entry.pokemon?.unmatched ? <button className={buttonClass} type="button" onClick={() => onOpenPokemon(entry.pokemon)}><ExternalLink size={16} /> Fiche Pokémon</button> : null}</div>
     </div>
   );
 }
 
 function PvpChecklist({ league, sourceHash, onOpenPokemon }) {
   const [catalogue, setCatalogue] = useState([]);
-  const [state, setState] = useState({ schemaVersion: 1, contexts: {} });
+  const [state, setState] = useState(emptyChecklistState());
   const [loadedKey, setLoadedKey] = useState("");
   const [configured, setConfigured] = useState(true);
   const [query, setQuery] = useState("");
@@ -157,7 +159,9 @@ function PvpChecklist({ league, sourceHash, onOpenPokemon }) {
       if (cancelled) return;
       setCatalogue(rankings);
       setConfigured(stored.configured !== false);
-      if (stored.value?.schemaVersion === 1) setState(stored.value);
+      const migrated = migrateChecklistState(stored.value, rankings, league);
+      setState(migrated);
+      if (stored.configured !== false && JSON.stringify(migrated) !== JSON.stringify(stored.value)) void writeDashboardStoreValue(checklistStoreKey, migrated);
     }).catch(() => {
       if (!cancelled) setCatalogue([]);
     }).finally(() => {
@@ -166,17 +170,30 @@ function PvpChecklist({ league, sourceHash, onOpenPokemon }) {
     return () => { cancelled = true; };
   }, [league, requestKey]);
 
-  const owned = useMemo(() => state.contexts?.[league] || {}, [league, state.contexts]);
+  const owned = useMemo(() => state.contexts?.[league] || { builds: {} }, [league, state.contexts]);
   const visible = useMemo(() => filterChecklistEntries({ catalogue, owned, query: deferredQuery, filter, sort }), [catalogue, deferredQuery, filter, owned, sort]);
-  const ownedCount = catalogue.reduce((count, entry) => count + Number(Boolean(owned[checklistIdentity(entry)])), 0);
+  const ownedCount = Object.values(owned.builds || {}).filter((build) => build?.owned !== false).length;
 
-  function toggle(entry) {
-    const next = { ...toggleChecklistEntry(state, league, entry), updatedAt: new Date().toISOString() };
+  function persist(next) {
+    next = { ...next, updatedAt: new Date().toISOString() };
     setState(next);
     void writeDashboardStoreValue(checklistStoreKey, next);
   }
 
-  return <Panel eyebrow="Persistée par compte Dashboard" title="Ma checklist PvP"><div className="flex flex-wrap items-center justify-between gap-3"><p className="text-sm font-bold text-foreground-secondary"><strong className="font-mono text-cyan-100">{ownedCount}</strong> / {catalogue.length} possédés · contexte {league}</p>{!configured ? <span className="text-xs font-black text-amber-200">MongoDB Dashboard non configuré</span> : null}</div><div className="mt-4 grid gap-2 md:grid-cols-[minmax(0,1fr)_12rem_12rem]"><input className={fieldClass} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Rechercher dans le catalogue actif" aria-label="Rechercher dans la checklist PvP" /><Select className={fieldClass} value={filter} onChange={(event) => setFilter(event.target.value)} aria-label="Filtre checklist"><option value="all">Tous</option><option value="owned">Possédés</option><option value="missing">Manquants</option></Select><Select className={fieldClass} value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Tri checklist"><option value="rank">Rang</option><option value="name">Nom</option><option value="type">Type</option></Select></div>{loading ? <p className="mt-4 text-sm font-bold text-muted">Chargement du catalogue complet…</p> : <div className="mt-4 grid max-h-[32rem] gap-2 overflow-y-auto pr-1 sm:grid-cols-2 xl:grid-cols-3">{visible.map((entry) => { const id = checklistIdentity(entry); const checked = Boolean(owned[id]); return <label className={`grid cursor-pointer grid-cols-[auto_2.5rem_minmax(0,1fr)] items-center gap-2 rounded-xl border p-2 [content-visibility:auto] ${checked ? "border-emerald-300/30 bg-emerald-400/[0.08]" : "border-line bg-surface-faint"}`} key={id}><input className="sr-only" type="checkbox" checked={checked} onChange={() => toggle(entry)} /><span className={`grid h-6 w-6 place-items-center rounded-md border ${checked ? "border-emerald-300 bg-emerald-400 text-slate-950" : "border-line"}`}>{checked ? <Check size={15} /> : null}</span><PokemonArtwork pokemon={entry.pokemon} alt={pokemonName(entry)} className="h-10 w-10 rounded-lg" /><span className="min-w-0"><strong className="block truncate text-sm">#{entry.rank} {pokemonName(entry)}</strong><span className="mt-0.5 flex items-center gap-1"><TypeIcons types={entry.pokemon?.types} size="sm" />{onOpenPokemon ? <button className="text-[10px] font-black text-cyan-200" type="button" onClick={(event) => { event.preventDefault(); onOpenPokemon(entry.pokemon); }}>Fiche</button> : null}</span></span></label>; })}{!visible.length ? <EmptyState size="section" title="Aucun Pokémon dans ce filtre" /> : null}</div>}</Panel>;
+  function add(entry, duplicate = false) {
+    persist(addChecklistBuild(state, league, entry, { allowDuplicate: duplicate }));
+  }
+
+  function patch(buildId, update) {
+    persist(patchChecklistBuild(state, league, buildId, { ...update, source: "mes-iv" }));
+  }
+
+  function simulate(build) {
+    const fighter = fighterFromChecklistBuild(build);
+    if (fighter) window.location.assign(pvpBattleUrl({ leagueId: league, pokemon: [fighter], strategy: { baiting: "selective" } }));
+  }
+
+  return <Panel eyebrow="Persistée par compte Dashboard · schéma v2" title="Ma checklist PvP"><div className="flex flex-wrap items-center justify-between gap-3"><p className="text-sm font-bold text-foreground-secondary"><strong className="font-mono text-cyan-100">{ownedCount}</strong> build(s) possédé(s) · {catalogue.length} entrées · ligue <strong>{league}</strong></p>{!configured ? <span className="text-xs font-black text-amber-200">MongoDB Dashboard non configuré</span> : null}</div><div className="mt-4 grid gap-2 md:grid-cols-[minmax(0,1fr)_12rem_12rem]"><input className={fieldClass} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Rechercher dans la ligue active" aria-label="Rechercher dans la checklist PvP" /><Select className={fieldClass} value={filter} onChange={(event) => setFilter(event.target.value)} aria-label="Filtre checklist"><option value="all">Tous</option><option value="owned">Possédés</option><option value="missing">Manquants</option></Select><Select className={fieldClass} value={sort} onChange={(event) => setSort(event.target.value)} aria-label="Tri checklist"><option value="rank">Rang</option><option value="name">Nom</option><option value="type">Type</option></Select></div>{loading ? <p className="mt-4 text-sm font-bold text-muted">Chargement du catalogue complet…</p> : <div className="mt-4 grid max-h-[54rem] gap-3 overflow-y-auto pr-1 xl:grid-cols-2">{visible.map((entry) => { const id = checklistIdentity(entry); const builds = checklistBuildsForEntry(state, league, entry); return <article className={`rounded-2xl border p-3 [content-visibility:auto] ${builds.length ? "border-emerald-300/25 bg-emerald-400/[0.06]" : "border-line bg-surface-faint"}`} key={`${entry.rank}-${id}`}><header className="flex items-center gap-3"><PokemonArtwork pokemon={entry.pokemon} alt={pokemonName(entry)} className="h-12 w-12 rounded-xl" /><div className="min-w-0 flex-1"><strong className="block truncate">#{entry.rank} {pokemonName(entry)}</strong><TypeIcons types={entry.pokemon?.types} size="sm" /></div><Button size="sm" icon={<Plus size={15} />} disabled={!entry.rank1} onClick={() => add(entry, builds.length > 0)}>{builds.length ? "Build" : "Rank 1"}</Button></header>{!entry.rank1 ? <p className="mt-3 text-xs font-bold text-amber-200">Cette information n’est pas fournie : la source ne permet pas un build Rank 1 légal.</p> : null}<div className="mt-3 space-y-3">{builds.map((build) => <section className="rounded-xl border border-line bg-surface-control p-3" key={build.buildId}><div className="flex flex-wrap items-center justify-between gap-2"><span className={`rounded-full px-2 py-1 text-[10px] font-black ${build.source === "rank-1" || build.source === "migration-rank-1" ? "bg-cyan-300/12 text-cyan-100" : "bg-violet-300/12 text-violet-100"}`}>{build.source === "rank-1" || build.source === "migration-rank-1" ? "Rank 1" : "Mes IV"}</span><div className="flex gap-1"><Button size="sm" variant="primary" icon={<img className="h-4 w-4 object-contain" src={uiAssets.icons.battle} alt="" />} onClick={() => simulate(build)}>Simuler</Button><Button size="icon" variant="ghost" icon={<Trash2 size={15} />} aria-label="Supprimer ce build" onClick={() => persist(removeChecklistBuild(state, league, build.buildId))} /></div></div><div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">{[["Atk", "attack"], ["Def", "defense"], ["HP", "stamina"]].map(([label, key]) => <label className="text-[10px] font-black text-muted" key={key}>{label}<input className={`${fieldClass} mt-1 px-2`} type="number" min="0" max="15" value={build.ivs[key]} onChange={(event) => patch(build.buildId, { ivs: { ...build.ivs, [key]: Number(event.target.value) } })} /></label>)}<label className="text-[10px] font-black text-muted">Niv.<input className={`${fieldClass} mt-1 px-2`} type="number" min="1" max="55" step="0.5" value={build.level} onChange={(event) => patch(build.buildId, { level: Number(event.target.value) })} /></label><label className="text-[10px] font-black text-muted">PC<input className={`${fieldClass} mt-1 px-2`} type="number" min="10" max="10000" value={build.cp || ""} onChange={(event) => patch(build.buildId, { cp: Number(event.target.value) })} /></label><label className="text-[10px] font-black text-muted">Rang<input className={`${fieldClass} mt-1 px-2`} type="number" min="1" value={build.rank || ""} onChange={(event) => patch(build.buildId, { rank: Number(event.target.value) })} /></label></div></section>)}</div>{onOpenPokemon ? <button className="mt-2 text-[10px] font-black text-cyan-200" type="button" onClick={() => onOpenPokemon(entry.pokemon)}>Ouvrir la fiche</button> : null}</article>; })}{!visible.length ? <EmptyState size="section" title="Aucun Pokémon dans ce filtre" /> : null}</div>}</Panel>;
 }
 
 function FormatSelect({ formats, value, onChange }) {
@@ -185,6 +202,7 @@ function FormatSelect({ formats, value, onChange }) {
 }
 
 export function PvpRankingsPanel({ dataset, loading, regenerating, options, onOptionsChange, onRefresh, onDownload, onRegenerate, onOpenPokemon }) {
+  const [view, setView] = useState("rankings");
   const [expanded, setExpanded] = useState("");
   const [teammatesByEntry, setTeammatesByEntry] = useState({});
   const entries = dataset?.data?.rankings || [];
@@ -194,6 +212,21 @@ export function PvpRankingsPanel({ dataset, loading, regenerating, options, onOp
   const meta = dataset?.meta || {};
   const selectedFormat = formats.find((format) => format.id === (dataset?.data?.league || options.league));
   const league = dataset?.data?.league || options.league;
+
+  function simulateRanking(entry) {
+    const fighter = fighterFromRanking(entry, "Rank 1");
+    if (fighter) window.location.assign(pvpBattleUrl({ leagueId: league, pokemon: [fighter], strategy: { baiting: "selective" } }));
+  }
+
+  function simulateTeammate(entry, teammate) {
+    const fighter = fighterFromRanking(entry, "Rank 1");
+    if (!fighter || !teammate?.canonicalId) return;
+    window.location.assign(pvpBattleUrl({
+      leagueId: league,
+      pokemon: [fighter, { canonicalId: teammate.canonicalId, presetLabel: "Rank 1" }],
+      strategy: { baiting: "selective" },
+    }));
+  }
 
   async function loadSuggestedTeammates(entry) {
     const speciesId = entry.sourceIdentity?.speciesId;
@@ -214,14 +247,16 @@ export function PvpRankingsPanel({ dataset, loading, regenerating, options, onOp
   return (
     <div className="space-y-5">
       <Panel eyebrow="Source officielle · dépôt MIT PvPoke" title="Classements PvP" action={<div className="flex flex-wrap gap-2"><Button icon={<Download size={16} />} onClick={onDownload} disabled={!dataset}>JSON</Button><Button icon={<RefreshCcw size={16} />} loading={loading} loadingText="Actualisation…" onClick={onRefresh}>Actualiser</Button><Button variant="primary" icon={<RotateCcw size={16} />} loading={regenerating} loadingText="Régénération…" onClick={onRegenerate}>Régénérer</Button></div>}><DatasetSourceHeader dataset={dataset} total={meta.total || entries.length} /></Panel>
-      <PvpChecklist league={dataset?.data?.league || options.league} sourceHash={dataset?.meta?.sourceHash} onOpenPokemon={onOpenPokemon} />
+      <div className="flex gap-2 overflow-x-auto rounded-2xl border border-line bg-surface-inset-subtle p-2" role="tablist" aria-label="Vues PvP"><button className={`min-h-11 rounded-xl px-4 text-sm font-black ${view === "rankings" ? "bg-cyan-300/14 text-cyan-50" : "text-muted"}`} type="button" role="tab" aria-selected={view === "rankings"} onClick={() => setView("rankings")}>Classements</button><button className={`min-h-11 rounded-xl px-4 text-sm font-black ${view === "checklist" ? "bg-cyan-300/14 text-cyan-50" : "text-muted"}`} type="button" role="tab" aria-selected={view === "checklist"} onClick={() => setView("checklist")}>Ma Checklist</button></div>
+      {view === "checklist" ? <PvpChecklist league={dataset?.data?.league || options.league} sourceHash={dataset?.meta?.sourceHash} onOpenPokemon={onOpenPokemon} /> : <>
       <DatasetFilterBar query={options.search} onQueryChange={(search) => onOptionsChange({ ...options, search, page: 1 })} resultCount={entries.length} totalCount={meta.total || entries.length} />
       <div className="grid gap-3 lg:grid-cols-2"><FormatSelect formats={formats} value={options.league} onChange={(event) => { setExpanded(""); onOptionsChange({ ...options, league: event.target.value, page: 1 }); }} /><Select className={fieldClass} value={options.role} onChange={(event) => onOptionsChange({ ...options, role: event.target.value, page: 1 })} aria-label="Classement">{roles.map(([id, label]) => <option value={id === "overall" ? "" : id} key={id}>{label}</option>)}</Select></div>
       <section className="space-y-2" aria-label="Classement PvP">
-        {entries.map((entry) => { const key = `${entry.rank}-${entry.sourceIdentity?.speciesId}`; const teammateKey = `${league}:${entry.sourceIdentity?.speciesId}`; const teammateState = teammatesByEntry[teammateKey] || {}; const isOpen = expanded === key; const fast = resolveMove(references, entry.moveset?.fast); const charged = (entry.moveset?.charged || []).map((id) => resolveMove(references, id)); return <article className="overflow-hidden rounded-2xl border border-line" style={typeSurface(entry)} key={key}><button className="grid w-full min-w-0 gap-3 p-3 text-left sm:grid-cols-[2.5rem_4rem_minmax(0,1fr)_auto] sm:items-center" type="button" onClick={() => { setExpanded(isOpen ? "" : key); if (!isOpen) void loadSuggestedTeammates(entry); }} aria-expanded={isOpen}><span className="flex items-center gap-2 font-mono text-sm font-black text-muted"><ChevronDown className={`transition ${isOpen ? "rotate-180" : ""}`} size={16} />#{entry.rank}</span><PokemonArtwork pokemon={entry.pokemon} alt={pokemonName(entry)} className="h-14 w-14 rounded-xl" /><span className="min-w-0"><strong className="block truncate text-base text-domain-foreground">#{entry.pokemon?.dexNr || "—"} {pokemonName(entry)}{entry.variant === "shadow" ? " (Obscur)" : ""}</strong><span className="mt-1 flex flex-wrap items-center gap-2"><TypeIcons types={entry.pokemon?.types} size="sm" /><small className="font-bold text-foreground-secondary">{moveName(fast)} · {charged.map(moveName).join(" · ") || "Attaques chargées non reliées"}</small></span></span><span className="inline-flex items-center justify-center gap-1 rounded-full border border-cyan-200/16 bg-cyan-300/12 px-3 py-2 font-mono text-sm font-black text-cyan-50">{entry.variant === "shadow" ? <Shield size={14} /> : <Swords size={14} />}{entry.displayScore ?? entry.score}</span></button>{isOpen ? <PvpDetail entry={entry} references={references} format={selectedFormat} onOpenPokemon={onOpenPokemon} suggestedTeammates={teammateState.data} teammatesLoading={teammateState.loading} teammatesError={teammateState.error} /> : null}</article>; })}
+        {entries.map((entry) => { const key = `${entry.rank}-${entry.sourceIdentity?.speciesId}`; const teammateKey = `${league}:${entry.sourceIdentity?.speciesId}`; const teammateState = teammatesByEntry[teammateKey] || {}; const isOpen = expanded === key; const fast = resolveMove(references, entry.moveset?.fast); const charged = (entry.moveset?.charged || []).map((id) => resolveMove(references, id)); return <article className="overflow-hidden rounded-2xl border border-line" style={typeSurface(entry)} key={key}><button className="grid w-full min-w-0 gap-3 p-3 text-left sm:grid-cols-[2.5rem_4rem_minmax(0,1fr)_auto] sm:items-center" type="button" onClick={() => { setExpanded(isOpen ? "" : key); if (!isOpen) void loadSuggestedTeammates(entry); }} aria-expanded={isOpen}><span className="flex items-center gap-2 font-mono text-sm font-black text-muted"><ChevronDown className={`transition ${isOpen ? "rotate-180" : ""}`} size={16} />#{entry.rank}</span><PokemonArtwork pokemon={entry.pokemon} alt={pokemonName(entry)} className="h-14 w-14 rounded-xl" /><span className="min-w-0"><strong className="block truncate text-base text-domain-foreground">#{entry.pokemon?.dexNr || "—"} {pokemonName(entry)}{entry.variant === "shadow" ? " (Obscur)" : ""}</strong><span className="mt-1 flex flex-wrap items-center gap-2"><TypeIcons types={entry.pokemon?.types} size="sm" /><small className="font-bold text-foreground-secondary">{moveName(fast)} · {charged.map(moveName).join(" · ") || "Attaques chargées non reliées"}</small></span></span><span className="inline-flex items-center justify-center gap-1 rounded-full border border-cyan-200/16 bg-cyan-300/12 px-3 py-2 font-mono text-sm font-black text-cyan-50"><img className="h-4 w-4 object-contain" src={entry.variant === "shadow" ? uiAssets.icons.shadow : uiAssets.icons.swords} alt="" />{entry.displayScore ?? entry.score}</span></button>{isOpen ? <PvpDetail entry={entry} references={references} format={selectedFormat} onOpenPokemon={onOpenPokemon} onSimulate={simulateRanking} onSimulateTeammate={simulateTeammate} suggestedTeammates={teammateState.data} teammatesLoading={teammateState.loading} teammatesError={teammateState.error} /> : null}</article>; })}
         {!entries.length ? <EmptyState size="section" title="Aucun classement PvP pour ces filtres" /> : null}
       </section>
       <div className="flex flex-wrap items-center justify-between gap-3"><span className="font-mono text-xs font-black text-muted">Affichés {entries.length} sur {meta.total || entries.length}</span><div className="flex items-center gap-3"><button className={buttonClass} type="button" disabled={options.page <= 1} onClick={() => onOptionsChange({ ...options, page: options.page - 1 })}>Précédent</button><span className="font-mono text-sm font-black text-foreground-secondary">Page {meta.page || options.page} / {meta.pages || 1}</span><button className={buttonClass} type="button" disabled={(meta.page || options.page) >= (meta.pages || 1)} onClick={() => onOptionsChange({ ...options, page: options.page + 1 })}>Suivant</button></div></div>
+      </>}
     </div>
   );
 }

@@ -37,7 +37,7 @@ type Fixture = {
 const { simulateSingleBattle } = engineModule;
 const { prepareBattleBuild, readPvpCatalog } = serverDataModule;
 
-test("20 combats PvPoke figés restent comparables et déterministes", async () => {
+test("les références PvPoke et une campagne multi-format étendue restent déterministes", async () => {
   const fixture = JSON.parse(await readFile(new URL("./fixtures/pvpoke-parity-2026-07-28.json", import.meta.url), "utf8")) as Fixture;
   const catalog = await readPvpCatalog();
   const league = catalog.leagues.find((entry: { id: string }) => entry.id === "great");
@@ -50,6 +50,7 @@ test("20 combats PvPoke figés restent comparables et déterministes", async () 
   let fastDamageChecks = 0;
   let chargedDamageMatches = 0;
   let chargedDamageChecks = 0;
+  const preparedCases: Array<Awaited<ReturnType<typeof prepareBattleBuild>>[]> = [];
 
   for (const scenario of fixture.cases) {
     const configurations = [fixture.pokemon[scenario.left], fixture.pokemon[scenario.right]] as const;
@@ -60,6 +61,7 @@ test("20 combats PvPoke figés restent comparables et déterministes", async () 
       startingEnergy: 0,
       startingHpPercent: 100,
     }, league)));
+    preparedCases.push(builds);
     const input = {
       leagueId: "great",
       cpCap: 1500,
@@ -100,11 +102,44 @@ test("20 combats PvPoke figés restent comparables et déterministes", async () 
     });
   }
 
+  const campaignLeagues = [
+    { id: "little", cpCap: 500, level: 1 },
+    { id: "great", cpCap: 1500, level: null },
+    { id: "ultra", cpCap: 2500, level: null },
+    { id: "master", cpCap: 10_000, level: null },
+  ];
+  let campaignScenarios = 0;
+  for (const campaignLeague of campaignLeagues) {
+    for (const builds of preparedCases) {
+      for (let left = 0; left <= 2; left += 1) {
+        for (let right = 0; right <= 2; right += 1) {
+          const pokemon = builds.map((build, index) => ({
+            ...build,
+            level: campaignLeague.level || build.level,
+            shields: index === 0 ? left : right,
+          })) as typeof builds;
+          const input = {
+            leagueId: campaignLeague.id,
+            cpCap: campaignLeague.cpCap,
+            pokemon: pokemon as [typeof pokemon[0], typeof pokemon[1]],
+            typeCatalog: catalog.types,
+            strategy: { baiting: campaignScenarios % 3 === 0 ? "off" as const : campaignScenarios % 3 === 1 ? "selective" as const : "on" as const, optimizeTiming: true, buffMode: "deterministic" as const },
+          };
+          const result = simulateSingleBattle(input);
+          assert.deepEqual(result, simulateSingleBattle(input));
+          assert.ok(result.combatants.every((combatant) => combatant.remainingEnergy >= 0 && combatant.remainingEnergy <= 100));
+          campaignScenarios += 1;
+        }
+      }
+    }
+  }
+  assert.ok(campaignScenarios >= 100);
+
   assert.equal(fastDamageMatches, fastDamageChecks, "les dégâts des attaques rapides doivent être exacts");
   assert.ok(winnerMatches >= 15, `parité vainqueur insuffisante: ${winnerMatches}/20`);
   console.log(JSON.stringify({
     sourceCommit: fixture.source.commit,
-    summary: { winnerMatches, fastDamageMatches, fastDamageChecks, chargedDamageMatches, chargedDamageChecks },
+    summary: { officialReferenceCases: fixture.cases.length, campaignScenarios, winnerMatches, fastDamageMatches, fastDamageChecks, chargedDamageMatches, chargedDamageChecks },
     report,
   }));
 });

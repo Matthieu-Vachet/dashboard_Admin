@@ -292,6 +292,12 @@ test("PvP expose tous les rôles et développe les lignes en accordéon", () => 
   assert.match(source, /Cette information n’est pas fournie/);
 });
 
+test("le Battle Lab peut remplir un emplacement de combattant initialement vide", () => {
+  const source = read("src/components/admin/pokemon/pvp-battle-lab.tsx");
+  assert.match(source, /itemIndex === index \? next : item/);
+  assert.doesNotMatch(source, /patchFighter\(index, next\)/);
+});
+
 test("l'explorateur dérive les routes publiques d'OpenAPI et isole les actions privées", () => {
   const proxy = read("src/app/api/pokemon-api-proxy/route.ts");
   const explorer = read("src/components/admin/pokemon/pokemon-api-explorer.tsx");

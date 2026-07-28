@@ -9,8 +9,8 @@ import type {
   TypeEffectivenessResult,
 } from "./types";
 
-export const ENGINE_VERSION = "1.0.0";
-export const RULES_VERSION = "2026.07.1";
+export const ENGINE_VERSION = "1.1.0";
+export const RULES_VERSION = "2026.07.2";
 
 export const PVP_RULES = Object.freeze({
   stab: 1.2000000476837158,

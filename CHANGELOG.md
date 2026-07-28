@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.36.0 - 2026-07-28
+
+- Sépare Rankings et Checklist, ajoute les builds par ligue, la migration v1 non destructive et les deep-links Rank 1/Mes IV.
+- Livre le Battle Lab V2 vide avec arène, sélecteur accessible desktop/mobile, configuration progressive et résultats visuels enrichis.
+- Réutilise les assets Pokémon GO existants pour les types, ligues, combats, boucliers, attaques, Shadow, buffs et timeline.
+- Passe le moteur natif à 1.1.0, corrige la CMP sur l’Attaque réelle, trace le bait et étend la campagne déterministe à 720 scénarios.
+
 ## 1.35.0 - 2026-07-28
 
 - Ajoute le Simulateur PvP sous Combat avec moteur déterministe, Single, Shield Matrix, Multi, Matrix et Rank IV exhaustif.

@@ -2,10 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   buffLabels,
+  addChecklistBuild,
+  checklistBuildsForEntry,
   checklistIdentity,
   filterChecklistEntries,
   filterGblPeriods,
+  migrateChecklistState,
   moveCounts,
+  patchChecklistBuild,
   performanceRadarData,
   toggleChecklistEntry,
 } from "../src/lib/pvp-rankings-display.mjs";
@@ -33,9 +37,35 @@ test("les buffs null, self, opponent, partiels et garantis restent explicites", 
 test("la checklist s'appuie sur canonicalId, persiste par ligue et filtre le catalogue actif", () => {
   assert.equal(checklistIdentity(mimikyu), "MIMIKYU_BUSTED");
   const greatState = toggleChecklistEntry({ schemaVersion: 1, contexts: { ultra: { TINKATON: true } } }, "great", mimikyu);
-  assert.equal(greatState.contexts.great.MIMIKYU_BUSTED, true);
-  assert.equal(greatState.contexts.ultra.TINKATON, true);
+  assert.equal(greatState.schemaVersion, 2);
+  assert.equal(checklistBuildsForEntry(greatState, "great", mimikyu).length, 1);
   assert.deepEqual(filterChecklistEntries({ catalogue: [tinkaton, mimikyu], owned: greatState.contexts.great, query: "mimi", filter: "owned" }), [mimikyu]);
+});
+
+test("la migration v1 est progressive, idempotente et conserve les identités non résolues", () => {
+  const legacy = { schemaVersion: 1, contexts: { great: { MIMIKYU_BUSTED: true, UNKNOWN: true }, ultra: { TINKATON: true } } };
+  const first = migrateChecklistState(legacy, [mimikyu], "great");
+  assert.equal(first.schemaVersion, 2);
+  assert.equal(checklistBuildsForEntry(first, "great", mimikyu)[0].source, "migration-rank-1");
+  assert.equal(first.legacyV1.contexts.great.UNKNOWN, true);
+  assert.equal(first.legacyV1.contexts.ultra.TINKATON, true);
+  const second = migrateChecklistState(first, [mimikyu], "great");
+  assert.equal(checklistBuildsForEntry(second, "great", mimikyu).length, 1);
+});
+
+test("une même espèce peut conserver plusieurs builds et ses IV personnels", () => {
+  const base = addChecklistBuild(undefined, "great", mimikyu, { now: "2026-07-28T00:00:00.000Z" });
+  const multiple = addChecklistBuild(base, "great", mimikyu, { allowDuplicate: true, suffix: "mine" });
+  const customId = "MIMIKYU_BUSTED:custom:mine";
+  const edited = patchChecklistBuild(multiple, "great", customId, {
+    source: "mes-iv",
+    ivs: { attack: 2, defense: 15, stamina: 14 },
+    level: 25,
+    cp: 1497,
+  }, "2026-07-28T01:00:00.000Z");
+  assert.equal(checklistBuildsForEntry(edited, "great", mimikyu).length, 2);
+  assert.deepEqual(edited.contexts.great.builds[customId].ivs, { attack: 2, defense: 15, stamina: 14 });
+  assert.equal(edited.contexts.great.builds[customId].cp, 1497);
 });
 
 test("les filtres GBL combinent statut, ligue et coupe", () => {
