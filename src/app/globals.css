@@ -936,6 +936,16 @@ a {
   max-height: inherit;
 }
 
+select.pvp-move-select {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+select.pvp-move-select option {
+  color: var(--foreground);
+  -webkit-text-fill-color: var(--foreground);
+}
+
 @media (min-width: 640px) {
   .pvp-picker-surface {
     position: fixed;

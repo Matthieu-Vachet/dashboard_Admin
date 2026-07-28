@@ -3,6 +3,7 @@
 import {
   Activity,
   ArrowLeftRight,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Download,
@@ -662,7 +663,7 @@ function MoveSelect({
           />
         ) : null}
         <Select
-          className="min-h-14 border-0 bg-transparent pl-12 pr-3 font-black"
+          className="pvp-move-select h-16 appearance-none border-0 bg-transparent pl-12 pr-10"
           value={value}
           onChange={(event) => onChange(event.target.value)}
           aria-label={label}
@@ -674,10 +675,16 @@ function MoveSelect({
           ))}
         </Select>
         {selected ? (
-          <span className="pointer-events-none absolute bottom-1.5 left-12 type-overline-compact text-muted">
-            {typeLabels[type] || type} · {selected.category === "fast" ? `${selected.turns} tour${selected.turns > 1 ? "s" : ""}` : `${Math.abs(selected.energy)} énergie`}
-            {selected.elite || selected.legacy ? " · Elite/Legacy" : ""}
-          </span>
+          <>
+            <span className="pointer-events-none absolute left-12 right-10 top-1.5 truncate type-control-strong text-foreground">
+              {selected.name}
+            </span>
+            <span className="pointer-events-none absolute bottom-1.5 left-12 right-10 truncate whitespace-nowrap type-overline-compact text-muted">
+              {typeLabels[type] || type} · {selected.power} P · {selected.category === "fast" ? `+${selected.energy} E · ${selected.turns} tour${selected.turns > 1 ? "s" : ""}` : `${Math.abs(selected.energy)} E`}
+              {selected.elite || selected.legacy ? " · Elite/Legacy" : ""}
+            </span>
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted" size={15} aria-hidden="true" />
+          </>
         ) : null}
       </div>
     </Field>
@@ -845,14 +852,16 @@ function FighterEditor({
         </div>
         <div className="mt-3 grid grid-cols-3 gap-1 rounded-control border border-line bg-surface-control p-1" role="group" aria-label="Mode IV">
           {([
-            ["optimal", "Rank optimal"],
+            ["optimal", "Optimal"],
             ["perfect", "15/15/15"],
-            ["custom", "Personnalisé"],
+            ["custom", "Mes IV"],
           ] as const).map(([mode, label]) => (
             <button
-              className={`rounded-lg px-2 type-label ${config.ivMode === mode ? "bg-brand-2/18 text-accent-text" : "text-muted"}`}
+              className={`rounded-lg px-1 type-overline-compact ${config.ivMode === mode ? "bg-brand-2/18 text-accent-text" : "text-muted"}`}
               key={mode}
               type="button"
+              title={mode === "optimal" ? "Rank optimal" : mode === "perfect" ? "IV parfaits" : "Personnalisé"}
+              aria-label={mode === "optimal" ? "Rank optimal" : mode === "perfect" ? "IV parfaits 15/15/15" : "IV personnalisés"}
               aria-pressed={config.ivMode === mode}
               onClick={() => {
                 onPatch({ ivMode: mode, presetLabel: mode === "custom" ? "Mes IV" : mode === "perfect" ? "15/15/15" : "Rank 1" });
@@ -876,7 +885,7 @@ function FighterEditor({
                 if (config.ivMode === "perfect") onPerfect(nextCap);
               }}
             >
-              {levelCaps.map((cap) => <option key={cap} value={cap}>Cap {cap}</option>)}
+              {levelCaps.map((cap) => <option key={cap} value={cap}>{cap}</option>)}
             </Select>
           </Field>
           <Field label="Niveau">
