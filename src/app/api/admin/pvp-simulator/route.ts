@@ -235,6 +235,32 @@ async function builds(
   );
 }
 
+function publicCatalog(catalog: Awaited<ReturnType<typeof readPvpCatalog>>) {
+  return {
+    ...catalog,
+    pokemon: catalog.pokemon.map((pokemon) => ({
+      canonicalId: pokemon.canonicalId,
+      formId: pokemon.formId,
+      form: pokemon.form,
+      pokemonClass: pokemon.pokemonClass,
+      dexId: pokemon.dexId,
+      names: pokemon.names,
+      types: pokemon.types,
+      availability: { shadow: pokemon.availability.shadow },
+      identity: {
+        canonicalId: pokemon.identity.canonicalId,
+        image: pokemon.identity.image,
+        shinyImage: pokemon.identity.shinyImage,
+        resolutionStatus: pokemon.identity.resolutionStatus,
+        assetResolution: pokemon.identity.assetResolution,
+      },
+      moves: pokemon.moves,
+      recommended: pokemon.recommended,
+      searchText: pokemon.searchText,
+    })),
+  };
+}
+
 export async function GET(request: NextRequest) {
   try {
     rateLimit(request, "pvp-simulator-read", 180, 60_000);
@@ -265,7 +291,7 @@ export async function GET(request: NextRequest) {
       });
     }
     const catalog = await readPvpCatalog();
-    return json({ success: true, data: catalog });
+    return json({ success: true, data: publicCatalog(catalog) });
   } catch (error) {
     return errorResponse(error);
   }

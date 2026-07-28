@@ -62,22 +62,24 @@ type CatalogMove = {
 
 type CatalogPokemon = {
   canonicalId: string;
-  pokemonId: string;
   formId: string;
-  baseFormId: string;
   form: string;
   pokemonClass: string;
-  dexNr: number;
   dexId: string;
   names: Record<string, string>;
   types: string[];
-  stats: { attack: number; defense: number; stamina: number };
-  availability: { shadow: boolean; released: boolean };
-  assets: Record<string, unknown>;
+  availability: { shadow: boolean };
   identity: {
     canonicalId: string;
-    localReference: string;
-    assetsRef: string | null;
+    image: string | null;
+    shinyImage: string | null;
+    resolutionStatus: "matched" | "missing-asset";
+    assetResolution: {
+      status: "matched" | "missing-asset";
+      image: string | null;
+      shinyImage: string | null;
+      reason: string | null;
+    };
   };
   moves: { fast: CatalogMove[]; charged: CatalogMove[] };
   recommended: Record<string, { fast: string | null; charged: string[] }>;
