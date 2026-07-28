@@ -146,6 +146,17 @@ const GameMasterExplorerPanel = dynamic(
 
 const BestDefendersPanel = dynamic(() => import("./best-defenders-panel").then((module) => module.BestDefendersPanel));
 const CostumeAuditPanel = dynamic(() => import("./costume-audit-panel").then((module) => module.CostumeAuditPanel));
+const PvpBattleLab = dynamic(
+  () => import("./pvp-battle-lab").then((module) => module.PvpBattleLab),
+  {
+    loading: () => (
+      <div
+        className={`${panelClass} min-h-96 animate-pulse motion-reduce:animate-none`}
+        aria-label="Chargement du simulateur PvP"
+      />
+    ),
+  },
+);
 
 const filtersAssetBase =
   "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers/Filters";
@@ -212,6 +223,12 @@ const navItems = [
     id: "rocket",
     label: "Rocket",
     icon: `${filtersAssetBase}/TodayView_Icon_TeamRocket.png`,
+    group: "combat",
+  },
+  {
+    id: "pvp-simulator",
+    label: "Simulateur PvP",
+    icon: Swords,
     group: "combat",
   },
   {
@@ -3022,6 +3039,8 @@ export function AdminApp() {
                   onOpenPokemon={openPokemonReference}
                 />
               ) : null}
+
+              {active === "pvp-simulator" ? <PvpBattleLab /> : null}
 
               {active === "gbl-calendar" ? (
                 <GblCalendarPanel

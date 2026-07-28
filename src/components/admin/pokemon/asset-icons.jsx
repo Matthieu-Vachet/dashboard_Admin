@@ -69,7 +69,7 @@ export function TypeIcons({ types, catalog = [], size = "md" }) {
   const classes = size === "sm" ? "h-7 w-7 p-1" : "h-8 w-8 p-1.5";
 
   return (
-    <span className="inline-flex flex-wrap items-center gap-1.5" aria-label="Types Pokemon">
+    <span className="inline-flex flex-wrap items-center gap-1.5" role="group" aria-label="Types Pokémon">
       {list.map((type) => {
         const icon = typeIcon(type, catalog);
         return (
@@ -94,7 +94,7 @@ export function WeatherIcons({ weather, catalog = [] }) {
   const list = values(weather).filter(Boolean);
   if (!list.length) return null;
   return (
-    <span className="inline-flex flex-wrap items-center gap-1.5" aria-label="Meteo">
+    <span className="inline-flex flex-wrap items-center gap-1.5" role="group" aria-label="Météo">
       {list.map((item) => {
         const asset = weatherAsset(item, catalog);
         return (

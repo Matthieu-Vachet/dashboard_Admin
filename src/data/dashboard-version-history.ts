@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.35.0",
+    date: "2026-07-28",
+    title: "Battle Lab PvP complet et vérifiable",
+    changes: [
+      "Ajoute un moteur PvP natif déterministe couvrant les tours, dégâts, énergie, boucliers, CMP, buffs, Shadow, formes et Rank IV exhaustif.",
+      "Livre Single, Shield Matrix, Multi et Matrix avec timeline rejouable, diagnostics, exports, partage et historique MongoDB privé.",
+      "Branche les Pokémon, formes, moves, types, artworks et cups sur PokemonGo-Data et l’Identity Manager existants, avec validation serveur stricte.",
+      "Ajoute un corpus de 20 combats PvPoke, des tests de parité et de non-régression, la documentation technique et la notice MIT.",
+    ],
+  },
+  {
     version: "V1.34.0",
     date: "2026-07-28",
     title: "Rank 1, checklist PvP et calendrier GBL",

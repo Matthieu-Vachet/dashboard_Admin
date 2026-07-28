@@ -6,6 +6,11 @@
 ![Statut](https://img.shields.io/badge/statut-En%20développement-orange)
 ![Licence](https://img.shields.io/badge/licence-Privée-red)
 
+Documentation fonctionnelle :
+
+- [Pokémon GO PvP Battle Lab](./PVP-BATTLE-LAB.md)
+- [Third-party notices](./THIRD-PARTY-NOTICES.md)
+
 ---
 
 # 📖 Présentation

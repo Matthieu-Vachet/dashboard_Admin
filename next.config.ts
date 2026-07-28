@@ -9,6 +9,16 @@ const nextConfig: NextConfig = {
     root: process.cwd(),
   },
   outputFileTracingIncludes: {
+    "/api/admin/pvp-simulator": [
+      "./.data/PokemonGo-Data/package.json",
+      "./.data/PokemonGo-Data/.dashboard-data-snapshot.json",
+      "./.data/PokemonGo-Data/pokemon/**",
+      "./.data/PokemonGo-Data/pokemon-forms/**",
+      "./.data/PokemonGo-Data/pokemon-assets/**",
+      "./.data/PokemonGo-Data/moves/**",
+      "./.data/PokemonGo-Data/types/**",
+      "./.data/PokemonGo-Data/gbl-calendar/**",
+    ],
     "/api/pokemon-admin": [
       "./.data/PokemonGo-Data/pokemon/**",
       "./.data/PokemonGo-Data/pokemon-forms/**",

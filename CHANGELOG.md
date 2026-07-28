@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.35.0 - 2026-07-28
+
+- Ajoute le Simulateur PvP sous Combat avec moteur déterministe, Single, Shield Matrix, Multi, Matrix et Rank IV exhaustif.
+- Couvre les dégâts, énergie, boucliers, CMP, buffs/debuffs, Shadow, Déguisement de Mimiqui, timeline rejouable et états initiaux avancés.
+- Réutilise PokemonGo-Data et l’Identity Manager pour les formes, moves, types, artworks et formats GBL, avec validations privées côté serveur.
+- Ajoute exports, lien interne, historique MongoDB par compte, documentation, attribution MIT et 20 fixtures de parité PvPoke.
+
 ## 1.34.0 - 2026-07-28
 
 - Corrige l’affichage Rank 1 de Mimiqui et Forgelina et sépare explicitement le profil de simulation PvPoke.
