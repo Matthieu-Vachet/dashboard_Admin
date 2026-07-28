@@ -9,6 +9,7 @@ import {
 } from "@/lib/dashboard-store";
 import {
   calculateCatalogIvRank,
+  calculateCatalogIvRankings,
   prepareBattleBuild,
   prepareDefaultBattleBuild,
   readPvpCatalog,
@@ -91,6 +92,14 @@ const ivRankSchema = z.object({
   leagueId: z.string().trim().min(1).max(100),
   canonicalId: z.string().trim().min(1).max(160),
   ivs: ivsSchema.optional(),
+  levelCap: z.union([z.literal(40), z.literal(41), z.literal(50), z.literal(51)]).default(50),
+});
+
+const ivRankingsSchema = z.object({
+  action: z.literal("iv-rankings"),
+  leagueId: z.string().trim().min(1).max(100),
+  canonicalId: z.string().trim().min(1).max(160),
+  levelCap: z.union([z.literal(40), z.literal(41), z.literal(50), z.literal(51)]).default(50),
 });
 
 const multiSchema = z
@@ -147,6 +156,7 @@ const saveSchema = z.object({
 const requestSchema = z.discriminatedUnion("action", [
   simulationSchema,
   ivRankSchema,
+  ivRankingsSchema,
   multiSchema,
   matrixSchema,
   saveSchema,
@@ -158,6 +168,7 @@ const errorMessages: Record<string, string> = {
     "Cette attaque n’est pas disponible pour la forme sélectionnée.",
   INVALID_IV: "Les IV doivent être des entiers compris entre 0 et 15.",
   INVALID_LEVEL: "Le niveau demandé est invalide.",
+  INVALID_LEVEL_CAP: "Le level cap doit être 40, 41, 50 ou 51.",
   CP_LIMIT_EXCEEDED: "Le Pokémon dépasse la limite de PC de la ligue.",
   INVALID_SHIELD_COUNT:
     "Le nombre de boucliers doit être compris entre 0 et 2.",
@@ -240,15 +251,20 @@ function publicCatalog(catalog: Awaited<ReturnType<typeof readPvpCatalog>>) {
     ...catalog,
     pokemon: catalog.pokemon.map((pokemon) => ({
       canonicalId: pokemon.canonicalId,
+      pokemonId: pokemon.pokemonId,
       formId: pokemon.formId,
+      baseFormId: pokemon.baseFormId,
       form: pokemon.form,
       pokemonClass: pokemon.pokemonClass,
+      dexNr: pokemon.dexNr,
       dexId: pokemon.dexId,
       names: pokemon.names,
       types: pokemon.types,
       availability: { shadow: pokemon.availability.shadow },
       identity: {
         canonicalId: pokemon.identity.canonicalId,
+        localReference: pokemon.identity.localReference,
+        assetsRef: pokemon.identity.assetsRef,
         image: pokemon.identity.image,
         shinyImage: pokemon.identity.shinyImage,
         resolutionStatus: pokemon.identity.resolutionStatus,
@@ -354,8 +370,18 @@ export async function POST(request: NextRequest) {
         body.canonicalId,
         body.leagueId,
         body.ivs,
+        body.levelCap,
       );
       return json({ success: true, data: rank });
+    }
+
+    if (body.action === "iv-rankings") {
+      const rankings = await calculateCatalogIvRankings(
+        body.canonicalId,
+        body.leagueId,
+        body.levelCap,
+      );
+      return json({ success: true, data: rankings });
     }
 
     const { catalog, league } = await context(body.leagueId);

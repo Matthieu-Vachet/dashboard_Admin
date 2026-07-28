@@ -139,9 +139,13 @@ function chooseChargedMove(
   input: SimulateSingleBattleInput,
   strategy: BattleStrategy,
 ) {
-  const available = actor.build.chargedMoves
-    .filter((move) => actor.energy >= Math.abs(move.energy))
-    .map((move) => ({ move, breakdown: moveDamage(actor, defender, move, input) }));
+  const evaluated = actor.build.chargedMoves.map((move) => ({
+    move,
+    breakdown: moveDamage(actor, defender, move, input),
+  }));
+  const available = evaluated.filter(
+    ({ move }) => actor.energy >= Math.abs(move.energy),
+  );
   if (!available.length) return null;
   const byDamage = [...available].sort((left, right) =>
     right.breakdown.damage - left.breakdown.damage
@@ -152,6 +156,31 @@ function chooseChargedMove(
     Math.abs(left.move.energy) - Math.abs(right.move.energy)
     || right.breakdown.damage - left.breakdown.damage,
   );
+  const strongest = [...evaluated].sort((left, right) =>
+    right.breakdown.damage - left.breakdown.damage
+    || Math.abs(left.move.energy) - Math.abs(right.move.energy)
+    || left.move.id.localeCompare(right.move.id),
+  )[0];
+  const strongestAffordable = available.some(
+    ({ move }) => move.id === strongest.move.id,
+  );
+  const strongestSelfDebuffs = Boolean(
+    strongest.move.buffs
+      && (strongest.move.buffs.attackerAttackStatsChange < 0
+        || strongest.move.buffs.attackerDefenseStatsChange < 0),
+  );
+  const oneFastFromStrongest = Math.abs(strongest.move.energy) - actor.energy
+    <= actor.build.fastMove.energy;
+  if (
+    defender.shields === 0
+    && !strongestAffordable
+    && strongestSelfDebuffs
+    && oneFastFromStrongest
+    && strongest.breakdown.damage >= byDamage[0].breakdown.damage * 1.35
+    && actor.energy + actor.build.fastMove.energy <= PVP_RULES.maximumEnergy
+  ) {
+    return null;
+  }
   if ((strategy.baiting || "selective") === "off" || defender.shields === 0) {
     return { move: byDamage[0].move, bait: false, reason: defender.shields === 0 ? "no-shield" : "bait-off" };
   }
@@ -171,6 +200,68 @@ function chooseChargedMove(
   return shouldBait
     ? { move: bait.move, bait: true, reason: "predicted-shield-preserve-ko" }
     : { move: nuke.move, bait: false, reason: "damage-or-energy-efficiency" };
+}
+
+function shouldUseShield(
+  actor: RuntimeCombatant,
+  defender: RuntimeCombatant,
+  move: CombatMove,
+  breakdown: ReturnType<typeof moveDamage>,
+  input: SimulateSingleBattleInput,
+  strategy: BattleStrategy,
+) {
+  if (defender.shields <= 0 || breakdown.damage <= 1) return false;
+  if (strategy.baiting === "on") return true;
+
+  const fastBreakdown = moveDamage(actor, defender, actor.build.fastMove, input);
+  const fastEnergy = Math.max(1, actor.build.fastMove.energy);
+  const moveCost = Math.abs(move.energy);
+  const storedAfterMove = Math.max(actor.energy - moveCost, 0);
+  const fastAttacks = Math.ceil(
+    (moveCost - storedAfterMove) / fastEnergy,
+  ) + 1;
+  const cycleDamage = (fastAttacks * fastBreakdown.damage + 1)
+    * defender.shields;
+  if (defender.hp - breakdown.damage <= cycleDamage) return true;
+
+  const fastDamagePerTurn = fastBreakdown.damage / actor.build.fastMove.turns;
+  const chargedOptions = actor.build.chargedMoves.map((chargedMove) => ({
+    move: chargedMove,
+    damage: moveDamage(actor, defender, chargedMove, input).damage,
+  }));
+  for (const { damage: chargedDamage } of chargedOptions) {
+    if (chargedDamage >= defender.hp / 1.4 && fastDamagePerTurn > 1.5)
+      return true;
+    if (chargedDamage >= defender.hp - cycleDamage) return true;
+  }
+
+  const selfAttackDebuff = Boolean(
+    move.buffs?.attackerAttackStatsChange
+      && move.buffs.attackerAttackStatsChange < 0,
+  );
+  if (selfAttackDebuff && breakdown.damage / defender.hp > 0.55) return true;
+
+  const strongestDamage = Math.max(
+    ...chargedOptions.map(({ damage }) => damage),
+  );
+  const hasDominatedHigherCostMove = chargedOptions.some(
+    ({ move: option, damage }) =>
+      Math.abs(option.energy) > Math.abs(move.energy)
+      && damage <= breakdown.damage,
+  );
+  const survivesComfortably = defender.hp - breakdown.damage
+    > defender.stats.hp * 0.46;
+  const revealsNoHiddenNuke = breakdown.damage >= strongestDamage;
+  if (
+    survivesComfortably
+    && breakdown.effectiveness <= 1
+    && revealsNoHiddenNuke
+    && hasDominatedHigherCostMove
+  ) {
+    return false;
+  }
+
+  return true;
 }
 
 function eventId(turn: number, sequence: number) {
@@ -307,7 +398,14 @@ export function simulateSingleBattle(input: SimulateSingleBattleInput): SingleBa
       actor.metrics.chargedMoves += 1;
       const breakdown = moveDamage(actor, defender, move, input);
       const hpBefore = defender.hp;
-      const shielded = defender.shields > 0 && breakdown.damage > 1;
+      const shielded = shouldUseShield(
+        actor,
+        defender,
+        move,
+        breakdown,
+        input,
+        strategy,
+      );
       const formMechanic = defender.build.formMechanic;
       const triggersFormMechanic = !shielded
         && !defender.formMechanicTriggered
@@ -330,6 +428,7 @@ export function simulateSingleBattle(input: SimulateSingleBattleInput): SingleBa
           action: "shield",
           moveId: move.id,
           moveName: move.name,
+          moveType: move.type,
           shield: true,
           damage: breakdown.damage - 1,
           description: `${defender.build.name} bloque ${move.name}`,
@@ -347,6 +446,7 @@ export function simulateSingleBattle(input: SimulateSingleBattleInput): SingleBa
         action: "charged",
         moveId: move.id,
         moveName: move.name,
+        moveType: move.type,
         damage,
         energyBefore,
         energyAfter: actor.energy,
@@ -411,6 +511,7 @@ export function simulateSingleBattle(input: SimulateSingleBattleInput): SingleBa
         action: "fast",
         moveId: move.id,
         moveName: move.name,
+        moveType: move.type,
         damage: breakdown.damage,
         energyBefore,
         energyAfter: actor.energy,
@@ -473,6 +574,8 @@ export function simulateSingleBattle(input: SimulateSingleBattleInput): SingleBa
       maxTurnsReached: durationTurns >= PVP_RULES.battleTimeoutTurns,
       timingModel: "fast-completion-boundaries",
       baitModel: "deterministic-shield-and-ko-opportunity",
+      shieldModel: "survival-cycle-pressure",
+      overfarmModel: "one-fast-self-debuff-nuke",
     },
   };
 }

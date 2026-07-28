@@ -298,6 +298,27 @@ test("le Battle Lab peut remplir un emplacement de combattant initialement vide"
   assert.doesNotMatch(source, /patchFighter\(index, next\)/);
 });
 
+test("le Battle Lab porte le sélecteur hors des stacking contexts et expose toutes les variantes", () => {
+  const source = read("src/components/admin/pokemon/pvp-battle-lab.tsx");
+  assert.match(source, /createPortal/);
+  assert.match(source, /window\.addEventListener\("scroll", updatePlacement, true\)/);
+  assert.match(source, /SHADOW · OBSCUR/);
+  assert.match(source, /MEGA_X/);
+  assert.match(source, /Régional/);
+  assert.match(source, /entries\.length} variantes de combat/);
+});
+
+test("le Battle Lab propose Rank IV complet, caps explicites et assets métier", () => {
+  const source = read("src/components/admin/pokemon/pvp-battle-lab.tsx");
+  const route = read("src/app/api/admin/pvp-simulator/route.ts");
+  assert.match(source, /const levelCaps = \[40, 41, 50, 51\]/);
+  assert.match(source, /Voir classement IV/);
+  assert.match(source, /4096 spreads calculés/);
+  assert.match(source, /uiAssets\.icons\.shieldAlt/);
+  assert.match(source, /typeIconAsset/);
+  assert.match(route, /action: z\.literal\("iv-rankings"\)/);
+});
+
 test("l'explorateur dérive les routes publiques d'OpenAPI et isole les actions privées", () => {
   const proxy = read("src/app/api/pokemon-api-proxy/route.ts");
   const explorer = read("src/components/admin/pokemon/pokemon-api-explorer.tsx");

@@ -4,13 +4,14 @@ import type {
   BattleStats,
   DamageBreakdown,
   IvRankResult,
+  IvRankingTableResult,
   PokemonType,
   TypeCatalogEntry,
   TypeEffectivenessResult,
 } from "./types";
 
-export const ENGINE_VERSION = "1.1.0";
-export const RULES_VERSION = "2026.07.2";
+export const ENGINE_VERSION = "1.2.0";
+export const RULES_VERSION = "2026.07.3";
 
 export const PVP_RULES = Object.freeze({
   stab: 1.2000000476837158,
@@ -25,6 +26,7 @@ export const PVP_RULES = Object.freeze({
   maximumStage: 4,
   turnDurationMs: 500,
   battleTimeoutTurns: 480,
+  supportedLevelCaps: [40, 41, 50, 51] as const,
 });
 
 // Levels 1 through 55 in half-level increments. These are central rules data,
@@ -207,14 +209,14 @@ function bestLevelForSpread(baseStats: BaseStats, ivs: BattleIvs, cpCap: number,
   return null;
 }
 
-export function rankIvs(input: {
+export function rankIvTable(input: {
   baseStats: BaseStats;
   cpCap: number;
-  levelCap?: number;
-  ivs?: BattleIvs;
-}): IvRankResult {
+  levelCap: 40 | 41 | 50 | 51;
+}): IvRankingTableResult {
   const levelCap = input.levelCap ?? 50;
-  if (!isValidLevel(levelCap)) throw new Error(`INVALID_LEVEL:${levelCap}`);
+  if (!PVP_RULES.supportedLevelCaps.includes(levelCap))
+    throw new Error(`INVALID_LEVEL_CAP:${levelCap}`);
   const combinations: Array<BattleStats & { ivs: BattleIvs }> = [];
   for (let attack = 0; attack <= 15; attack += 1) {
     for (let defense = 0; defense <= 15; defense += 1) {
@@ -235,6 +237,35 @@ export function rankIvs(input: {
     || right.ivs.defense - left.ivs.defense
     || right.ivs.stamina - left.ivs.stamina,
   );
+  const bestStatProduct = combinations[0]?.statProduct || 0;
+  const rows = combinations.map((entry, index) => ({
+    ...entry,
+    rank: index + 1,
+    percentage: bestStatProduct
+      ? (entry.statProduct / bestStatProduct) * 100
+      : 0,
+    combinations: combinations.length,
+  }));
+  return {
+    levelCap,
+    cpCap: input.cpCap,
+    combinations: rows.length,
+    rows,
+  };
+}
+
+export function rankIvs(input: {
+  baseStats: BaseStats;
+  cpCap: number;
+  levelCap?: 40 | 41 | 50 | 51;
+  ivs?: BattleIvs;
+}): IvRankResult {
+  const table = rankIvTable({
+    baseStats: input.baseStats,
+    cpCap: input.cpCap,
+    levelCap: input.levelCap ?? 50,
+  });
+  const combinations = table.rows;
   const requested = input.ivs || combinations[0]?.ivs;
   const index = combinations.findIndex((entry) =>
     entry.ivs.attack === requested.attack
@@ -243,12 +274,7 @@ export function rankIvs(input: {
   );
   const selected = combinations[Math.max(0, index)];
   if (!selected) throw new Error("CP_LIMIT_EXCEEDED");
-  return {
-    ...selected,
-    rank: index < 0 ? 1 : index + 1,
-    percentage: combinations[0].statProduct ? (selected.statProduct / combinations[0].statProduct) * 100 : 0,
-    combinations: combinations.length,
-  };
+  return selected;
 }
 
 export function ratingClass(rating: number) {

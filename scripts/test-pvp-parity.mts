@@ -43,6 +43,20 @@ test("les références PvPoke et une campagne multi-format étendue restent dét
   const league = catalog.leagues.find((entry: { id: string }) => entry.id === "great");
   assert.ok(league);
   assert.equal(fixture.cases.length, 20);
+  for (const canonicalId of [
+    "BULBASAUR_NORMAL",
+    "CHARIZARD_NORMAL",
+    "CHARIZARD_MEGA_X",
+    "CHARIZARD_MEGA_Y",
+    "RATTATA_ALOLA",
+    "TYPHLOSION_HISUIAN",
+    "DARMANITAN_ZEN",
+  ]) {
+    assert.ok(catalog.pokemon.some((entry: { canonicalId: string }) => entry.canonicalId === canonicalId), `${canonicalId} absent du catalogue Battle Lab`);
+  }
+  const shadowQuagsire = catalog.pokemon.find((entry: { canonicalId: string }) => entry.canonicalId === "QUAGSIRE_NORMAL");
+  assert.equal(shadowQuagsire?.availability.shadow, true);
+  assert.ok(shadowQuagsire?.moves.charged.some((move: { id: string; shadowOnly?: boolean }) => move.id === "FRUSTRATION" && move.shadowOnly));
 
   const report = [];
   let winnerMatches = 0;
@@ -136,10 +150,11 @@ test("les références PvPoke et une campagne multi-format étendue restent dét
   assert.ok(campaignScenarios >= 100);
 
   assert.equal(fastDamageMatches, fastDamageChecks, "les dégâts des attaques rapides doivent être exacts");
-  assert.ok(winnerMatches >= 15, `parité vainqueur insuffisante: ${winnerMatches}/20`);
+  assert.equal(winnerMatches, fixture.cases.length, `parité vainqueur incomplète: ${winnerMatches}/20`);
+  assert.equal(chargedDamageMatches, chargedDamageChecks, "les dégâts des attaques chargées doivent être exacts");
   console.log(JSON.stringify({
     sourceCommit: fixture.source.commit,
-    summary: { officialReferenceCases: fixture.cases.length, campaignScenarios, winnerMatches, fastDamageMatches, fastDamageChecks, chargedDamageMatches, chargedDamageChecks },
+    summary: { officialReferenceCases: fixture.cases.length, campaignScenarios, catalogForms: catalog.pokemon.length, explicitBattleVariants: catalog.pokemon.length + catalog.pokemon.filter((entry: { availability: { shadow: boolean } }) => entry.availability.shadow).length, winnerMatches, fastDamageMatches, fastDamageChecks, chargedDamageMatches, chargedDamageChecks },
     report,
   }));
 });

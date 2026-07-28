@@ -59,6 +59,7 @@ export type CombatMove = {
   buffs: CombatBuffs | null;
   legacy?: boolean;
   elite?: boolean;
+  shadowOnly?: boolean;
 };
 
 export type BattleFormMechanic = {
@@ -153,6 +154,7 @@ export type BattleTimelineEvent = {
   action: "fast" | "charged" | "shield" | "buff" | "debuff" | "form" | "cmp" | "faint";
   moveId?: string;
   moveName?: string;
+  moveType?: PokemonType;
   damage?: number;
   energyBefore?: number;
   energyAfter?: number;
@@ -215,6 +217,8 @@ export type SingleBattleResult = {
     maxTurnsReached: boolean;
     timingModel: "fast-completion-boundaries";
     baitModel: "deterministic-shield-and-ko-opportunity";
+    shieldModel: "survival-cycle-pressure";
+    overfarmModel: "one-fast-self-debuff-nuke";
   };
 };
 
@@ -231,6 +235,13 @@ export type IvRankResult = BattleStats & {
   ivs: BattleIvs;
   percentage: number;
   combinations: number;
+};
+
+export type IvRankingTableResult = {
+  levelCap: 40 | 41 | 50 | 51;
+  cpCap: number;
+  combinations: number;
+  rows: IvRankResult[];
 };
 
 export type MultiBattleResult = {

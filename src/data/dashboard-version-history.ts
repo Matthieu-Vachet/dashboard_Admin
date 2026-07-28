@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.37.0",
+    date: "2026-07-28",
+    title: "Battle Lab finition moteur et expérience de combat",
+    changes: [
+      "Termine la parité PvPoke à 20/20 vainqueurs, 40/40 dégâts Fast et 39/39 dégâts Charged avec shields sélectifs et overfarm déterministes.",
+      "Expose 1 890 variantes de sélection explicites, dont toutes les formes canoniques et 441 variantes Obscures supportées, via un selector porté hors des stacking contexts.",
+      "Ajoute les modes Rank optimal, 15/15/15 et personnalisé, les caps 40/41/50/51 et une modale paginée sur les 4 096 spreads IV.",
+      "Refond Battle Arena, moves typés, Result Hero, Shield Matrix, timeline, summary et navigation d’analyse mobile autour des assets Pokémon GO existants.",
+    ],
+  },
+  {
     version: "V1.36.0",
     date: "2026-07-28",
     title: "Expérience PvP unifiée et Battle Lab V2",

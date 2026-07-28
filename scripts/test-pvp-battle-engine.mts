@@ -19,6 +19,7 @@ const {
   getStageMultiplier,
   getTypeEffectiveness,
   rankIvs,
+  rankIvTable,
   simulateShieldMatrix,
   simulateSingleBattle,
 } = engine;
@@ -110,6 +111,31 @@ test("Rank 1 Great League corrige Mimikyu et Tinkaton", () => {
   assert.deepEqual(mimikyuRank.ivs, { attack: 1, defense: 14, stamina: 15 });
   assert.deepEqual(tinkatonRank.ivs, { attack: 1, defense: 14, stamina: 14 });
   assert.equal(tinkatonRank.cp, 1497);
+});
+
+test("Rank IV énumère les 4096 spreads selon les caps 40, 41, 50 et 51", () => {
+  for (const levelCap of [40, 41, 50, 51] as const) {
+    const table = rankIvTable({
+      baseStats: { attack: 155, defense: 196, stamina: 198 },
+      cpCap: 1500,
+      levelCap,
+    });
+    assert.equal(table.rows.length, 4096);
+    assert.equal(table.rows[0].rank, 1);
+    assert.equal(table.rows.at(-1)?.rank, 4096);
+    assert.ok(table.rows.every((entry) => entry.level <= levelCap && entry.cp <= 1500));
+  }
+});
+
+test("un Pokémon sous le plafond choisit naturellement 15/15/15 au niveau maximal", () => {
+  const rank = rankIvs({
+    baseStats: { attack: 50, defense: 50, stamina: 50 },
+    cpCap: 1500,
+    levelCap: 40,
+  });
+  assert.deepEqual(rank.ivs, { attack: 15, defense: 15, stamina: 15 });
+  assert.equal(rank.level, 40);
+  assert.equal(rank.rank, 1);
 });
 
 test("efficacité, immunités GO, STAB, Shadow et stages composent une formule unique", () => {
@@ -250,6 +276,23 @@ test("le bait sélectif est déterministe et expose sa décision dans la timelin
   assert.equal(charged?.bait, true);
   assert.equal(charged?.decision, "predicted-shield-preserve-ko");
   assert.equal(result.diagnostics.baitModel, "deterministic-shield-and-ko-opportunity");
+});
+
+test("le modèle de shield laisse passer un bait non létal sans nuke caché", () => {
+  const safeMove = move("SAFE_MOVE", "charged", "GHOST", 40, -40);
+  const dominatedMove = move("DOMINATED_MOVE", "charged", "GHOST", 30, -65);
+  const result = simulateSingleBattle({
+    leagueId: "master",
+    cpCap: 10_000,
+    pokemon: [
+      mimikyu({ chargedMoves: [safeMove, dominatedMove], startingEnergy: 40, shields: 0 }),
+      lickilicky({ shields: 1 }),
+    ],
+    typeCatalog,
+    strategy: { baiting: "selective" },
+  });
+  const charged = result.timeline.find((event) => event.action === "charged" && event.actor === 0);
+  assert.equal(charged?.shield, false);
 });
 
 test("énergie, boucliers et gaspillage respectent leurs bornes après chaque événement", () => {

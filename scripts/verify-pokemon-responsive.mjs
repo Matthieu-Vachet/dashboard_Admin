@@ -257,8 +257,24 @@ try {
           await assertNoOverflow(page, `pvp-checklist-${theme}-${width}`);
         }
         if (scenario.battleLab) {
-          assert.equal(await page.locator('input[role="combobox"][placeholder="Nom FR, EN, dex, forme…"]').count(), 2, `pvp-simulator-${theme}-${width}: les deux sélecteurs doivent rester disponibles`);
+          const selectors = page.locator('input[role="combobox"][placeholder="Nom FR/EN, dex, forme, ID…"]');
+          assert.equal(await selectors.count(), 2, `pvp-simulator-${theme}-${width}: les deux sélecteurs doivent rester disponibles`);
           assert.equal(await page.getByRole("button", { name: "SIMULER LE COMBAT" }).isDisabled(), true, `pvp-simulator-${theme}-${width}: la simulation doit rester désactivée à vide`);
+          await selectors.first().click();
+          const listbox = page.getByRole("listbox").filter({ visible: true });
+          await listbox.waitFor({ state: "visible" });
+          if (width < 640) {
+            const geometry = await listbox.evaluate((element) => { const rect = element.getBoundingClientRect(); return { bottom: Math.round(rect.bottom), viewport: window.innerHeight, position: getComputedStyle(element.parentElement).position }; });
+            assert.ok(geometry.bottom <= geometry.viewport, `pvp-selector-mobile-${theme}-${width}: bottom sheet hors viewport`);
+            assert.equal(geometry.position, "absolute", `pvp-selector-mobile-${theme}-${width}: sheet non dédiée`);
+          } else {
+            const stacking = await listbox.evaluate((element) => { const rect = element.getBoundingClientRect(); const topElement = document.elementFromPoint(rect.left + Math.min(30, rect.width / 2), rect.top + Math.min(30, rect.height / 2)); return { parentPosition: getComputedStyle(element.parentElement).position, ownsTopPoint: element.contains(topElement) || element === topElement }; });
+            assert.equal(stacking.parentPosition, "fixed", `pvp-selector-desktop-${theme}-${width}: selector non porté`);
+            assert.equal(stacking.ownsTopPoint, true, `pvp-selector-desktop-${theme}-${width}: selector sous le contenu`);
+          }
+          await page.getByRole("button", { name: "Méga" }).click();
+          await page.getByText("MEGA_X", { exact: false }).first().waitFor({ state: "visible" });
+          await page.keyboard.press("Escape");
         }
         if (scenario.eventModal) {
           await page.getByRole("button", { name: new RegExp(event.title) }).filter({ visible: true }).first().click();

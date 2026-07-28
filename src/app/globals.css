@@ -924,6 +924,30 @@ a {
   display: block;
 }
 
+.pvp-picker-surface {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  max-height: 84dvh;
+}
+
+.pvp-picker-surface > [role="listbox"] {
+  max-height: inherit;
+}
+
+@media (min-width: 640px) {
+  .pvp-picker-surface {
+    position: fixed;
+    top: var(--pvp-picker-top);
+    right: auto;
+    bottom: auto;
+    left: clamp(0.75rem, var(--pvp-picker-left), calc(100vw - var(--pvp-picker-width) - 0.75rem));
+    width: var(--pvp-picker-width);
+    max-height: var(--pvp-picker-max-height);
+  }
+}
+
 @keyframes sheen {
   0%,
   100% {

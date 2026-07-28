@@ -6,8 +6,8 @@ Le Battle Lab est une fonctionnalité privée de `Dashboard Admin > Combat > Sim
 
 Le moteur est natif au Dashboard et versionné indépendamment :
 
-- moteur `1.1.0` ;
-- règles `2026.07.2` ;
+- moteur `1.2.0` ;
+- règles `2026.07.3` ;
 - données issues exclusivement du snapshot local `PokemonGo-Data` ;
 - historique privé stocké par utilisateur dans le Dashboard Store MongoDB, clé `matweb.pvp.simulations`, 80 entrées maximum ;
 - aucune dépendance runtime à PvPoke et aucun scraping au moment d’une simulation.
@@ -30,23 +30,28 @@ Les identités utilisent le `canonicalId` de l’Identity Manager. L’interface
 
 ## Expérience V2, Checklist et deep-links
 
-Le mode Single démarre avec deux emplacements vides. Un deep-link explicite peut hydrater un seul combattant (le second reste vide) ou les deux. Chaque build entrant est validé contre la ligue, le `canonicalId`, les moves, les IV, le niveau, les boucliers, l’énergie, les HP, les stages et la disponibilité Shadow avant d’être affiché, puis de nouveau par Zod côté serveur à la simulation.
+Le mode Single démarre avec deux emplacements vides. Un deep-link explicite peut hydrater un seul combattant (le second reste vide) ou les deux. Chaque build entrant est validé contre la ligue, le `canonicalId`, les moves, les IV, le niveau, le level cap, les boucliers, l’énergie, les HP, les stages et la disponibilité Shadow avant d’être affiché, puis de nouveau par Zod côté serveur à la simulation.
 
 La vue Rankings est l’onglet par défaut. **Ma Checklist** est un onglet séparé et persiste sous `matweb.pokemon.pvpChecklist`, schéma v2 : contexte de ligue, dictionnaire de builds, identité canonique, IV Attaque/Défense/HP, niveau, PC, rang, moves et provenance. Plusieurs builds d’une même espèce sont autorisés. La migration du schéma v1 transforme progressivement les booléens résolus en builds Rank 1 et conserve les clés non résolues dans `legacyV1` ; elle est idempotente et non destructive.
 
-Les liens **Simuler · Rank 1** préchargent le build publié dans Rankings. Les liens **Simuler** de la Checklist portent le badge **Mes IV** et conservent exactement le build édité. Le sélecteur ne rend jamais les quelque 1 449 formes simultanément : il recherche puis limite à 12 résultats, propose une listbox opaque au clavier sur desktop et une feuille modale sur mobile.
+Les liens **Simuler · Rank 1** préchargent le build publié dans Rankings. Les liens **Simuler** de la Checklist portent le badge **Mes IV** et conservent exactement le build édité. Le sélecteur part des 1 449 identités canoniques et dérive 441 choix Obscurs uniquement lorsque `availability.shadow` l’autorise, soit 1 890 variantes explicites. Il recherche en français, anglais, numéro, `canonicalId`, `form` et alias, propose les filtres Normal, Méga, Obscur, Régional et Autres, puis limite le rendu à 24 résultats. Le panneau est porté dans `document.body`, hors des stacking contexts des Cards ; il reste une listbox fixe sur desktop et une bottom sheet dédiée sur mobile.
+
+Le Single est organisé en trois zones : grande Battle Arena symétrique, Build Bar compacte partagée, puis action centrale Bait/Simuler. Les paramètres rares sont fermés par défaut avec un compteur de modifications. Après simulation, mobile segmente Shield Matrix, Timeline et Analyse au lieu de dupliquer la pile desktop.
 
 L’UI réutilise le registre `uiAssets`, les icônes de types et `PokemonArtwork` : fond Battle League, combat, attaque, bouclier, Shadow, Fast/Charged Move, buff et résultat. Les images restent en `object-contain`/`object-cover` selon leur fonction et ne sont ni copiées ni étirées.
 
 ## Règles implémentées
 
 - CPM aux demi-niveaux 1 à 55, calcul des PC et arrondis des PV Pokémon GO.
-- Recherche exhaustive des 4 096 spreads IV et des demi-niveaux autorisés, tri par stat product puis attaque, défense, PV et IV.
+- Recherche exhaustive des 4 096 spreads IV pour les caps explicites 40, 41, 50 et 51, tri par stat product puis attaque, défense, PV et IV. Les modes Rank optimal, 15/15/15 et Personnalisé transmettent exactement le niveau et le spread choisi ; la modale pagine le tableau complet.
 - Dégâts : puissance, STAB, ratio attaque/défense, stages, multiplicateurs Shadow et efficacité issue du catalogue de types local.
+- La variante Obscure reste un état de build explicite lié au `canonicalId` de base. Elle applique les multiplicateurs Shadow et expose `Frustration` uniquement aux espèces compatibles ; aucun identifiant canonique artificiel ni move Shadow n’est ajouté aux formes normales.
 - Immunités principales adaptées aux multiplicateurs Pokémon GO, double types, plancher et arrondi canonique.
 - Fast moves multi-tours, génération/plafond d’énergie, charged moves, boucliers, CMP, buffs/debuffs et caps de stages `-4..+4`.
 - CMP calculée sur l’Attaque réelle après CPM, stage d’Attaque et multiplicateur Shadow ; égalité exacte départagée par `canonicalId` pour préserver le déterminisme.
 - Bait sélectif documenté dans chaque événement Charged : écart de coût, bouclier attendu, opportunité de K.O. préservée et énergie permettant d’atteindre ensuite le nuke.
+- Shield sélectif par pression de cycle : un move non létal peut être laissé passer lorsque l’adversaire survit confortablement et qu’aucun nuke caché plus fort n’existe ; les situations de pression, super-efficacité et K.O. futur restent protégées.
+- Overfarm borné d’un Fast Move avant un nuke auto-debuffant lorsque son coût est atteignable immédiatement, que les shields sont tombés et que son gain de dégâts est significatif.
 - Timing déterministe sans overtap : un charged move ne part qu’une fois le fast move engagé terminé. L’option `optimizeTiming` est conservée dans le contrat et les exports ; l’heuristique contextuelle avancée de PvPoke (alignement exact sur la fenêtre adverse) reste une limite connue.
 - Buffs probabilistes rendus déterministes par compteur cumulatif ; modes forcé et désactivé disponibles.
 - Premier charged non protégé de Mimiqui absorbé par Déguisement, puis Défense `-1`. Cette mécanique est décrite dans le registre central `form-mechanics.ts`, jamais dans une condition spécifique au moteur.
@@ -61,12 +66,12 @@ Le corpus `scripts/fixtures/pvpoke-parity-2026-07-28.json` contient 20 combats c
 
 Résultat automatisé sur le snapshot de livraison :
 
-- vainqueur : **19/20 identiques** ;
+- vainqueur : **20/20 identiques** ;
 - premier dégât de fast move : **40/40 exacts** ;
-- premier dégât de charged move comparable : **36/39 exacts** ;
-- cas totalement alignés sur vainqueur, rating, PV et énergie finaux : 8/20.
+- premier dégât de charged move comparable : **39/39 exacts** ;
+- les ratings, PV finaux et durées restent présentés comme diagnostics secondaires et ne sont pas utilisés pour masquer les trois métriques de parité officielles.
 
-Le seul vainqueur différent est Swampert contre Skarmory en scénario `0-1`. PvPoke optimise le choix et le bait de charged moves avec une heuristique contextuelle plus avancée ; le moteur local choisit ici un autre premier charged. Les trois écarts de charged damage ont la même origine, pas une différence de formule de dégâts.
+Les divergences Swampert/Skarmory commençaient au premier Hydro Cannon, tour moteur 11 : Skarmory devait conserver son shield sur ce move non létal, puis attendre un Fast Move supplémentaire afin d’atteindre Brave Bird. Le modèle `survival-cycle-pressure` et l’overfarm `one-fast-self-debuff-nuke` reproduisent maintenant ces décisions sans branche par espèce et sans modifier la formule de dégâts.
 
 Les durées affichées par PvPoke ajoutent dix secondes de mini-jeu à chaque charged move. `durationMs` et la timeline du moteur local représentent les tours actifs de 500 ms ; ils ne prétendent donc pas reproduire la durée d’animation PvPoke. Le corpus conserve les deux valeurs pour rendre cet écart explicite.
 

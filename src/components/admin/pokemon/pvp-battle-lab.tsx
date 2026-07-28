@@ -3,6 +3,8 @@
 import {
   Activity,
   ArrowLeftRight,
+  ChevronLeft,
+  ChevronRight,
   Download,
   ExternalLink,
   Gauge,
@@ -18,11 +20,25 @@ import {
   Swords,
   Trash2,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  type CSSProperties,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { TypeIcons } from "./asset-icons";
 import { PokemonArtwork } from "./pokemon-artwork";
 import { uiAssets } from "@/components/site/ui-assets";
+import {
+  typeColors,
+  typeIcon as typeIconAsset,
+  typeLabels,
+} from "@/components/site/pokemon-style";
 import {
   EmptyState,
   ErrorState,
@@ -36,13 +52,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Field } from "@/components/ui/field";
 import { Input, Textarea } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 import { Select } from "@/components/ui/select";
 import { decodePvpBattle, encodePvpBattle } from "@/lib/pvp-battle-deep-link.mjs";
 import type {
   IvRankResult,
+  IvRankingTableResult,
   MatrixBattleResult,
   MultiBattleResult,
   ShieldMatrixResult,
@@ -60,19 +77,25 @@ type CatalogMove = {
   buffs: Record<string, number> | null;
   legacy?: boolean;
   elite?: boolean;
+  shadowOnly?: boolean;
 };
 
 type CatalogPokemon = {
   canonicalId: string;
+  pokemonId: string;
   formId: string;
+  baseFormId: string;
   form: string;
   pokemonClass: string;
+  dexNr: number;
   dexId: string;
   names: Record<string, string>;
   types: string[];
   availability: { shadow: boolean };
   identity: {
     canonicalId: string;
+    localReference: string;
+    assetsRef: string | null;
     image: string | null;
     shinyImage: string | null;
     resolutionStatus: "matched" | "missing-asset";
@@ -122,6 +145,8 @@ type FighterConfig = {
   startingEnergy: number;
   startingHpPercent: number;
   startingStages: { attack: number; defense: number };
+  ivMode?: "optimal" | "perfect" | "custom";
+  levelCap?: 40 | 41 | 50 | 51;
   presetLabel?: string;
 };
 
@@ -142,6 +167,9 @@ const tabs = [
   ["matrix", "Matrix"],
   ["history", "Historique"],
 ] as const;
+const levelCaps = [40, 41, 50, 51] as const;
+type LevelCap = (typeof levelCaps)[number];
+type PickerFilter = "all" | "normal" | "mega" | "shadow" | "regional" | "other";
 
 function pokemonName(pokemon?: CatalogPokemon | null) {
   return (
@@ -165,7 +193,7 @@ function leagueRecommendation(pokemon: CatalogPokemon, league: League) {
 }
 
 function pokemonEligibleForLeague(pokemon: CatalogPokemon, league: League) {
-  if (!league.allowMega && /mega/i.test(pokemon.form)) return false;
+  if (!league.allowMega && /mega|primal/i.test(pokemon.form)) return false;
   if (!league.allowLegendary && /LEGENDARY|MYTHIC/.test(pokemon.pokemonClass))
     return false;
   if (
@@ -202,6 +230,8 @@ function baseConfig(pokemon: CatalogPokemon, league: League): FighterConfig {
     startingEnergy: 0,
     startingHpPercent: 100,
     startingStages: { attack: 0, defense: 0 },
+    ivMode: "optimal",
+    levelCap: 50,
   };
 }
 
@@ -235,6 +265,12 @@ function hydrateDeepLinkFighter(
       attack: Math.max(-4, Math.min(4, Math.trunc(Number(raw.startingStages?.attack) || 0))),
       defense: Math.max(-4, Math.min(4, Math.trunc(Number(raw.startingStages?.defense) || 0))),
     },
+    ivMode: ["optimal", "perfect", "custom"].includes(String(raw.ivMode))
+      ? raw.ivMode
+      : fallback.ivMode,
+    levelCap: levelCaps.includes(Number(raw.levelCap) as LevelCap)
+      ? (Number(raw.levelCap) as LevelCap)
+      : fallback.levelCap,
     presetLabel: raw.presetLabel,
   } satisfies FighterConfig;
 }
@@ -267,98 +303,319 @@ function downloadJson(value: unknown, name: string) {
   URL.revokeObjectURL(url);
 }
 
+function normalizedSearch(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function formCategory(pokemon: CatalogPokemon): Exclude<PickerFilter, "all" | "shadow"> {
+  const value = `${pokemon.form} ${pokemon.canonicalId}`.toLowerCase();
+  if (/mega|primal/.test(value)) return "mega";
+  if (/alola|galar|hisui|paldea/.test(value)) return "regional";
+  if (pokemon.form === "normal" && /_NORMAL$/.test(pokemon.canonicalId))
+    return "normal";
+  return "other";
+}
+
+function formLabel(pokemon: CatalogPokemon, shadow = false) {
+  if (shadow) return "SHADOW · OBSCUR";
+  const labels: Record<string, string> = {
+    normal: "Normal",
+    alola: "ALOLA",
+    galar: "GALAR",
+    hisui: "HISUI",
+    paldea: "PALDEA",
+    mega: "MEGA",
+    "mega-x": "MEGA_X",
+    "mega-y": "MEGA_Y",
+    primal: "PRIMAL",
+  };
+  return labels[pokemon.form.toLowerCase()] || pokemon.form.toUpperCase();
+}
+
+type PickerEntry = {
+  id: string;
+  pokemon: CatalogPokemon;
+  shadow: boolean;
+  category: Exclude<PickerFilter, "all">;
+  searchText: string;
+};
+
 function PokemonPicker({
   id,
   pokemon,
+  shadow = false,
   catalog,
+  league,
   onSelect,
 }: {
   id: string;
   pokemon: CatalogPokemon | null;
+  shadow?: boolean;
   catalog: CatalogPokemon[];
-  onSelect: (pokemon: CatalogPokemon) => void;
+  league: League;
+  onSelect: (pokemon: CatalogPokemon, shadow: boolean) => void;
 }) {
+  const anchorRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
+  const [filter, setFilter] = useState<PickerFilter>("all");
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [placement, setPlacement] = useState({
+    top: 0,
+    left: 0,
+    width: 360,
+    maxHeight: 420,
+  });
+  const entries = useMemo<PickerEntry[]>(() =>
+    catalog.flatMap((entry) => {
+      const baseCategory = formCategory(entry);
+      const commonSearch = normalizedSearch(
+        `${entry.searchText} ${entry.form} ${formLabel(entry)} ${baseCategory}`,
+      );
+      const variants: PickerEntry[] = [{
+        id: entry.canonicalId,
+        pokemon: entry,
+        shadow: false,
+        category: baseCategory,
+        searchText: commonSearch,
+      }];
+      if (entry.availability.shadow) {
+        variants.push({
+          id: `${entry.canonicalId}:shadow`,
+          pokemon: entry,
+          shadow: true,
+          category: "shadow",
+          searchText: `${commonSearch} shadow obscur sombre frustration`,
+        });
+      }
+      return variants;
+    }), [catalog]);
   const results = useMemo(() => {
-    const needle = query
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .trim()
-      .toLowerCase();
-    if (!needle) return catalog.slice(0, 10);
-    return catalog
-      .filter((entry) => entry.searchText.includes(needle))
-      .slice(0, 12);
-  }, [catalog, query]);
+    const needle = normalizedSearch(deferredQuery);
+    return entries
+      .filter((entry) => filter === "all" || entry.category === filter)
+      .filter((entry) => !needle || entry.searchText.includes(needle))
+      .slice(0, 24);
+  }, [deferredQuery, entries, filter]);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const updatePlacement = () => {
+      const rect = anchorRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const width = Math.max(360, rect.width);
+      const availableBelow = window.innerHeight - rect.bottom - 16;
+      const maxHeight = Math.min(440, Math.max(260, availableBelow));
+      const openAbove = availableBelow < 280 && rect.top > availableBelow;
+      setPlacement({
+        top: openAbove ? Math.max(12, rect.top - Math.min(440, rect.top - 16) - 8) : rect.bottom + 8,
+        left: rect.left,
+        width,
+        maxHeight: openAbove ? Math.min(440, rect.top - 16) : maxHeight,
+      });
+    };
+    updatePlacement();
+    window.addEventListener("resize", updatePlacement);
+    window.addEventListener("scroll", updatePlacement, true);
+    return () => {
+      window.removeEventListener("resize", updatePlacement);
+      window.removeEventListener("scroll", updatePlacement, true);
+    };
+  }, [open]);
+
+  const choose = (entry: PickerEntry) => {
+    const eligible = pokemonEligibleForLeague(entry.pokemon, league)
+      && (!entry.shadow || league.allowShadow);
+    if (!eligible) {
+      toast.error("Cette forme est visible dans le catalogue mais hors du format actif.");
+      return;
+    }
+    onSelect(entry.pokemon, entry.shadow);
+    setOpen(false);
+    setQuery("");
+  };
+  const active = results[activeIndex];
+  const selectedId = pokemon
+    ? `${pokemon.canonicalId}${shadow ? ":shadow" : ""}`
+    : "";
+  const list = (
+    <div
+      id={id}
+      className="overflow-y-auto rounded-overlay border border-line-strong bg-panel-strong p-2 shadow-overlay"
+      role="listbox"
+    >
+      <div className="sticky top-0 z-10 mb-2 space-y-2 rounded-xl bg-panel-strong p-1">
+        <div className="flex items-center justify-between gap-2 px-1">
+          <p className="text-xs font-black uppercase tracking-wider text-muted">
+            {entries.length} variantes de combat
+          </p>
+          <Badge tone="cyan">24 max.</Badge>
+        </div>
+        <Input
+          className="sm:hidden"
+          value={query}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setActiveIndex(0);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              event.preventDefault();
+              setOpen(false);
+            }
+            if (event.key === "ArrowDown") {
+              event.preventDefault();
+              setActiveIndex((index) => Math.min(Math.max(0, results.length - 1), index + 1));
+            }
+            if (event.key === "ArrowUp") {
+              event.preventDefault();
+              setActiveIndex((index) => Math.max(0, index - 1));
+            }
+            if (event.key === "Enter" && active) {
+              event.preventDefault();
+              choose(active);
+            }
+          }}
+          placeholder="Nom FR/EN, dex, forme, ID…"
+          aria-label="Recherche Pokémon mobile"
+          autoFocus
+        />
+        <div className="flex gap-1 overflow-x-auto pb-1" aria-label="Filtres de formes">
+          {([
+            ["all", "Toutes"],
+            ["normal", "Normal"],
+            ["mega", "Méga"],
+            ["shadow", "Obscur"],
+            ["regional", "Régional"],
+            ["other", "Autres"],
+          ] as const).map(([value, label]) => (
+            <button
+              className={`min-h-9 shrink-0 rounded-lg px-2.5 type-caption-strong ${filter === value ? "bg-brand-2/18 text-accent-text" : "bg-surface-control text-muted"}`}
+              key={value}
+              type="button"
+              aria-pressed={filter === value}
+              onClick={() => {
+                setFilter(value);
+                setActiveIndex(0);
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+      {results.map((entry, index) => {
+        const eligible = pokemonEligibleForLeague(entry.pokemon, league)
+          && (!entry.shadow || league.allowShadow);
+        return (
+          <button
+            className={`flex min-h-14 w-full items-center gap-3 rounded-xl px-2 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-2 ${index === activeIndex ? "bg-surface-hover" : "hover:bg-surface-hover"} ${eligible ? "" : "opacity-55"}`}
+            key={entry.id}
+            id={`${id}-${entry.id}`}
+            type="button"
+            role="option"
+            aria-selected={entry.id === selectedId}
+            aria-disabled={!eligible}
+            onMouseEnter={() => setActiveIndex(index)}
+            onClick={() => choose(entry)}
+          >
+            <PokemonArtwork
+              pokemon={entry.pokemon}
+              className="h-11 w-11"
+              variant={{ shadow: entry.shadow }}
+            />
+            <span className="min-w-0 flex-1">
+              <strong className="block truncate text-sm text-foreground">
+                {pokemonName(entry.pokemon)}{entry.shadow ? " Obscur" : ""}
+              </strong>
+              <small className="block truncate type-caption text-muted">
+                #{entry.pokemon.dexId} · {formLabel(entry.pokemon, entry.shadow)}
+                {!eligible ? " · Hors format" : ""}
+              </small>
+            </span>
+            {entry.shadow ? (
+              <img className="h-7 w-7 object-contain" src={uiAssets.icons.shadow} alt="Obscur" />
+            ) : (
+              <TypeIcons types={entry.pokemon.types} size="sm" />
+            )}
+          </button>
+        );
+      })}
+      {!results.length ? <EmptyState title="Aucun Pokémon trouvé" /> : null}
+    </div>
+  );
+
   return (
-    <div className="relative">
-      <Field label="Pokémon">
+    <div ref={anchorRef}>
+      <Field label="Pokémon / forme de combat">
         <Input
           className="mt-1 bg-panel-strong"
-          value={open ? query : pokemonName(pokemon)}
-          onFocus={() => {
+          value={open ? query : pokemon ? `${pokemonName(pokemon)}${shadow ? " Obscur" : ""}` : ""}
+          onClick={() => {
             setOpen(true);
             setQuery("");
           }}
           onChange={(event) => {
             setQuery(event.target.value);
             setOpen(true);
+            setActiveIndex(0);
           }}
-          placeholder="Nom FR, EN, dex, forme…"
+          placeholder="Nom FR/EN, dex, forme, ID…"
           role="combobox"
           aria-autocomplete="list"
           aria-expanded={open}
           aria-controls={id}
-          aria-activedescendant={open && results[activeIndex] ? `${id}-${results[activeIndex].canonicalId}` : undefined}
+          aria-activedescendant={open && active ? `${id}-${active.id}` : undefined}
           onKeyDown={(event) => {
-            if (event.key === "ArrowDown") { event.preventDefault(); setOpen(true); setActiveIndex((index) => Math.min(results.length - 1, index + 1)); }
-            if (event.key === "ArrowUp") { event.preventDefault(); setActiveIndex((index) => Math.max(0, index - 1)); }
-            if (event.key === "Escape") { event.preventDefault(); setOpen(false); }
-            if (event.key === "Enter" && open && results[activeIndex]) { event.preventDefault(); onSelect(results[activeIndex]); setOpen(false); setQuery(""); }
+            if (event.key === "ArrowDown") {
+              event.preventDefault();
+              setOpen(true);
+              setActiveIndex((index) => Math.min(Math.max(0, results.length - 1), index + 1));
+            }
+            if (event.key === "ArrowUp") {
+              event.preventDefault();
+              setActiveIndex((index) => Math.max(0, index - 1));
+            }
+            if (event.key === "Escape") {
+              event.preventDefault();
+              setOpen(false);
+            }
+            if (event.key === "Enter" && open && active) {
+              event.preventDefault();
+              choose(active);
+            }
           }}
         />
       </Field>
-      {open ? (
-        <div className="fixed inset-0 z-[1150] sm:absolute sm:inset-auto sm:z-30 sm:mt-2 sm:w-full">
-          <button className="absolute inset-0 bg-overlay backdrop-blur-sm sm:hidden" type="button" aria-label="Fermer le sélecteur" onClick={() => setOpen(false)} />
-          <div id={id} className="absolute inset-x-3 bottom-3 max-h-[82dvh] overflow-y-auto rounded-overlay border border-line-strong bg-panel-strong p-2 shadow-overlay sm:relative sm:inset-auto sm:bottom-auto sm:max-h-72 sm:w-full sm:rounded-2xl sm:bg-panel-strong sm:shadow-raised" role="listbox">
-          <div className="sticky top-0 z-10 mb-2 rounded-xl bg-panel-strong p-1 sm:hidden">
-            <p className="mb-2 px-2 text-xs font-black uppercase tracking-wider text-muted">Choisir un combattant</p>
-            <Input value={query} onChange={(event) => { setQuery(event.target.value); setActiveIndex(0); }} placeholder="Rechercher un Pokémon…" aria-label="Recherche Pokémon mobile" autoFocus />
-          </div>
-          {results.map((entry) => (
-            <button
-              className="flex min-h-12 w-full items-center gap-3 rounded-xl px-2 text-left hover:bg-surface-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-2"
-              key={entry.canonicalId}
-              id={`${id}-${entry.canonicalId}`}
-              type="button"
-              role="option"
-              aria-selected={entry.canonicalId === pokemon?.canonicalId}
-              onMouseEnter={() => setActiveIndex(results.indexOf(entry))}
-              onClick={() => {
-                onSelect(entry);
-                setOpen(false);
-                setQuery("");
-              }}
-            >
-              <PokemonArtwork pokemon={entry} className="h-10 w-10" />
-              <span className="min-w-0 flex-1">
-                <strong className="block truncate text-sm text-foreground">
-                  {pokemonName(entry)}
-                </strong>
-                <small className="block truncate text-[10px] text-muted">
-                  #{entry.dexId} · {entry.canonicalId}
-                </small>
-              </span>
-              <TypeIcons types={entry.types} size="sm" />
-            </button>
-          ))}
-          {!results.length ? <EmptyState title="Aucun Pokémon trouvé" /> : null}
-          </div>
-        </div>
-      ) : null}
+      {open && typeof document !== "undefined"
+        ? createPortal(
+            <div className="fixed inset-0 z-[1050]">
+              <button
+                className="absolute inset-0 bg-overlay backdrop-blur-sm sm:bg-transparent sm:backdrop-blur-none"
+                type="button"
+                aria-label="Fermer le sélecteur"
+                onClick={() => setOpen(false)}
+              />
+              <div
+                className="pvp-picker-surface"
+                style={{
+                  "--pvp-picker-top": `${placement.top}px`,
+                  "--pvp-picker-left": `${placement.left}px`,
+                  "--pvp-picker-width": `${placement.width}px`,
+                  "--pvp-picker-max-height": `${placement.maxHeight}px`,
+                } as CSSProperties}
+              >
+                {list}
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }
@@ -373,6 +630,77 @@ function MoveOption({ move }: { move: CatalogMove }) {
   );
 }
 
+function MoveSelect({
+  label,
+  moves,
+  value,
+  onChange,
+}: {
+  label: string;
+  moves: CatalogMove[];
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const selected = moves.find((move) => move.id === value) || moves[0];
+  const type = String(selected?.type || "NORMAL").toUpperCase();
+  const color = typeColors[type] || typeColors.NORMAL;
+  const icon = typeIconAsset(type);
+  return (
+    <Field label={label}>
+      <div
+        className="relative mt-1 overflow-hidden rounded-control border"
+        style={{
+          borderColor: `color-mix(in srgb, ${color} 56%, transparent)`,
+          background: `linear-gradient(135deg, color-mix(in srgb, ${color} 25%, var(--surface-control)), color-mix(in srgb, ${color} 10%, var(--surface-control)))`,
+        }}
+      >
+        {icon ? (
+          <img
+            className="pointer-events-none absolute left-3 top-1/2 z-10 h-7 w-7 -translate-y-1/2 object-contain"
+            src={icon}
+            alt=""
+          />
+        ) : null}
+        <Select
+          className="min-h-14 border-0 bg-transparent pl-12 pr-3 font-black"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          aria-label={label}
+        >
+          {moves.map((move) => (
+            <option key={move.id} value={move.id}>
+              <MoveOption move={move} />
+            </option>
+          ))}
+        </Select>
+        {selected ? (
+          <span className="pointer-events-none absolute bottom-1.5 left-12 type-overline-compact text-muted">
+            {typeLabels[type] || type} · {selected.category === "fast" ? `${selected.turns} tour${selected.turns > 1 ? "s" : ""}` : `${Math.abs(selected.energy)} énergie`}
+            {selected.elite || selected.legacy ? " · Elite/Legacy" : ""}
+          </span>
+        ) : null}
+      </div>
+    </Field>
+  );
+}
+
+function ShieldIcons({ count, compact = false }: { count: number; compact?: boolean }) {
+  if (count <= 0)
+    return <span className="font-black text-muted" aria-label="Aucun bouclier">—</span>;
+  return (
+    <span className="inline-flex items-center gap-0.5" aria-label={`${count} bouclier${count > 1 ? "s" : ""}`}>
+      {Array.from({ length: count }, (_, index) => (
+        <img
+          className={compact ? "h-4 w-4 object-contain" : "h-6 w-6 object-contain"}
+          key={index}
+          src={uiAssets.icons.shieldAlt}
+          alt=""
+        />
+      ))}
+    </span>
+  );
+}
+
 function FighterEditor({
   side,
   pokemon,
@@ -380,10 +708,13 @@ function FighterEditor({
   rank,
   catalog,
   typeCatalog,
+  league,
   onSelect,
   onPatch,
   onRankOne,
   onPerfect,
+  onMaximize,
+  onRankSelected,
 }: {
   side: "A" | "B";
   pokemon: CatalogPokemon | null;
@@ -391,28 +722,78 @@ function FighterEditor({
   rank: IvRankResult | null;
   catalog: CatalogPokemon[];
   typeCatalog: Array<Record<string, unknown>>;
-  onSelect: (pokemon: CatalogPokemon) => void;
+  league: League;
+  onSelect: (pokemon: CatalogPokemon, shadow: boolean) => void;
   onPatch: (patch: Partial<FighterConfig>) => void;
-  onRankOne: () => void;
-  onPerfect: () => void;
+  onRankOne: (levelCap: LevelCap) => void;
+  onPerfect: (levelCap: LevelCap) => void;
+  onMaximize: (levelCap: LevelCap) => void;
+  onRankSelected: (rank: IvRankResult) => void;
 }) {
+  const [rankingTable, setRankingTable] = useState<IvRankingTableResult | null>(null);
+  const [rankingsOpen, setRankingsOpen] = useState(false);
+  const [rankingBusy, setRankingBusy] = useState(false);
+  const [rankingPage, setRankingPage] = useState(0);
+  const pageSize = 64;
+  const levelCap = (config?.levelCap || 50) as LevelCap;
+  const openRankings = async () => {
+    if (!pokemon || !config) return;
+    setRankingsOpen(true);
+    setRankingPage(0);
+    if (rankingTable?.levelCap === levelCap) return;
+    setRankingBusy(true);
+    try {
+      const table = await api<IvRankingTableResult>(endpoint, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          action: "iv-rankings",
+          leagueId: league.id,
+          canonicalId: config.canonicalId,
+          levelCap,
+        }),
+      });
+      setRankingTable(table);
+    } catch (reason) {
+      toast.error(reason instanceof Error ? reason.message : "Classement IV indisponible.");
+      setRankingsOpen(false);
+    } finally {
+      setRankingBusy(false);
+    }
+  };
   if (!pokemon || !config) return (
-    <Card className="min-w-0 overflow-visible border-dashed p-4 sm:p-5" tone="strong">
-      <CardHeader eyebrow={`COMBATTANT ${side}`}>
+    <section className="min-w-0 rounded-3xl border border-dashed border-line-strong bg-surface-inset-subtle p-4 sm:p-5">
+      <CardHeader eyebrow={`BUILD ${side}`}>
         <div className="flex items-center gap-3">
           <span className="grid h-20 w-20 place-items-center rounded-2xl border border-dashed border-cyan-200/20 bg-cyan-300/[0.05]"><img className="h-12 w-12 object-contain opacity-60" src={uiAssets.icons.pokemon} alt="" /></span>
           <div><CardTitle>Aucun Pokémon</CardTitle><CardDescription>Sélectionne un combattant pour afficher son build.</CardDescription></div>
         </div>
       </CardHeader>
-      <div className="mt-5"><PokemonPicker id={`pvp-pokemon-results-${side.toLowerCase()}`} pokemon={null} catalog={catalog} onSelect={onSelect} /></div>
-    </Card>
+      <div className="mt-5"><PokemonPicker id={`pvp-pokemon-results-${side.toLowerCase()}`} pokemon={null} catalog={catalog} league={league} onSelect={onSelect} /></div>
+    </section>
   );
   const patchIv = (key: keyof FighterConfig["ivs"], value: number) =>
-    onPatch({ ivs: { ...config.ivs, [key]: value } });
+    onPatch({
+      ivs: { ...config.ivs, [key]: value },
+      ivMode: "custom",
+      presetLabel: "Mes IV",
+    });
   const charged = config.chargedMoveIds;
+  const availableChargedMoves = pokemon.moves.charged.filter(
+    (move) => !move.shadowOnly || config.shadow,
+  );
+  const advancedCount = Number(config.startingEnergy !== 0)
+    + Number(config.startingHpPercent !== 100)
+    + Number(config.startingStages.attack !== 0)
+    + Number(config.startingStages.defense !== 0);
+  const rankingRows = rankingTable?.rows.slice(
+    rankingPage * pageSize,
+    (rankingPage + 1) * pageSize,
+  ) || [];
+  const totalPages = Math.max(1, Math.ceil((rankingTable?.rows.length || 0) / pageSize));
   return (
-    <Card className="min-w-0 overflow-visible p-4 sm:p-5" tone="strong">
-      <CardHeader eyebrow={`COMBATTANT ${side}`}>
+    <section className="min-w-0 rounded-3xl border border-line bg-surface-subtle p-4 sm:p-5">
+      <CardHeader eyebrow={`BUILD ${side}`}>
         <div className="flex items-center gap-3">
           <PokemonArtwork
             pokemon={pokemon}
@@ -422,8 +803,11 @@ function FighterEditor({
           />
           <div className="min-w-0">
             <CardTitle className="truncate">{pokemonName(pokemon)}</CardTitle>
-            {config.presetLabel ? <Badge tone={config.presetLabel === "Mes IV" ? "violet" : "cyan"}>{config.presetLabel}</Badge> : null}
-            <p className="mt-1 truncate text-[10px] font-black uppercase tracking-[.1em] text-muted">
+            <div className="flex flex-wrap gap-1.5">
+              {config.presetLabel ? <Badge tone={config.presetLabel === "Mes IV" ? "violet" : "cyan"}>{config.presetLabel}</Badge> : null}
+              {config.shadow ? <Badge tone="violet"><img className="h-3.5 w-3.5 object-contain" src={uiAssets.icons.shadow} alt="" /> Obscur</Badge> : null}
+            </div>
+            <p className="mt-1 truncate type-overline-compact text-muted">
               {pokemon.canonicalId}
             </p>
             <div className="mt-2">
@@ -437,94 +821,116 @@ function FighterEditor({
         <PokemonPicker
           id={`pvp-pokemon-results-${side.toLowerCase()}`}
           pokemon={pokemon}
+          shadow={config.shadow}
           catalog={catalog}
+          league={league}
           onSelect={onSelect}
         />
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Field label="Niveau">
-          <Input
-            className="mt-1"
-            type="number"
-            min={1}
-            max={55}
-            step={0.5}
-            value={config.level}
-            onChange={(event) => onPatch({ level: Number(event.target.value) })}
-          />
-        </Field>
-        {(["attack", "defense", "stamina"] as const).map((key) => (
-          <Field
-            key={key}
-            label={
-              key === "stamina"
-                ? "HP IV"
-                : `${key === "attack" ? "Atk" : "Def"} IV`
-            }
-          >
-            <Input
-              className="mt-1"
-              type="number"
-              min={0}
-              max={15}
-              value={config.ivs[key]}
-              onChange={(event) => patchIv(key, Number(event.target.value))}
-            />
-          </Field>
-        ))}
-      </div>
-      <div className="mt-3 flex flex-wrap gap-2">
-        <Button size="sm" type="button" onClick={onRankOne}>
-          Rank 1
-        </Button>
-        <Button size="sm" variant="ghost" type="button" onClick={onPerfect}>
-          15 / 15 / 15
-        </Button>
-        {rank ? (
-          <Badge tone="cyan">
-            Rank #{rank.rank} · {rank.cp} PC · niv. {rank.level}
-          </Badge>
-        ) : null}
-      </div>
+      {pokemon.availability.shadow ? (
+        <div className="mt-4 grid grid-cols-2 gap-1 rounded-control border border-line bg-surface-control p-1" aria-label="Variante de combat">
+          <button className={`rounded-lg px-3 text-xs font-black ${!config.shadow ? "bg-brand-2/18 text-accent-text" : "text-muted"}`} type="button" aria-pressed={!config.shadow} onClick={() => { const regularMoves = config.chargedMoveIds.filter((id) => !pokemon.moves.charged.find((move) => move.id === id)?.shadowOnly); onPatch({ shadow: false, chargedMoveIds: regularMoves.length ? regularMoves : pokemon.moves.charged.filter((move) => !move.shadowOnly).slice(0, 2).map((move) => move.id) }); }}>Normal</button>
+          <button className={`inline-flex items-center justify-center gap-2 rounded-lg px-3 text-xs font-black ${config.shadow ? "bg-violet-400/18 text-violet-100" : "text-muted"}`} type="button" aria-pressed={config.shadow} onClick={() => onPatch({ shadow: true })}><img className="h-5 w-5 object-contain" src={uiAssets.icons.shadow} alt="" /> Obscur</button>
+        </div>
+      ) : null}
 
-      <div className="mt-4 grid gap-3">
-        <Field label="Fast Move">
-          <Select
-            className="mt-1"
-            value={config.fastMoveId}
-            onChange={(event) => onPatch({ fastMoveId: event.target.value })}
-          >
-            {pokemon.moves.fast.map((move) => (
-              <option key={move.id} value={move.id}>
-                <MoveOption move={move} />
-              </option>
-            ))}
-          </Select>
-        </Field>
-        {[0, 1].map((index) => (
-          <Field key={index} label={`Charged Move ${index + 1}`}>
-            <Select
-              className="mt-1"
-              value={charged[index] || ""}
-              onChange={(event) => {
-                const next = [...charged];
-                next[index] = event.target.value;
-                onPatch({ chargedMoveIds: next.filter(Boolean).slice(0, 2) });
+      <section className="mt-4 rounded-2xl border border-line bg-surface-inset-subtle p-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-black text-foreground">IV & Niveau</h3>
+            <p className="type-caption text-muted">Le cap est explicite et indépendant du format.</p>
+          </div>
+          {rank ? <Badge tone="cyan">#{rank.rank} / {rank.combinations}</Badge> : null}
+        </div>
+        <div className="mt-3 grid grid-cols-3 gap-1 rounded-control border border-line bg-surface-control p-1" role="group" aria-label="Mode IV">
+          {([
+            ["optimal", "Rank optimal"],
+            ["perfect", "15/15/15"],
+            ["custom", "Personnalisé"],
+          ] as const).map(([mode, label]) => (
+            <button
+              className={`rounded-lg px-2 type-label ${config.ivMode === mode ? "bg-brand-2/18 text-accent-text" : "text-muted"}`}
+              key={mode}
+              type="button"
+              aria-pressed={config.ivMode === mode}
+              onClick={() => {
+                onPatch({ ivMode: mode, presetLabel: mode === "custom" ? "Mes IV" : mode === "perfect" ? "15/15/15" : "Rank 1" });
+                if (mode === "optimal") onRankOne(levelCap);
+                if (mode === "perfect") onPerfect(levelCap);
               }}
             >
-              {pokemon.moves.charged.map((move) => (
-                <option key={move.id} value={move.id}>
-                  <MoveOption move={move} />
-                </option>
-              ))}
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
+          <Field label="Level cap">
+            <Select
+              className="mt-1"
+              value={levelCap}
+              onChange={(event) => {
+                const nextCap = Number(event.target.value) as LevelCap;
+                onPatch({ levelCap: nextCap });
+                if (config.ivMode === "optimal") onRankOne(nextCap);
+                if (config.ivMode === "perfect") onPerfect(nextCap);
+              }}
+            >
+              {levelCaps.map((cap) => <option key={cap} value={cap}>Cap {cap}</option>)}
             </Select>
           </Field>
+          <Field label="Niveau">
+            <Input className="mt-1" type="number" min={1} max={levelCap} step={0.5} value={config.level} onChange={(event) => onPatch({ level: Number(event.target.value), ivMode: "custom", presetLabel: "Mes IV" })} />
+          </Field>
+          {(["attack", "defense", "stamina"] as const).map((key) => (
+            <Field key={key} label={key === "stamina" ? "HP IV" : `${key === "attack" ? "Atk" : "Def"} IV`}>
+              <Input className="mt-1" type="number" min={0} max={15} value={config.ivs[key]} onChange={(event) => patchIv(key, Number(event.target.value))} />
+            </Field>
+          ))}
+        </div>
+        {rank ? (
+          <div className="mt-3 grid grid-cols-3 gap-2 rounded-xl bg-surface-control p-3 text-center type-caption text-muted">
+            <span><b className="block text-base text-foreground">{rank.cp}</b>PC</span>
+            <span><b className="block text-base text-foreground">{rank.level}</b>Niveau</span>
+            <span><b className="block text-base text-foreground">{rank.statProduct.toFixed(2)}</b>Stat Product</span>
+          </div>
+        ) : null}
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button size="sm" variant="primary" type="button" onClick={() => onRankOne(levelCap)}>Rank 1</Button>
+          <Button size="sm" type="button" onClick={() => onMaximize(levelCap)}>Maximiser</Button>
+          <Button size="sm" variant="ghost" type="button" onClick={() => { onPatch({ levelCap: 50, ivMode: "optimal", presetLabel: "Rank 1" }); onRankOne(50); }}>Défaut</Button>
+          <Button size="sm" variant="ghost" type="button" onClick={() => void openRankings()}>Voir classement IV</Button>
+        </div>
+      </section>
+
+      <div className="mt-4 grid gap-3">
+        <MoveSelect label="Fast Move" moves={pokemon.moves.fast} value={config.fastMoveId} onChange={(fastMoveId) => onPatch({ fastMoveId })} />
+        {[0, 1].map((index) => (
+          <MoveSelect
+            key={index}
+            label={`Charged Move ${index + 1}`}
+            moves={availableChargedMoves}
+            value={charged[index] || availableChargedMoves[0]?.id || ""}
+            onChange={(value) => {
+              const next = [...charged];
+              next[index] = value;
+              onPatch({ chargedMoveIds: next.filter(Boolean).slice(0, 2) });
+            }}
+          />
         ))}
+      </div>
+
+      <div className="mt-4">
+        <p className="mb-2 type-overline-compact text-muted">Shields de départ</p>
+        <div className="grid grid-cols-3 gap-1 rounded-control border border-line bg-surface-control p-1">
+          {[0, 1, 2].map((count) => (
+            <button className={`grid min-h-12 place-items-center rounded-lg ${config.shields === count ? "bg-brand-2/20 text-accent-text" : "text-muted"}`} key={count} type="button" onClick={() => onPatch({ shields: count })} aria-pressed={config.shields === count}><ShieldIcons count={count} /></button>
+          ))}
+        </div>
       </div>
 
       <details className="mt-4 rounded-2xl border border-line bg-surface-inset-subtle p-3">
-        <summary className="cursor-pointer text-sm font-black text-foreground">Configuration avancée · énergie, HP, stages, Shadow</summary>
+        <summary className="cursor-pointer text-sm font-black text-foreground">Options avancées{advancedCount ? ` · ${advancedCount} modifiée${advancedCount > 1 ? "s" : ""}` : ""}</summary>
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Field label="Énergie initiale">
           <Input
@@ -549,21 +955,6 @@ function FighterEditor({
               onPatch({ startingHpPercent: Number(event.target.value) })
             }
           />
-        </Field>
-        <Field label="Boucliers">
-          <div className="mt-1 grid min-h-11 grid-cols-3 gap-1 rounded-control border border-line bg-surface-control p-1">
-            {[0, 1, 2].map((count) => (
-              <button
-                className={`rounded-lg text-sm font-black ${config.shields === count ? "bg-brand-2/20 text-accent-text" : "text-muted"}`}
-                key={count}
-                type="button"
-                onClick={() => onPatch({ shields: count })}
-                aria-pressed={config.shields === count}
-              >
-                {count}
-              </button>
-            ))}
-          </div>
         </Field>
       </div>
 
@@ -594,48 +985,84 @@ function FighterEditor({
           </Field>
         ))}
       </div>
-
-      <label className="mt-4 flex min-h-11 items-center gap-3 rounded-control border border-line bg-surface-control px-3 text-sm font-bold text-foreground">
-        <Checkbox
-          checked={config.shadow}
-          disabled={!pokemon.availability.shadow}
-          onChange={(event) => onPatch({ shadow: event.target.checked })}
-        />
-        Forme Shadow{" "}
-        {pokemon.availability.shadow ? "disponible" : "indisponible"}
-      </label>
       </details>
-    </Card>
+      <Modal
+        open={rankingsOpen}
+        onClose={() => setRankingsOpen(false)}
+        title={`Classement IV · ${pokemonName(pokemon)}`}
+        description={`Ligue ${league.name} · ${league.cpCap} PC · level cap ${levelCap} · 4096 spreads calculés`}
+        className="max-w-5xl"
+        footer={<div className="flex items-center justify-between gap-3"><span className="text-xs font-bold text-muted">Page {rankingPage + 1} / {totalPages}</span><Button type="button" onClick={() => setRankingsOpen(false)}>Fermer</Button></div>}
+      >
+        {rankingBusy ? <FetchLoadingState title="Calcul des 4096 spreads…" /> : (
+          <>
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <Button size="icon" type="button" icon={<ChevronLeft size={16} />} aria-label="Page précédente" disabled={rankingPage === 0} onClick={() => setRankingPage((page) => Math.max(0, page - 1))} />
+              <strong className="text-sm">Rangs {rankingPage * pageSize + 1}–{Math.min((rankingPage + 1) * pageSize, rankingTable?.rows.length || 0)}</strong>
+              <Button size="icon" type="button" icon={<ChevronRight size={16} />} aria-label="Page suivante" disabled={rankingPage >= totalPages - 1} onClick={() => setRankingPage((page) => Math.min(totalPages - 1, page + 1))} />
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[620px] text-left text-xs">
+                <thead className="text-muted"><tr><th className="p-2">Rank</th><th className="p-2">Level</th><th className="p-2">IV</th><th className="p-2">CP</th><th className="p-2">Stat Product</th><th className="p-2 text-right">Action</th></tr></thead>
+                <tbody>{rankingRows.map((row) => <tr className="border-t border-line" key={`${row.ivs.attack}-${row.ivs.defense}-${row.ivs.stamina}`}><td className="p-2 font-black">#{row.rank}</td><td className="p-2">{row.level}</td><td className="p-2 font-mono">{row.ivs.attack}/{row.ivs.defense}/{row.ivs.stamina}</td><td className="p-2">{row.cp}</td><td className="p-2">{row.statProduct.toFixed(2)}</td><td className="p-2 text-right"><Button size="sm" variant="primary" type="button" onClick={() => { onRankSelected(row); setRankingsOpen(false); }}>Choisir</Button></td></tr>)}</tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </Modal>
+    </section>
   );
 }
 
 function BattleArena({
   pokemon,
   fighters,
+  ranks,
   league,
+  typeCatalog,
+  result,
 }: {
   pokemon: [CatalogPokemon | null, CatalogPokemon | null];
   fighters: [FighterConfig | null, FighterConfig | null];
+  ranks: [IvRankResult | null, IvRankResult | null];
   league: League;
+  typeCatalog: Array<Record<string, unknown>>;
+  result: SingleBattleResult | null;
 }) {
   return (
-    <Card className="relative min-h-[18rem] overflow-hidden border-cyan-200/15 p-4 sm:min-h-[22rem] sm:p-6" tone="strong">
+    <Card className="relative min-h-[20rem] overflow-hidden border-cyan-200/15 p-4 sm:min-h-[25rem] sm:p-6" tone="strong">
       <img className="absolute inset-0 h-full w-full object-cover opacity-35" src={uiAssets.backgrounds.battle} alt="" />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,7,18,.2),rgba(3,7,18,.92))]" />
-      <div className="relative flex h-full min-h-[16rem] flex-col justify-between sm:min-h-[19rem]">
+      <div className="relative flex h-full min-h-[18rem] flex-col justify-between sm:min-h-[22rem]">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="rounded-full border border-cyan-200/20 bg-slate-950/70 px-3 py-1 text-xs font-black text-cyan-50">{league.name} · {league.cpCap} PC</span>
           <span className="rounded-full border border-line bg-slate-950/70 px-3 py-1 text-xs font-black text-muted">1 tour = 0,5 s</span>
         </div>
-        <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-2 sm:gap-6">
+        <div className="grid flex-1 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 py-4 sm:gap-8">
           {([0, 1] as const).map((index) => (
-            <div className={`flex min-w-0 flex-col items-center ${index === 1 ? "order-3" : ""}`} key={index}>
-              {pokemon[index] ? <PokemonArtwork pokemon={pokemon[index]} variant={{ shadow: fighters[index]?.shadow }} priority={index === 0} className="h-28 w-28 border-cyan-100/20 bg-slate-950/55 sm:h-40 sm:w-40" /> : <span className="grid h-28 w-28 place-items-center rounded-full border-2 border-dashed border-cyan-100/20 bg-slate-950/45 sm:h-40 sm:w-40"><img className="h-16 w-16 object-contain opacity-55" src={uiAssets.icons.pokemon} alt="" /></span>}
-              <strong className="mt-3 max-w-full truncate text-center text-sm text-white sm:text-lg">{pokemon[index] ? pokemonName(pokemon[index]) : `Combattant ${index === 0 ? "A" : "B"}`}</strong>
-              <span className="mt-1 text-[10px] font-black uppercase tracking-wider text-slate-300">{fighters[index]?.presetLabel || (pokemon[index] ? "Build personnalisé" : "À sélectionner")}</span>
+            <div className={`flex min-w-0 flex-col items-center justify-center text-center ${index === 1 ? "order-3" : ""}`} key={index}>
+              <div className="grid aspect-square w-full max-w-32 place-items-center rounded-overlay border border-cyan-100/20 bg-slate-950/55 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,.08)] sm:max-w-48 sm:p-4">
+                {pokemon[index] ? <PokemonArtwork pokemon={pokemon[index]} variant={{ shadow: fighters[index]?.shadow }} priority={index === 0} className="h-full w-full border-0 bg-transparent p-0" imageClassName="scale-[.90] object-center" /> : <img className="h-16 w-16 object-contain opacity-55 sm:h-24 sm:w-24" src={uiAssets.icons.pokemon} alt="" />}
+              </div>
+              <strong className="mt-3 max-w-full truncate text-sm text-white sm:text-xl">{pokemon[index] ? `${pokemonName(pokemon[index])}${fighters[index]?.shadow ? " Obscur" : ""}` : `Combattant ${index === 0 ? "A" : "B"}`}</strong>
+              {pokemon[index] ? <div className="mt-2"><TypeIcons types={pokemon[index]?.types} catalog={typeCatalog} size="sm" /></div> : null}
+              {fighters[index] ? (
+                <div className="mt-3 grid w-full max-w-64 grid-cols-3 gap-1 rounded-xl border border-line bg-slate-950/65 p-2 text-center type-overline-compact text-muted">
+                  <span><b className="block text-sm text-white">{ranks[index]?.cp ?? result?.combatants[index].stats.cp ?? "—"}</b>PC</span>
+                  <span><b className="block text-sm text-white">{fighters[index]?.level}</b>Niv.</span>
+                  <span><b className="block text-sm text-white">{fighters[index]?.ivs.attack}/{fighters[index]?.ivs.defense}/{fighters[index]?.ivs.stamina}</b>IV</span>
+                </div>
+              ) : null}
+              {result ? (
+                <div className="mt-2 flex flex-wrap items-center justify-center gap-2 rounded-full border border-line bg-slate-950/70 px-3 py-1.5 type-overline-compact text-foreground-secondary">
+                  <span>{result.combatants[index].remainingHp} HP</span>
+                  <span>· {result.combatants[index].remainingEnergy} E</span>
+                  <ShieldIcons count={result.combatants[index].shieldsRemaining} compact />
+                </div>
+              ) : null}
             </div>
           ))}
-          <div className="order-2 mb-12 grid h-14 w-14 place-items-center rounded-full border border-violet-200/25 bg-violet-400/15 shadow-[0_0_40px_rgba(139,92,246,.35)] sm:h-20 sm:w-20"><img className="h-8 w-8 object-contain sm:h-11 sm:w-11" src={uiAssets.icons.swords} alt="Versus" /></div>
+          <div className="order-2 grid h-12 w-12 place-items-center self-center rounded-full border border-violet-200/25 bg-violet-400/15 shadow-[0_0_40px_rgba(139,92,246,.35)] sm:h-20 sm:w-20"><img className="h-7 w-7 object-contain sm:h-11 sm:w-11" src={uiAssets.icons.swords} alt="Versus" /></div>
         </div>
       </div>
     </Card>
@@ -645,38 +1072,35 @@ function BattleArena({
 function ResultHeader({ result, pokemon }: { result: SingleBattleResult; pokemon: [CatalogPokemon | null, CatalogPokemon | null] }) {
   const winner =
     result.winner === null ? null : result.combatants[result.winner];
+  const ratingTotal = Math.max(1, result.ratings[0] + result.ratings[1]);
+  const leftShare = Math.round((result.ratings[0] / ratingTotal) * 100);
   return (
-    <Card className="overflow-hidden p-5" tone="strong">
-      <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-center">
-        <div className="flex items-center gap-4">
-          {winner && result.winner !== null && pokemon[result.winner] ? <PokemonArtwork pokemon={pokemon[result.winner]} className="h-24 w-24 border-emerald-200/25 bg-emerald-400/10" priority /> : <img className="h-16 w-16 object-contain" src={uiAssets.icons.result} alt="" />}
-          <div>
-          <p className="type-overline text-brand-2">
-            {winner ? "GAGNANT" : "ÉGALITÉ"}
-          </p>
-          <h2 className="mt-1 text-3xl font-black tracking-tight text-foreground">
-            {winner?.name || "Match nul"}
-          </h2>
-          <p className="mt-2 text-sm text-muted">
-            {result.durationTurns} tours ·{" "}
-            {(result.durationMs / 1_000).toFixed(1)} s · moteur{" "}
-            {result.versions.engine}
-          </p>
+    <Card className="relative overflow-hidden border-emerald-200/15 p-5 sm:p-7" tone="strong">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_15%,rgba(52,211,153,.18),transparent_34%),linear-gradient(135deg,rgba(15,23,42,.2),rgba(2,6,23,.75))]" />
+      <div className="relative text-center motion-safe:animate-[fade-in_.45s_ease-out]">
+        <p className="type-overline text-emerald-200">{winner ? "VICTOIRE" : "ÉGALITÉ"}</p>
+        <div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
+          {([0, 1] as const).map((index) => (
+            <div className={index === 1 ? "order-3" : ""} key={index}>
+              {pokemon[index] ? <PokemonArtwork pokemon={pokemon[index]} className={`mx-auto h-20 w-20 sm:h-28 sm:w-28 ${result.winner === index ? "border-emerald-200/40 bg-emerald-400/12" : "opacity-75"}`} imageClassName="scale-[.9]" /> : null}
+              <strong className="mt-2 block truncate text-xs text-foreground sm:text-base">{result.combatants[index].name}</strong>
+              <span className="mt-1 inline-flex items-center gap-2 type-overline-compact text-muted"><ShieldIcons count={result.combatants[index].shieldsRemaining} compact /> {result.combatants[index].remainingHp} HP · {result.combatants[index].remainingEnergy} E</span>
+            </div>
+          ))}
+          <div className="order-2 min-w-20 sm:min-w-32">
+            <strong className="block text-4xl font-black text-white sm:text-6xl">{result.battleRating}</strong>
+            <span className="mt-1 block type-overline-compact text-emerald-200">Battle Rating</span>
+            <span className="mt-2 block type-overline-compact text-muted">{result.durationTurns} tours · {(result.durationMs / 1_000).toFixed(1)} s</span>
           </div>
         </div>
-        <div className="rounded-2xl border border-brand-2/25 bg-brand-2/10 p-4 text-center">
-          <span className="block text-[10px] font-black uppercase tracking-[.16em] text-accent-text">
-            Battle Rating
-          </span>
-          <strong className="mt-1 block text-4xl font-black text-foreground">
-            {result.battleRating}
-          </strong>
-          <small className="text-xs font-bold text-muted">
-            {result.ratingClass}
-          </small>
-        </div>
+        <h2 className="mt-4 text-2xl font-black tracking-tight text-white sm:text-4xl">{winner?.name || "Match nul"}</h2>
+        <p className="mt-1 type-caption-strong text-muted">{result.ratingClass} · moteur {result.versions.engine}</p>
       </div>
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+      <div className="relative mt-6">
+        <div className="flex items-center justify-between text-xs font-black text-foreground"><span>{result.ratings[0]}</span><span>VS</span><span>{result.ratings[1]}</span></div>
+        <div className="mt-2 flex h-3 overflow-hidden rounded-full bg-surface-control" aria-label={`Dominance ${leftShare} % contre ${100 - leftShare} %`}><span className="bg-cyan-400" style={{ width: `${leftShare}%` }} /><span className="bg-violet-400" style={{ width: `${100 - leftShare}%` }} /></div>
+      </div>
+      <div className="relative mt-5 grid gap-3 sm:grid-cols-2">
         {result.combatants.map((combatant, index) => (
           <div
             className={`rounded-2xl border p-4 ${result.winner === index ? "border-success/35 bg-success/10" : "border-line bg-surface-inset-subtle"}`}
@@ -701,12 +1125,7 @@ function ResultHeader({ result, pokemon }: { result: SingleBattleResult; pokemon
                 </b>
                 Énergie
               </span>
-              <span>
-                <b className="block text-lg text-foreground">
-                  {combatant.shieldsRemaining}
-                </b>
-                Shields
-              </span>
+              <span><b className="grid min-h-7 place-items-center text-lg text-foreground"><ShieldIcons count={combatant.shieldsRemaining} compact /></b>Shields</span>
             </div>
           </div>
         ))}
@@ -717,9 +1136,11 @@ function ResultHeader({ result, pokemon }: { result: SingleBattleResult; pokemon
 
 function ShieldScenarioMatrix({
   matrix,
+  activeResultId,
   onSelect,
 }: {
   matrix: ShieldMatrixResult;
+  activeResultId?: string;
   onSelect: (result: SingleBattleResult) => void;
 }) {
   const scenario = (left: number, right: number) =>
@@ -743,7 +1164,7 @@ function ShieldScenarioMatrix({
               <th className="p-2 text-left text-muted">Vous \ Adversaire</th>
               {[0, 1, 2].map((value) => (
                 <th key={value} className="p-2 text-muted">
-                  {value} shield
+                  <span className="inline-grid min-h-8 place-items-center"><ShieldIcons count={value} /></span>
                 </th>
               ))}
             </tr>
@@ -751,7 +1172,7 @@ function ShieldScenarioMatrix({
           <tbody>
             {[0, 1, 2].map((left) => (
               <tr key={left}>
-                <th className="p-2 text-left text-muted">{left} shield</th>
+                <th className="p-2 text-left text-muted"><ShieldIcons count={left} /></th>
                 {[0, 1, 2].map((right) => {
                   const item = scenario(left, right)!;
                   const win = item.result.winner === 0;
@@ -759,9 +1180,10 @@ function ShieldScenarioMatrix({
                   return (
                     <td key={right}>
                       <button
-                        className={`min-h-20 w-full rounded-xl border p-2 font-black transition hover:-translate-y-0.5 ${tie ? "border-line bg-surface-control" : win ? "border-success/35 bg-success/10 text-success-foreground" : "border-danger/35 bg-danger/10 text-danger-foreground"}`}
+                        className={`min-h-20 w-full rounded-xl border p-2 font-black transition hover:-translate-y-0.5 ${item.result.id === activeResultId ? "ring-2 ring-brand-2 ring-offset-2 ring-offset-background" : ""} ${tie ? "border-line bg-surface-control" : win ? "border-success/35 bg-success/10 text-success-foreground" : "border-danger/35 bg-danger/10 text-danger-foreground"}`}
                         type="button"
                         onClick={() => onSelect(item.result)}
+                        aria-pressed={item.result.id === activeResultId}
                       >
                         <span className="block">
                           {tie ? "Égalité" : win ? "Victoire" : "Défaite"}
@@ -881,7 +1303,7 @@ function Timeline({ result }: { result: SingleBattleResult }) {
         >
           {visible.map((event) => (
             <span
-              className="px-1 text-center text-[9px] font-black uppercase tracking-wider text-disabled"
+              className="px-1 text-center type-overline-compact text-disabled"
               key={`turn-${event.id}`}
             >
               Tour {event.turn}
@@ -896,14 +1318,13 @@ function Timeline({ result }: { result: SingleBattleResult }) {
               >
                 {event.actor === actor ? (
                   <button
-                    className={`h-full w-full rounded-xl border p-2 text-left text-[11px] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-2 ${event.action === "faint" ? "border-danger/40 bg-danger/10" : event.action === "shield" ? "border-brand-2/35 bg-brand-2/10" : "border-line bg-surface-control"}`}
+                    className={`h-full w-full rounded-xl border p-2 text-left type-caption-strong transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-2 ${event.action === "faint" ? "border-danger/40 bg-danger/10" : event.action === "shield" ? "border-brand-2/35 bg-brand-2/10" : "border-line bg-surface-control"}`}
                     type="button"
                     onClick={() => setSelected(event)}
                   >
-                    <strong className="flex items-center gap-1.5 truncate text-foreground"><img className="h-4 w-4 shrink-0 object-contain" src={timelineEventAsset(event.action)} alt="" /><span className="truncate">{event.moveName || event.action.toUpperCase()}</span></strong>
-                    <span className="mt-1 block line-clamp-3 text-muted">
-                      {event.description}
-                    </span>
+                    <strong className="flex items-center gap-1.5 truncate text-foreground"><img className="h-4 w-4 shrink-0 object-contain" src={timelineEventAsset(event.action)} alt="" />{event.moveType && typeIconAsset(event.moveType) ? <img className="h-4 w-4 shrink-0 object-contain" src={typeIconAsset(event.moveType)!} alt="" /> : null}<span className="truncate">{event.moveName || event.action.toUpperCase()}</span></strong>
+                    <span className="mt-1 block truncate type-caption text-muted">{result.combatants[event.actor].name}</span>
+                    <span className="mt-1 block line-clamp-2 text-muted">{event.damage !== undefined ? `${event.damage} dégâts` : event.action.toUpperCase()}{event.energyAfter !== undefined ? ` · ${event.energyAfter} E` : ""}{event.hpAfter !== undefined ? ` · ${event.hpAfter} HP` : ""}</span>
                   </button>
                 ) : (
                   <span className="block h-full border-l border-line-subtle" />
@@ -916,12 +1337,12 @@ function Timeline({ result }: { result: SingleBattleResult }) {
       {selected ? (
         <details
           className="mt-4 rounded-2xl border border-line bg-surface-inset-subtle p-4"
-          open
         >
           <summary className="cursor-pointer text-sm font-black text-foreground">
-            Tour {selected.turn} · {selected.description}
+            Voir données techniques · tour {selected.turn}
           </summary>
-          <pre className="mt-3 max-h-72 overflow-auto whitespace-pre-wrap text-[11px] text-muted">
+          <p className="mt-3 text-sm font-bold text-foreground">{selected.description}</p>
+          <pre className="mt-3 max-h-72 overflow-auto whitespace-pre-wrap text-xs text-muted">
             {JSON.stringify(selected, null, 2)}
           </pre>
         </details>
@@ -947,8 +1368,10 @@ function BattleSummary({ result }: { result: SingleBattleResult }) {
           const fastDamage = events.filter((event) => event.action === "fast").reduce((sum, event) => sum + Number(event.damage || 0), 0);
           const chargedDamage = events.filter((event) => event.action === "charged").reduce((sum, event) => sum + Number(event.damage || 0), 0);
           const totalMoveDamage = fastDamage + chargedDamage;
-          const fastPercent = totalMoveDamage ? `${Math.round((fastDamage / totalMoveDamage) * 100)} %` : "—";
-          const chargedPercent = totalMoveDamage ? `${Math.round((chargedDamage / totalMoveDamage) * 100)} %` : "—";
+          const fastShare = totalMoveDamage ? Math.round((fastDamage / totalMoveDamage) * 100) : 0;
+          const chargedShare = totalMoveDamage ? 100 - fastShare : 0;
+          const fastPercent = totalMoveDamage ? `${fastShare} %` : "—";
+          const chargedPercent = totalMoveDamage ? `${chargedShare} %` : "—";
           const energyEfficiency = combatant.energyUsed ? (combatant.damageDealt / combatant.energyUsed).toFixed(2) : "—";
           const turnEfficiency = result.durationTurns ? (combatant.damageDealt / result.durationTurns).toFixed(2) : "—";
           return (
@@ -957,6 +1380,19 @@ function BattleSummary({ result }: { result: SingleBattleResult }) {
             key={combatant.canonicalId}
           >
             <h3 className="font-black text-foreground">{combatant.name}</h3>
+            <div className="mt-4 space-y-3">
+              {[
+                ["Dégâts Fast", fastShare, "bg-cyan-400"],
+                ["Dégâts Charged", chargedShare, "bg-violet-400"],
+                ["HP restant", Math.max(0, Math.min(100, combatant.remainingHpPercent)), "bg-emerald-400"],
+                ["Énergie conservée", combatant.remainingEnergy, "bg-amber-300"],
+              ].map(([label, value, color]) => (
+                <div key={String(label)}>
+                  <div className="flex items-center justify-between type-overline-compact text-muted"><span>{label}</span><span>{value} %</span></div>
+                  <div className="mt-1 h-2 overflow-hidden rounded-full bg-surface-control"><span className={`block h-full rounded-full ${color}`} style={{ width: `${Number(value)}%` }} /></div>
+                </div>
+              ))}
+            </div>
             <dl className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted">
               {[
                 ["Dégâts infligés", combatant.damageDealt],
@@ -1014,6 +1450,7 @@ export function PvpBattleLab() {
   const [batchController, setBatchController] =
     useState<AbortController | null>(null);
   const [result, setResult] = useState<SingleBattleResult | null>(null);
+  const [analysisTab, setAnalysisTab] = useState<"shields" | "timeline" | "summary">("shields");
   const [shieldMatrix, setShieldMatrix] = useState<ShieldMatrixResult | null>(
     null,
   );
@@ -1054,6 +1491,7 @@ export function PvpBattleLab() {
       config: FighterConfig,
       targetLeague = leagueId,
       ivs?: FighterConfig["ivs"],
+      targetLevelCap: LevelCap = (config.levelCap || 50) as LevelCap,
     ) => {
       const rank = await api<IvRankResult>(endpoint, {
         method: "POST",
@@ -1062,6 +1500,7 @@ export function PvpBattleLab() {
           action: "iv-rank",
           leagueId: targetLeague,
           canonicalId: config.canonicalId,
+          levelCap: targetLevelCap,
           ...(ivs ? { ivs } : {}),
         }),
       });
@@ -1075,7 +1514,7 @@ export function PvpBattleLab() {
         (current) =>
           current.map((item, itemIndex) =>
             itemIndex === index && item
-              ? { ...item, level: rank.level, ivs: rank.ivs }
+              ? { ...item, level: rank.level, ivs: rank.ivs, levelCap: targetLevelCap }
               : item,
           ) as typeof current,
       );
@@ -1123,6 +1562,7 @@ export function PvpBattleLab() {
                   action: "iv-rank",
                   leagueId: selectedLeague.id,
                   canonicalId: config.canonicalId,
+                  levelCap: (config.levelCap || 50) as LevelCap,
                   ...(exactBuild ? { ivs: config.ivs } : {}),
                 }),
               });
@@ -1185,9 +1625,9 @@ export function PvpBattleLab() {
     );
   }
 
-  async function selectPokemon(index: 0 | 1, pokemon: CatalogPokemon) {
+  async function selectPokemon(index: 0 | 1, pokemon: CatalogPokemon, shadow = false) {
     if (!league) return;
-    const next = baseConfig(pokemon, league);
+    const next = { ...baseConfig(pokemon, league), shadow };
     setFighters(
       (current) =>
         current.map((item, itemIndex) =>
@@ -1201,6 +1641,18 @@ export function PvpBattleLab() {
         reason instanceof Error ? reason.message : "Rank IV indisponible.",
       );
     }
+  }
+
+  function selectIvRank(index: 0 | 1, rank: IvRankResult) {
+    setRanks((current) => current.map((item, itemIndex) => itemIndex === index ? rank : item) as typeof current);
+    setFighters((current) => current.map((item, itemIndex) => itemIndex === index && item ? {
+      ...item,
+      level: rank.level,
+      ivs: rank.ivs,
+      ivMode: "custom",
+      presetLabel: "Mes IV",
+    } : item) as typeof current);
+    setResult(null);
   }
 
   async function changeLeague(nextLeagueId: string) {
@@ -1453,7 +1905,7 @@ export function PvpBattleLab() {
               calculés depuis <code>combat.*</code> dans PokemonGo-Data.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <Badge tone="cyan">Engine 1.1.0</Badge>
+              <Badge tone="cyan">Engine 1.2.0</Badge>
               <Badge tone="violet">Data {catalog.versions.data}</Badge>
               <Badge tone="green">Déterministe</Badge>
             </div>
@@ -1498,26 +1950,34 @@ export function PvpBattleLab() {
 
       {tab === "single" ? (
         <>
-          <BattleArena pokemon={selectedPokemon} fighters={fighters} league={league} />
-          <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] xl:items-start">
+          <BattleArena pokemon={selectedPokemon} fighters={fighters} ranks={ranks} league={league} typeCatalog={catalog.types} result={result} />
+          <Card className="p-3 sm:p-4" tone="strong">
+            <div className="mb-3 flex items-center justify-between gap-3 px-1">
+              <div><p className="type-overline text-brand-2">BUILD BAR</p><h3 className="text-lg font-black text-foreground">Préparer les combattants</h3></div>
+              <Badge tone="neutral">IV · Moves · Shields</Badge>
+            </div>
+          <div className="grid min-w-0 gap-3 xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] xl:items-start">
             <FighterEditor
               side="A"
               pokemon={selectedPokemon[0]}
               config={fighters[0]}
               rank={ranks[0]}
-              catalog={leaguePokemon}
+              catalog={catalog.pokemon}
               typeCatalog={catalog.types}
-              onSelect={(pokemon) => void selectPokemon(0, pokemon)}
+              league={league}
+              onSelect={(pokemon, shadow) => void selectPokemon(0, pokemon, shadow)}
               onPatch={(patch) => patchFighter(0, patch)}
-              onRankOne={() => fighters[0] && void rankConfig(0, fighters[0])}
-              onPerfect={() =>
+              onRankOne={(levelCap) => fighters[0] && void rankConfig(0, { ...fighters[0], ivMode: "optimal", presetLabel: "Rank 1", levelCap }, leagueId, undefined, levelCap)}
+              onPerfect={(levelCap) =>
                 fighters[0] &&
-                void rankConfig(0, fighters[0], leagueId, {
+                void rankConfig(0, { ...fighters[0], ivMode: "perfect", presetLabel: "15/15/15", levelCap }, leagueId, {
                   attack: 15,
                   defense: 15,
                   stamina: 15,
-                })
+                }, levelCap)
               }
+              onMaximize={(levelCap) => fighters[0] && void rankConfig(0, { ...fighters[0], ivMode: "custom", presetLabel: "Mes IV", levelCap }, leagueId, fighters[0].ivs, levelCap)}
+              onRankSelected={(rank) => selectIvRank(0, rank)}
             />
             <div className="flex items-center justify-center gap-2 xl:flex-col xl:pt-36">
               <Button
@@ -1548,21 +2008,25 @@ export function PvpBattleLab() {
               pokemon={selectedPokemon[1]}
               config={fighters[1]}
               rank={ranks[1]}
-              catalog={leaguePokemon}
+              catalog={catalog.pokemon}
               typeCatalog={catalog.types}
-              onSelect={(pokemon) => void selectPokemon(1, pokemon)}
+              league={league}
+              onSelect={(pokemon, shadow) => void selectPokemon(1, pokemon, shadow)}
               onPatch={(patch) => patchFighter(1, patch)}
-              onRankOne={() => fighters[1] && void rankConfig(1, fighters[1])}
-              onPerfect={() =>
+              onRankOne={(levelCap) => fighters[1] && void rankConfig(1, { ...fighters[1], ivMode: "optimal", presetLabel: "Rank 1", levelCap }, leagueId, undefined, levelCap)}
+              onPerfect={(levelCap) =>
                 fighters[1] &&
-                void rankConfig(1, fighters[1], leagueId, {
+                void rankConfig(1, { ...fighters[1], ivMode: "perfect", presetLabel: "15/15/15", levelCap }, leagueId, {
                   attack: 15,
                   defense: 15,
                   stamina: 15,
-                })
+                }, levelCap)
               }
+              onMaximize={(levelCap) => fighters[1] && void rankConfig(1, { ...fighters[1], ivMode: "custom", presetLabel: "Mes IV", levelCap }, leagueId, fighters[1].ivs, levelCap)}
+              onRankSelected={(rank) => selectIvRank(1, rank)}
             />
           </div>
+          </Card>
           <Card className="sticky bottom-3 z-20 p-3 shadow-raised supports-[backdrop-filter]:bg-surface-elevated/90">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="flex flex-wrap items-center gap-3">
@@ -1642,14 +2106,24 @@ export function PvpBattleLab() {
                   </a>
                 </Button>
               </div>
+              <div className="grid grid-cols-3 gap-1 rounded-2xl border border-line bg-surface-inset-subtle p-1 md:hidden" role="tablist" aria-label="Analyse du combat">
+                {([
+                  ["shields", "Shields"],
+                  ["timeline", "Timeline"],
+                  ["summary", "Analyse"],
+                ] as const).map(([value, label]) => <button className={`rounded-xl px-2 text-xs font-black ${analysisTab === value ? "bg-brand-2/18 text-accent-text" : "text-muted"}`} key={value} type="button" role="tab" aria-selected={analysisTab === value} onClick={() => setAnalysisTab(value)}>{label}</button>)}
+              </div>
               {shieldMatrix ? (
-                <ShieldScenarioMatrix
-                  matrix={shieldMatrix}
-                  onSelect={setResult}
-                />
+                <div className={analysisTab === "shields" ? "block" : "hidden md:block"}>
+                  <ShieldScenarioMatrix
+                    matrix={shieldMatrix}
+                    activeResultId={result.id}
+                    onSelect={setResult}
+                  />
+                </div>
               ) : null}
-              <Timeline key={result.id} result={result} />
-              <BattleSummary result={result} />
+              <div className={analysisTab === "timeline" ? "block" : "hidden md:block"}><Timeline key={result.id} result={result} /></div>
+              <div className={analysisTab === "summary" ? "block" : "hidden md:block"}><BattleSummary result={result} /></div>
             </>
           ) : (
             <EmptyState

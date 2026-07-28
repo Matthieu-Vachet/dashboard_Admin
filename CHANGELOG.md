@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.37.0 - 2026-07-28
+
+- Termine la parité officielle à 20/20 vainqueurs, 40/40 dégâts Fast et 39/39 dégâts Charged sans modifier les formules de dégâts déjà exactes.
+- Porte le selector dans `document.body`, expose les formes Mega/régionales/alternatives et les variantes Obscures explicites, avec recherche FR/EN/dex/form/ID et filtres rapides.
+- Ajoute Rank optimal, 15/15/15, personnalisé, caps 40/41/50/51 et classement complet des 4 096 spreads dans la modale du Design System.
+- Recompose le Single Battle autour de l’arène, d’une Build Bar compacte, des moves typés, de `shield-alt.svg`, d’un Result Hero cinématique et d’analyses mobiles segmentées.
+
 ## 1.36.0 - 2026-07-28
 
 - Sépare Rankings et Checklist, ajoute les builds par ligue, la migration v1 non destructive et les deep-links Rank 1/Mes IV.

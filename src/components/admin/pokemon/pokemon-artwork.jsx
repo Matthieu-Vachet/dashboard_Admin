@@ -7,6 +7,7 @@ export function PokemonArtwork({
   pokemon,
   alt,
   className = "h-16 w-16",
+  imageClassName = "",
   shiny = false,
   priority = false,
   variant = {},
@@ -25,7 +26,7 @@ export function PokemonArtwork({
       title={variantLabel || (resolution.status === "missing-asset" ? `Asset exact absent${resolution.reason ? ` · ${resolution.reason}` : ""}` : undefined)}
     >
       {source ? (
-        <img className="h-full w-full object-contain" src={source} alt={name} loading={priority ? "eager" : "lazy"} />
+        <img className={`h-full w-full object-contain object-center ${imageClassName}`} src={source} alt={name} loading={priority ? "eager" : "lazy"} />
       ) : (
         <span className="grid place-items-center gap-1 text-center text-[8px] font-black uppercase text-amber-200">
           <ImageOff size={18} aria-hidden="true" />Asset absent

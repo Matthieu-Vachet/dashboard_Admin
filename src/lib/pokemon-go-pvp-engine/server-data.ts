@@ -5,7 +5,7 @@ import "server-only";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { getBattleFormMechanic } from "./form-mechanics";
-import { rankIvs } from "./rules";
+import { rankIvs, rankIvTable } from "./rules";
 import type {
   BattleIvs,
   CombatBuffs,
@@ -285,6 +285,7 @@ async function loadMoves(root: string) {
         buffs: normalizedBuffs(entry.combat.buffs),
         legacy: Boolean(entry.legacy || entry.legacySlugs?.length),
         elite,
+        shadowOnly: Boolean(entry.shadowOnly),
       };
       const previous = byId.get(id);
       if (!previous || (!elite && previous.elite))
@@ -426,6 +427,9 @@ async function createCatalog(): Promise<PvpCatalog> {
       const charged = chargedIds
         .map((id) => moves.get(String(id).toUpperCase()))
         .filter(Boolean) as CombatMove[];
+      const frustration = moves.get("FRUSTRATION");
+      if (entry.availability?.shadow && frustration)
+        charged.push(frustration);
       const canonical = canonicalId(entry);
       const types = [entry.primaryType, entry.secondaryType]
         .filter(Boolean)
@@ -554,6 +558,7 @@ export async function calculateCatalogIvRank(
   identifier: string,
   leagueId: string,
   ivs?: BattleIvs,
+  levelCap: 40 | 41 | 50 | 51 = 50,
 ) {
   const catalog = await readPvpCatalog();
   const league = catalog.leagues.find((item) => item.id === leagueId);
@@ -562,8 +567,24 @@ export async function calculateCatalogIvRank(
   return rankIvs({
     baseStats: pokemon.stats,
     cpCap: league.cpCap,
-    levelCap: league.levelCap,
+    levelCap,
     ivs,
+  });
+}
+
+export async function calculateCatalogIvRankings(
+  identifier: string,
+  leagueId: string,
+  levelCap: 40 | 41 | 50 | 51 = 50,
+) {
+  const catalog = await readPvpCatalog();
+  const league = catalog.leagues.find((item) => item.id === leagueId);
+  if (!league) throw new Error("RULESET_NOT_FOUND");
+  const pokemon = await getCatalogPokemon(identifier);
+  return rankIvTable({
+    baseStats: pokemon.stats,
+    cpCap: league.cpCap,
+    levelCap,
   });
 }
 
@@ -581,7 +602,7 @@ export async function prepareBattleBuild(
     throw new Error("POKEMON_NOT_ELIGIBLE");
   if (pokemon.types.some((type) => league.bannedTypes.includes(type)))
     throw new Error("POKEMON_NOT_ELIGIBLE");
-  if (!league.allowMega && /mega/i.test(pokemon.form))
+  if (!league.allowMega && /mega|primal/i.test(pokemon.form))
     throw new Error("POKEMON_NOT_ELIGIBLE");
   if (!league.allowLegendary && /LEGENDARY|MYTHIC/.test(pokemon.pokemonClass))
     throw new Error("POKEMON_NOT_ELIGIBLE");
@@ -592,6 +613,8 @@ export async function prepareBattleBuild(
     .map((id) => pokemon.moves.charged.find((move) => move.id === id))
     .filter(Boolean) as CombatMove[];
   if (!fastMove || !chargedMoves.length || chargedMoves.length > 2)
+    throw new Error("MOVE_NOT_AVAILABLE");
+  if (chargedMoves.some((move) => move.shadowOnly) && !config.shadow)
     throw new Error("MOVE_NOT_AVAILABLE");
   return {
     canonicalId: pokemon.canonicalId,
@@ -623,7 +646,9 @@ export async function prepareDefaultBattleBuild(
   const rank = rankIvs({
     baseStats: pokemon.stats,
     cpCap: league.cpCap,
-    levelCap: league.levelCap,
+    levelCap: [40, 41, 50, 51].includes(league.levelCap)
+      ? (league.levelCap as 40 | 41 | 50 | 51)
+      : 50,
   });
   const leagueKey =
     league.cpCap <= 500
