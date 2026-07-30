@@ -6398,7 +6398,7 @@
         "role=\"dialog\""
       ],
       "assets": [
-        "/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png"
+        "/assets/ui/backgrounds/library/catchCards/CatchCard_TypeBG_Water.png"
       ],
       "responsive": [
         "lg",
@@ -9551,7 +9551,7 @@
       "icons": [],
       "roles": [],
       "assets": [
-        "/ui/matweb-innovation-letter-m3.png"
+        "/assets/ui/branding/matweb-innovation-letter-m3.png"
       ],
       "responsive": [
         "2xl",
@@ -13678,7 +13678,7 @@
       ],
       "roles": [],
       "assets": [
-        "/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png"
+        "/assets/ui/backgrounds/library/catchCards/CatchCard_TypeBG_Water.png"
       ],
       "responsive": [
         "2xl",
@@ -15145,8 +15145,8 @@
       "icons": [],
       "roles": [],
       "assets": [
-        "/ui/backgrounds/catchCards/ic_catch_card_notification.png",
-        "/ui/backgrounds/catchCards/ic_catch_card.png"
+        "/assets/ui/backgrounds/library/catchCards/ic_catch_card_notification.png",
+        "/assets/ui/backgrounds/library/catchCards/ic_catch_card.png"
       ],
       "responsive": [
         "2xl",
@@ -19157,7 +19157,7 @@
       "icons": [],
       "roles": [],
       "assets": [
-        "/ui/eggs/rarity.png"
+        "/assets/ui/categories/eggs/rarity.png"
       ],
       "responsive": [],
       "figmaPriority": 18
@@ -19576,10 +19576,10 @@
       ],
       "roles": [],
       "assets": [
-        "/ui/eggs/10_km.png",
-        "/ui/eggs/12_km.png",
-        "/ui/eggs/2_km.png",
-        "/ui/eggs/7_km.png"
+        "/assets/ui/categories/eggs/10_km.png",
+        "/assets/ui/categories/eggs/12_km.png",
+        "/assets/ui/categories/eggs/2_km.png",
+        "/assets/ui/categories/eggs/7_km.png"
       ],
       "responsive": [
         "sm",
@@ -19983,7 +19983,7 @@
       "icons": [],
       "roles": [],
       "assets": [
-        "/ui/max_battles/max-battles.webp"
+        "/assets/ui/categories/max-battles/max-battles.webp"
       ],
       "responsive": [
         "2xl",
@@ -20174,8 +20174,8 @@
       ],
       "roles": [],
       "assets": [
-        "/ui/max_battles/ic_shiny.png",
-        "/ui/max_battles/max-battles.webp"
+        "/assets/ui/categories/max-battles/ic_shiny.png",
+        "/assets/ui/categories/max-battles/max-battles.webp"
       ],
       "responsive": [
         "sm",
@@ -22565,10 +22565,10 @@
       ],
       "roles": [],
       "assets": [
-        "/ui/raids/5_star_raids.png",
-        "/ui/raids/mega_raids.png",
-        "/ui/raids/teamrocket_r.png",
-        "/ui/raids/ultra_breche_raids.png"
+        "/assets/ui/categories/raids/5_star_raids.png",
+        "/assets/ui/categories/raids/mega_raids.png",
+        "/assets/ui/categories/raids/teamrocket_r.png",
+        "/assets/ui/categories/raids/ultra_breche_raids.png"
       ],
       "responsive": [
         "sm",
@@ -23309,9 +23309,9 @@
       ],
       "roles": [],
       "assets": [
-        "/ui/Items/candy_rgb.png",
-        "/ui/Items/Item_1201.png",
-        "/ui/Items/stardust_painted.png"
+        "/assets/pokemon/items/library/candy_rgb.png",
+        "/assets/pokemon/items/library/Item_1201.png",
+        "/assets/pokemon/items/library/stardust_painted.png"
       ],
       "responsive": [
         "sm",
@@ -23428,8 +23428,8 @@
       "icons": [],
       "roles": [],
       "assets": [
-        "/ui/icons/ic_shiny_white.webp",
-        "/ui/icons/shadow.png"
+        "/assets/ui/icons/general/ic_shiny_white.webp",
+        "/assets/ui/icons/general/shadow.png"
       ],
       "responsive": [],
       "figmaPriority": 18
@@ -23909,8 +23909,8 @@
       ],
       "roles": [],
       "assets": [
-        "/ui/icons/radar.png",
-        "/ui/icons/shadow.png"
+        "/assets/ui/icons/general/radar.png",
+        "/assets/ui/icons/general/shadow.png"
       ],
       "responsive": [
         "2xl",

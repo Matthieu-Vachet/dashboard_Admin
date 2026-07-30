@@ -30,7 +30,7 @@ export function AdminAppFrame({
     navGroups.map((group) => group.id),
   );
   const versionHistory = useDashboardVersionHistory();
-  const brandLogo = "/ui/zygardDexLogo.png";
+  const brandLogo = "/assets/ui/branding/zygardDexLogo.png";
 
   const activeLabel = useMemo(
     () => navItems.find((item) => item.href === pathname)?.label || "Accueil",
@@ -93,7 +93,7 @@ export function AdminAppFrame({
     };
   }, [sidebarOpen]);
 
-  const renderSidebar = (isCollapsed: boolean) => (
+  const renderSidebar = (isCollapsed: boolean, mobile = false) => (
     <AdminSidebar
       brandLogo={brandLogo}
       collapsed={isCollapsed}
@@ -102,6 +102,7 @@ export function AdminAppFrame({
       openNavGroups={openNavGroups}
       pathname={pathname}
       userEmail={userEmail}
+      mobile={mobile}
       onCloseMobile={() => setSidebarOpen(false)}
       onToggleNavGroup={toggleNavGroup}
     />
@@ -151,7 +152,7 @@ export function AdminAppFrame({
               transition={MOTION_TRANSITION.drawer}
               onClick={(event) => event.stopPropagation()}
             >
-              {renderSidebar(false)}
+              {renderSidebar(false, true)}
             </motion.aside>
           </motion.div>
         ) : null}

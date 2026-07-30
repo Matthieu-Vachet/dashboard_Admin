@@ -92,7 +92,7 @@ Not found
 
 - Boolean properties for Figma: Warning, Success, Empty.
 - Text properties: `id`, `onOpenPokemon`, `pokemon`, `typeCatalog`.
-- Instance swaps: `/ui/max_battles/max-battles.webp`.
+- Instance swaps: `/assets/ui/categories/max-battles/max-battles.webp`.
 - Additional conditional variants are preserved verbatim in section 12.
 
 ## 8. Complete state matrix
@@ -345,7 +345,7 @@ Not found
 ## 16. Icons, images and decorative assets
 
 - Lucide icons: Not found.
-- Asset references: `/ui/max_battles/max-battles.webp`.
+- Asset references: `/assets/ui/categories/max-battles/max-battles.webp`.
 - SVG usage: Not found.
 - Decorative/semantic intent for empty alt text must follow the exact source; intent beyond attributes: Estimated from implementation.
 
@@ -354,7 +354,7 @@ Not found
 - Auto Layout: grid translated into nested Auto Layout frames. Preserve every nested flex/grid boundary shown in the HTML outline.
 - Component set: create one variant axis per explicit prop/value pair listed above; do not invent missing variants.
 - Boolean properties: Warning, Success, Empty.
-- Instance swaps: `/ui/max_battles/max-battles.webp`.
+- Instance swaps: `/assets/ui/categories/max-battles/max-battles.webp`.
 - Text properties: expose each textual prop from the props contract; when text is hardcoded, preserve it in the default instance.
 - Variables: bind CSS variables and semantic token references listed in this document. Literal utilities remain documented implementation values.
 - Constraints: infer from width/min/max and responsive utilities; any value not encoded is marked Estimated from implementation.

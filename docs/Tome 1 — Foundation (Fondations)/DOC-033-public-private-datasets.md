@@ -18,11 +18,11 @@ source_files:
   - "Dashboard Admin/src/app/api"
   - "Dashboard Admin/src/proxy.ts"
 registries:
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/mongodb-collections.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/pages.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/providers.json"
+  - "audit-documentation/registries/datasets.json"
+  - "audit-documentation/registries/api-routes.json"
+  - "audit-documentation/registries/mongodb-collections.json"
+  - "audit-documentation/registries/pages.json"
+  - "audit-documentation/registries/providers.json"
 related:
   - "DOC-012"
   - "DOC-016"
@@ -46,7 +46,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | Routes privées/admin | 67 |
 | Route interne bloquée | 1 |
 | Datasets avec sortie publique | 17 |
-| Datasets privés | DATASET-017, DATASET-019, DATASET-020, DATASET-023 et DATASET-024 |
+| Datasets privés | DATASET-017, DATASET-019 et DATASET-020 |
 | Collections | 16 exposées sélectivement, 15 privées, 1 interne |
 
 ## 3. Implémentation observée
@@ -55,7 +55,6 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - DATASET-017 Shiny exige le secret sur quatre lectures/mutations, utilise deux collections privées et reste absent d’OpenAPI.
 - DATASET-019 Source Watch reste dans le Dashboard privé et dashboard_store.
 - DATASET-020 collection du dresseur reste dans PAGE-049, API-157 à API-160 et COL-030 à COL-032; chaque handler vérifie session et rôle admin.
-- DATASET-023 et DATASET-024 restent dans PAGE-052, API-165 à API-176 et COL-035 à COL-039. Toutes leurs lectures et écritures exigent le secret API, restent `private, no-store` et sont absentes d’OpenAPI.
 - La collection events est privée mais GET /api/events publie une projection métier cacheable.
 - Le préfixe /admin de six lectures current ne les rend pas privées; les handlers GET restent publics selon le routeur.
 
@@ -76,7 +75,6 @@ flowchart LR
   SHINY["DATASET-017"] --> SECRET["Secret API"]
   WATCH["DATASET-019"] --> SESSION["Session Dashboard"]
   TRAINER["DATASET-020"] --> SESSION
-  GM["DATASET-023 / 024"] --> SECRET
   SESSION --> PRIVATE["67 routes privées"]
 ```
 
@@ -99,20 +97,8 @@ flowchart LR
 
 ### Fiches spécialisées présentes
 
-- [PAGE-049](<../Tome 2 — Dashboard Admin/PAGE-049-ma-collection-pokemon-go.md>)
-- [COMP-137](<../Tome 3 — Design System/Components/COMP-137-trainer-pokemon-collection-panel.md>)
-- [API-157](<../Tome 7 — API/API-157-get-trainer-pokemon.md>)
-- [API-158](<../Tome 7 — API/API-158-post-trainer-pokemon-import.md>)
-- [API-159](<../Tome 7 — API/API-159-get-trainer-pokemon-imports.md>)
-- [API-160](<../Tome 7 — API/API-160-post-trainer-pokemon-rollback.md>)
-- [COL-030](<../Tome 8 — MongoDB/COL-030-trainer-pokemon-owners.md>)
-- [COL-031](<../Tome 8 — MongoDB/COL-031-trainer-pokemon-snapshots.md>)
-- [COL-032](<../Tome 8 — MongoDB/COL-032-trainer-pokemon-entries.md>)
-- [DATASET-020](<../Tome 6 — Datasets/DATASET-020-collection-personnelle-pokemon-go.md>)
-- [WORKFLOW-016](<../Tome 18 - Workflow/WORKFLOW-016-import-collection-pokemon-go.md>)
-- [PAGE-052](<../Tome 2 — Dashboard Admin/PAGE-052-game-master-explorer.md>)
-- [DATASET-023](<../Tome 6 — Datasets/DATASET-023-game-master-index-courant.md>)
-- [DATASET-024](<../Tome 6 — Datasets/DATASET-024-game-master-historique-diffs.md>)
+- [DATASET-020](<../Post-audit 2026-07-13/DATASET-020-collection-personnelle-pokemon-go.md>)
+- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
 
 Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient uniquement aux registres JSON.
 

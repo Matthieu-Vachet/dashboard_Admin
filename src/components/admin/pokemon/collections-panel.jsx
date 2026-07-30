@@ -26,14 +26,14 @@ const assetStatTone = {
 };
 
 const collectionTypes = [
-  ["normal", "Normal", uiAssets.icons.pokeball || "/ui/icons/pokeball.webp"],
-  ["event", "Evenement", "/ui/icons/pokeball.webp"],
-  ["lucky", "Chanceux", uiAssets.icons.shiny || "/ui/icons/ic_shiny_white.webp"],
-  ["shadow", "Obscur", uiAssets.icons.shadow || "/ui/icons/shadow.png"],
-  ["purified", "Purifie", uiAssets.icons.purified || "/ui/icons/purified.png"],
-  ["mega", "Méga", uiAssets.icons.mega || "/ui/icons/mega.png"],
-  ["dynamax", "Dynamax", uiAssets.icons.maxCp || "/ui/icons/max_pc.webp"],
-  ["gigantamax", "Gigamax", uiAssets.icons.maxCp || "/ui/icons/max_pc.webp"],
+  ["normal", "Normal", uiAssets.icons.pokeball || "/assets/ui/icons/general/pokeball.webp"],
+  ["event", "Evenement", "/assets/ui/icons/general/pokeball.webp"],
+  ["lucky", "Chanceux", uiAssets.icons.shiny || "/assets/ui/icons/general/ic_shiny_white.webp"],
+  ["shadow", "Obscur", uiAssets.icons.shadow || "/assets/ui/icons/general/shadow.png"],
+  ["purified", "Purifie", uiAssets.icons.purified || "/assets/ui/icons/general/purified.png"],
+  ["mega", "Méga", uiAssets.icons.mega || "/assets/ui/icons/general/mega.png"],
+  ["dynamax", "Dynamax", uiAssets.icons.maxCp || "/assets/ui/icons/general/max_pc.webp"],
+  ["gigantamax", "Gigamax", uiAssets.icons.maxCp || "/assets/ui/icons/general/max_pc.webp"],
 ];
 
 const collectionVariantModes = [
@@ -43,16 +43,16 @@ const collectionVariantModes = [
 
 const collectionRegionFilters = [
   ["all", "Toutes", null],
-  ["1", "Kanto", "/ui/icons/pokedex-kanto.webp"],
-  ["2", "Johto", "/ui/icons/pokedex-johto.webp"],
-  ["3", "Hoenn", "/ui/icons/pokedex-hoenn.webp"],
-  ["4", "Sinnoh", "/ui/icons/pokedex-sinnoh.webp"],
-  ["5", "Unys", "/ui/icons/pokedex-unova.webp"],
-  ["6", "Kalos", "/ui/icons/pokedex-kalos.webp"],
-  ["7", "Alola", "/ui/icons/pokedex-alola.webp"],
-  ["8", "Galar", "/ui/icons/pokedex-galar.webp"],
-  ["hisui", "Hisui", "/ui/PokedexV2/hisui_starters.png"],
-  ["9", "Paldea", "/ui/icons/pokedex-paldea.webp"],
+  ["1", "Kanto", "/assets/ui/icons/general/pokedex-kanto.webp"],
+  ["2", "Johto", "/assets/ui/icons/general/pokedex-johto.webp"],
+  ["3", "Hoenn", "/assets/ui/icons/general/pokedex-hoenn.webp"],
+  ["4", "Sinnoh", "/assets/ui/icons/general/pokedex-sinnoh.webp"],
+  ["5", "Unys", "/assets/ui/icons/general/pokedex-unova.webp"],
+  ["6", "Kalos", "/assets/ui/icons/general/pokedex-kalos.webp"],
+  ["7", "Alola", "/assets/ui/icons/general/pokedex-alola.webp"],
+  ["8", "Galar", "/assets/ui/icons/general/pokedex-galar.webp"],
+  ["hisui", "Hisui", "/assets/pokemon/generations/artwork/hisui_starters.png"],
+  ["9", "Paldea", "/assets/ui/icons/general/pokedex-paldea.webp"],
 ];
 
 const generationLabels = {

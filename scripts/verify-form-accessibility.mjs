@@ -130,12 +130,6 @@ async function installRoutes(page, options = {}) {
     }
     return fulfillJson(route, { data: { entries: [], customRuleEntries: [], customRules: [], summary: {} } });
   });
-  await page.route("**/api/trainer-pokemon?**", (route) => fulfillJson(route, { success: true, data: {
-    items: [], snapshot: null,
-    stats: { total: 0, shiny: 0, lucky: 0, perfect: 0, shadow: 0, purified: 0, costume: 0 },
-    filters: { genders: [], alignments: [], forms: [], costumes: [], cp: { min: 0, max: 0 }, ivPercent: { min: 0, max: 0 }, weightKg: { min: 0, max: 0 }, heightM: { min: 0, max: 0 } },
-    pagination: { page: 1, limit: 50, total: 0, pages: 0 },
-  } }));
 }
 
 async function authenticate(page, credentials) {

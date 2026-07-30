@@ -11,33 +11,33 @@ import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
 import { EmptyState, FetchLoadingState } from "@/components/admin/shared/state-system";
 
 const rocketTrainerAssets = {
-  arlo: "/ui/rocket/leader-arlo.webp",
-  cliff: "/ui/rocket/leader-cliff.webp",
-  giovanni: "/ui/rocket/boss-giovanni.webp",
-  sierra: "/ui/rocket/leader-sierra.webp",
-  maleGrunt: "/ui/rocket/male-grunt.webp",
-  femaleGrunt: "/ui/rocket/female-grunt.webp",
+  arlo: "/assets/ui/categories/rocket/leader-arlo.webp",
+  cliff: "/assets/ui/categories/rocket/leader-cliff.webp",
+  giovanni: "/assets/ui/categories/rocket/boss-giovanni.webp",
+  sierra: "/assets/ui/categories/rocket/leader-sierra.webp",
+  maleGrunt: "/assets/ui/categories/rocket/male-grunt.webp",
+  femaleGrunt: "/assets/ui/categories/rocket/female-grunt.webp",
 };
 
 const typeIconMap = {
-  Normal: "/ui/Types/ico_0_normal.png",
-  Fighting: "/ui/Types/ico_1_fighting.png",
-  Flying: "/ui/Types/ico_2_flying.png",
-  Poison: "/ui/Types/ico_3_poison.png",
-  Ground: "/ui/Types/ico_4_ground.png",
-  Rock: "/ui/Types/ico_5_rock.png",
-  Bug: "/ui/Types/ico_6_bug.png",
-  Ghost: "/ui/Types/ico_7_ghost.png",
-  Steel: "/ui/Types/ico_8_steel.png",
-  Fire: "/ui/Types/ico_9_fire.png",
-  Water: "/ui/Types/ico_10_water.png",
-  Grass: "/ui/Types/ico_11_grass.png",
-  Electric: "/ui/Types/ico_12_electric.png",
-  Psychic: "/ui/Types/ico_13_psychic.png",
-  Ice: "/ui/Types/ico_14_ice.png",
-  Dragon: "/ui/Types/ico_15_dragon.png",
-  Dark: "/ui/Types/ico_16_dark.png",
-  Fairy: "/ui/Types/ico_17_fairy.png",
+  Normal: "/assets/pokemon/types/icons/ico_0_normal.png",
+  Fighting: "/assets/pokemon/types/icons/ico_1_fighting.png",
+  Flying: "/assets/pokemon/types/icons/ico_2_flying.png",
+  Poison: "/assets/pokemon/types/icons/ico_3_poison.png",
+  Ground: "/assets/pokemon/types/icons/ico_4_ground.png",
+  Rock: "/assets/pokemon/types/icons/ico_5_rock.png",
+  Bug: "/assets/pokemon/types/icons/ico_6_bug.png",
+  Ghost: "/assets/pokemon/types/icons/ico_7_ghost.png",
+  Steel: "/assets/pokemon/types/icons/ico_8_steel.png",
+  Fire: "/assets/pokemon/types/icons/ico_9_fire.png",
+  Water: "/assets/pokemon/types/icons/ico_10_water.png",
+  Grass: "/assets/pokemon/types/icons/ico_11_grass.png",
+  Electric: "/assets/pokemon/types/icons/ico_12_electric.png",
+  Psychic: "/assets/pokemon/types/icons/ico_13_psychic.png",
+  Ice: "/assets/pokemon/types/icons/ico_14_ice.png",
+  Dragon: "/assets/pokemon/types/icons/ico_15_dragon.png",
+  Dark: "/assets/pokemon/types/icons/ico_16_dark.png",
+  Fairy: "/assets/pokemon/types/icons/ico_17_fairy.png",
 };
 
 const fallbackAccents = {
@@ -139,7 +139,10 @@ function totalPokemon(profiles) {
 }
 
 function trainerImage(profile) {
-  if (profile.assets?.trainerImage) return profile.assets.trainerImage;
+  if (profile.assets?.trainerImage) {
+    const filename = String(profile.assets.trainerImage).split("/").filter(Boolean).at(-1);
+    if (filename) return `/assets/ui/categories/rocket/${filename}`;
+  }
   const trainer = String(profile.trainer || "").toLowerCase();
   if (trainer.includes("female")) return rocketTrainerAssets.femaleGrunt;
   if (trainer.includes("arlo")) return rocketTrainerAssets.arlo;
@@ -184,12 +187,12 @@ function StatusIcons({ pokemon }) {
     <span className="inline-flex items-center gap-1.5">
       {pokemon.shadow ? (
         <span className="grid h-8 w-8 place-items-center rounded-full border border-violet-200/20 bg-violet-400/16 p-1.5" title="Shadow">
-          <img className="h-full w-full object-contain" src="/ui/icons/shadow.png" alt="Shadow" loading="lazy" />
+          <img className="h-full w-full object-contain" src="/assets/ui/icons/general/shadow.png" alt="Shadow" loading="lazy" />
         </span>
       ) : null}
       {pokemon.shiny ? (
         <span className="grid h-8 w-8 place-items-center rounded-full border border-amber-200/20 bg-amber-300/16 p-1.5" title="Shiny">
-          <img className="h-full w-full object-contain" src="/ui/icons/ic_shiny_white.webp" alt="Shiny" loading="lazy" />
+          <img className="h-full w-full object-contain" src="/assets/ui/icons/general/ic_shiny_white.webp" alt="Shiny" loading="lazy" />
         </span>
       ) : null}
     </span>
@@ -395,9 +398,9 @@ export function RocketPanel({
       >
         <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <AssetStatCard label="Trainers" value={totalTrainers} icon={rocketTrainerAssets.maleGrunt} tone="violet" detail="Giovanni, leaders, grunts" />
-          <AssetStatCard label="Textes FR" value={translatedProfiles} icon="/ui/icons/radar.png" tone="cyan" detail={`${texts.length} références`} />
+          <AssetStatCard label="Textes FR" value={translatedProfiles} icon="/assets/ui/icons/general/radar.png" tone="cyan" detail={`${texts.length} références`} />
           <AssetStatCard label="Leaders" value={groups.find(([title]) => title === "Leaders")?.[1]?.length || 0} icon={rocketTrainerAssets.sierra} tone="amber" detail="Arlo, Cliff, Sierra" />
-          <AssetStatCard label="Pokémon slots" value={totalEntries} icon="/ui/icons/shadow.png" tone="green" detail="Entrées Rocket" />
+          <AssetStatCard label="Pokémon slots" value={totalEntries} icon="/assets/ui/icons/general/shadow.png" tone="green" detail="Entrées Rocket" />
         </div>
         <DatasetSourceHeader dataset={rocket} total={totalTrainers} refreshError={refreshError} />
       </Panel>

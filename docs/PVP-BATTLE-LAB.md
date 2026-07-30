@@ -34,7 +34,7 @@ Le mode Single démarre avec deux emplacements vides. Un deep-link explicite peu
 
 La vue Rankings est l’onglet par défaut. **Ma Checklist** est un onglet séparé et persiste sous `matweb.pokemon.pvpChecklist`, schéma v2 : contexte de ligue, dictionnaire de builds, identité canonique, IV Attaque/Défense/HP, niveau, PC, rang, moves et provenance. Plusieurs builds d’une même espèce sont autorisés. La migration du schéma v1 transforme progressivement les booléens résolus en builds Rank 1 et conserve les clés non résolues dans `legacyV1` ; elle est idempotente et non destructive.
 
-Les liens **Simuler · Rank 1** préchargent le build publié dans Rankings. Les liens **Simuler** de la Checklist portent le badge **Mes IV** et conservent exactement le build édité. Le sélecteur part des 1 449 identités canoniques et dérive 441 choix Obscurs uniquement lorsque `availability.shadow` l’autorise, soit 1 890 variantes explicites. Il recherche en français, anglais, numéro, `canonicalId`, `form` et alias, propose les filtres Normal, Méga, Obscur, Régional et Autres, puis limite le rendu à 24 résultats. Le panneau est porté dans `document.body`, hors des stacking contexts des Cards ; il reste une listbox fixe sur desktop et une bottom sheet dédiée sur mobile.
+Les liens **Simuler · Rank 1** préchargent le build publié dans Rankings. Les liens **Simuler** de la Checklist portent le badge **Mes IV** et conservent exactement le build édité. Le sélecteur part des identités canoniques et dérive les choix Obscurs uniquement lorsque `availability.shadow` l’autorise. Il recherche en français, anglais, numéro, `canonicalId`, `form` et alias, propose les filtres Normal, Méga, Obscur, Régional et Autres, puis virtualise la recherche en limitant le rendu courant à 80 résultats. Le panneau est porté dans `document.body`, hors des stacking contexts des Cards ; il reste une listbox fixe sur desktop et devient une surface plein écran avec scroll verrouillé sur mobile.
 
 Le Single est organisé en trois zones : grande Battle Arena symétrique, Build Bar compacte partagée, puis action centrale Bait/Simuler. Les paramètres rares sont fermés par défaut avec un compteur de modifications. Après simulation, mobile segmente Shield Matrix, Timeline et Analyse au lieu de dupliquer la pile desktop.
 
@@ -85,7 +85,7 @@ Mesure locale de livraison, après chargement du catalogue PvP de 1 449 formes �
 - Multi de 39 adversaires : 12 ms ;
 - Matrix 20×20, soit 400 combats : 138 ms.
 
-Le catalogue est mémorisé dans le processus serveur. Multi accepte jusqu’à 100 adversaires et Matrix jusqu’à 20×20. L’interface affiche le nombre de simulations attendues et permet d’annuler la requête batch côté client. Une requête JSON est limitée à 2 Mo, les lectures à 180/minute et les écritures à 120/minute par limiteur existant.
+Le catalogue est mémorisé dans le processus serveur. Multi accepte jusqu’à 100 adversaires issus du format ou d’une sélection visuelle manuelle. Matrix utilise deux sélecteurs visuels indépendants de 20 Pokémon maximum, sans doublon, et calcule jusqu’à 20×20 combats. Une entrée invalide est isolée et signalée sans annuler les autres résultats du batch. L’interface affiche le nombre de simulations attendues, les synthèses victoire/défaite/nul, le rating, les HP, l’énergie et le détail par combat ; la requête peut être annulée côté client. Une requête JSON est limitée à 2 Mo, les lectures à 180/minute et les écritures à 120/minute par limiteur existant.
 
 ## Sécurité et persistance
 
@@ -104,7 +104,7 @@ Le catalogue est mémorisé dans le processus serveur. Multi accepte jusqu’à 
 3. Utiliser **Rank 1** pour le meilleur stat product sous le cap ou **15/15/15** pour un spread parfait valide.
 4. Lancer Single, puis sélectionner une case de Shield Matrix pour charger sa timeline.
 5. Rejouer à `1×`, `2×`, `4×` ou `8×`, ouvrir le détail diagnostique, exporter le JSON ou copier le lien interne.
-6. Utiliser Multi pour un Pokémon contre 10 à 100 adversaires, ou Matrix pour deux groupes de 20 maximum.
+6. Utiliser Multi pour un Pokémon contre 10 à 100 adversaires du format ou une sélection manuelle, puis ouvrir chaque matchup ; utiliser Matrix pour sélectionner visuellement deux groupes de 20 maximum et ouvrir chaque cellule.
 7. Sauvegarder explicitement une simulation pour la retrouver dans Historique. Sans MongoDB configuré, le calcul et l’export restent disponibles mais l’historique renvoie une erreur explicite.
 
 ## Maintenance

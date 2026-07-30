@@ -176,10 +176,10 @@ export function BackgroundPanel({ entries = [], library = [], linkedAssets = [],
     <div className="space-y-5">
       <Panel title="Backgrounds Pokémon" eyebrow="LocationCards + liens fiches">
         <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <AssetStatCard label="Location cards" value={backgrounds.length} icon="/ui/backgrounds/catchCards/ic_catch_card.png" tone="cyan" detail="Bibliothèque Assets API" />
-          <AssetStatCard label="Liens Pokémon" value={linkedEntries} icon="/ui/backgrounds/catchCards/ic_catch_card_notification.png" tone="green" detail="Fiches associées" />
-          <AssetStatCard label="Sans Pokémon" value={emptyCount} icon="/ui/backgrounds/catchCards/ic_catch_card.png" tone="amber" detail="À rattacher" />
-          <AssetStatCard label="Avec Pokémon" value={backgrounds.length - emptyCount} icon="/ui/backgrounds/catchCards/ic_catch_card_notification.png" tone="violet" detail="Location cards reliées" />
+          <AssetStatCard label="Location cards" value={backgrounds.length} icon="/assets/ui/backgrounds/library/catchCards/ic_catch_card.png" tone="cyan" detail="Bibliothèque Assets API" />
+          <AssetStatCard label="Liens Pokémon" value={linkedEntries} icon="/assets/ui/backgrounds/library/catchCards/ic_catch_card_notification.png" tone="green" detail="Fiches associées" />
+          <AssetStatCard label="Sans Pokémon" value={emptyCount} icon="/assets/ui/backgrounds/library/catchCards/ic_catch_card.png" tone="amber" detail="À rattacher" />
+          <AssetStatCard label="Avec Pokémon" value={backgrounds.length - emptyCount} icon="/assets/ui/backgrounds/library/catchCards/ic_catch_card_notification.png" tone="violet" detail="Location cards reliées" />
         </div>
         <p className="mt-4 rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 type-body-strong text-cyan-50/86">
           Cette section lit la bibliothèque <code>LocationCards</code> de PokemonGo-Assets-API et rapproche chaque image des fiches qui la référencent dans <code>assets.locationCards</code>. Les catchCards de capture ne sont pas utilisées ici.

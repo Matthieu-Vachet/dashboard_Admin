@@ -28,14 +28,14 @@ const tabLabels = {
 };
 
 const tabIcons = {
-  overview: "/ui/icons/tabs/ic_alola.png",
-  cp: "/ui/icons/tabs/today_evolve.png",
-  moves: "/ui/icons/TodayView_Icon_AttackMove.webp",
-  pvp: "/ui/icons/tabs/today_battle.png",
-  shadow: "/ui/icons/tabs/ic_shadow_filter.png",
-  assets: "/ui/icons/tabs/ic_mythical.png",
-  checks: "/ui/icons/probleme.svg",
-  json: "/ui/icons/tabs/today_postcard.png",
+  overview: "/assets/ui/icons/general/tabs/ic_alola.png",
+  cp: "/assets/ui/icons/general/tabs/today_evolve.png",
+  moves: "/assets/ui/icons/general/TodayView_Icon_AttackMove.webp",
+  pvp: "/assets/ui/icons/general/tabs/today_battle.png",
+  shadow: "/assets/ui/icons/general/tabs/ic_shadow_filter.png",
+  assets: "/assets/ui/icons/general/tabs/ic_mythical.png",
+  checks: "/assets/ui/icons/general/probleme.svg",
+  json: "/assets/ui/icons/general/tabs/today_postcard.png",
 };
 
 const typeBackgroundNames = {
@@ -163,7 +163,7 @@ function typePanelBackground(type, typeCatalog = []) {
 /** Retrouve le background Catch Card correspondant au type Pokémon. */
 function catchCardBackground(type) {
   const name = typeBackgroundNames[String(type || "").toUpperCase()];
-  return name ? `/ui/backgrounds/catchCards/CatchCard_TypeBG_${name}.png` : "";
+  return name ? `/assets/ui/backgrounds/library/catchCards/CatchCard_TypeBG_${name}.png` : "";
 }
 
 function catchCardForIndex(index, preferredType) {
@@ -1890,7 +1890,7 @@ export function DetailModal({
               <>
                 <Section
                   title="Statistiques de base"
-                  icon={uiAssets.icons.swords}
+                  icon={uiAssets.icons.chargedAttack}
                   tone="rose"
                 >
                   <DataGrid
@@ -1899,12 +1899,12 @@ export function DetailModal({
                       {
                         label: "Attaque",
                         value: valueOrDash(stats.attack),
-                        icon: uiAssets.icons.swords,
+                        icon: uiAssets.icons.chargedAttack,
                       },
                       {
                         label: "Défense",
                         value: valueOrDash(stats.defense),
-                        icon: uiAssets.icons.shieldAlt,
+                        icon: uiAssets.icons.shield0,
                       },
                       {
                         label: "Endurance",
@@ -2000,7 +2000,7 @@ export function DetailModal({
                     payload.cinematicMoves,
                   )}
                   typeCatalog={typeCatalog}
-                  icon={uiAssets.icons.attackMove}
+                  icon={uiAssets.icons.fastAttack}
                   pokemonTypes={pokemonTypes}
                 />
                 <MoveList
@@ -2022,7 +2022,7 @@ export function DetailModal({
                     payload.eliteCinematicMoves,
                   )}
                   typeCatalog={typeCatalog}
-                  icon={uiAssets.icons.attackMove}
+                  icon={uiAssets.icons.fastAttack}
                   pokemonTypes={pokemonTypes}
                 />
                 <MoveList

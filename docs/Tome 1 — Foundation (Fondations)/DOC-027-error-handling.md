@@ -18,12 +18,11 @@ source_files:
   - "PokemonGo-API-/src/middleware/errors.js"
   - "PokemonGo-API-/src/lib/api-error.js"
   - "Dashboard Admin/src/app/api"
-  - "Dashboard Admin/src/lib/trainer-pokemon/http.ts"
   - "PokemonGo-Data/scripts"
 registries:
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/services.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
+  - "audit-documentation/registries/api-routes.json"
+  - "audit-documentation/registries/services.json"
+  - "audit-documentation/registries/datasets.json"
 related:
   - "DOC-012"
   - "DOC-020"
@@ -44,9 +43,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | Élément | Constat vérifié |
 | --- | --- |
 | Erreur Express | { error: { code, message, requestId, details? } } |
-| Erreur trainer | { success:false, error:{ code, message, issues? } } |
 | Validation Learning | Zod |
-| Validation trainer | TrainerPokemonValidationError |
 | UI | toasts Sonner et messages inline |
 | Error Boundary App Router | 0 fichier error.tsx ou global-error.tsx |
 
@@ -54,9 +51,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 
 - ApiError transporte status, code et details; asyncHandler transmet au middleware central.
 - Le middleware Express masque le message des erreurs 500 en production et inclut requestId dans la réponse.
-- Les handlers Dashboard historiques emploient plusieurs formats JSON; securityError et les helpers learning/trainer conservent des statuts contrôlés.
-- trainerPokemonServerError masque les 5xx, transforme 502 et 503 en messages fixes et conserve les issues de validation 400.
-- La résolution d’asset trainer distingue désormais un fallback canonique (`ASSET_FALLBACK`) d’un asset réellement absent (`MISSING_ASSET`) et interdit tout remplacement d’un shiny par une image normale.
+- Les handlers Dashboard historiques emploient plusieurs formats JSON; securityError et les helpers learning conservent des statuts contrôlés.
 - Le pipeline current refuse les datasets vides ou invalides avant l’upsert et vérifie le read-back après écriture.
 - Les composants affichent les erreurs via toast.error, role=alert ou états inline; aucune stratégie retry UI centrale n’est présente.
 
@@ -99,11 +94,11 @@ flowchart TD
 
 ### Fiches spécialisées présentes
 
-- [API-157](<../Tome 7 — API/API-157-get-trainer-pokemon.md>)
-- [API-158](<../Tome 7 — API/API-158-post-trainer-pokemon-import.md>)
-- [API-159](<../Tome 7 — API/API-159-get-trainer-pokemon-imports.md>)
-- [API-160](<../Tome 7 — API/API-160-post-trainer-pokemon-rollback.md>)
-- [WORKFLOW-016](<../Tome 18 - Workflow/WORKFLOW-016-import-collection-pokemon-go.md>)
+- [API-157](<../Post-audit 2026-07-13/undefined>)
+- [API-158](<../Post-audit 2026-07-13/undefined>)
+- [API-159](<../Post-audit 2026-07-13/undefined>)
+- [API-160](<../Post-audit 2026-07-13/undefined>)
+- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
 
 ## 7. Informations absentes du code
 
@@ -116,5 +111,4 @@ flowchart TD
 - `PokemonGo-API-/src/middleware/errors.js`
 - `PokemonGo-API-/src/lib/api-error.js`
 - `Dashboard Admin/src/app/api`
-- `Dashboard Admin/src/lib/trainer-pokemon/http.ts`
 - `PokemonGo-Data/scripts`

@@ -125,7 +125,7 @@ Not found
 
 - Boolean properties for Figma: Hover, Focused, Loading, Disabled, Warning, Success, Empty, Active, Inactive.
 - Text properties: `eggs`, `loading`, `onDownload`, `onOpenPokemon`, `onRefresh`, `onRegenerate`, `refreshError`, `regenerating`, `typeCatalog`.
-- Instance swaps: `Download`, `RefreshCcw`, `RotateCcw`, `Sparkles`, `/ui/eggs/10_km.png`, `/ui/eggs/12_km.png`, `/ui/eggs/2_km.png`, `/ui/eggs/7_km.png`.
+- Instance swaps: `Download`, `RefreshCcw`, `RotateCcw`, `Sparkles`, `/assets/ui/categories/eggs/10_km.png`, `/assets/ui/categories/eggs/12_km.png`, `/assets/ui/categories/eggs/2_km.png`, `/assets/ui/categories/eggs/7_km.png`.
 - Additional conditional variants are preserved verbatim in section 12.
 
 ## 8. Complete state matrix
@@ -476,7 +476,7 @@ Not found
 ## 16. Icons, images and decorative assets
 
 - Lucide icons: `Download`, `RefreshCcw`, `RotateCcw`, `Sparkles`.
-- Asset references: `/ui/eggs/10_km.png`, `/ui/eggs/12_km.png`, `/ui/eggs/2_km.png`, `/ui/eggs/7_km.png`.
+- Asset references: `/assets/ui/categories/eggs/10_km.png`, `/assets/ui/categories/eggs/12_km.png`, `/assets/ui/categories/eggs/2_km.png`, `/assets/ui/categories/eggs/7_km.png`.
 - SVG usage: Not found.
 - Decorative/semantic intent for empty alt text must follow the exact source; intent beyond attributes: Estimated from implementation.
 
@@ -485,7 +485,7 @@ Not found
 - Auto Layout: horizontal or mixed; verify each nested frame. Preserve every nested flex/grid boundary shown in the HTML outline.
 - Component set: create one variant axis per explicit prop/value pair listed above; do not invent missing variants.
 - Boolean properties: Hover, Focused, Loading, Disabled, Warning, Success, Empty, Active, Inactive.
-- Instance swaps: `Download`, `RefreshCcw`, `RotateCcw`, `Sparkles`, `/ui/eggs/10_km.png`, `/ui/eggs/12_km.png`, `/ui/eggs/2_km.png`, `/ui/eggs/7_km.png`.
+- Instance swaps: `Download`, `RefreshCcw`, `RotateCcw`, `Sparkles`, `/assets/ui/categories/eggs/10_km.png`, `/assets/ui/categories/eggs/12_km.png`, `/assets/ui/categories/eggs/2_km.png`, `/assets/ui/categories/eggs/7_km.png`.
 - Text properties: expose each textual prop from the props contract; when text is hardcoded, preserve it in the default instance.
 - Variables: bind CSS variables and semantic token references listed in this document. Literal utilities remain documented implementation values.
 - Constraints: infer from width/min/max and responsive utilities; any value not encoded is marked Estimated from implementation.

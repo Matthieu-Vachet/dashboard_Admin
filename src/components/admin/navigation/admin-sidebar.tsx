@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useId, useState } from "react";
 import type { NavGroup, NavItem } from "@/constants/admin/navigation";
 import { cn } from "@/lib/cn";
 
@@ -38,6 +39,7 @@ type AdminSidebarProps = {
   openNavGroups: string[];
   pathname: string;
   userEmail: string;
+  mobile?: boolean;
   onCloseMobile: () => void;
   onToggleNavGroup: (groupId: string) => void;
 };
@@ -50,9 +52,12 @@ export function AdminSidebar({
   openNavGroups,
   pathname,
   userEmail,
+  mobile = false,
   onCloseMobile,
   onToggleNavGroup,
 }: AdminSidebarProps) {
+  const [accountExpanded, setAccountExpanded] = useState(false);
+  const accountDetailsId = useId();
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-20 items-center justify-between px-4">
@@ -139,35 +144,45 @@ export function AdminSidebar({
         })}
       </nav>
 
-      <div className="space-y-3 p-3">
+      <div className="space-y-3 p-3 pb-[max(1rem,env(safe-area-inset-bottom))] lg:p-3">
         {!collapsed ? (
           <div className="dashboard-account-zone rounded-lg border border-line p-3">
-            <div className="flex items-start justify-between gap-3">
+            <button
+              className={cn("flex w-full items-center justify-between gap-3 rounded-lg text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-2", !mobile && "pointer-events-none")}
+              type="button"
+              tabIndex={mobile ? 0 : -1}
+              onClick={() => mobile && setAccountExpanded((value) => !value)}
+              aria-expanded={mobile ? accountExpanded : true}
+              aria-controls={accountDetailsId}
+              aria-label={mobile ? `${accountExpanded ? "Replier" : "Déplier"} les détails du compte Admin` : "Compte Admin"}
+            >
               <div className="min-w-0">
-                <span className="mb-2 flex items-center gap-2 text-[0.65rem] font-black uppercase tracking-[0.18em] text-muted">
+                <span className={cn("flex items-center gap-2 type-overline-compact text-muted", !mobile && "mb-2")}>
                   <UserRound size={13} className="text-brand-2" />
                   Compte
                 </span>
-                <Badge tone="green">Admin</Badge>
+                {!mobile ? <Badge tone="green">Admin</Badge> : <span className="mt-1 block type-label text-foreground">Admin</span>}
               </div>
-              <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-brand-3 shadow-[0_0_24px_rgba(88,242,169,0.7)]" />
-            </div>
-            <p className="mt-3 truncate type-caption-strong text-muted">{userEmail}</p>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <Link
-                href="/account"
-                className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-line bg-surface-subtle px-2 text-[0.68rem] font-black text-foreground transition hover:border-cyan-200/35 hover:bg-cyan-400/10"
-                title="Préférences du compte"
-              >
-                <Settings size={13} /> Réglages
-              </Link>
-              <Link
-                href="/account#session"
-                className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-emerald-300/18 bg-emerald-400/10 px-2 text-[0.68rem] font-black text-emerald-100 transition hover:border-emerald-200/35 hover:bg-emerald-400/16"
-                title="Session admin protégée"
-              >
-                <ShieldCheck size={13} /> Session
-              </Link>
+              <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 shrink-0 rounded-full bg-brand-3 shadow-[0_0_24px_rgba(88,242,169,0.7)]" />{mobile ? <ChevronDown size={16} className={cn("text-muted transition", accountExpanded && "rotate-180")} /> : null}</span>
+            </button>
+            <div id={accountDetailsId} className={cn(mobile && !accountExpanded && "hidden")}>
+              <p className="mt-3 truncate type-caption-strong text-muted">{userEmail}</p>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <Link
+                  href="/account"
+                  className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-line bg-surface-subtle px-2 text-[0.68rem] font-black text-foreground transition hover:border-cyan-200/35 hover:bg-cyan-400/10"
+                  title="Préférences du compte"
+                >
+                  <Settings size={13} /> Réglages
+                </Link>
+                <Link
+                  href="/account#session"
+                  className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-emerald-300/18 bg-emerald-400/10 px-2 text-[0.68rem] font-black text-emerald-100 transition hover:border-emerald-200/35 hover:bg-emerald-400/16"
+                  title="Session admin protégée"
+                >
+                  <ShieldCheck size={13} /> Session
+                </Link>
+              </div>
             </div>
           </div>
         ) : null}

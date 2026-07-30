@@ -66,6 +66,12 @@ function sleep(delayMs: number) {
   return new Promise((resolve) => window.setTimeout(resolve, delayMs));
 }
 
+const inFlightRegenerations = new Map<string, Promise<unknown>>();
+
+function regenerationState(run: Record<string, unknown>) {
+  return String(run.status || "").trim().toLowerCase();
+}
+
 function firstErrorMessage(run: Record<string, unknown>) {
   if (!Array.isArray(run.errors)) return null;
   const first = run.errors.find(isRecord);
@@ -85,26 +91,41 @@ async function waitForRegeneration(value: unknown) {
   while (Date.now() < deadline) {
     const statusValue = await requestJson(`/api/pokemon-admin?action=regeneration-status&domain=${encodeURIComponent(domain)}&runId=${encodeURIComponent(runId)}`);
     const current = responseCandidates(statusValue).find((candidate) => candidate.id === runId && typeof candidate.status === "string");
-    if (!current || current.status === "running") {
+    const status = current ? regenerationState(current) : "";
+    if (!current || ["", "pending", "queued", "accepted", "running", "processing"].includes(status)) {
       await sleep(1_500);
       continue;
     }
-    if (current.status === "failed") {
+    if (["failed", "error", "cancelled", "canceled"].includes(status)) {
       throw new Error(firstErrorMessage(current) || "La régénération de fond a échoué.");
     }
-    return current;
+    if (["completed", "complete", "success", "succeeded"].includes(status)) return current;
+
+    throw new Error(`État de régénération inattendu : ${status}.`);
   }
 
   throw new Error("La régénération continue en arrière-plan, mais son suivi a dépassé huit minutes.");
 }
 
 export async function executePokemonAdminRegeneration(action: string) {
-  const value = await requestJson("/api/pokemon-admin", {
+  const normalizedAction = action.trim();
+  const existing = inFlightRegenerations.get(normalizedAction);
+  if (existing) return existing;
+
+  const request = requestJson("/api/pokemon-admin", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ action }),
-  });
-  return waitForRegeneration(value);
+    body: JSON.stringify({ action: normalizedAction }),
+  }).then(waitForRegeneration);
+
+  inFlightRegenerations.set(normalizedAction, request);
+  try {
+    return await request;
+  } finally {
+    if (inFlightRegenerations.get(normalizedAction) === request) {
+      inFlightRegenerations.delete(normalizedAction);
+    }
+  }
 }
 
 function numericField(candidates: Record<string, unknown>[], names: string[]) {

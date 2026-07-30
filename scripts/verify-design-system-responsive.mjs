@@ -34,7 +34,6 @@ const scenarios = [
   { id: "research", path: "/pokemon-admin?section=research", ready: "Research Pokémon GO" },
   { id: "collections", path: "/pokemon-admin?section=collections", ready: "Collections Pokemon GO" },
   { id: "events", path: "/pokemon-admin?section=events", ready: "Calendrier Events Pokémon GO", eventModal: true },
-  { id: "trainer-state", path: "/pokemon-admin?section=my-collection", ready: "Aucune collection importée", modal: true },
   { id: "mappings-table", path: "/pokemon-admin?section=pokemon-identity-mappings", ready: "Résolution", table: true },
 ];
 
@@ -50,7 +49,7 @@ function readEnvironment() {
   }));
 }
 
-const artwork = "/ui/zygardDexLogo.png";
+const artwork = "/assets/ui/branding/zygardDexLogo.png";
 const event = {
   id: "responsive-fixture-event",
   title: "Shadow Palkia in Shadow Raids",
@@ -65,17 +64,6 @@ const event = {
   rewards: [],
   sections: [],
   status: "active",
-};
-
-const emptyTrainerPayload = {
-  success: true,
-  data: {
-    items: [],
-    snapshot: null,
-    stats: { total: 0, shiny: 0, lucky: 0, perfect: 0, shadow: 0, purified: 0, costume: 0 },
-    filters: { genders: [], alignments: [], forms: [], costumes: [], cp: { min: 0, max: 0 }, ivPercent: { min: 0, max: 0 }, weightKg: { min: 0, max: 0 }, heightM: { min: 0, max: 0 } },
-    pagination: { page: 1, limit: 50, total: 0, pages: 0 },
-  },
 };
 
 async function json(route, body, status = 200) {
@@ -115,9 +103,6 @@ async function installRoutes(page) {
   } }));
   await page.route("**/api/admin/events**", (route) => json(route, { data: { events: [event], configured: true, seeded: false, collection: "events" } }));
   await page.route("**/api/events**", (route) => json(route, { data: { events: [event], configured: true, seeded: false, collection: "events" } }));
-  await page.route("**/api/trainer-pokemon/imports**", (route) => json(route, { success: true, data: { imports: [] } }));
-  await page.route("**/api/trainer-pokemon/diagnostics**", (route) => json(route, { success: true, data: { items: [], summary: {}, pagination: { page: 1, limit: 50, total: 0, pages: 0 } } }));
-  await page.route("**/api/trainer-pokemon?**", (route) => json(route, emptyTrainerPayload));
   await page.route("**/api/pokemon-admin**", (route) => {
     const action = new URL(route.request().url()).searchParams.get("action") || "bootstrap";
     if (action === "session") return json(route, { data: { authenticated: true } });
@@ -232,23 +217,6 @@ try {
           interactions += 1;
         }
 
-        if (scenario.modal) {
-          const trigger = page.getByRole("button", { name: "Importer un JSON", exact: true }).first();
-          await trigger.click();
-          const dialog = page.getByRole("dialog", { name: "Importer ma collection" });
-          await dialog.waitFor({ state: "visible" });
-          const box = await dialog.boundingBox();
-          assert.ok(box && box.width <= viewport.width && box.height <= viewport.height, `${scenario.id}: modal ${JSON.stringify(box)}`);
-          await page.keyboard.press("Tab");
-          assert.equal(await dialog.evaluate((element) => element.contains(document.activeElement)), true, `${scenario.id}: focus hors modal`);
-          assertContained(await layoutProbe(page), `${scenario.id}-modal-${theme}-${viewport.name}`);
-          await page.keyboard.press("Escape");
-          await dialog.waitFor({ state: "hidden" });
-          await page.waitForFunction((element) => document.activeElement === element, await trigger.elementHandle(), { timeout: 2_000 });
-          modalChecks += 1;
-          interactions += 1;
-        }
-
         if (scenario.eventModal) {
           const trigger = page.getByRole("button", { name: new RegExp(event.title) }).filter({ visible: true }).first();
           await trigger.click();
@@ -300,7 +268,7 @@ try {
 
   assert.equal(report.length, scenarios.length * themes.length * viewports.length);
   assert.ok(interactions >= 20, `interactions insuffisantes: ${interactions}`);
-  assert.ok(modalChecks >= 12, `modales insuffisantes: ${modalChecks}`);
+  assert.ok(modalChecks >= 6, `modales insuffisantes: ${modalChecks}`);
   assert.ok(tableChecks >= 4, `tables insuffisantes: ${tableChecks}`);
   writeFileSync(path.join(artifactRoot, "report.json"), `${JSON.stringify({ generatedAt: new Date().toISOString(), checks: report.length, interactions, modalChecks, tableChecks, results: report }, null, 2)}\n`);
   console.info(`Responsive browser verification: ${report.length} vues, ${interactions} interactions, ${modalChecks} modales, ${tableChecks} tables, sans overflow ni erreur.`);

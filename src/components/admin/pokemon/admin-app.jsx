@@ -1,6 +1,5 @@
 "use client";
 
-/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -25,9 +24,7 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
-  Swords,
   Boxes,
-  PackageOpen,
   Wand2,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -114,21 +111,6 @@ const assetChecksStoreKey = "matweb.pokemon.assetChecks";
 const sourceWatchSignatureKey = "pokedex-v4-source-watch-signatures";
 const collectionsKey = "pokedex-v4-admin-collections";
 
-const TrainerPokemonCollectionPanel = dynamic(
-  () =>
-    import("./trainer-pokemon-collection-panel").then(
-      (module) => module.TrainerPokemonCollectionPanel,
-    ),
-  {
-    loading: () => (
-      <div
-        className={`${panelClass} min-h-64 animate-pulse motion-reduce:animate-none`}
-        aria-label="Chargement de Ma collection"
-      />
-    ),
-  },
-);
-
 const GameMasterExplorerPanel = dynamic(
   () =>
     import("./game-master-explorer-panel").then(
@@ -189,12 +171,6 @@ const navItems = [
   },
   { id: "collections", label: "Collections", icon: Boxes, group: "data" },
   {
-    id: "my-collection",
-    label: "Ma collection",
-    icon: PackageOpen,
-    group: "data",
-  },
-  {
     id: "assets",
     label: "Assets",
     icon: `${filtersAssetBase}/TodayView_Icon_Photobomb.png`,
@@ -228,7 +204,7 @@ const navItems = [
   {
     id: "pvp-simulator",
     label: "Simulateur PvP",
-    icon: Swords,
+    icon: "/assets/ui/combat/charged-attack.png",
     group: "combat",
   },
   {
@@ -241,7 +217,7 @@ const navItems = [
   {
     id: "best-attackers",
     label: "Best Attackers",
-    icon: Swords,
+    icon: "/assets/ui/combat/fast-attack.png",
     group: "combat",
   },
   { id: "best-defenders", label: "Best Defenders", icon: ShieldCheck, group: "combat" },
@@ -661,20 +637,20 @@ const ficheFilterOptions = [
   [
     "chromatic",
     "Chromatique",
-    "/ui/chromatique_banner.png",
+    "/assets/ui/illustrations/banners/chromatic.png",
     "availability.shinyReleased",
   ],
   [
     "costume",
     "Costume / Event",
-    "/ui/costume_banner.png",
+    "/assets/ui/illustrations/banners/costume.png",
     "assetForms événementiels",
   ],
-  ["mega", "Méga", "/ui/mega_banner.png", "kind/form méga ou primo"],
+  ["mega", "Méga", "/assets/ui/illustrations/banners/mega.png", "kind/form méga ou primo"],
   [
     "regional",
     "Régional",
-    "/ui/regional_banner.png",
+    "/assets/ui/illustrations/banners/regional.png",
     "formes Alola, Galar, Hisui, Paldea",
   ],
 ];
@@ -1524,7 +1500,7 @@ export function AdminApp() {
       );
       if (notify) toast.success("Dashboard Pokémon actualisé.");
     } catch (error) {
-      setBootstrap({ loading: false, payload: null, error: error.message });
+      setBootstrap((current) => ({ loading: false, payload: current.payload, error: error.message }));
       if (notify)
         toast.error(error.message || "Erreur de chargement du dashboard.");
     }
@@ -2697,7 +2673,7 @@ export function AdminApp() {
               className="relative overflow-hidden rounded-surface border border-line bg-surface-control p-4 shadow-raised backdrop-blur-2xl sm:p-5"
               style={{
                 backgroundImage:
-                  'linear-gradient(135deg, rgba(15,23,42,.88), rgba(14,165,233,.18)), url("/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png")',
+                  'linear-gradient(135deg, rgba(15,23,42,.88), rgba(14,165,233,.18)), url("/assets/ui/backgrounds/library/catchCards/CatchCard_TypeBG_Water.png")',
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}
@@ -2761,20 +2737,19 @@ export function AdminApp() {
             </header>
 
             <div className="mt-5 space-y-5">
-              {bootstrap.loading ? (
+              {bootstrap.loading && !bootstrap.payload ? (
                 <FetchLoadingState
                   title="Chargement du dashboard…"
                   detail="Je recharge les fiches, catalogues, assets et l’historique Git."
                 />
-              ) : bootstrap.error ? (
+              ) : bootstrap.error && !bootstrap.payload ? (
                 <ErrorState
                   title="Dashboard indisponible"
                   message={bootstrap.error}
                 />
               ) : null}
 
-              {!bootstrap.loading &&
-              !bootstrap.error &&
+              {bootstrap.payload &&
               active === "overview" ? (
                 <>
                   <AdminCommandCenter
@@ -2921,10 +2896,6 @@ export function AdminApp() {
                   onOpen={openDetail}
                   globalSearch={search}
                 />
-              ) : null}
-
-              {active === "my-collection" ? (
-                <TrainerPokemonCollectionPanel />
               ) : null}
 
               {active === "raids" ? (

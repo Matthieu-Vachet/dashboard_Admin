@@ -18,9 +18,9 @@ source_files:
   - "Dashboard Admin/src/hooks/admin/use-javascript-learning.ts"
   - "Dashboard Admin/src/components/admin"
 registries:
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/services.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/components.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/mongodb-collections.json"
+  - "audit-documentation/registries/services.json"
+  - "audit-documentation/registries/components.json"
+  - "audit-documentation/registries/mongodb-collections.json"
 related:
   - "DOC-011"
   - "DOC-017"

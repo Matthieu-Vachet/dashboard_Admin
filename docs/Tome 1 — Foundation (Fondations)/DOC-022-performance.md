@@ -2,11 +2,11 @@
 id: DOC-022
 title: "Performance"
 description: "Référence des mécanismes de rendu, pagination, cache, images et requêtes qui influencent le coût runtime."
-version: 2.2.0
+version: 2.0.0
 status: Official
 owner: Matthieu Vachet
 created: 2026-07-13
-last_updated: 2026-07-26
+last_updated: 2026-07-13
 category: Foundation
 type: Reference
 language: fr
@@ -16,17 +16,14 @@ scope:
   - "Landing-Page-PogoApi"
 source_files:
   - "Dashboard Admin/src/components/admin/pokemon/admin-app.jsx"
-  - "Dashboard Admin/src/components/admin/layout/admin-app-frame.tsx"
-  - "Dashboard Admin/src/app/globals.css"
-  - "Dashboard Admin/src/lib/motion.ts"
   - "PokemonGo-API-/src/lib/cache.js"
   - "PokemonGo-API-/src/services"
   - "PokemonGo-API-/components"
   - "Landing-Page-PogoApi/components/landing-experience.jsx"
 registries:
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/components.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/mongodb-collections.json"
+  - "audit-documentation/registries/components.json"
+  - "audit-documentation/registries/api-routes.json"
+  - "audit-documentation/registries/mongodb-collections.json"
 related:
   - "DOC-011"
   - "DOC-012"
@@ -55,16 +52,11 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 
 ## 3. Implémentation observée
 
-- AdminApp importe statiquement les panneaux historiques et charge TrainerPokemonCollectionPanel avec next/dynamic.
+- AdminApp importe statiquement les panneaux historiques.
 - Les datasets current historiques sont chargés lorsque leur section devient active; le bootstrap Pokémon initial reste global.
 - La checklist publique reçoit le bootstrap et le catalogue complets puis limite le rendu initial côté client.
 - Les routes principales Pokémon, moves, items, forms, PvP et textes Rocket utilisent skip, limit, countDocuments et lean.
 - Les images mélangent next/image et img; la Landing utilise next/image pour ses visuels et hydrate LandingExperience pour GSAP.
-- Le repository trainer partage la connexion Mongo par Promise, crée les index au premier accès et exécute pagination, projection, distincts et agrégation de plages en parallèle.
-- Les références trainer lourdes sont hydratées et mises en cache côté serveur, puis enrichissent les lectures existantes en mémoire sans réécriture MongoDB.
-- Les filtres poids et taille restent paginés et indexés comme les plages IV/CP.
-- Le Motion System limite les transitions UI à 150/200/300 ms, privilégie les propriétés ciblées, transform et opacity, et n’ajoute aucune boucle width/height/top/left. En `prefers-reduced-motion`, les boucles CSS/Tailwind s’arrêtent, les transitions deviennent instantanées et Framer neutralise transform/layout via sa politique globale.
-- Le Responsive System laisse CSS piloter les cinq breakpoints canoniques, sans listener resize ni branchement JavaScript de rendu. Les shells utilisent `dvh`, `min-w-0` et des scrolls locaux afin de suivre le viewport mobile sans dupliquer les arbres ni élargir le document.
 
 ## 4. Relations et dépendances
 
@@ -72,7 +64,6 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | --- | --- | --- |
 | Route Admin Pokémon | charge | AdminApp |
 | AdminApp | charge dynamiquement | COMP-137 |
-| Breakpoints CSS | composent sans dupliquer | shell, grilles et vues métier |
 | API GET | utilise | cache ou no-store |
 | Requêtes listées | utilisent | index, projection et pagination |
 
@@ -105,8 +96,8 @@ flowchart LR
 
 ### Fiches spécialisées présentes
 
-- [PAGE-049](<../Tome 2 — Dashboard Admin/PAGE-049-ma-collection-pokemon-go.md>)
-- [COMP-137](<../Tome 3 — Design System/Components/COMP-137-trainer-pokemon-collection-panel.md>)
+- [PAGE-049](<../Post-audit 2026-07-13/undefined>)
+- [COMP-137](<../Post-audit 2026-07-13/undefined>)
 
 Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient uniquement aux registres JSON.
 
@@ -114,16 +105,12 @@ Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient 
 
 - Aucun résultat Core Web Vitals n’est présent.
 - Aucun budget de bundle n’est présent.
-- Aucun benchmark GPU ou coût de rendu comparatif des animations n’est présent.
 - Aucune mesure p95 ou p99 API/Mongo n’est présente.
 - Aucun explain MongoDB n’est conservé.
 
 ## 8. Fichiers sources
 
 - `Dashboard Admin/src/components/admin/pokemon/admin-app.jsx`
-- `Dashboard Admin/src/components/admin/layout/admin-app-frame.tsx`
-- `Dashboard Admin/src/app/globals.css`
-- `Dashboard Admin/src/lib/motion.ts`
 - `PokemonGo-API-/src/lib/cache.js`
 - `PokemonGo-API-/src/services`
 - `PokemonGo-API-/components`

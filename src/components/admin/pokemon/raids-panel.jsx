@@ -15,17 +15,17 @@ import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
 import { FetchLoadingState } from "@/components/admin/shared/state-system";
 
 const raidSections = [
-  ["super_mega", "Super Méga", "/ui/raids/mega_raids_legendaire_raids.png", "violet"],
-  ["ultra_beast", "Ultra Beast", "/ui/raids/ultra_breche_raids.png", "cyan"],
-  ["mega", "Méga", "/ui/raids/mega_raids.png", "violet"],
-  ["primal", "Primal", "/ui/raids/primal_raids.png", "red"],
-  ["lvl5", "5 étoiles", "/ui/raids/5_star_raids.png", "amber"],
-  ["lvl3", "3 étoiles", "/ui/raids/3_star_raids.png", "green"],
-  ["lvl1", "1 étoile", "/ui/raids/1_star_raids.png", "blue"],
-  ["shadow_lvl5", "Shadow 5 étoiles", "/ui/raids/shadow_icon.png", "red"],
-  ["shadow_lvl3", "Shadow 3 étoiles", "/ui/raids/teamrocket_r.png", "red"],
-  ["shadow_lvl1", "Shadow 1 étoile", "/ui/raids/teamrocket_r.png", "red"],
-  ["special", "Raids spéciaux", "/ui/raids/elite_raids.png", "green"],
+  ["super_mega", "Super Méga", "/assets/ui/categories/raids/mega_raids_legendaire_raids.png", "violet"],
+  ["ultra_beast", "Ultra Beast", "/assets/ui/categories/raids/ultra_breche_raids.png", "cyan"],
+  ["mega", "Méga", "/assets/ui/categories/raids/mega_raids.png", "violet"],
+  ["primal", "Primal", "/assets/ui/categories/raids/primal_raids.png", "red"],
+  ["lvl5", "5 étoiles", "/assets/ui/categories/raids/5_star_raids.png", "amber"],
+  ["lvl3", "3 étoiles", "/assets/ui/categories/raids/3_star_raids.png", "green"],
+  ["lvl1", "1 étoile", "/assets/ui/categories/raids/1_star_raids.png", "blue"],
+  ["shadow_lvl5", "Shadow 5 étoiles", "/assets/ui/categories/raids/shadow_icon.png", "red"],
+  ["shadow_lvl3", "Shadow 3 étoiles", "/assets/ui/categories/raids/teamrocket_r.png", "red"],
+  ["shadow_lvl1", "Shadow 1 étoile", "/assets/ui/categories/raids/teamrocket_r.png", "red"],
+  ["special", "Raids spéciaux", "/assets/ui/categories/raids/elite_raids.png", "green"],
 ];
 
 const knownRaidSections = new Set(raidSections.map(([id]) => id));
@@ -51,7 +51,7 @@ function allRaidSections(currentList) {
     .map(([id, bosses]) => [
       id,
       values(bosses)[0]?.sectionTitle || titleFromKey(id),
-      "/ui/raids/elite_raids.png",
+      "/assets/ui/categories/raids/elite_raids.png",
       "cyan",
     ]);
   return [...raidSections, ...unknown];
@@ -234,10 +234,10 @@ export function RaidsPanel({
         }
       >
         <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <AssetStatCard label="Boss actifs" value={total} icon="/ui/raids/5_star_raids.png" tone="cyan" detail="Toutes sections raids" />
-          <AssetStatCard label="Méga" value={buckets.mega || 0} icon="/ui/raids/mega_raids.png" tone="violet" detail="Raids Méga actifs" />
-          <AssetStatCard label="Shadow" value={openBugs} icon="/ui/raids/teamrocket_r.png" tone="amber" detail="Raids obscurs" />
-          <AssetStatCard label="Ultra Beast" value={buckets.ultra_beast || 0} icon="/ui/raids/ultra_breche_raids.png" tone="green" detail="Ultra-brèches" />
+          <AssetStatCard label="Boss actifs" value={total} icon="/assets/ui/categories/raids/5_star_raids.png" tone="cyan" detail="Toutes sections raids" />
+          <AssetStatCard label="Méga" value={buckets.mega || 0} icon="/assets/ui/categories/raids/mega_raids.png" tone="violet" detail="Raids Méga actifs" />
+          <AssetStatCard label="Shadow" value={openBugs} icon="/assets/ui/categories/raids/teamrocket_r.png" tone="amber" detail="Raids obscurs" />
+          <AssetStatCard label="Ultra Beast" value={buckets.ultra_beast || 0} icon="/assets/ui/categories/raids/ultra_breche_raids.png" tone="green" detail="Ultra-brèches" />
         </div>
         <DatasetSourceHeader dataset={raids} total={total} refreshError={refreshError} />
       </Panel>

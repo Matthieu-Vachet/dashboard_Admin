@@ -112,7 +112,7 @@ Not found
 
 - Boolean properties for Figma: Loading, Warning, Success, Empty, Expanded.
 - Text properties: `entries`, `library`, `linkedAssets`, `loading`, `onOpen`, `search`.
-- Instance swaps: `/ui/backgrounds/catchCards/ic_catch_card_notification.png`, `/ui/backgrounds/catchCards/ic_catch_card.png`.
+- Instance swaps: `/assets/ui/backgrounds/library/catchCards/ic_catch_card_notification.png`, `/assets/ui/backgrounds/library/catchCards/ic_catch_card.png`.
 - Additional conditional variants are preserved verbatim in section 12.
 
 ## 8. Complete state matrix
@@ -317,7 +317,7 @@ Not found
 ## 16. Icons, images and decorative assets
 
 - Lucide icons: Not found.
-- Asset references: `/ui/backgrounds/catchCards/ic_catch_card_notification.png`, `/ui/backgrounds/catchCards/ic_catch_card.png`.
+- Asset references: `/assets/ui/backgrounds/library/catchCards/ic_catch_card_notification.png`, `/assets/ui/backgrounds/library/catchCards/ic_catch_card.png`.
 - SVG usage: Not found.
 - Decorative/semantic intent for empty alt text must follow the exact source; intent beyond attributes: Estimated from implementation.
 
@@ -326,7 +326,7 @@ Not found
 - Auto Layout: grid translated into nested Auto Layout frames. Preserve every nested flex/grid boundary shown in the HTML outline.
 - Component set: create one variant axis per explicit prop/value pair listed above; do not invent missing variants.
 - Boolean properties: Loading, Warning, Success, Empty, Expanded.
-- Instance swaps: `/ui/backgrounds/catchCards/ic_catch_card_notification.png`, `/ui/backgrounds/catchCards/ic_catch_card.png`.
+- Instance swaps: `/assets/ui/backgrounds/library/catchCards/ic_catch_card_notification.png`, `/assets/ui/backgrounds/library/catchCards/ic_catch_card.png`.
 - Text properties: expose each textual prop from the props contract; when text is hardcoded, preserve it in the default instance.
 - Variables: bind CSS variables and semantic token references listed in this document. Literal utilities remain documented implementation values.
 - Constraints: infer from width/min/max and responsive utilities; any value not encoded is marked Estimated from implementation.

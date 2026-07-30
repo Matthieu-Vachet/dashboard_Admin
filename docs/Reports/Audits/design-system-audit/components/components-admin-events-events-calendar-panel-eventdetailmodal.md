@@ -155,7 +155,7 @@ Not found
 
 - Boolean properties for Figma: Hover, Disabled, Success, Empty, Scrollable.
 - Text properties: `busy`, `event`, `onArchive`, `onClose`, `onDelete`, `onDuplicate`, `onEdit`, `onOpenPokemon`, `onRestore`.
-- Instance swaps: `Archive`, `Copy`, `ExternalLink`, `Pencil`, `Trash2`, `X`, `/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png`.
+- Instance swaps: `Archive`, `Copy`, `ExternalLink`, `Pencil`, `Trash2`, `X`, `/assets/ui/backgrounds/library/catchCards/CatchCard_TypeBG_Water.png`.
 - Additional conditional variants are preserved verbatim in section 12.
 
 ## 8. Complete state matrix
@@ -379,7 +379,7 @@ Exact className combinations:
 
 ### Inline style expressions
 
-- `{{ backgroundImage: \`linear-gradient(135deg, ${hexToRgba(type.color, 0.24)}, rgba(2,6,23,.90)), url("/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png")\`, backgroundSize: "cover", backgroundPosition: "center", }}`
+- `{{ backgroundImage: \`linear-gradient(135deg, ${hexToRgba(type.color, 0.24)}, rgba(2,6,23,.90)), url("/assets/ui/backgrounds/library/catchCards/CatchCard_TypeBG_Water.png")\`, backgroundSize: "cover", backgroundPosition: "center", }}`
 
 ### Referenced local/imported style declarations
 
@@ -499,7 +499,7 @@ Not found
 ## 16. Icons, images and decorative assets
 
 - Lucide icons: `Archive`, `Copy`, `ExternalLink`, `Pencil`, `Trash2`, `X`.
-- Asset references: `/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png`.
+- Asset references: `/assets/ui/backgrounds/library/catchCards/CatchCard_TypeBG_Water.png`.
 - SVG usage: Not found.
 - Decorative/semantic intent for empty alt text must follow the exact source; intent beyond attributes: Estimated from implementation.
 
@@ -508,7 +508,7 @@ Not found
 - Auto Layout: vertical. Preserve every nested flex/grid boundary shown in the HTML outline.
 - Component set: create one variant axis per explicit prop/value pair listed above; do not invent missing variants.
 - Boolean properties: Hover, Disabled, Success, Empty, Scrollable.
-- Instance swaps: `Archive`, `Copy`, `ExternalLink`, `Pencil`, `Trash2`, `X`, `/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png`.
+- Instance swaps: `Archive`, `Copy`, `ExternalLink`, `Pencil`, `Trash2`, `X`, `/assets/ui/backgrounds/library/catchCards/CatchCard_TypeBG_Water.png`.
 - Text properties: expose each textual prop from the props contract; when text is hardcoded, preserve it in the default instance.
 - Variables: bind CSS variables and semantic token references listed in this document. Literal utilities remain documented implementation values.
 - Constraints: infer from width/min/max and responsive utilities; any value not encoded is marked Estimated from implementation.

@@ -19,10 +19,10 @@ source_files:
   - "PokemonGo-Assets-API"
   - "PokemonGo-Data"
 registries:
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/pages.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/components.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/assets.json"
+  - "audit-documentation/registries/pages.json"
+  - "audit-documentation/registries/components.json"
+  - "audit-documentation/registries/datasets.json"
+  - "audit-documentation/registries/assets.json"
 related:
   - "DOC-005"
   - "DOC-006"
@@ -100,8 +100,8 @@ flowchart TD
 
 ### Fiches spécialisées présentes
 
-- [PAGE-049](<../Tome 2 — Dashboard Admin/PAGE-049-ma-collection-pokemon-go.md>)
-- [COMP-137](<../Tome 3 — Design System/Components/COMP-137-trainer-pokemon-collection-panel.md>)
+- [PAGE-049](<../Post-audit 2026-07-13/undefined>)
+- [COMP-137](<../Post-audit 2026-07-13/undefined>)
 
 ## 7. Informations absentes du code
 

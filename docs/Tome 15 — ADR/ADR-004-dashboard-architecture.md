@@ -58,7 +58,6 @@ Le Dashboard centralise de nombreuses fonctionnalités :
 - Shiny Tracker ;
 - API Explorer ;
 - Sources ;
-- Ma Collection ;
 - paramètres et outils d'administration.
 
 Une architecture monolithique rendrait ces évolutions difficiles à maintenir.

@@ -368,7 +368,6 @@ if (process.argv.includes("--dump-inventory")) {
       assert.equal(site.commonField, false, `${site.file}:${site.line}`);
     }
     const rangeFields = inventory.sites.filter((site) => site.component === "RangeFields");
-    assert.ok(rangeFields.length > 0);
     assert.ok(rangeFields.every((site) => site.category === "B"));
   });
 

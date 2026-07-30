@@ -261,7 +261,7 @@ cardTones = [
 src/components/admin/pokemon/detail-modal.jsx#catchCardBackground
 function catchCardBackground(type) {
   const name = typeBackgroundNames[String(type || "").toUpperCase()];
-  return name ? `/ui/backgrounds/catchCards/CatchCard_TypeBG_${name}.png` : "";
+  return name ? `/assets/ui/backgrounds/library/catchCards/CatchCard_TypeBG_${name}.png` : "";
 }
 ```
 

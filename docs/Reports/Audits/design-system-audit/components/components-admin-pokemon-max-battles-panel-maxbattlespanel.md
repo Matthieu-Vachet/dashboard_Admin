@@ -125,7 +125,7 @@ Not found
 
 - Boolean properties for Figma: Hover, Focused, Loading, Disabled, Warning, Success, Empty, Active, Inactive.
 - Text properties: `loading`, `maxBattles`, `onDownload`, `onOpenPokemon`, `onRefresh`, `onRegenerate`, `refreshError`, `regenerating`, `typeCatalog`.
-- Instance swaps: `Download`, `RefreshCcw`, `RotateCcw`, `Sparkles`, `Zap`, `/ui/max_battles/ic_shiny.png`, `/ui/max_battles/max-battles.webp`.
+- Instance swaps: `Download`, `RefreshCcw`, `RotateCcw`, `Sparkles`, `Zap`, `/assets/ui/categories/max-battles/ic_shiny.png`, `/assets/ui/categories/max-battles/max-battles.webp`.
 - Additional conditional variants are preserved verbatim in section 12.
 
 ## 8. Complete state matrix
@@ -488,7 +488,7 @@ Not found
 ## 16. Icons, images and decorative assets
 
 - Lucide icons: `Download`, `RefreshCcw`, `RotateCcw`, `Sparkles`, `Zap`.
-- Asset references: `/ui/max_battles/ic_shiny.png`, `/ui/max_battles/max-battles.webp`.
+- Asset references: `/assets/ui/categories/max-battles/ic_shiny.png`, `/assets/ui/categories/max-battles/max-battles.webp`.
 - SVG usage: Not found.
 - Decorative/semantic intent for empty alt text must follow the exact source; intent beyond attributes: Estimated from implementation.
 
@@ -497,7 +497,7 @@ Not found
 - Auto Layout: horizontal or mixed; verify each nested frame. Preserve every nested flex/grid boundary shown in the HTML outline.
 - Component set: create one variant axis per explicit prop/value pair listed above; do not invent missing variants.
 - Boolean properties: Hover, Focused, Loading, Disabled, Warning, Success, Empty, Active, Inactive.
-- Instance swaps: `Download`, `RefreshCcw`, `RotateCcw`, `Sparkles`, `Zap`, `/ui/max_battles/ic_shiny.png`, `/ui/max_battles/max-battles.webp`.
+- Instance swaps: `Download`, `RefreshCcw`, `RotateCcw`, `Sparkles`, `Zap`, `/assets/ui/categories/max-battles/ic_shiny.png`, `/assets/ui/categories/max-battles/max-battles.webp`.
 - Text properties: expose each textual prop from the props contract; when text is hardcoded, preserve it in the default instance.
 - Variables: bind CSS variables and semantic token references listed in this document. Literal utilities remain documented implementation values.
 - Constraints: infer from width/min/max and responsive utilities; any value not encoded is marked Estimated from implementation.

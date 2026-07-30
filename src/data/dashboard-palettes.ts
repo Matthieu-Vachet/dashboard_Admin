@@ -42,7 +42,7 @@ export const dashboardPalettes: DashboardPalette[] = [
     id: "sapphire",
     label: "Saphir",
     description: "Bleu / Cyan actuel",
-    icon: "/ui/Types/ico_10_water.png",
+    icon: "/assets/pokemon/types/icons/ico_10_water.png",
     swatches: ["#20d3ff", "#905bf4", "#58f2a9"],
     modes: {
       dark: {
@@ -79,7 +79,7 @@ export const dashboardPalettes: DashboardPalette[] = [
     id: "ruby",
     label: "Rubis",
     description: "Rouge / Rose",
-    icon: "/ui/Types/ico_9_fire.png",
+    icon: "/assets/pokemon/types/icons/ico_9_fire.png",
     swatches: ["#fb7185", "#e11d48", "#f97316"],
     modes: {
       dark: {
@@ -116,7 +116,7 @@ export const dashboardPalettes: DashboardPalette[] = [
     id: "fire-red",
     label: "Rouge Feu",
     description: "Orange / Ambre",
-    icon: "/ui/Types/ico_9_fire.png",
+    icon: "/assets/pokemon/types/icons/ico_9_fire.png",
     swatches: ["#f97316", "#fb923c", "#facc15"],
     modes: {
       dark: {
@@ -153,7 +153,7 @@ export const dashboardPalettes: DashboardPalette[] = [
     id: "violet",
     label: "Violet",
     description: "Violet / Pourpre",
-    icon: "/ui/Types/ico_13_psychic.png",
+    icon: "/assets/pokemon/types/icons/ico_13_psychic.png",
     swatches: ["#a78bfa", "#8b5cf6", "#22d3ee"],
     modes: {
       dark: {
@@ -190,7 +190,7 @@ export const dashboardPalettes: DashboardPalette[] = [
     id: "leaf-green",
     label: "Vert Feuille",
     description: "Emeraude / Lime",
-    icon: "/ui/Types/ico_11_grass.png",
+    icon: "/assets/pokemon/types/icons/ico_11_grass.png",
     swatches: ["#34d399", "#22c55e", "#a3e635"],
     modes: {
       dark: {
@@ -227,7 +227,7 @@ export const dashboardPalettes: DashboardPalette[] = [
     id: "pink",
     label: "Rose",
     description: "Rose / Fee",
-    icon: "/ui/Types/ico_17_fairy.png",
+    icon: "/assets/pokemon/types/icons/ico_17_fairy.png",
     swatches: ["#f472b6", "#ec4899", "#c084fc"],
     modes: {
       dark: {
@@ -264,7 +264,7 @@ export const dashboardPalettes: DashboardPalette[] = [
     id: "gold",
     label: "Or",
     description: "Or / Ambre",
-    icon: "/ui/Types/ico_5_rock.png",
+    icon: "/assets/pokemon/types/icons/ico_5_rock.png",
     swatches: ["#facc15", "#f59e0b", "#fde68a"],
     modes: {
       dark: {
@@ -301,7 +301,7 @@ export const dashboardPalettes: DashboardPalette[] = [
     id: "electric",
     label: "Jaune Electrique",
     description: "Jaune / Cyan",
-    icon: "/ui/Types/ico_12_electric.png",
+    icon: "/assets/pokemon/types/icons/ico_12_electric.png",
     swatches: ["#fde047", "#eab308", "#38bdf8"],
     modes: {
       dark: {

@@ -293,7 +293,7 @@ Not found
 
 - Boolean properties for Figma: Hover, Focused, Selected, Checked, Unchecked, Loading, Disabled, Error, Warning, Success, Empty, Expanded, Active, Inactive, Read Only.
 - Text properties: Not found.
-- Instance swaps: `BarChart3`, `Cloud`, `Copy`, `History`, `Radar`, `RefreshCcw`, `Search`, `ShieldCheck`, `Sparkles`, `Wand2`, `/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png`.
+- Instance swaps: `BarChart3`, `Cloud`, `Copy`, `History`, `Radar`, `RefreshCcw`, `Search`, `ShieldCheck`, `Sparkles`, `Wand2`, `/assets/ui/backgrounds/library/catchCards/CatchCard_TypeBG_Water.png`.
 - Additional conditional variants are preserved verbatim in section 12.
 
 ## 8. Complete state matrix
@@ -873,7 +873,7 @@ Exact className combinations:
 
 ### Inline style expressions
 
-- `{{ backgroundImage: 'linear-gradient(135deg, rgba(15,23,42,.88), rgba(14,165,233,.18)), url("/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png")', backgroundSize: "cover", backgroundPosition: "center", }}`
+- `{{ backgroundImage: 'linear-gradient(135deg, rgba(15,23,42,.88), rgba(14,165,233,.18)), url("/assets/ui/backgrounds/library/catchCards/CatchCard_TypeBG_Water.png")', backgroundSize: "cover", backgroundPosition: "center", }}`
 
 ### Referenced local/imported style declarations
 
@@ -1110,7 +1110,7 @@ cardTones = [
 src/components/admin/pokemon/detail-modal.jsx#catchCardBackground
 function catchCardBackground(type) {
   const name = typeBackgroundNames[String(type || "").toUpperCase()];
-  return name ? `/ui/backgrounds/catchCards/CatchCard_TypeBG_${name}.png` : "";
+  return name ? `/assets/ui/backgrounds/library/catchCards/CatchCard_TypeBG_${name}.png` : "";
 }
 ```
 
@@ -1402,7 +1402,7 @@ Not found
 ## 16. Icons, images and decorative assets
 
 - Lucide icons: `BarChart3`, `Cloud`, `Copy`, `History`, `Radar`, `RefreshCcw`, `Search`, `ShieldCheck`, `Sparkles`, `Wand2`.
-- Asset references: `/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png`.
+- Asset references: `/assets/ui/backgrounds/library/catchCards/CatchCard_TypeBG_Water.png`.
 - SVG usage: Not found.
 - Decorative/semantic intent for empty alt text must follow the exact source; intent beyond attributes: Estimated from implementation.
 
@@ -1411,7 +1411,7 @@ Not found
 - Auto Layout: vertical. Preserve every nested flex/grid boundary shown in the HTML outline.
 - Component set: create one variant axis per explicit prop/value pair listed above; do not invent missing variants.
 - Boolean properties: Hover, Focused, Selected, Checked, Unchecked, Loading, Disabled, Error, Warning, Success, Empty, Expanded, Active, Inactive, Read Only.
-- Instance swaps: `BarChart3`, `Cloud`, `Copy`, `History`, `Radar`, `RefreshCcw`, `Search`, `ShieldCheck`, `Sparkles`, `Wand2`, `/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png`.
+- Instance swaps: `BarChart3`, `Cloud`, `Copy`, `History`, `Radar`, `RefreshCcw`, `Search`, `ShieldCheck`, `Sparkles`, `Wand2`, `/assets/ui/backgrounds/library/catchCards/CatchCard_TypeBG_Water.png`.
 - Text properties: expose each textual prop from the props contract; when text is hardcoded, preserve it in the default instance.
 - Variables: bind CSS variables and semantic token references listed in this document. Literal utilities remain documented implementation values.
 - Constraints: infer from width/min/max and responsive utilities; any value not encoded is marked Estimated from implementation.

@@ -9,6 +9,7 @@
 Documentation fonctionnelle :
 
 - [Pokémon GO PvP Battle Lab](./PVP-BATTLE-LAB.md)
+- [Organisation des assets publics](./ASSET-MAP.md)
 - [Third-party notices](./THIRD-PARTY-NOTICES.md)
 
 ---

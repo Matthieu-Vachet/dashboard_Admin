@@ -152,7 +152,7 @@ function ShinyDetail({ entry, history, onOpenPokemon }) {
         ) : <p className="mt-3 text-sm font-bold text-muted">Aucune statistique calculable avant plusieurs snapshots réels.</p>}
         {points.length >= 2 ? (
           <div className="mt-4 h-56" aria-label="Évolution des odds collectées">
-            <ResponsiveContainer width="100%" height="100%"><LineChart data={points}><CartesianGrid stroke="rgba(148,163,184,.15)" /><XAxis dataKey="date" stroke="#94a3b8" /><YAxis reversed stroke="#94a3b8" /><Tooltip contentStyle={{ background: "#08101f", border: "1px solid rgba(255,255,255,.14)", borderRadius: 10, color: "#fff" }} /><Line type="monotone" dataKey="odds" stroke="#fbbf24" strokeWidth={3} dot={{ fill: "#fbbf24" }} /></LineChart></ResponsiveContainer>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} initialDimension={{ width: 320, height: 288 }}><LineChart data={points}><CartesianGrid stroke="rgba(148,163,184,.15)" /><XAxis dataKey="date" stroke="#94a3b8" /><YAxis reversed stroke="#94a3b8" /><Tooltip contentStyle={{ background: "#08101f", border: "1px solid rgba(255,255,255,.14)", borderRadius: 10, color: "#fff" }} /><Line type="monotone" dataKey="odds" stroke="#fbbf24" strokeWidth={3} dot={{ fill: "#fbbf24" }} /></LineChart></ResponsiveContainer>
           </div>
         ) : <p className="mt-4 rounded-xl border border-dashed border-white/12 p-4 text-sm font-bold text-muted">Historique insuffisant : le graphique apparaîtra après au moins deux snapshots réellement collectés.</p>}
       </section>

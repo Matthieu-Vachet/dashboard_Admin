@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.38.0 - 2026-07-30
+
+- Unifie les régénérations PvP dédiée et globale autour du même job asynchrone suivi, avec verrou anti-concurrence et état final conservé après actualisation.
+- Recompose Multi et Matrix avec des sélecteurs Pokémon visuels, des résultats exploitables, des détails de combat et une alternative mobile à la matrice desktop.
+- Adapte le Battle Lab de 320 à 1920 px, corrige les attaques chargées dupliquées et utilise les cinq PNG fournis pour les boucliers, attaques et événements de timeline.
+- Réorganise les assets publics sous `public/assets` et supprime intégralement « Ma collection » du code, des routes, des tests et de la documentation active, sans destruction MongoDB.
+
 ## 1.37.0 - 2026-07-28
 
 - Termine la parité officielle à 20/20 vainqueurs, 40/40 dégâts Fast et 39/39 dégâts Charged sans modifier les formules de dégâts déjà exactes.

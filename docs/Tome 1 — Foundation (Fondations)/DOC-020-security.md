@@ -20,9 +20,9 @@ source_files:
   - "PokemonGo-API-/next.config.mjs"
   - "PokemonGo-API-/src/lib/admin-auth.js"
 registries:
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/mongodb-collections.json"
+  - "audit-documentation/registries/api-routes.json"
+  - "audit-documentation/registries/datasets.json"
+  - "audit-documentation/registries/mongodb-collections.json"
 related:
   - "DOC-012"
   - "DOC-019"
@@ -56,7 +56,6 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - La CSP Dashboard autorise unsafe-inline et unsafe-eval dans script-src; la CSP API ajoute unsafe-eval uniquement en développement.
 - PokemonGo-API applique CORS_ORIGINS, Helmet, compression, limite JSON et rate limit global.
 - Le proxy PokemonGo-API du Dashboard limite les chemins aux routes système, à une allowlist admin ou aux chemins OpenAPI résolus.
-- trainerPokemonServerError masque les messages 5xx et conserve codes et issues de validation pour les erreurs contrôlées.
 
 ## 4. Relations et dépendances
 
@@ -96,11 +95,11 @@ flowchart TD
 
 ### Fiches spécialisées présentes
 
-- [API-157](<../Tome 7 — API/API-157-get-trainer-pokemon.md>)
-- [API-158](<../Tome 7 — API/API-158-post-trainer-pokemon-import.md>)
-- [API-159](<../Tome 7 — API/API-159-get-trainer-pokemon-imports.md>)
-- [API-160](<../Tome 7 — API/API-160-post-trainer-pokemon-rollback.md>)
-- [WORKFLOW-016](<../Tome 18 - Workflow/WORKFLOW-016-import-collection-pokemon-go.md>)
+- [API-157](<../Post-audit 2026-07-13/undefined>)
+- [API-158](<../Post-audit 2026-07-13/undefined>)
+- [API-159](<../Post-audit 2026-07-13/undefined>)
+- [API-160](<../Post-audit 2026-07-13/undefined>)
+- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
 
 ## 7. Informations absentes du code
 

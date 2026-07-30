@@ -31,8 +31,6 @@ const scenarios = [
   { name: "learning", path: "/js-progress", ready: "JS Progress V2" },
   { name: "analytics", path: "/analytics", ready: "Stats de progression personnelle" },
   { name: "tables", path: "/tools/dashboard-backlog", ready: "Dashboard Backlog" },
-  { name: "state-system", path: "/pokemon-admin?section=my-collection", ready: "Aucune collection importée" },
-  { name: "modal", path: "/pokemon-admin?section=my-collection", ready: "Ma collection Pokémon GO", openModal: true },
 ];
 
 function readEnvironment() {
@@ -46,17 +44,6 @@ function readEnvironment() {
     return [[match[1], value]];
   }));
 }
-
-const emptyTrainerPayload = {
-  success: true,
-  data: {
-    items: [],
-    snapshot: null,
-    stats: { total: 0, shiny: 0, lucky: 0, perfect: 0, shadow: 0, purified: 0, costume: 0 },
-    filters: { genders: [], alignments: [], forms: [], costumes: [], cp: { min: 0, max: 0 }, ivPercent: { min: 0, max: 0 }, weightKg: { min: 0, max: 0 }, heightM: { min: 0, max: 0 } },
-    pagination: { page: 1, limit: 50, total: 0, pages: 0 },
-  },
-};
 
 async function json(route, body, status = 200) {
   await route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
@@ -126,9 +113,6 @@ async function installRoutes(page) {
     }
     return json(route, { data: { entries: [], customRuleEntries: [], customRules: [], summary: {}, collections: [], sourceWatch: { sources: [] } } });
   });
-  await page.route("**/api/trainer-pokemon/imports**", (route) => json(route, { success: true, data: { imports: [] } }));
-  await page.route("**/api/trainer-pokemon/diagnostics**", (route) => json(route, { success: true, data: { items: [], summary: {} } }));
-  await page.route("**/api/trainer-pokemon?**", (route) => json(route, emptyTrainerPayload));
 }
 
 async function authenticate(browser) {
@@ -203,27 +187,6 @@ try {
         await installRoutes(page);
         await page.goto(`${baseUrl}${scenario.path}`, { waitUntil: "domcontentloaded" });
         await page.getByText(scenario.ready, { exact: false }).filter({ visible: true }).first().waitFor({ timeout: 30_000 });
-
-        if (scenario.openModal) {
-          const trigger = page.getByRole("button", { name: "Importer un JSON", exact: true }).first();
-          await trigger.click();
-          const dialog = page.getByRole("dialog", { name: "Importer ma collection" });
-          await dialog.waitFor({ state: "visible" });
-          const style = await dialog.evaluate((element) => ({
-            radius: getComputedStyle(element).borderRadius,
-            shadow: getComputedStyle(element).boxShadow,
-          }));
-          assert.equal(style.radius, "8px", `${theme}-${viewport.name}: radius Modal`);
-          assert.notEqual(style.shadow, "none", `${theme}-${viewport.name}: shadow Modal`);
-          await page.keyboard.press("Escape");
-          await dialog.waitFor({ state: "hidden" });
-          const triggerHandle = await trigger.elementHandle();
-          await page.waitForFunction(
-            (element) => document.activeElement === element,
-            triggerHandle,
-            { timeout: 2_000 },
-          );
-        }
 
         await page.evaluate(() => document.fonts.ready);
         await page.waitForTimeout(250);

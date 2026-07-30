@@ -19,9 +19,9 @@ source_files:
   - "PokemonGo-API-/package.json"
   - "PokemonGo-Data/package.json"
 registries:
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/components.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/services.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
+  - "audit-documentation/registries/components.json"
+  - "audit-documentation/registries/services.json"
+  - "audit-documentation/registries/api-routes.json"
 related:
   - "DOC-021"
   - "DOC-024"

@@ -22,9 +22,9 @@ source_files:
   - "PokemonGo-API-/scripts/import"
   - "PokemonGo-Assets-API/scripts/sync-pokeminers-pogo-assets.js"
 registries:
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/providers.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/dependencies.json"
+  - "audit-documentation/registries/providers.json"
+  - "audit-documentation/registries/datasets.json"
+  - "audit-documentation/registries/dependencies.json"
 related:
   - "DOC-013"
   - "DOC-016"

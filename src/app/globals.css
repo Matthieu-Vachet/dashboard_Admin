@@ -925,15 +925,17 @@ a {
 }
 
 .pvp-picker-surface {
-  position: absolute;
-  right: 0.75rem;
-  bottom: 0.75rem;
-  left: 0.75rem;
-  max-height: 84dvh;
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  max-height: 100dvh;
 }
 
 .pvp-picker-surface > [role="listbox"] {
+  height: 100dvh;
   max-height: inherit;
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
 }
 
 select.pvp-move-select {
@@ -955,6 +957,11 @@ select.pvp-move-select option {
     left: clamp(0.75rem, var(--pvp-picker-left), calc(100vw - var(--pvp-picker-width) - 0.75rem));
     width: var(--pvp-picker-width);
     max-height: var(--pvp-picker-max-height);
+  }
+
+  .pvp-picker-surface > [role="listbox"] {
+    height: auto;
+    padding: 0.5rem;
   }
 }
 

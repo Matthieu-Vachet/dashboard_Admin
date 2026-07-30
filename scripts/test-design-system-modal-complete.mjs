@@ -49,7 +49,6 @@ test("chaque instance Modal courante importe la primitive canonique", () => {
     "src/components/admin/pokemon/events-history-panel.jsx",
     "src/components/admin/pokemon/identity-manager-panel.tsx",
     "src/components/admin/pokemon/shiny-tracker-panel.jsx",
-    "src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx",
     "src/components/admin/tables/dashboard-backlog.tsx",
   ];
   assert.ok(modalConsumers.length >= historicalConsumers.length);
@@ -144,7 +143,7 @@ test("les corrections spécialisées restent sémantiques et locales", () => {
 
 test("drawers, confirmations et niveaux spécialisés restent hors primitive", () => {
   const joined = allSources.map(read).join("\n");
-  assert.ok((joined.match(/window\.confirm\(/g)?.length || 0) >= 4);
+  assert.ok((joined.match(/window\.confirm\(/g)?.length || 0) >= 3);
   assert.match(read("src/components/admin/layout/admin-app-frame.tsx"), /dashboard-sidebar-mobile/);
   assert.match(read("src/components/admin/pokemon/admin-section-navigation.jsx"), /z-\[90\][\s\S]*Navigation Admin Pokémon/);
   assert.match(read("src/components/admin/events/event-editor-modal.jsx"), /z-\[1200\]/);

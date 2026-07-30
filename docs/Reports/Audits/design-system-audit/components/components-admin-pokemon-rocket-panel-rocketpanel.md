@@ -132,7 +132,7 @@ Not found
 
 - Boolean properties for Figma: Hover, Focused, Loading, Disabled, Warning, Success, Empty, Active, Inactive.
 - Text properties: `loading`, `onDownload`, `onOpenPokemon`, `onRefresh`, `onRegenerate`, `refreshError`, `regenerating`, `rocket`, `rocketTexts`.
-- Instance swaps: `Crown`, `Download`, `RefreshCcw`, `RotateCcw`, `Sparkles`, `/ui/icons/radar.png`, `/ui/icons/shadow.png`.
+- Instance swaps: `Crown`, `Download`, `RefreshCcw`, `RotateCcw`, `Sparkles`, `/assets/ui/icons/general/radar.png`, `/assets/ui/icons/general/shadow.png`.
 - Additional conditional variants are preserved verbatim in section 12.
 
 ## 8. Complete state matrix
@@ -394,7 +394,7 @@ Not found
 ## 16. Icons, images and decorative assets
 
 - Lucide icons: `Crown`, `Download`, `RefreshCcw`, `RotateCcw`, `Sparkles`.
-- Asset references: `/ui/icons/radar.png`, `/ui/icons/shadow.png`.
+- Asset references: `/assets/ui/icons/general/radar.png`, `/assets/ui/icons/general/shadow.png`.
 - SVG usage: Not found.
 - Decorative/semantic intent for empty alt text must follow the exact source; intent beyond attributes: Estimated from implementation.
 
@@ -403,7 +403,7 @@ Not found
 - Auto Layout: horizontal or mixed; verify each nested frame. Preserve every nested flex/grid boundary shown in the HTML outline.
 - Component set: create one variant axis per explicit prop/value pair listed above; do not invent missing variants.
 - Boolean properties: Hover, Focused, Loading, Disabled, Warning, Success, Empty, Active, Inactive.
-- Instance swaps: `Crown`, `Download`, `RefreshCcw`, `RotateCcw`, `Sparkles`, `/ui/icons/radar.png`, `/ui/icons/shadow.png`.
+- Instance swaps: `Crown`, `Download`, `RefreshCcw`, `RotateCcw`, `Sparkles`, `/assets/ui/icons/general/radar.png`, `/assets/ui/icons/general/shadow.png`.
 - Text properties: expose each textual prop from the props contract; when text is hardcoded, preserve it in the default instance.
 - Variables: bind CSS variables and semantic token references listed in this document. Literal utilities remain documented implementation values.
 - Constraints: infer from width/min/max and responsive utilities; any value not encoded is marked Estimated from implementation.

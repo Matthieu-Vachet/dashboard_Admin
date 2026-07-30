@@ -14,15 +14,15 @@ import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
 import { FetchLoadingState } from "@/components/admin/shared/state-system";
 
 const eggSections = [
-  ["1km", "1 km", "/ui/eggs/1_km.png", "cyan"],
-  ["2km", "2 km", "/ui/eggs/2_km.png", "green"],
-  ["5km", "5 km", "/ui/eggs/5_km.png", "violet"],
-  ["5km_adventure_sync", "5 km Adventure Sync", "/ui/eggs/5_km.png", "amber"],
-  ["7km", "7 km", "/ui/eggs/7_km.png", "cyan"],
-  ["7km_route_gift", "7 km Cadeau route", "/ui/eggs/7_km.png", "green"],
-  ["10km", "10 km", "/ui/eggs/10_km.png", "violet"],
-  ["10km_adventure_sync", "10 km Adventure Sync", "/ui/eggs/10_km.png", "amber"],
-  ["12km", "12 km", "/ui/eggs/12_km.png", "cyan"],
+  ["1km", "1 km", "/assets/ui/categories/eggs/1_km.png", "cyan"],
+  ["2km", "2 km", "/assets/ui/categories/eggs/2_km.png", "green"],
+  ["5km", "5 km", "/assets/ui/categories/eggs/5_km.png", "violet"],
+  ["5km_adventure_sync", "5 km Adventure Sync", "/assets/ui/categories/eggs/5_km.png", "amber"],
+  ["7km", "7 km", "/assets/ui/categories/eggs/7_km.png", "cyan"],
+  ["7km_route_gift", "7 km Cadeau route", "/assets/ui/categories/eggs/7_km.png", "green"],
+  ["10km", "10 km", "/assets/ui/categories/eggs/10_km.png", "violet"],
+  ["10km_adventure_sync", "10 km Adventure Sync", "/assets/ui/categories/eggs/10_km.png", "amber"],
+  ["12km", "12 km", "/assets/ui/categories/eggs/12_km.png", "cyan"],
 ];
 
 const knownEggSections = new Set(eggSections.map(([id]) => id));
@@ -47,7 +47,7 @@ function allEggSections(currentEggsList) {
     .map(([id, pokemon]) => [
       id,
       values(pokemon)[0]?.sourceCategory || values(pokemon)[0]?.sectionTitle || titleFromKey(id),
-      "/ui/eggs/2_km.png",
+      "/assets/ui/categories/eggs/2_km.png",
       "cyan",
     ]);
   return [...eggSections, ...unknown];
@@ -67,7 +67,7 @@ function Rarity({ value }) {
   return (
     <div className="flex items-center gap-1" aria-label={`Rarete ${count}`}>
       {Array.from({ length: count }).map((_, index) => (
-        <img key={index} className="h-5 w-5 object-contain" src="/ui/eggs/rarity.png" alt="" />
+        <img key={index} className="h-5 w-5 object-contain" src="/assets/ui/categories/eggs/rarity.png" alt="" />
       ))}
     </div>
   );
@@ -199,10 +199,10 @@ export function EggsPanel({
         }
       >
         <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <AssetStatCard label="Pokemon oeufs" value={total} icon="/ui/eggs/2_km.png" tone="cyan" detail="Toutes categories" />
-          <AssetStatCard label="Adventure Sync" value={adventureTotal} icon="/ui/eggs/10_km.png" tone="violet" detail="Recompenses marche" />
-          <AssetStatCard label="Cadeaux route" value={buckets["7km_route_gift"] || 0} icon="/ui/eggs/7_km.png" tone="green" detail="Oeufs de routes" />
-          <AssetStatCard label="12 km" value={buckets["12km"] || 0} icon="/ui/eggs/12_km.png" tone="amber" detail="Oeufs Rocket" />
+          <AssetStatCard label="Pokemon oeufs" value={total} icon="/assets/ui/categories/eggs/2_km.png" tone="cyan" detail="Toutes categories" />
+          <AssetStatCard label="Adventure Sync" value={adventureTotal} icon="/assets/ui/categories/eggs/10_km.png" tone="violet" detail="Recompenses marche" />
+          <AssetStatCard label="Cadeaux route" value={buckets["7km_route_gift"] || 0} icon="/assets/ui/categories/eggs/7_km.png" tone="green" detail="Oeufs de routes" />
+          <AssetStatCard label="12 km" value={buckets["12km"] || 0} icon="/assets/ui/categories/eggs/12_km.png" tone="amber" detail="Oeufs Rocket" />
         </div>
         <DatasetSourceHeader dataset={eggs} total={total} refreshError={refreshError} />
       </Panel>

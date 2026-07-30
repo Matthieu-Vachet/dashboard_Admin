@@ -127,7 +127,7 @@ Not found
 
 - Boolean properties for Figma: Hover, Focused, Loading, Disabled, Warning, Success, Active, Inactive.
 - Text properties: `itemsReference`, `loading`, `onDownload`, `onRefresh`, `onRegenerate`, `refreshError`, `regenerating`, `research`.
-- Instance swaps: `CalendarDays`, `Download`, `Eye`, `RefreshCcw`, `RotateCcw`, `Sparkles`, `/ui/Items/candy_rgb.png`, `/ui/Items/Item_1201.png`, `/ui/Items/stardust_painted.png`.
+- Instance swaps: `CalendarDays`, `Download`, `Eye`, `RefreshCcw`, `RotateCcw`, `Sparkles`, `/assets/pokemon/items/library/candy_rgb.png`, `/assets/pokemon/items/library/Item_1201.png`, `/assets/pokemon/items/library/stardust_painted.png`.
 - Additional conditional variants are preserved verbatim in section 12.
 
 ## 8. Complete state matrix
@@ -440,7 +440,7 @@ Not found
 ## 16. Icons, images and decorative assets
 
 - Lucide icons: `CalendarDays`, `Download`, `Eye`, `RefreshCcw`, `RotateCcw`, `Sparkles`.
-- Asset references: `/ui/Items/candy_rgb.png`, `/ui/Items/Item_1201.png`, `/ui/Items/stardust_painted.png`.
+- Asset references: `/assets/pokemon/items/library/candy_rgb.png`, `/assets/pokemon/items/library/Item_1201.png`, `/assets/pokemon/items/library/stardust_painted.png`.
 - SVG usage: Not found.
 - Decorative/semantic intent for empty alt text must follow the exact source; intent beyond attributes: Estimated from implementation.
 
@@ -449,7 +449,7 @@ Not found
 - Auto Layout: horizontal or mixed; verify each nested frame. Preserve every nested flex/grid boundary shown in the HTML outline.
 - Component set: create one variant axis per explicit prop/value pair listed above; do not invent missing variants.
 - Boolean properties: Hover, Focused, Loading, Disabled, Warning, Success, Active, Inactive.
-- Instance swaps: `CalendarDays`, `Download`, `Eye`, `RefreshCcw`, `RotateCcw`, `Sparkles`, `/ui/Items/candy_rgb.png`, `/ui/Items/Item_1201.png`, `/ui/Items/stardust_painted.png`.
+- Instance swaps: `CalendarDays`, `Download`, `Eye`, `RefreshCcw`, `RotateCcw`, `Sparkles`, `/assets/pokemon/items/library/candy_rgb.png`, `/assets/pokemon/items/library/Item_1201.png`, `/assets/pokemon/items/library/stardust_painted.png`.
 - Text properties: expose each textual prop from the props contract; when text is hardcoded, preserve it in the default instance.
 - Variables: bind CSS variables and semantic token references listed in this document. Literal utilities remain documented implementation values.
 - Constraints: infer from width/min/max and responsive utilities; any value not encoded is marked Estimated from implementation.

@@ -24,8 +24,6 @@ const scenarios = [
   { name: "notes", path: "/notes", ready: "Carnet central" },
   { name: "tools", path: "/tools", ready: "Outils quotidiens" },
   { name: "forms", path: "/kanban", ready: "Kanban projet" },
-  { name: "state-system", path: "/pokemon-admin?section=my-collection", ready: "Aucune collection importée" },
-  { name: "modal", path: "/pokemon-admin?section=my-collection", ready: "Ma collection Pokémon GO", openModal: true },
 ];
 
 function readEnvironment() {
@@ -39,16 +37,6 @@ function readEnvironment() {
     return [[match[1], value]];
   }));
 }
-
-const emptyTrainerPayload = {
-  success: true,
-  data: {
-    items: [], snapshot: null,
-    stats: { total: 0, shiny: 0, lucky: 0, perfect: 0, shadow: 0, purified: 0, costume: 0 },
-    filters: { genders: [], alignments: [], forms: [], costumes: [], cp: { min: 0, max: 0 }, ivPercent: { min: 0, max: 0 }, weightKg: { min: 0, max: 0 }, heightM: { min: 0, max: 0 } },
-    pagination: { page: 1, limit: 50, total: 0, pages: 0 },
-  },
-};
 
 async function json(route, body, status = 200) {
   await route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
@@ -92,9 +80,6 @@ async function installRoutes(page) {
     }
     return json(route, { data: { entries: [], customRuleEntries: [], customRules: [], summary: {}, collections: [], sourceWatch: { sources: [] } } });
   });
-  await page.route("**/api/trainer-pokemon/imports**", (route) => json(route, { success: true, data: { imports: [] } }));
-  await page.route("**/api/trainer-pokemon/diagnostics**", (route) => json(route, { success: true, data: { items: [], summary: {} } }));
-  await page.route("**/api/trainer-pokemon?**", (route) => json(route, emptyTrainerPayload));
 }
 
 async function authenticate(browser) {
@@ -183,21 +168,9 @@ try {
         await page.getByText(scenario.ready, { exact: false }).filter({ visible: true }).first().waitFor({ timeout: 30_000 });
         await page.evaluate(() => document.fonts.ready);
 
-        if (scenario.openModal) {
-          const trigger = page.getByRole("button", { name: "Importer un JSON", exact: true }).first();
-          await trigger.click();
-          const dialog = page.getByRole("dialog", { name: "Importer ma collection" });
-          await dialog.waitFor({ state: "visible" });
-          assert.equal(await dialog.locator(".type-title-subsection").count(), 1, `${theme}-${viewport.name}: titre Modal`);
-          assert.equal(await dialog.locator(".type-body-strong").count(), 1, `${theme}-${viewport.name}: body Modal`);
-          await page.keyboard.press("Escape");
-          await dialog.waitFor({ state: "hidden" });
-          await page.waitForFunction((element) => document.activeElement === element, await trigger.elementHandle(), { timeout: 2_000 });
-        }
-
         const probe = await typographyProbe(page);
         assert.ok(probe.semanticCount > 0, `${scenario.name}: aucun rôle Typography`);
-        assert.ok(probe.headingSemanticCount > 0 || scenario.name === "state-system" || scenario.name === "modal", `${scenario.name}: aucun heading sémantique`);
+        assert.ok(probe.headingSemanticCount > 0, `${scenario.name}: aucun heading sémantique`);
         assert.ok(probe.fontSize >= 10 && probe.fontSize <= 60, `${scenario.name}: font-size ${probe.fontSize}`);
         assert.ok(["500", "600", "700", "900"].includes(probe.fontWeight), `${scenario.name}: weight ${probe.fontWeight}`);
         assert.ok(probe.lineHeight >= 16, `${scenario.name}: line-height ${probe.lineHeight}`);

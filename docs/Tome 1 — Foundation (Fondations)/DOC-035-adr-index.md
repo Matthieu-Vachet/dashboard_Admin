@@ -17,11 +17,10 @@ source_files:
   - "PokemonGo-Data/.github/workflows/dispatch-api-sync.yml"
   - "PokemonGo-API-/src/current-datasets/router.js"
   - "Dashboard Admin/src/lib/session-token.ts"
-  - "Dashboard Admin/src/lib/trainer-pokemon/repository.ts"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/documentation-map.json"
+  - "audit-documentation/registries/documentation-map.json"
 registries:
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/documentation-map.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/dependencies.json"
+  - "audit-documentation/registries/documentation-map.json"
+  - "audit-documentation/registries/dependencies.json"
 related:
   - "DOC-006"
   - "DOC-013"
@@ -42,11 +41,12 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 
 | Élément | Constat vérifié |
 | --- | --- |
-| Fichiers ADR-*.md présents | ADR-001 à ADR-013 |
-| Entrées ADR historiques | ADR-001 à ADR-010 |
-| ADR post-audit | ADR-011 à ADR-013 |
-| ADR Game Master | ADR-012, ADR-013 |
-| Statut | décisions formalisées et actives |
+| Fichiers ADR-*.md présents | 0 |
+| Entrées ADR réservées dans documentation-map | ADR-001 à ADR-010 |
+| ADR formel accepté | 0 |
+| Décisions encodées examinées | 10 |
+| Liens vers fiches ADR | 0 |
+| Statut | absence explicite de fiches |
 
 ## 3. Implémentation observée
 
@@ -60,7 +60,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - Learning conserve une migration browser et un rollback de contenu.
 - La collection trainer conserve les snapshots, vérifie le read-back et active un pointeur owner sans deleteMany.
 - Les assets publics sont consommés par URL GitHub raw sur main.
-- ADR-012 formalise l’indexation et l’activation atomique du Game Master. ADR-013 retient la cohabitation des deux écrans avec un seul générateur et un seul résolveur.
+- Ces dix décisions existent dans le code mais aucune ne possède une fiche ADR avec contexte, alternatives, décision et conséquences.
 
 ## 4. Relations et dépendances
 
@@ -97,14 +97,11 @@ flowchart TD
 
 ### Fiches spécialisées présentes
 
-- [WORKFLOW-016](<../Tome 18 - Workflow/WORKFLOW-016-import-collection-pokemon-go.md>)
-- [DATASET-020](<../Tome 6 — Datasets/DATASET-020-collection-personnelle-pokemon-go.md>)
-- [COL-030](<../Tome 8 — MongoDB/COL-030-trainer-pokemon-owners.md>)
-- [COL-031](<../Tome 8 — MongoDB/COL-031-trainer-pokemon-snapshots.md>)
-- [COL-032](<../Tome 8 — MongoDB/COL-032-trainer-pokemon-entries.md>)
-- [ADR-011](<../Tome 15 — ADR/ADR-011-identite-pokemon-canonique.md>)
-- [ADR-012](<../Tome 15 — ADR/ADR-012-indexation-snapshots-game-master.md>)
-- [ADR-013](<../Tome 15 — ADR/ADR-013-cohabitation-resolution-variantes.md>)
+- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
+- [DATASET-020](<../Post-audit 2026-07-13/DATASET-020-collection-personnelle-pokemon-go.md>)
+- [COL-030](<../Post-audit 2026-07-13/undefined>)
+- [COL-031](<../Post-audit 2026-07-13/undefined>)
+- [COL-032](<../Post-audit 2026-07-13/undefined>)
 
 ## 7. Informations absentes du code
 
@@ -118,5 +115,4 @@ flowchart TD
 - `PokemonGo-Data/.github/workflows/dispatch-api-sync.yml`
 - `PokemonGo-API-/src/current-datasets/router.js`
 - `Dashboard Admin/src/lib/session-token.ts`
-- `Dashboard Admin/src/lib/trainer-pokemon/repository.ts`
 - `audit-documentation/registries/documentation-map.json`

@@ -641,6 +641,7 @@ export async function prepareDefaultBattleBuild(
   identifier: string,
   league: PvpLeague,
   shields = 1,
+  shadow = false,
 ) {
   const pokemon = await getCatalogPokemon(identifier);
   const rank = rankIvs({
@@ -678,7 +679,7 @@ export async function prepareDefaultBattleBuild(
       canonicalId: pokemon.canonicalId,
       level: rank.level,
       ivs: rank.ivs,
-      shadow: false,
+      shadow,
       fastMoveId,
       chargedMoveIds,
       shields,

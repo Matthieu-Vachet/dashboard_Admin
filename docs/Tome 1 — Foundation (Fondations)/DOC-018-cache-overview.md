@@ -18,12 +18,11 @@ source_files:
   - "PokemonGo-API-/src/lib/cache.js"
   - "PokemonGo-API-/src/current-datasets/router.js"
   - "Dashboard Admin/scripts/data/ensure-data.js"
-  - "Dashboard Admin/src/lib/trainer-pokemon/references.ts"
   - "PokemonGo-Assets-API/.pokeminers-cache"
 registries:
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/assets.json"
+  - "audit-documentation/registries/api-routes.json"
+  - "audit-documentation/registries/datasets.json"
+  - "audit-documentation/registries/assets.json"
 related:
   - "DOC-012"
   - "DOC-017"
@@ -55,8 +54,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - Le cache Express ne stocke que les GET 2xx sans no-store et expose HIT, MISS ou BYPASS dans X-Cache.
 - fresh=true contourne le cache. clearCache efface tout; invalidateDatasetCache efface les préfixes des cinq current publics historiques.
 - Le routeur current impose Cache-Control no-store, Pragma no-cache et Expires 0.
-- Le Dashboard envoie private, no-store sur ses routes privées et sur les réponses trainer-pokemon.
-- fetchTrainerPokemonReferences regroupe Pokémon, moves et types dans une Promise partagée pendant dix minutes; une erreur remet la Promise et le timestamp à zéro.
+- Le Dashboard envoie private, no-store sur ses routes privées.
 - ensure-data crée un clone ou snapshot dérivé dans .data; le script de PokeMiners utilise un cache de téléchargement et d’extraction.
 
 ## 4. Relations et dépendances
@@ -110,5 +108,4 @@ Aucune fiche spécialisée liée n’est présente.
 - `PokemonGo-API-/src/lib/cache.js`
 - `PokemonGo-API-/src/current-datasets/router.js`
 - `Dashboard Admin/scripts/data/ensure-data.js`
-- `Dashboard Admin/src/lib/trainer-pokemon/references.ts`
 - `PokemonGo-Assets-API/.pokeminers-cache`

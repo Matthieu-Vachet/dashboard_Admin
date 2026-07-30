@@ -29,8 +29,16 @@ test("la navigation Admin Pokémon est compacte sur desktop et devient une sheet
 test("le burger global conserve les libellés complets sur mobile", () => {
   const frame = read("src/components/admin/layout/admin-app-frame.tsx");
   assert.match(frame, /renderSidebar\(collapsed\)/);
-  assert.match(frame, /renderSidebar\(false\)/);
+  assert.match(frame, /renderSidebar\(false, true\)/);
   assert.doesNotMatch(frame, /dashboard-sidebar-mobile[^]*\{sidebar\}/);
+});
+
+test("le compte du drawer mobile est compact et replié par défaut", () => {
+  const sidebar = read("src/components/admin/navigation/admin-sidebar.tsx");
+  assert.match(sidebar, /const \[accountExpanded, setAccountExpanded\] = useState\(false\)/);
+  assert.match(sidebar, /aria-expanded=\{mobile \? accountExpanded : true\}/);
+  assert.match(sidebar, /mobile && !accountExpanded && "hidden"/);
+  assert.match(sidebar, /safe-area-inset-bottom/);
 });
 
 test("Costumes réhydrate les assets Identity Manager et expose tous les filtres demandés", () => {
@@ -226,13 +234,9 @@ test("les statistiques Events restent complètes dans des tuiles compactes", () 
   }
 });
 
-test("Events déduplique les assets identiques et la collection rend l’absence sans fallback", () => {
+test("Events déduplique les assets identiques", () => {
   const eventsSource = read("src/components/admin/events/events-calendar-panel.jsx");
-  const trainerSource = read("src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx");
   assert.match(eventsSource, /uniqueBy\(\(event\.featuredPokemon \|\| \[\]\)[\s\S]*?\(pokemon\) => pokemon\.src\)/);
-  assert.match(trainerSource, /resolvedImage \?/);
-  assert.match(trainerSource, /<ImageOff/);
-  assert.doesNotMatch(trainerSource, /resolvedImage\s*\|\|/);
 });
 
 test("les diagnostics source restent repliés et l'API Explorer reste contenu sur mobile", () => {
@@ -305,7 +309,9 @@ test("le Battle Lab porte le sélecteur hors des stacking contexts et expose tou
   assert.match(source, /SHADOW · OBSCUR/);
   assert.match(source, /MEGA_X/);
   assert.match(source, /Régional/);
-  assert.match(source, /entries\.length} variantes de combat/);
+  assert.match(source, /matchingEntries\.length} résultat/);
+  assert.match(source, /document\.body\.style\.overflow = "hidden"/);
+  assert.match(source, /event\.key !== "Tab"/);
 });
 
 test("le Battle Lab propose Rank IV complet, caps explicites et assets métier", () => {
@@ -314,9 +320,40 @@ test("le Battle Lab propose Rank IV complet, caps explicites et assets métier",
   assert.match(source, /const levelCaps = \[40, 41, 50, 51\]/);
   assert.match(source, /Voir classement IV/);
   assert.match(source, /4096 spreads calculés/);
-  assert.match(source, /uiAssets\.icons\.shieldAlt/);
+  for (const asset of ["shield0", "shield1", "shield2", "fastAttack", "chargedAttack"]) {
+    assert.match(source, new RegExp(`uiAssets\\.icons\\.${asset}`));
+  }
   assert.match(source, /typeIconAsset/);
   assert.match(route, /action: z\.literal\("iv-rankings"\)/);
+});
+
+test("Multi et Matrix utilisent des sélecteurs visuels et isolent les erreurs batch", () => {
+  const source = read("src/components/admin/pokemon/pvp-battle-lab.tsx");
+  const route = read("src/app/api/admin/pvp-simulator/route.ts");
+  assert.match(source, /function PokemonGroupSelector/);
+  assert.match(source, /limit=\{100\}/);
+  assert.match(source, /limit=\{20\}/);
+  assert.match(source, /Meilleurs matchups/);
+  assert.match(source, /Matrix Battle/);
+  assert.match(source, /Voir le combat/);
+  assert.match(route, /Promise\.allSettled/);
+  assert.match(route, /batchIdentifier/);
+  assert.match(route, /errors: \[/);
+});
+
+test("les sélecteurs d’attaques chargées empêchent les doublons", () => {
+  const source = read("src/components/admin/pokemon/pvp-battle-lab.tsx");
+  assert.match(source, /function replaceChargedMove/);
+  assert.match(source, /next\[otherIndex\] === value/);
+  assert.match(source, /items\.indexOf\(moveId\) === moveIndex/);
+  assert.doesNotMatch(source, /key=\{combatant\.canonicalId\}/);
+});
+
+test("la fonctionnalité collection personnelle est absente du code produit", () => {
+  const source = read("src/components/admin/pokemon/admin-app.jsx");
+  const proxy = read("src/proxy.ts");
+  assert.doesNotMatch(source, /my-collection|TrainerPokemonCollectionPanel/);
+  assert.doesNotMatch(proxy, /trainer-pokemon/);
 });
 
 test("l'explorateur dérive les routes publiques d'OpenAPI et isole les actions privées", () => {
@@ -422,6 +459,8 @@ test("la Home orchestre une régénération globale séquentielle et tolérante 
   assert.match(home, /for \(const definition of globalRegenerationDefinitions\)/);
   assert.match(home, /Progression de la régénération globale/);
   assert.match(home, /Diagnostic/);
+  assert.match(adminApp, /bootstrap\.loading && !bootstrap\.payload/);
+  assert.match(adminApp, /bootstrap\.payload &&\s+active === "overview"/);
   assert.match(orchestrator, /regenerate-game-master/);
   assert.match(orchestrator, /identity-manager-sync-preview/);
   assert.match(orchestrator, /identity-manager-sync-apply/);
@@ -443,6 +482,12 @@ test("la Home orchestre une régénération globale séquentielle et tolérante 
   assert.match(orchestrator, /Synchronisation non appliquée/);
   assert.match(orchestrator, /waitForRegeneration/);
   assert.match(orchestrator, /regeneration-status/);
+  assert.match(orchestrator, /inFlightRegenerations\.get\(normalizedAction\)/);
+  assert.match(orchestrator, /inFlightRegenerations\.set\(normalizedAction, request\)/);
+  assert.match(orchestrator, /inFlightRegenerations\.delete\(normalizedAction\)/);
+  for (const state of ["pending", "queued", "accepted", "running", "processing"]) {
+    assert.match(orchestrator, new RegExp(`"${state}"`));
+  }
   assert.match(adminApp, /executePokemonAdminRegeneration\(action\)/);
   assert.match(adminRoute, /asynchronousRegenerationDomains/);
   assert.match(adminRoute, /\/regenerate\/\$\{encodeURIComponent\(runId\)\}/);
@@ -482,7 +527,6 @@ test("la recherche Admin Pokémon persiste dans l’URL et se propage aux sectio
     "raids-panel.jsx",
     "research-panel.jsx",
     "rocket-panel.jsx",
-    "trainer-pokemon-collection-panel.tsx",
   ]) {
     const panel = read(`src/components/admin/pokemon/${file}`);
     assert.match(panel, /useAdminPokemonSearch/);

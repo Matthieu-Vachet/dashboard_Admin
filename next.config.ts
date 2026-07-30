@@ -35,7 +35,7 @@ const nextConfig: NextConfig = {
       "./.data/PokemonGo-Data/rocket/**",
       "./.data/PokemonGo-Data/research/**",
       "./.data/PokemonGo-Data/items/**",
-      "./public/ui/**",
+      "./public/assets/**",
     ],
     "/api/admin/community-days/**": [
       "./.data/PokemonGo-Data/pokemon/**",

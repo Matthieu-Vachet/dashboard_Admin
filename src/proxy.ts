@@ -7,7 +7,6 @@ const publicPaths = ["/login", "/api/session", "/api/logout", "/api/events"];
 const protectedApiPaths = [
   "/api/dashboard-store",
   "/api/pokemon-admin",
-  "/api/trainer-pokemon",
   "/api/dashboard-backlog",
   "/api/admin/events",
   "/api/admin/community-days",

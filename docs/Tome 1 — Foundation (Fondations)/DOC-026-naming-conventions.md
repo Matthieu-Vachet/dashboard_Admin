@@ -16,12 +16,12 @@ source_files:
   - "Dashboard Admin/src"
   - "PokemonGo-API-/src"
   - "PokemonGo-Data"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries"
+  - "audit-documentation/registries"
 registries:
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/mongodb-collections.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/components.json"
+  - "audit-documentation/registries/api-routes.json"
+  - "audit-documentation/registries/mongodb-collections.json"
+  - "audit-documentation/registries/datasets.json"
+  - "audit-documentation/registries/components.json"
 related:
   - "DOC-012"
   - "DOC-017"

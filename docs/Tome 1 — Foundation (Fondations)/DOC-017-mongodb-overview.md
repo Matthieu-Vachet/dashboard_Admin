@@ -18,11 +18,10 @@ source_files:
   - "PokemonGo-API-/src/sync"
   - "Dashboard Admin/src/lib/dashboard-store.ts"
   - "Dashboard Admin/src/lib/learning/repository.ts"
-  - "Dashboard Admin/src/lib/trainer-pokemon/repository.ts"
 registries:
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/mongodb-collections.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/dependencies.json"
+  - "audit-documentation/registries/mongodb-collections.json"
+  - "audit-documentation/registries/datasets.json"
+  - "audit-documentation/registries/dependencies.json"
 related:
   - "DOC-012"
   - "DOC-013"
@@ -47,7 +46,6 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | COL-030 | trainer_pokemon_owners |
 | COL-031 | trainer_pokemon_snapshots |
 | COL-032 | trainer_pokemon_entries |
-| COL-035 à COL-039 | Game Master state, templates, snapshots, diffs et comparaison locale |
 | TTL déclarés | 0 |
 
 ## 3. Implémentation observée
@@ -58,7 +56,6 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - trainer_pokemon_snapshots indexe owner/importedAt et owner/status/importedAt.
 - trainer_pokemon_entries possède neuf index, dont l’unicité owner+snapshotId+sourceId et les accès par numéro, nom, CP, IV, états, genre, alignement, forme et costume.
 - Les modèles Mongoose désactivent versionKey sur les modèles observés; le versionnement métier repose sur timestamps, hash, snapshots ou historique applicatif.
-- COL-035 porte le pointeur Game Master actif. COL-036 à COL-039 sont écrites en staging avant cette bascule ; la rétention est illimitée par défaut.
 
 ## 4. Relations et dépendances
 
@@ -67,7 +64,6 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | Sync statique | écrit | COL-002 à 004, 006 à 008, 012, 014, 018 à 019 |
 | Current pipeline | écrit | COL-001, 005, 009 à 011, 013, 015 à 016 |
 | Trainer repository | écrit | COL-030 à COL-032 |
-| Game Master pipeline | écrit | COL-035 à COL-039 |
 
 ## 5. Diagramme vérifié
 
@@ -96,10 +92,9 @@ flowchart LR
 
 ### Fiches spécialisées présentes
 
-- [COL-030](<../Tome 8 — MongoDB/COL-030-trainer-pokemon-owners.md>)
-- [COL-031](<../Tome 8 — MongoDB/COL-031-trainer-pokemon-snapshots.md>)
-- [COL-032](<../Tome 8 — MongoDB/COL-032-trainer-pokemon-entries.md>)
-- [COL-035 à COL-039](<../Tome 8 — MongoDB/COL-035-game-master-states.md>)
+- [COL-030](<../Post-audit 2026-07-13/undefined>)
+- [COL-031](<../Post-audit 2026-07-13/undefined>)
+- [COL-032](<../Post-audit 2026-07-13/undefined>)
 
 ## 7. Informations absentes du code
 
@@ -114,4 +109,3 @@ flowchart LR
 - `PokemonGo-API-/src/sync`
 - `Dashboard Admin/src/lib/dashboard-store.ts`
 - `Dashboard Admin/src/lib/learning/repository.ts`
-- `Dashboard Admin/src/lib/trainer-pokemon/repository.ts`

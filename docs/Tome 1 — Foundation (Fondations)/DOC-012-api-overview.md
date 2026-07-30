@@ -20,10 +20,10 @@ source_files:
   - "PokemonGo-API-/api"
   - "Dashboard Admin/src/app/api"
 registries:
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/mongodb-collections.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/dependencies.json"
+  - "audit-documentation/registries/api-routes.json"
+  - "audit-documentation/registries/datasets.json"
+  - "audit-documentation/registries/mongodb-collections.json"
+  - "audit-documentation/registries/dependencies.json"
 related:
   - "DOC-006"
   - "DOC-011"
@@ -57,8 +57,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - Express applique requestId, Helmet, CORS, compression, Morgan, rate limiting, cache GET, middleware read-only, routes et middleware d’erreur.
 - Les routes statiques lisent les modèles Mongoose et exposent pagination, recherche, projections ou catalogues selon leur module.
 - Le routeur current dessert raids, eggs, max-battles, rocket, research, shiny et pvp-rankings. Il impose no-store; les mutations import et regenerate exigent x-api-admin-secret.
-- Les routes API-157 à API-160 sont privées au Dashboard, vérifient getSession et isolent les données avec session.email.
-- OpenAPI n’inclut ni les routes Shiny privées ni les routes trainer-pokemon du Dashboard.
+- OpenAPI n’inclut pas les routes Shiny privées.
 
 ## 4. Relations et dépendances
 
@@ -100,10 +99,10 @@ flowchart LR
 
 ### Fiches spécialisées présentes
 
-- [API-157](<../Tome 7 — API/API-157-get-trainer-pokemon.md>)
-- [API-158](<../Tome 7 — API/API-158-post-trainer-pokemon-import.md>)
-- [API-159](<../Tome 7 — API/API-159-get-trainer-pokemon-imports.md>)
-- [API-160](<../Tome 7 — API/API-160-post-trainer-pokemon-rollback.md>)
+- [API-157](<../Post-audit 2026-07-13/undefined>)
+- [API-158](<../Post-audit 2026-07-13/undefined>)
+- [API-159](<../Post-audit 2026-07-13/undefined>)
+- [API-160](<../Post-audit 2026-07-13/undefined>)
 
 Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient uniquement aux registres JSON.
 

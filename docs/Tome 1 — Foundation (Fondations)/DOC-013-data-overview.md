@@ -19,12 +19,11 @@ source_files:
   - "PokemonGo-API-/src/sync"
   - "PokemonGo-API-/src/lib/current-dataset-pipeline.js"
   - "Dashboard Admin/src/lib/learning"
-  - "Dashboard Admin/src/lib/trainer-pokemon"
 registries:
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/providers.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/mongodb-collections.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/dependencies.json"
+  - "audit-documentation/registries/datasets.json"
+  - "audit-documentation/registries/providers.json"
+  - "audit-documentation/registries/mongodb-collections.json"
+  - "audit-documentation/registries/dependencies.json"
 related:
   - "DOC-006"
   - "DOC-012"
@@ -45,9 +44,9 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 
 | Élément | Constat vérifié |
 | --- | --- |
-| Datasets enregistrés | DATASET-001 à DATASET-024 |
+| Datasets enregistrés | DATASET-001 à DATASET-020 |
 | Providers enregistrés | PROVIDER-001 à PROVIDER-018 |
-| Collections enregistrées | COL-001 à COL-039 |
+| Collections enregistrées | COL-001 à COL-032 |
 | Schémas Data | schemas/pokemon.schema.json et schemas/pokemon-assets.schema.json |
 | Pipelines current API | 7 domaines |
 | Pipelines privés Dashboard | Learning, Events, Source Watch et collection du dresseur |
@@ -60,7 +59,6 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - Les cinq JSON raids, eggs, max-battles, rocket et research servent de fixtures, références ou exports; les lectures runtime utilisent MongoDB.
 - Learning emploie Zod, des contenus locaux, une migration navigateur, quatre collections de contenu/progression et deux collections d’historique.
 - DATASET-020 valide le JSON importé, résout Pokémon, attaques et types via l’API publique, écrit un snapshot puis bascule activeSnapshotId après read-back.
-- DATASET-023 indexe le Game Master par template. DATASET-024 conserve métadonnées de snapshots, diffs et comparaison locale ; un hash identique ne duplique pas le snapshot.
 
 ## 4. Relations et dépendances
 
@@ -101,13 +99,11 @@ flowchart LR
 
 ### Fiches spécialisées présentes
 
-- [DATASET-020](<../Tome 6 — Datasets/DATASET-020-collection-personnelle-pokemon-go.md>)
-- [COL-030](<../Tome 8 — MongoDB/COL-030-trainer-pokemon-owners.md>)
-- [COL-031](<../Tome 8 — MongoDB/COL-031-trainer-pokemon-snapshots.md>)
-- [COL-032](<../Tome 8 — MongoDB/COL-032-trainer-pokemon-entries.md>)
-- [WORKFLOW-016](<../Tome 18 - Workflow/WORKFLOW-016-import-collection-pokemon-go.md>)
-- [DATASET-023](<../Tome 6 — Datasets/DATASET-023-game-master-index-courant.md>)
-- [DATASET-024](<../Tome 6 — Datasets/DATASET-024-game-master-historique-diffs.md>)
+- [DATASET-020](<../Post-audit 2026-07-13/DATASET-020-collection-personnelle-pokemon-go.md>)
+- [COL-030](<../Post-audit 2026-07-13/undefined>)
+- [COL-031](<../Post-audit 2026-07-13/undefined>)
+- [COL-032](<../Post-audit 2026-07-13/undefined>)
+- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
 
 Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient uniquement aux registres JSON.
 
@@ -123,4 +119,3 @@ Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient 
 - `PokemonGo-API-/src/sync`
 - `PokemonGo-API-/src/lib/current-dataset-pipeline.js`
 - `Dashboard Admin/src/lib/learning`
-- `Dashboard Admin/src/lib/trainer-pokemon`

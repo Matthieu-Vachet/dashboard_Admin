@@ -80,12 +80,6 @@ async function installRoutes(page) {
     }
     return fulfillJson(route, { data: { entries: [], customRuleEntries: [], customRules: [], summary: {} } });
   });
-  await page.route("**/api/trainer-pokemon?**", (route) => fulfillJson(route, { success: true, data: {
-    items: [], snapshot: null,
-    stats: { total: 0, shiny: 0, lucky: 0, perfect: 0, shadow: 0, purified: 0, costume: 0 },
-    filters: { genders: [], alignments: [], forms: [], costumes: [], cp: { min: 0, max: 0 }, ivPercent: { min: 0, max: 0 }, weightKg: { min: 0, max: 0 }, heightM: { min: 0, max: 0 } },
-    pagination: { page: 1, limit: 50, total: 0, pages: 0 },
-  } }));
 }
 
 async function authenticate(page) {
@@ -255,10 +249,6 @@ const scenarios = [
   { name: "rules", path: "/pokemon-admin?section=rules", ready: "Règles JSON personnalisées", controls: [
     { name: "rule-type", kind: "select", locate: (page) => page.locator("select").first() },
     { name: "rule-enabled", kind: "checkbox", labelClick: true, locate: (page) => page.locator('input[type="checkbox"]').first() },
-  ] },
-  { name: "my-collection", path: "/pokemon-admin?section=my-collection", ready: "Ma collection Pokémon GO", controls: [
-    { name: "sort", kind: "select", locate: (page) => page.locator("select").first() },
-    { name: "perfect", kind: "checkbox", labelClick: true, locate: (page) => page.locator('input[type="checkbox"]').first() },
   ] },
   { name: "learning", path: "/js-progress", ready: "JS Progress V2", controls: [{ name: "strategy-radio", kind: "radio", locate: (page) => page.getByRole("dialog").locator('input[type="radio"]').first() }] },
   { name: "palette", path: "/palette", ready: "Labo couleur", controls: [{ name: "custom-palette", kind: "specialized", locate: (page) => page.locator(".dashboard-palette-menu") }] },

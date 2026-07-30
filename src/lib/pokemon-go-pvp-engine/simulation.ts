@@ -601,14 +601,14 @@ export function simulateMultiBattle(input: Omit<SimulateSingleBattleInput, "poke
 }): MultiBattleResult {
   const startedAt = performance.now();
   const matchups = input.opponents.map((opponent) => ({
-    opponent: opponent.canonicalId,
+    opponent: `${opponent.canonicalId}${opponent.shadow ? ":shadow" : ""}`,
     result: simulateSingleBattle({ ...input, pokemon: [input.subject, opponent] }),
   }));
   const wins = matchups.filter((item) => item.result.winner === 0).length;
   const losses = matchups.filter((item) => item.result.winner === 1).length;
   const draws = matchups.length - wins - losses;
   return {
-    subject: input.subject.canonicalId,
+    subject: `${input.subject.canonicalId}${input.subject.shadow ? ":shadow" : ""}`,
     total: matchups.length,
     wins,
     losses,
@@ -633,8 +633,8 @@ export function simulateMatrixBattle(input: Omit<SimulateSingleBattleInput, "pok
     });
   });
   return {
-    rows: input.groupA.map((entry) => entry.canonicalId),
-    columns: input.groupB.map((entry) => entry.canonicalId),
+    rows: input.groupA.map((entry) => `${entry.canonicalId}${entry.shadow ? ":shadow" : ""}`),
+    columns: input.groupB.map((entry) => `${entry.canonicalId}${entry.shadow ? ":shadow" : ""}`),
     cells,
     durationMs: performance.now() - startedAt,
   };

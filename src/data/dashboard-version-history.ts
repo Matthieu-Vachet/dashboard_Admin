@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.38.0",
+    date: "2026-07-30",
+    title: "PvP fiable, responsive et assets unifiés",
+    changes: [
+      "Unifie les deux entrées de régénération PvP autour du job asynchrone observable, bloque les lancements concurrents et conserve l’état final pendant le rafraîchissement des données.",
+      "Rend Multi et Matrix utilisables avec sélecteurs visuels, résultats détaillés, erreurs partielles isolées et représentation mobile sans canonicalId manuel.",
+      "Livre un sélecteur Pokémon plein écran accessible, corrige les builds et attaques dupliquées, et valide Single, Multi, Matrix et timeline sur onze largeurs en Light et Dark.",
+      "Réorganise tous les assets publics sous public/assets, branche les cinq PNG de combat fournis et retire entièrement la fonctionnalité Ma collection sans supprimer les données MongoDB.",
+    ],
+  },
+  {
     version: "V1.37.0",
     date: "2026-07-28",
     title: "Battle Lab finition moteur et expérience de combat",
@@ -536,7 +547,7 @@ export const dashboardVersionHistory: DashboardVersionEntry[] = [
       "Ajoute une section Raids dans Pokémon Admin avec sections Ultra Beast, Méga, 5 étoiles, 3 étoiles, 1 étoile et Shadow.",
       "Affiche les boss depuis raids/currentRaids.json avec images, noms, niveaux, types, shiny, CP, météo boostée et faiblesses.",
       "Ajoute les actions Actualiser, Télécharger JSON, Envoyer MongoDB et Régénérer raids via des actions serveur protégées.",
-      "Utilise les visuels raids existants du dossier public/ui/raids.",
+      "Utilise les visuels raids existants du dossier public/assets/raids.",
     ],
   },
   {

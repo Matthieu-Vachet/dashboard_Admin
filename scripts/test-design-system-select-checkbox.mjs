@@ -91,6 +91,8 @@ function inventoryControls() {
   const allSources = sourceFiles().map(read).join("\n");
   const wrapperNames = new Set(["FilterSelect", "FormatSelect", "SelectField"]);
   const wrapperSelects = selects.filter((item) => wrapperNames.has(item.function));
+  const specializedCheckboxes = (allSources.match(/aria-checked=/g) || []).length;
+  const checkboxFalsePositives = (allSources.match(/aria-pressed=/g) || []).length + (allSources.match(/type=["']radio["']/g) || []).length;
   const summary = {
     select: {
       totalLike: selects.length + 1,
@@ -104,13 +106,13 @@ function inventoryControls() {
       coverage: Number((100 * selects.filter((item) => item.control === "Select").length / Math.max(1, selects.length)).toFixed(1)),
     },
     checkbox: {
-      totalLike: checkboxes.length + 5,
+      totalLike: checkboxes.length + specializedCheckboxes + checkboxFalsePositives,
       controls: checkboxes.length,
       canonical: checkboxes.filter((item) => item.control === "Checkbox").length,
       nativeGeneric: checkboxes.filter((item) => item.control === "input").length,
       wrappers: 0,
-      specialized: (allSources.match(/aria-checked=/g) || []).length,
-      falsePositives: (allSources.match(/aria-pressed=/g) || []).length + (allSources.match(/type=["']radio["']/g) || []).length,
+      specialized: specializedCheckboxes,
+      falsePositives: checkboxFalsePositives,
       ambiguous: 0,
       accessible: checkboxes.filter((item) => item.accessibleBy !== "missing").length,
       coverage: Number((100 * checkboxes.filter((item) => item.control === "Checkbox").length / Math.max(1, checkboxes.length)).toFixed(1)),

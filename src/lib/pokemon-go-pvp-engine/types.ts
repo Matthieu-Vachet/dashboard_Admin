@@ -252,6 +252,7 @@ export type MultiBattleResult = {
   draws: number;
   averageRating: number;
   matchups: Array<{ opponent: string; result: SingleBattleResult }>;
+  errors?: Array<{ identifier: string; message: string }>;
   durationMs: number;
 };
 
@@ -259,5 +260,6 @@ export type MatrixBattleResult = {
   rows: string[];
   columns: string[];
   cells: Array<{ row: number; column: number; result: SingleBattleResult }>;
+  errors?: Array<{ group: "A" | "B"; identifier: string; message: string }>;
   durationMs: number;
 };

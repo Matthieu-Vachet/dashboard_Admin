@@ -35,24 +35,24 @@ const taskCategoryTones = {
 };
 
 const typeIconMap = {
-  Normal: "/ui/Types/ico_0_normal.png",
-  Fighting: "/ui/Types/ico_1_fighting.png",
-  Flying: "/ui/Types/ico_2_flying.png",
-  Poison: "/ui/Types/ico_3_poison.png",
-  Ground: "/ui/Types/ico_4_ground.png",
-  Rock: "/ui/Types/ico_5_rock.png",
-  Bug: "/ui/Types/ico_6_bug.png",
-  Ghost: "/ui/Types/ico_7_ghost.png",
-  Steel: "/ui/Types/ico_8_steel.png",
-  Fire: "/ui/Types/ico_9_fire.png",
-  Water: "/ui/Types/ico_10_water.png",
-  Grass: "/ui/Types/ico_11_grass.png",
-  Electric: "/ui/Types/ico_12_electric.png",
-  Psychic: "/ui/Types/ico_13_psychic.png",
-  Ice: "/ui/Types/ico_14_ice.png",
-  Dragon: "/ui/Types/ico_15_dragon.png",
-  Dark: "/ui/Types/ico_16_dark.png",
-  Fairy: "/ui/Types/ico_17_fairy.png",
+  Normal: "/assets/pokemon/types/icons/ico_0_normal.png",
+  Fighting: "/assets/pokemon/types/icons/ico_1_fighting.png",
+  Flying: "/assets/pokemon/types/icons/ico_2_flying.png",
+  Poison: "/assets/pokemon/types/icons/ico_3_poison.png",
+  Ground: "/assets/pokemon/types/icons/ico_4_ground.png",
+  Rock: "/assets/pokemon/types/icons/ico_5_rock.png",
+  Bug: "/assets/pokemon/types/icons/ico_6_bug.png",
+  Ghost: "/assets/pokemon/types/icons/ico_7_ghost.png",
+  Steel: "/assets/pokemon/types/icons/ico_8_steel.png",
+  Fire: "/assets/pokemon/types/icons/ico_9_fire.png",
+  Water: "/assets/pokemon/types/icons/ico_10_water.png",
+  Grass: "/assets/pokemon/types/icons/ico_11_grass.png",
+  Electric: "/assets/pokemon/types/icons/ico_12_electric.png",
+  Psychic: "/assets/pokemon/types/icons/ico_13_psychic.png",
+  Ice: "/assets/pokemon/types/icons/ico_14_ice.png",
+  Dragon: "/assets/pokemon/types/icons/ico_15_dragon.png",
+  Dark: "/assets/pokemon/types/icons/ico_16_dark.png",
+  Fairy: "/assets/pokemon/types/icons/ico_17_fairy.png",
 };
 
 function values(data) {
@@ -352,10 +352,10 @@ export function ResearchPanel({
         }
       >
         <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <AssetStatCard label="Quêtes" value={total} icon="/ui/Items/Item_1201.png" tone="cyan" detail="Toutes catégories" />
-          <AssetStatCard label="Référentiel items" value={items.length} icon="/ui/Items/stardust_painted.png" tone="amber" detail="Catalogue des items" />
+          <AssetStatCard label="Quêtes" value={total} icon="/assets/pokemon/items/library/Item_1201.png" tone="cyan" detail="Toutes catégories" />
+          <AssetStatCard label="Référentiel items" value={items.length} icon="/assets/pokemon/items/library/stardust_painted.png" tone="amber" detail="Catalogue des items" />
           <AssetStatCard label="Rewards Pokémon" value={pokemonRewards} icon={uiAssets.icons.pokemon} tone="green" detail="Référentiel Pokémon" />
-          <AssetStatCard label="Rewards items" value={itemRewards} icon="/ui/Items/candy_rgb.png" tone="violet" detail="Match par nom/id" />
+          <AssetStatCard label="Rewards items" value={itemRewards} icon="/assets/pokemon/items/library/candy_rgb.png" tone="violet" detail="Match par nom/id" />
         </div>
         <DatasetSourceHeader dataset={research} total={total} refreshError={refreshError} />
       </Panel>

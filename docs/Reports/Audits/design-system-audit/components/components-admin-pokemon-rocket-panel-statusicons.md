@@ -90,7 +90,7 @@ Not found
 
 - Boolean properties for Figma: Loading, Warning.
 - Text properties: `pokemon`.
-- Instance swaps: `/ui/icons/ic_shiny_white.webp`, `/ui/icons/shadow.png`.
+- Instance swaps: `/assets/ui/icons/general/ic_shiny_white.webp`, `/assets/ui/icons/general/shadow.png`.
 - Additional conditional variants are preserved verbatim in section 12.
 
 ## 8. Complete state matrix
@@ -236,7 +236,7 @@ Not found
 ## 16. Icons, images and decorative assets
 
 - Lucide icons: Not found.
-- Asset references: `/ui/icons/ic_shiny_white.webp`, `/ui/icons/shadow.png`.
+- Asset references: `/assets/ui/icons/general/ic_shiny_white.webp`, `/assets/ui/icons/general/shadow.png`.
 - SVG usage: Not found.
 - Decorative/semantic intent for empty alt text must follow the exact source; intent beyond attributes: Estimated from implementation.
 
@@ -245,7 +245,7 @@ Not found
 - Auto Layout: grid translated into nested Auto Layout frames. Preserve every nested flex/grid boundary shown in the HTML outline.
 - Component set: create one variant axis per explicit prop/value pair listed above; do not invent missing variants.
 - Boolean properties: Loading, Warning.
-- Instance swaps: `/ui/icons/ic_shiny_white.webp`, `/ui/icons/shadow.png`.
+- Instance swaps: `/assets/ui/icons/general/ic_shiny_white.webp`, `/assets/ui/icons/general/shadow.png`.
 - Text properties: expose each textual prop from the props contract; when text is hardcoded, preserve it in the default instance.
 - Variables: bind CSS variables and semantic token references listed in this document. Literal utilities remain documented implementation values.
 - Constraints: infer from width/min/max and responsive utilities; any value not encoded is marked Estimated from implementation.

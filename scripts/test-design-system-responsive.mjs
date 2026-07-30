@@ -199,10 +199,9 @@ test("le shell partage un contrat drawer mobile et sidebar desktop sans branchem
   }
 });
 
-test("Modal, tables et contenus techniques contiennent leur scroll", () => {
+test("Modal et contenus techniques contiennent leur scroll", () => {
   const modal = read("src/components/ui/modal.tsx");
   const events = read("src/components/admin/events/events-calendar-panel.jsx");
-  const trainer = read("src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx");
   const docs = read("src/components/admin/pokemon/pokemon-docs-viewer.tsx");
   const mappings = read("src/components/admin/pokemon/pokemon-identity-mappings-panel.jsx");
   assert.match(modal, /max-h-\[92dvh\]/);
@@ -211,7 +210,6 @@ test("Modal, tables et contenus techniques contiennent leur scroll", () => {
   assert.match(events, /keyEvent\.key === "Escape"/);
   assert.match(events, /keyEvent\.key !== "Tab"/);
   assert.match(events, /previouslyFocusedRef\.current\?\.focus\(\)/);
-  assert.match(trainer, /overflow-x-auto[^\n]+aria-label="Tableau de la collection Pokémon GO"/);
   assert.match(docs, /overflow-auto rounded-lg border border-line/);
   assert.match(mappings, /hidden overflow-x-auto rounded-2xl border border-line md:block/);
   assert.equal(inventory.issues.tables, 0);

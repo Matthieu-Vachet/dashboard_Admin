@@ -18,13 +18,12 @@ source_files:
   - "PokemonGo-Data/package.json"
   - "PokemonGo-API-/src/current-datasets"
   - "Dashboard Admin/src/lib/learning"
-  - "Dashboard Admin/src/lib/trainer-pokemon"
 registries:
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/providers.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/mongodb-collections.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/dependencies.json"
+  - "audit-documentation/registries/datasets.json"
+  - "audit-documentation/registries/providers.json"
+  - "audit-documentation/registries/api-routes.json"
+  - "audit-documentation/registries/mongodb-collections.json"
+  - "audit-documentation/registries/dependencies.json"
 related:
   - "DOC-013"
   - "DOC-015"
@@ -99,8 +98,8 @@ flowchart TD
 
 ### Fiches spécialisées présentes
 
-- [DATASET-020](<../Tome 6 — Datasets/DATASET-020-collection-personnelle-pokemon-go.md>)
-- [WORKFLOW-016](<../Tome 18 - Workflow/WORKFLOW-016-import-collection-pokemon-go.md>)
+- [DATASET-020](<../Post-audit 2026-07-13/DATASET-020-collection-personnelle-pokemon-go.md>)
+- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
 
 ## 7. Informations absentes du code
 
@@ -113,4 +112,3 @@ flowchart TD
 - `PokemonGo-Data/package.json`
 - `PokemonGo-API-/src/current-datasets`
 - `Dashboard Admin/src/lib/learning`
-- `Dashboard Admin/src/lib/trainer-pokemon`

@@ -37,8 +37,8 @@ Les champs dérivés de PokemonGo-Data sont verrouillés pour une identité sync
 - `identity-manager-sync-preview` calcule la comparaison sans écriture ;
 - `identity-manager-sync-apply` applique le plan si aucun conflit ne subsiste ;
 - `identity-manager` accepte `syncStatus` et le tri correspondant.
-- `identity-manager-providers` fournit la liste centrale utilisée par les filtres et la création d’alias ; elle inclut GO Hub, Margxt et Ma Collection, tout en conservant « Autre… ».
-- les diagnostics GO Hub, Margxt et Ma Collection peuvent être associés à une identité, puis pris en compte lors de la régénération ou de la nouvelle résolution suivante.
+- `identity-manager-providers` fournit la liste centrale utilisée par les filtres et la création d’alias ; elle inclut GO Hub et Margxt, tout en conservant « Autre… ».
+- les diagnostics GO Hub et Margxt peuvent être associés à une identité, puis pris en compte lors de la régénération ou de la nouvelle résolution suivante.
 
 ## Règles d’intégrité
 
@@ -66,4 +66,4 @@ Les variantes mâle et femelle d’un même costume restent une seule identité 
 
 - 2026-07-17 — création du CRUD et des diagnostics Identity Manager.
 - 2026-07-18 — branchement à l’inventaire exhaustif PokemonGo-Data, synchronisation prévisualisée et provenance locale visible.
-- 2026-07-26 — catalogue central de providers, GO Hub, Margxt, Ma Collection et diagnostics groupés réutilisables par Résolution des variantes.
+- 2026-07-26 — catalogue central de providers, GO Hub et Margxt, avec diagnostics groupés réutilisables par Résolution des variantes.

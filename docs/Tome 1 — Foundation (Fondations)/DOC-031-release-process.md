@@ -22,8 +22,8 @@ source_files:
   - "PokemonGo-API-/.github/workflows"
   - "PokemonGo-Data/.github/workflows"
 registries:
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/dependencies.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/documentation-map.json"
+  - "audit-documentation/registries/dependencies.json"
+  - "audit-documentation/registries/documentation-map.json"
 related:
   - "DOC-005"
   - "DOC-007"
@@ -43,7 +43,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 
 | Élément | Constat vérifié |
 | --- | --- |
-| Dashboard | package 1.21.1; UI V1.21.1; changelog 1.21.1 |
+| Dashboard | package 1.21.0; UI V1.21.0; changelog 1.21.0 |
 | PokemonGo-API- | package 1.7.0; OpenAPI 1.4.1; changelog 1.6.1 |
 | PokemonGo-Data | package 1.8.0; changelog 1.7.0 |
 | Landing | package 1.0.0; aucun changelog |

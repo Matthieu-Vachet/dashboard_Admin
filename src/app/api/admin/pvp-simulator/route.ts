@@ -246,6 +246,38 @@ async function builds(
   );
 }
 
+function batchIdentifier(value: string) {
+  const shadow = value.toLowerCase().endsWith(":shadow");
+  return {
+    source: value,
+    canonicalId: shadow ? value.slice(0, -":shadow".length) : value,
+    shadow,
+  };
+}
+
+async function defaultBatchBuilds(
+  identifiers: string[],
+  league: Awaited<ReturnType<typeof context>>["league"],
+  shields = 1,
+) {
+  const specs = identifiers.map(batchIdentifier);
+  const settled = await Promise.allSettled(
+    specs.map((spec) =>
+      prepareDefaultBattleBuild(spec.canonicalId, league, shields, spec.shadow),
+    ),
+  );
+  const prepared: Awaited<ReturnType<typeof prepareDefaultBattleBuild>>[] = [];
+  const errors: Array<{ identifier: string; message: string }> = [];
+  settled.forEach((result, index) => {
+    if (result.status === "fulfilled") prepared.push(result.value);
+    else errors.push({
+      identifier: specs[index].source,
+      message: result.reason instanceof Error ? result.reason.message : "SIMULATION_FAILED",
+    });
+  });
+  return { prepared, errors };
+}
+
 function publicCatalog(catalog: Awaited<ReturnType<typeof readPvpCatalog>>) {
   return {
     ...catalog,
@@ -408,35 +440,34 @@ export async function POST(request: NextRequest) {
 
     if (body.action === "multi") {
       const subject = await prepareBattleBuild(body.subject, league);
-      const opponents = body.opponents?.length
-        ? await builds(body.opponents, league)
-        : await Promise.all(
-            (body.opponentIds || []).map((id) =>
-              prepareDefaultBattleBuild(id, league, body.subject.shields),
-            ),
-          );
-      const result = simulateMultiBattle({ ...common, subject, opponents });
-      return json({ success: true, data: result });
+      const batch = body.opponents?.length
+        ? { prepared: await builds(body.opponents, league), errors: [] }
+        : await defaultBatchBuilds(body.opponentIds || [], league, body.subject.shields);
+      if (!batch.prepared.length) throw new Error("POKEMON_NOT_ELIGIBLE");
+      const result = simulateMultiBattle({ ...common, subject, opponents: batch.prepared });
+      return json({ success: true, data: { ...result, errors: batch.errors } });
     }
 
-    const [groupA, groupB] = await Promise.all([
+    const [left, right] = await Promise.all([
       body.groupA?.length
-        ? builds(body.groupA, league)
-        : Promise.all(
-            (body.groupAIds || []).map((id) =>
-              prepareDefaultBattleBuild(id, league),
-            ),
-          ),
+        ? builds(body.groupA, league).then((prepared) => ({ prepared, errors: [] }))
+        : defaultBatchBuilds(body.groupAIds || [], league),
       body.groupB?.length
-        ? builds(body.groupB, league)
-        : Promise.all(
-            (body.groupBIds || []).map((id) =>
-              prepareDefaultBattleBuild(id, league),
-            ),
-          ),
+        ? builds(body.groupB, league).then((prepared) => ({ prepared, errors: [] }))
+        : defaultBatchBuilds(body.groupBIds || [], league),
     ]);
-    const result = simulateMatrixBattle({ ...common, groupA, groupB });
-    return json({ success: true, data: result });
+    if (!left.prepared.length || !right.prepared.length) throw new Error("POKEMON_NOT_ELIGIBLE");
+    const result = simulateMatrixBattle({ ...common, groupA: left.prepared, groupB: right.prepared });
+    return json({
+      success: true,
+      data: {
+        ...result,
+        errors: [
+          ...left.errors.map((error) => ({ group: "A" as const, ...error })),
+          ...right.errors.map((error) => ({ group: "B" as const, ...error })),
+        ],
+      },
+    });
   } catch (error) {
     return errorResponse(error);
   }

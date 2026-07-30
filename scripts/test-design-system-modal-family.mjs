@@ -28,7 +28,6 @@ const historicalConsumers = [
   "src/components/admin/learning/learning-import-modal.tsx",
   "src/components/admin/pokemon/background-panel.jsx",
   "src/components/admin/pokemon/shiny-tracker-panel.jsx",
-  "src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx",
   "src/components/admin/tables/dashboard-backlog.tsx",
 ];
 
@@ -139,15 +138,13 @@ test("les confirmations natives et les façades de compatibilité restent inchan
   const confirmations = [
     "src/components/admin/events/events-calendar-panel.jsx",
     "src/components/admin/learning/learning-detail-modal.tsx",
-    "src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx",
   ].flatMap((file) => [...source(file).matchAll(/window\.confirm\(/g)].map(() => file));
-  assert.equal(confirmations.length, 4);
+  assert.equal(confirmations.length, 3);
   assert.deepEqual(
     Object.fromEntries([...new Set(confirmations)].map((file) => [file, confirmations.filter((item) => item === file).length])),
     {
       "src/components/admin/events/events-calendar-panel.jsx": 1,
       "src/components/admin/learning/learning-detail-modal.tsx": 2,
-      "src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx": 1,
     },
   );
   assert.match(source("src/components/checklist/detail-modal.jsx"), /export \{ DetailModal \} from "@\/components\/admin\/pokemon\/detail-modal"/);

@@ -19,12 +19,11 @@ const scenarios = [
   { name: "dashboard", path: "/", ready: "Dashboard live" },
   { name: "projects", path: "/projects", ready: "Projets" },
   { name: "events", path: "/calendar", ready: "Events Pokémon GO" },
-  { name: "admin-pokemon", path: "/pokemon-admin?section=my-collection", ready: "Ma collection Pokémon GO" },
+  { name: "admin-pokemon", path: "/pokemon-admin?section=overview", ready: "Synthèse des fiches" },
   { name: "learning", path: "/js-progress", ready: "JS Progress V2" },
   { name: "database", path: "/database", ready: "Utilisation de la base dashboard" },
   { name: "lists", path: "/tools/dashboard-backlog", ready: "Backlog" },
   { name: "search-filter", path: "/pokemon-docs", ready: "API Explorer Pokémon" },
-  { name: "modal", path: "/pokemon-admin?section=my-collection", ready: "Ma collection Pokémon GO", openHistory: true },
 ];
 
 function readEnvironment() {
@@ -39,37 +38,11 @@ function readEnvironment() {
   }));
 }
 
-const emptyTrainerPayload = {
-  success: true,
-  data: {
-    items: [], snapshot: null,
-    stats: { total: 0, shiny: 0, lucky: 0, perfect: 0, shadow: 0, purified: 0, costume: 0 },
-    filters: { genders: [], alignments: [], forms: [], costumes: [], cp: { min: 0, max: 0 }, ivPercent: { min: 0, max: 0 }, weightKg: { min: 0, max: 0 }, heightM: { min: 0, max: 0 } },
-    pagination: { page: 1, limit: 50, total: 0, pages: 0 },
-  },
-};
-
-const noResultsTrainerPayload = {
-  ...emptyTrainerPayload,
-  data: {
-    ...emptyTrainerPayload.data,
-    snapshot: {
-      id: "fixture",
-      sourceFileName: "fixture.json",
-      importedAt: "2026-07-22T08:00:00.000Z",
-      sourceExportTime: null,
-      checksum: "1234567890abcdef",
-      diagnostics: { warnings: 0, errors: 0, counts: {}, samples: [] },
-    },
-  },
-};
-
 async function json(route, body, status = 200) {
   await route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
 }
 
 async function installRoutes(page, options = {}) {
-  let trainerCalls = 0;
   await page.route("**/api/dashboard-store**", async (route) => {
     if (route.request().method() === "GET") return json(route, { data: { configured: false, value: null } });
     return json(route, { data: { configured: false, saved: false } });
@@ -100,13 +73,6 @@ async function installRoutes(page, options = {}) {
     if (action === "catalog") return json(route, { data: { types: [], weather: [] } });
     if (["history", "custom-rules", "source-history", "data-deploy-history"].includes(action)) return json(route, { data: [] });
     return json(route, { data: { entries: [], customRuleEntries: [], customRules: [], summary: {}, sourceWatch: { sources: [] } } });
-  });
-  await page.route("**/api/trainer-pokemon/imports**", (route) => json(route, { success: true, data: { imports: [] } }));
-  await page.route("**/api/trainer-pokemon?**", async (route) => {
-    trainerCalls += 1;
-    if (options.slowTrainer) await new Promise((resolve) => setTimeout(resolve, 900));
-    if (options.errorThenEmpty && trainerCalls === 1) return json(route, { success: false, error: { message: "Erreur fixture récupérable." } }, 500);
-    return json(route, options.noResults ? noResultsTrainerPayload : emptyTrainerPayload);
   });
 }
 
@@ -162,14 +128,9 @@ try {
         const page = await context.newPage();
         const consoleErrors = [];
         page.on("console", (message) => { if (message.type() === "error") consoleErrors.push(message.text()); });
-        await installRoutes(page, { noResults: scenario.name === "search-filter" });
+        await installRoutes(page);
         await page.goto(`${baseUrl}${scenario.path}`, { waitUntil: "domcontentloaded" });
         await page.getByText(scenario.ready, { exact: false }).filter({ visible: true }).first().waitFor({ timeout: 30_000 });
-        if (scenario.openHistory) {
-          await page.getByRole("button", { name: "Historique", exact: true }).click();
-          await page.getByRole("dialog", { name: "Historique des imports" }).waitFor();
-          await page.getByText("Aucun historique", { exact: true }).waitFor();
-        }
         await page.evaluate(() => document.fonts.ready);
         await page.waitForTimeout(300);
         await assertLayout(page, `${scenario.name}-${theme}-${viewport.name}`);
@@ -183,37 +144,7 @@ try {
     }
   }
 
-  const loadingContext = await newContext(browser, cookies, "dark", viewports[2]);
-  const loadingPage = await loadingContext.newPage();
-  await installRoutes(loadingPage, { slowTrainer: true });
-  await loadingPage.goto(`${baseUrl}/pokemon-admin?section=my-collection`, { waitUntil: "domcontentloaded" });
-  const loading = loadingPage.getByRole("status").filter({ hasText: "Chargement de la collection" });
-  await loading.waitFor({ state: "visible", timeout: 10_000 });
-  assert.equal(await loading.getAttribute("aria-busy"), "true");
-  await loadingPage.getByText("Aucune collection importée", { exact: true }).waitFor({ timeout: 10_000 });
-  assert.equal(await loading.isVisible(), false);
-  await loadingContext.close();
-
-  const retryContext = await newContext(browser, cookies, "light", viewports[0]);
-  const retryPage = await retryContext.newPage();
-  await installRoutes(retryPage, { errorThenEmpty: true });
-  await retryPage.goto(`${baseUrl}/pokemon-admin?section=my-collection`, { waitUntil: "domcontentloaded" });
-  const alert = retryPage.getByRole("alert").filter({ hasText: "Collection indisponible" });
-  await alert.waitFor({ state: "visible", timeout: 30_000 });
-  await alert.getByRole("button", { name: "Réessayer" }).click();
-  await retryPage.getByText("Aucune collection importée", { exact: true }).waitFor({ timeout: 20_000 });
-  assert.equal(await alert.isVisible(), false);
-  await retryContext.close();
-
-  const noResultsContext = await newContext(browser, cookies, "dark", viewports[1]);
-  const noResultsPage = await noResultsContext.newPage();
-  await installRoutes(noResultsPage, { noResults: true });
-  await noResultsPage.goto(`${baseUrl}/pokemon-admin?section=my-collection`, { waitUntil: "domcontentloaded" });
-  await noResultsPage.getByText("Aucun résultat", { exact: true }).waitFor({ timeout: 30_000 });
-  await assertLayout(noResultsPage, "no-results-dark-tablet");
-  await noResultsContext.close();
-
-  console.log(`State System browser verification: ${visualChecks} dark/light responsive captures + loading/content + error/retry + no-results.`);
+  console.log(`State System browser verification: ${visualChecks} captures responsive dark/light.`);
 } finally {
   await browser.close();
 }

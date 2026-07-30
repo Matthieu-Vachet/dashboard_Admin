@@ -2,7 +2,7 @@
 id: DOC-030
 title: "Checklist qualité"
 description: "Référence des contrôles réellement exécutables dans chaque dépôt et des étapes absentes des pipelines."
-version: 2.1.0
+version: 2.0.0
 status: Official
 owner: Matthieu Vachet
 created: 2026-07-13
@@ -20,9 +20,9 @@ source_files:
   - "PokemonGo-API-/.github/workflows"
   - "PokemonGo-Data/.github/workflows"
 registries:
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/datasets.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/components.json"
+  - "audit-documentation/registries/api-routes.json"
+  - "audit-documentation/registries/datasets.json"
+  - "audit-documentation/registries/components.json"
 related:
   - "DOC-021"
   - "DOC-025"
@@ -36,14 +36,14 @@ related:
 
 Référence des contrôles réellement exécutables dans chaque dépôt et des étapes absentes des pipelines.
 
-Le contenu décrit l’état du code au 26 juillet 2026. Les builds, caches, archives et rapports historiques ne servent pas de preuve runtime lorsqu’un fichier source actif existe.
+Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, archives et rapports historiques ne servent pas de preuve runtime lorsqu’un fichier source actif existe.
 
 ## 2. Inventaire du code
 
 | Élément | Constat vérifié |
 | --- | --- |
 | Dashboard npm run check | lint puis build |
-| Dashboard contrôles séparés | typecheck, test:design-system, test:admin-pokemon, test:trainer-pokemon, test:learning-flow |
+| Dashboard contrôles séparés | typecheck, test:admin-pokemon, test:learning-flow |
 | API npm run check | ensure:data, sync:dry, test, build |
 | Data contrôles | tests séparés et commandes generate:*:check |
 | Landing | build et script next lint |
@@ -53,9 +53,7 @@ Le contenu décrit l’état du code au 26 juillet 2026. Les builds, caches, arc
 
 - Le prebuild Dashboard exécute validate:learning et ensure-data avant next build.
 - Le typecheck Dashboard utilise tsc --noEmit mais n’est pas inclus dans check.
-- `test:design-system` agrège les contrats statiques courants et la gouvernance anti-régression sans dépendre de compteurs historiques de consommateurs.
 - Le test trainer couvre validation, normalisation, confidentialité, activation par pointeur et responsive source-level.
-- La livraison V1.21.1 exécute en plus 11 tests Admin Pokémon, 14 tests trainer, la validation Learning, le typecheck, le lint, le build et une matrice Playwright de 375 à 1 920 px.
 - API check exécute une chaîne complète locale; le workflow sync-mongodb n’appelle pas check.
 - Data fournit des modes check pour raids, eggs, max-battles, rocket, research, shiny, pvp-rankings, assets et GameMaster selon package.json.
 - Aucun workflow Dashboard, Landing ou Assets n’exécute ces contrôles dans le workspace.
@@ -97,9 +95,9 @@ flowchart LR
 
 ### Fiches spécialisées présentes
 
-- [PAGE-049](<../Tome 2 — Dashboard Admin/PAGE-049-ma-collection-pokemon-go.md>)
-- [COMP-137](<../Tome 3 — Design System/Components/COMP-137-trainer-pokemon-collection-panel.md>)
-- [WORKFLOW-016](<../Tome 18 - Workflow/WORKFLOW-016-import-collection-pokemon-go.md>)
+- [PAGE-049](<../Post-audit 2026-07-13/undefined>)
+- [COMP-137](<../Post-audit 2026-07-13/undefined>)
+- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
 
 ## 7. Informations absentes du code
 

@@ -22,7 +22,7 @@ function readEnvironment() {
   }));
 }
 
-const artwork = "/ui/zygardDexLogo.png";
+const artwork = "/assets/ui/branding/zygardDexLogo.png";
 const pokemon = (dexNr, name, type = "NORMAL") => ({
   id: name.toUpperCase(), formId: name.toUpperCase(), dexNr, names: { French: name, English: name }, types: [type],
   assets: { image: artwork, shinyImage: artwork }, canonicalId: `${name.toUpperCase()}_NORMAL`, resolutionStatus: "matched",
@@ -91,18 +91,9 @@ async function installRoutes(page) {
   await page.route("**/api/dashboard-redeploy**", (route) => json(route, { data: { history: [] } }));
   await page.route("**/api/pokemon-stats", (route) => json(route, { source: "fixture", status: "ok", total: 1605, complete: 1605, issues: 0, quality: 100, catalog: { types: 18, weather: 7, stickers: 0, moves: 0 }, generations: [], kinds: [] }));
   await page.route("**/api/pokemon-api-health", (route) => json(route, { data: { connected: true, api: "ok", database: "fixture", statusCode: 200, uptimeSeconds: 600, timestamp: "2026-07-26T10:00:00.000Z", label: "API stable" } }));
+  await page.route("**/api/admin/community-days/sync", (route) => json(route, { data: { imported: 1, warnings: [] } }));
   await page.route("**/api/admin/events**", (route) => json(route, { data: { events: [event], configured: true, seeded: false, collection: "events" } }));
   await page.route("**/api/events**", (route) => json(route, { data: { events: [event], configured: true } }));
-  await page.route("**/api/trainer-pokemon/diagnostics**", (route) => json(route, { success: true, data: {
-    snapshot: { id: "fixture-snapshot", sourceFileName: "collection.json", importedAt: "2026-07-26T10:00:00.000Z", identityResolvedAt: "2026-07-26T12:00:00.000Z", active: true },
-    items: [
-      { key: "pikachu-costume", dexNumber: 25, pokemonName: "Pikachu", rawAlias: "COSTUME_2", form: "PIKACHU_NORMAL", costume: "COSTUME_2", gender: "MALE", shiny: false, canonicalId: null, identityStatus: "unmatched", reason: "ALIAS_UNKNOWN", occurrences: 2, sourceIds: ["collection-25-a", "collection-25-b"] },
-    ],
-    summary: { totalEntries: 2, totalGroups: 1, filteredEntries: 2, filteredGroups: 1, reasons: { ALIAS_UNKNOWN: 2 } },
-    pagination: { page: 1, limit: 50, total: 1, pages: 1 },
-  } }));
-  await page.route("**/api/trainer-pokemon/imports**", (route) => json(route, { success: true, data: { imports: [] } }));
-  await page.route("**/api/trainer-pokemon?**", (route) => json(route, { success: true, data: { items: [], snapshot: { id: "fixture-snapshot", sourceFileName: "collection.json", sourceExportTime: "2026-07-26T10:00:00.000Z", sourceExportTimestamp: "2026-07-26T10:00:00.000Z", sourceVersion: "1", declaredPokemonCount: 2, actualPokemonCount: 2, importedAt: "2026-07-26T10:00:00.000Z", importedBy: "fixture", checksum: "fixture-checksum", status: "active", diagnostics: { warnings: 2, errors: 0, counts: { IDENTITY_UNMATCHED: 2 }, samples: [] }, stats: { total: 2, shiny: 0, lucky: 0, perfect: 0, shadow: 0, purified: 0, costume: 2 }, canRollback: false }, stats: { total: 2, shiny: 0, lucky: 0, perfect: 0, shadow: 0, purified: 0, costume: 2 }, filters: { genders: [], alignments: [], forms: [], costumes: [], cp: { min: 0, max: 0 }, ivPercent: { min: 0, max: 0 }, weightKg: { min: 0, max: 0 }, heightM: { min: 0, max: 0 } }, pagination: { page: 1, limit: 50, total: 0, pages: 0 } } }));
   await page.route("**/api/pokemon-admin**", async (route) => {
     const url = new URL(route.request().url());
     const action = url.searchParams.get("action") || "bootstrap";
@@ -128,7 +119,6 @@ async function installRoutes(page) {
     if (action === "identity-manager-providers") return json(route, { data: [
       { id: "pokemon-go-hub", label: "Pokémon GO Hub", domains: ["best-defenders"], visibility: "public", status: "active", aliases: 2, activeAliases: 2, openDiagnostics: 1, occurrences: 2 },
       { id: "margxt", label: "Margxt", domains: ["costume-audit"], visibility: "private", status: "active", aliases: 4, activeAliases: 4, openDiagnostics: 193, occurrences: 193 },
-      { id: "ma-collection", label: "Ma Collection", domains: ["trainer-pokemon"], visibility: "private", status: "active", aliases: 1, activeAliases: 1, openDiagnostics: 3, occurrences: 12 },
     ] });
     if (action === "identity-manager-sync-preview") return json(route, { data: {
       mode: "dry-run", inventory: { schemaVersion: 1, fingerprint: "fixture-catalog-fingerprint", total: 1605, issues: 0 },
@@ -181,7 +171,6 @@ const scenarios = [
   { id: "overview", path: "/pokemon-admin?section=overview", ready: /Voici ce qui demande votre attention aujourd’hui/ },
   { id: "best-defenders", path: "/pokemon-admin?section=best-defenders", ready: /Best Defenders/ },
   { id: "costume-audit", path: "/pokemon-admin?section=costume-audit", ready: /Costumes \/ Event Pokémon/ },
-  { id: "collection", path: "/pokemon-admin?section=my-collection", ready: /Ma collection Pokémon GO/, collectionDiagnostics: true },
   { id: "shiny", path: "/pokemon-admin?section=shiny", ready: /Shiny Tracker/ },
   { id: "pvp-rankings", path: "/pokemon-admin?section=pvp-rankings", ready: /Classements PvP/, pvpDetail: true },
   { id: "pvp-simulator", path: "/pokemon-admin?section=pvp-simulator", ready: /POKÉMON GO · MOTEUR NATIF/, battleLab: true },
@@ -207,8 +196,22 @@ try {
         const page = await context.newPage();
         const consoleErrors = [];
         const pageErrors = [];
+        const failedRequests = [];
+        const failedResponses = [];
+        const pokemonAdminActions = [];
         page.on("console", (message) => { if (message.type() === "error") consoleErrors.push(message.text()); });
         page.on("pageerror", (error) => pageErrors.push(error.message));
+        page.on("requestfailed", (request) => failedRequests.push(`${request.method()} ${request.url()} · ${request.failure()?.errorText || "échec inconnu"}`));
+        page.on("response", (response) => {
+          if (response.status() >= 400) failedResponses.push(`${response.status()} ${response.request().method()} ${response.url()}`);
+        });
+        page.on("request", (request) => {
+          if (request.method() !== "POST" || new URL(request.url()).pathname !== "/api/pokemon-admin") return;
+          try {
+            const action = JSON.parse(request.postData() || "{}").action;
+            if (action) pokemonAdminActions.push(action);
+          } catch {}
+        });
         await installRoutes(page);
         await page.goto(`${baseUrl}${scenario.path}`, { waitUntil: "domcontentloaded" });
         await page.getByText(scenario.ready).filter({ visible: true }).first().waitFor({ timeout: 30_000 });
@@ -231,7 +234,17 @@ try {
             await mobileSidebar.waitFor({ state: "visible" });
             assert.equal(await mobileSidebar.getByText("Accueil", { exact: true }).count(), 1, `overview-${theme}-${width}: libellé Accueil absent du burger`);
             assert.equal(await mobileSidebar.getByText("Dashboard Admin", { exact: true }).count(), 1, `overview-${theme}-${width}: identité du menu absente`);
+            const accountToggle = mobileSidebar.getByRole("button", { name: "Déplier les détails du compte Admin" });
+            await accountToggle.waitFor({ state: "visible" });
+            assert.equal(await mobileSidebar.getByRole("link", { name: "Réglages" }).filter({ visible: true }).count(), 0, `overview-${theme}-${width}: détails du compte ouverts par défaut`);
+            await accountToggle.click();
+            await mobileSidebar.getByRole("link", { name: "Réglages" }).waitFor({ state: "visible" });
             await mobileSidebar.getByRole("button", { name: "Fermer le menu" }).click();
+            if (width === 375 && theme === "dark") {
+              await page.getByRole("button", { name: "Tout régénérer" }).click();
+              await page.getByText("Terminé avec succès", { exact: true }).waitFor({ state: "visible", timeout: 60_000 });
+              assert.equal(pokemonAdminActions.filter((action) => action === "regenerate-pvp-rankings").length, 1, "overview-dark-375: la régénération globale doit appeler une seule fois le moteur PvP partagé");
+            }
           }
         }
         if (scenario.id === "costume-audit") {
@@ -255,6 +268,15 @@ try {
           await page.getByRole("tab", { name: "Ma Checklist" }).click();
           await page.getByText("Ma checklist PvP", { exact: true }).waitFor({ state: "visible" });
           await assertNoOverflow(page, `pvp-checklist-${theme}-${width}`);
+          if (width === 375 && theme === "dark") {
+            const regenerationRequest = page.waitForRequest((request) => {
+              if (request.method() !== "POST" || new URL(request.url()).pathname !== "/api/pokemon-admin") return false;
+              try { return JSON.parse(request.postData() || "{}").action === "regenerate-pvp-rankings"; } catch { return false; }
+            });
+            await page.getByRole("button", { name: "Régénérer", exact: true }).click();
+            await regenerationRequest;
+            assert.equal(pokemonAdminActions.filter((action) => action === "regenerate-pvp-rankings").length, 1, "pvp-rankings-dark-375: la page dédiée doit appeler une seule fois le moteur PvP partagé");
+          }
         }
         if (scenario.battleLab) {
           const selectors = page.locator('input[role="combobox"][placeholder="Nom FR/EN, dex, forme, ID…"]');
@@ -266,15 +288,72 @@ try {
           if (width < 640) {
             const geometry = await listbox.evaluate((element) => { const rect = element.getBoundingClientRect(); return { bottom: Math.round(rect.bottom), viewport: window.innerHeight, position: getComputedStyle(element.parentElement).position }; });
             assert.ok(geometry.bottom <= geometry.viewport, `pvp-selector-mobile-${theme}-${width}: bottom sheet hors viewport`);
-            assert.equal(geometry.position, "absolute", `pvp-selector-mobile-${theme}-${width}: sheet non dédiée`);
+            assert.equal(geometry.position, "fixed", `pvp-selector-mobile-${theme}-${width}: sélecteur plein écran non dédié`);
           } else {
             const stacking = await listbox.evaluate((element) => { const rect = element.getBoundingClientRect(); const topElement = document.elementFromPoint(rect.left + Math.min(30, rect.width / 2), rect.top + Math.min(30, rect.height / 2)); return { parentPosition: getComputedStyle(element.parentElement).position, ownsTopPoint: element.contains(topElement) || element === topElement }; });
             assert.equal(stacking.parentPosition, "fixed", `pvp-selector-desktop-${theme}-${width}: selector non porté`);
             assert.equal(stacking.ownsTopPoint, true, `pvp-selector-desktop-${theme}-${width}: selector sous le contenu`);
           }
+          const focusedBatchScenario = width === 375 && theme === "dark";
+          if (focusedBatchScenario) {
+            await page.getByLabel("Recherche Pokémon mobile").fill("Bulbizarre");
+            await listbox.locator('[role="option"]:not([aria-disabled="true"])').filter({ hasText: "#0001 · Normal" }).first().click();
+            await page.waitForFunction(() => {
+              const input = document.querySelector('input[role="combobox"][placeholder="Nom FR/EN, dex, forme, ID…"]');
+              return input instanceof HTMLInputElement && input.value.trim().length > 0
+                && !document.querySelector('[role="dialog"][aria-label="Choisir un Pokémon"]');
+            }, { timeout: 30_000 });
+            await selectors.first().click();
+            await listbox.waitFor({ state: "visible" });
+          }
           await page.getByRole("button", { name: "Méga" }).click();
           await page.getByText("MEGA_X", { exact: false }).first().waitFor({ state: "visible" });
           await page.keyboard.press("Escape");
+          if (focusedBatchScenario) {
+            await selectors.nth(1).click();
+            const opponentListbox = page.getByRole("listbox").filter({ visible: true });
+            await page.getByLabel("Recherche Pokémon mobile").fill("Bulbizarre");
+            await opponentListbox.locator('[role="option"]:not([aria-disabled="true"])').filter({ hasText: "SHADOW · OBSCUR" }).first().click();
+            await page.waitForFunction(() => {
+              const inputs = document.querySelectorAll('input[role="combobox"][placeholder="Nom FR/EN, dex, forme, ID…"]');
+              return inputs[1] instanceof HTMLInputElement && inputs[1].value.includes("Obscur");
+            }, { timeout: 30_000 });
+            await page.getByRole("button", { name: "IV personnalisés" }).first().click();
+            await page.getByLabel("Atk IV").first().fill("0");
+            await page.getByLabel("Def IV").first().fill("15");
+            await page.getByLabel("HP IV").first().fill("14");
+            const fastMove = page.getByLabel("Fast Move").first();
+            if (await fastMove.locator("option").count() > 1) await fastMove.selectOption({ index: 1 });
+            const chargedMove = page.getByLabel("Charged Move 1").first();
+            if (await chargedMove.locator("option").count() > 1) await chargedMove.selectOption({ index: 1 });
+            for (const shieldName of ["Aucun bouclier de départ", "Un bouclier de départ", "Deux boucliers de départ", "Un bouclier de départ"]) {
+              await page.getByRole("button", { name: shieldName }).first().click();
+            }
+            await page.getByRole("button", { name: "SIMULER LE COMBAT" }).click();
+            const timelineTab = page.getByRole("tab", { name: "Timeline" });
+            await timelineTab.waitFor({ state: "visible", timeout: 60_000 });
+            await timelineTab.click();
+            const timeline = page.locator("section").filter({ hasText: "Timeline complète" }).filter({ visible: true }).first();
+            await timeline.waitFor({ state: "visible" });
+            for (const asset of ["fast-attack.png", "charged-attack.png", "shield-0.png"]) {
+              assert.ok(await timeline.locator(`img[src$="/${asset}"]`).count() > 0, `pvp-single-${theme}-${width}: asset timeline ${asset} absent`);
+            }
+            await assertNoOverflow(page, `pvp-single-${theme}-${width}`);
+            await page.getByRole("tab", { name: "Multi" }).click();
+            await page.getByText("Multi Battle", { exact: true }).waitFor({ state: "visible" });
+            await page.getByRole("button", { name: "Lancer Multi" }).click();
+            await page.getByText("Taux de victoire", { exact: true }).waitFor({ state: "visible", timeout: 60_000 });
+            await assertNoOverflow(page, `pvp-multi-${theme}-${width}`);
+            await page.getByRole("tab", { name: "Matrix" }).click();
+            await page.getByText("Matrix Battle", { exact: true }).waitFor({ state: "visible" });
+            await page.getByRole("button", { name: "Calculer la Matrix" }).click();
+            await page.getByText(/^Rating \d+ ·/).first().waitFor({ state: "visible", timeout: 60_000 });
+            await assertNoOverflow(page, `pvp-matrix-${theme}-${width}`);
+            await page.getByText(/^Rating \d+ ·/).first().click();
+            const detailDialog = page.getByRole("dialog").filter({ visible: true });
+            await detailDialog.getByText("Timeline complète", { exact: true }).waitFor({ state: "visible" });
+            await detailDialog.getByRole("button", { name: "Fermer la fenêtre" }).click();
+          }
         }
         if (scenario.eventModal) {
           await page.getByRole("button", { name: new RegExp(event.title) }).filter({ visible: true }).first().click();
@@ -291,16 +370,16 @@ try {
             assert.ok(positions.closeTop <= positions.headerTop + 22, `events-modal-${theme}-${width}: fermeture trop basse`);
           }
         }
-        if (scenario.collectionDiagnostics) {
-          await page.getByRole("button", { name: /Voir tous les IDs non reconnus/ }).click();
-          await page.getByRole("heading", { name: "IDs non reconnus par les assets" }).waitFor({ state: "visible" });
-          await page.getByText("collection-25-a", { exact: true }).waitFor({ state: "visible" });
-          await assertNoOverflow(page, `collection-diagnostics-${theme}-${width}`);
-        }
         const filteredConsole = consoleErrors.filter((entry) => !/favicon|Failed to load resource.*404/i.test(entry));
+        const brokenImages = await page.locator("img:visible").evaluateAll((images) => images
+          .filter((image) => image.complete && image.naturalWidth === 0)
+          .map((image) => image.currentSrc || image.getAttribute("src") || "image sans src"));
         assert.deepEqual(filteredConsole, [], `${scenario.id}-${theme}-${width}: erreurs console`);
         assert.deepEqual(pageErrors, [], `${scenario.id}-${theme}-${width}: erreurs page`);
-        if ((width === 375 && theme === "dark" && ["overview", "best-defenders", "costume-audit", "collection", "shiny", "events", "notes"].includes(scenario.id)) || (width === 1440 && theme === "light" && ["best-defenders", "costume-audit", "collection"].includes(scenario.id))) {
+        assert.deepEqual(failedRequests, [], `${scenario.id}-${theme}-${width}: requêtes réseau échouées`);
+        assert.deepEqual(failedResponses, [], `${scenario.id}-${theme}-${width}: réponses HTTP en erreur`);
+        assert.deepEqual(brokenImages, [], `${scenario.id}-${theme}-${width}: images visibles cassées`);
+        if ((width === 375 && theme === "dark" && ["overview", "best-defenders", "costume-audit", "shiny", "pvp-simulator", "events", "notes"].includes(scenario.id)) || (width === 1440 && theme === "light" && ["best-defenders", "costume-audit"].includes(scenario.id))) {
           await page.screenshot({ path: path.join(artifactRoot, `${scenario.id}-${theme}-${width}.png`), fullPage: true });
         }
         results.push({ scenario: scenario.id, theme, width, overflow });

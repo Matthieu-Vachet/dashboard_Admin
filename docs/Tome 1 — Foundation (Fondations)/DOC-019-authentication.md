@@ -20,9 +20,9 @@ source_files:
   - "PokemonGo-API-/src/lib/admin-auth.js"
   - "PokemonGo-API-/src/middleware/read-only.js"
 registries:
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/api-routes.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/pages.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/dependencies.json"
+  - "audit-documentation/registries/api-routes.json"
+  - "audit-documentation/registries/pages.json"
+  - "audit-documentation/registries/dependencies.json"
 related:
   - "DOC-011"
   - "DOC-012"
@@ -53,8 +53,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 
 - POST /api/session applique rateLimit, assertSameOrigin, validateCredentials et safeInternalPath, puis écrit le cookie et répond par une redirection 303.
 - En production, ADMIN_EMAIL, ADMIN_PASSWORD et SESSION_SECRET sont tous obligatoires; leur absence refuse la connexion.
-- Le proxy protège les pages hors chemins publics. Les préfixes dashboard-store, pokemon-admin, trainer-pokemon, backlog, admin/events et learning passent jusqu’aux contrôles getSession de leurs handlers.
-- Les quatre routes trainer-pokemon vérifient la session et le rôle admin; le repository utilise session.email comme owner.
+- Le proxy protège les pages hors chemins publics. Les préfixes dashboard-store, pokemon-admin, backlog, admin/events et learning passent jusqu’aux contrôles getSession de leurs handlers.
 - PokemonGo-API autorise les lectures publiques, protège Shiny et les mutations avec API_ADMIN_SECRET et refuse les mutations legacy read-only.
 - Le Dashboard ajoute POKEMON_API_ADMIN_SECRET côté serveur lorsqu’il relaie une mutation autorisée vers PokemonGo-API.
 
@@ -98,11 +97,11 @@ sequenceDiagram
 
 ### Fiches spécialisées présentes
 
-- [PAGE-049](<../Tome 2 — Dashboard Admin/PAGE-049-ma-collection-pokemon-go.md>)
-- [API-157](<../Tome 7 — API/API-157-get-trainer-pokemon.md>)
-- [API-158](<../Tome 7 — API/API-158-post-trainer-pokemon-import.md>)
-- [API-159](<../Tome 7 — API/API-159-get-trainer-pokemon-imports.md>)
-- [API-160](<../Tome 7 — API/API-160-post-trainer-pokemon-rollback.md>)
+- [PAGE-049](<../Post-audit 2026-07-13/undefined>)
+- [API-157](<../Post-audit 2026-07-13/undefined>)
+- [API-158](<../Post-audit 2026-07-13/undefined>)
+- [API-159](<../Post-audit 2026-07-13/undefined>)
+- [API-160](<../Post-audit 2026-07-13/undefined>)
 
 ## 7. Informations absentes du code
 

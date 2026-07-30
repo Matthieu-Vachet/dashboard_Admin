@@ -2,20 +2,20 @@ import fs from "node:fs";
 import path from "node:path";
 
 const repositoryRoot = path.resolve(import.meta.dirname, "..");
-const targetDirectory = path.join(repositoryRoot, "docs", "codex", "Tome 1 — Foundation (Fondations)");
+const targetDirectory = path.join(repositoryRoot, "docs", "Tome 1 — Foundation (Fondations)");
 
 const registryLinks = {
-  pages: "../../../../audit-documentation/registries/pages.json",
-  components: "../../../../audit-documentation/registries/components.json",
-  contexts: "../../../../audit-documentation/registries/contexts.json",
-  services: "../../../../audit-documentation/registries/services.json",
-  providers: "../../../../audit-documentation/registries/providers.json",
-  datasets: "../../../../audit-documentation/registries/datasets.json",
-  api: "../../../../audit-documentation/registries/api-routes.json",
-  mongo: "../../../../audit-documentation/registries/mongodb-collections.json",
-  assets: "../../../../audit-documentation/registries/assets.json",
-  dependencies: "../../../../audit-documentation/registries/dependencies.json",
-  map: "../../../../audit-documentation/registries/documentation-map.json",
+  pages: "../Reports/Audits/audit-documentation/registries/pages.json",
+  components: "../Reports/Audits/audit-documentation/registries/components.json",
+  contexts: "../Reports/Audits/audit-documentation/registries/contexts.json",
+  services: "../Reports/Audits/audit-documentation/registries/services.json",
+  providers: "../Reports/Audits/audit-documentation/registries/providers.json",
+  datasets: "../Reports/Audits/audit-documentation/registries/datasets.json",
+  api: "../Reports/Audits/audit-documentation/registries/api-routes.json",
+  mongo: "../Reports/Audits/audit-documentation/registries/mongodb-collections.json",
+  assets: "../Reports/Audits/audit-documentation/registries/assets.json",
+  dependencies: "../Reports/Audits/audit-documentation/registries/dependencies.json",
+  map: "../Reports/Audits/audit-documentation/registries/documentation-map.json",
 };
 
 const docFiles = {
@@ -51,15 +51,6 @@ const docFiles = {
 };
 
 const specializedFiles = {
-  "PAGE-049": "PAGE-049-ma-collection-pokemon-go.md",
-  "COMP-137": "COMP-137-trainer-pokemon-collection-panel.md",
-  "API-157": "API-157-get-trainer-pokemon.md",
-  "API-158": "API-158-post-trainer-pokemon-import.md",
-  "API-159": "API-159-get-trainer-pokemon-imports.md",
-  "API-160": "API-160-post-trainer-pokemon-rollback.md",
-  "COL-030": "COL-030-trainer-pokemon-owners.md",
-  "COL-031": "COL-031-trainer-pokemon-snapshots.md",
-  "COL-032": "COL-032-trainer-pokemon-entries.md",
   "DATASET-020": "DATASET-020-collection-personnelle-pokemon-go.md",
   "WORKFLOW-016": "WORKFLOW-016-import-collection-pokemon-go.md",
 };
@@ -95,7 +86,7 @@ const documents = [
     ["Dashboard Admin/src/app", "Dashboard Admin/src/components/admin", "Dashboard Admin/src/data/dashboard.ts", "Dashboard Admin/src/proxy.ts"],
     ["pages", "components", "contexts", "services", "dependencies"], ["DOC-006", "DOC-010", "DOC-012", "DOC-013"],
     [["Pages routées Dashboard", "20 fichiers page.tsx"], ["Sections Admin Pokémon", "24 identifiants dans admin-app.jsx"], ["Méthodes API Dashboard", "38 exports GET/POST/PUT/PATCH/DELETE"], ["Composants React enregistrés", "COMP-001 à COMP-137 sur les trois interfaces"], ["Contexte racine", "CTX-001, ThemeProvider de next-themes"], ["Services Dashboard", "SERVICE-001 à SERVICE-005"]],
-    ["Le RootLayout monte Providers, puis le layout du groupe dashboard vérifie la session et rend AdminAppFrame.", "La navigation principale contient 18 destinations visibles réparties en cinq groupes; la page Account existe hors navGroups.", "PokemonAdminStudio rend AdminApp. AdminApp contient les 24 sections overview, pokedex, candies, backgrounds, collections, my-collection, assets, catalogs, raids, max-battles, rocket, pvp-rankings, eggs, research, events, shiny, checks, sources, compare, todo, logs, rules, bulk et export.", "La section PAGE-049 charge COMP-137 avec next/dynamic. Elle appelle SERVICE-005 et les routes API-157 à API-160.", "Le design exécuté utilise les thèmes dark et light, huit palettes et les primitives Badge, Button, Card, Input, Textarea et Modal.", "Le Dashboard lit PokemonGo-Data via un voisin ou .data, PokemonGo-API via ses handlers serveur, les assets via GitHub raw et ses données privées via MongoDB Dashboard."],
+    ["Le RootLayout monte Providers, puis le layout du groupe dashboard vérifie la session et rend AdminAppFrame.", "La navigation principale contient 18 destinations visibles réparties en cinq groupes; la page Account existe hors navGroups.", "PokemonAdminStudio rend AdminApp et ses sections d’administration Pokémon.", "Le design exécuté utilise les thèmes dark et light, huit palettes et les primitives Badge, Button, Card, Input, Textarea et Modal.", "Le Dashboard lit PokemonGo-Data via un voisin ou .data, PokemonGo-API via ses handlers serveur, les assets via GitHub raw et ses données privées via MongoDB Dashboard."],
     [["PAGE-006", "rend", "COMP-049 puis COMP-031"], ["PAGE-049", "rend", "COMP-137"], ["COMP-137", "appelle", "SERVICE-005"], ["Dashboard", "consomme", "PokemonGo-API-, PokemonGo-Data, PokemonGo-Assets-API et MongoDB"]],
     ["flowchart LR", "  PAGE[\"/pokemon-admin\"] --> APP[\"COMP-031 AdminApp\"]", "  APP --> SECTIONS[\"24 sections\"]", "  SECTIONS --> PERSONAL[\"PAGE-049 / COMP-137\"]", "  PERSONAL --> ROUTES[\"API-157 à API-160\"]", "  ROUTES --> MONGO[(\"COL-030 à COL-032\")]"],
     ["Aucune page Settings autonome n’est présente.", "Aucune section Éditeur autonome n’est présente.", "Aucune fiche Markdown unitaire n’est présente pour PAGE-001 à PAGE-048 ni COMP-001 à COMP-136."]
@@ -105,14 +96,14 @@ const documents = [
     ["PokemonGo-API-/src/app.js", "PokemonGo-API-/src/routes", "PokemonGo-API-/src/current-datasets/router.js", "PokemonGo-API-/api", "Dashboard Admin/src/app/api"],
     ["api", "datasets", "mongo", "dependencies"], ["DOC-006", "DOC-011", "DOC-017", "DOC-019", "DOC-020"],
     [["Routes PokemonGo-API-", "API-001 à API-122"], ["Routes Dashboard", "API-123 à API-160"], ["Entrées publiques", "92"], ["Entrées privées", "67"], ["Entrée interne bloquée", "API-007"], ["Documentation", "/api-docs.json, /api-docs, /swagger"]],
-    ["PokemonGo-API- sert quatre pages App Router, trois fonctions Vercel et une application Express montée sous api/rest.js.", "Express applique requestId, Helmet, CORS, compression, Morgan, rate limiting, cache GET, middleware read-only, routes et middleware d’erreur.", "Les routes statiques lisent les modèles Mongoose et exposent pagination, recherche, projections ou catalogues selon leur module.", "Le routeur current dessert raids, eggs, max-battles, rocket, research, shiny et pvp-rankings. Il impose no-store; les mutations import et regenerate exigent x-api-admin-secret.", "Les routes API-157 à API-160 sont privées au Dashboard, vérifient getSession et isolent les données avec session.email.", "OpenAPI n’inclut ni les routes Shiny privées ni les routes trainer-pokemon du Dashboard."],
+    ["PokemonGo-API- sert quatre pages App Router, trois fonctions Vercel et une application Express montée sous api/rest.js.", "Express applique requestId, Helmet, CORS, compression, Morgan, rate limiting, cache GET, middleware read-only, routes et middleware d’erreur.", "Les routes statiques lisent les modèles Mongoose et exposent pagination, recherche, projections ou catalogues selon leur module.", "Le routeur current dessert raids, eggs, max-battles, rocket, research, shiny et pvp-rankings. Il impose no-store; les mutations import et regenerate exigent x-api-admin-secret.", "OpenAPI n’inclut pas les routes Shiny privées."],
     [["Vercel", "redirige /api/v1, docs et health vers", "api/rest.js"], ["api/rest.js", "encapsule", "Express src/app.js"], ["Routes Express", "lisent", "MongoDB"], ["Dashboard BFF", "relaie avec secret serveur", "mutations PokemonGo-API"]],
     ["flowchart LR", "  CLIENT[\"Client public\"] --> REST[\"api/rest.js\"]", "  REST --> EXPRESS[\"Express /api/v1\"]", "  EXPRESS --> DB[(\"MongoDB API\")]", "  ADMIN[\"Dashboard avec session\"] --> BFF[\"38 méthodes BFF\"]", "  BFF --> EXPRESS", "  BFF --> DDB[(\"MongoDB Dashboard\")]"],
     ["Aucune version OpenAPI alignée automatiquement sur package.json n’est présente.", "Aucune fiche Markdown unitaire n’est présente pour API-001 à API-156.", "Aucune politique de compatibilité entre les 160 contrats n’est codée."]
   ),
   D("DOC-013", "Architecture des données", "Référence des référentiels statiques, datasets courants, données Dashboard et pipelines de transformation.",
     ["PokemonGo-Data", "PokemonGo-API-", "Dashboard Admin"],
-    ["PokemonGo-Data", "PokemonGo-API-/src/sync", "PokemonGo-API-/src/lib/current-dataset-pipeline.js", "Dashboard Admin/src/lib/learning", "Dashboard Admin/src/lib/trainer-pokemon"],
+    ["PokemonGo-Data", "PokemonGo-API-/src/sync", "PokemonGo-API-/src/lib/current-dataset-pipeline.js", "Dashboard Admin/src/lib/learning"],
     ["datasets", "providers", "mongo", "dependencies"], ["DOC-006", "DOC-012", "DOC-015", "DOC-016", "DOC-017"],
     [["Datasets enregistrés", "DATASET-001 à DATASET-020"], ["Providers enregistrés", "PROVIDER-001 à PROVIDER-018"], ["Collections enregistrées", "COL-001 à COL-032"], ["Schémas Data", "schemas/pokemon.schema.json et schemas/pokemon-assets.schema.json"], ["Pipelines current API", "7 domaines"], ["Pipelines privés Dashboard", "Learning, Events, Source Watch et collection du dresseur"]],
     ["PokemonGo-Data conserve les référentiels Pokémon, formes, assets JSON, moves, types, weather, generations, items, rocket texts et stickers.", "Le sync statique collecte les documents Data, calcule les empreintes, crée les index, exécute les bulk upserts, supprime les entrées stale si SYNC_DELETE_STALE vaut true, met à jour globalstats et écrit syncruns.", "Le pipeline current valide un dataset non vide, calcule hash et diff, upsert le document key=current, invalide le cache et vérifie count et hash après relecture.", "Les cinq JSON raids, eggs, max-battles, rocket et research servent de fixtures, références ou exports; les lectures runtime utilisent MongoDB.", "Learning emploie Zod, des contenus locaux, une migration navigateur, quatre collections de contenu/progression et deux collections d’historique.", "DATASET-020 valide le JSON importé, résout Pokémon, attaques et types via l’API publique, écrit un snapshot puis bascule activeSnapshotId après read-back."],
@@ -142,7 +133,7 @@ const documents = [
   ),
   D("DOC-016", "Vue d’ensemble des datasets", "Référence des 20 datasets, de leur visibilité, stockage, pipeline et source runtime.",
     ["PokemonGo-Data", "PokemonGo-API-", "Dashboard Admin"],
-    ["PokemonGo-Data/package.json", "PokemonGo-API-/src/current-datasets", "Dashboard Admin/src/lib/learning", "Dashboard Admin/src/lib/trainer-pokemon"],
+    ["PokemonGo-Data/package.json", "PokemonGo-API-/src/current-datasets", "Dashboard Admin/src/lib/learning"],
     ["datasets", "providers", "api", "mongo", "dependencies"], ["DOC-013", "DOC-015", "DOC-017", "DOC-033"],
     [["DATASET-001 à 011", "Référentiels Pokémon, formes, assets, moves, types, weather, generations, items, rocket texts, stickers et candy"], ["DATASET-012 à 016", "Raids, eggs, max battles, Rocket et Research publics"], ["DATASET-017", "Shiny Tracker privé"], ["DATASET-018", "PvP Rankings public"], ["DATASET-019", "Source Watch privé admin"], ["DATASET-020", "Collection Pokémon du dresseur privée"]],
     ["DATASET-001 à 011 partent de fichiers versionnés PokemonGo-Data et alimentent les collections statiques ou des réponses dérivées.", "DATASET-012 à 016 lisent uniquement MongoDB au runtime; leurs JSON locaux ne servent pas de fallback runtime.", "DATASET-017 utilise shiny_rankings et shiny_snapshots, exige le secret API et reste absent d’OpenAPI.", "DATASET-018 utilise pvprankings, un document current compressé et des routes publiques.", "DATASET-019 stocke la configuration dans source-watch/sources.json et l’historique dans dashboard_store.", "DATASET-020 ne conserve aucun export utilisateur dans Git; son snapshot actif dans MongoDB Dashboard est la source de lecture."],
@@ -152,7 +143,7 @@ const documents = [
   ),
   D("DOC-017", "Vue d’ensemble MongoDB", "Référence des 32 collections, des deux bases logiques et des index déclarés dans le code.",
     ["PokemonGo-API-/src/models", "Dashboard Admin/src/lib"],
-    ["PokemonGo-API-/src/models", "PokemonGo-API-/src/sync", "Dashboard Admin/src/lib/dashboard-store.ts", "Dashboard Admin/src/lib/learning/repository.ts", "Dashboard Admin/src/lib/trainer-pokemon/repository.ts"],
+    ["PokemonGo-API-/src/models", "PokemonGo-API-/src/sync", "Dashboard Admin/src/lib/dashboard-store.ts", "Dashboard Admin/src/lib/learning/repository.ts"],
     ["mongo", "datasets", "dependencies"], ["DOC-012", "DOC-013", "DOC-016", "DOC-018"],
     [["COL-001 à 019", "Base MONGODB_URI de PokemonGo-API"], ["COL-020 à 029", "Base DASHBOARD_MONGODB_DB du Dashboard"], ["COL-030", "trainer_pokemon_owners"], ["COL-031", "trainer_pokemon_snapshots"], ["COL-032", "trainer_pokemon_entries"], ["TTL déclarés", "0"]],
     ["Les collections API sont eggs, generations, globalstats, items, maxbattles, moves, pokemons, pokemonAssets, pvp_rankings, raids, researches, regions, rockets, rocket_texts, shiny_rankings, shiny_snapshots, syncruns, types et weathers.", "Les collections Dashboard existantes sont dashboard_store, dashboard_api_metrics, dashboard_backlog, events et les six collections learning.", "trainer_pokemon_owners porte un index unique owner et les pointeurs activeSnapshotId et previousSnapshotId.", "trainer_pokemon_snapshots indexe owner/importedAt et owner/status/importedAt.", "trainer_pokemon_entries possède neuf index, dont l’unicité owner+snapshotId+sourceId et les accès par numéro, nom, CP, IV, états, genre, alignement, forme et costume.", "Les modèles Mongoose désactivent versionKey sur les modèles observés; le versionnement métier repose sur timestamps, hash, snapshots ou historique applicatif."],
@@ -162,10 +153,10 @@ const documents = [
   ),
   D("DOC-018", "Cache applicatif", "Référence des caches mémoire, HTTP, build, assets et référentiels réellement implémentés.",
     ["PokemonGo-API-", "Dashboard Admin", "PokemonGo-Assets-API"],
-    ["PokemonGo-API-/src/lib/cache.js", "PokemonGo-API-/src/current-datasets/router.js", "Dashboard Admin/scripts/data/ensure-data.js", "Dashboard Admin/src/lib/trainer-pokemon/references.ts", "PokemonGo-Assets-API/.pokeminers-cache"],
+    ["PokemonGo-API-/src/lib/cache.js", "PokemonGo-API-/src/current-datasets/router.js", "Dashboard Admin/scripts/data/ensure-data.js", "PokemonGo-Assets-API/.pokeminers-cache"],
     ["api", "datasets", "assets"], ["DOC-012", "DOC-017", "DOC-022", "DOC-032"],
     [["Cache Express", "Map mémoire, TTL 60 s, maximum 5 000 entrées"], ["Bypass current", "no-store et X-Cache BYPASS"], ["Events public", "max-age=60, stale-while-revalidate=300"], ["Référentiels trainer", "Promise mémoire, TTL 10 minutes"], ["Snapshot Data", ".data/PokemonGo-Data"], ["Cache Assets", ".pokeminers-cache"]],
-    ["Le cache Express ne stocke que les GET 2xx sans no-store et expose HIT, MISS ou BYPASS dans X-Cache.", "fresh=true contourne le cache. clearCache efface tout; invalidateDatasetCache efface les préfixes des cinq current publics historiques.", "Le routeur current impose Cache-Control no-store, Pragma no-cache et Expires 0.", "Le Dashboard envoie private, no-store sur ses routes privées et sur les réponses trainer-pokemon.", "fetchTrainerPokemonReferences regroupe Pokémon, moves et types dans une Promise partagée pendant dix minutes; une erreur remet la Promise et le timestamp à zéro.", "ensure-data crée un clone ou snapshot dérivé dans .data; le script de PokeMiners utilise un cache de téléchargement et d’extraction."],
+    ["Le cache Express ne stocke que les GET 2xx sans no-store et expose HIT, MISS ou BYPASS dans X-Cache.", "fresh=true contourne le cache. clearCache efface tout; invalidateDatasetCache efface les préfixes des cinq current publics historiques.", "Le routeur current impose Cache-Control no-store, Pragma no-cache et Expires 0.", "Le Dashboard envoie private, no-store sur ses routes privées.", "ensure-data crée un clone ou snapshot dérivé dans .data; le script de PokeMiners utilise un cache de téléchargement et d’extraction."],
     [["GET statique", "passe par", "cache Express"], ["GET current", "bypass", "cache Express"], ["Import trainer", "lit", "cache de référentiels 10 minutes"], ["Build", "lit", ".data snapshot"]],
     ["flowchart LR", "  REQ[\"GET API\"] --> MEM[\"Map 60 s\"]", "  CURRENT[\"GET current\"] --> BYPASS[\"no-store\"]", "  BUILD[\"prebuild\"] --> SNAP[\".data\"]", "  TRAINER[\"Import trainer\"] --> REF[\"Référentiels 10 min\"]", "  PM[\"Sync PokeMiners\"] --> CACHE[\".pokeminers-cache\"]"],
     ["Aucun cache distribué n’est présent.", "Aucune métrique de hit ratio n’est présente.", "Aucune limite de poids du cache Express n’est présente.", "La revalidation CDN effective du déploiement n’est pas présente dans le code."]
@@ -175,7 +166,7 @@ const documents = [
     ["Dashboard Admin/src/lib/auth.ts", "Dashboard Admin/src/lib/session-token.ts", "Dashboard Admin/src/proxy.ts", "PokemonGo-API-/src/lib/admin-auth.js", "PokemonGo-API-/src/middleware/read-only.js"],
     ["api", "pages", "dependencies"], ["DOC-011", "DOC-012", "DOC-020", "DOC-033"],
     [["Compte Dashboard", "ADMIN_EMAIL et ADMIN_PASSWORD"], ["Jeton", "payload JSON base64url signé HMAC-SHA256"], ["Cookie", "matweb_dashboard_session, HttpOnly, SameSite=Lax"], ["Durée", "14 jours"], ["Rôle", "admin"], ["Secret API", "x-api-admin-secret comparé en temps constant"]],
-    ["POST /api/session applique rateLimit, assertSameOrigin, validateCredentials et safeInternalPath, puis écrit le cookie et répond par une redirection 303.", "En production, ADMIN_EMAIL, ADMIN_PASSWORD et SESSION_SECRET sont tous obligatoires; leur absence refuse la connexion.", "Le proxy protège les pages hors chemins publics. Les préfixes dashboard-store, pokemon-admin, trainer-pokemon, backlog, admin/events et learning passent jusqu’aux contrôles getSession de leurs handlers.", "Les quatre routes trainer-pokemon vérifient la session et le rôle admin; le repository utilise session.email comme owner.", "PokemonGo-API autorise les lectures publiques, protège Shiny et les mutations avec API_ADMIN_SECRET et refuse les mutations legacy read-only.", "Le Dashboard ajoute POKEMON_API_ADMIN_SECRET côté serveur lorsqu’il relaie une mutation autorisée vers PokemonGo-API."],
+    ["POST /api/session applique rateLimit, assertSameOrigin, validateCredentials et safeInternalPath, puis écrit le cookie et répond par une redirection 303.", "En production, ADMIN_EMAIL, ADMIN_PASSWORD et SESSION_SECRET sont tous obligatoires; leur absence refuse la connexion.", "Le proxy protège les pages hors chemins publics. Les préfixes dashboard-store, pokemon-admin, backlog, admin/events et learning passent jusqu’aux contrôles getSession de leurs handlers.", "PokemonGo-API autorise les lectures publiques, protège Shiny et les mutations avec API_ADMIN_SECRET et refuse les mutations legacy read-only.", "Le Dashboard ajoute POKEMON_API_ADMIN_SECRET côté serveur lorsqu’il relaie une mutation autorisée vers PokemonGo-API."],
     [["Navigateur", "présente", "cookie Dashboard"], ["Handlers Dashboard", "vérifient", "getSession"], ["Dashboard BFF", "présente", "x-api-admin-secret"], ["PokemonGo-API", "autorise", "route publique ou secret valide"]],
     ["sequenceDiagram", "  participant B as Navigateur", "  participant D as Dashboard", "  participant A as PokemonGo-API", "  B->>D: email + mot de passe", "  D-->>B: cookie HMAC 14 jours", "  B->>D: requête privée + cookie", "  D->>A: mutation + secret serveur", "  A-->>D: réponse protégée"],
     ["Aucun MFA n’est présent.", "Aucun store de révocation de session n’est présent.", "Aucun rôle distinct d’admin n’est présent.", "Aucun hash de mot de passe applicatif n’est présent."]
@@ -185,7 +176,7 @@ const documents = [
     ["Dashboard Admin/src/lib/security.ts", "Dashboard Admin/src/proxy.ts", "PokemonGo-API-/src/app.js", "PokemonGo-API-/next.config.mjs", "PokemonGo-API-/src/lib/admin-auth.js"],
     ["api", "datasets", "mongo"], ["DOC-012", "DOC-019", "DOC-027", "DOC-033"],
     [["Headers Dashboard", "CSP, COOP, Referrer-Policy, nosniff, DENY, Permissions-Policy"], ["Headers API", "Next security headers et Helmet"], ["Origine mutations", "assertSameOrigin"], ["Rate limit Dashboard", "Map mémoire par IP et label"], ["Rate limit API", "express-rate-limit"], ["Taille trainer import", "12 000 000 octets et 20 000 entrées"]],
-    ["safeInternalPath refuse les chemins externes, les doubles slashs et les backslashes.", "assertSameOrigin compare l’origine du header Origin avec l’origine de request.url pour POST, PUT, PATCH et DELETE.", "La CSP Dashboard autorise unsafe-inline et unsafe-eval dans script-src; la CSP API ajoute unsafe-eval uniquement en développement.", "PokemonGo-API applique CORS_ORIGINS, Helmet, compression, limite JSON et rate limit global.", "Le proxy PokemonGo-API du Dashboard limite les chemins aux routes système, à une allowlist admin ou aux chemins OpenAPI résolus.", "trainerPokemonServerError masque les messages 5xx et conserve codes et issues de validation pour les erreurs contrôlées."],
+    ["safeInternalPath refuse les chemins externes, les doubles slashs et les backslashes.", "assertSameOrigin compare l’origine du header Origin avec l’origine de request.url pour POST, PUT, PATCH et DELETE.", "La CSP Dashboard autorise unsafe-inline et unsafe-eval dans script-src; la CSP API ajoute unsafe-eval uniquement en développement.", "PokemonGo-API applique CORS_ORIGINS, Helmet, compression, limite JSON et rate limit global.", "Le proxy PokemonGo-API du Dashboard limite les chemins aux routes système, à une allowlist admin ou aux chemins OpenAPI résolus."],
     [["Proxy Dashboard", "protège", "pages privées"], ["Handlers privés", "appliquent", "session, origine et rate limit"], ["API read-only", "bloque", "mutations non admin"], ["Secret API", "protège", "Shiny et mutations current"]],
     ["flowchart TD", "  REQ[\"Requête\"] --> HEADERS[\"Headers sécurité\"]", "  HEADERS --> AUTH{\"Route privée ?\"}", "  AUTH -->|oui| SESSION[\"Session ou secret\"]", "  SESSION --> ORIGIN[\"Same-origin si mutation\"]", "  ORIGIN --> LIMIT[\"Rate limit + taille\"]", "  LIMIT --> HANDLER[\"Handler\"]"],
     ["Aucun WAF n’est configuré dans le code local.", "Aucun scan SAST ou DAST n’est configuré.", "Aucune rotation de secrets n’est codée.", "Les règles réseau Atlas ne sont pas présentes."]
@@ -195,7 +186,7 @@ const documents = [
     ["Dashboard Admin/scripts", "PokemonGo-API-/test", "PokemonGo-Data/scripts", "PokemonGo-Data/test", "PokemonGo-API-/.github/workflows", "PokemonGo-Data/.github/workflows"],
     ["api", "datasets", "providers", "components"], ["DOC-012", "DOC-013", "DOC-020", "DOC-030"],
     [["PokemonGo-API-", "10 fichiers, 66 tests node:test"], ["PokemonGo-Data", "4 fichiers, 32 tests node:test"], ["Dashboard structure", "7 tests"], ["Dashboard trainer", "13 tests déclarés"], ["Dashboard Learning", "1 scénario E2E séquentiel Playwright + Mongo temporaire"], ["Landing et Assets", "0 test"]],
-    ["npm test de PokemonGo-API lance node --test après ensure-data.", "Les tests API couvrent routes de base, read-only, secret Shiny, cache, adapters current, hash, modèles, pipeline, corruption et indisponibilité Mongo.", "PokemonGo-Data sépare test:pokemon:refactor, test:current-generators et test:ranked-datasets.", "Dashboard expose test:admin-pokemon, test:trainer-pokemon et test:learning-flow; npm run check ne les appelle pas.", "test-trainer-pokemon valide le contrat, les limites IV, la normalisation, le read-back, l’absence de deleteMany, la session, l’absence OpenAPI et les états responsive.", "Le workflow sync-mongodb exécute npm ci puis npm run sync sans tests; le workflow Data dispatch ne lance aucune suite."],
+    ["npm test de PokemonGo-API lance node --test après ensure-data.", "Les tests API couvrent routes de base, read-only, secret Shiny, cache, adapters current, hash, modèles, pipeline, corruption et indisponibilité Mongo.", "PokemonGo-Data sépare test:pokemon:refactor, test:current-generators et test:ranked-datasets.", "Dashboard expose test:admin-pokemon et test:learning-flow; npm run check ne les appelle pas.", "Le workflow sync-mongodb exécute npm ci puis npm run sync sans tests; le workflow Data dispatch ne lance aucune suite."],
     [["Tests Data", "valident", "générateurs et schémas"], ["Tests API", "valident", "routes et pipelines"], ["E2E Learning", "valide", "Dashboard + Mongo réel temporaire"], ["Workflow de sync", "écrit sans appeler", "suites de tests"]],
     ["flowchart LR", "  DATA[\"32 tests Data\"] --> API[\"66 tests API\"]", "  DASH[\"16 tests Dashboard + E2E\"] --> UI[\"Dashboard\"]", "  API -.-> SYNC[\"Workflow sync Mongo\"]", "  LAND[\"Landing: 0\"]", "  ASSETS[\"Assets: 0\"]"],
     ["Aucun pourcentage de couverture n’est produit.", "Aucun test d’accessibilité automatisé n’est présent.", "Aucun budget de performance automatisé n’est présent.", "Aucun test Landing ou Assets n’est présent."]
@@ -205,14 +196,14 @@ const documents = [
     ["Dashboard Admin/src/components/admin/pokemon/admin-app.jsx", "PokemonGo-API-/src/lib/cache.js", "PokemonGo-API-/src/services", "PokemonGo-API-/components", "Landing-Page-PogoApi/components/landing-experience.jsx"],
     ["components", "api", "mongo"], ["DOC-011", "DOC-012", "DOC-018", "DOC-023"],
     [["AdminApp", "2 503 lignes et 103 558 octets"], ["Chargement dynamique", "COMP-137 uniquement dans AdminApp"], ["Cache API", "60 s et 5 000 entrées"], ["Accueil API", "revalidate=3600"], ["Events public", "60 s + stale 300 s"], ["Pagination trainer", "10 à 100 entrées, défaut 50"]],
-    ["AdminApp importe statiquement les panneaux historiques et charge TrainerPokemonCollectionPanel avec next/dynamic.", "Les datasets current historiques sont chargés lorsque leur section devient active; le bootstrap Pokémon initial reste global.", "La checklist publique reçoit le bootstrap et le catalogue complets puis limite le rendu initial côté client.", "Les routes principales Pokémon, moves, items, forms, PvP et textes Rocket utilisent skip, limit, countDocuments et lean.", "Les images mélangent next/image et img; la Landing utilise next/image pour ses visuels et hydrate LandingExperience pour GSAP.", "Le repository trainer partage la connexion Mongo par Promise, crée les index au premier accès et exécute pagination, projection, distincts et agrégation de plages en parallèle."],
+    ["AdminApp importe statiquement les panneaux historiques.", "Les datasets current historiques sont chargés lorsque leur section devient active; le bootstrap Pokémon initial reste global.", "La checklist publique reçoit le bootstrap et le catalogue complets puis limite le rendu initial côté client.", "Les routes principales Pokémon, moves, items, forms, PvP et textes Rocket utilisent skip, limit, countDocuments et lean.", "Les images mélangent next/image et img; la Landing utilise next/image pour ses visuels et hydrate LandingExperience pour GSAP."],
     [["Route Admin Pokémon", "charge", "AdminApp"], ["AdminApp", "charge dynamiquement", "COMP-137"], ["API GET", "utilise", "cache ou no-store"], ["Requêtes listées", "utilisent", "index, projection et pagination"]],
     ["flowchart LR", "  PAGE[\"Admin Pokémon\"] --> APP[\"AdminApp 103 Ko source\"]", "  APP --> STATIC[\"Panneaux statiques\"]", "  APP --> DYNAMIC[\"COMP-137 dynamique\"]", "  APP --> BFF[\"BFF Dashboard\"]", "  BFF --> API[\"API cache/no-store\"]", "  API --> DB[(\"MongoDB\")]"],
     ["Aucun résultat Core Web Vitals n’est présent.", "Aucun budget de bundle n’est présent.", "Aucune mesure p95 ou p99 API/Mongo n’est présente.", "Aucun explain MongoDB n’est conservé."]
   ),
   D("DOC-023", "Responsive", "Référence des breakpoints, shells, grilles, modales et variantes mobile/desktop présentes dans les interfaces.",
     ["Dashboard Admin", "PokemonGo-API-", "Landing-Page-PogoApi"],
-    ["Dashboard Admin/src/components/admin/layout/admin-app-frame.tsx", "Dashboard Admin/src/components/ui/modal.tsx", "Dashboard Admin/src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx", "PokemonGo-API-/components", "Landing-Page-PogoApi/components/landing-experience.jsx"],
+    ["Dashboard Admin/src/components/admin/layout/admin-app-frame.tsx", "Dashboard Admin/src/components/ui/modal.tsx", "PokemonGo-API-/components", "Landing-Page-PogoApi/components/landing-experience.jsx"],
     ["components", "pages"], ["DOC-010", "DOC-011", "DOC-021", "DOC-022"],
     [["Breakpoints Tailwind utilisés", "sm, md, lg, xl, 2xl"], ["Seuils Tailwind", "640, 768, 1024, 1280, 1536 px"], ["Sidebar Dashboard", "fixe à partir de lg; drawer mobile 286 px"], ["Contenu Dashboard", "max-width 1680 px"], ["Modal commune", "w-full et max-height 92dvh"], ["Collection trainer", "cartes sous lg; table min-width 1540 px à partir de lg"]],
     ["AdminAppFrame bascule entre sidebar desktop et drawer mobile; la topbar adapte libellés et actions.", "Les écrans métier utilisent des grilles progressives, min-w-0, truncate, overflow et des conteneurs scrollables.", "La modale commune fixe un corps scrollable et ferme sur Escape; les modales Pokémon et Events ont aussi des implémentations locales.", "COMP-137 rend PokemonMobileCard avec lg:hidden et PokemonTable avec hidden lg:block; le tableau est placé dans overflow-x-auto.", "La checklist API passe de une à quatre colonnes; son détail devient bottom-sheet sur mobile puis modal centré à partir de sm.", "La Landing passe son hero de une à deux colonnes; sa navigation principale est masquée sous md."],
@@ -252,17 +243,17 @@ const documents = [
   ),
   D("DOC-027", "Gestion des erreurs", "Référence des formats, validations, reprises et affichages d’erreur réellement implémentés.",
     ["Dashboard Admin", "PokemonGo-API-", "PokemonGo-Data"],
-    ["PokemonGo-API-/src/middleware/errors.js", "PokemonGo-API-/src/lib/api-error.js", "Dashboard Admin/src/app/api", "Dashboard Admin/src/lib/trainer-pokemon/http.ts", "PokemonGo-Data/scripts"],
+    ["PokemonGo-API-/src/middleware/errors.js", "PokemonGo-API-/src/lib/api-error.js", "Dashboard Admin/src/app/api", "PokemonGo-Data/scripts"],
     ["api", "services", "datasets"], ["DOC-012", "DOC-020", "DOC-021", "DOC-028"],
-    [["Erreur Express", "{ error: { code, message, requestId, details? } }"], ["Erreur trainer", "{ success:false, error:{ code, message, issues? } }"], ["Validation Learning", "Zod"], ["Validation trainer", "TrainerPokemonValidationError"], ["UI", "toasts Sonner et messages inline"], ["Error Boundary App Router", "0 fichier error.tsx ou global-error.tsx"]],
-    ["ApiError transporte status, code et details; asyncHandler transmet au middleware central.", "Le middleware Express masque le message des erreurs 500 en production et inclut requestId dans la réponse.", "Les handlers Dashboard historiques emploient plusieurs formats JSON; securityError et les helpers learning/trainer conservent des statuts contrôlés.", "trainerPokemonServerError masque les 5xx, transforme 502 et 503 en messages fixes et conserve les issues de validation 400.", "Le pipeline current refuse les datasets vides ou invalides avant l’upsert et vérifie le read-back après écriture.", "Les composants affichent les erreurs via toast.error, role=alert ou états inline; aucune stratégie retry UI centrale n’est présente."],
+    [["Erreur Express", "{ error: { code, message, requestId, details? } }"], ["Validation Learning", "Zod"], ["UI", "toasts Sonner et messages inline"], ["Error Boundary App Router", "0 fichier error.tsx ou global-error.tsx"]],
+    ["ApiError transporte status, code et details; asyncHandler transmet au middleware central.", "Le middleware Express masque le message des erreurs 500 en production et inclut requestId dans la réponse.", "Les handlers Dashboard historiques emploient plusieurs formats JSON; securityError et les helpers learning conservent des statuts contrôlés.", "Le pipeline current refuse les datasets vides ou invalides avant l’upsert et vérifie le read-back après écriture.", "Les composants affichent les erreurs via toast.error, role=alert ou états inline; aucune stratégie retry UI centrale n’est présente."],
     [["Erreur Express", "passe par", "middleware central"], ["Erreur Dashboard", "passe par", "catch du handler"], ["Erreur pipeline", "produit", "diagnostics et statut"], ["Réponse client", "alimente", "toast ou message inline"]],
     ["flowchart TD", "  E[\"Erreur\"] --> L{\"Couche\"}", "  L -->|Express| APIERR[\"ApiError + requestId\"]", "  L -->|Dashboard| LOCAL[\"Helper local\"]", "  L -->|Dataset| DIAG[\"Validation + diagnostics\"]", "  APIERR --> UI[\"Client\"]", "  LOCAL --> UI", "  DIAG --> UI"],
     ["Aucune taxonomie commune de codes ne couvre Express et Dashboard.", "Aucune Error Boundary applicative n’est présente.", "Aucun test de chaos réseau n’est présent."]
   ),
   D("DOC-028", "Journalisation", "Référence des logs HTTP, jobs, historiques MongoDB et messages console présents dans le code.",
     ["Dashboard Admin", "PokemonGo-API-", "PokemonGo-Data"],
-    ["PokemonGo-API-/src/app.js", "PokemonGo-API-/src/middleware/request-id.js", "PokemonGo-API-/src/models/sync-run.js", "Dashboard Admin/src/lib/dashboard-store.ts", "Dashboard Admin/src/lib/trainer-pokemon/repository.ts"],
+    ["PokemonGo-API-/src/app.js", "PokemonGo-API-/src/middleware/request-id.js", "PokemonGo-API-/src/models/sync-run.js", "Dashboard Admin/src/lib/dashboard-store.ts"],
     ["mongo", "api", "dependencies"], ["DOC-017", "DOC-027", "DOC-029", "DOC-031"],
     [["HTTP API", "Morgan combined en production, dev sinon"], ["Corrélation Express", "X-Request-Id UUID ou valeur entrante"], ["Sync statique", "collection syncruns"], ["Current", "diagnostics document + console"], ["Dashboard metrics", "dashboard_api_metrics"], ["Trainer", "console.info import/rollback et console.error avant activation"]],
     ["Morgan écrit sur stdout; le middleware request-id renvoie X-Request-Id et les erreurs JSON reprennent cet identifiant.", "SyncRun enregistre statut, dates, durée, compteurs, changements et erreur du sync statique.", "Les pipelines current conservent source, hash, diff, compteurs, warnings et résultat de read-back.", "dashboard_api_metrics compte owner, jour, endpoint et méthode; les erreurs d’écriture sont avalées.", "Source Watch conserve au maximum 500 événements dans dashboard_store; Learning conserve activité, imports et versions.", "Le repository trainer journalise owner, snapshotId, count et préfixe de checksum lors d’une activation; l’échec journalise owner, snapshotId et count sans payload utilisateur."],
@@ -284,7 +275,7 @@ const documents = [
     ["Les cinq dépôts"],
     ["Dashboard Admin/package.json", "PokemonGo-API-/package.json", "PokemonGo-Data/package.json", "Landing-Page-PogoApi/package.json", "PokemonGo-API-/.github/workflows", "PokemonGo-Data/.github/workflows"],
     ["api", "datasets", "components"], ["DOC-021", "DOC-025", "DOC-027", "DOC-031"],
-    [["Dashboard npm run check", "lint puis build"], ["Dashboard contrôles séparés", "typecheck, test:admin-pokemon, test:trainer-pokemon, test:learning-flow"], ["API npm run check", "ensure:data, sync:dry, test, build"], ["Data contrôles", "tests séparés et commandes generate:*:check"], ["Landing", "build et script next lint"], ["Assets", "aucune commande qualité"]],
+    [["Dashboard npm run check", "lint puis build"], ["Dashboard contrôles séparés", "typecheck, test:admin-pokemon, test:learning-flow"], ["API npm run check", "ensure:data, sync:dry, test, build"], ["Data contrôles", "tests séparés et commandes generate:*:check"], ["Landing", "build et script next lint"], ["Assets", "aucune commande qualité"]],
     ["Le prebuild Dashboard exécute validate:learning et ensure-data avant next build.", "Le typecheck Dashboard utilise tsc --noEmit mais n’est pas inclus dans check.", "Le test trainer couvre validation, normalisation, confidentialité, activation par pointeur et responsive source-level.", "API check exécute une chaîne complète locale; le workflow sync-mongodb n’appelle pas check.", "Data fournit des modes check pour raids, eggs, max-battles, rocket, research, shiny, pvp-rankings, assets et GameMaster selon package.json.", "Aucun workflow Dashboard, Landing ou Assets n’exécute ces contrôles dans le workspace."],
     [["Code Dashboard", "passe par", "lint/build et contrôles séparés"], ["Code API", "passe localement par", "ensure/dry/test/build"], ["Push Data", "déclenche", "dispatch sans test"], ["Sync Mongo", "exécute", "npm run sync sans gate"]],
     ["flowchart LR", "  DASH[\"Dashboard\"] --> DCHECK[\"lint + build\"]", "  API[\"API\"] --> ACHECK[\"ensure + dry + tests + build\"]", "  DATA[\"Data\"] --> TESTS[\"tests/checks séparés\"]", "  ACTION[\"Workflow sync\"] --> SYNC[\"mutation Mongo\"]", "  ACHECK -.-> SYNC"],
@@ -332,7 +323,7 @@ const documents = [
   ),
   D("DOC-035", "Index des ADR", "Index de l’état réel des décisions architecturales et des fiches ADR présentes dans le workspace.",
     ["Les cinq dépôts", "Documentation Markdown"],
-    ["PokemonGo-Data/.github/workflows/dispatch-api-sync.yml", "PokemonGo-API-/src/current-datasets/router.js", "Dashboard Admin/src/lib/session-token.ts", "Dashboard Admin/src/lib/trainer-pokemon/repository.ts", "audit-documentation/registries/documentation-map.json"],
+    ["PokemonGo-Data/.github/workflows/dispatch-api-sync.yml", "PokemonGo-API-/src/current-datasets/router.js", "Dashboard Admin/src/lib/session-token.ts", "audit-documentation/registries/documentation-map.json"],
     ["map", "dependencies"], ["DOC-006", "DOC-013", "DOC-019", "DOC-031", "DOC-033"],
     [["Fichiers ADR-*.md présents", "0"], ["Entrées ADR réservées dans documentation-map", "ADR-001 à ADR-010"], ["ADR formel accepté", "0"], ["Décisions encodées examinées", "10"], ["Liens vers fiches ADR", "0"], ["Statut", "absence explicite de fiches"]],
     ["PokemonGo-Data est la source versionnée des référentiels statiques; le workflow dispatch énumère les chemins concernés.", "MongoDB est la source runtime des current raids, eggs, max-battles, rocket et research; le routeur et le reader n’emploient pas les JSON locaux comme fallback.", "Shiny reste privé par adapter, secret, collections et absence OpenAPI.", "La session Dashboard utilise un cookie HMAC de 14 jours et un seul rôle admin.", "Le Dashboard relaie les mutations API avec un secret serveur et stocke ses domaines privés dans une base séparée.", "Le contrat formel dataset-provider reste limité à Shiny et PvP Rankings; les cinq current publics utilisent des générateurs directs.", "Le pipeline current emploie hash, diff, invalidation et read-back; Events conserve un fallback seeds distinct.", "Learning conserve une migration browser et un rollback de contenu.", "La collection trainer conserve les snapshots, vérifie le read-back et active un pointeur owner sans deleteMany.", "Les assets publics sont consommés par URL GitHub raw sur main.", "Ces dix décisions existent dans le code mais aucune ne possède une fiche ADR avec contexte, alternatives, décision et conséquences."],
@@ -444,14 +435,14 @@ for (const document of documents) {
 
 const index = `# Documentation Foundation officielle
 
-État vérifié le 13 juillet 2026. Les documents DOC-011 à DOC-035 partagent le même front matter et les huit mêmes sections.
+État vérifié le 30 juillet 2026. Les documents DOC-011 à DOC-035 partagent le même front matter et les huit mêmes sections.
 
 | ID | Document |
 | --- | --- |
 ${documents.map((document) => `| ${document.id} | [${document.title}](./Tome%201%20%E2%80%94%20Foundation%20%28Fondations%29/${docFiles[document.id]}) |`).join("\n")}
 
-Onze fiches spécialisées Post-audit existent pour PAGE-049, COMP-137, API-157 à API-160, COL-030 à COL-032, DATASET-020 et WORKFLOW-016. Les autres identifiants restent consultables dans les registres JSON du dossier audit-documentation/registries.
+Les identifiants détaillés restent consultables dans les registres JSON du dossier audit-documentation/registries.
 `;
-fs.writeFileSync(path.join(repositoryRoot, "docs", "codex", "README.md"), index);
+fs.writeFileSync(path.join(repositoryRoot, "docs", "FOUNDATION-INDEX.md"), index);
 
 console.log(`${documents.length} documents Foundation et un index générés.`);

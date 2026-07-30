@@ -5,103 +5,103 @@ export const POKEMON_EVENT_TYPES = [
     id: "raid_battles",
     label: "Raid Battles",
     color: "#dc3b2f",
-    icon: "/ui/raids/5_star_raids.png",
+    icon: "/assets/ui/categories/raids/5_star_raids.png",
   },
   {
     id: "community_day",
     label: "Journée communautaire",
     color: "#22c55e",
-    icon: "/ui/icons/pokemon.png",
+    icon: "/assets/ui/icons/general/pokemon.png",
   },
   {
     id: "spotlight_hour",
     label: "Heure vedette",
     color: "#f59e0b",
-    icon: "/ui/icons/search.png",
+    icon: "/assets/ui/icons/general/search.png",
   },
   {
     id: "raid_hour",
     label: "Heure de raid",
     color: "#dc3b2f",
-    icon: "/ui/icons/raid.png",
+    icon: "/assets/ui/icons/general/raid.png",
   },
   {
     id: "go_battle_league",
     label: "GO Battle League",
     color: "#963fba",
-    icon: "/ui/icons/TodayView_Icon_Battle.webp",
+    icon: "/assets/ui/icons/general/TodayView_Icon_Battle.webp",
   },
   {
     id: "go_pass",
     label: "GO Pass",
     color: "#9a7a12",
-    icon: "/ui/icons/go_logo.png",
+    icon: "/assets/ui/icons/general/go_logo.png",
   },
   {
     id: "choose_your_path",
     label: "Choose Your Path",
     color: "#16a085",
-    icon: "/ui/icons/pokeball.webp",
+    icon: "/assets/ui/icons/general/pokeball.webp",
   },
   {
     id: "max_monday",
     label: "Max Monday",
     color: "#9f0b67",
-    icon: "/ui/max_battles/max-battles.webp",
+    icon: "/assets/ui/categories/max-battles/max-battles.webp",
   },
   {
     id: "raid_day",
     label: "Journée de raid",
     color: "#ef4444",
-    icon: "/ui/raids/5_star_raids.png",
+    icon: "/assets/ui/categories/raids/5_star_raids.png",
   },
   {
     id: "event",
     label: "Event",
     color: "#8b5cf6",
-    icon: "/ui/icons/pokeball.webp",
+    icon: "/assets/ui/icons/general/pokeball.webp",
   },
   {
     id: "season",
     label: "Saison",
     color: "#14b8a6",
-    icon: "/ui/PokedexV2/kanto_starters.png",
+    icon: "/assets/pokemon/generations/artwork/kanto_starters.png",
   },
   {
     id: "go_fest",
     label: "GO Fest",
     color: "#06b6d4",
-    icon: "/ui/icons/go_logo.png",
+    icon: "/assets/ui/icons/general/go_logo.png",
   },
   {
     id: "research_day",
     label: "Research Day",
     color: "#a855f7",
-    icon: "/ui/Items/Item_1201.png",
+    icon: "/assets/pokemon/items/library/Item_1201.png",
   },
   {
     id: "max_battle",
     label: "Max Battles",
     color: "#ec4899",
-    icon: "/ui/max_battles/max-battles.webp",
+    icon: "/assets/ui/categories/max-battles/max-battles.webp",
   },
   {
     id: "egg_event",
     label: "Event œufs",
     color: "#f97316",
-    icon: "/ui/eggs/2_km.png",
+    icon: "/assets/ui/categories/eggs/2_km.png",
   },
   {
     id: "rocket_event",
     label: "Team GO Rocket",
     color: "#64748b",
-    icon: "/ui/raids/teamrocket_r.png",
+    icon: "/assets/ui/categories/raids/teamrocket_r.png",
   },
   {
     id: "other",
     label: "Autre",
     color: "#94a3b8",
-    icon: "/ui/icons/tag.png",
+    icon: "/assets/ui/icons/general/tag.png",
   },
 ] as const;
 
@@ -220,7 +220,7 @@ export const defaultPokemonEvents: PokemonCalendarEvent[] = [
     source: "seed:pogocalendar",
     assets: {
       banner: null,
-      icon: "/ui/icons/raid.png",
+      icon: "/assets/ui/icons/general/raid.png",
     },
     featuredPokemon: [
       { name: "Articuno" },
@@ -242,7 +242,7 @@ export const defaultPokemonEvents: PokemonCalendarEvent[] = [
     source: "seed:pogocalendar",
     assets: {
       banner: null,
-      icon: "/ui/icons/search.png",
+      icon: "/assets/ui/icons/general/search.png",
     },
     featuredPokemon: [{ name: "Pidgey" }],
     bonuses: ["Apparitions augmentées de 18h à 19h heure locale."],
@@ -261,7 +261,7 @@ export const defaultPokemonEvents: PokemonCalendarEvent[] = [
     source: "seed:pokemongolive",
     assets: {
       banner: null,
-      icon: "/ui/icons/pokemon.png",
+      icon: "/assets/ui/icons/general/pokemon.png",
     },
     featuredPokemon: [{ name: "Sobble" }],
     bonuses: [
@@ -288,7 +288,7 @@ export const defaultPokemonEvents: PokemonCalendarEvent[] = [
     source: "seed:pokemongolive",
     assets: {
       banner: null,
-      icon: "/ui/icons/pokeball.webp",
+      icon: "/assets/ui/icons/general/pokeball.webp",
     },
     featuredPokemon: [{ name: "Pikachu" }],
     bonuses: [
@@ -315,7 +315,7 @@ export const defaultPokemonEvents: PokemonCalendarEvent[] = [
     source: "seed:pokemongolive",
     assets: {
       banner: null,
-      icon: "/ui/icons/go_logo.png",
+      icon: "/assets/ui/icons/general/go_logo.png",
     },
     featuredPokemon: [{ name: "Mewtwo" }, { name: "Zeraora" }],
     bonuses: [

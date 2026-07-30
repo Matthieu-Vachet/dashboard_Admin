@@ -21,8 +21,8 @@ source_files:
   - "Dashboard Admin/next.config.ts"
   - "Landing-Page-PogoApi/next.config.mjs"
 registries:
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/assets.json"
-  - "Dashboard Admin/docs/Reports/Audits/audit-documentation/registries/dependencies.json"
+  - "audit-documentation/registries/assets.json"
+  - "audit-documentation/registries/dependencies.json"
 related:
   - "DOC-005"
   - "DOC-006"
@@ -94,8 +94,8 @@ flowchart LR
 
 ### Fiches spécialisées présentes
 
-- [COMP-137](<../Tome 3 — Design System/Components/COMP-137-trainer-pokemon-collection-panel.md>)
-- [DATASET-020](<../Tome 6 — Datasets/DATASET-020-collection-personnelle-pokemon-go.md>)
+- [COMP-137](<../Post-audit 2026-07-13/undefined>)
+- [DATASET-020](<../Post-audit 2026-07-13/DATASET-020-collection-personnelle-pokemon-go.md>)
 
 ## 7. Informations absentes du code
 

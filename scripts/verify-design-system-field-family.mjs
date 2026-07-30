@@ -93,15 +93,6 @@ async function installRoutes(page) {
     if (["history", "custom-rules", "source-history"].includes(action)) return fulfillJson(route, { data: [] });
     return fulfillJson(route, { data: { entries: [], customRuleEntries: [], customRules: [], summary: {} } });
   });
-  await page.route("**/api/trainer-pokemon?**", (route) => fulfillJson(route, { success: true, data: {
-    items: [], snapshot: null,
-    stats: { total: 0, shiny: 0, lucky: 0, perfect: 0, shadow: 0, purified: 0, costume: 0 },
-    filters: {
-      genders: [], alignments: [], forms: [], costumes: [], cp: { min: 0, max: 0 },
-      ivPercent: { min: 0, max: 0 }, weightKg: { min: 0, max: 0 }, heightM: { min: 0, max: 0 },
-    },
-    pagination: { page: 1, limit: 50, total: 0, pages: 0 },
-  } }));
 }
 
 async function authenticate(page, credentials) {
@@ -333,16 +324,6 @@ async function learningScenario(page, key) {
   return { targets: { disabledTextarea: target }, interactions: { disabledInert: true } };
 }
 
-async function pokemonScenario(page, key) {
-  await page.goto(`${baseUrl}/pokemon-admin?section=my-collection`, { waitUntil: "domcontentloaded" });
-  await page.getByRole("heading", { name: "Ma collection Pokémon GO", exact: true }).waitFor({ state: "visible", timeout: 30_000 });
-  const search = page.getByLabel("Rechercher dans la collection", { exact: true });
-  return {
-    targets: { search: await targetSnapshot(page, key, "search", search, { exercise: true }) },
-    interactions: await keyboardRoundTrip(page, search),
-  };
-}
-
 const authenticatedScenarios = [
   { name: "projects", run: projectsScenario },
   { name: "kanban", run: kanbanScenario },
@@ -350,7 +331,6 @@ const authenticatedScenarios = [
   { name: "notes", run: notesScenario },
   { name: "backlog", run: backlogScenario },
   { name: "learning-disabled", run: learningScenario },
-  { name: "pokemon-collection", run: pokemonScenario },
 ].filter((scenario) => !process.env.DESIGN_SYSTEM_SCENARIO || scenario.name === process.env.DESIGN_SYSTEM_SCENARIO);
 
 async function focusableSignature(page) {

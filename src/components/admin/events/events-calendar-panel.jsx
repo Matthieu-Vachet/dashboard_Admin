@@ -176,7 +176,7 @@ function normalizeEventImageUrl(src) {
   if (!value) return null;
   if (/^(https?:|data:|blob:)/i.test(value)) return value;
   if (value.startsWith("//")) return `https:${value}`;
-  if (value.startsWith("/ui/") || value.startsWith("/_next/")) return value;
+  if (value.startsWith("/assets/") || value.startsWith("/_next/")) return value;
   if (value.startsWith("/")) return `https://leekduck.com${value}`;
   return `https://leekduck.com/${value.replace(/^\.?\//, "")}`;
 }
@@ -1157,24 +1157,24 @@ function EventRow({ event, onOpen }) {
 }
 
 const typeIconMap = {
-  normal: "/ui/Types/ico_0_normal.png",
-  fighting: "/ui/Types/ico_1_fighting.png",
-  flying: "/ui/Types/ico_2_flying.png",
-  poison: "/ui/Types/ico_3_poison.png",
-  ground: "/ui/Types/ico_4_ground.png",
-  rock: "/ui/Types/ico_5_rock.png",
-  bug: "/ui/Types/ico_6_bug.png",
-  ghost: "/ui/Types/ico_7_ghost.png",
-  steel: "/ui/Types/ico_8_steel.png",
-  fire: "/ui/Types/ico_9_fire.png",
-  water: "/ui/Types/ico_10_water.png",
-  grass: "/ui/Types/ico_11_grass.png",
-  electric: "/ui/Types/ico_12_electric.png",
-  psychic: "/ui/Types/ico_13_psychic.png",
-  ice: "/ui/Types/ico_14_ice.png",
-  dragon: "/ui/Types/ico_15_dragon.png",
-  dark: "/ui/Types/ico_16_dark.png",
-  fairy: "/ui/Types/ico_17_fairy.png",
+  normal: "/assets/pokemon/types/icons/ico_0_normal.png",
+  fighting: "/assets/pokemon/types/icons/ico_1_fighting.png",
+  flying: "/assets/pokemon/types/icons/ico_2_flying.png",
+  poison: "/assets/pokemon/types/icons/ico_3_poison.png",
+  ground: "/assets/pokemon/types/icons/ico_4_ground.png",
+  rock: "/assets/pokemon/types/icons/ico_5_rock.png",
+  bug: "/assets/pokemon/types/icons/ico_6_bug.png",
+  ghost: "/assets/pokemon/types/icons/ico_7_ghost.png",
+  steel: "/assets/pokemon/types/icons/ico_8_steel.png",
+  fire: "/assets/pokemon/types/icons/ico_9_fire.png",
+  water: "/assets/pokemon/types/icons/ico_10_water.png",
+  grass: "/assets/pokemon/types/icons/ico_11_grass.png",
+  electric: "/assets/pokemon/types/icons/ico_12_electric.png",
+  psychic: "/assets/pokemon/types/icons/ico_13_psychic.png",
+  ice: "/assets/pokemon/types/icons/ico_14_ice.png",
+  dragon: "/assets/pokemon/types/icons/ico_15_dragon.png",
+  dark: "/assets/pokemon/types/icons/ico_16_dark.png",
+  fairy: "/assets/pokemon/types/icons/ico_17_fairy.png",
 };
 
 function pokemonKey(entry) {
@@ -1417,7 +1417,7 @@ function EventDetailModal({ event, busyAction, onClose, onEdit, onDuplicate, onA
         <header
           className="relative shrink-0 overflow-hidden rounded-t-[2rem] border-b border-cyan-200/20 p-4 sm:p-7"
           style={{
-            backgroundImage: `linear-gradient(135deg, ${hexToRgba(type.color, 0.24)}, rgba(2,6,23,.90)), url("/ui/backgrounds/catchCards/CatchCard_TypeBG_Water.png")`,
+            backgroundImage: `linear-gradient(135deg, ${hexToRgba(type.color, 0.24)}, rgba(2,6,23,.90)), url("/assets/ui/backgrounds/library/catchCards/CatchCard_TypeBG_Water.png")`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}

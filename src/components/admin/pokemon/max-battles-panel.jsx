@@ -104,7 +104,7 @@ function MaxBattleSection({ id, pokemon, onOpenPokemon, typeCatalog = [] }) {
     <TierSection
       id="max battle"
       title={id}
-      image="/ui/max_battles/max-battles.webp"
+      image="/assets/ui/categories/max-battles/max-battles.webp"
       count={pokemon.length}
       tone={toneForTier(id)}
       defaultOpen={false}
@@ -169,10 +169,10 @@ export function MaxBattlesPanel({
         }
       >
         <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <AssetStatCard label="Boss Max" value={total} icon="/ui/max_battles/max-battles.webp" tone="cyan" detail="Tous tiers actifs" />
-          <AssetStatCard label="Tier 1" value={buckets.Tier1 || 0} icon="/ui/max_battles/max-battles.webp" tone="green" detail="Difficulté 1" />
-          <AssetStatCard label="Tier 2" value={buckets.Tier2 || 0} icon="/ui/max_battles/max-battles.webp" tone="violet" detail="Difficulté 2" />
-          <AssetStatCard label="Tier 3+" value={Object.entries(buckets).reduce((sum, [key, value]) => sum + (Number(key.match(/\d+/)?.[0] || 0) >= 3 ? value : 0), 0)} icon="/ui/max_battles/ic_shiny.png" tone="amber" detail="Tiers élevés" />
+          <AssetStatCard label="Boss Max" value={total} icon="/assets/ui/categories/max-battles/max-battles.webp" tone="cyan" detail="Tous tiers actifs" />
+          <AssetStatCard label="Tier 1" value={buckets.Tier1 || 0} icon="/assets/ui/categories/max-battles/max-battles.webp" tone="green" detail="Difficulté 1" />
+          <AssetStatCard label="Tier 2" value={buckets.Tier2 || 0} icon="/assets/ui/categories/max-battles/max-battles.webp" tone="violet" detail="Difficulté 2" />
+          <AssetStatCard label="Tier 3+" value={Object.entries(buckets).reduce((sum, [key, value]) => sum + (Number(key.match(/\d+/)?.[0] || 0) >= 3 ? value : 0), 0)} icon="/assets/ui/categories/max-battles/ic_shiny.png" tone="amber" detail="Tiers élevés" />
         </div>
         <DatasetSourceHeader dataset={maxBattles} total={total} refreshError={refreshError} />
       </Panel>

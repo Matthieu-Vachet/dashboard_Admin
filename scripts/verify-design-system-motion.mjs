@@ -22,7 +22,6 @@ const scenarios = [
   { name: "dashboard", path: "/", ready: "Dashboard live" },
   { name: "interactive-cards", path: "/projects", ready: "Projets pratiques guidés" },
   { name: "forms", path: "/kanban", ready: "Kanban projet" },
-  { name: "state-modal", path: "/pokemon-admin?section=my-collection", ready: "Aucune collection importée", modal: true },
   { name: "palette-menu", path: "/", ready: "Dashboard live", palette: true },
   { name: "drawer", path: "/", ready: "Dashboard live", drawer: true },
   { name: "admin-pokemon", path: "/pokemon-admin?section=overview", ready: "Synthèse des fiches" },
@@ -40,16 +39,6 @@ function readEnvironment() {
     return [[match[1], value]];
   }));
 }
-
-const emptyTrainerPayload = {
-  success: true,
-  data: {
-    items: [], snapshot: null,
-    stats: { total: 0, shiny: 0, lucky: 0, perfect: 0, shadow: 0, purified: 0, costume: 0 },
-    filters: { genders: [], alignments: [], forms: [], costumes: [], cp: { min: 0, max: 0 }, ivPercent: { min: 0, max: 0 }, weightKg: { min: 0, max: 0 }, heightM: { min: 0, max: 0 } },
-    pagination: { page: 1, limit: 50, total: 0, pages: 0 },
-  },
-};
 
 async function json(route, body, status = 200) {
   await route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
@@ -87,9 +76,6 @@ async function installRoutes(page) {
     }
     return json(route, { data: { entries: [], customRuleEntries: [], customRules: [], summary: {}, collections: [], sourceWatch: { sources: [] } } });
   });
-  await page.route("**/api/trainer-pokemon/imports**", (route) => json(route, { success: true, data: { imports: [] } }));
-  await page.route("**/api/trainer-pokemon/diagnostics**", (route) => json(route, { success: true, data: { items: [], summary: {} } }));
-  await page.route("**/api/trainer-pokemon?**", (route) => json(route, emptyTrainerPayload));
 }
 
 async function authenticate(browser) {
@@ -182,19 +168,7 @@ try {
             interactionChecks += 1;
           }
 
-          if (scenario.modal) {
-            const trigger = page.getByRole("button", { name: "Importer un JSON", exact: true }).first();
-            await trigger.click();
-            const dialog = page.getByRole("dialog", { name: "Importer ma collection" });
-            await dialog.waitFor({ state: "visible" });
-            await page.screenshot({ path: path.join(artifactRoot, `${scenario.name}-${preference.name}-${theme}-${viewport.name}.png`), fullPage: true });
-            await page.keyboard.press("Escape");
-            await dialog.waitFor({ state: "hidden" });
-            await page.waitForFunction((element) => document.activeElement === element, await trigger.elementHandle(), { timeout: 2_000 });
-            interactionChecks += 1;
-          } else {
-            await page.screenshot({ path: path.join(artifactRoot, `${scenario.name}-${preference.name}-${theme}-${viewport.name}.png`), fullPage: true });
-          }
+          await page.screenshot({ path: path.join(artifactRoot, `${scenario.name}-${preference.name}-${theme}-${viewport.name}.png`), fullPage: true });
 
           const probe = await motionProbe(page);
           assert.equal(probe.reduced, preference.name === "reduced", `${scenario.name}: préférence`);
@@ -221,9 +195,9 @@ try {
       }
     }
   }
-  assert.equal(captures, 96);
-  assert.equal(reducedChecks, 48);
-  assert.ok(interactionChecks >= 20);
+  assert.equal(captures, 84);
+  assert.equal(reducedChecks, 42);
+  assert.ok(interactionChecks >= 12);
   console.info(`Motion browser verification: ${captures} captures, ${reducedChecks} contrôles reduced-motion, ${interactionChecks} interactions, sans overflow ni erreur.`);
 } finally {
   await browser.close();

@@ -15,16 +15,16 @@ export const primaryButtonClass =
 
 const generationFilters = [
   ["all", "Toutes", null],
-  ["1", "Kanto", "/ui/PokedexV2/kanto_starters.png"],
-  ["2", "Johto", "/ui/PokedexV2/jhoto_starters.png"],
-  ["3", "Hoenn", "/ui/PokedexV2/hoenn_starters.png"],
-  ["4", "Sinnoh", "/ui/PokedexV2/sinnoh_starters.png"],
-  ["5", "Unys", "/ui/PokedexV2/unova_starters.png"],
-  ["6", "Kalos", "/ui/PokedexV2/kalos_starters.png"],
-  ["7", "Alola", "/ui/PokedexV2/alola_starters.png"],
-  ["8", "Galar", "/ui/PokedexV2/galar_starters.png"],
-  ["hisui", "Hisui", "/ui/PokedexV2/hisui_starters.png"],
-  ["9", "Paldea", "/ui/PokedexV2/paldea_starters.png"],
+  ["1", "Kanto", "/assets/pokemon/generations/artwork/kanto_starters.png"],
+  ["2", "Johto", "/assets/pokemon/generations/artwork/jhoto_starters.png"],
+  ["3", "Hoenn", "/assets/pokemon/generations/artwork/hoenn_starters.png"],
+  ["4", "Sinnoh", "/assets/pokemon/generations/artwork/sinnoh_starters.png"],
+  ["5", "Unys", "/assets/pokemon/generations/artwork/unova_starters.png"],
+  ["6", "Kalos", "/assets/pokemon/generations/artwork/kalos_starters.png"],
+  ["7", "Alola", "/assets/pokemon/generations/artwork/alola_starters.png"],
+  ["8", "Galar", "/assets/pokemon/generations/artwork/galar_starters.png"],
+  ["hisui", "Hisui", "/assets/pokemon/generations/artwork/hisui_starters.png"],
+  ["9", "Paldea", "/assets/pokemon/generations/artwork/paldea_starters.png"],
 ];
 
 const assetStatTone = {

@@ -178,11 +178,9 @@ test("les familles Loading spécialisées restent distinctes", () => {
   const button = read("src/components/ui/button.tsx");
   const dashboard = read("src/components/admin/shared/loading-state.tsx");
   const gameMaster = read("src/components/admin/pokemon/game-master-explorer-panel.jsx");
-  const importPanel = read("src/components/admin/pokemon/trainer-pokemon-collection-panel.tsx");
   assert.doesNotMatch(button, /FetchLoadingState/);
   assert.doesNotMatch(dashboard, /FetchLoadingState/);
   assert.match(gameMaster, /animate-pulse/);
-  assert.match(importPanel, /Parsing, validation et normalisation/);
 });
 
 test("la réduction de mouvement conserve une information de chargement lisible", () => {
