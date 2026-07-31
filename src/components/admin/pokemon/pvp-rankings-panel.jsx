@@ -17,6 +17,9 @@ import { addChecklistBuild, buffLabels, checklistBuildsForEntry, checklistIdenti
 import { fighterFromChecklistBuild, fighterFromRanking, pvpBattleUrl } from "@/lib/pvp-battle-deep-link.mjs";
 import { readDashboardStoreValue, writeDashboardStoreValue } from "@/services/admin/dashboard-store";
 import { pokemonAdminApiPath } from "@/services/admin/pokemon-admin-api";
+import { CandyAssetImage } from "./candy-asset-image";
+import { xlCandyRequirement } from "@/lib/pokemon-candy-assets.mjs";
+import { enrichPvpRankingWithLocalData, normalizeSuggestedTeammate, pvpTeammatesErrorMessage } from "@/lib/pvp-ranking-local-data.mjs";
 
 const fallbackRoles = [
   ["overall", "Classement total"], ["lead", "Ouverture"], ["closer", "Fermeur"], ["switch", "Changement"],
@@ -101,12 +104,13 @@ function combinedTypeMatchups(types, typeReferences) {
 }
 
 function TeammateBadge({ item, onOpenPokemon, onSimulate }) {
-  const pokemon = item.pokemon || {};
-  const label = pokemon.names?.French || pokemon.names?.English || item.rawName || "Pokémon";
+  const teammate = normalizeSuggestedTeammate(item);
+  const pokemon = teammate.pokemon;
+  const label = teammate.label;
   const className = "inline-flex items-center gap-2 rounded-xl border border-line bg-surface-control px-2 py-1 text-sm font-black";
-  const content = <><PokemonArtwork pokemon={pokemon} alt={label} className="h-8 w-8 rounded-lg" /><span>{label}{item.shadow ? " (Obscur)" : ""}</span></>;
-  if (onOpenPokemon && item.resolutionStatus === "matched") return <span className="inline-flex flex-wrap items-center gap-1"><button className={className} type="button" onClick={() => onOpenPokemon(pokemon)}>{content}</button>{onSimulate ? <button className="grid h-9 w-9 place-items-center rounded-lg border border-cyan-200/20 bg-cyan-300/10" type="button" onClick={() => onSimulate(item)} aria-label={`Simuler contre ${label}`} title={`Simuler contre ${label}`}><img className="h-5 w-5 object-contain" src={uiAssets.icons.battle} alt="" /></button> : null}</span>;
-  return <span className={className}>{content}{item.resolutionStatus !== "matched" ? <small className="text-amber-200">Alias à résoudre</small> : null}</span>;
+  const content = <><PokemonArtwork pokemon={pokemon} alt={label} className="h-8 w-8 rounded-lg" /><span className="min-w-0"><span className="block truncate">{label}{teammate.shadow ? " (Obscur)" : ""}</span><small className="mt-0.5 flex items-center gap-1 text-muted"><TypeIcons types={pokemon.types} size="sm" />{pokemon.form || pokemon.formId || teammate.form || "Forme non précisée"}</small></span>{teammate.rankOrOrder != null ? <small className="rounded-full bg-cyan-300/10 px-2 py-1 font-mono text-cyan-100">#{teammate.rankOrOrder}</small> : null}</>;
+  if (onOpenPokemon && teammate.resolutionStatus === "matched") return <span className="inline-flex flex-wrap items-center gap-1"><button className={className} type="button" onClick={() => onOpenPokemon(pokemon)}>{content}</button>{onSimulate ? <button className="grid h-9 w-9 place-items-center rounded-lg border border-cyan-200/20 bg-cyan-300/10" type="button" onClick={() => onSimulate(teammate)} aria-label={`Simuler contre ${label}`} title={`Simuler contre ${label}`}><img className="h-5 w-5 object-contain" src={uiAssets.icons.battle} alt="" /></button> : null}</span>;
+  return <span className={className}>{content}{teammate.resolutionStatus !== "matched" ? <small className="text-amber-200">Alias à résoudre</small> : null}</span>;
 }
 
 function PvpDetail({ entry, references, format, onOpenPokemon, onSimulate, onSimulateTeammate, suggestedTeammates, teammatesLoading, teammatesError }) {
@@ -119,14 +123,16 @@ function PvpDetail({ entry, references, format, onOpenPokemon, onSimulate, onSim
   const matchupTypes = combinedTypeMatchups(entry.pokemon?.types, references?.types);
   const ivs = entry.pvp?.ivs;
   const level = entry.pvp?.level;
-  const needsXl = Number(level) > 40;
+  const xlRequirement = xlCandyRequirement(entry);
+  const candyFamilyId = entry.pvp?.candyFamilyId ?? entry.pokemon?.assets?.candy?.familyId;
+  const candyXlImage = entry.pokemon?.assets?.candy?.xlImage;
   const costs = entry.pvp?.secondChargedMoveCost || {};
   const rank1Stats = entry.rank1?.stats || entry.stats || {};
 
   return (
     <div className="space-y-4 border-t border-line p-3 sm:p-5">
       <div className="grid gap-4 xl:grid-cols-2"><section><h3 className="mb-3 font-black text-domain-foreground">Gagne contre · Cote de combat</h3><div className="space-y-2">{(entry.matchups || []).map((item) => <MatchupCard key={`${item.sourceId}-${item.rating}`} item={item} good pokemonReferences={references?.pokemon} />)}</div></section><section><h3 className="mb-3 font-black text-domain-foreground">Perd contre · Cote de combat</h3><div className="space-y-2">{(entry.counters || []).map((item) => <MatchupCard key={`${item.sourceId}-${item.rating}`} item={item} good={false} pokemonReferences={references?.pokemon} />)}</div></section></div>
-      <div className="grid gap-4 xl:grid-cols-2"><PerformanceRadar scores={entry.roleScores} /><section className="rounded-2xl border border-line bg-surface-faint p-4"><h3 className="font-black text-domain-foreground">Stats PvP · Rank 1</h3><dl className="mt-4 grid grid-cols-2 gap-3 text-sm"><div><dt className="text-disabled">Attaque</dt><dd className="font-mono font-black">{rank1Stats.attack ?? "—"}</dd></div><div><dt className="text-disabled">Défense</dt><dd className="font-mono font-black">{rank1Stats.defense ?? "—"}</dd></div><div><dt className="text-disabled">Endurance</dt><dd className="font-mono font-black">{rank1Stats.stamina ?? "—"}</dd></div><div><dt className="text-disabled">Stat Product</dt><dd className="font-mono font-black">{entry.rank1?.statProduct ?? entry.stats?.product ?? "—"}</dd></div><div><dt className="text-disabled">Niveau recommandé</dt><dd className="font-mono font-black">{level ?? "Indisponible"}</dd></div><div><dt className="text-disabled">IV exacts</dt><dd className="font-mono font-black">{ivs ? `${ivs.attack}/${ivs.defense}/${ivs.stamina}` : "Indisponibles"}</dd></div><div><dt className="text-disabled">CP obtenu / plafond</dt><dd className="font-mono font-black">{entry.pvp?.cp ?? "—"} / {format?.cp || entry.pvp?.cpTarget || "—"}</dd></div><div><dt className="text-disabled">Bonbons XL</dt><dd className="font-black">{needsXl ? "Requis · quantité indisponible" : level == null ? "Indisponible" : "Aucun requis"}</dd></div></dl></section></div>
+      <div className="grid gap-4 xl:grid-cols-2"><PerformanceRadar scores={entry.roleScores} /><section className="rounded-2xl border border-line bg-surface-faint p-4"><h3 className="font-black text-domain-foreground">Stats PvP · Rank 1</h3><dl className="mt-4 grid grid-cols-2 gap-3 text-sm"><div><dt className="text-disabled">Attaque</dt><dd className="font-mono font-black">{rank1Stats.attack ?? "—"}</dd></div><div><dt className="text-disabled">Défense</dt><dd className="font-mono font-black">{rank1Stats.defense ?? "—"}</dd></div><div><dt className="text-disabled">Endurance</dt><dd className="font-mono font-black">{rank1Stats.stamina ?? "—"}</dd></div><div><dt className="text-disabled">Stat Product</dt><dd className="font-mono font-black">{entry.rank1?.statProduct ?? entry.stats?.product ?? "—"}</dd></div><div><dt className="text-disabled">Niveau recommandé</dt><dd className="font-mono font-black">{level ?? "Indisponible"}</dd></div><div><dt className="text-disabled">IV exacts</dt><dd className="font-mono font-black">{ivs ? `${ivs.attack}/${ivs.defense}/${ivs.stamina}` : "Indisponibles"}</dd></div><div><dt className="text-disabled">CP obtenu / plafond</dt><dd className="font-mono font-black">{entry.pvp?.cp ?? "—"} / {format?.cp || entry.pvp?.cpTarget || "—"}</dd></div><div><dt className="text-disabled">Bonbons XL</dt><dd className="mt-1 flex items-center gap-2 font-black"><CandyAssetImage familyId={candyFamilyId} xlUrl={candyXlImage} kind="xl" className="h-8 w-8" />{xlRequirement.label}</dd></div></dl></section></div>
       {entry.editor?.notes?.English ? <section className="rounded-2xl border border-violet-200/20 bg-violet-300/[0.07] p-4"><div className="flex flex-wrap items-center gap-2"><h3 className="font-black text-violet-50">Note de la rédaction · {entry.editor.score || "—"}</h3><span className="rounded-full border border-violet-200/20 bg-violet-300/14 px-2 py-0.5 text-[9px] font-black text-violet-100">EN</span></div><p className="mt-3 whitespace-pre-line type-body-strong text-foreground-secondary">{entry.editor.notes.English}</p></section> : null}
       <div className="grid gap-4 xl:grid-cols-2"><section className="rounded-2xl border border-line bg-surface-faint p-4"><h3 className="font-black text-domain-foreground">Attaques immédiates</h3><div className="mt-3 space-y-2">{attacksFast.map((move) => <MoveBadge key={move.id} move={move} fastMove recommended={move.id === entry.moveset?.fast} />)}{!attacksFast.length ? <p className="text-sm font-bold text-amber-200">Aucune attaque immédiate locale reliée.</p> : null}</div></section><section className="rounded-2xl border border-line bg-surface-faint p-4"><h3 className="font-black text-domain-foreground">Attaques chargées</h3><div className="mt-3 space-y-2">{attacksCharged.map((move) => <MoveBadge key={move.id} move={move} fastMove={false} selectedFastMove={fastRecommended} recommended={entry.moveset?.charged?.includes(move.id)} />)}{!attacksCharged.length ? <p className="text-sm font-bold text-amber-200">Aucune attaque chargée locale reliée.</p> : null}</div></section></div>
       <section className="grid gap-3 sm:grid-cols-2"><div className="rounded-2xl border border-line bg-surface-faint p-4"><h3 className="font-black text-domain-foreground">Types</h3><div className="mt-3 flex flex-wrap items-center gap-2"><TypeIcons types={entry.pokemon?.types} />{(entry.pokemon?.types || []).map((type) => <span className="rounded-full border border-line bg-surface-control px-3 py-1 text-sm font-black" key={type}>{typeLabels[String(type).toUpperCase()] || type}</span>)}</div></div><div className="rounded-2xl border border-line bg-surface-faint p-4"><h3 className="font-black text-domain-foreground">Coût et distance</h3><p className="mt-3 text-sm font-bold text-foreground-secondary">Copain : {entry.pvp?.buddyDistanceKm == null ? "Indisponible" : `${entry.pvp.buddyDistanceKm} km`}</p><p className="mt-1 text-sm font-bold text-foreground-secondary">Seconde attaque : {costs.stardust == null ? "coût local indisponible" : `${Number(costs.stardust).toLocaleString("fr-FR")} poussières`}{costs.candy == null ? "" : ` · ${costs.candy} bonbons`}</p></div></section>
@@ -205,11 +211,15 @@ function FormatSelect({ formats, value, onChange }) {
   return <Select className={fieldClass} value={value} onChange={onChange} aria-label="Ligue">{grouped.map((group) => <optgroup label={group.label} key={group.id}>{group.formats.map((format) => <option value={format.id} key={format.id}>{format.label}{format.labelEnglish && format.labelEnglish !== format.label ? ` · ${format.labelEnglish}` : ""} · {format.cp} CP{format.available === false ? " · indisponible" : ""}</option>)}</optgroup>)}</Select>;
 }
 
-export function PvpRankingsPanel({ dataset, loading, regenerating, options, onOptionsChange, onRefresh, onDownload, onRegenerate, onOpenPokemon }) {
+export function PvpRankingsPanel({ dataset, localEntries = [], loading, regenerating, options, onOptionsChange, onRefresh, onDownload, onRegenerate, onOpenPokemon }) {
   const [view, setView] = useState("rankings");
   const [expanded, setExpanded] = useState("");
   const [teammatesByEntry, setTeammatesByEntry] = useState({});
-  const entries = dataset?.data?.rankings || [];
+  const rawEntries = useMemo(() => dataset?.data?.rankings || [], [dataset?.data?.rankings]);
+  const entries = useMemo(
+    () => rawEntries.map((entry) => enrichPvpRankingWithLocalData(entry, localEntries)),
+    [rawEntries, localEntries],
+  );
   const formats = dataset?.data?.formats || [];
   const references = dataset?.data?.references || { moves: {}, types: {} };
   const roles = dataset?.data?.roles?.length ? dataset.data.roles.map((role) => [role.id, role.label]) : fallbackRoles;
@@ -241,7 +251,7 @@ export function PvpRankingsPanel({ dataset, loading, regenerating, options, onOp
       const params = new URLSearchParams({ action: "pvp-teammates", league, speciesId });
       const response = await fetch(`${pokemonAdminApiPath}?${params}`, { cache: "no-store" });
       const payload = await response.json();
-      if (!response.ok || !Array.isArray(payload.data?.data)) throw new Error(payload.error || "Suggested Teammates indisponibles.");
+      if (!response.ok || !Array.isArray(payload.data?.data)) throw new Error(pvpTeammatesErrorMessage(payload));
       setTeammatesByEntry((current) => ({ ...current, [cacheKey]: { loading: false, data: payload.data.data, error: "" } }));
     } catch (error) {
       setTeammatesByEntry((current) => ({ ...current, [cacheKey]: { loading: false, data: [], error: error.message || "Suggested Teammates indisponibles." } }));

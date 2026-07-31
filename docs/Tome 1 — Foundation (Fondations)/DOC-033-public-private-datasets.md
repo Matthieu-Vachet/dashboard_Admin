@@ -42,11 +42,11 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 
 | Élément | Constat vérifié |
 | --- | --- |
-| Routes publiques/techniques | 92 |
-| Routes privées/admin | 67 |
+| Routes publiques/techniques | inventoriées depuis Express et OpenAPI |
+| Routes privées/admin | inventoriées depuis les handlers protégés |
 | Route interne bloquée | 1 |
-| Datasets avec sortie publique | 17 |
-| Datasets privés | DATASET-017, DATASET-019 et DATASET-020 |
+| Datasets avec sortie publique | référentiels et projections explicitement documentés |
+| Datasets privés | DATASET-017, DATASET-019 et DATASET-029 |
 | Collections | 16 exposées sélectivement, 15 privées, 1 interne |
 
 ## 3. Implémentation observée
@@ -54,7 +54,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - DATASET-001 à 016 et DATASET-018 ont une sortie publique, même lorsque leur dépôt source est privé.
 - DATASET-017 Shiny exige le secret sur quatre lectures/mutations, utilise deux collections privées et reste absent d’OpenAPI.
 - DATASET-019 Source Watch reste dans le Dashboard privé et dashboard_store.
-- DATASET-020 collection du dresseur reste dans PAGE-049, API-157 à API-160 et COL-030 à COL-032; chaque handler vérifie session et rôle admin.
+- DATASET-029 reste dans le BFF Dashboard privé et ne publie ni le HTML source ni une route OpenAPI.
 - La collection events est privée mais GET /api/events publie une projection métier cacheable.
 - Le préfixe /admin de six lectures current ne les rend pas privées; les handlers GET restent publics selon le routeur.
 
@@ -62,20 +62,20 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 
 | Source | Relation | Cible |
 | --- | --- | --- |
-| Client public | accède | 92 routes publiques/techniques |
-| Dashboard | accède avec session | 35 routes privées Dashboard |
-| Dashboard BFF | accède avec secret | 32 routes privées API |
-| Données trainer | restent dans | MongoDB Dashboard |
+| Client public | accède | projections publiques documentées |
+| Dashboard | accède avec session | routes privées Dashboard |
+| Dashboard BFF | accède avec secret | routes privées API |
+| Audits Margxt | restent | privés et en lecture seule |
 
 ## 5. Diagramme vérifié
 
 ```mermaid
 flowchart LR
-  PUB["17 datasets avec sortie publique"] --> API["92 routes publiques/techniques"]
+  PUB["Datasets publics"] --> API["Routes documentées"]
   SHINY["DATASET-017"] --> SECRET["Secret API"]
   WATCH["DATASET-019"] --> SESSION["Session Dashboard"]
-  TRAINER["DATASET-020"] --> SESSION
-  SESSION --> PRIVATE["67 routes privées"]
+  AUDIT["DATASET-029"] --> SESSION
+  SESSION --> PRIVATE["Routes privées"]
 ```
 
 ## 6. Références documentaires
@@ -97,8 +97,8 @@ flowchart LR
 
 ### Fiches spécialisées présentes
 
-- [DATASET-020](<../Post-audit 2026-07-13/DATASET-020-collection-personnelle-pokemon-go.md>)
-- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
+- `DATASET-020` — référence historique retirée avec la fonctionnalité associée.
+- `WORKFLOW-016` — référence historique retirée avec la fonctionnalité associée.
 
 Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient uniquement aux registres JSON.
 

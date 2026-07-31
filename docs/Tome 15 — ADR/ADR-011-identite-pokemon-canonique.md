@@ -15,7 +15,7 @@ Chaque donnée externe conserve un snapshot brut puis passe par `pokemon-identit
 
 Une forme explicite jamais résolue ne retombe pas sur la forme de base. Le résultat porte stratégie, confiance, statut, diagnostics et asset choisi. Les générateurs Raids, Œufs, Max, Rocket, Research, Shiny et PvP publient cette identité sans modifier leurs racines historiques.
 
-Le Dashboard complète cette identité par un unique résolveur visuel pur. Il normalise les identifiants avec ou sans préfixe d'espèce, traite les costumes progressivement migrés entre `form` et `costume`, impose l'égalité de `isFemale` et conserve les assets principaux uniquement lorsque la fiche chargée porte déjà exactement la forme demandée. `preferredPokemonImage`, `PokemonArtwork` et la collection personnelle délèguent tous à ce module.
+Le Dashboard complète cette identité par un unique résolveur visuel pur. Il normalise les identifiants avec ou sans préfixe d'espèce, traite les costumes progressivement migrés entre `form` et `costume`, impose l'égalité de `isFemale` et conserve les assets principaux uniquement lorsque la fiche chargée porte déjà exactement la forme demandée. `preferredPokemonImage` et `PokemonArtwork` délèguent à ce module. L’ancienne collection personnelle a été retirée du produit.
 
 Les datasets classés conservent en plus l'identité source (`sourceIdentity`) et l'identité canonique résolue. Le Shiny Tracker sélectionne l'asset de la variante Snacknap exacte ; un costume ambigu ou absent reste sans artwork au lieu d'afficher la forme normale. Les badges de forme, costume ou provenance restent dans le contenu textuel et ne sont jamais superposés à l'artwork partagé.
 

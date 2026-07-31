@@ -2,11 +2,11 @@
 id: DOC-011
 title: "Vue d’ensemble du Dashboard"
 description: "Référence du Dashboard Admin, de ses pages, sections, composants, services et dépendances réellement présents."
-version: 2.0.0
+version: 2.1.0
 status: Official
 owner: Matthieu Vachet
 created: 2026-07-13
-last_updated: 2026-07-13
+last_updated: 2026-07-31
 category: Foundation
 type: Reference
 language: fr
@@ -36,23 +36,22 @@ related:
 
 Référence du Dashboard Admin, de ses pages, sections, composants, services et dépendances réellement présents.
 
-Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, archives et rapports historiques ne servent pas de preuve runtime lorsqu’un fichier source actif existe.
+Le contenu a été rapproché du code le 31 juillet 2026. Les builds, caches, archives et rapports historiques ne servent pas de preuve runtime lorsqu’un fichier source actif existe.
 
 ## 2. Inventaire du code
 
 | Élément | Constat vérifié |
 | --- | --- |
-| Pages routées Dashboard | 20 fichiers page.tsx |
-| Sections Admin Pokémon | 24 identifiants dans admin-app.jsx |
-| Méthodes API Dashboard | 38 exports GET/POST/PUT/PATCH/DELETE |
-| Composants React enregistrés | COMP-001 à COMP-137 sur les trois interfaces |
+| Pages et sections | inventoriées depuis les routes et `admin-app.jsx` actifs |
+| Audits Pokémon | 4 pages indépendantes sous Qualité & supervision |
+| Méthodes API Dashboard | BFF authentifiés et handlers privés |
+| Composants React | inventoriés depuis `src/components/admin` |
 | Contexte racine | CTX-001, ThemeProvider de next-themes |
 | Services Dashboard | SERVICE-001 à SERVICE-005 |
 
 ## 3. Implémentation observée
 
 - Le RootLayout monte Providers, puis le layout du groupe dashboard vérifie la session et rend AdminAppFrame.
-- La navigation principale contient 18 destinations visibles réparties en cinq groupes; la page Account existe hors navGroups.
 - PokemonAdminStudio rend AdminApp et ses sections d’administration Pokémon.
 - Le design exécuté utilise les thèmes dark et light, huit palettes et les primitives Badge, Button, Card, Input, Textarea et Modal.
 - Le Dashboard lit PokemonGo-Data via un voisin ou .data, PokemonGo-API via ses handlers serveur, les assets via GitHub raw et ses données privées via MongoDB Dashboard.
@@ -62,8 +61,8 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | Source | Relation | Cible |
 | --- | --- | --- |
 | PAGE-006 | rend | COMP-049 puis COMP-031 |
-| PAGE-049 | rend | COMP-137 |
-| COMP-137 | appelle | SERVICE-005 |
+| Centre de contrôle | compare en lecture seule | quatre sources Margxt |
+| Candies / Fiche / PvP | consomment | `assets.candy.xlImage` |
 | Dashboard | consomme | PokemonGo-API-, PokemonGo-Data, PokemonGo-Assets-API et MongoDB |
 
 ## 5. Diagramme vérifié
@@ -71,10 +70,10 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 ```mermaid
 flowchart LR
   PAGE["/pokemon-admin"] --> APP["COMP-031 AdminApp"]
-  APP --> SECTIONS["24 sections"]
-  SECTIONS --> PERSONAL["PAGE-049 / COMP-137"]
-  PERSONAL --> ROUTES["API-157 à API-160"]
-  ROUTES --> MONGO[("COL-030 à COL-032")]
+  APP --> SECTIONS["Sections métier"]
+  SECTIONS --> AUDITS["4 audits Pokémon"]
+  AUDITS --> SOURCES["Margxt en lecture seule"]
+  SECTIONS --> CANDY["Candy normal + XL canonique"]
 ```
 
 ## 6. Références documentaires
@@ -96,10 +95,10 @@ flowchart LR
 
 ### Fiches spécialisées présentes
 
-- [DATASET-020](<../Post-audit 2026-07-13/DATASET-020-collection-personnelle-pokemon-go.md>)
-- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
+- `DATASET-020` — référence historique retirée avec la fonctionnalité associée.
+- `WORKFLOW-016` — référence historique retirée avec la fonctionnalité associée.
 
-Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient uniquement aux registres JSON.
+L’ancienne collection personnelle, ses pages et ses routes ont été retirées du produit le 30 juillet 2026. Les éventuelles collections MongoDB historiques ne constituent plus une fonctionnalité active.
 
 ## 7. Informations absentes du code
 

@@ -21,6 +21,19 @@ type SourceItem = {
   changedSinceLastCheck?: boolean;
 };
 
+const sourceTaxonomy = [
+  { id: "pokemon", label: "Pokémon et disponibilité", categories: ["pokemon-availability", "pokemon-shiny-availability", "pokemon-costumes", "pokemon-shadow-availability", "shiny", "costume-audit"] },
+  { id: "combat", label: "Combat", categories: ["pvp", "pve", "best-defenders", "gbl-calendar", "raids", "max-battles", "team-go-rocket"] },
+  { id: "events", label: "Événements", categories: ["events", "events-reference", "eggs", "research-tasks"] },
+  { id: "assets", label: "Assets", categories: ["assets", "shuffle"] },
+  { id: "providers", label: "Données et fournisseurs", categories: ["gamemaster", "official", "reference"] },
+  { id: "technical", label: "Technique", categories: ["news"] },
+];
+
+function sourceTaxonomyGroup(source: SourceItem) {
+  return sourceTaxonomy.find((group) => group.categories.includes(source.category || "")) || sourceTaxonomy.at(-1)!;
+}
+
 type SourceWatchState = {
   loading?: boolean;
   error?: string;
@@ -355,7 +368,7 @@ export function DataDeployHistoryModal({
   );
 }
 
-export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
+export function SourceRows({ sourceWatch, onNavigate }: { sourceWatch: SourceWatchState; onNavigate?: (section: string) => void }) {
   if (sourceWatch?.loading) {
     return <FetchLoadingState layout="inline" title="Vérification des sources en cours…" />;
   }
@@ -369,6 +382,8 @@ export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
   const warningCount = sources.filter((source) => source.status === "warning").length;
   const errorCount = sources.filter((source) => source.status && !["ok", "warning"].includes(source.status)).length;
   const changedSources = sources.filter((source) => source.changedSinceLastCheck);
+  const errorSources = sources.filter((source) => source.status && !["ok", "warning"].includes(source.status));
+  const groupedSources = sourceTaxonomy.map((group) => ({ ...group, sources: sources.filter((source) => sourceTaxonomyGroup(source).id === group.id) })).filter((group) => group.sources.length);
 
   return (
     <div className="space-y-3">
@@ -383,6 +398,13 @@ export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
         La veille croise maintenant Game Master, assets datamines, annonces officielles, sites communautaires et donnees PvP.
         Un nouveau commit, tag, ETag, Last-Modified ou statut HTTP different remontera au prochain controle.
       </p>
+      <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+        {groupedSources.map((group) => <article className="rounded-2xl border border-line bg-surface-faint p-3" key={group.id}><small className="type-overline text-muted">{group.label}</small><strong className="mt-1 block font-mono text-xl text-domain-foreground">{group.sources.length}</strong></article>)}
+      </div>
+      <div className="flex flex-wrap gap-2 rounded-2xl border border-violet-300/15 bg-violet-400/[0.07] p-3">
+        {[['pokemon-audit-available', 'Disponibilité'], ['pokemon-audit-shiny', 'Chromatiques'], ['pokemon-audit-costume', 'Costumes'], ['pokemon-audit-shadow', 'Shadow']].map(([section, label]) => <button className="rounded-xl border border-violet-200/20 bg-violet-300/10 px-3 py-2 type-caption-strong text-violet-100" type="button" key={section} onClick={() => onNavigate?.(section)}>{label}</button>)}
+      </div>
+      {errorSources.length ? <div className="rounded-2xl border border-red-300/25 bg-red-500/10 p-4"><p className="type-overline text-red-100">Erreurs actives</p><ul className="mt-2 space-y-1 text-sm font-bold text-red-50">{errorSources.map((source) => <li key={source.id || source.name}>• {source.name || source.url} — {source.message || source.status}</li>)}</ul></div> : null}
       {changedSources.length ? (
         <div className="rounded-2xl border border-sky-300/25 bg-sky-400/10 p-4">
           <p className="type-overline text-sky-100/75">
@@ -401,8 +423,10 @@ export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
         </div>
       ) : null}
       {sources.length ? (
-        <div className="overflow-hidden rounded-3xl border border-line bg-surface-inset-subtle">
-          {sources.map((source) => {
+        <div className="space-y-4">
+          {groupedSources.map((group) => <section className="overflow-hidden rounded-3xl border border-line bg-surface-inset-subtle" key={group.id}>
+            <header className="border-b border-line bg-surface-control px-4 py-3"><h3 className="font-black text-domain-foreground">{group.label}</h3><p className="type-caption-strong text-muted">{group.sources.length} source(s) enregistrée(s)</p></header>
+          {group.sources.map((source) => {
             const tone =
               source.changedSinceLastCheck
                 ? {
@@ -449,6 +473,7 @@ export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
               </a>
             );
           })}
+          </section>)}
         </div>
       ) : (
         <EmptyState title="Aucune source affichée" description="Lance une vérification pour afficher les sources." />

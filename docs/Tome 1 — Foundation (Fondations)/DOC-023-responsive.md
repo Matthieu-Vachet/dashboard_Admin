@@ -46,14 +46,14 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | Sidebar Dashboard | fixe à partir de lg; drawer mobile 286 px |
 | Contenu Dashboard | max-width 1680 px |
 | Modal commune | w-full et max-height 92dvh |
-| Collection trainer | cartes sous lg; table min-width 1540 px à partir de lg |
+| Centre d’audit | liste fluide mobile, grille structurée à partir de md |
 
 ## 3. Implémentation observée
 
 - AdminAppFrame bascule entre sidebar desktop et drawer mobile; la topbar adapte libellés et actions.
 - Les écrans métier utilisent des grilles progressives, min-w-0, truncate, overflow et des conteneurs scrollables.
 - La modale commune fixe un corps scrollable et ferme sur Escape; les modales Pokémon et Events ont aussi des implémentations locales.
-- COMP-137 rend PokemonMobileCard avec lg:hidden et PokemonTable avec hidden lg:block; le tableau est placé dans overflow-x-auto.
+- Le centre d’audit conserve les statuts, noms et diagnostics lisibles sans tableau large sur mobile.
 - La checklist API passe de une à quatre colonnes; son détail devient bottom-sheet sur mobile puis modal centré à partir de sm.
 - La Landing passe son hero de une à deux colonnes; sa navigation principale est masquée sous md.
 
@@ -73,8 +73,8 @@ flowchart LR
   M["< 640"] --> SM["sm 640"] --> MD["md 768"] --> LG["lg 1024"] --> XL["xl 1280"] --> XXL["2xl 1536"]
   M --> DRAWER["Drawer"]
   LG --> SIDEBAR["Sidebar"]
-  M --> CARDS["Cartes trainer"]
-  LG --> TABLE["Table trainer"]
+  M --> CARDS["Cartes et listes fluides"]
+  LG --> TABLE["Grilles métier"]
 ```
 
 ## 6. Références documentaires
@@ -93,8 +93,8 @@ flowchart LR
 
 ### Fiches spécialisées présentes
 
-- [PAGE-049](<../Post-audit 2026-07-13/undefined>)
-- [COMP-137](<../Post-audit 2026-07-13/undefined>)
+- `PAGE-049` — référence historique retirée avec la fonctionnalité associée.
+- `COMP-137` — référence historique retirée avec la fonctionnalité associée.
 
 ## 7. Informations absentes du code
 

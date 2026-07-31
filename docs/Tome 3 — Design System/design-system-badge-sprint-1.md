@@ -1,4 +1,15 @@
-# Sprint 1 Design System — migration Badge sur le Kanban
+---
+id: DESIGN-001
+title: Migration Badge sur le Kanban
+version: 1.0.0
+status: Historical
+last_update: 2026-07-13
+author: Matthieu Vachet
+affected_projects: [Dashboard Admin]
+references: []
+---
+
+# DESIGN-001 — Sprint 1 Design System — migration Badge sur le Kanban
 
 Date d’exécution : 13 juillet 2026  
 Primitive : Badge — MWI-COMP-317  
@@ -96,11 +107,11 @@ Pour chaque combinaison, le script a capturé le Kanban chargé et la modale d�
 
 Artefacts principaux :
 
-- [baseline complète](../../../test-results/design-system-badge/baseline.json) ;
-- [mesures après migration](../../../test-results/design-system-badge/after.json) ;
-- [comparaison](../../../test-results/design-system-badge/comparison.json) ;
-- [dark desktop avant](../../../test-results/design-system-badge/before/dark-desktop-loaded.png) et [après](../../../test-results/design-system-badge/after/dark-desktop-loaded.png) ;
-- [light mobile modale avant](../../../test-results/design-system-badge/before/light-mobile-modal.png) et [après](../../../test-results/design-system-badge/after/light-mobile-modal.png).
+- `baseline complète` (`../../../test-results/design-system-badge/baseline.json`, artefact généré localement) ;
+- `mesures après migration` (`../../../test-results/design-system-badge/after.json`, artefact généré localement) ;
+- `comparaison` (`../../../test-results/design-system-badge/comparison.json`, artefact généré localement) ;
+- `dark desktop avant` (`../../../test-results/design-system-badge/before/dark-desktop-loaded.png`, artefact généré localement) et `après` (`../../../test-results/design-system-badge/after/dark-desktop-loaded.png`, artefact généré localement) ;
+- `light mobile modale avant` (`../../../test-results/design-system-badge/before/light-mobile-modal.png`, artefact généré localement) et `après` (`../../../test-results/design-system-badge/after/light-mobile-modal.png`, artefact généré localement).
 
 ## Styles calculés
 

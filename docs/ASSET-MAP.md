@@ -16,14 +16,19 @@ Cartographie appliquée le 30 juillet 2026. Les URLs publiques commencent toutes
 | Pokémon | `public/assets/pokemon/mega-energy/icons` | Méga-énergies |
 | Pokémon | `public/assets/pokemon/regions/icons` | Icônes de régions |
 
-## Assets de combat fournis
+## Assets de combat et contrat de rendu
 
 | Source | Nom normalisé | Usage |
 | --- | --- | --- |
-| `Attaque_zygard.png` | `charged-attack.png` | Attaque chargée, CMP et action de combat générique |
-| `Attaque_zygard 2.png` | `fast-attack.png` | Attaque immédiate et séparation de combattants |
-| `Shield_0.png` | `shield-0.png` | Zéro bouclier / bouclier consommé |
-| `Shield_1.png` | `shield-1.png` | Un bouclier disponible |
-| `Shield_2.png` | `shield-2.png` | Deux boucliers disponibles |
+| Registre historique | `TodayView_Icon_AttackMove.webp` | Attaque immédiate de timeline |
+| Registre historique | `swords.svg` | Attaque chargée et CMP |
+| Registre historique | `shield-alt.svg` | Un bouclier; répété deux fois pour deux shields |
+| Registre historique | `up.svg` | Buff, debuff et changement de forme |
+| Registre historique | `TodayView_Icon_Battle.webp` | Action générique |
+| Bibliothèque non active | `public/assets/ui/combat/*.png` | Assets conservés, mais non utilisés pour remplacer les icônes historiques |
 
-Les consommateurs applicatifs passent par `src/components/site/ui-assets.js` pour conserver une source d’URL unique. Les fichiers sont affichés avec `object-contain` ; aucune déformation CSS n’est appliquée.
+Les consommateurs passent par `src/components/site/ui-assets.js`. Les SVG noirs historiques sont rendus comme masques `currentColor`, ce qui corrige leur contraste en thème sombre sans remplacer l'asset. Zéro shield est représenté par un tiret; un et deux shields répètent `shield-alt.svg`.
+
+## Bonbons de famille
+
+`PokemonGo-Data` stocke directement `assets.candy.image` et `assets.candy.xlImage`. Seul son pipeline connaît les dossiers `candy` et `xl_candy`. Le Dashboard et l'API ne concatènent jamais ces chemins.

@@ -1,6 +1,6 @@
 {
   "name": "dashboard-admin",
-  "version": "1.38.0",
+  "version": "1.39.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -20,6 +20,11 @@
     "test:pvp-gbl": "node --test scripts/test-pvp-gbl-display.mjs",
     "test:pvp-engine": "tsx --test scripts/test-pvp-battle-engine.mts",
     "test:pvp-parity": "node --conditions=react-server --import tsx --test scripts/test-pvp-parity.mts",
+    "test:candy-assets": "node --test scripts/test-pokemon-candy-assets.mjs",
+    "test:pvp-local-data": "node --test scripts/test-pvp-ranking-local-data.mjs",
+    "test:xl-candy-audit": "node --test scripts/test-xl-candy-audit.mjs",
+    "test:pokemon-release-audit": "node --test scripts/test-pokemon-release-audit.mjs",
+    "test:docs": "node scripts/validate-documentation.mjs",
     "test:design-system": "node --test scripts/test-design-system-*.mjs scripts/test-form-accessibility.mjs",
     "test:design-system-state-system": "node --test scripts/test-design-system-state-system.mjs",
     "check": "npm run lint && npm run build"

@@ -8,8 +8,10 @@
 
 Documentation fonctionnelle :
 
+- [Index des tomes](./TOME-INDEX.md)
 - [Pokémon GO PvP Battle Lab](./PVP-BATTLE-LAB.md)
 - [Organisation des assets publics](./ASSET-MAP.md)
+- [Audit documentaire du 31 juillet 2026](./Reports/DOCUMENTATION-AUDIT-2026-07-31.md)
 - [Third-party notices](./THIRD-PARTY-NOTICES.md)
 
 ---
@@ -174,6 +176,7 @@ Exemples :
 - Shiny Tracker *(privé)*
 - Calendrier des événements
 - Assets
+- Centre de contrôle Pokémon : disponibilité, chromatiques, costumes et Shadow
 
 Chaque dataset est documenté individuellement.
 
@@ -215,6 +218,8 @@ Le projet repose sur plusieurs principes fondamentaux.
 - Réutilisation maximale des composants.
 - Architecture orientée Providers.
 - Aucun fallback silencieux.
+- Les audits externes restent en lecture seule.
+- Les URLs de Bonbons XL sont résolues dans PokemonGo-Data, jamais dans le Dashboard.
 - Documentation systématique.
 - Responsive obligatoire.
 - Tests obligatoires.

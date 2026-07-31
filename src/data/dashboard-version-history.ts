@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.39.0",
+    date: "2026-07-31",
+    title: "Centre de contrôle Pokémon et Bonbons XL canoniques",
+    changes: [
+      "Ajoute quatre audits Margxt indépendants pour la disponibilité, les chromatiques, les costumes et les Pokémon Shadow, en lecture seule et avec provenance vérifiable.",
+      "Consomme les Bonbons XL résolus dans PokemonGo-Data sur Candies, Famille bonbon et PvP Rankings, sans reconstruire d’URL dans le Dashboard.",
+      "Corrige le coût de seconde attaque PvP depuis les métadonnées locales imbriquées, normalise les coéquipiers suggérés et restaure les assets de combat historiques avec un contraste sombre lisible.",
+      "Réorganise la Veille par domaine et étend l’encyclopédie technique avec pages, datasets, règles, ADR et index des tomes validés automatiquement.",
+    ],
+  },
+  {
     version: "V1.38.0",
     date: "2026-07-30",
     title: "PvP fiable, responsive et assets unifiés",

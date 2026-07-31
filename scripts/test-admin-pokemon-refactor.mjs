@@ -314,15 +314,16 @@ test("le Battle Lab porte le sélecteur hors des stacking contexts et expose tou
   assert.match(source, /event\.key !== "Tab"/);
 });
 
-test("le Battle Lab propose Rank IV complet, caps explicites et assets métier", () => {
+test("le Battle Lab propose Rank IV complet, caps explicites et pictogrammes historiques", () => {
   const source = read("src/components/admin/pokemon/pvp-battle-lab.tsx");
   const route = read("src/app/api/admin/pvp-simulator/route.ts");
   assert.match(source, /const levelCaps = \[40, 41, 50, 51\]/);
   assert.match(source, /Voir classement IV/);
   assert.match(source, /4096 spreads calculés/);
-  for (const asset of ["shield0", "shield1", "shield2", "fastAttack", "chargedAttack"]) {
+  for (const asset of ["shieldAlt", "attackMove", "swords", "up"]) {
     assert.match(source, new RegExp(`uiAssets\\.icons\\.${asset}`));
   }
+  assert.doesNotMatch(source, /uiAssets\.icons\.(?:shield0|shield1|shield2|fastAttack|chargedAttack)/);
   assert.match(source, /typeIconAsset/);
   assert.match(route, /action: z\.literal\("iv-rankings"\)/);
 });

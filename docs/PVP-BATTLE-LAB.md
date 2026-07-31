@@ -40,6 +40,10 @@ Le Single est organisé en trois zones : grande Battle Arena symétrique, Build 
 
 L’UI réutilise le registre `uiAssets`, les icônes de types et `PokemonArtwork` : fond Battle League, combat, attaque, bouclier, Shadow, Fast/Charged Move, buff et résultat. Les images restent en `object-contain`/`object-cover` selon leur fonction et ne sont ni copiées ni étirées.
 
+Les icônes de timeline restent les assets historiques : `attackMove`, `swords`, `shieldAlt`, `up` et `battle`. Les SVG sont colorés par masque `currentColor` pour rester visibles sur fond sombre. Le sélecteur de shields affiche un tiret pour zéro et répète le shield historique pour un ou deux.
+
+PvP Rankings lit le coût de seconde attaque dans `secondChargeMoveCost`, la distance de copain dans `buddyDistance` et le Bonbon XL dans `assets.candy.xlImage`. Les partenaires suggérés franchissent une normalisation stricte avant affichage; aucun objet brut ne peut devenir `[object Object]`.
+
 ## Règles implémentées
 
 - CPM aux demi-niveaux 1 à 55, calcul des PC et arrondis des PV Pokémon GO.

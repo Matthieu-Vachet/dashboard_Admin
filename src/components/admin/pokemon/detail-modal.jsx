@@ -15,6 +15,7 @@ import { pokemonVariantBadges } from "@/lib/pokemon-variant-resolver";
 import { uiAssets } from "@/components/site/ui-assets";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EmptyState } from "@/components/admin/shared/state-system";
+import { CandyAssetImage } from "./candy-asset-image";
 
 const tabLabels = {
   overview: "Aperçu",
@@ -783,7 +784,7 @@ function CandyFamilyPanel({ entry, payload, allEntries = [], onOpenRelated }) {
         <div className="rounded-2xl border border-line bg-surface-inset-strong p-4">
           <div className="flex items-center gap-4">
             <span
-              className="grid h-20 w-20 shrink-0 place-items-center rounded-3xl border border-line-medium bg-surface-emphasis p-3 shadow-inner"
+              className="flex shrink-0 items-start gap-3 rounded-3xl border border-line-medium bg-surface-emphasis p-3 shadow-inner"
               style={{
                 background:
                   primary && secondary
@@ -791,13 +792,8 @@ function CandyFamilyPanel({ entry, payload, allEntries = [], onOpenRelated }) {
                     : undefined,
               }}
             >
-              {candy.image ? (
-                <img
-                  className="max-h-full object-contain drop-shadow-2xl"
-                  src={candy.image}
-                  alt=""
-                />
-              ) : null}
+              <CandyAssetImage familyId={familyId} normalUrl={candy.image} xlUrl={candy.xlImage} kind="normal" className="h-14 w-14" showLabel />
+              <CandyAssetImage familyId={familyId} normalUrl={candy.image} xlUrl={candy.xlImage} kind="xl" className="h-14 w-14" showLabel />
             </span>
             <span className="min-w-0">
               <small className="block type-overline text-muted">

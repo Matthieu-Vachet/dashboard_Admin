@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.39.0 - 2026-07-31
+
+- Ajoute les quatre centres de contrôle Pokémon Margxt, strictement en lecture seule, avec filtres, provenance, diagnostics et navigation vers les fiches locales.
+- Consomme `assets.candy.xlImage` dans Candies, Famille bonbon et PvP Rankings, et expose les écarts XL dans l’audit Assets sans fabriquer d’URL locale.
+- Corrige le coût de seconde attaque et les coéquipiers suggérés PvP, puis restaure les pictogrammes historiques avec un rendu lisible en thème sombre.
+- Réorganise la Veille en six domaines et complète l’encyclopédie technique avec index, pages, datasets, ADR, règle métier et validation documentaire.
+
 ## 1.38.0 - 2026-07-30
 
 - Unifie les régénérations PvP dédiée et globale autour du même job asynchrone suivi, avec verrou anti-concurrence et état final conservé après actualisation.

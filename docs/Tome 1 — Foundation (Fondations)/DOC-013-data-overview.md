@@ -44,12 +44,12 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 
 | Élément | Constat vérifié |
 | --- | --- |
-| Datasets enregistrés | DATASET-001 à DATASET-020 |
-| Providers enregistrés | PROVIDER-001 à PROVIDER-018 |
-| Collections enregistrées | COL-001 à COL-032 |
+| Datasets enregistrés | référentiels statiques, flux courants, classements et audits |
+| Providers enregistrés | catalogue du Tome 5 et sources de veille |
+| Collections enregistrées | collections API et Dashboard actives |
 | Schémas Data | schemas/pokemon.schema.json et schemas/pokemon-assets.schema.json |
 | Pipelines current API | 7 domaines |
-| Pipelines privés Dashboard | Learning, Events, Source Watch et collection du dresseur |
+| Pipelines privés Dashboard | Learning, Events, Source Watch et audits en lecture seule |
 
 ## 3. Implémentation observée
 
@@ -58,7 +58,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - Le pipeline current valide un dataset non vide, calcule hash et diff, upsert le document key=current, invalide le cache et vérifie count et hash après relecture.
 - Les cinq JSON raids, eggs, max-battles, rocket et research servent de fixtures, références ou exports; les lectures runtime utilisent MongoDB.
 - Learning emploie Zod, des contenus locaux, une migration navigateur, quatre collections de contenu/progression et deux collections d’historique.
-- DATASET-020 valide le JSON importé, résout Pokémon, attaques et types via l’API publique, écrit un snapshot puis bascule activeSnapshotId après read-back.
+- L’ancienne collection personnelle et son import ont été retirés du produit le 30 juillet 2026 ; leurs anciennes collections MongoDB ne sont pas une source runtime active.
 
 ## 4. Relations et dépendances
 
@@ -76,7 +76,7 @@ flowchart LR
   SRC["Providers"] --> DATA["PokemonGo-Data"]
   DATA --> STATIC["Sync statique"] --> API_DB[("MongoDB API")]
   SRC --> CURRENT["Pipeline current"] --> API_DB
-  JSON["Import admin"] --> DASH_PIPE["Learning / trainer"] --> DASH_DB[("MongoDB Dashboard")]
+  ADMIN["Données privées"] --> DASH_PIPE["Learning / Veille / audits"] --> DASH_DB[("MongoDB Dashboard")]
   API_DB --> API["PokemonGo-API"]
 ```
 
@@ -99,11 +99,11 @@ flowchart LR
 
 ### Fiches spécialisées présentes
 
-- [DATASET-020](<../Post-audit 2026-07-13/DATASET-020-collection-personnelle-pokemon-go.md>)
-- [COL-030](<../Post-audit 2026-07-13/undefined>)
-- [COL-031](<../Post-audit 2026-07-13/undefined>)
-- [COL-032](<../Post-audit 2026-07-13/undefined>)
-- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
+- `DATASET-020` — référence historique retirée avec la fonctionnalité associée.
+- `COL-030` — référence historique retirée avec la fonctionnalité associée.
+- `COL-031` — référence historique retirée avec la fonctionnalité associée.
+- `COL-032` — référence historique retirée avec la fonctionnalité associée.
+- `WORKFLOW-016` — référence historique retirée avec la fonctionnalité associée.
 
 Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient uniquement aux registres JSON.
 

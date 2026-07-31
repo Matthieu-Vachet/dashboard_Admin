@@ -24,6 +24,7 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  Swords,
   Boxes,
   Wand2,
 } from "lucide-react";
@@ -128,6 +129,7 @@ const GameMasterExplorerPanel = dynamic(
 
 const BestDefendersPanel = dynamic(() => import("./best-defenders-panel").then((module) => module.BestDefendersPanel));
 const CostumeAuditPanel = dynamic(() => import("./costume-audit-panel").then((module) => module.CostumeAuditPanel));
+const PokemonReleaseAuditPanel = dynamic(() => import("./pokemon-release-audit-panel").then((module) => module.PokemonReleaseAuditPanel));
 const PvpBattleLab = dynamic(
   () => import("./pvp-battle-lab").then((module) => module.PvpBattleLab),
   {
@@ -144,6 +146,12 @@ const filtersAssetBase =
   "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers/Filters";
 const pokemonAssetBase =
   "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers";
+const pokemonAuditKinds = {
+  "pokemon-audit-available": "available",
+  "pokemon-audit-shiny": "shiny",
+  "pokemon-audit-costume": "costume",
+  "pokemon-audit-shadow": "shadow",
+};
 const navItems = [
   {
     id: "overview",
@@ -204,7 +212,7 @@ const navItems = [
   {
     id: "pvp-simulator",
     label: "Simulateur PvP",
-    icon: "/assets/ui/combat/charged-attack.png",
+    icon: Swords,
     group: "combat",
   },
   {
@@ -217,7 +225,7 @@ const navItems = [
   {
     id: "best-attackers",
     label: "Best Attackers",
-    icon: "/assets/ui/combat/fast-attack.png",
+    icon: Swords,
     group: "combat",
   },
   { id: "best-defenders", label: "Best Defenders", icon: ShieldCheck, group: "combat" },
@@ -276,6 +284,10 @@ const navItems = [
     icon: Database,
     group: "quality",
   },
+  { id: "pokemon-audit-available", label: "Disponibilité", icon: ClipboardCheck, group: "quality" },
+  { id: "pokemon-audit-shiny", label: "Chromatiques", icon: Sparkles, group: "quality" },
+  { id: "pokemon-audit-costume", label: "Costumes", icon: Boxes, group: "quality" },
+  { id: "pokemon-audit-shadow", label: "Shadow", icon: ShieldCheck, group: "quality" },
   { id: "checks", label: "Contrôles", icon: AlertTriangle, group: "quality" },
   { id: "sources", label: "Veille", icon: Radar, group: "quality" },
   { id: "compare", label: "Comparaison", icon: FileDiff, group: "quality" },
@@ -2991,6 +3003,7 @@ export function AdminApp() {
               {active === "pvp-rankings" ? (
                 <PvpRankingsPanel
                   dataset={pvpRankings}
+                  localEntries={entries}
                   loading={pvpRankingsLoading}
                   regenerating={pvpRankingsRegenerating}
                   options={pvpOptions}
@@ -3176,6 +3189,13 @@ export function AdminApp() {
                         detail="Candy assets"
                       />
                       <AssetStatCard
+                        label="Bonbons XL"
+                        value={assetAudit?.totals?.xlCandyFiles || 0}
+                        icon={uiAssets.icons.candy}
+                        tone="cyan"
+                        detail={`${assetAudit?.totals?.linkedXlCandyFiles || 0} références liées`}
+                      />
+                      <AssetStatCard
                         label="Utilisés"
                         value={assetAudit?.totals?.used || 0}
                         icon={uiAssets.icons.bookSpells}
@@ -3196,6 +3216,35 @@ export function AdminApp() {
                       signifie qu’une même URL d’asset est référencée par
                       plusieurs fiches, ce n’est pas forcément une erreur.
                     </p>
+                    {assetAudit?.xlCandyAudit?.status === "source-unavailable" ? (
+                      <p className="mb-4 rounded-2xl border border-amber-300/25 bg-amber-400/10 p-4 type-body-strong text-amber-100">
+                        L’inventaire Bonbons XL est indisponible. Aucun écart XL n’est déduit tant que la source ne répond pas.
+                      </p>
+                    ) : assetAudit?.xlCandyAudit ? (
+                      <div className="mb-4 rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-4">
+                        <p className="type-overline text-cyan-100/75">Audit Bonbons XL par familyId</p>
+                          <div className="mt-3 flex flex-wrap gap-2 type-caption-strong">
+                          {[
+                            ["Familles connues", assetAudit.xlCandyAudit.knownFamilies],
+                            ["Manquants", assetAudit.xlCandyAudit.missing?.length || 0],
+                            ["Orphelins", assetAudit.xlCandyAudit.orphans?.length || 0],
+                            ["Dupliqués", assetAudit.xlCandyAudit.duplicates?.length || 0],
+                            ["Invalides", assetAudit.xlCandyAudit.invalid?.length || 0],
+                          ].map(([label, value]) => (
+                            <span className="rounded-full border border-cyan-200/20 bg-surface-inset-subtle px-3 py-1.5 text-cyan-50" key={label}>
+                              {label} : {value}
+                            </span>
+                          ))}
+                        </div>
+                        {(assetAudit.xlCandyAudit.missing?.length || assetAudit.xlCandyAudit.orphans?.length || assetAudit.xlCandyAudit.duplicates?.length || assetAudit.xlCandyAudit.invalid?.length) ? (
+                          <p className="mt-3 text-sm font-bold text-amber-100">
+                            Écarts détectés : consulte le rapport du resolver avant toute régénération. Aucun placeholder n’est appliqué.
+                          </p>
+                        ) : (
+                          <p className="mt-3 text-sm font-bold text-emerald-100">Inventaire XL cohérent avec les familles référencées.</p>
+                        )}
+                      </div>
+                    ) : null}
                     <div className="mb-4 flex flex-wrap gap-2">
                       {[
                         ["all", "Tout"],
@@ -3327,8 +3376,17 @@ export function AdminApp() {
                     </div>
                   }
                 >
-                  <SourceRows sourceWatch={sourceWatch} />
+                  <SourceRows sourceWatch={sourceWatch} onNavigate={selectSection} />
                 </Panel>
+              ) : null}
+
+              {pokemonAuditKinds[active] ? (
+                <PokemonReleaseAuditPanel
+                  key={active}
+                  kind={pokemonAuditKinds[active]}
+                  localEntries={entries}
+                  onOpenPokemon={openDetail}
+                />
               ) : null}
 
               {active === "logs" ? (

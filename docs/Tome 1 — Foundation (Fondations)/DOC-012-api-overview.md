@@ -36,7 +36,7 @@ related:
 
 ## 1. Périmètre vérifié
 
-Référence des surfaces Next.js, Express et Dashboard BFF, des 160 routes enregistrées et de leurs protections.
+Référence des surfaces Next.js, Express et Dashboard BFF et de leurs protections.
 
 Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, archives et rapports historiques ne servent pas de preuve runtime lorsqu’un fichier source actif existe.
 
@@ -44,10 +44,10 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 
 | Élément | Constat vérifié |
 | --- | --- |
-| Routes PokemonGo-API- | API-001 à API-122 |
-| Routes Dashboard | API-123 à API-160 |
-| Entrées publiques | 92 |
-| Entrées privées | 67 |
+| Routes PokemonGo-API- | routes Express et Functions inventoriées depuis le code |
+| Routes Dashboard | handlers Next.js et BFF privés |
+| Entrées publiques | projections documentées dans OpenAPI |
+| Entrées privées | session Dashboard ou secret serveur |
 | Entrée interne bloquée | API-007 |
 | Documentation | /api-docs.json, /api-docs, /swagger |
 
@@ -75,7 +75,7 @@ flowchart LR
   CLIENT["Client public"] --> REST["api/rest.js"]
   REST --> EXPRESS["Express /api/v1"]
   EXPRESS --> DB[("MongoDB API")]
-  ADMIN["Dashboard avec session"] --> BFF["38 méthodes BFF"]
+  ADMIN["Dashboard avec session"] --> BFF["BFF authentifiés"]
   BFF --> EXPRESS
   BFF --> DDB[("MongoDB Dashboard")]
 ```
@@ -99,10 +99,10 @@ flowchart LR
 
 ### Fiches spécialisées présentes
 
-- [API-157](<../Post-audit 2026-07-13/undefined>)
-- [API-158](<../Post-audit 2026-07-13/undefined>)
-- [API-159](<../Post-audit 2026-07-13/undefined>)
-- [API-160](<../Post-audit 2026-07-13/undefined>)
+- `API-157` — référence historique retirée avec la fonctionnalité associée.
+- `API-158` — référence historique retirée avec la fonctionnalité associée.
+- `API-159` — référence historique retirée avec la fonctionnalité associée.
+- `API-160` — référence historique retirée avec la fonctionnalité associée.
 
 Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient uniquement aux registres JSON.
 

@@ -43,18 +43,14 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | --- | --- |
 | COL-001 à 019 | Base MONGODB_URI de PokemonGo-API |
 | COL-020 à 029 | Base DASHBOARD_MONGODB_DB du Dashboard |
-| COL-030 | trainer_pokemon_owners |
-| COL-031 | trainer_pokemon_snapshots |
-| COL-032 | trainer_pokemon_entries |
+| Collections historiques trainer | conservables en base, mais sans page ni route active |
 | TTL déclarés | 0 |
 
 ## 3. Implémentation observée
 
 - Les collections API sont eggs, generations, globalstats, items, maxbattles, moves, pokemons, pokemonAssets, pvp_rankings, raids, researches, regions, rockets, rocket_texts, shiny_rankings, shiny_snapshots, syncruns, types et weathers.
 - Les collections Dashboard existantes sont dashboard_store, dashboard_api_metrics, dashboard_backlog, events et les six collections learning.
-- trainer_pokemon_owners porte un index unique owner et les pointeurs activeSnapshotId et previousSnapshotId.
-- trainer_pokemon_snapshots indexe owner/importedAt et owner/status/importedAt.
-- trainer_pokemon_entries possède neuf index, dont l’unicité owner+snapshotId+sourceId et les accès par numéro, nom, CP, IV, états, genre, alignement, forme et costume.
+- Les anciennes collections `trainer_pokemon_*` ne sont ni lues ni écrites par le produit actif depuis le retrait de la collection personnelle. Elles ne sont pas supprimées automatiquement.
 - Les modèles Mongoose désactivent versionKey sur les modèles observés; le versionnement métier repose sur timestamps, hash, snapshots ou historique applicatif.
 
 ## 4. Relations et dépendances
@@ -63,16 +59,15 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | --- | --- | --- |
 | Sync statique | écrit | COL-002 à 004, 006 à 008, 012, 014, 018 à 019 |
 | Current pipeline | écrit | COL-001, 005, 009 à 011, 013, 015 à 016 |
-| Trainer repository | écrit | COL-030 à COL-032 |
+| Dashboard actif | écrit | stores, événements, learning et historiques autorisés |
 
 ## 5. Diagramme vérifié
 
 ```mermaid
 flowchart LR
   API["PokemonGo-API"] --> API_DB[("COL-001 à 019")]
-  DASH["Dashboard Admin"] --> DASH_DB[("COL-020 à 032")]
-  IMPORT["Import trainer"] --> SNAP["COL-031 / COL-032"]
-  SNAP --> POINTER["COL-030 activeSnapshotId"]
+  DASH["Dashboard Admin"] --> DASH_DB[("Collections privées actives")]
+  LEGACY["trainer_pokemon_* historique"] -. aucune lecture runtime .-> DASH
 ```
 
 ## 6. Références documentaires
@@ -92,9 +87,9 @@ flowchart LR
 
 ### Fiches spécialisées présentes
 
-- [COL-030](<../Post-audit 2026-07-13/undefined>)
-- [COL-031](<../Post-audit 2026-07-13/undefined>)
-- [COL-032](<../Post-audit 2026-07-13/undefined>)
+- `COL-030` — référence historique retirée avec la fonctionnalité associée.
+- `COL-031` — référence historique retirée avec la fonctionnalité associée.
+- `COL-032` — référence historique retirée avec la fonctionnalité associée.
 
 ## 7. Informations absentes du code
 

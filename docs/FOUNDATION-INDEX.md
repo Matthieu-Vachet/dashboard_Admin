@@ -29,5 +29,6 @@
 | DOC-033 | [Datasets publics et privés](./Tome%201%20%E2%80%94%20Foundation%20%28Fondations%29/DOC-033-public-private-datasets.md) |
 | DOC-034 | [Glossaire](./Tome%201%20%E2%80%94%20Foundation%20%28Fondations%29/DOC-034-glossary.md) |
 | DOC-035 | [Index des ADR](./Tome%201%20%E2%80%94%20Foundation%20%28Fondations%29/DOC-035-adr-index.md) |
+| DOC-036 | [Index des tomes](./TOME-INDEX.md) |
 
 Les identifiants détaillés restent consultables dans les registres JSON du dossier audit-documentation/registries.

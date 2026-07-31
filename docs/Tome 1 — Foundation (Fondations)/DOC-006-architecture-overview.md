@@ -19,7 +19,6 @@ references:
   - DOC-005
   - ARCH-001
   - PROVIDER-001
-  - DATASET-001
 ---
 
 # Vue d'ensemble de l'architecture

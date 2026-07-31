@@ -161,6 +161,7 @@ function allGoAssets() {
     add(data, file, "Image principale", data.assets?.image, false, "", "go");
     add(data, file, "Image principale shiny", data.assets?.shinyImage, true, "", "go");
     add(data, file, "Candy", data.assets?.candy?.image, false, `familyId ${data.assets?.candy?.familyId ?? "-"}`, "candy");
+    add(data, file, "Candy XL", data.assets?.candy?.xlImage, false, `familyId ${data.assets?.candy?.familyId ?? "-"}`, "xl-candy");
     add(data, file, "Portrait", data.assets?.portrait, false, "portrait", "portrait");
     add(data, file, "Portrait shiny", data.assets?.portraitShiny, true, "portrait", "portrait");
     add(data, file, "Home", data.assets?.home?.image, false, "home", "home");
@@ -290,16 +291,85 @@ async function allLocationCardAssets() {
   return remoteLocationCardsCache;
 }
 
+function knownCandyFamilies() {
+  const families = new Map();
+  for (const file of [
+    ...listFiles(dataPath("pokemon")),
+    ...listFiles(dataPath("pokemon-forms")),
+  ]) {
+    const data = hydrateSourceData(readJson(file, {}));
+    const value = data.assets?.candy?.familyId;
+    if (value === null || value === undefined || value === "") continue;
+    const familyId = Number(value);
+    if (!Number.isInteger(familyId) || familyId < 0) continue;
+    const current = families.get(familyId) || [];
+    current.push(relativeToApp(file));
+    families.set(familyId, current);
+  }
+  return families;
+}
+
+function auditXlCandyAssets(tree, familyInventory = knownCandyFamilies()) {
+  if (!Array.isArray(tree)) {
+    return {
+      status: "source-unavailable",
+      files: 0,
+      knownFamilies: familyInventory.size,
+      missing: [],
+      orphans: [],
+      duplicates: [],
+      invalid: [],
+    };
+  }
+  const candidates = tree.filter(
+    (item) => item?.type === "blob" && String(item.path || "").toLowerCase().startsWith("xl_candy/"),
+  );
+  const valid = [];
+  const invalid = [];
+  for (const item of candidates) {
+    const match = String(item.path).match(/^xl_candy\/(0|[1-9]\d*)\.png$/);
+    if (!match) {
+      invalid.push({ path: item.path, reason: "Le chemin attendu est xl_candy/{familyId}.png, en minuscules." });
+      continue;
+    }
+    valid.push({ familyId: Number(match[1]), path: item.path, size: item.size ?? null });
+  }
+  const byFamily = new Map();
+  for (const item of valid) {
+    const current = byFamily.get(item.familyId) || [];
+    current.push(item);
+    byFamily.set(item.familyId, current);
+  }
+  const present = new Set(byFamily.keys());
+  return {
+    status: "success",
+    files: valid.length,
+    knownFamilies: familyInventory.size,
+    missing: [...familyInventory.entries()]
+      .filter(([familyId]) => !present.has(familyId))
+      .map(([familyId, references]) => ({ familyId, references })),
+    orphans: valid.filter((item) => !familyInventory.has(item.familyId)),
+    duplicates: [...byFamily.entries()]
+      .filter(([, items]) => items.length > 1)
+      .map(([familyId, items]) => ({ familyId, paths: items.map((item) => item.path) })),
+    invalid,
+  };
+}
+
 async function assetAudit(dexId = "") {
   const remoteResults = await Promise.allSettled([
     allHdAssets(),
     allLocationCardAssets(),
     allShuffleAssets(),
+    allRemoteAssetTree(),
   ]);
-  const [assetsResult, locationCardsResult, shuffleAssetsResult] = remoteResults;
+  const [assetsResult, locationCardsResult, shuffleAssetsResult, assetTreeResult] = remoteResults;
   const assets = assetsResult.status === "fulfilled" ? assetsResult.value : [];
   const locationCards = locationCardsResult.status === "fulfilled" ? locationCardsResult.value : [];
   const shuffleAssets = shuffleAssetsResult.status === "fulfilled" ? shuffleAssetsResult.value : [];
+  const xlCandyAudit = auditXlCandyAssets(
+    assetTreeResult.status === "fulfilled" ? assetTreeResult.value : null,
+  );
   const warnings = [...new Set(remoteResults
     .filter((result) => result.status === "rejected")
     .map((result) => result.reason?.message || "Bibliothèque distante indisponible."))];
@@ -324,6 +394,8 @@ async function assetAudit(dexId = "") {
       backgroundFiles: countLinkedType("background"),
       locationCardLibraryFiles: locationCards.length,
       candyFiles: countLinkedType("candy"),
+      linkedXlCandyFiles: countLinkedType("xl-candy"),
+      xlCandyFiles: xlCandyAudit.files,
       linkedShuffleFiles: countLinkedType("shuffle"),
       shuffleFiles: shuffleAssets.length,
     },
@@ -344,6 +416,7 @@ async function assetAudit(dexId = "") {
     duplicated: [...counts.entries()]
       .filter(([, count]) => count > 1)
       .map(([url, count]) => ({ url, count })),
+    xlCandyAudit,
     warnings,
   };
 }
@@ -627,6 +700,7 @@ function openFile(relativeFile) {
 
 module.exports = {
   assetAudit,
+  auditXlCandyAssets,
   auditUrls,
   catalog,
   customRules,

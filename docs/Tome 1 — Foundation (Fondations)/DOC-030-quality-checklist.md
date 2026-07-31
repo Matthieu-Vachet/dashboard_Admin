@@ -95,9 +95,9 @@ flowchart LR
 
 ### Fiches spécialisées présentes
 
-- [PAGE-049](<../Post-audit 2026-07-13/undefined>)
-- [COMP-137](<../Post-audit 2026-07-13/undefined>)
-- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
+- `PAGE-049` — référence historique retirée avec la fonctionnalité associée.
+- `COMP-137` — référence historique retirée avec la fonctionnalité associée.
+- `WORKFLOW-016` — référence historique retirée avec la fonctionnalité associée.
 
 ## 7. Informations absentes du code
 

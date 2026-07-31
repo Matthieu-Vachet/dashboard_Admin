@@ -53,8 +53,8 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - Les services Dashboard portent le suffixe -api ou un nom de store et exportent des fonctions camelCase.
 - Les routes Express utilisent des noms de ressources pluriels et des segments kebab-case: max-battles, pvp-rankings et rocket-texts.
 - Les collections API conservent plusieurs noms historiques sans séparateur: globalstats, maxbattles et syncruns; pokemonAssets utilise camelCase; shiny_rankings utilise snake_case.
-- Les documents Data utilisent dexNr, schemaVersion et generatedAt; le format d’import trainer conserve les champs source mon_number, mon_isShiny et mon_move_1 avant normalisation.
-- Les identifiants documentaires utilisent un préfixe et trois chiffres: PAGE-049, COMP-137, API-160, COL-032 et DATASET-020.
+- Les documents Data utilisent `dexNr`, `schemaVersion` et `generatedAt`; les assets candy ajoutent `familyId`, `image` et `xlImage`.
+- Les identifiants documentaires utilisent un préfixe stable et trois chiffres, par exemple `PAGE-064`, `ARCH-013`, `DATASET-030` et `RULE-048`.
 - Les noms de dépôts conservent leur casse et le tiret final de PokemonGo-API-.
 
 ## 4. Relations et dépendances

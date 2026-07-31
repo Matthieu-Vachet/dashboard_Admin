@@ -4,6 +4,9 @@ title: Identity Manager Pokémon
 status: active
 version: 1.2.0
 updated: 2026-07-26
+author: Matthieu Vachet
+affected_projects: [Dashboard Admin, PokemonGo-API-, PokemonGo-Data]
+references: []
 ---
 
 # Identity Manager Pokémon

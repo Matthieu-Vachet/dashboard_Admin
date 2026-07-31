@@ -94,8 +94,8 @@ flowchart LR
 
 ### Fiches spécialisées présentes
 
-- [COMP-137](<../Post-audit 2026-07-13/undefined>)
-- [DATASET-020](<../Post-audit 2026-07-13/DATASET-020-collection-personnelle-pokemon-go.md>)
+- `COMP-137` — référence historique retirée avec la fonctionnalité associée.
+- `DATASET-020` — référence historique retirée avec la fonctionnalité associée.
 
 ## 7. Informations absentes du code
 

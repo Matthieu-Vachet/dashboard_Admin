@@ -97,11 +97,11 @@ flowchart TD
 
 ### Fiches spécialisées présentes
 
-- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
-- [DATASET-020](<../Post-audit 2026-07-13/DATASET-020-collection-personnelle-pokemon-go.md>)
-- [COL-030](<../Post-audit 2026-07-13/undefined>)
-- [COL-031](<../Post-audit 2026-07-13/undefined>)
-- [COL-032](<../Post-audit 2026-07-13/undefined>)
+- `WORKFLOW-016` — référence historique retirée avec la fonctionnalité associée.
+- `DATASET-020` — référence historique retirée avec la fonctionnalité associée.
+- `COL-030` — référence historique retirée avec la fonctionnalité associée.
+- `COL-031` — référence historique retirée avec la fonctionnalité associée.
+- `COL-032` — référence historique retirée avec la fonctionnalité associée.
 
 ## 7. Informations absentes du code
 

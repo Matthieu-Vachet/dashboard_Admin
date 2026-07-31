@@ -43,16 +43,16 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 
 | Élément | Constat vérifié |
 | --- | --- |
-| AdminApp | 2 503 lignes et 103 558 octets |
-| Chargement dynamique | COMP-137 uniquement dans AdminApp |
+| AdminApp | shell métier segmenté par panneaux |
+| Chargement dynamique | panneaux lourds et audits chargés à la demande |
 | Cache API | 60 s et 5 000 entrées |
 | Accueil API | revalidate=3600 |
 | Events public | 60 s + stale 300 s |
-| Pagination trainer | 10 à 100 entrées, défaut 50 |
+| Audits externes | requête à la demande, sans écriture locale |
 
 ## 3. Implémentation observée
 
-- AdminApp importe statiquement les panneaux historiques.
+- AdminApp charge dynamiquement les panneaux lourds et le centre d’audit.
 - Les datasets current historiques sont chargés lorsque leur section devient active; le bootstrap Pokémon initial reste global.
 - La checklist publique reçoit le bootstrap et le catalogue complets puis limite le rendu initial côté client.
 - Les routes principales Pokémon, moves, items, forms, PvP et textes Rocket utilisent skip, limit, countDocuments et lean.
@@ -63,7 +63,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | Source | Relation | Cible |
 | --- | --- | --- |
 | Route Admin Pokémon | charge | AdminApp |
-| AdminApp | charge dynamiquement | COMP-137 |
+| AdminApp | charge dynamiquement | panneaux lourds et audits |
 | API GET | utilise | cache ou no-store |
 | Requêtes listées | utilisent | index, projection et pagination |
 
@@ -71,9 +71,9 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 
 ```mermaid
 flowchart LR
-  PAGE["Admin Pokémon"] --> APP["AdminApp 103 Ko source"]
-  APP --> STATIC["Panneaux statiques"]
-  APP --> DYNAMIC["COMP-137 dynamique"]
+  PAGE["Admin Pokémon"] --> APP["AdminApp"]
+  APP --> STATIC["Panneaux courants"]
+  APP --> DYNAMIC["Panneaux lourds dynamiques"]
   APP --> BFF["BFF Dashboard"]
   BFF --> API["API cache/no-store"]
   API --> DB[("MongoDB")]
@@ -96,8 +96,8 @@ flowchart LR
 
 ### Fiches spécialisées présentes
 
-- [PAGE-049](<../Post-audit 2026-07-13/undefined>)
-- [COMP-137](<../Post-audit 2026-07-13/undefined>)
+- `PAGE-049` — référence historique retirée avec la fonctionnalité associée.
+- `COMP-137` — référence historique retirée avec la fonctionnalité associée.
 
 Les identifiants non listés dans les fiches spécialisées ci-dessus renvoient uniquement aux registres JSON.
 

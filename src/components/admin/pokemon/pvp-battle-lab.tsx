@@ -871,17 +871,54 @@ function replaceChargedMove(
   return next.filter(Boolean).filter((moveId, moveIndex, items) => items.indexOf(moveId) === moveIndex).slice(0, 2);
 }
 
+function ThemedSvgAsset({
+  src,
+  className,
+}: {
+  src: string;
+  className: string;
+}) {
+  return (
+    <span
+      className={`inline-block shrink-0 bg-current ${className}`}
+      aria-hidden="true"
+      style={{
+        WebkitMaskImage: `url(${src})`,
+        maskImage: `url(${src})`,
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+      }}
+    />
+  );
+}
+
+function TimelineEventIcon({ action }: { action: SingleBattleResult["timeline"][number]["action"] }) {
+  const asset = timelineEventAsset(action);
+  return asset.endsWith(".svg") ? (
+    <ThemedSvgAsset className="h-5 w-5" src={asset} />
+  ) : (
+    <img className="h-5 w-5 shrink-0 object-contain" src={asset} alt="" />
+  );
+}
+
 function ShieldIcons({ count, compact = false }: { count: number; compact?: boolean }) {
   const normalizedCount = Math.max(0, Math.min(2, Math.trunc(count)));
-  const asset = [uiAssets.icons.shield0, uiAssets.icons.shield1, uiAssets.icons.shield2][normalizedCount];
   const label = normalizedCount === 0 ? "Aucun bouclier" : normalizedCount === 1 ? "Un bouclier" : "Deux boucliers";
   return (
-    <span className="inline-flex items-center" aria-label={label}>
-      <img
-        className={compact ? "h-5 w-5 object-contain" : "h-9 w-9 object-contain"}
-        src={asset}
-        alt=""
-      />
+    <span className="inline-flex items-center gap-0.5 text-cyan-100" aria-label={label}>
+      {normalizedCount === 0 ? (
+        <span className={compact ? "text-sm font-black" : "type-title-inline"} aria-hidden="true">—</span>
+      ) : Array.from({ length: normalizedCount }, (_, index) => (
+        <ThemedSvgAsset
+          className={compact ? "h-5 w-5" : "h-8 w-8"}
+          key={index}
+          src={uiAssets.icons.shieldAlt}
+        />
+      ))}
     </span>
   );
 }
@@ -1247,7 +1284,7 @@ function BattleArena({
               ) : null}
             </div>
           ))}
-          <div className="pointer-events-none absolute left-1/2 top-1/2 order-2 grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center self-center rounded-full border border-violet-200/25 bg-slate-950/85 shadow-[0_0_40px_rgba(139,92,246,.35)] sm:static sm:h-20 sm:w-20 sm:translate-x-0 sm:translate-y-0 sm:bg-violet-400/15"><img className="h-7 w-7 object-contain sm:h-11 sm:w-11" src={uiAssets.icons.fastAttack} alt="Versus" /></div>
+          <div className="pointer-events-none absolute left-1/2 top-1/2 order-2 grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center self-center rounded-full border border-violet-200/25 bg-slate-950/85 text-violet-100 shadow-[0_0_40px_rgba(139,92,246,.35)] sm:static sm:h-20 sm:w-20 sm:translate-x-0 sm:translate-y-0 sm:bg-violet-400/15" aria-label="Versus"><ThemedSvgAsset className="h-7 w-7 sm:h-11 sm:w-11" src={uiAssets.icons.swords} /></div>
         </div>
       </div>
     </Card>
@@ -1336,7 +1373,7 @@ function ShieldScenarioMatrix({
     <Card className="p-4 sm:p-5">
       <CardHeader eyebrow="TOUS LES SCÉNARIOS">
         <div>
-          <CardTitle><span className="inline-flex items-center gap-2"><img className="h-7 w-7 object-contain" src={uiAssets.icons.shield0} alt="" />Shield Matrix</span></CardTitle>
+          <CardTitle><span className="inline-flex items-center gap-2 text-cyan-50"><ThemedSvgAsset className="h-7 w-7" src={uiAssets.icons.shieldAlt} />Shield Matrix</span></CardTitle>
           <CardDescription>
             Cliquer sur une case recharge son résultat et sa timeline.
           </CardDescription>
@@ -1393,11 +1430,11 @@ function ShieldScenarioMatrix({
 }
 
 function timelineEventAsset(action: SingleBattleResult["timeline"][number]["action"]) {
-  if (action === "fast") return uiAssets.icons.fastAttack;
-  if (action === "charged" || action === "cmp") return uiAssets.icons.chargedAttack;
-  if (action === "shield") return uiAssets.icons.shield0;
+  if (action === "fast") return uiAssets.icons.attackMove;
+  if (action === "charged" || action === "cmp") return uiAssets.icons.swords;
+  if (action === "shield") return uiAssets.icons.shieldAlt;
   if (action === "buff" || action === "debuff" || action === "form") return uiAssets.icons.up;
-  return uiAssets.icons.chargedAttack;
+  return uiAssets.icons.battle;
 }
 
 function Timeline({ result }: { result: SingleBattleResult }) {
@@ -1507,7 +1544,7 @@ function Timeline({ result }: { result: SingleBattleResult }) {
                     type="button"
                     onClick={() => setSelected(event)}
                   >
-                    <strong className="flex items-center gap-1.5 truncate text-foreground"><img className="h-5 w-5 shrink-0 object-contain" src={timelineEventAsset(event.action)} alt="" />{event.moveType && typeIconAsset(event.moveType) ? <img className="h-4 w-4 shrink-0 object-contain" src={typeIconAsset(event.moveType)!} alt="" /> : null}<span className="truncate">{event.moveName || event.action.toUpperCase()}</span></strong>
+                    <strong className="flex items-center gap-1.5 truncate text-foreground"><TimelineEventIcon action={event.action} />{event.moveType && typeIconAsset(event.moveType) ? <img className="h-4 w-4 shrink-0 object-contain" src={typeIconAsset(event.moveType)!} alt="" /> : null}<span className="truncate">{event.moveName || event.action.toUpperCase()}</span></strong>
                     <span className="mt-1 block truncate type-caption text-muted">{result.combatants[event.actor].name}</span>
                     <span className="mt-1 block line-clamp-2 text-muted">{event.damage !== undefined ? `${event.damage} dégâts` : event.action.toUpperCase()}{event.energyAfter !== undefined ? ` · ${event.energyAfter} E` : ""}{event.hpAfter !== undefined ? ` · ${event.hpAfter} HP` : ""}</span>
                   </button>
@@ -2200,7 +2237,7 @@ export function PvpBattleLab() {
       </div>
 
       <div className="flex items-start gap-3 rounded-2xl border border-cyan-300/18 bg-cyan-400/[0.06] p-3 type-body text-muted" role="note">
-        <img className="mt-0.5 h-8 w-8 shrink-0 object-contain" src={uiAssets.icons.chargedAttack} alt="" />
+        <ThemedSvgAsset className="mt-0.5 h-8 w-8 shrink-0 text-cyan-100" src={uiAssets.icons.swords} />
         <p><strong className="text-foreground">{tab === "single" ? "Single" : tab === "multi" ? "Multi" : tab === "matrix" ? "Matrix" : "Historique"}</strong> · {tab === "single" ? "simule un combat précis entre deux Pokémon et expose chaque tour." : tab === "multi" ? "teste un Pokémon principal contre plusieurs adversaires du format ou une sélection manuelle." : tab === "matrix" ? "compare chaque Pokémon du groupe A à chaque Pokémon du groupe B." : "retrouve les simulations Single sauvegardées avec leurs versions de données."}</p>
       </div>
 

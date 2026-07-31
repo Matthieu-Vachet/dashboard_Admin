@@ -57,10 +57,11 @@ async function requireDashboardSession() {
 function loadAdminModules() {
   const { buildChecklist, buildCustomRuleCatalogChecklist, detailForKey } = require("@/server/pokemon-go/apps/checklist/server/engine");
   const { sourceWatch } = require("@/server/pokemon-go/apps/checklist/server/source-watch");
+  const { runPokemonReleaseAudit } = require("@/server/pokemon-go/apps/checklist/server/pokemon-release-audit");
   const workshop = require("@/server/pokemon-go/apps/checklist/server/workshop");
   const { summarizeChecklist } = require("@/server/pokemon-go/src/lib/site-dashboard");
 
-  return { buildChecklist, buildCustomRuleCatalogChecklist, detailForKey, sourceWatch, summarizeChecklist, workshop };
+  return { buildChecklist, buildCustomRuleCatalogChecklist, detailForKey, runPokemonReleaseAudit, sourceWatch, summarizeChecklist, workshop };
 }
 
 async function readPokemonApiCurrent(
@@ -754,7 +755,7 @@ export async function GET(request: NextRequest) {
 
     await recordDashboardApiCall(session!.email, `/api/pokemon-admin:${action}`, "GET");
 
-    const { detailForKey, sourceWatch, workshop } = loadAdminModules();
+    const { detailForKey, runPokemonReleaseAudit, sourceWatch, workshop } = loadAdminModules();
 
     if (action === "bootstrap") {
       return json({ data: await bootstrapResponse(session!.email) });
@@ -783,6 +784,11 @@ export async function GET(request: NextRequest) {
           history: await recordSourceWatchHistory(session!.email, data),
         },
       });
+    }
+
+    if (action === "pokemon-release-audit") {
+      const kind = String(request.nextUrl.searchParams.get("kind") || "available");
+      return json({ data: await runPokemonReleaseAudit(kind) });
     }
 
     if (action === "source-history") {

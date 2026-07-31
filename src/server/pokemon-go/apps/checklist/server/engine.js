@@ -1499,6 +1499,8 @@ function buildChecklist(customRulesOverride = null) {
           : displayData.secondaryType?.type || null,
       stats: displayData.stats || null,
       maxCp: displayData.maxCp || null,
+      buddyDistance: displayData.buddyDistance ?? null,
+      secondChargeMoveCost: displayData.secondChargeMoveCost || null,
       availability: displayData.availability || null,
       weatherBoost: displayData.weatherBoost || [],
       pvpLeagues:

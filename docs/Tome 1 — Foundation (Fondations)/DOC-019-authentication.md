@@ -97,11 +97,11 @@ sequenceDiagram
 
 ### Fiches spécialisées présentes
 
-- [PAGE-049](<../Post-audit 2026-07-13/undefined>)
-- [API-157](<../Post-audit 2026-07-13/undefined>)
-- [API-158](<../Post-audit 2026-07-13/undefined>)
-- [API-159](<../Post-audit 2026-07-13/undefined>)
-- [API-160](<../Post-audit 2026-07-13/undefined>)
+- `PAGE-049` — référence historique retirée avec la fonctionnalité associée.
+- `API-157` — référence historique retirée avec la fonctionnalité associée.
+- `API-158` — référence historique retirée avec la fonctionnalité associée.
+- `API-159` — référence historique retirée avec la fonctionnalité associée.
+- `API-160` — référence historique retirée avec la fonctionnalité associée.
 
 ## 7. Informations absentes du code
 

@@ -47,7 +47,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | Origine mutations | assertSameOrigin |
 | Rate limit Dashboard | Map mémoire par IP et label |
 | Rate limit API | express-rate-limit |
-| Taille trainer import | 12 000 000 octets et 20 000 entrées |
+| Import trainer | retiré du produit actif le 30 juillet 2026 |
 
 ## 3. Implémentation observée
 
@@ -95,11 +95,11 @@ flowchart TD
 
 ### Fiches spécialisées présentes
 
-- [API-157](<../Post-audit 2026-07-13/undefined>)
-- [API-158](<../Post-audit 2026-07-13/undefined>)
-- [API-159](<../Post-audit 2026-07-13/undefined>)
-- [API-160](<../Post-audit 2026-07-13/undefined>)
-- [WORKFLOW-016](<../Post-audit 2026-07-13/WORKFLOW-016-import-collection-pokemon-go.md>)
+- `API-157` — référence historique retirée avec la fonctionnalité associée.
+- `API-158` — référence historique retirée avec la fonctionnalité associée.
+- `API-159` — référence historique retirée avec la fonctionnalité associée.
+- `API-160` — référence historique retirée avec la fonctionnalité associée.
+- `WORKFLOW-016` — référence historique retirée avec la fonctionnalité associée.
 
 ## 7. Informations absentes du code
 

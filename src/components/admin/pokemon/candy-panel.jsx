@@ -1,10 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
-import { CircleDot } from "lucide-react";
 import { formatCount, Panel } from "./admin-ui";
 import { pokemonVariantLabel, preferredPokemonImage } from "@/components/site/pokemon-style";
 import { EmptyState } from "@/components/admin/shared/state-system";
+import { CandyAssetImage } from "./candy-asset-image";
 
 function colorChannel(value) {
   const numeric = Number(value ?? 0);
@@ -65,11 +65,13 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
         byFamily.get(key) || {
           familyId: candy.familyId,
           image: candy.image,
+          xlImage: candy.xlImage,
           primaryColor: candy.primaryColor,
           secondaryColor: candy.secondaryColor,
           pokemon: [],
         };
       current.image ||= candy.image;
+      current.xlImage ||= candy.xlImage;
       current.primaryColor ||= candy.primaryColor;
       current.secondaryColor ||= candy.secondaryColor;
       current.pokemon.push(entry);
@@ -116,18 +118,15 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
               key={group.familyId}
             >
               <div
-                className="relative grid gap-4 overflow-hidden p-4 sm:grid-cols-[5rem_minmax(0,1fr)]"
+                className="relative grid gap-4 overflow-hidden p-4 sm:grid-cols-[10rem_minmax(0,1fr)]"
                 style={{
                   background: `linear-gradient(135deg, color-mix(in srgb, ${primary} 84%, #ffffff 6%), color-mix(in srgb, ${secondary} 72%, #020617 18%)), radial-gradient(circle at 88% 0%, rgba(255,255,255,.42), transparent 32%)`,
                 }}
               >
                 <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.12)_1px,transparent_1px)] opacity-25 [background-size:24px_24px]" />
-                <span className="relative grid h-20 w-20 place-items-center rounded-3xl border border-white/40 bg-white/88 p-3 shadow-2xl">
-                  {group.image ? (
-                    <img className="max-h-full object-contain drop-shadow-xl" src={group.image} alt="" />
-                  ) : (
-                    <CircleDot size={30} className="text-disabled" />
-                  )}
+                <span className="relative flex items-start gap-2 rounded-3xl border border-white/40 bg-white/88 p-3 shadow-2xl">
+                  <CandyAssetImage familyId={group.familyId} normalUrl={group.image} xlUrl={group.xlImage} kind="normal" className="h-14 w-14" showLabel />
+                  <CandyAssetImage familyId={group.familyId} normalUrl={group.image} xlUrl={group.xlImage} kind="xl" className="h-14 w-14" showLabel />
                 </span>
                 <div className="relative min-w-0 text-domain-foreground drop-shadow-[0_2px_12px_rgba(0,0,0,.38)]">
                   <p className="type-overline opacity-80">FamilyId</p>
