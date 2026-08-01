@@ -131,7 +131,7 @@ Mis à jour/créés : README, TOME-INDEX, DOC-017, DOC-035, PAGE-059 à PAGE-063
 ### 33. Tests
 
 - Dashboard : 39 tests Admin Pokémon, 24 variantes, 5 présentation, 12 audits Margxt, 11 événements, 7 GBL, 15 moteur PvP, 1 campagne de parité PvP (720 scénarios), 4 données PvP locales, 2 candy, 2 XL, 101 Design System et 8 State System ; toutes les suites passent ;
-- API : 134/134 tests passent, y compris registre fermé, migration réversible et rejet du provider retiré ;
+- API : 135/135 tests passent, y compris registre fermé, migration réversible, rejet du provider retiré et ajout répétitif d’un alias actif traité de façon idempotente ;
 - Data : 1 605 JSON Pokémon et 1 605 bundles d’assets valides ; 7 tests candy, 18 générateurs courants, 21 datasets classés, 30 identités, 7 assets canoniques, 11 inventaires, 2 mappings Margxt, 25 attaquants et 5 défenseurs/costumes passent ;
 - Documentation : 143 documents et 143 identifiants uniques, zéro avertissement.
 
@@ -141,7 +141,7 @@ Dashboard Next.js 16 et API Next.js 15 : PASS. Le dry-run API compte 1 605 Poké
 
 ### 35. Navigateur
 
-Disponible, Chromatiques, Shadow, Costumes, Identity Manager, Veille, Candies, fiche Pokémon et PvP Rankings ont été testés en Light et Dark aux largeurs 320, 360, 375, 390, 430, 768, 1 024 et 1 440 px. Aucun overflow horizontal, sprite cassé, `[object Object]`, référence active retirée ou erreur console. Les filtres divergence/ambiguïté/parsing, la recherche, les détails et la fiche Bulbizarre ont été contrôlés. La nouvelle liaison manuelle montre les fiches `SPINDA_01` et `SPINDA_11`, ouvre une modale avec l’alias exact `Spinda Forme 1`, conserve le focus et tient dans 296 px à 320 px. Le bouton de confirmation n’a volontairement pas été exécuté : aucune association arbitraire n’a été créée pendant les tests.
+Disponible, Chromatiques, Shadow, Costumes, Identity Manager, Veille, Candies, fiche Pokémon et PvP Rankings ont été testés en Light et Dark aux largeurs 320, 360, 375, 390, 430, 768, 1 024 et 1 440 px. Aucun overflow horizontal, sprite cassé, `[object Object]`, référence active retirée ou erreur console. Les filtres divergence/ambiguïté/parsing, la recherche, les détails et la fiche Bulbizarre ont été contrôlés. La liaison proposée par le resolver montre les fiches `SPINDA_01` et `SPINDA_11`. La recherche manuelle sans candidat a également été vérifiée en production sur Corayon de Galar : elle propose `CORSOLA_GALARIAN` et `pokemon-forms/galar/0222-corsola-galarian.json`, puis ouvre la confirmation avec l’alias exact. Le bouton de confirmation n’a volontairement pas été exécuté : aucune association arbitraire n’a été créée pendant les tests.
 
 ### 36. Avertissements historiques inchangés
 
@@ -151,10 +151,12 @@ Disponible, Chromatiques, Shadow, Costumes, Identity Manager, Veille, Candies, f
 
 ### 37 à 40. Commits, branches, HEAD et push
 
-- PokemonGo-Data : `1607607` — `feat(data): add canonical audit identity inventory` ;
-- PokemonGo-API- : `f1e7ef34` — `fix(identity): retire removed collection provider` ;
-- Dashboard Admin : commit de livraison sur `agent/pokemon-data-control-center`, HEAD et hash final consignés dans le compte rendu Codex ;
-- les trois dépôts utilisent `agent/pokemon-data-control-center` et sont poussés sur `origin`. PokemonGo-Assets-API reste sur `main` sans commit de ce sprint.
+- PokemonGo-Data `main` : `1607607` — `feat(data): add canonical audit identity inventory` ;
+- PokemonGo-API- `main` : `95132411` — `fix(identity): make alias linking idempotent` après le commit de sprint `f1e7ef34` ;
+- Dashboard Admin `main` : `d19c1fa` — `fix(audits): link unresolved entries to JSON identities` après le commit de sprint `8e1ddd6` ;
+- les trois `main` sont poussés sur `origin`. PokemonGo-Assets-API reste sur `main` sans commit de ce sprint. Le commit documentaire de clôture correspond au HEAD Dashboard publié avec ce rapport.
+
+Déploiements de production validés : Dashboard `dpl_81ydN8xw5YuaFUSYo7S5ZELBgaxe` (`d19c1fa`) et API `dpl_6Skh8dt3YK3RCizTR9FMU2FssnQf` (`95132411`), tous deux `READY`. La route API `/health` répond `200` avec MongoDB connecté et les journaux filtrés du nouveau déploiement ne contiennent aucune erreur.
 
 ### 41. Propreté
 
