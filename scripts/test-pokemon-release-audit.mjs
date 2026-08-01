@@ -178,13 +178,15 @@ test("le schéma refuse un statut mélangé ou inconnu", () => {
   assert.equal(auditPayloadSchema.safeParse({}).success, false);
 });
 
-test("le panneau affiche les champs comparés, les candidats et les compteurs explicites", () => {
+test("le panneau affiche les champs comparés, les candidats, la recherche JSON et les compteurs explicites", () => {
   const panel = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "src", "components", "admin", "pokemon", "pokemon-release-audit-panel.tsx"), "utf8");
-  for (const label of ["Entrées externes analysées", "Identités résolues", "Divergences réelles", "Erreurs de parsing", "Comparaison métier", "Candidats locaux", "Fichier JSON local", "Lier à cette fiche JSON", "Confirmer l’association manuelle"]) assert.match(panel, new RegExp(label));
+  for (const label of ["Entrées externes analysées", "Identités résolues", "Divergences réelles", "Erreurs de parsing", "Comparaison métier", "Candidats locaux", "Fichier JSON local", "Lier à cette fiche JSON", "Rechercher et lier une fiche JSON", "Lier à une fiche JSON existante", "Choisir cette fiche", "Confirmer l’association manuelle"]) assert.match(panel, new RegExp(label));
   assert.doesNotMatch(panel, /\[\["Lignes"/);
   assert.match(panel, /grid-cols-2/);
   assert.match(panel, /content-visibility:auto/);
   assert.match(panel, /pokemon-release-audit-manual-match/);
+  assert.match(panel, /action: "identity-manager"/);
+  assert.match(panel, /params\.set\("pokemonId"/);
   assert.match(panel, /Aucune donnée Pokémon n’est réécrite/);
   assert.match(panel, /row\.sourceCostume \|\| row\.sourceForm \|\| row\.sourceVariant/);
 });

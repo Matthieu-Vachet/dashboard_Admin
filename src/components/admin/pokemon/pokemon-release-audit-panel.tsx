@@ -90,6 +90,19 @@ type ManualMatchSelection = {
   candidate: AuditCandidate;
   aliasValue: string;
 };
+type IdentitySearchResult = {
+  canonicalId: string;
+  pokemonId: number;
+  form?: string | null;
+  costume?: string | null;
+  status?: string;
+  localIdentity?: {
+    pokemonName?: string | null;
+    sourceFile?: string | null;
+    pokemonSourceFile?: string | null;
+    assetsRef?: string | null;
+  } | null;
+};
 
 const labels: Record<AuditKind, { eyebrow: string; title: string; description: string }> = {
   available: { eyebrow: "Disponibilité", title: "Pokémon disponibles", description: "La source répertorie les Pokémon introuvables. Une absence de cette liste n’est donc jamais interprétée seule comme une preuve de disponibilité." },
@@ -169,11 +182,44 @@ async function createManualMatch(kind: AuditKind, selection: ManualMatchSelectio
   return result.data;
 }
 
+async function searchExistingIdentities(row: AuditRow, search: string) {
+  const params = new URLSearchParams({
+    action: "identity-manager",
+    status: "active",
+    page: "1",
+    limit: "24",
+  });
+  const pokemonId = Number(row.effectiveDexId || row.dexId);
+  if (Number.isFinite(pokemonId) && pokemonId > 0) params.set("pokemonId", String(pokemonId));
+  if (search.trim()) params.set("search", search.trim());
+  const response = await fetch(`${pokemonAdminApiPath}?${params}`, { cache: "no-store" });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || "Recherche des fiches JSON impossible.");
+  const upstream = result.data;
+  if (Array.isArray(upstream)) return upstream as IdentitySearchResult[];
+  return (Array.isArray(upstream?.data) ? upstream.data : []) as IdentitySearchResult[];
+}
+
 function manualAliasValue(row: AuditRow) {
   return [row.sourceName, row.sourceCostume || row.sourceForm || row.sourceVariant]
     .filter((value): value is string => Boolean(value))
     .join(" ")
     .trim();
+}
+
+function identitySearchSeed(row: AuditRow) {
+  return String(row.sourceName || row.localName || row.canonicalId || "").trim();
+}
+
+function identityCandidate(identity: IdentitySearchResult): AuditCandidate {
+  return {
+    canonicalId: identity.canonicalId,
+    dexId: String(identity.pokemonId).padStart(4, "0"),
+    displayName: identity.localIdentity?.pokemonName || identity.canonicalId,
+    form: identity.form || null,
+    costume: identity.costume || null,
+    file: identity.localIdentity?.sourceFile || identity.localIdentity?.pokemonSourceFile || null,
+  };
 }
 
 function renderValue(value: unknown) {
@@ -198,6 +244,12 @@ export function PokemonReleaseAuditPanel({ kind, localEntries = [], onOpenPokemo
   const [visibleLimit, setVisibleLimit] = useState(100);
   const [manualMatch, setManualMatch] = useState<ManualMatchSelection | null>(null);
   const [linking, setLinking] = useState(false);
+  const [identityPickerRow, setIdentityPickerRow] = useState<AuditRow | null>(null);
+  const [identityPickerQuery, setIdentityPickerQuery] = useState("");
+  const deferredIdentityPickerQuery = useDeferredValue(identityPickerQuery);
+  const [identityPickerResults, setIdentityPickerResults] = useState<IdentitySearchResult[]>([]);
+  const [identityPickerLoading, setIdentityPickerLoading] = useState(false);
+  const [identityPickerError, setIdentityPickerError] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -220,6 +272,30 @@ export function PokemonReleaseAuditPanel({ kind, localEntries = [], onOpenPokemo
     return () => { cancelled = true; };
   }, [kind]);
 
+  useEffect(() => {
+    if (!identityPickerRow) return;
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      setIdentityPickerLoading(true);
+      setIdentityPickerError("");
+      try {
+        const results = await searchExistingIdentities(identityPickerRow, deferredIdentityPickerQuery);
+        if (!cancelled) setIdentityPickerResults(results);
+      } catch (cause) {
+        if (!cancelled) {
+          setIdentityPickerResults([]);
+          setIdentityPickerError(cause instanceof Error ? cause.message : "Recherche des fiches JSON impossible.");
+        }
+      } finally {
+        if (!cancelled) setIdentityPickerLoading(false);
+      }
+    }, 250);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [deferredIdentityPickerQuery, identityPickerRow]);
+
   const filteredRows = useMemo(() => {
     const needle = deferredQuery.trim().toLocaleLowerCase("fr");
     return [...(payload?.rows || [])]
@@ -236,6 +312,17 @@ export function PokemonReleaseAuditPanel({ kind, localEntries = [], onOpenPokemo
   const view = labels[kind];
   const selectStatus = (nextStatus: string) => { setStatus(nextStatus); setVisibleLimit(100); };
   const updateQuery = (value: string) => { setQuery(value); setVisibleLimit(100); };
+  const openIdentityPicker = (row: AuditRow) => {
+    setIdentityPickerRow(row);
+    setIdentityPickerQuery(identitySearchSeed(row));
+    setIdentityPickerResults([]);
+    setIdentityPickerError("");
+  };
+  const chooseIdentity = (identity: IdentitySearchResult) => {
+    if (!identityPickerRow) return;
+    setManualMatch({ row: identityPickerRow, candidate: identityCandidate(identity), aliasValue: manualAliasValue(identityPickerRow) });
+    setIdentityPickerRow(null);
+  };
   const confirmManualMatch = async () => {
     if (!manualMatch?.candidate.canonicalId || !manualMatch.aliasValue) return;
     setLinking(true);
@@ -294,6 +381,7 @@ export function PokemonReleaseAuditPanel({ kind, localEntries = [], onOpenPokemo
           const rowKey = [row.sourceKey, row.localKey, row.canonicalId, index].filter(Boolean).join(":");
           const sprite = row.image;
           const genders = [row.genderVariants?.male ? "masculin/partagé" : null, row.genderVariants?.female ? "féminin" : null].filter(Boolean).join(" + ") || "aucune variante déclarée";
+          const canLinkExistingIdentity = ["identity-unresolved", "identity-ambiguous", "external-only"].includes(row.status) && Boolean(manualAliasValue(row));
           return <details className="rounded-2xl border border-line bg-surface-faint [content-visibility:auto] [contain-intrinsic-size:108px]" key={rowKey}>
             <summary className="grid min-h-24 cursor-pointer list-none gap-3 p-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-300 sm:grid-cols-[3.5rem_minmax(0,1fr)_auto] sm:items-center">
               <span className="grid h-14 w-14 place-items-center overflow-hidden rounded-xl border border-line bg-surface-control">{sprite ? <Image alt="" className="h-12 w-12 object-contain" height={48} loading="lazy" src={sprite} unoptimized width={48} /> : <span className="font-mono text-xs text-muted">#{row.dexId || row.effectiveDexId || "—"}</span>}</span>
@@ -313,6 +401,8 @@ export function PokemonReleaseAuditPanel({ kind, localEntries = [], onOpenPokemo
 
               {row.candidates?.length ? <section className="mt-5"><h3 className="font-black text-domain-foreground">Candidats locaux — aucune association automatique</h3><p className="mt-1 text-sm font-bold text-muted">Choisissez une fiche existante uniquement après vérification. L’action crée un alias Margxt traçable dans Identity Manager ; elle ne modifie aucun JSON Pokémon.</p><div className="mt-3 grid gap-2 md:grid-cols-2">{row.candidates.map((candidate) => <article className="flex flex-col rounded-xl border border-violet-300/20 bg-violet-400/5 p-3" key={candidate.canonicalId}><code className="break-all type-caption-strong text-domain-foreground">{candidate.canonicalId}</code><p className="mt-2 text-sm font-bold text-muted">#{candidate.dexId} · {candidate.displayName} · forme {candidate.form || "normale"} · costume {candidate.costume || "aucun"}</p>{candidate.file ? <p className="mt-1 break-all font-mono text-xs text-disabled">{candidate.file}</p> : null}<Button className="mt-3 self-start" size="sm" disabled={!candidate.canonicalId || !manualAliasValue(row)} onClick={() => setManualMatch({ row, candidate, aliasValue: manualAliasValue(row) })}>Lier à cette fiche JSON</Button></article>)}</div></section> : null}
 
+              {canLinkExistingIdentity ? <section className="mt-5 rounded-xl border border-cyan-300/20 bg-cyan-400/5 p-3"><h3 className="font-black text-domain-foreground">La fiche JSON existe déjà ?</h3><p className="mt-1 text-sm font-bold text-muted">Recherchez l’identité synchronisée correspondant à ce numéro Pokédex, puis liez explicitement l’observation externe. Aucune fiche JSON ne sera créée ou modifiée.</p><Button className="mt-3" size="sm" onClick={() => openIdentityPicker(row)}>{row.candidates?.length ? "Rechercher une autre fiche JSON" : "Rechercher et lier une fiche JSON"}</Button></section> : null}
+
               {row.diagnostics?.length ? <section className="mt-5 rounded-xl border border-amber-300/20 bg-amber-400/5 p-3"><h3 className="font-black text-domain-foreground">Explication</h3><ul className="mt-2 space-y-1 text-sm font-bold text-muted">{row.diagnostics.map((diagnostic) => <li key={diagnostic}>• {diagnostic}</li>)}</ul></section> : null}
               {payload?.source.url ? <a className="mt-4 inline-flex min-h-11 items-center gap-2 font-black text-cyan-700 hover:underline dark:text-cyan-100" href={payload.source.url} target="_blank" rel="noreferrer">Consulter la source <ExternalLink size={15} /></a> : null}
             </div>
@@ -321,6 +411,27 @@ export function PokemonReleaseAuditPanel({ kind, localEntries = [], onOpenPokemo
         {!filteredRows.length ? <EmptyState title="Aucune observation dans ce filtre" description="Le filtre ne masque aucune divergence dans les compteurs du résumé." /> : null}
       </div>
       {visibleRows.length < filteredRows.length ? <div className="mt-4 flex justify-center"><Button onClick={() => setVisibleLimit((current) => current + 100)}>Afficher 100 résultats de plus</Button></div> : null}
+      <Modal
+        open={Boolean(identityPickerRow)}
+        title="Lier à une fiche JSON existante"
+        description="La recherche interroge le catalogue canonique synchronisé dans Identity Manager et reste limitée au numéro Pokédex de l’observation lorsqu’il est connu."
+        onClose={() => setIdentityPickerRow(null)}
+      >
+        <label className="grid gap-2 font-black text-domain-foreground">
+          Rechercher une identité
+          <Input value={identityPickerQuery} onChange={(event) => setIdentityPickerQuery(event.target.value)} placeholder="Nom, canonicalId ou alias…" autoFocus />
+        </label>
+        <p className="mt-2 text-xs font-bold text-muted">Observation : #{identityPickerRow?.effectiveDexId || identityPickerRow?.dexId || "—"} · {identityPickerRow?.sourceName || "nom inconnu"}{identityPickerRow?.sourceCostume ? ` · ${identityPickerRow.sourceCostume}` : identityPickerRow?.sourceForm ? ` · ${identityPickerRow.sourceForm}` : ""}</p>
+        <div className="mt-4 grid max-h-[55vh] gap-2 overflow-y-auto pr-1">
+          {identityPickerLoading ? <FetchLoadingState title="Recherche des fiches JSON…" /> : null}
+          {!identityPickerLoading && identityPickerError ? <ErrorState title="Recherche indisponible" message={identityPickerError} /> : null}
+          {!identityPickerLoading && !identityPickerError && identityPickerResults.map((identity) => {
+            const candidate = identityCandidate(identity);
+            return <article className="rounded-xl border border-line bg-surface-faint p-3" key={identity.canonicalId}><div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div className="min-w-0"><code className="break-all type-caption-strong text-domain-foreground">{identity.canonicalId}</code><p className="mt-1 text-sm font-bold text-muted">#{candidate.dexId} · {candidate.displayName} · forme {candidate.form || "normale"} · costume {candidate.costume || "aucun"}</p>{candidate.file ? <p className="mt-1 break-all font-mono text-xs text-disabled">{candidate.file}</p> : <p className="mt-1 text-xs font-bold text-amber-700 dark:text-amber-200">Chemin JSON non renseigné dans l’identité synchronisée.</p>}</div><Button className="shrink-0" size="sm" disabled={!identity.canonicalId} onClick={() => chooseIdentity(identity)}>Choisir cette fiche</Button></div></article>;
+          })}
+          {!identityPickerLoading && !identityPickerError && !identityPickerResults.length ? <EmptyState title="Aucune fiche trouvée" description="Modifiez la recherche ou synchronisez d’abord le catalogue Identity Manager. L’observation reste non résolue." /> : null}
+        </div>
+      </Modal>
       <Modal
         open={Boolean(manualMatch)}
         title="Confirmer l’association manuelle"

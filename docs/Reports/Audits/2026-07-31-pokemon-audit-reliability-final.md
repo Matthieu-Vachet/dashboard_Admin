@@ -104,7 +104,7 @@ Avant : 70 identités/74 alias, 343 diagnostics, 109 historiques, 9 671 entrées
 
 Le provider retiré a quitté le catalogue. Le registre est fermé : les sources inconnues ou supprimées échouent avec `IDENTITY_PROVIDER_NOT_REGISTERED`. Les providers réellement utilisés, y compris les variantes techniques LeekDuck/Snacknap/PokeMiners, sont explicitement enregistrés. Une valeur historique MongoDB n’est plus réinjectée comme source active.
 
-Les cartes ambiguës ou non résolues exposant des candidats canoniques permettent maintenant de relier explicitement l’observation Margxt à une fiche existante. L’action résout le `canonicalId` côté serveur, crée l’alias via le service Identity Manager existant, journalise l’auteur et le motif, puis relance l’audit. Une annulation reste possible en dépréciant l’alias depuis Identity Manager.
+Les cartes ambiguës ou non résolues exposant des candidats canoniques permettent maintenant de relier explicitement l’observation Margxt à une fiche existante. Si le resolver ne propose aucun candidat alors que la fiche JSON existe, une recherche manuelle interroge directement le catalogue canonique Identity Manager, restreint au même `dexId`, et permet de sélectionner la fiche. L’action résout le `canonicalId` côté serveur, crée l’alias via le service Identity Manager existant, journalise l’auteur et le motif, puis relance l’audit. Une annulation reste possible en dépréciant l’alias depuis Identity Manager.
 
 ## 27. Veille
 
