@@ -1,5 +1,7 @@
 # Sprint State System
 
+> Note historique — la référence à « Ma collection » documente uniquement l’origine visuelle du loader en juillet 2026. La fonctionnalité et sa source Identity Manager sont supprimées ; seul le composant générique `FetchLoadingState` subsiste.
+
 Statut : **completed** — 22 juillet 2026.
 
 Ce sprint consolide les états génériques `Loading`, `Empty`, `No Results` et `Error` du Dashboard. Il introduit trois contrats finis dans `src/components/admin/shared/state-system.tsx` : `FetchLoadingState`, `EmptyState` et `ErrorState`. La métrique de couverture compte les racines conditionnelles qui rendent un état ; un wrapper partagé compte une fois et ses consommateurs sont décrits séparément.

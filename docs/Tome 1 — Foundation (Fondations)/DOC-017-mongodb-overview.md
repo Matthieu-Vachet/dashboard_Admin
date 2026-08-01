@@ -1,106 +1,52 @@
 ---
 id: DOC-017
 title: "Vue d’ensemble MongoDB"
-description: "Référence des 32 collections, des deux bases logiques et des index déclarés dans le code."
-version: 2.0.0
+description: "Référence des bases logiques, collections actives et archives de migration."
+version: 3.0.0
 status: Official
 owner: Matthieu Vachet
 created: 2026-07-13
-last_updated: 2026-07-13
+last_updated: 2026-07-31
 category: Foundation
 type: Reference
 language: fr
-scope:
-  - "PokemonGo-API-/src/models"
-  - "Dashboard Admin/src/lib"
-source_files:
-  - "PokemonGo-API-/src/models"
-  - "PokemonGo-API-/src/sync"
-  - "Dashboard Admin/src/lib/dashboard-store.ts"
-  - "Dashboard Admin/src/lib/learning/repository.ts"
-registries:
-  - "audit-documentation/registries/mongodb-collections.json"
-  - "audit-documentation/registries/datasets.json"
-  - "audit-documentation/registries/dependencies.json"
-related:
-  - "DOC-012"
-  - "DOC-013"
-  - "DOC-016"
-  - "DOC-018"
+scope: ["PokemonGo-API-/src/models", "Dashboard Admin/src/lib", "Migrations MongoDB"]
+source_files: ["PokemonGo-API-/src/models", "PokemonGo-API-/scripts/migrate/retire-ma-collection.js", "Dashboard Admin/src/lib/dashboard-store.ts"]
+registries: ["audit-documentation/registries/mongodb-collections.json"]
+related: ["DOC-012", "DOC-013", "DOC-016", "DOC-018", "COL-042", "COL-043"]
 ---
 
 # DOC-017 — Vue d’ensemble MongoDB
 
-## 1. Périmètre vérifié
+## 1. Périmètre
 
-Référence des 32 collections, des deux bases logiques et des index déclarés dans le code.
+La plateforme sépare la base API `pokemon-go-api` de la base privée Dashboard `matweb-dashboard-admin`. Les collections runtime alimentent l’API, les datasets courants, Identity Manager, les événements, le Dashboard et Learning.
 
-Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, archives et rapports historiques ne servent pas de preuve runtime lorsqu’un fichier source actif existe.
+## 2. Collections retirées
 
-## 2. Inventaire du code
+Les collections `trainer_pokemon_entries`, `trainer_pokemon_snapshots` et `trainer_pokemon_owners` ont été vidées le 31 juillet 2026 après sauvegarde. Elles n’ont plus de route, provider, permission, cache ou consommateur actif.
 
-| Élément | Constat vérifié |
-| --- | --- |
-| COL-001 à 019 | Base MONGODB_URI de PokemonGo-API |
-| COL-020 à 029 | Base DASHBOARD_MONGODB_DB du Dashboard |
-| Collections historiques trainer | conservables en base, mais sans page ni route active |
-| TTL déclarés | 0 |
+## 3. Archives de migration
 
-## 3. Implémentation observée
+- COL-042 `migration_retired_features_archive` conserve les documents originaux et leurs empreintes ;
+- COL-043 `migration_manifests` conserve le résultat et l’état de restauration ;
+- ces deux collections sont historiques/techniques et sont exclues de tout workflow Identity Manager.
 
-- Les collections API sont eggs, generations, globalstats, items, maxbattles, moves, pokemons, pokemonAssets, pvp_rankings, raids, researches, regions, rockets, rocket_texts, shiny_rankings, shiny_snapshots, syncruns, types et weathers.
-- Les collections Dashboard existantes sont dashboard_store, dashboard_api_metrics, dashboard_backlog, events et les six collections learning.
-- Les anciennes collections `trainer_pokemon_*` ne sont ni lues ni écrites par le produit actif depuis le retrait de la collection personnelle. Elles ne sont pas supprimées automatiquement.
-- Les modèles Mongoose désactivent versionKey sur les modèles observés; le versionnement métier repose sur timestamps, hash, snapshots ou historique applicatif.
-
-## 4. Relations et dépendances
-
-| Source | Relation | Cible |
-| --- | --- | --- |
-| Sync statique | écrit | COL-002 à 004, 006 à 008, 012, 014, 018 à 019 |
-| Current pipeline | écrit | COL-001, 005, 009 à 011, 013, 015 à 016 |
-| Dashboard actif | écrit | stores, événements, learning et historiques autorisés |
-
-## 5. Diagramme vérifié
+## 4. Relations
 
 ```mermaid
 flowchart LR
-  API["PokemonGo-API"] --> API_DB[("COL-001 à 019")]
-  DASH["Dashboard Admin"] --> DASH_DB[("Collections privées actives")]
-  LEGACY["trainer_pokemon_* historique"] -. aucune lecture runtime .-> DASH
+  API["PokemonGo-API"] --> API_DB[("pokemon-go-api")]
+  DASH["Dashboard Admin"] --> DASH_DB[("matweb-dashboard-admin")]
+  MIG["Migration réversible"] --> ARCH[("COL-042")]
+  MIG --> MAN[("COL-043")]
+  ARCH -. restauration explicite .-> API_DB
+  ARCH -. restauration explicite .-> DASH_DB
 ```
 
-## 6. Références documentaires
+## 5. Invariants
 
-### Documents Foundation
-
-- [DOC-012](./DOC-012-api-overview.md)
-- [DOC-013](./DOC-013-data-overview.md)
-- [DOC-016](./DOC-016-dataset-overview.md)
-- [DOC-018](./DOC-018-cache-overview.md)
-
-### Registres actuels
-
-- [Registre mongo](../Reports/Audits/audit-documentation/registries/mongodb-collections.json)
-- [Registre datasets](../Reports/Audits/audit-documentation/registries/datasets.json)
-- [Registre dependencies](../Reports/Audits/audit-documentation/registries/dependencies.json)
-
-### Fiches spécialisées présentes
-
-- `COL-030` — référence historique retirée avec la fonctionnalité associée.
-- `COL-031` — référence historique retirée avec la fonctionnalité associée.
-- `COL-032` — référence historique retirée avec la fonctionnalité associée.
-
-## 7. Informations absentes du code
-
-- Aucun TTL n’est déclaré dans les 32 entrées du registre.
-- Aucun validateur MongoDB côté serveur n’est codé pour les collections Dashboard.
-- Aucune fiche Markdown unitaire n’est présente pour COL-001 à COL-029.
-- La configuration réseau et les sauvegardes Atlas ne sont pas présentes dans le code.
-
-## 8. Fichiers sources
-
-- `PokemonGo-API-/src/models`
-- `PokemonGo-API-/src/sync`
-- `Dashboard Admin/src/lib/dashboard-store.ts`
-- `Dashboard Admin/src/lib/learning/repository.ts`
+- aucune suppression matérielle avant sauvegarde vérifiée ;
+- aucune archive historique affichée comme tâche active ;
+- aucun provider ne peut être créé depuis une valeur seulement présente en base ;
+- aucune donnée d’audit externe n’écrit directement les fiches Pokémon.

@@ -1,7 +1,7 @@
 ---
 id: PAGE-059
 title: Contrôle des Pokémon disponibles
-version: 1.0.0
+version: 2.0.0
 status: Active
 last_update: 2026-07-31
 author: Matthieu Vachet
@@ -13,4 +13,6 @@ references: [PROVIDER-021, DATASET-029, ADR-014]
 
 Cette page compare la liste Margxt des Pokémon introuvables à `availability.released`. La sémantique est négative : la présence externe signifie « attendu non disponible »; l'absence externe ne prouve jamais qu'un Pokémon est sorti.
 
-Elle expose la couverture, les statuts, la recherche, le filtre, le tri, la provenance et l'ouverture de la fiche locale. Une source indisponible est affichée comme erreur de source avec zéro divergence.
+Elle expose la couverture, les statuts de résolution et métier, la recherche, les filtres, la provenance et l’ouverture de la fiche locale. Chaque résultat détaille `availability.released`, la valeur externe `false`, la valeur locale et la raison. Meloetta Forme Danse, les motifs de Prismillon et les lettres de Zarbi sont des formes distinctes, jamais des noms concaténés.
+
+Une identité non résolue rend les variantes locales du même `dexId` non vérifiables au lieu de les classer artificiellement « uniquement locales ». Une source indisponible est affichée comme erreur de source avec zéro divergence.

@@ -1,5 +1,7 @@
 # Inventaire complet — Famille Modal
 
+> Archive historique — les deux modales associées à `TrainerPokemonCollectionPanel` documentent la baseline du 22 juillet 2026. La route, le composant et la fonctionnalité « Ma collection » sont supprimés et ne sont plus actifs.
+
 Date : 22 juillet 2026. Unité : instance runtime JSX, dialog spécialisé, sheet/drawer ou confirmation native. Les overlays décoratifs `pointer-events-none`, menus, popovers et previews inline ne sont pas comptés.
 
 ## Résultat

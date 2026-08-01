@@ -1,5 +1,7 @@
 # Inventaire — Accessibilité des formulaires
 
+> Archive historique — ce relevé conserve les preuves du 14 juillet 2026. Les entrées `TrainerPokemonCollectionPanel` concernent une fonctionnalité supprimée et ne doivent pas être interprétées comme des contrôles encore actifs.
+
 Date : 14 juillet 2026. L’univers statique compte 95 contrôles. La cohorte de 43 cas non démontrés statiquement a été mesurée avec l’API d’accessibilité Playwright dans 132 scénarios. Pour les 52 autres cas, le nom indiqué est celui du mécanisme natif/statique déjà caractérisé et validé lors du sprint Field ; ils n’ont pas été rééchantillonnés individuellement dans cette campagne ciblée.
 
 ## Totaux

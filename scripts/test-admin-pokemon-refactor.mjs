@@ -394,6 +394,9 @@ test("Identity Manager reste privé et expose un CRUD traçable sans secret navi
   assert.match(proxy, /identity-manager-sync-apply/);
   assert.match(panel, /Nouvelle identité/);
   assert.match(panel, /identity-manager-alias-create/);
+  assert.match(proxy, /pokemon-release-audit-manual-match/);
+  assert.match(proxy, /provider: "margxt"/);
+  assert.match(proxy, /source: "manual"/);
   assert.match(panel, /identity-manager-merge/);
   assert.match(panel, /mode: "preview"/);
   assert.match(panel, /Aucune écriture n’est possible avant une prévisualisation sans conflit/);
@@ -409,9 +412,8 @@ test("Identity Manager reste privé et expose un CRUD traçable sans secret navi
   assert.match(panel, /grid grid-cols-2 gap-2 sm:flex sm:flex-wrap/);
   assert.match(panel, /meta\.stats\?\.providers/);
   assert.match(panel, /aliasProviderOptions/);
-  assert.match(panel, /Autre…/);
-  assert.match(panel, /Nom du fournisseur personnalisé/);
-  assert.match(panel, /normalisé et contrôlé par le serveur/);
+  assert.doesNotMatch(panel, /Autre…|customProviderValue/);
+  assert.match(panel, /Seules les sources enregistrées et actives/);
   assert.match(panel, /identity-manager-sync-preview/);
   assert.match(panel, /identity-manager-sync-apply/);
   assert.match(panel, /syncStatus/);

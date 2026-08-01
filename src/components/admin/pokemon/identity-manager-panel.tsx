@@ -241,8 +241,6 @@ const emptyAliasForm: AliasForm = {
   reason: "",
 };
 
-const customProviderValue = "__custom_provider__";
-
 const cardClass = "min-w-0 overflow-hidden rounded-surface border border-line bg-surface-inset p-4 shadow-surface";
 
 function identityId(identity: PokemonIdentity) {
@@ -428,14 +426,13 @@ export function IdentityManagerPanel() {
     : meta.stats?.providers || [], [managedProviders, meta.stats?.providers]);
   const aliasProviderOptions = useMemo(() => {
     const names = new Set(
-      providers
-        .map((entry) => entry.provider.trim())
+      managedProviders
+        .map((entry) => entry.id.trim())
         .filter(Boolean),
     );
     names.add(emptyAliasForm.provider);
-    if (aliasProviderSelection !== customProviderValue) names.add(aliasProviderSelection);
     return [...names].sort((left, right) => left.localeCompare(right, "fr"));
-  }, [aliasProviderSelection, providers]);
+  }, [managedProviders]);
   const activeCount = Number(meta.stats?.statuses?.active || 0);
   const conflictCount = Number(conflicts.explicitConflicts || 0) + Number(conflicts.aliasConflicts?.length || 0);
   const localFieldsLocked = Boolean(identityModal.identity?.localIdentity && identityModal.identity.syncStatus === "synchronized");
@@ -975,21 +972,12 @@ export function IdentityManagerPanel() {
               onChange={(event) => {
                 const provider = event.target.value;
                 setAliasProviderSelection(provider);
-                setAliasForm((current) => ({ ...current, provider: provider === customProviderValue ? "" : provider }));
+                setAliasForm((current) => ({ ...current, provider }));
               }}
             >
               {aliasProviderOptions.map((provider) => <option key={provider} value={provider}>{provider}</option>)}
-              <option value={customProviderValue}>Autre…</option>
             </Select>
-            {aliasProviderSelection === customProviderValue ? (
-              <Input
-                aria-label="Nom du fournisseur personnalisé"
-                value={aliasForm.provider}
-                onChange={(event) => setAliasForm((current) => ({ ...current, provider: event.target.value }))}
-                placeholder="nouveau-fournisseur"
-              />
-            ) : null}
-            <span className="normal-case tracking-normal text-muted">Le nom est normalisé et contrôlé par le serveur avant enregistrement.</span>
+            <span className="normal-case tracking-normal text-muted">Seules les sources enregistrées et actives peuvent recevoir un alias.</span>
           </Field>
           <Field label="Valeur originale"><Input value={aliasForm.value} onChange={(event) => setAliasForm((current) => ({ ...current, value: event.target.value }))} placeholder="pikachu-world-cap" /></Field>
           <Field label="Statut"><Select value={aliasForm.status} onChange={(event) => setAliasForm((current) => ({ ...current, status: event.target.value as AliasStatus }))}>{(["active", "deprecated", "ignored", "conflict"] as const).map((status) => <option key={status}>{status}</option>)}</Select></Field>

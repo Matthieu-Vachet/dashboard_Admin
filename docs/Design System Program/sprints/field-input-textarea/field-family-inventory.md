@@ -1,5 +1,7 @@
 # Inventaire — Famille Field / Input / Textarea
 
+> Archive historique — les entrées `TrainerPokemonCollectionPanel` appartiennent à l’audit initial du 14 juillet 2026. Le composant et « Ma collection » ont depuis été supprimés ; ces entrées ne sont pas des références actives.
+
 Date d’audit initial : 14 juillet 2026. Le collecteur TypeScript parcourt tous les fichiers JSX/TSX de `src`, résout les imports canoniques et exclut uniquement les éléments internes aux primitives.
 
 ## Totaux

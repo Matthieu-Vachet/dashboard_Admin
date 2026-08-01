@@ -1,5 +1,7 @@
 # Rapport — Sprint Famille Field / Input / Textarea
 
+> Archive historique — les mentions de « Ma collection » décrivent l’état observé le 14 juillet 2026. Cette fonctionnalité a depuis été retirée et n’est pas une surface active du Dashboard.
+
 Date d’exécution : 14 juillet 2026. Primitives : `Input` — MWI-COMP-323, `Textarea` — MWI-COMP-324 et nouvelle composition `Field` sans ID attribué manuellement.
 
 ## 1. Inspection

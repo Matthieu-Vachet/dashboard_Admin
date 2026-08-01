@@ -2,8 +2,8 @@
 id: PAGE-IDENTITY-001
 title: Identity Manager Pokémon
 status: active
-version: 1.2.0
-updated: 2026-07-26
+version: 2.0.0
+updated: 2026-07-31
 author: Matthieu Vachet
 affected_projects: [Dashboard Admin, PokemonGo-API-, PokemonGo-Data]
 references: []
@@ -40,7 +40,7 @@ Les champs dérivés de PokemonGo-Data sont verrouillés pour une identité sync
 - `identity-manager-sync-preview` calcule la comparaison sans écriture ;
 - `identity-manager-sync-apply` applique le plan si aucun conflit ne subsiste ;
 - `identity-manager` accepte `syncStatus` et le tri correspondant.
-- `identity-manager-providers` fournit la liste centrale utilisée par les filtres et la création d’alias ; elle inclut GO Hub et Margxt, tout en conservant « Autre… ».
+- `identity-manager-providers` fournit uniquement le registre central actif utilisé par les filtres et la création d’alias ; une valeur « Autre… » ou une source inconnue n’est plus acceptée par l’API.
 - les diagnostics GO Hub et Margxt peuvent être associés à une identité, puis pris en compte lors de la régénération ou de la nouvelle résolution suivante.
 
 ## Règles d’intégrité
@@ -51,6 +51,12 @@ Les champs dérivés de PokemonGo-Data sont verrouillés pour une identité sync
 - conserver les orphelins en brouillon au lieu de les supprimer ;
 - afficher la raison exacte de chaque diagnostic ;
 - afficher l’asset bundle ou signaler explicitement son absence.
+- rejeter tout provider absent du registre actif avec `IDENTITY_PROVIDER_NOT_REGISTERED` ;
+- ne jamais réinjecter un provider rencontré seulement dans un historique ou une sauvegarde.
+
+## Retrait de la collection personnelle
+
+Le provider retiré n’appartient plus au registre, aux filtres ou aux actions. La migration `2026-07-31-retire-ma-collection` a sauvegardé chaque document avant nettoyage, vidé les anciennes collections Dresseur et retiré les alias/diagnostics actifs. Les seules références conservées sont historiques et résident dans les collections de migration documentées par COL-042 et COL-043.
 
 ## Gestion du genre
 
@@ -70,3 +76,4 @@ Les variantes mâle et femelle d’un même costume restent une seule identité 
 - 2026-07-17 — création du CRUD et des diagnostics Identity Manager.
 - 2026-07-18 — branchement à l’inventaire exhaustif PokemonGo-Data, synchronisation prévisualisée et provenance locale visible.
 - 2026-07-26 — catalogue central de providers, GO Hub et Margxt, avec diagnostics groupés réutilisables par Résolution des variantes.
+- 2026-07-31 — registre fermé, retrait de la source obsolète, migration réversible et rejet des providers inconnus.

@@ -29,6 +29,8 @@ const nextConfig: NextConfig = {
       "./.data/PokemonGo-Data/weather/**",
       "./.data/PokemonGo-Data/stickers/**",
       "./.data/PokemonGo-Data/source-watch/**",
+      "./.data/PokemonGo-Data/mappings/margxtAuditAliases.json",
+      "./.data/PokemonGo-Data/mappings/pokemonLocalIdentityInventory.json",
       "./.data/PokemonGo-Data/raids/**",
       "./.data/PokemonGo-Data/eggs/**",
       "./.data/PokemonGo-Data/max-battles/**",

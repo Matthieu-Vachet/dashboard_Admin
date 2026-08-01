@@ -1,118 +1,51 @@
 ---
 id: DOC-035
 title: "Index des ADR"
-description: "Index de l’état réel des décisions architecturales et des fiches ADR présentes dans le workspace."
-version: 2.0.0
+description: "Index des décisions architecturales formelles de la plateforme."
+version: 3.0.0
 status: Official
 owner: Matthieu Vachet
 created: 2026-07-13
-last_updated: 2026-07-13
+last_updated: 2026-07-31
 category: Foundation
 type: Reference
 language: fr
-scope:
-  - "Les cinq dépôts"
-  - "Documentation Markdown"
-source_files:
-  - "PokemonGo-Data/.github/workflows/dispatch-api-sync.yml"
-  - "PokemonGo-API-/src/current-datasets/router.js"
-  - "Dashboard Admin/src/lib/session-token.ts"
-  - "audit-documentation/registries/documentation-map.json"
-registries:
-  - "audit-documentation/registries/documentation-map.json"
-  - "audit-documentation/registries/dependencies.json"
-related:
-  - "DOC-006"
-  - "DOC-013"
-  - "DOC-019"
-  - "DOC-031"
-  - "DOC-033"
+scope: ["Les dépôts Pokémon GO", "Documentation Markdown"]
+source_files: ["docs/Tome 15 — ADR"]
+registries: []
+related: ["DOC-006", "DOC-013", "DOC-031", "DOC-033"]
 ---
 
 # DOC-035 — Index des ADR
 
 ## 1. Périmètre vérifié
 
-Index de l’état réel des décisions architecturales et des fiches ADR présentes dans le workspace.
+Les décisions ADR-001 à ADR-016 sont matérialisées dans `docs/Tome 15 — ADR`. Une fiche acceptée fait autorité avec le code et ses tests ; un ancien rapport d’audit ne remplace pas la décision courante.
 
-Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, archives et rapports historiques ne servent pas de preuve runtime lorsqu’un fichier source actif existe.
+## 2. Inventaire
 
-## 2. Inventaire du code
-
-| Élément | Constat vérifié |
+| Groupe | Décisions |
 | --- | --- |
-| Fichiers ADR-*.md présents | 0 |
-| Entrées ADR réservées dans documentation-map | ADR-001 à ADR-010 |
-| ADR formel accepté | 0 |
-| Décisions encodées examinées | 10 |
-| Liens vers fiches ADR | 0 |
-| Statut | absence explicite de fiches |
+| Architecture et providers | ADR-001 à ADR-010 |
+| Identités et Game Master | ADR-011 à ADR-013 |
+| Audits externes | ADR-014 et ADR-016 |
+| Bonbons XL | ADR-015 |
 
-## 3. Implémentation observée
+## 3. Décisions de fiabilisation
 
-- PokemonGo-Data est la source versionnée des référentiels statiques; le workflow dispatch énumère les chemins concernés.
-- MongoDB est la source runtime des current raids, eggs, max-battles, rocket et research; le routeur et le reader n’emploient pas les JSON locaux comme fallback.
-- Shiny reste privé par adapter, secret, collections et absence OpenAPI.
-- La session Dashboard utilise un cookie HMAC de 14 jours et un seul rôle admin.
-- Le Dashboard relaie les mutations API avec un secret serveur et stocke ses domaines privés dans une base séparée.
-- Le contrat formel dataset-provider reste limité à Shiny et PvP Rankings; les cinq current publics utilisent des générateurs directs.
-- Le pipeline current emploie hash, diff, invalidation et read-back; Events conserve un fallback seeds distinct.
-- Learning conserve une migration browser et un rollback de contenu.
-- La collection trainer conserve les snapshots, vérifie le read-back et active un pointeur owner sans deleteMany.
-- Les assets publics sont consommés par URL GitHub raw sur main.
-- Ces dix décisions existent dans le code mais aucune ne possède une fiche ADR avec contexte, alternatives, décision et conséquences.
+- [ADR-014](../Tome%2015%20%E2%80%94%20ADR/ADR-014-audit-externe-read-only.md) interdit toute écriture implicite depuis un audit externe.
+- [ADR-015](../Tome%2015%20%E2%80%94%20ADR/ADR-015-candy-xl-source-canonique.md) impose `assets.candy.xlImage` comme référence résolue.
+- [ADR-016](../Tome%2015%20%E2%80%94%20ADR/ADR-016-resolution-identite-audits.md) impose la résolution déterministe et sépare qualité de résolution et divergence métier.
 
-## 4. Relations et dépendances
-
-| Source | Relation | Cible |
-| --- | --- | --- |
-| Décision codée | est prouvée par | fichier source |
-| documentation-map | réserve | ADR-001 à ADR-010 |
-| Index | ne crée aucun lien vers | fiche absente |
-
-## 5. Diagramme vérifié
+## 4. Relations
 
 ```mermaid
-flowchart TD
-  CODE["10 décisions encodées"] --> EVIDENCE["Fichiers sources"]
-  MAP["ADR-001 à ADR-010 réservés"] --> ABSENT["0 fiche ADR-*.md"]
-  EVIDENCE --> INDEX["DOC-035"]
-  ABSENT --> INDEX
+flowchart LR
+  ADR14["ADR-014 · lecture seule"] --> AUDIT["Audits Pokémon"]
+  ADR16["ADR-016 · identité déterministe"] --> AUDIT
+  ADR15["ADR-015 · XL canonique"] --> DATA["JSON Pokémon"]
 ```
 
-## 6. Références documentaires
+## 5. Règle de mise à jour
 
-### Documents Foundation
-
-- [DOC-006](./DOC-006-architecture-overview.md)
-- [DOC-013](./DOC-013-data-overview.md)
-- [DOC-019](./DOC-019-authentication.md)
-- [DOC-031](./DOC-031-release-process.md)
-- [DOC-033](./DOC-033-public-private-datasets.md)
-
-### Registres actuels
-
-- [Registre map](../Reports/Audits/audit-documentation/registries/documentation-map.json)
-- [Registre dependencies](../Reports/Audits/audit-documentation/registries/dependencies.json)
-
-### Fiches spécialisées présentes
-
-- `WORKFLOW-016` — référence historique retirée avec la fonctionnalité associée.
-- `DATASET-020` — référence historique retirée avec la fonctionnalité associée.
-- `COL-030` — référence historique retirée avec la fonctionnalité associée.
-- `COL-031` — référence historique retirée avec la fonctionnalité associée.
-- `COL-032` — référence historique retirée avec la fonctionnalité associée.
-
-## 7. Informations absentes du code
-
-- Les dates de décision ne sont pas présentes.
-- Les alternatives évaluées ne sont pas présentes.
-- Les propriétaires et approbateurs de décision ne sont pas présents.
-- Les conséquences formalisées dans une fiche ADR ne sont pas présentes.
-
-## 8. Fichiers sources
-
-- `PokemonGo-Data/.github/workflows/dispatch-api-sync.yml`
-- `PokemonGo-API-/src/current-datasets/router.js`
-- `Dashboard Admin/src/lib/session-token.ts`
-- `audit-documentation/registries/documentation-map.json`
+Toute nouvelle décision reçoit un ID unique, met à jour cet index et référence les PAGE, PROVIDER, DATASET, COL et RULE concernés.

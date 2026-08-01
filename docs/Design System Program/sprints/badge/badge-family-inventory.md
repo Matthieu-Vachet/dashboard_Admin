@@ -1,5 +1,7 @@
 # Inventaire de la famille Badge
 
+> Archive historique — cet inventaire reflète le code au 13 juillet 2026. `TrainerPokemonCollectionPanel` et « Ma collection » ont depuis été retirés ; leurs lignes ci-dessous ne décrivent aucune fonctionnalité, route ou source active.
+
 Date du relevé : 13 juillet 2026, avant migration source du Sprint Famille.
 
 ## Méthode et périmètre

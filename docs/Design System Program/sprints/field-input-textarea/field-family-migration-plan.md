@@ -1,5 +1,7 @@
 # Plan de migration — Famille Field / Input / Textarea
 
+> Archive historique — ce plan précède la suppression de la route `/pokemon-admin?section=my-collection`. Cette route et ses contrôles ne font plus partie du Dashboard actif.
+
 Ce plan a été écrit avant toute modification source.
 
 ## Périmètre mesuré

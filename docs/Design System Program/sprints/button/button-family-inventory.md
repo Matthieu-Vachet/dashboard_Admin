@@ -1,5 +1,7 @@
 # Inventaire — famille Button
 
+> Archive historique — les lignes `TrainerPokemonCollectionPanel` correspondent à la baseline du 13 juillet 2026. Le composant, la route et la fonctionnalité « Ma collection » sont désormais supprimés et ne constituent plus des usages actifs.
+
 Date de baseline : 13 juillet 2026. Génération : AST TypeScript via `scripts/test-design-system-button-family.mjs --dump-inventory`.
 
 ## Méthode et totaux
