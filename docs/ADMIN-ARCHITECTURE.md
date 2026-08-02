@@ -14,6 +14,7 @@ Le Dashboard Admin est organisé autour du dossier canonique `src/components/adm
 - `components/admin/tables` : listes administratives.
 - `components/admin/shared` : composants transverses sans logique métier forte.
 - `components/admin/cards` : cartes réutilisables.
+- `components/admin/discord-bot` : centre de contrôle et primitives de supervision du bot.
 
 ## Services et hooks
 
@@ -22,6 +23,7 @@ Le Dashboard Admin est organisé autour du dossier canonique `src/components/adm
 - `utils/admin` regroupe les helpers purs de tri, filtrage et surveillance.
 - `constants/admin` expose les constantes de navigation et de palettes.
 - `types/admin` contient les types partagés entre layout et composants.
+- `server/discord-bot` contient le contrat, les permissions et le client opérationnel strictement serveur.
 
 ## Navigation, données et régénérations
 

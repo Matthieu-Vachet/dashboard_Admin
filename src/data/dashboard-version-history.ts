@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.41.0",
+    date: "2026-08-02",
+    title: "Centre de contrôle Discord Bot",
+    changes: [
+      "Ajoute la route privée Discord Bot, sa navigation et une vue d’ensemble responsive fondée sur les primitives du Design System.",
+      "Lit côté serveur un contrat opérationnel versionné et protégé pour afficher la connexion Discord, les versions, la latence, les serveurs et le registre réel.",
+      "Conserve les métriques absentes explicitement indisponibles, sans copie de commande, appel Discord navigateur ni exposition de secret.",
+      "Documente l’audit, l’architecture, les permissions deny-by-default, la sécurité, le rollback et la roadmap des prochains sprints.",
+    ],
+  },
+  {
     version: "V1.40.0",
     date: "2026-08-02",
     title: "Fiabilisation Pokémon, UI responsive et documentation exhaustive",

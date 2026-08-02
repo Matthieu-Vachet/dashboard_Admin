@@ -1,6 +1,6 @@
 {
   "name": "dashboard-admin",
-  "version": "1.40.0",
+  "version": "1.41.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -16,6 +16,7 @@
     "test:learning-flow": "node scripts/test-learning-flow.mjs",
     "test:event-references": "tsx --test scripts/test-persistent-event-references.mts",
     "test:version": "node scripts/test-dashboard-version.mjs",
+    "test:discord-bot": "tsx --test scripts/test-discord-bot-control-center.mts",
     "test:pokemon-responsive": "node scripts/verify-pokemon-responsive.mjs",
     "test:pvp-gbl": "node --test scripts/test-pvp-gbl-display.mjs",
     "test:pvp-engine": "tsx --test scripts/test-pvp-battle-engine.mts",
@@ -62,7 +63,7 @@
     "eslint-config-next": "latest",
     "playwright": "^1.61.0",
     "tailwindcss": "^4.1.18",
-    "tsx": "^4.21.0",
+    "tsx": "^4.23.1",
     "typescript": "^5.9.3"
   }
 }

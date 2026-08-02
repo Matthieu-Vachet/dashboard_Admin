@@ -127,6 +127,22 @@ La structure refactorisee du dashboard admin est documentee dans
 `src/components/pokemon-admin/*` et `src/components/checklist/*` servent seulement de
 facades de compatibilite.
 
+## Centre de contrôle Discord Bot
+
+La route privée `/discord-bot` supervise le bot Discord via un contrat
+opérationnel read-only. Le navigateur ne communique jamais directement avec
+Discord et ne reçoit aucun secret. Pour activer la liaison, configurer uniquement
+côté serveur :
+
+```bash
+DISCORD_BOT_OPERATIONS_URL=https://bot-interne.example.com/v1/overview
+DISCORD_BOT_OPERATIONS_SECRET=meme-secret-long-que-cote-bot
+```
+
+Sans ces variables, le module reste accessible et indique honnêtement que les
+métriques ne sont pas disponibles. L’architecture et la roadmap sont décrites dans
+[`docs/Discord Bot Control Center`](docs/Discord%20Bot%20Control%20Center/README.md).
+
 ## Checks
 
 ```bash

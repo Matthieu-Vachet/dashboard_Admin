@@ -1,5 +1,6 @@
 import {
   CalendarDays,
+  Bot,
   CheckSquare2,
   Code2,
   Coffee,
@@ -80,7 +81,10 @@ export const navGroups: NavGroup[] = [
   {
     id: "systeme",
     label: "Système",
-    items: [{ href: "/database", label: "Mongo DB", icon: Database }],
+    items: [
+      { href: "/discord-bot", label: "Discord Bot", icon: Bot },
+      { href: "/database", label: "Mongo DB", icon: Database },
+    ],
   },
 ];
 

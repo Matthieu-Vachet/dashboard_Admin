@@ -8,6 +8,7 @@
 
 Documentation fonctionnelle :
 
+- [Centre de contrôle Discord Bot](./Discord%20Bot%20Control%20Center/README.md)
 - [Index des tomes](./TOME-INDEX.md)
 - [Pokémon GO PvP Battle Lab](./PVP-BATTLE-LAB.md)
 - [Organisation des assets publics](./ASSET-MAP.md)

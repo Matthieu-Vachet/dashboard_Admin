@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.41.0 - 2026-08-02
+
+- Ajoute le centre de contrôle privé `/discord-bot` avec navigation, santé, versions et registre opérationnel du bot.
+- Introduit un client strictement serveur, un contrat Zod versionné, un timeout court et des indisponibilités explicites sans fausse donnée.
+- Définit les permissions de lecture du Sprint 1 et désactive par défaut toute synchronisation, mutation de configuration ou rotation de secret.
+- Documente l’audit, l’architecture serveur-à-serveur, la sécurité, le rollback et la roadmap complète du module.
+
 ## 1.40.0 - 2026-08-02
 
 - Regroupe Disponibilité, Chromatiques, Costumes et Shadow dans le centre « Vérification Pokémon », avec anciennes URLs compatibles et liaison d’alias clôturant immédiatement les diagnostics.
