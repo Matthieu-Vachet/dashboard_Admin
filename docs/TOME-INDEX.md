@@ -1,28 +1,41 @@
 ---
 id: DOC-036
 title: Index des tomes de l'encyclopédie
-version: 1.1.0
+version: 2.0.0
 status: Active
-last_update: 2026-07-31
+last_update: 2026-08-02
 author: Matthieu Vachet
 affected_projects: [Dashboard Admin, PokemonGo-Data, PokemonGo-API-, PokemonGo-Assets-API]
-references: [PAGE-058, ARCH-013, PROVIDER-021, DATASET-029, DATASET-030, ADR-014, ADR-015, ADR-016, RULE-048, RULE-049, COL-042, COL-043]
+references: [ASSET-001, TEST-001, PERF-001, RESP-001, SEC-001, ROADMAP-001, ADR-014, RULE-048]
 ---
 
 # DOC-036 — Index des tomes
 
 | Tome | Autorité | Entrées de cette évolution |
 | --- | --- | --- |
-| Tome 1 — Foundation | règles et vision | DOC-001 à DOC-036 |
-| Tome 2 — Dashboard Admin | pages et usages | PAGE-058 à PAGE-064 |
-| Tome 3 — Design System | composants et tokens | DESIGN-001 et programme Design System historique |
-| Tome 4 — Architecture | flux et responsabilités | ARCH-013 |
-| Tome 5 — Providers | sources externes | PROVIDER-021 |
-| Tome 6 — Datasets | contrats de données | DATASET-029 et DATASET-030 |
-| Tome 7 — API | routes publiées | API-001 à API-180; aucun endpoint public créé ici |
-| Tome 8 — MongoDB | collections | COL-001 à COL-043; COL-042/043 archivent et tracent les migrations |
+| Tome 1 — Foundation | règles, vision et vue d’ensemble | DOC-001 à DOC-035 |
+| Tome 2 — Dashboard Admin | pages et usages | PAGE-* |
+| Tome 3 — Design System | composants et tokens | DESIGN-* |
+| Tome 4 — Architecture | flux et responsabilités | ARCH-* |
+| Tome 5 — Providers | sources externes | PROVIDER-* |
+| Tome 6 — Datasets | contrats de données | DATASET-* |
+| Tome 7 — API | routes et contrats publiés | API-* |
+| Tome 8 — MongoDB | collections et persistance | COL-* |
+| Tome 9 — Assets | résolution, affichage et validation | ASSET-001 à ASSET-008 |
+| Tome 10 — Tests | stratégie, niveaux et preuves | TEST-001 à TEST-009 |
+| Tome 11 — Performance | rendu, cache et volumétrie | PERF-001 à PERF-007 |
+| Tome 12 — Responsive | breakpoints et composants adaptatifs | RESP-001 à RESP-006 |
+| Tome 13 — Security | auth, datasets et frontière API | SEC-001 à SEC-006 |
+| Tome 14 — Roadmap | priorités, dette et limitations | ROADMAP-001 à ROADMAP-005 |
 | Tome 15 — ADR | décisions | ADR-014 à ADR-016 |
 | Tome 18 — Workflow | opérations | workflows existants; audit externe manuel |
 | Tome 19 — Rules | invariants | RULE-048 et RULE-049 |
 
-Les documents historiques restent à leur emplacement. Les nouveaux ajouts prolongent les séquences d'identifiants sans renumérotation.
+Les Tomes 1 à 14 constituent désormais le socle continu obligatoire. Les documents historiques restent à leur emplacement et les séquences d’identifiants ne sont jamais renumérotées.
+
+## Règles de maintien
+
+- `npm run test:docs` vérifie la présence de chaque document obligatoire des Tomes 9 à 14.
+- Un identifiant est unique dans toute la documentation active.
+- Une route privée reste documentée hors du contrat OpenAPI public.
+- Une modification fonctionnelle met à jour son document d’autorité et l’historique associé.

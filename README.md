@@ -2,7 +2,9 @@
 
 Dashboard personnel Next.js pour piloter les futurs projets MatWeb : notes, kanban, projets, calendrier, todo list, outils quotidiens, statistiques Pokemon GO API, veille data et design system intégré.
 
-La section Admin Pokémon regroupe les classements PvPoke enrichis, une checklist PvP persistée par compte dans `dashboard_store`, et le calendrier public des rotations GBL Battleflow. Les données métier restent lues depuis PokemonGo-API/MongoDB ; aucune liste de classement ou de calendrier n’est codée en dur dans l’interface.
+La section Admin Pokémon regroupe les classements PvPoke enrichis, une checklist PvP persistée par compte dans `dashboard_store`, le calendrier public des rotations GBL Battleflow et un centre unique de vérification Disponibilité, Chromatiques, Costumes et Shadow. Les données métier restent lues depuis PokemonGo-API/MongoDB ; aucune liste de classement, URL d’asset XL ou identité externe n’est reconstruite dans l’interface.
+
+L’encyclopédie d’architecture est indexée dans [`docs/TOME-INDEX.md`](docs/TOME-INDEX.md). Les Tomes 1 à 14 couvrent fondations, Dashboard, Design System, architecture, providers, datasets, API, MongoDB, assets, tests, performance, responsive, sécurité et roadmap. `npm run test:docs` contrôle leur présence, leurs IDs et leurs liens.
 
 ## Stack
 
@@ -129,7 +131,9 @@ facades de compatibilite.
 
 ```bash
 npm run validate:learning
+npm run typecheck
 npm run lint
+npm run test:docs
 npm run build
 ```
 
