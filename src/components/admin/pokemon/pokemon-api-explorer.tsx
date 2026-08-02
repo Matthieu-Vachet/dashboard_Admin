@@ -1,21 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, History, Play, Server } from "lucide-react";
+import { AlertTriangle, Check, Copy, History, Play, Server } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select } from "@/components/ui/select";
 import { ErrorState } from "@/components/admin/shared/state-system";
+import { pokemonApiPrivateRegistry, type PokemonApiMethod } from "@/lib/pokemon-api-private-registry";
 
 type OpenApiParameter = { name: string; in: "path" | "query"; required?: boolean; example?: unknown; description?: string };
-type Endpoint = { id: string; method: "GET" | "POST"; path: string; testPath: string; label: string; group: string; description: string; parameters: OpenApiParameter[]; auth: boolean; visibility: "public" | "private" };
-type ApiResult = { path: string; url: string; status: number; ok: boolean; durationMs: number; contentType: string; body: unknown };
+type Endpoint = { id: string; method: PokemonApiMethod; path: string; testPath: string; label: string; group: string; description: string; parameters: OpenApiParameter[]; auth: boolean; visibility: "public" | "private"; bodyExample?: unknown; dangerous?: boolean };
+type ApiResult = { path: string; url: string; method: PokemonApiMethod; status: number; ok: boolean; durationMs: number; contentType: string; headers?: Record<string, string>; body: unknown };
 
-const adminEndpoints: Endpoint[] = [
-  ["raids", "Raids"], ["eggs", "Œufs"], ["max-battles", "Max Battles"], ["rocket", "Rocket"], ["research", "Research"],
-  ["shiny", "Shiny Tracker privé"], ["pvp-rankings", "PvP Rankings"],
-].map(([domain, label]) => ({ id: `POST-admin-${domain}`, method: "POST", path: `/api/v1/admin/${domain}/regenerate`, testPath: `/api/v1/admin/${domain}/regenerate`, label: `Régénérer ${label}`, group: "Admin", description: "Mutation protégée par le secret serveur.", parameters: [], auth: true, visibility: "private" }));
+const adminEndpoints: Endpoint[] = pokemonApiPrivateRegistry.map((endpoint) => ({ ...endpoint, parameters: [], auth: true, visibility: "private" }));
 
 function examplePath(path: string, parameters: OpenApiParameter[]) {
   let result = path;
@@ -32,12 +30,12 @@ function endpointsFromOpenApi(specification: Record<string, unknown>) {
   const paths = specification.paths as Record<string, Record<string, Record<string, unknown>>> | undefined;
   return Object.entries(paths || {}).flatMap(([path, methods]) => Object.entries(methods).flatMap(([method, operation]) => {
     const upper = method.toUpperCase();
-    if (upper !== "GET") return [];
+    if (!["GET", "POST", "PATCH", "DELETE"].includes(upper)) return [];
     const parameters = (operation.parameters || []) as OpenApiParameter[];
     const tags = operation.tags as string[] | undefined;
     return [{
       id: `${upper}-${path}`,
-      method: upper,
+      method: upper as PokemonApiMethod,
       path,
       testPath: examplePath(path, parameters),
       label: String(operation.summary || path),
@@ -54,13 +52,15 @@ export function PokemonApiExplorer() {
   const [endpoints, setEndpoints] = useState<Endpoint[]>(adminEndpoints);
   const [selectedId, setSelectedId] = useState("");
   const [path, setPath] = useState("/health");
-  const [method, setMethod] = useState<"GET" | "POST">("GET");
+  const [method, setMethod] = useState<PokemonApiMethod>("GET");
   const [body, setBody] = useState("{}");
   const [result, setResult] = useState<ApiResult | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [registryError, setRegistryError] = useState("");
   const [history, setHistory] = useState<Array<{ path: string; method: string; status: number }>>([]);
+  const [dangerAcknowledged, setDangerAcknowledged] = useState(false);
+  const [copied, setCopied] = useState("");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -94,14 +94,22 @@ export function PokemonApiExplorer() {
     setSelectedId(id);
     setPath(endpoint.testPath);
     setMethod(endpoint.method);
-    setBody("{}");
+    setBody(JSON.stringify(endpoint.bodyExample ?? {}, null, 2));
+    setDangerAcknowledged(false);
+  }
+
+  async function copy(value: unknown, key: string) {
+    await navigator.clipboard.writeText(typeof value === "string" ? value : JSON.stringify(value, null, 2));
+    setCopied(key);
+    window.setTimeout(() => setCopied(""), 1_500);
   }
 
   async function run() {
     setLoading(true); setError(""); setResult(null);
     try {
-      const init: RequestInit = method === "POST"
-        ? { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ path, body: JSON.parse(body || "{}") }) }
+      if (selected?.dangerous && !dangerAcknowledged) throw new Error("Confirmez explicitement cette mutation avant de l’exécuter.");
+      const init: RequestInit = method !== "GET"
+        ? { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ path, method, body: JSON.parse(body || "{}") }) }
         : { method: "GET" };
       const url = method === "GET" ? `/api/pokemon-api-proxy?path=${encodeURIComponent(path)}` : "/api/pokemon-api-proxy";
       const response = await fetch(url, { ...init, cache: "no-store" });
@@ -123,11 +131,12 @@ export function PokemonApiExplorer() {
         <input className="min-h-11 min-w-0 w-full rounded-lg border border-line bg-surface-control px-3 font-mono text-sm font-semibold outline-none" value={path} onChange={(event) => setPath(event.target.value)} aria-label="Route à tester" />
         <Button className="w-full xl:w-auto" variant="primary" type="button" icon={<Play size={16} />} loading={loading} loadingText="Test…" onClick={run}>Lancer</Button>
       </div>
-      {selected ? <div className="mt-3 flex min-w-0 flex-wrap items-center gap-2 type-caption-strong text-muted"><Badge tone={selected.visibility === "private" ? "violet" : "green"}>{selected.visibility}</Badge><Badge tone={selected.auth ? "amber" : "cyan"}>{selected.auth ? "auth serveur" : "public"}</Badge><span className="min-w-0 break-words">{selected.description}</span>{selected.parameters.length ? <span>{selected.parameters.length} paramètre(s)</span> : null}</div> : null}
-      {method === "POST" ? <textarea className="mt-3 min-h-28 w-full rounded-lg border border-line bg-slate-950/70 p-3 font-mono text-xs text-cyan-50 outline-none" value={body} onChange={(event) => setBody(event.target.value)} aria-label="Body JSON" /> : null}
+      {selected ? <div className="mt-3 flex min-w-0 flex-wrap items-center gap-2 type-caption-strong text-muted"><Badge tone={selected.visibility === "private" ? "violet" : "green"}>{selected.visibility}</Badge><Badge tone={selected.auth ? "amber" : "cyan"}>{selected.auth ? "auth injectée côté serveur" : "public"}</Badge><Badge tone={selected.dangerous ? "red" : "green"}>{selected.dangerous ? "mutation sensible" : "lecture / opération sûre"}</Badge><span className="min-w-0 break-words">{selected.description}</span>{selected.parameters.length ? <span>{selected.parameters.length} paramètre(s)</span> : null}<button className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-line px-2 font-black" type="button" onClick={() => void copy(`${method} ${path}`, "request")}>{copied === "request" ? <Check size={14} /> : <Copy size={14} />}Copier la requête</button></div> : null}
+      {method !== "GET" ? <textarea className="mt-3 min-h-28 w-full rounded-lg border border-line bg-slate-950/70 p-3 font-mono text-xs text-cyan-50 outline-none" value={body} onChange={(event) => setBody(event.target.value)} aria-label="Body JSON" /> : null}
+      {selected?.dangerous ? <label className="mt-3 flex min-h-11 items-center gap-3 rounded-lg border border-rose-300/25 bg-rose-400/10 p-3 text-sm font-bold text-foreground"><input type="checkbox" checked={dangerAcknowledged} onChange={(event) => setDangerAcknowledged(event.target.checked)} />J’ai vérifié la route, les paramètres et les effets de cette mutation.</label> : null}
       {error ? <ErrorState className="mt-4" title="Test API impossible" message={error} /> : null}
-      {result ? <div className="mt-4 grid min-w-0 gap-3 xl:grid-cols-[280px_minmax(0,1fr)]"><div className="min-w-0 space-y-2 rounded-lg border border-line bg-surface-minimal p-3"><StatusLine label="Statut" value={`HTTP ${result.status}`} /><StatusLine label="Durée" value={`${result.durationMs} ms`} /><StatusLine label="Type" value={result.contentType || "?"} /><StatusLine label="URL" value={result.url} /></div><pre className="max-h-96 min-w-0 max-w-full overflow-auto rounded-lg border border-line bg-slate-950/75 p-4 font-mono text-xs leading-6 text-cyan-50"><code>{JSON.stringify(result.body, null, 2)}</code></pre></div> : <div className="mt-4 grid min-h-28 min-w-0 place-items-center rounded-lg border border-dashed border-line bg-white/[0.025] p-4 text-center text-sm font-bold text-muted"><span className="inline-flex min-w-0 flex-wrap items-center justify-center gap-2"><Server size={16} />Sélectionne un endpoint puis lance un test.</span></div>}
-      {history.length ? <section className="mt-4 rounded-lg border border-line bg-white/[0.03] p-3"><h3 className="flex items-center gap-2 text-sm font-black"><History size={16} />Tests récents</h3><div className="mt-2 grid gap-2 md:grid-cols-2 xl:grid-cols-3">{history.map((item, index) => <button className="truncate rounded-lg border border-line bg-surface-minimal px-3 py-2 text-left font-mono text-xs" key={`${item.method}-${item.path}-${index}`} type="button" onClick={() => { setPath(item.path); setMethod(item.method as "GET" | "POST"); }}>{item.method} · {item.path} · {item.status}</button>)}</div></section> : null}
+      {result ? <div className="mt-4 grid min-w-0 gap-3 xl:grid-cols-[280px_minmax(0,1fr)]"><div className="min-w-0 space-y-2 rounded-lg border border-line bg-surface-minimal p-3"><StatusLine label="Statut" value={`HTTP ${result.status}`} /><StatusLine label="Méthode" value={result.method} /><StatusLine label="Durée" value={`${result.durationMs} ms`} /><StatusLine label="Type" value={result.contentType || "?"} /><StatusLine label="URL" value={result.url} /><details className="rounded-lg border border-line p-2"><summary className="cursor-pointer type-label">En-têtes de réponse</summary><pre className="mt-2 overflow-auto whitespace-pre-wrap break-all text-[10px]">{JSON.stringify(result.headers || {}, null, 2)}</pre></details></div><div className="min-w-0"><div className="mb-2 flex justify-end"><Button size="sm" variant="ghost" icon={copied === "response" ? <Check size={14} /> : <Copy size={14} />} onClick={() => void copy(result.body, "response")}>Copier la réponse</Button></div><pre className="max-h-96 min-w-0 max-w-full overflow-auto rounded-lg border border-line bg-slate-950/75 p-4 font-mono text-xs leading-6 text-cyan-50"><code>{JSON.stringify(result.body, null, 2)}</code></pre></div></div> : <div className="mt-4 grid min-h-28 min-w-0 place-items-center rounded-lg border border-dashed border-line bg-white/[0.025] p-4 text-center text-sm font-bold text-muted"><span className="inline-flex min-w-0 flex-wrap items-center justify-center gap-2"><Server size={16} />Sélectionne un endpoint puis lance un test.</span></div>}
+      {history.length ? <section className="mt-4 rounded-lg border border-line bg-white/[0.03] p-3"><h3 className="flex items-center gap-2 text-sm font-black"><History size={16} />Tests récents</h3><div className="mt-2 grid gap-2 md:grid-cols-2 xl:grid-cols-3">{history.map((item, index) => <button className="truncate rounded-lg border border-line bg-surface-minimal px-3 py-2 text-left font-mono text-xs" key={`${item.method}-${item.path}-${index}`} type="button" onClick={() => { setPath(item.path); setMethod(item.method as PokemonApiMethod); }}>{item.method} · {item.path} · {item.status}</button>)}</div></section> : null}
     </Card>
   );
 }

@@ -75,12 +75,12 @@ export function Modal({
   if (!open || typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[1100] grid place-items-center bg-overlay p-3 backdrop-blur-xl sm:p-5">
+    <div className="fixed inset-0 z-[1100] grid place-items-center bg-overlay px-3 pb-[max(.75rem,env(safe-area-inset-bottom))] pt-[max(.75rem,env(safe-area-inset-top))] backdrop-blur-xl sm:px-5 sm:pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:pt-[max(1.25rem,env(safe-area-inset-top))]">
       <div className="absolute inset-0 cursor-default" aria-hidden="true" onClick={onClose} />
       <section
         ref={dialogRef}
         className={cn(
-          "relative max-h-[92dvh] w-full max-w-2xl overflow-hidden rounded-overlay border border-line-strong bg-panel-strong shadow-overlay",
+          "relative flex max-h-[calc(100dvh-max(1.5rem,env(safe-area-inset-top))-max(1.5rem,env(safe-area-inset-bottom)))] w-full max-w-2xl flex-col overflow-hidden rounded-overlay border border-line-strong bg-panel-strong shadow-overlay",
           className,
         )}
         role="dialog"
@@ -89,7 +89,7 @@ export function Modal({
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
       >
-        <header className="flex items-start justify-between gap-4 border-b border-line p-4 sm:p-5">
+        <header className="flex shrink-0 items-start justify-between gap-4 border-b border-line p-4 sm:p-5">
           <div className="min-w-0">
             <h2 id={titleId} className="type-title-subsection text-foreground">{title}</h2>
             {description ? (
@@ -105,8 +105,8 @@ export function Modal({
             <X size={18} />
           </button>
         </header>
-        <div className="max-h-[calc(92dvh-9rem)] overflow-auto p-4 sm:p-5">{children}</div>
-        {footer ? <footer className="border-t border-line p-4 sm:p-5">{footer}</footer> : null}
+        <div className="min-h-0 flex-1 overscroll-contain overflow-y-auto p-4 sm:p-5">{children}</div>
+        {footer ? <footer className="shrink-0 border-t border-line bg-panel-strong p-4 sm:p-5">{footer}</footer> : null}
       </section>
     </div>,
     document.body,

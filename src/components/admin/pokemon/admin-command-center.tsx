@@ -157,11 +157,11 @@ function StatCard({ icon: Icon, label, value, detail, tone, onClick }: {
   onClick?: () => void;
 }) {
   const tones = {
-    cyan: "border-cyan-300/20 bg-cyan-400/10 text-cyan-100",
-    green: "border-emerald-300/20 bg-emerald-400/10 text-emerald-100",
-    amber: "border-amber-300/20 bg-amber-400/10 text-amber-100",
-    red: "border-rose-300/20 bg-rose-400/10 text-rose-100",
-    violet: "border-violet-300/20 bg-violet-400/10 text-violet-100",
+    cyan: "border-cyan-300/25 bg-cyan-400/10 text-cyan-700 dark:text-cyan-100",
+    green: "border-emerald-300/25 bg-emerald-400/10 text-emerald-700 dark:text-emerald-100",
+    amber: "border-amber-300/25 bg-amber-400/10 text-amber-700 dark:text-amber-100",
+    red: "border-rose-300/25 bg-rose-400/10 text-rose-700 dark:text-rose-100",
+    violet: "border-violet-300/25 bg-violet-400/10 text-violet-700 dark:text-violet-100",
   };
   const content = (
     <>
@@ -176,20 +176,20 @@ function StatCard({ icon: Icon, label, value, detail, tone, onClick }: {
   );
 
   return onClick ? (
-    <button className="group min-w-0 rounded-lg border border-line bg-surface-flat p-4 text-left transition hover:border-brand-2/35 hover:bg-white/[0.075]" type="button" onClick={onClick}>
+    <button className="group flex h-full min-w-0 flex-col rounded-lg border border-line bg-surface-flat p-4 text-left transition hover:border-brand-2/35 hover:bg-surface-hover" type="button" onClick={onClick}>
       {content}
     </button>
-  ) : <Card className="min-w-0 border border-line p-4">{content}</Card>;
+  ) : <Card className="flex h-full min-w-0 flex-col border border-line p-4">{content}</Card>;
 }
 
 function EventLine({ event, label }: { event?: EventItem; label: string }) {
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-line bg-surface-faint p-3">
+    <div className="flex h-full min-w-0 items-start gap-3 rounded-lg border border-line bg-surface-faint p-3">
       <CalendarClock className="mt-0.5 shrink-0 text-brand-2" size={17} />
       <div className="min-w-0">
         <span className="text-[9px] font-black uppercase tracking-[0.14em] text-muted">{label}</span>
-        <strong className="mt-1 block truncate text-sm text-foreground">{event?.title || "Aucun événement"}</strong>
-        <small className="mt-1 block text-xs text-muted">{event?.startDate ? formatDate(event.startDate) : "Aucune date disponible"}</small>
+        <strong className="mt-1 block break-words text-sm text-foreground">{event?.title || "Aucun événement"}</strong>
+        <small className="mt-1 block break-words text-xs text-muted">{event?.startDate ? formatDate(event.startDate) : "Aucune date disponible"}</small>
       </div>
     </div>
   );
@@ -390,23 +390,23 @@ export function AdminCommandCenter({
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
-        <Card className="border border-line p-4 sm:p-5">
+        <Card className="flex h-full min-w-0 flex-col border border-line p-4 sm:p-5">
           <CardHeader eyebrow="Événements prioritaires" action={<Button size="sm" variant="ghost" onClick={() => onNavigate("events")}>Tout voir</Button>}>
             <CardTitle>Actifs et prochains</CardTitle>
             <CardDescription>Les deux échéances les plus utiles sans quitter la Home.</CardDescription>
           </CardHeader>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="mt-4 grid flex-1 gap-3 sm:grid-cols-2">
             <EventLine event={remote.activeItems[0]} label="En cours" />
             <EventLine event={remote.upcomingItems[0]} label="À venir" />
           </div>
         </Card>
 
-        <Card className="border border-line p-4 sm:p-5">
+        <Card className="flex h-full min-w-0 flex-col border border-line p-4 sm:p-5">
           <CardHeader eyebrow="Santé des données" action={<Badge tone={providerErrors ? "red" : "green"}>{providerErrors ? `${providerErrors} erreur(s)` : "Opérationnel"}</Badge>}>
             <CardTitle>Qualité et providers</CardTitle>
             <CardDescription>{filteredCount.toLocaleString("fr-FR")} fiches dans la vue courante · {changedSources.length} source(s) modifiée(s).</CardDescription>
           </CardHeader>
-          <div className="mt-4">
+          <div className="mt-4 flex flex-1 flex-col justify-between">
             <div className="flex items-center justify-between text-sm font-black"><span>Progression globale</span><span>{quality}%</span></div>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-950/60"><div className="h-full rounded-full bg-gradient-to-r from-emerald-300 via-cyan-300 to-brand" style={{ width: `${quality}%` }} /></div>
             <div className="mt-4 grid grid-cols-3 gap-2 text-center">
@@ -425,15 +425,15 @@ export function AdminCommandCenter({
         </CardHeader>
         <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
           {changedSources.slice(0, 3).map((source, index) => (
-            <div className="flex items-start gap-3 rounded-lg border border-amber-300/20 bg-amber-400/[.07] p-3" key={source.id || source.name || index}>
+            <div className="flex min-w-0 items-start gap-3 rounded-lg border border-amber-300/20 bg-amber-400/[.07] p-3" key={source.id || source.name || index}>
               <DatabaseZap className="mt-0.5 shrink-0 text-amber-200" size={17} />
-              <div className="min-w-0"><strong className="block truncate text-sm">{source.name || source.repo || "Source modifiée"}</strong><small className="mt-1 block text-xs text-muted">{source.message || source.status || "Nouvelles données détectées"}</small></div>
+              <div className="min-w-0 flex-1"><strong className="block break-words text-sm">{source.name || source.repo || "Source modifiée"}</strong><small className="mt-1 block break-words text-xs text-muted [overflow-wrap:anywhere]">{source.message || source.status || "Nouvelles données détectées"}</small></div>
             </div>
           ))}
           {recentHistory.map((item, index) => (
-            <div className="flex items-start gap-3 rounded-lg border border-line bg-surface-faint p-3" key={item.hash || `${item.date}-${index}`}>
+            <div className="flex min-w-0 items-start gap-3 rounded-lg border border-line bg-surface-faint p-3" key={item.hash || `${item.date}-${index}`}>
               <CheckCircle2 className="mt-0.5 shrink-0 text-emerald-200" size={17} />
-              <div className="min-w-0"><strong className="block truncate text-sm">{item.subject || item.message || "Mise à jour du référentiel"}</strong><small className="mt-1 block text-xs text-muted">{formatDate(item.iso || item.date)}{item.hash ? ` · ${item.hash}` : ""}</small></div>
+              <div className="min-w-0 flex-1"><strong className="block break-words text-sm">{item.subject || item.message || "Mise à jour du référentiel"}</strong><small className="mt-1 block break-words text-xs text-muted [overflow-wrap:anywhere]">{formatDate(item.iso || item.date)}{item.hash ? ` · ${item.hash}` : ""}</small></div>
             </div>
           ))}
           {!changedSources.length && !recentHistory.length ? <EmptyState title="Aucune activité récente détectée" /> : null}

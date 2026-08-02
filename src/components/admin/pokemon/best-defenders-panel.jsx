@@ -11,6 +11,7 @@ import { DatasetSourceHeader } from "./dataset-source-header";
 import { PokemonArtwork } from "./pokemon-artwork";
 import { TypeIcons } from "./asset-icons";
 import { buttonClass, fieldClass, Panel } from "./admin-ui";
+import { executePokemonAdminRegeneration } from "@/lib/admin-pokemon-global-regeneration";
 
 const tiers = ["", "S", "A+", "A", "B", "C", "D"];
 
@@ -69,9 +70,7 @@ export function BestDefendersPanel({ onOpenPokemon, globalSearch = "", onSearchC
     setRegenerating(true);
     setError("");
     try {
-      const response = await fetch("/api/pokemon-admin", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "regenerate-best-defenders" }) });
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+      await executePokemonAdminRegeneration("regenerate-best-defenders");
       await load();
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Régénération Best Defenders impossible.");
@@ -87,7 +86,7 @@ export function BestDefendersPanel({ onOpenPokemon, globalSearch = "", onSearchC
   return (
     <div className="min-w-0 space-y-5">
       <Panel eyebrow="Provider Pokémon GO Hub · assets canoniques locaux" title="Best Defenders" action={<div className="flex flex-wrap gap-2"><Button icon={<Download size={16} />} disabled={!dataset} onClick={() => downloadJson(dataset, "best-defenders")}>JSON</Button><Button icon={<RefreshCcw size={16} />} loading={loading} loadingText="Actualisation…" onClick={() => void load()}>Actualiser</Button><Button variant="primary" icon={<RotateCcw size={16} />} loading={regenerating} loadingText="Régénération…" onClick={() => void regenerate()}>Régénérer</Button></div>}>
-        <DatasetSourceHeader dataset={dataset} total={meta.total || entries.length} />
+        <DatasetSourceHeader dataset={dataset} total={meta.total || entries.length} refreshError={dataset ? error : ""} />
         <p className="mt-4 rounded-2xl border border-cyan-200/15 bg-cyan-300/[0.07] p-4 type-body-strong text-foreground-secondary">Les tiers et scores proviennent de Pokémon GO Hub. Les noms, formes, types et images affichés passent par l’Identity Manager puis par le résolveur d’asset canonique ; l’image source n’est jamais utilisée comme fallback.</p>
         <a className="mt-3 inline-flex items-center gap-2 text-sm font-black text-cyan-100 hover:text-white" href="https://db.pokemongohub.net/fr/best/gym-defenders" target="_blank" rel="noreferrer">Voir la source Pokémon GO Hub <ExternalLink size={14} /></a>
       </Panel>
@@ -96,7 +95,7 @@ export function BestDefendersPanel({ onOpenPokemon, globalSearch = "", onSearchC
         <Select className={fieldClass} aria-label="Tier" value={options.tier} onChange={(event) => setOption("tier", event.target.value)}>{tiers.map((tier) => <option value={tier} key={tier || "all"}>{tier ? `Tier ${tier}` : "Tous les tiers"}</option>)}</Select>
         <Select className={fieldClass} aria-label="Type" value={options.type} onChange={(event) => setOption("type", event.target.value)}><option value="">Tous les types</option>{Object.entries(typeLabels).map(([id, label]) => <option value={id} key={id}>{label}</option>)}</Select>
       </div>
-      {error ? <ErrorState title="Best Defenders indisponible" message={error} action={<Button onClick={() => void load()}>Réessayer</Button>} /> : null}
+      {error && !dataset ? <ErrorState title="Best Defenders indisponible" message={error} action={<Button onClick={() => void load()}>Réessayer</Button>} /> : null}
       {loading && !dataset ? <FetchLoadingState title="Chargement des défenseurs" /> : null}
       <section className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4" aria-label="Classement Best Defenders">
         {entries.map((entry) => (

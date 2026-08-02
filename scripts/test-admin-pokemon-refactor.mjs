@@ -33,11 +33,13 @@ test("le burger global conserve les libellés complets sur mobile", () => {
   assert.doesNotMatch(frame, /dashboard-sidebar-mobile[^]*\{sidebar\}/);
 });
 
-test("le compte du drawer mobile est compact et replié par défaut", () => {
+test("le compte est compact, replié par défaut et mémorisé sur tous les formats", () => {
   const sidebar = read("src/components/admin/navigation/admin-sidebar.tsx");
   assert.match(sidebar, /const \[accountExpanded, setAccountExpanded\] = useState\(false\)/);
-  assert.match(sidebar, /aria-expanded=\{mobile \? accountExpanded : true\}/);
-  assert.match(sidebar, /mobile && !accountExpanded && "hidden"/);
+  assert.match(sidebar, /accountDisclosureStorageKey/);
+  assert.match(sidebar, /localStorage\.setItem/);
+  assert.match(sidebar, /aria-expanded=\{accountExpanded\}/);
+  assert.match(sidebar, /!accountExpanded && "hidden"/);
   assert.match(sidebar, /safe-area-inset-bottom/);
 });
 
@@ -320,10 +322,9 @@ test("le Battle Lab propose Rank IV complet, caps explicites et pictogrammes his
   assert.match(source, /const levelCaps = \[40, 41, 50, 51\]/);
   assert.match(source, /Voir classement IV/);
   assert.match(source, /4096 spreads calculés/);
-  for (const asset of ["shieldAlt", "attackMove", "swords", "up"]) {
+  for (const asset of ["shieldAlt", "fastAttack", "chargedAttack", "shield0", "up"]) {
     assert.match(source, new RegExp(`uiAssets\\.icons\\.${asset}`));
   }
-  assert.doesNotMatch(source, /uiAssets\.icons\.(?:shield0|shield1|shield2|fastAttack|chargedAttack)/);
   assert.match(source, /typeIconAsset/);
   assert.match(route, /action: z\.literal\("iv-rankings"\)/);
 });
@@ -360,8 +361,12 @@ test("la fonctionnalité collection personnelle est absente du code produit", ()
 test("l'explorateur dérive les routes publiques d'OpenAPI et isole les actions privées", () => {
   const proxy = read("src/app/api/pokemon-api-proxy/route.ts");
   const explorer = read("src/components/admin/pokemon/pokemon-api-explorer.tsx");
-  assert.match(proxy, /publicOpenApiPaths/);
-  assert.match(proxy, /\/api\/v1\/admin\/shiny\/regenerate/);
+  const registry = read("src/lib/pokemon-api-private-registry.ts");
+  assert.match(proxy, /publicOpenApiOperations/);
+  assert.match(proxy, /privateEndpointFor\(method, pathname\)/);
+  assert.match(proxy, /candidate\.origin !== trustedBase\.origin/);
+  assert.match(registry, /best-defenders/);
+  assert.match(registry, /PokemonApiMethod = "GET" \| "POST" \| "PATCH" \| "DELETE"/);
   assert.match(explorer, /api-docs\.json/);
   assert.match(explorer, /adminEndpoints/);
 });

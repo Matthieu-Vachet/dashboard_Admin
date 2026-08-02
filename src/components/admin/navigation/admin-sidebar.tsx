@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import type { NavGroup, NavItem } from "@/constants/admin/navigation";
 import { cn } from "@/lib/cn";
 
@@ -30,6 +30,8 @@ const navToneClasses = [
   { icon: "text-orange-300", glow: "bg-orange-400/12" },
   { icon: "text-teal-300", glow: "bg-teal-400/12" },
 ] as const;
+
+const accountDisclosureStorageKey = "admin-sidebar-account-expanded";
 
 type AdminSidebarProps = {
   brandLogo: string;
@@ -52,12 +54,27 @@ export function AdminSidebar({
   openNavGroups,
   pathname,
   userEmail,
-  mobile = false,
   onCloseMobile,
   onToggleNavGroup,
 }: AdminSidebarProps) {
   const [accountExpanded, setAccountExpanded] = useState(false);
   const accountDetailsId = useId();
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const stored = window.localStorage.getItem(accountDisclosureStorageKey);
+      setAccountExpanded(stored === "true");
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  function toggleAccount() {
+    setAccountExpanded((value) => {
+      const next = !value;
+      window.localStorage.setItem(accountDisclosureStorageKey, String(next));
+      return next;
+    });
+  }
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-20 items-center justify-between px-4">
@@ -148,24 +165,23 @@ export function AdminSidebar({
         {!collapsed ? (
           <div className="dashboard-account-zone rounded-lg border border-line p-3">
             <button
-              className={cn("flex w-full items-center justify-between gap-3 rounded-lg text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-2", !mobile && "pointer-events-none")}
+              className="flex w-full items-center justify-between gap-3 rounded-lg text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-2"
               type="button"
-              tabIndex={mobile ? 0 : -1}
-              onClick={() => mobile && setAccountExpanded((value) => !value)}
-              aria-expanded={mobile ? accountExpanded : true}
+              onClick={toggleAccount}
+              aria-expanded={accountExpanded}
               aria-controls={accountDetailsId}
-              aria-label={mobile ? `${accountExpanded ? "Replier" : "Déplier"} les détails du compte Admin` : "Compte Admin"}
+              aria-label={`${accountExpanded ? "Replier" : "Déplier"} les détails du compte Admin`}
             >
               <div className="min-w-0">
-                <span className={cn("flex items-center gap-2 type-overline-compact text-muted", !mobile && "mb-2")}>
+                <span className="flex items-center gap-2 type-overline-compact text-muted">
                   <UserRound size={13} className="text-brand-2" />
                   Compte
                 </span>
-                {!mobile ? <Badge tone="green">Admin</Badge> : <span className="mt-1 block type-label text-foreground">Admin</span>}
+                <span className="mt-1 flex items-center gap-2"><span className="type-label text-foreground">Admin</span><Badge tone="green">Actif</Badge></span>
               </div>
-              <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 shrink-0 rounded-full bg-brand-3 shadow-[0_0_24px_rgba(88,242,169,0.7)]" />{mobile ? <ChevronDown size={16} className={cn("text-muted transition", accountExpanded && "rotate-180")} /> : null}</span>
+              <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 shrink-0 rounded-full bg-brand-3 shadow-[0_0_24px_rgba(88,242,169,0.7)]" /><ChevronDown size={16} className={cn("text-muted transition motion-reduce:transition-none", accountExpanded && "rotate-180")} /></span>
             </button>
-            <div id={accountDetailsId} className={cn(mobile && !accountExpanded && "hidden")}>
+            <div id={accountDetailsId} className={cn(!accountExpanded && "hidden")}>
               <p className="mt-3 truncate type-caption-strong text-muted">{userEmail}</p>
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <Link

@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.40.0",
+    date: "2026-08-02",
+    title: "Fiabilisation Pokémon, UI responsive et documentation exhaustive",
+    changes: [
+      "Regroupe les quatre audits Pokémon dans un centre unique, distingue les statuts techniques des divergences métier et ouvre la liaison d’alias vers les fiches JSON canoniques.",
+      "Corrige les modales, sélecteurs PvP, cartes d’accueil, navigation Compte et panneaux Candies/Best Defenders sur mobile, tablette, desktop, Light et Dark.",
+      "Étend l’API Explorer aux routes publiques et Admin protégées, avec méthodes, corps d’exemple, accusé de danger, copie et validation serveur stricte.",
+      "Livre les Tomes 9 à 14, l’audit intégral des Tomes 1 à 8 et les contrôles documentaires automatisés sans réactiver Ma collection.",
+    ],
+  },
+  {
     version: "V1.39.0",
     date: "2026-07-31",
     title: "Centre de contrôle Pokémon et Bonbons XL canoniques",

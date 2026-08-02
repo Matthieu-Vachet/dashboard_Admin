@@ -99,7 +99,7 @@ async function waitForRegeneration(value: unknown) {
     if (["failed", "error", "cancelled", "canceled"].includes(status)) {
       throw new Error(firstErrorMessage(current) || "La régénération de fond a échoué.");
     }
-    if (["completed", "complete", "success", "succeeded"].includes(status)) return current;
+    if (["completed", "complete", "success", "succeeded", "unchanged", "warning", "completed-with-warnings"].includes(status)) return current;
 
     throw new Error(`État de régénération inattendu : ${status}.`);
   }
@@ -192,9 +192,13 @@ function warningCount(value: unknown) {
 function successResult(value: unknown, fallbackSummary: string): Omit<GlobalRegenerationStep, "id" | "label"> {
   const warnings = warningCount(value);
   const diagnostics = compactDiagnostics(value);
+  const terminal = responseCandidates(value).map(regenerationState).find(Boolean) || "";
+  const unchanged = terminal === "unchanged" || responseCandidates(value).some((candidate) => candidate.changed === false);
   return {
     status: warnings > 0 ? "warning" : "success",
-    summary: warnings > 0 ? `${fallbackSummary} · ${warnings} avertissement(s)` : fallbackSummary,
+    summary: warnings > 0
+      ? `${unchanged ? "Contenu inchangé" : fallbackSummary} · ${warnings} avertissement(s)`
+      : unchanged ? "Contenu inchangé · snapshot actuel conservé" : fallbackSummary,
     diagnostics: Object.keys(diagnostics).length ? diagnostics : undefined,
   };
 }

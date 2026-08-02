@@ -124,7 +124,7 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
                 }}
               >
                 <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.12)_1px,transparent_1px)] opacity-25 [background-size:24px_24px]" />
-                <span className="relative flex items-start gap-2 rounded-3xl border border-white/40 bg-white/88 p-3 shadow-2xl">
+                <span className="relative flex items-start gap-2 rounded-3xl border border-white/20 bg-transparent p-3 drop-shadow-2xl">
                   <CandyAssetImage familyId={group.familyId} normalUrl={group.image} xlUrl={group.xlImage} kind="normal" className="h-14 w-14" showLabel />
                   <CandyAssetImage familyId={group.familyId} normalUrl={group.image} xlUrl={group.xlImage} kind="xl" className="h-14 w-14" showLabel />
                 </span>

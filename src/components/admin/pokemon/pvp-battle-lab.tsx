@@ -550,7 +550,6 @@ function PokemonPicker({
           }}
           placeholder="Nom FR/EN, dex, forme, ID…"
           aria-label="Recherche Pokémon mobile"
-          autoFocus
         />
         <div className="flex gap-1 overflow-x-auto pb-1" aria-label="Filtres de formes">
           {pickerFilters.map(([value, label]) => (
@@ -763,7 +762,7 @@ function PokemonGroupSelector({
         footer={<div className="flex items-center justify-between gap-3"><span className="type-caption-strong text-muted">{selectedIds.length} sélectionné{selectedIds.length > 1 ? "s" : ""}</span><Button variant="primary" type="button" onClick={() => setOpen(false)}>Terminer</Button></div>}
       >
         <div className="sticky top-0 z-10 space-y-2 bg-panel-strong pb-3">
-          <span className="relative block"><Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={17} /><Input className="pl-10" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Nom, numéro, forme…" aria-label={`Rechercher dans ${label}`} autoFocus /></span>
+          <span className="relative block"><Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={17} /><Input className="pl-10" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Nom, numéro, forme…" aria-label={`Rechercher dans ${label}`} /></span>
           <div className="flex gap-1 overflow-x-auto pb-1" aria-label="Filtrer les formes">
             {pickerFilters.map(([value, filterLabel]) => <button className={`min-h-11 shrink-0 rounded-lg px-3 type-caption-strong ${filter === value ? "bg-brand-2/18 text-accent-text" : "bg-surface-control text-muted"}`} key={value} type="button" aria-pressed={filter === value} onClick={() => setFilter(value)}>{filterLabel}</button>)}
           </div>
@@ -1430,9 +1429,9 @@ function ShieldScenarioMatrix({
 }
 
 function timelineEventAsset(action: SingleBattleResult["timeline"][number]["action"]) {
-  if (action === "fast") return uiAssets.icons.attackMove;
-  if (action === "charged" || action === "cmp") return uiAssets.icons.swords;
-  if (action === "shield") return uiAssets.icons.shieldAlt;
+  if (action === "fast") return uiAssets.icons.fastAttack;
+  if (action === "charged" || action === "cmp") return uiAssets.icons.chargedAttack;
+  if (action === "shield") return uiAssets.icons.shield0;
   if (action === "buff" || action === "debuff" || action === "form") return uiAssets.icons.up;
   return uiAssets.icons.battle;
 }
@@ -2272,7 +2271,7 @@ export function PvpBattleLab() {
               onMaximize={(levelCap) => fighters[0] && void rankConfig(0, { ...fighters[0], ivMode: "custom", presetLabel: "Mes IV", levelCap }, leagueId, fighters[0].ivs, levelCap)}
               onRankSelected={(rank) => selectIvRank(0, rank)}
             />
-            <div className="flex items-center justify-center gap-2 xl:flex-col xl:pt-36">
+            <div className="flex items-center justify-center gap-2 xl:self-stretch xl:flex-col xl:place-self-center">
               <Button
                 size="icon"
                 type="button"

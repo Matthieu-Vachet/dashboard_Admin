@@ -791,8 +791,13 @@ export async function GET(request: NextRequest) {
       let identityCatalog: unknown[] = [];
       let identityCatalogStatus = "available";
       try {
-        const catalog = await readPokemonApiAdmin("/api/v1/admin/pokemon-identities?provider=margxt&status=active&page=1&limit=200", session!.email) as { data?: unknown[] };
-        identityCatalog = Array.isArray(catalog?.data) ? catalog.data : [];
+        const firstPage = await readPokemonApiAdmin("/api/v1/admin/pokemon-identities?provider=margxt&status=active&page=1&limit=200", session!.email) as { data?: unknown[]; meta?: { pages?: number } };
+        identityCatalog = Array.isArray(firstPage?.data) ? firstPage.data : [];
+        const pages = Math.max(1, Math.min(50, Number(firstPage?.meta?.pages || 1)));
+        for (let page = 2; page <= pages; page += 1) {
+          const nextPage = await readPokemonApiAdmin(`/api/v1/admin/pokemon-identities?provider=margxt&status=active&page=${page}&limit=200`, session!.email) as { data?: unknown[] };
+          if (Array.isArray(nextPage?.data)) identityCatalog.push(...nextPage.data);
+        }
       } catch {
         // L'audit reste lisible avec l'inventaire canonique et les mappings approuvés.
         // Une panne Identity Manager ne transforme jamais une observation en divergence.

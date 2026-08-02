@@ -284,10 +284,7 @@ const navItems = [
     icon: Database,
     group: "quality",
   },
-  { id: "pokemon-audit-available", label: "Disponibilité", icon: ClipboardCheck, group: "quality" },
-  { id: "pokemon-audit-shiny", label: "Chromatiques", icon: Sparkles, group: "quality" },
-  { id: "pokemon-audit-costume", label: "Costumes", icon: Boxes, group: "quality" },
-  { id: "pokemon-audit-shadow", label: "Shadow", icon: ShieldCheck, group: "quality" },
+  { id: "pokemon-audits", label: "Vérification Pokémon", icon: ClipboardCheck, group: "quality" },
   { id: "checks", label: "Contrôles", icon: AlertTriangle, group: "quality" },
   { id: "sources", label: "Veille", icon: Radar, group: "quality" },
   { id: "compare", label: "Comparaison", icon: FileDiff, group: "quality" },
@@ -1282,6 +1279,7 @@ export function AdminApp() {
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [active, setActive] = useState("overview");
+  const [pokemonAuditKind, setPokemonAuditKind] = useState("available");
   const [bootstrap, setBootstrap] = useState({
     loading: false,
     payload: null,
@@ -1364,9 +1362,22 @@ export function AdminApp() {
   const [rulesSyncing, setRulesSyncing] = useState(false);
 
   function selectSection(sectionId) {
-    setActive(sectionId);
+    const legacyAuditKind = pokemonAuditKinds[sectionId];
+    const normalizedSection = legacyAuditKind ? "pokemon-audits" : sectionId;
+    if (legacyAuditKind) setPokemonAuditKind(legacyAuditKind);
+    setActive(normalizedSection);
     const url = new URL(window.location.href);
-    url.searchParams.set("section", sectionId);
+    url.searchParams.set("section", normalizedSection);
+    if (legacyAuditKind) url.searchParams.set("audit", legacyAuditKind);
+    window.history.replaceState({}, "", url);
+  }
+
+  function selectPokemonAuditKind(kind) {
+    setPokemonAuditKind(kind);
+    setActive("pokemon-audits");
+    const url = new URL(window.location.href);
+    url.searchParams.set("section", "pokemon-audits");
+    url.searchParams.set("audit", kind);
     window.history.replaceState({}, "", url);
   }
 
@@ -1403,11 +1414,18 @@ export function AdminApp() {
     setCollections(readLocalJson(collectionsKey, []));
     const requestedParams = new URLSearchParams(window.location.search);
     const requestedSection = requestedParams.get("section");
+    const legacyAuditKind = pokemonAuditKinds[requestedSection];
+    const requestedAuditKind = requestedParams.get("audit") || legacyAuditKind;
     const requestedSearch = requestedParams.get("q") || "";
-    if (
-      requestedSection &&
-      navItems.some((item) => item.id === requestedSection)
-    ) {
+    if (requestedAuditKind && ["available", "shiny", "costume", "shadow"].includes(requestedAuditKind)) {
+      setPokemonAuditKind(requestedAuditKind);
+    }
+    if (legacyAuditKind) {
+      setActive("pokemon-audits");
+      requestedParams.set("section", "pokemon-audits");
+      requestedParams.set("audit", legacyAuditKind);
+      window.history.replaceState({}, "", `${window.location.pathname}?${requestedParams}${window.location.hash}`);
+    } else if (requestedSection && navItems.some((item) => item.id === requestedSection)) {
       setActive(requestedSection);
     }
     if (requestedSearch) updateGlobalSearch(requestedSearch);
@@ -3380,12 +3398,13 @@ export function AdminApp() {
                 </Panel>
               ) : null}
 
-              {pokemonAuditKinds[active] ? (
+              {active === "pokemon-audits" ? (
                 <PokemonReleaseAuditPanel
-                  key={active}
-                  kind={pokemonAuditKinds[active]}
+                  key={pokemonAuditKind}
+                  kind={pokemonAuditKind}
                   localEntries={entries}
                   onOpenPokemon={openDetail}
+                  onKindChange={selectPokemonAuditKind}
                 />
               ) : null}
 

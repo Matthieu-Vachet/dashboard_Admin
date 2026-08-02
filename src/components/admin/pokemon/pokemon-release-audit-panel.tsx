@@ -110,6 +110,7 @@ const labels: Record<AuditKind, { eyebrow: string; title: string; description: s
   costume: { eyebrow: "Costumes", title: "Costumes Pokémon", description: "Compare les variantes sur dexId + forme + costume. Le sexe reste une dimension d’asset et ne duplique pas l’identité métier." },
   shadow: { eyebrow: "Shadow", title: "Pokémon Shadow", description: "Compare séparément availability.shadow et availability.shadowShinyReleased, sans confondre assets, Apex ou Purified." },
 };
+const auditTabs = (Object.keys(labels) as AuditKind[]);
 const statusLabels: Record<string, string> = {
   "up-to-date": "À jour",
   divergence: "Divergence réelle",
@@ -233,7 +234,7 @@ function AuditDatum({ label, value, mono = false }: { label: string; value: unkn
   return <div className="min-w-0"><dt className="type-overline text-disabled">{label}</dt><dd className={`mt-1 break-words text-sm font-bold text-domain-foreground ${mono ? "font-mono" : ""}`}>{renderValue(value)}</dd></div>;
 }
 
-export function PokemonReleaseAuditPanel({ kind, localEntries = [], onOpenPokemon }: { kind: AuditKind; localEntries?: Array<Record<string, unknown>>; onOpenPokemon?: (entry: Record<string, unknown>) => void }) {
+export function PokemonReleaseAuditPanel({ kind, localEntries = [], onOpenPokemon, onKindChange }: { kind: AuditKind; localEntries?: Array<Record<string, unknown>>; onOpenPokemon?: (entry: Record<string, unknown>) => void; onKindChange?: (kind: AuditKind) => void }) {
   const [payload, setPayload] = useState<AuditPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -344,6 +345,9 @@ export function PokemonReleaseAuditPanel({ kind, localEntries = [], onOpenPokemo
 
   return (
     <Panel title={view.title} eyebrow={view.eyebrow} action={<Button icon={<RefreshCcw className={loading ? "animate-spin" : ""} size={16} />} disabled={loading} onClick={() => void load()}>Relancer</Button>}>
+      <nav className="mb-4 flex gap-2 overflow-x-auto rounded-2xl border border-line bg-surface-inset-subtle p-2" aria-label="Audits de disponibilité Pokémon">
+        {auditTabs.map((auditKind) => <button className={`min-h-11 shrink-0 rounded-xl border px-4 type-label transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-300 ${auditKind === kind ? "border-cyan-300/35 bg-cyan-400/15 text-cyan-800 dark:text-cyan-50" : "border-transparent text-muted hover:border-line hover:bg-surface-control"}`} key={auditKind} type="button" aria-current={auditKind === kind ? "page" : undefined} onClick={() => onKindChange?.(auditKind)}>{labels[auditKind].eyebrow}</button>)}
+      </nav>
       <div className="rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-4 text-sm font-bold text-cyan-900 dark:text-cyan-50/90">
         <p>{view.description}</p>
         <p className="mt-2 text-cyan-800/80 dark:text-cyan-100/70">Lecture seule : aucune observation externe ne modifie les JSON locaux automatiquement.</p>
@@ -419,10 +423,10 @@ export function PokemonReleaseAuditPanel({ kind, localEntries = [], onOpenPokemo
       >
         <label className="grid gap-2 font-black text-domain-foreground">
           Rechercher une identité
-          <Input value={identityPickerQuery} onChange={(event) => setIdentityPickerQuery(event.target.value)} placeholder="Nom, canonicalId ou alias…" autoFocus />
+          <Input value={identityPickerQuery} onChange={(event) => setIdentityPickerQuery(event.target.value)} placeholder="Nom, canonicalId ou alias…" />
         </label>
         <p className="mt-2 text-xs font-bold text-muted">Observation : #{identityPickerRow?.effectiveDexId || identityPickerRow?.dexId || "—"} · {identityPickerRow?.sourceName || "nom inconnu"}{identityPickerRow?.sourceCostume ? ` · ${identityPickerRow.sourceCostume}` : identityPickerRow?.sourceForm ? ` · ${identityPickerRow.sourceForm}` : ""}</p>
-        <div className="mt-4 grid max-h-[55vh] gap-2 overflow-y-auto pr-1">
+        <div className="mt-4 grid gap-2 pr-1">
           {identityPickerLoading ? <FetchLoadingState title="Recherche des fiches JSON…" /> : null}
           {!identityPickerLoading && identityPickerError ? <ErrorState title="Recherche indisponible" message={identityPickerError} /> : null}
           {!identityPickerLoading && !identityPickerError && identityPickerResults.map((identity) => {
