@@ -19,28 +19,30 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/admin/shared/state-system";
-import type { DiscordBotOverviewResult } from "@/server/discord-bot/contracts";
+import type {
+  DiscordBotOperationsOverview,
+  DiscordBotOverviewResult,
+} from "@/server/discord-bot/contracts";
 import { discordBotPermissionSummary } from "@/server/discord-bot/permissions";
 import { cn } from "@/lib/cn";
 
 const sections = [
-  "Vue d’ensemble",
-  "Serveurs",
-  "Commandes",
-  "Statistiques",
-  "Logs",
-  "Testeur",
-  "Santé",
-  "Configuration",
-  "Sécurité",
+  { id: "overview", label: "Vue d’ensemble" },
+  { id: "servers", label: "Serveurs" },
+  { id: "commands", label: "Commandes" },
+  { id: "health", label: "Santé" },
 ] as const;
+
+type DiscordBotView = (typeof sections)[number]["id"];
 
 export function DiscordBotControlCenter({
   overview,
   userEmail,
+  view,
 }: {
   overview: DiscordBotOverviewResult;
   userEmail: string;
+  view: DiscordBotView;
 }) {
   const data = overview.status === "available" ? overview.data : null;
   const connected = data?.discord.state === "connected";
@@ -74,7 +76,7 @@ export function DiscordBotControlCenter({
         </CardHeader>
       </Card>
 
-      <ModuleNavigation />
+      <ModuleNavigation view={view} />
 
       {overview.status === "unavailable" ? (
         <Card className="border-warning/30 bg-warning/10 p-4">
@@ -93,6 +95,7 @@ export function DiscordBotControlCenter({
         </Card>
       ) : null}
 
+      {view === "overview" ? <>
       <section aria-labelledby="discord-bot-status-title" className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <h2 id="discord-bot-status-title" className="sr-only">État du bot Discord</h2>
         <BotMetricCard
@@ -224,32 +227,125 @@ export function DiscordBotControlCenter({
           </Badge>
         </Card>
       </section>
+      </> : null}
+
+      {view === "servers" ? <ServersView data={data} /> : null}
+      {view === "commands" ? <CommandsView data={data} /> : null}
+      {view === "health" ? <HealthView data={data} /> : null}
     </div>
   );
 }
 
-function ModuleNavigation() {
+function ModuleNavigation({ view }: { view: DiscordBotView }) {
   return (
     <Card className="overflow-x-auto p-2" aria-label="Sections du centre de contrôle Discord Bot">
       <ol className="flex min-w-max gap-1">
-        {sections.map((section, index) => (
-          <li key={section}>
-            <span
+        {sections.map((section) => (
+          <li key={section.id}>
+            <Link
+              href={section.id === "overview" ? "/discord-bot" : `/discord-bot?view=${section.id}`}
               className={cn(
                 "inline-flex min-h-10 items-center gap-2 rounded-lg border px-3 type-label",
-                index === 0
+                view === section.id
                   ? "border-brand-2/35 bg-brand-2/12 text-foreground"
-                  : "border-transparent text-muted",
+                  : "border-transparent text-muted hover:border-line hover:text-foreground",
               )}
-              aria-current={index === 0 ? "page" : undefined}
+              aria-current={view === section.id ? "page" : undefined}
             >
-              {section}
-              {index > 0 ? <span className="text-[0.6rem] uppercase tracking-wider">à venir</span> : null}
-            </span>
+              {section.label}
+            </Link>
           </li>
         ))}
       </ol>
     </Card>
+  );
+}
+
+function ServersView({
+  data,
+}: {
+  data: DiscordBotOperationsOverview | null;
+}) {
+  return (
+    <section className="grid gap-4 lg:grid-cols-2">
+      <Card className="p-4 sm:p-5">
+        <CardHeader eyebrow="Discord"><CardTitle>Connexion et serveurs</CardTitle></CardHeader>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <RuntimeRow icon={Radio} label="État" value={data ? connectionLabel(data.discord.state) : null} />
+          <RuntimeRow icon={Server} label="Nombre de serveurs" value={data?.discord.guildCount == null ? null : String(data.discord.guildCount)} />
+          <RuntimeRow icon={Gauge} label="Latence" value={data?.discord.pingMs == null ? null : `${Math.round(data.discord.pingMs)} ms`} />
+          <RuntimeRow icon={Activity} label="WebSocket" value={data?.discord.websocketStatus ?? null} />
+        </div>
+      </Card>
+      <Card className="p-4 sm:p-5">
+        <CardHeader eyebrow="Confidentialité"><CardTitle>Périmètre exposé</CardTitle></CardHeader>
+        <p className="type-body-strong mt-5 text-muted">
+          Le contrat fournit le nombre réel de serveurs, sans exposer leurs identifiants, membres ou messages.
+        </p>
+      </Card>
+    </section>
+  );
+}
+
+function CommandsView({
+  data,
+}: {
+  data: DiscordBotOperationsOverview | null;
+}) {
+  return (
+    <section className="space-y-4">
+      <div className="grid gap-3 md:grid-cols-3">
+        <BotMetricCard icon={Command} label="Commandes" value={data?.commands.count ?? null} detail="Registre effectif" tone="violet" />
+        <BotMetricCard icon={ShieldCheck} label="Stables" value={data?.commands.status.stable ?? 0} detail="Contrat consolidé" tone="green" />
+        <BotMetricCard icon={Activity} label="Bêta" value={data?.commands.status.beta ?? 0} detail="Première version fonctionnelle" tone="cyan" />
+      </div>
+      <div className="grid gap-3 lg:grid-cols-2">
+        {data?.commands.registry.map((command) => (
+          <Card key={command.name} className="p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div><p className="font-mono text-lg font-black text-foreground">/{command.name}</p><p className="type-body-strong mt-1 text-muted">{command.description}</p></div>
+              <Badge tone={command.status === "stable" ? "green" : "cyan"}>{command.status}</Badge>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Badge tone="neutral">{command.category}</Badge>
+              {command.autocomplete ? <Badge tone="violet">autocomplete</Badge> : null}
+              {command.components ? <Badge tone="cyan">components</Badge> : null}
+              {command.assets ? <Badge tone="green">assets</Badge> : null}
+            </div>
+            <p className="type-caption-strong mt-4 text-muted">Routes : {command.routes.length || "aucune"} · version {command.version}</p>
+          </Card>
+        )) ?? <EmptyState title="Registre indisponible" description="Le bot doit être joignable pour afficher ses commandes." />}
+      </div>
+    </section>
+  );
+}
+
+function HealthView({
+  data,
+}: {
+  data: DiscordBotOperationsOverview | null;
+}) {
+  return (
+    <section className="grid gap-4 lg:grid-cols-2">
+      <Card className="p-4 sm:p-5">
+        <CardHeader eyebrow="API Pokémon GO"><CardTitle>Santé de la source</CardTitle></CardHeader>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <RuntimeRow icon={Radio} label="État" value={data?.api.status ?? null} />
+          <RuntimeRow icon={Server} label="Base" value={data?.api.database ?? null} />
+          <RuntimeRow icon={Gauge} label="Dernière réponse" value={data?.api.lastResponseMs == null ? null : `${data.api.lastResponseMs} ms`} />
+          <RuntimeRow icon={Activity} label="Requêtes / erreurs" value={data ? `${data.api.requestCount} / ${data.api.errorCount}` : null} />
+        </div>
+      </Card>
+      <Card className="p-4 sm:p-5">
+        <CardHeader eyebrow="Processus"><CardTitle>Exécutions et cache</CardTitle></CardHeader>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <RuntimeRow icon={Command} label="Exécutions" value={data ? String(data.metrics.executionCount) : null} />
+          <RuntimeRow icon={Gauge} label="Taux d’erreur" value={data ? `${(data.metrics.errorRate * 100).toLocaleString("fr-FR", { maximumFractionDigits: 2 })} %` : null} />
+          <RuntimeRow icon={Braces} label="Cache" value={data ? `${data.cache.entries}/${data.cache.maxEntries}` : null} />
+          <RuntimeRow icon={RefreshCw} label="Hits / dédupliquées" value={data ? `${data.cache.hitCount} / ${data.cache.deduplicatedRequestCount}` : null} />
+        </div>
+      </Card>
+    </section>
   );
 }
 

@@ -12,9 +12,9 @@ const { hasDiscordBotPermission } = permissions;
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const schemaHash = "a".repeat(64);
 
-test("le contrat opérationnel valide un snapshot réel et versionné", () => {
-  const result = discordBotOperationsOverviewSchema.safeParse({
-    contractVersion: 1,
+function validOverview() {
+  return {
+    contractVersion: "2.0.0",
     observedAt: "2026-08-02T10:00:00.000Z",
     service: {
       status: "online",
@@ -28,52 +28,73 @@ test("le contrat opérationnel valide un snapshot réel et versionné", () => {
       guildCount: 3,
     },
     runtime: {
-      botVersion: "0.1.0",
+      botVersion: "0.2.0",
       nodeVersion: "v24.0.0",
       discordJsVersion: "14.27.0",
     },
     commands: {
-      count: 2,
-      names: ["help", "pokemon"],
+      count: 1,
+      names: ["pokemon"],
+      registry: [
+        {
+          name: "pokemon",
+          category: "pokedex",
+          description: "Fiche interactive",
+          status: "stable",
+          version: "0.2.0",
+          routes: ["/pokemon/{identifier}"],
+          permissions: [],
+          responseVisibility: "public",
+          autocomplete: true,
+          components: true,
+          assets: true,
+        },
+      ],
+      categories: { pokedex: 1 },
+      status: { stable: 1 },
       schemaHash,
       lastSynchronizedAt: null,
     },
-  });
+    metrics: {
+      executionCount: 4,
+      errorCount: 1,
+      errorRate: 0.25,
+      averageDurationMs: 45,
+      lastError: null,
+    },
+    api: {
+      status: "ok",
+      database: "connected",
+      lastResponseMs: 34,
+      lastHttpStatus: 200,
+      requestCount: 8,
+      errorCount: 0,
+    },
+    cache: {
+      entries: 4,
+      maxEntries: 250,
+      hitCount: 2,
+      deduplicatedRequestCount: 1,
+    },
+  } as const;
+}
+
+test("le contrat opérationnel valide un snapshot réel et versionné", () => {
+  const result = discordBotOperationsOverviewSchema.safeParse(validOverview());
 
   assert.equal(result.success, true);
 });
 
 test("le contrat refuse une version inconnue", () => {
-  const result = discordBotOperationsOverviewSchema.safeParse({ contractVersion: 2 });
+  const result = discordBotOperationsOverviewSchema.safeParse({ contractVersion: "3.0.0" });
   assert.equal(result.success, false);
 });
 
 test("le contrat refuse un compteur de commandes incohérent", () => {
+  const value = validOverview();
   const result = discordBotOperationsOverviewSchema.safeParse({
-    contractVersion: 1,
-    observedAt: "2026-08-02T10:00:00.000Z",
-    service: {
-      status: "online",
-      startedAt: "2026-08-02T09:00:00.000Z",
-      uptimeSeconds: 3_600,
-    },
-    discord: {
-      state: "connected",
-      websocketStatus: "ready",
-      pingMs: 42,
-      guildCount: 3,
-    },
-    runtime: {
-      botVersion: "0.1.0",
-      nodeVersion: "v24.0.0",
-      discordJsVersion: "14.27.0",
-    },
-    commands: {
-      count: 3,
-      names: ["help", "pokemon"],
-      schemaHash,
-      lastSynchronizedAt: null,
-    },
+    ...value,
+    commands: { ...value.commands, count: 3 },
   });
 
   assert.equal(result.success, false);

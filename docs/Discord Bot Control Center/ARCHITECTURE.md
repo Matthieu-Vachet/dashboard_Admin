@@ -13,7 +13,7 @@ Navigateur authentifié
 
 Le navigateur ne connaît que le modèle de vue déjà validé. Le secret de liaison reste dans l’environnement serveur du Dashboard.
 
-## Contrat `operations/v1`
+## Contrat `operations/2.0.0`
 
 Le bot retourne :
 
@@ -22,9 +22,13 @@ Le bot retourne :
 - état de connexion Discord, statut WebSocket, ping et nombre de serveurs ;
 - versions du bot, de Node.js et de discord.js ;
 - nombre, noms et hash SHA-256 des définitions de commandes ;
-- dernière synchronisation, explicitement `null` tant qu’elle n’est pas persistée.
+- registre détaillé, catégories, statuts et dernière synchronisation ;
+- métriques d’exécution, dernière erreur filtrée, santé API et état du cache.
 
-Le schéma Zod du Dashboard exige `contractVersion: 1`. Une réponse différente devient une indisponibilité explicite et ne traverse pas la frontière de présentation.
+Le schéma Zod du Dashboard exige `contractVersion: "2.0.0"`. Une réponse différente devient une indisponibilité explicite et ne traverse pas la frontière de présentation.
+
+Les vues Vue d’ensemble, Serveurs, Commandes et Santé reposent sur le même snapshot
+serveur. Aucune requête n’est déclenchée depuis un Client Component.
 
 ## Responsabilités
 

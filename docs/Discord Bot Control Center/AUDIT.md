@@ -13,7 +13,7 @@
 
 - Node.js 24, TypeScript strict et discord.js 14.27.
 - Intention `Guilds` uniquement ; aucune commande préfixée.
-- Registre réel contenant `/help` et `/pokemon`.
+- Registre réel contenant les vingt Slash Commands officielles.
 - Déploiement des commandes séparé du démarrage.
 - Client Pokémon unique, public, GET-only et limité à `https://pokemon-go-api.vercel.app`.
 - Logs structurés et secrets expurgés.
@@ -43,5 +43,6 @@ Rejeté. Cette solution dupliquerait le token Discord et ne fournirait pas l’�
 ## Risques ouverts
 
 - Tant que le bot n’est pas hébergé, l’état Discord demeure indisponible en production.
-- La dernière synchronisation des commandes reste `null` : aucun journal durable n’existe encore.
+- La dernière synchronisation reste `null` tant que le script de déploiement n’a pas
+  écrit son journal opérationnel pour le schéma courant.
 - Le rôle Dashboard actuel est uniquement `admin`; les permissions de mutation sont donc définies mais désactivées.
