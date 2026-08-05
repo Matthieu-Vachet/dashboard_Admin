@@ -5,45 +5,12 @@ import { formatCount, Panel } from "./admin-ui";
 import { pokemonVariantLabel, preferredPokemonImage } from "@/components/site/pokemon-style";
 import { EmptyState } from "@/components/admin/shared/state-system";
 import { CandyAssetImage } from "./candy-asset-image";
-
-function colorChannel(value) {
-  const numeric = Number(value ?? 0);
-  if (!Number.isFinite(numeric)) return 0;
-  return Math.max(0, Math.min(255, Math.round(numeric <= 1 ? numeric * 255 : numeric)));
-}
-
-function normalizeColor(color) {
-  if (!color || typeof color === "string") return null;
-  return {
-    r: colorChannel(color.r ?? color.red),
-    g: colorChannel(color.g ?? color.green),
-    b: colorChannel(color.b ?? color.blue),
-    a: Math.max(0, Math.min(1, Number(color.a ?? color.alpha ?? 1))),
-  };
-}
-
-function colorToCss(color) {
-  if (!color) return "rgba(148,163,184,.35)";
-  if (typeof color === "string") return color;
-  const { r, g, b, a } = normalizeColor(color);
-  return `rgba(${r}, ${g}, ${b}, ${a})`;
-}
-
-function colorToLabel(color) {
-  if (!color) return "-";
-  if (typeof color === "string") return color;
-  const { r, g, b, a } = normalizeColor(color);
-  return `rgba(${r}, ${g}, ${b}, ${a})`;
-}
-
-function colorToHex(color) {
-  const normalized = normalizeColor(color);
-  if (!normalized) return "";
-  return `#${[normalized.r, normalized.g, normalized.b]
-    .map((value) => value.toString(16).padStart(2, "0"))
-    .join("")
-    .toUpperCase()}`;
-}
+import {
+  candyColorToCss,
+  candyColorToHex,
+  candyColorToLabel,
+  candyFamilyContrast,
+} from "@/lib/candy-family-contrast.mjs";
 
 function variantTone(entry) {
   const kind = String(entry.kind || "").toLowerCase();
@@ -84,8 +51,8 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
     if (!needle) return true;
     return [
       group.familyId,
-      colorToLabel(group.primaryColor),
-      colorToLabel(group.secondaryColor),
+      candyColorToLabel(group.primaryColor),
+      candyColorToLabel(group.secondaryColor),
       ...group.pokemon.flatMap((entry) => [entry.name, entry.dexId, entry.form, entry.file]),
     ]
       .filter(Boolean)
@@ -110,8 +77,9 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
       </p>
       <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
         {filteredGroups.map((group) => {
-          const primary = colorToCss(group.primaryColor);
-          const secondary = colorToCss(group.secondaryColor);
+          const primary = candyColorToCss(group.primaryColor);
+          const secondary = candyColorToCss(group.secondaryColor);
+          const contrast = candyFamilyContrast(group.primaryColor, group.secondaryColor);
           return (
             <article
               className="min-w-0 overflow-hidden rounded-surface border border-line bg-slate-950/55 shadow-raised"
@@ -121,14 +89,19 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
                 className="relative grid gap-4 overflow-hidden p-4 sm:grid-cols-[10rem_minmax(0,1fr)]"
                 style={{
                   background: `linear-gradient(135deg, color-mix(in srgb, ${primary} 84%, #ffffff 6%), color-mix(in srgb, ${secondary} 72%, #020617 18%)), radial-gradient(circle at 88% 0%, rgba(255,255,255,.42), transparent 32%)`,
+                  color: contrast.foreground,
                 }}
               >
                 <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.12)_1px,transparent_1px)] opacity-25 [background-size:24px_24px]" />
-                <span className="relative flex items-start gap-2 rounded-3xl border border-white/20 bg-transparent p-3 drop-shadow-2xl">
-                  <CandyAssetImage familyId={group.familyId} normalUrl={group.image} xlUrl={group.xlImage} kind="normal" className="h-14 w-14" showLabel />
-                  <CandyAssetImage familyId={group.familyId} normalUrl={group.image} xlUrl={group.xlImage} kind="xl" className="h-14 w-14" showLabel />
+                <div className="pointer-events-none absolute inset-0" style={{ background: contrast.overlay }} />
+                <span
+                  className="relative z-10 flex items-start gap-2 rounded-3xl border p-3 drop-shadow-2xl backdrop-blur-[2px]"
+                  style={{ background: contrast.surface, borderColor: contrast.border }}
+                >
+                  <CandyAssetImage familyId={group.familyId} normalUrl={group.image} xlUrl={group.xlImage} kind="normal" className="h-14 w-14" showLabel highContrast />
+                  <CandyAssetImage familyId={group.familyId} normalUrl={group.image} xlUrl={group.xlImage} kind="xl" className="h-14 w-14" showLabel highContrast />
                 </span>
-                <div className="relative min-w-0 text-domain-foreground drop-shadow-[0_2px_12px_rgba(0,0,0,.38)]">
+                <div className="relative z-10 min-w-0 drop-shadow-[0_2px_12px_rgba(0,0,0,.24)]">
                   <p className="type-overline opacity-80">FamilyId</p>
                   <strong className="mt-1 block type-title-page">{group.familyId}</strong>
                   <p className="mt-2 text-sm font-black">
@@ -147,11 +120,11 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
                         {label}
                       </span>
                       <span className="mt-2 flex items-center gap-2">
-                        <i className="h-6 w-6 rounded-full border border-white/30" style={{ background: colorToCss(color) }} />
+                        <i className="h-6 w-6 rounded-full border border-white/30" style={{ background: candyColorToCss(color) }} />
                         <span className="min-w-0">
-                          <strong className="block break-all text-xs text-foreground">{colorToLabel(color)}</strong>
-                          {colorToHex(color) ? (
-                            <small className="mt-1 block font-mono text-[11px] font-black text-cyan-100/75">{colorToHex(color)}</small>
+                          <strong className="block break-all text-xs text-foreground">{candyColorToLabel(color)}</strong>
+                          {candyColorToHex(color) ? (
+                            <small className="mt-1 block font-mono text-[11px] font-black text-cyan-100/75">{candyColorToHex(color)}</small>
                           ) : null}
                         </span>
                       </span>

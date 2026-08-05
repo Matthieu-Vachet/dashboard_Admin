@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { CircleDot } from "lucide-react";
 
-export function CandyAssetImage({ familyId, normalUrl = null, xlUrl = null, kind = "normal", className = "h-12 w-12", showLabel = false }) {
+export function CandyAssetImage({ familyId, normalUrl = null, xlUrl = null, kind = "normal", className = "h-12 w-12", showLabel = false, highContrast = false }) {
   const url = kind === "xl" ? xlUrl : normalUrl;
   const [failedUrl, setFailedUrl] = useState(null);
   const missing = !url || failedUrl === url;
@@ -18,7 +18,11 @@ export function CandyAssetImage({ familyId, normalUrl = null, xlUrl = null, kind
       ) : (
         <img className={`object-contain drop-shadow-xl ${className}`} src={url} alt={`${label} · famille ${familyId ?? "inconnue"}`} onError={() => setFailedUrl(url)} />
       )}
-      {showLabel ? <small className={`type-overline-compact ${missing ? "text-amber-200" : "text-muted"}`}>{missing ? `${label} absent` : label}</small> : null}
+      {showLabel ? (
+        <small className={`type-overline-compact ${highContrast ? "text-current opacity-90" : missing ? "text-amber-200" : "text-muted"}`}>
+          {missing ? `${label} absent` : label}
+        </small>
+      ) : null}
     </span>
   );
 }
