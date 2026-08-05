@@ -168,8 +168,46 @@ type IdentitySyncReport = {
   orphan: number;
   conflict: number;
   aliasesPreserved: number;
-  conflicts: Array<Record<string, unknown>>;
+  conflicts: IdentitySyncConflict[];
   mewtwoArmored: "present" | "missing";
+};
+
+type IdentityConflictSubject = {
+  identityId?: string | null;
+  canonicalId?: string | null;
+  identityKey?: string | null;
+  pokemonId?: number | null;
+  pokemonKey?: string | null;
+  form?: string | null;
+  formId?: string | null;
+  parentFormId?: string | null;
+  costume?: string | null;
+  transformation?: string | null;
+  category?: string | null;
+  sourceFile?: string | null;
+  pokemonSourceFile?: string | null;
+  assetsRef?: string | null;
+  candidateFiles?: string[];
+  aliases?: Array<{ provider?: string; value?: string; status?: string }>;
+};
+
+type IdentitySyncConflict = {
+  code?: string;
+  cause?: string;
+  canonicalId?: string;
+  identityKey?: string;
+  existingIdentityId?: string;
+  localCandidate?: IdentityConflictSubject;
+  claimedBy?: IdentityConflictSubject;
+  existingIdentity?: IdentityConflictSubject;
+  existingCandidates?: IdentityConflictSubject[];
+  existingCanonicalIds?: string[];
+  resolution?: {
+    action?: string;
+    recommendation?: string;
+    automaticSelection?: boolean;
+    automaticDeletion?: boolean;
+  };
 };
 
 type IdentityForm = {
@@ -384,6 +422,60 @@ function Stat({ label, value, tone = "cyan", onClick }: { label: string; value: 
       <span className="block type-overline-compact opacity-70">{label}</span>
       <strong className="mt-1 block font-mono text-2xl">{value.toLocaleString("fr-FR")}</strong>
     </Component>
+  );
+}
+
+const conflictCauseLabels: Record<string, string> = {
+  "doublon-reel-inventaire-local": "Doublon réel dans l’inventaire local",
+  "index-mongodb-ancien-ou-incoherent": "Document MongoDB ancien ou index incohérent",
+  "collision-cle-identite": "Collision de clé d’identité",
+  "collision-forme-ou-document-mongodb-ancien": "Collision de forme ou document MongoDB ancien",
+  "document-mongodb-ancien-ambigu": "Document MongoDB ancien ambigu",
+  "collision-forme-ou-normalisation-trop-large": "Collision de forme ou normalisation trop large",
+};
+
+function IdentityConflictSubjectView({ label, subject }: { label: string; subject?: IdentityConflictSubject | null }) {
+  if (!subject) return null;
+  const files = [...new Set([...(subject.candidateFiles || []), subject.sourceFile, subject.pokemonSourceFile, subject.assetsRef].filter(Boolean))] as string[];
+  return (
+    <section className="min-w-0 rounded-lg border border-line bg-surface-inset p-3">
+      <p className="type-overline-compact text-muted">{label}</p>
+      <p className="mt-2 break-all font-mono text-sm font-black text-cyan-100">{subject.canonicalId || "Canonical ID absent"}</p>
+      <dl className="mt-2 grid gap-x-3 gap-y-2 text-xs sm:grid-cols-2">
+        <div><dt className="text-muted">Identity key</dt><dd className="break-all font-mono text-foreground">{subject.identityKey || "—"}</dd></div>
+        <div><dt className="text-muted">Pokédex</dt><dd className="font-bold text-foreground">{subject.pokemonId ? `#${subject.pokemonId}` : "—"}</dd></div>
+        <div><dt className="text-muted">Forme / formId</dt><dd className="break-all font-mono text-foreground">{subject.form || "—"} / {subject.formId || "—"}</dd></div>
+        <div><dt className="text-muted">Costume / transformation</dt><dd className="break-all font-mono text-foreground">{subject.costume || "—"} / {subject.transformation || "—"}</dd></div>
+      </dl>
+      {files.length ? <div className="mt-3"><p className="type-overline-compact text-muted">Fichiers et assets candidats</p><ul className="mt-1 space-y-1">{files.map((file) => <li key={file} className="break-all font-mono text-xs text-foreground">{file}</li>)}</ul></div> : null}
+      {subject.aliases?.length ? <div className="mt-3"><p className="type-overline-compact text-muted">Alias MongoDB préservés</p><ul className="mt-1 space-y-1">{subject.aliases.map((alias, index) => <li key={`${alias.provider}-${alias.value}-${index}`} className="break-all text-xs text-foreground"><strong>{alias.provider || "provider inconnu"}</strong> · {alias.value || "valeur absente"} · {alias.status || "statut inconnu"}</li>)}</ul></div> : null}
+    </section>
+  );
+}
+
+function IdentitySyncConflictCard({ conflict, index }: { conflict: IdentitySyncConflict; index: number }) {
+  const cause = conflict.cause ? conflictCauseLabels[conflict.cause] || conflict.cause : "Cause à confirmer par examen manuel";
+  const localCandidate = conflict.localCandidate || { canonicalId: conflict.canonicalId, identityKey: conflict.identityKey };
+  return (
+    <article className="rounded-xl border border-danger/35 bg-danger/10 p-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge tone="red">Conflit {index + 1}</Badge>
+        <code className="break-all text-xs font-bold text-rose-100">{conflict.code || "IDENTITY_SYNC_CONFLICT"}</code>
+      </div>
+      <h4 className="mt-2 font-black text-rose-50">{cause}</h4>
+      <div className="mt-3 grid gap-3 lg:grid-cols-2">
+        <IdentityConflictSubjectView label="Candidat local" subject={localCandidate} />
+        <IdentityConflictSubjectView label="Document MongoDB concerné" subject={conflict.existingIdentity} />
+        <IdentityConflictSubjectView label="Document déjà revendiqué par" subject={conflict.claimedBy} />
+        {(conflict.existingCandidates || []).map((candidate, candidateIndex) => <IdentityConflictSubjectView key={`${candidate.identityId || candidate.canonicalId}-${candidateIndex}`} label={`Candidat MongoDB ${candidateIndex + 1}`} subject={candidate} />)}
+      </div>
+      {conflict.existingCanonicalIds?.length ? <p className="mt-3 break-all text-xs text-rose-100">Canonical IDs MongoDB candidats : <span className="font-mono">{conflict.existingCanonicalIds.join(", ")}</span></p> : null}
+      <div className="mt-3 rounded-lg border border-warning/35 bg-warning/10 p-3 text-sm text-amber-50">
+        <p className="font-black">Résolution recommandée</p>
+        <p className="mt-1">{conflict.resolution?.recommendation || "Comparer les IDs, formes, fichiers et alias avant toute correction explicite."}</p>
+        <p className="mt-2 text-xs font-bold text-amber-100">Aucune sélection et aucune suppression MongoDB automatiques.</p>
+      </div>
+    </article>
   );
 }
 
@@ -947,7 +1039,7 @@ export function IdentityManagerPanel() {
             <p className="mt-2 break-all font-mono text-xs">Empreinte : {syncReport.inventory.fingerprint}</p>
             <p className={cn("mt-2 font-black", syncReport.mewtwoArmored === "present" ? "text-emerald-200" : "text-rose-200")}>Régression Mewtwo Armored : {syncReport.mewtwoArmored === "present" ? "identité présente" : "identité absente"}</p>
           </div>
-          {syncReport.conflicts.length ? <div className="rounded-xl border border-danger/35 bg-danger/10 p-4"><p className="font-black text-rose-100">La synchronisation est bloquée. Chaque conflit doit être résolu explicitement.</p><pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap text-xs text-rose-100/80">{JSON.stringify(syncReport.conflicts, null, 2)}</pre></div> : null}
+          {syncReport.conflicts.length ? <div className="space-y-3"><p className="rounded-xl border border-danger/35 bg-danger/10 p-4 font-black text-rose-100">La synchronisation est bloquée. Chaque conflit doit être résolu explicitement.</p>{syncReport.conflicts.map((conflict, index) => <IdentitySyncConflictCard key={`${conflict.code || "conflict"}-${conflict.canonicalId || index}-${index}`} conflict={conflict} index={index} />)}</div> : null}
         </div> : null}
       </Modal>
 

@@ -184,6 +184,17 @@ test("Identity Manager propose la forme contextuelle pour associer un diagnostic
   assert.match(source, /Alias proposé/);
 });
 
+test("Identity Manager explique les conflits de formes sans bloc JSON brut ni action destructive", () => {
+  const source = read("src/components/admin/pokemon/identity-manager-panel.tsx");
+  assert.match(source, /function IdentitySyncConflictCard/);
+  assert.match(source, /Fichiers et assets candidats/);
+  assert.match(source, /Alias MongoDB préservés/);
+  assert.match(source, /Résolution recommandée/);
+  assert.match(source, /Aucune sélection et aucune suppression MongoDB automatiques/);
+  assert.match(source, /collision-forme-ou-normalisation-trop-large/);
+  assert.doesNotMatch(source, /JSON\.stringify\(syncReport\.conflicts/);
+});
+
 test("la navigation précédente et suivante reste côte à côte sur mobile", () => {
   const source = read("src/components/admin/pokemon/detail-modal.jsx");
   assert.match(source, /grid grid-cols-2 gap-2 sm:gap-3/);
