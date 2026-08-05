@@ -203,6 +203,7 @@ test("Veille expose une supervision filtrable, alignée et responsive", () => {
   assert.match(source, /Filtrer les sources par statut/);
   assert.match(source, /État et cause/);
   assert.match(source, /Copier l’empreinte/);
+  assert.match(source, /document\.execCommand\("copy"\)/);
   assert.match(source, /Margxt, LeekDuck, PvPoke/);
   assert.match(source, /lg:grid-cols-\[minmax\(14rem,1\.45fr\)/);
   assert.match(source, /break-words/);

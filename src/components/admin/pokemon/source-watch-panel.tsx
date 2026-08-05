@@ -57,6 +57,27 @@ type SourceWatchState = {
 
 const emptySourceItems: SourceItem[] = [];
 
+async function copyText(value: string) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+      return;
+    }
+  } catch {
+    // Certains navigateurs ou contextes intégrés refusent l'API Clipboard malgré HTTPS.
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = value;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  const copied = document.execCommand("copy");
+  textarea.remove();
+  if (!copied) throw new Error("COPY_UNAVAILABLE");
+}
+
 type SourceHistoryItem = SourceItem & {
   checkedAt?: string;
   sourceId?: string;
@@ -418,7 +439,7 @@ export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
     const value = sourceSignature(source);
     if (!value) return;
     try {
-      await navigator.clipboard.writeText(value);
+      await copyText(value);
       toast.success(`Empreinte copiée — ${source.name || source.repo || "source"}`);
     } catch {
       toast.error("Impossible de copier l’empreinte de la source.");
