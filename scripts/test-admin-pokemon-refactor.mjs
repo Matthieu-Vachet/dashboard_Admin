@@ -195,6 +195,20 @@ test("Identity Manager explique les conflits de formes sans bloc JSON brut ni ac
   assert.doesNotMatch(source, /JSON\.stringify\(syncReport\.conflicts/);
 });
 
+test("Veille expose une supervision filtrable, alignée et responsive", () => {
+  const source = read("src/components/admin/pokemon/source-watch-panel.tsx");
+  assert.match(source, /Dernière vérification/);
+  assert.match(source, /Rechercher une source/);
+  assert.match(source, /Filtrer les sources par catégorie/);
+  assert.match(source, /Filtrer les sources par statut/);
+  assert.match(source, /État et cause/);
+  assert.match(source, /Copier l’empreinte/);
+  assert.match(source, /Margxt, LeekDuck, PvPoke/);
+  assert.match(source, /lg:grid-cols-\[minmax\(14rem,1\.45fr\)/);
+  assert.match(source, /break-words/);
+  assert.doesNotMatch(source, /block truncate font-black text-domain-foreground/);
+});
+
 test("la navigation précédente et suivante reste côte à côte sur mobile", () => {
   const source = read("src/components/admin/pokemon/detail-modal.jsx");
   assert.match(source, /grid grid-cols-2 gap-2 sm:gap-3/);

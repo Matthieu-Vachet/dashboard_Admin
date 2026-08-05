@@ -1,0 +1,70 @@
+export type SourceWatchPresentationItem = {
+  name?: string;
+  repo?: string;
+  url?: string;
+  remoteUrl?: string;
+  status?: string;
+  signature?: string | null;
+  version?: string | null;
+  message?: string | null;
+  description?: string | null;
+  category?: string;
+  type?: string;
+};
+
+export type SourceStatusFilter = "all" | "ok" | "warning" | "error";
+
+function searchable(value: unknown) {
+  return String(value || "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("fr-FR");
+}
+
+export function sourceStatusKind(status: unknown): Exclude<SourceStatusFilter, "all"> {
+  if (status === "ok") return "ok";
+  if (status === "warning") return "warning";
+  return "error";
+}
+
+export function sourceStatusLabel(status: unknown) {
+  const kind = sourceStatusKind(status);
+  if (kind === "ok") return "Opérationnelle";
+  if (kind === "warning") return "À surveiller";
+  return "Indisponible";
+}
+
+export function sourceCause(source: SourceWatchPresentationItem) {
+  const message = String(source.message || source.description || "").trim();
+  if (sourceStatusKind(source.status) === "ok") return message || "Source distante accessible.";
+  if (/HTTP 403/i.test(message)) return "Accès distant refusé (HTTP 403). La source reste enregistrée et sera contrôlée au prochain passage.";
+  if (/HTTP 429/i.test(message)) return "Quota distant temporairement atteint (HTTP 429). Nouvelle vérification recommandée plus tard.";
+  if (/HTTP 5\d\d/i.test(message)) return "Service distant temporairement indisponible. La source reste sous surveillance.";
+  if (/timeout|aborted/i.test(message)) return "Le contrôle distant a dépassé le délai autorisé. La source reste sous surveillance.";
+  return message || "Le contrôle distant n’a pas fourni de diagnostic exploitable.";
+}
+
+export function sourceSignature(source: SourceWatchPresentationItem) {
+  return String(source.signature || source.version || "").trim();
+}
+
+export function sourceMatchesQuery(source: SourceWatchPresentationItem, query: string) {
+  const needle = searchable(query).trim();
+  if (!needle) return true;
+  return [
+    source.name,
+    source.repo,
+    source.url,
+    source.remoteUrl,
+    source.message,
+    source.description,
+    source.category,
+    source.type,
+    source.signature,
+    source.version,
+  ].some((value) => searchable(value).includes(needle));
+}
+
+export function sourceMatchesStatus(source: SourceWatchPresentationItem, status: SourceStatusFilter) {
+  return status === "all" || sourceStatusKind(source.status) === status;
+}
