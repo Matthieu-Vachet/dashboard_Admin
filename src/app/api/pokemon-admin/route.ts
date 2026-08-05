@@ -57,11 +57,10 @@ async function requireDashboardSession() {
 function loadAdminModules() {
   const { buildChecklist, buildCustomRuleCatalogChecklist, detailForKey } = require("@/server/pokemon-go/apps/checklist/server/engine");
   const { sourceWatch } = require("@/server/pokemon-go/apps/checklist/server/source-watch");
-  const { runPokemonReleaseAudit } = require("@/server/pokemon-go/apps/checklist/server/pokemon-release-audit");
   const workshop = require("@/server/pokemon-go/apps/checklist/server/workshop");
   const { summarizeChecklist } = require("@/server/pokemon-go/src/lib/site-dashboard");
 
-  return { buildChecklist, buildCustomRuleCatalogChecklist, detailForKey, runPokemonReleaseAudit, sourceWatch, summarizeChecklist, workshop };
+  return { buildChecklist, buildCustomRuleCatalogChecklist, detailForKey, sourceWatch, summarizeChecklist, workshop };
 }
 
 async function readPokemonApiCurrent(
@@ -755,7 +754,7 @@ export async function GET(request: NextRequest) {
 
     await recordDashboardApiCall(session!.email, `/api/pokemon-admin:${action}`, "GET");
 
-    const { detailForKey, runPokemonReleaseAudit, sourceWatch, workshop } = loadAdminModules();
+    const { detailForKey, sourceWatch, workshop } = loadAdminModules();
 
     if (action === "bootstrap") {
       return json({ data: await bootstrapResponse(session!.email) });
@@ -784,27 +783,6 @@ export async function GET(request: NextRequest) {
           history: await recordSourceWatchHistory(session!.email, data),
         },
       });
-    }
-
-    if (action === "pokemon-release-audit") {
-      const kind = String(request.nextUrl.searchParams.get("kind") || "available");
-      let identityCatalog: unknown[] = [];
-      let identityCatalogStatus = "available";
-      try {
-        const firstPage = await readPokemonApiAdmin("/api/v1/admin/pokemon-identities?provider=margxt&status=active&page=1&limit=200", session!.email) as { data?: unknown[]; meta?: { pages?: number } };
-        identityCatalog = Array.isArray(firstPage?.data) ? firstPage.data : [];
-        const pages = Math.max(1, Math.min(50, Number(firstPage?.meta?.pages || 1)));
-        for (let page = 2; page <= pages; page += 1) {
-          const nextPage = await readPokemonApiAdmin(`/api/v1/admin/pokemon-identities?provider=margxt&status=active&page=${page}&limit=200`, session!.email) as { data?: unknown[] };
-          if (Array.isArray(nextPage?.data)) identityCatalog.push(...nextPage.data);
-        }
-      } catch {
-        // L'audit reste lisible avec l'inventaire canonique et les mappings approuvés.
-        // Une panne Identity Manager ne transforme jamais une observation en divergence.
-        identityCatalogStatus = "unavailable";
-      }
-      const data = await runPokemonReleaseAudit(kind, { identityCatalog });
-      return json({ data: { ...data, provenance: { ...data.provenance, identityCatalogStatus, identityCatalogEntries: identityCatalog.length } } });
     }
 
     if (action === "source-history") {
@@ -1085,26 +1063,6 @@ export async function POST(request: NextRequest) {
     if (action === "identity-manager-alias-create") {
       const identityId = requiredBodyId(body, "identityId");
       return json({ data: await callPokemonApiAdmin(`/api/v1/admin/pokemon-identities/${identityId}/aliases`, body.payload, session!.email) });
-    }
-
-    if (action === "pokemon-release-audit-manual-match") {
-      const canonicalId = requiredBodyId(body, "canonicalId");
-      const aliasValue = String(body.aliasValue || "").trim();
-      const kind = String(body.kind || "").trim();
-      const sourceKey = String(body.sourceKey || "").trim();
-      if (!aliasValue || aliasValue.length > 240) throw requestError("L’alias Margxt est requis et doit contenir au maximum 240 caractères.", 400);
-      if (!["available", "shiny", "costume", "shadow"].includes(kind)) throw requestError("Le type d’audit Pokémon est invalide.", 400);
-      const identityResponse = await readPokemonApiAdmin(`/api/v1/admin/pokemon-identities/${canonicalId}`, session!.email) as { data?: { _id?: string; id?: string; canonicalId?: string } };
-      const identityId = String(identityResponse?.data?._id || identityResponse?.data?.id || "").trim();
-      if (!identityId) throw requestError("La fiche JSON existe, mais son identité n’est pas synchronisée dans Identity Manager.", 409);
-      return json({ data: await callPokemonApiAdmin(`/api/v1/admin/pokemon-identities/${encodeURIComponent(identityId)}/aliases`, {
-        provider: "margxt",
-        value: aliasValue,
-        status: "active",
-        confidence: 1,
-        source: "manual",
-        reason: `Association manuelle depuis l’audit ${kind}${sourceKey ? ` (${sourceKey})` : ""} vers ${identityResponse.data?.canonicalId || decodeURIComponent(canonicalId)}.`,
-      }, session!.email) });
     }
 
     if (action === "identity-manager-alias-update") {

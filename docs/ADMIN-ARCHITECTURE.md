@@ -34,11 +34,11 @@ Le Dashboard Admin est organisé autour du dossier canonique `src/components/adm
 - Le PvP répond `202 Accepted` avec un identifiant d’exécution ; le Dashboard interroge ensuite le statut privé jusqu’à l’état terminal.
 - Les actions longues utilisent la primitive `Button`, son état `loading`, `aria-busy` et le respect de `prefers-reduced-motion`.
 
-## Centre de contrôle Pokémon
+## Qualité et supervision
 
-Le groupe **Qualité & supervision** contient quatre pages distinctes : disponibilité, chromatiques, costumes et Shadow. Leur BFF authentifié lit les pages Margxt à la demande, compare les observations aux fiches locales et retourne une vue privée sans mutation automatique.
+Le groupe **Qualité & supervision** conserve l’Engine de contrôle JSON, Identity Manager, Shiny Tracker, Résolution variantes, Game Master Explorer, Contrôles et Veille. Le Dashboard ne maintient aucun écran parallèle de comparaison des disponibilités.
 
-La Veille reste l’autorité d’enregistrement des sources et les classe en six domaines. Elle sépare les erreurs de transport des divergences métier et donne accès aux quatre audits.
+La Veille reste l’autorité d’enregistrement des sources et les classe en six domaines. Elle expose uniquement leur santé de transport et leurs signatures ; les données canoniques restent validées par l’Engine.
 
 La chaîne Candy ne résout aucune URL dans le Dashboard. `PokemonGo-Data` publie `assets.candy.image` et `assets.candy.xlImage`; le BFF et les composants transmettent ces références ou rendent explicitement l’état absent.
 

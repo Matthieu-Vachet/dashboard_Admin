@@ -23,7 +23,7 @@ Les grands catalogues utilisent pagination, fenêtre visible ou rendu progressif
 
 ## Implémentation vérifiée
 
-`src/components/admin/pokemon/pokemon-release-audit-panel.tsx`, `src/components/admin/pokemon/candy-panel.jsx`.
+`src/components/admin/pokemon/source-watch-panel.tsx`, `src/components/admin/pokemon/candy-panel.jsx`.
 
 ## Validation
 

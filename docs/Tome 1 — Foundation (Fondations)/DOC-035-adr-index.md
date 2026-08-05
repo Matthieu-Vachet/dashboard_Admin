@@ -20,7 +20,7 @@ related: ["DOC-006", "DOC-013", "DOC-031", "DOC-033"]
 
 ## 1. Périmètre vérifié
 
-Les décisions ADR-001 à ADR-016 sont matérialisées dans `docs/Tome 15 — ADR`. Une fiche acceptée fait autorité avec le code et ses tests ; un ancien rapport d’audit ne remplace pas la décision courante.
+Les décisions ADR-001 à ADR-015 sont matérialisées dans `docs/Tome 15 — ADR`. Une fiche acceptée fait autorité avec le code et ses tests ; un ancien rapport d’audit ne remplace pas la décision courante.
 
 ## 2. Inventaire
 
@@ -28,21 +28,19 @@ Les décisions ADR-001 à ADR-016 sont matérialisées dans `docs/Tome 15 — AD
 | --- | --- |
 | Architecture et providers | ADR-001 à ADR-010 |
 | Identités et Game Master | ADR-011 à ADR-013 |
-| Audits externes | ADR-014 et ADR-016 |
+| Sources externes | ADR-014 |
 | Bonbons XL | ADR-015 |
 
 ## 3. Décisions de fiabilisation
 
 - [ADR-014](../Tome%2015%20%E2%80%94%20ADR/ADR-014-audit-externe-read-only.md) interdit toute écriture implicite depuis un audit externe.
 - [ADR-015](../Tome%2015%20%E2%80%94%20ADR/ADR-015-candy-xl-source-canonique.md) impose `assets.candy.xlImage` comme référence résolue.
-- [ADR-016](../Tome%2015%20%E2%80%94%20ADR/ADR-016-resolution-identite-audits.md) impose la résolution déterministe et sépare qualité de résolution et divergence métier.
 
 ## 4. Relations
 
 ```mermaid
 flowchart LR
   ADR14["ADR-014 · lecture seule"] --> AUDIT["Audits Pokémon"]
-  ADR16["ADR-016 · identité déterministe"] --> AUDIT
   ADR15["ADR-015 · XL canonique"] --> DATA["JSON Pokémon"]
 ```
 

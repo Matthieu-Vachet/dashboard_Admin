@@ -23,7 +23,7 @@ Les écrans évitent les recalculs au rendu, bornent les listes initiales et uti
 
 ## Implémentation vérifiée
 
-`src/components/admin/pokemon/pokemon-release-audit-panel.tsx`.
+`src/components/admin/pokemon/source-watch-panel.tsx`.
 
 ## Validation
 

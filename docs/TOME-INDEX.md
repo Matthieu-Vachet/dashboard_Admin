@@ -27,9 +27,9 @@ references: [ASSET-001, TEST-001, PERF-001, RESP-001, SEC-001, ROADMAP-001, ADR-
 | Tome 12 — Responsive | breakpoints et composants adaptatifs | RESP-001 à RESP-006 |
 | Tome 13 — Security | auth, datasets et frontière API | SEC-001 à SEC-006 |
 | Tome 14 — Roadmap | priorités, dette et limitations | ROADMAP-001 à ROADMAP-005 |
-| Tome 15 — ADR | décisions | ADR-014 à ADR-016 |
+| Tome 15 — ADR | décisions | ADR-014 à ADR-015 |
 | Tome 18 — Workflow | opérations | workflows existants; audit externe manuel |
-| Tome 19 — Rules | invariants | RULE-048 et RULE-049 |
+| Tome 19 — Rules | invariants | RULE-048 |
 
 Les Tomes 1 à 14 constituent désormais le socle continu obligatoire. Les documents historiques restent à leur emplacement et les séquences d’identifiants ne sont jamais renumérotées.
 

@@ -23,7 +23,7 @@ De 320 à 430 px, les résumés sont compacts, les détails repliables, les cha�
 
 ## Implémentation vérifiée
 
-`src/components/admin/pokemon/pokemon-release-audit-panel.tsx`, `src/components/admin/navigation/admin-sidebar.tsx`.
+`src/components/admin/pokemon/detail-modal.jsx`, `src/components/admin/navigation/admin-sidebar.tsx`.
 
 ## Validation
 

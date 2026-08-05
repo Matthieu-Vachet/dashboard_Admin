@@ -6,7 +6,7 @@ status: Complete
 last_update: 2026-07-31
 author: Codex
 affected_projects: [Dashboard Admin, PokemonGo-Data, PokemonGo-API-, PokemonGo-Assets-API]
-references: [DOC-036, ARCH-013, PROVIDER-021, DATASET-029, DATASET-030, ADR-014, ADR-015, RULE-048]
+references: [DOC-036, ARCH-013, PROVIDER-021, DATASET-030, ADR-014, ADR-015, RULE-048]
 ---
 
 # Audit documentaire — 31 juillet 2026

@@ -87,26 +87,6 @@ Le conteneur visuel des bonbons est transparent ; les PNG normal et XL reposent 
 
 L’espacement vertical fixe desktop a été supprimé. La colonne d’actions se centre par la grille et reste entre Build A et Build B sur mobile.
 
-## 19. Nouvelle page Vérification
-
-Une destination principale `pokemon-audits`, intitulée « Vérification Pokémon », héberge quatre onglets indépendants : Disponibilité, Chromatiques, Costumes et Shadow. Chaque onglet conserve filtres, compteurs, historique, export et résolution.
-
-## 20. Anciennes routes
-
-Les anciens identifiants `pokemon-audit-*` sont normalisés vers `section=pokemon-audits&audit=<domaine>` afin de préserver les favoris et liens historiques.
-
-## 21. Cause de l’alias non rafraîchi
-
-L’alias actif était persisté et le catalogue invalidé, mais le diagnostic ouvert portant le même couple provider/alias normalisé n’était pas clôturé.
-
-## 22. Correction cache/diagnostic
-
-La création, mise à jour ou réactivation idempotente d’un alias actif clôt immédiatement les diagnostics correspondants, renseigne l’identité de résolution puis invalide le cache. Les tests couvrent alias actif et inactif.
-
-## 23. Cartes d’audit
-
-Les cartes emploient le contrat commun des audits et séparent résolu, à jour, divergence réelle, ambigu, non résolu, parsing, externe/local et non vérifié. Une ambiguïté n’est jamais comptée comme divergence.
-
 ## 24. Nombre total de routes API auditées
 
 L’inventaire couvre 187 opérations testables : 86 opérations publiques issues d’OpenAPI et 101 opérations privées/Admin enregistrées explicitement.

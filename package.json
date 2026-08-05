@@ -24,7 +24,6 @@
     "test:candy-assets": "node --test scripts/test-pokemon-candy-assets.mjs",
     "test:pvp-local-data": "node --test scripts/test-pvp-ranking-local-data.mjs",
     "test:xl-candy-audit": "node --test scripts/test-xl-candy-audit.mjs",
-    "test:pokemon-release-audit": "node --test scripts/test-pokemon-release-audit.mjs",
     "test:docs": "node scripts/validate-documentation.mjs",
     "audit:docs:foundation": "node scripts/audit-foundation-documentation.mjs",
     "test:design-system": "node --test scripts/test-design-system-*.mjs scripts/test-form-accessibility.mjs",

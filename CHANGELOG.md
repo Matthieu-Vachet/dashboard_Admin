@@ -9,14 +9,12 @@
 
 ## 1.40.0 - 2026-08-02
 
-- Regroupe Disponibilité, Chromatiques, Costumes et Shadow dans le centre « Vérification Pokémon », avec anciennes URLs compatibles et liaison d’alias clôturant immédiatement les diagnostics.
 - Corrige les surfaces responsive partagées : activité récente, cartes d’accueil, bottom sheet PvP, modales JSON, Candies, commandes d’inversion et carte Compte repliable.
 - Étend l’API Explorer aux opérations publiques OpenAPI et aux routes Admin privées GET, POST, PATCH et DELETE sans exposer les secrets au navigateur.
 - Ajoute les Tomes 9 à 14, l’audit document par document des Tomes 1 à 8 et les validations obligatoires de structure, identifiants et liens.
 
 ## 1.39.0 - 2026-07-31
 
-- Ajoute les quatre centres de contrôle Pokémon Margxt, strictement en lecture seule, avec filtres, provenance, diagnostics et navigation vers les fiches locales.
 - Consomme `assets.candy.xlImage` dans Candies, Famille bonbon et PvP Rankings, et expose les écarts XL dans l’audit Assets sans fabriquer d’URL locale.
 - Corrige le coût de seconde attaque et les coéquipiers suggérés PvP, puis restaure les pictogrammes historiques avec un rendu lisible en thème sombre.
 - Réorganise la Veille en six domaines et complète l’encyclopédie technique avec index, pages, datasets, ADR, règle métier et validation documentaire.

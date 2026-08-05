@@ -2,9 +2,7 @@
 
 import { ExternalLink } from "lucide-react";
 import { createPortal } from "react-dom";
-import { useEffect, useState } from "react";
 import { EmptyState, ErrorState, FetchLoadingState } from "@/components/admin/shared/state-system";
-import { pokemonAdminApiPath } from "@/services/admin/pokemon-admin-api";
 
 type SourceItem = {
   id?: string;
@@ -41,28 +39,6 @@ type SourceWatchState = {
   error?: string;
   sources?: SourceItem[];
 } | null;
-
-type AuditSummary = {
-  kind: "available" | "shiny" | "costume" | "shadow";
-  stats: { divergences?: number; ambiguous?: number; unresolved?: number; parseErrors?: number };
-};
-
-const auditLinks = [
-  { kind: "available", section: "pokemon-audit-available", label: "Disponible" },
-  { kind: "shiny", section: "pokemon-audit-shiny", label: "Chromatiques" },
-  { kind: "costume", section: "pokemon-audit-costume", label: "Costumes" },
-  { kind: "shadow", section: "pokemon-audit-shadow", label: "Shadow" },
-] as const;
-
-async function loadAuditSummaries(signal: AbortSignal) {
-  return Promise.all(auditLinks.map(async ({ kind }) => {
-    const params = new URLSearchParams({ action: "pokemon-release-audit", kind });
-    const response = await fetch(`${pokemonAdminApiPath}?${params}`, { cache: "no-store", signal });
-    const payload = await response.json();
-    if (!response.ok) throw new Error(payload.error || `Audit ${kind} indisponible.`);
-    return { kind, stats: payload.data?.stats || {} } as AuditSummary;
-  }));
-}
 
 type SourceHistoryItem = SourceItem & {
   checkedAt?: string;
@@ -392,18 +368,7 @@ export function DataDeployHistoryModal({
   );
 }
 
-export function SourceRows({ sourceWatch, onNavigate }: { sourceWatch: SourceWatchState; onNavigate?: (section: string) => void }) {
-  const [auditSummaries, setAuditSummaries] = useState<AuditSummary[]>([]);
-  const [auditSummaryError, setAuditSummaryError] = useState("");
-
-  useEffect(() => {
-    const controller = new AbortController();
-    loadAuditSummaries(controller.signal)
-      .then(setAuditSummaries)
-      .catch((error) => { if (!(error instanceof DOMException && error.name === "AbortError")) setAuditSummaryError(error instanceof Error ? error.message : "Résumés indisponibles."); });
-    return () => controller.abort();
-  }, []);
-
+export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
   if (sourceWatch?.loading) {
     return <FetchLoadingState layout="inline" title="Vérification des sources en cours…" />;
   }
@@ -419,23 +384,15 @@ export function SourceRows({ sourceWatch, onNavigate }: { sourceWatch: SourceWat
   const changedSources = sources.filter((source) => source.changedSinceLastCheck);
   const errorSources = sources.filter((source) => source.status && !["ok", "warning"].includes(source.status));
   const groupedSources = sourceTaxonomy.map((group) => ({ ...group, sources: sources.filter((source) => sourceTaxonomyGroup(source).id === group.id) })).filter((group) => group.sources.length);
-  const auditTotals = auditSummaries.reduce((totals, audit) => ({
-    divergences: totals.divergences + (audit.stats.divergences || 0),
-    ambiguous: totals.ambiguous + (audit.stats.ambiguous || 0),
-    unresolved: totals.unresolved + (audit.stats.unresolved || 0),
-    parseErrors: totals.parseErrors + (audit.stats.parseErrors || 0),
-  }), { divergences: 0, ambiguous: 0, unresolved: 0, parseErrors: 0 });
   const lastCheck = sources.map((source) => source.updatedAt).filter(Boolean).sort().at(-1);
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
-        <SourceStat label="Sources actives" value={okCount + warningCount} tone="emerald" />
-        <SourceStat label="Sources indisponibles" value={errorCount} tone="red" />
-        <SourceStat label="Erreurs de parsing" value={auditTotals.parseErrors} tone="red" />
-        <SourceStat label="Identités ambiguës" value={auditTotals.ambiguous} tone="amber" />
-        <SourceStat label="Non résolues" value={auditTotals.unresolved} tone="sky" />
-        <SourceStat label="Divergences réelles" value={auditTotals.divergences} tone="cyan" />
+      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+        <SourceStat label="Sources suivies" value={sources.length} tone="sky" />
+        <SourceStat label="Sources OK" value={okCount} tone="emerald" />
+        <SourceStat label="À surveiller" value={warningCount} tone="amber" />
+        <SourceStat label="Indisponibles" value={errorCount} tone="red" />
       </div>
       <p className="rounded-2xl border border-cyan-300/15 bg-cyan-400/10 p-4 type-body-strong text-cyan-100">
         La veille croise maintenant Game Master, assets datamines, annonces officielles, sites communautaires et donnees PvP.
@@ -445,14 +402,7 @@ export function SourceRows({ sourceWatch, onNavigate }: { sourceWatch: SourceWat
         {groupedSources.map((group) => <article className="rounded-2xl border border-line bg-surface-faint p-3" key={group.id}><small className="type-overline text-muted">{group.label}</small><strong className="mt-1 block font-mono text-xl text-domain-foreground">{group.sources.length}</strong></article>)}
       </div>
       <div className="rounded-2xl border border-violet-300/15 bg-violet-400/[0.07] p-3">
-        <div className="flex flex-wrap items-center justify-between gap-2"><p className="type-overline text-violet-700 dark:text-violet-100">Audits de disponibilité</p><span className="type-caption-strong text-muted">Dernier signal source : {formatSourceDate(lastCheck)}</span></div>
-        <div className="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-4">
-          {auditLinks.map(({ kind, section, label }) => {
-            const summary = auditSummaries.find((audit) => audit.kind === kind);
-            return <button className="min-h-20 rounded-xl border border-violet-200/20 bg-violet-300/10 p-3 text-left type-caption-strong text-violet-800 hover:bg-violet-300/15 dark:text-violet-100" type="button" key={section} onClick={() => onNavigate?.(section)}><strong className="block text-domain-foreground">{label}</strong><span className="mt-1 block text-xs">{summary ? `${summary.stats.divergences || 0} divergence(s) · ${summary.stats.parseErrors || 0} erreur(s) de parsing` : "Chargement du résumé…"}</span></button>;
-          })}
-        </div>
-        {auditSummaryError ? <p className="mt-2 type-caption-strong text-amber-700 dark:text-amber-100">Les sources restent consultables ; {auditSummaryError}</p> : null}
+        <div className="flex flex-wrap items-center justify-between gap-2"><p className="type-overline text-violet-700 dark:text-violet-100">Supervision des sources</p><span className="type-caption-strong text-muted">Dernier signal source : {formatSourceDate(lastCheck)}</span></div>
       </div>
       {errorSources.length ? <div className="rounded-2xl border border-red-300/25 bg-red-500/10 p-4"><p className="type-overline text-red-100">Erreurs actives</p><ul className="mt-2 space-y-1 text-sm font-bold text-red-50">{errorSources.map((source) => <li key={source.id || source.name}>• {source.name || source.url} — {source.message || source.status}</li>)}</ul></div> : null}
       {changedSources.length ? (

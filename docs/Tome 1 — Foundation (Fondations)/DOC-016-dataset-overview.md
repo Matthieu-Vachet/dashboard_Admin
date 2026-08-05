@@ -48,7 +48,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | DATASET-017 | Shiny Tracker privé |
 | DATASET-018 | PvP Rankings public |
 | DATASET-019 | Source Watch privé admin |
-| DATASET-029 à 030 | Audits de disponibilité et assets candy familiaux |
+| DATASET-030 | Assets candy familiaux |
 
 ## 3. Implémentation observée
 
@@ -57,7 +57,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - DATASET-017 utilise shiny_rankings et shiny_snapshots, exige le secret API et reste absent d’OpenAPI.
 - DATASET-018 utilise pvprankings, un document current compressé et des routes publiques.
 - DATASET-019 stocke la configuration dans source-watch/sources.json et l’historique dans dashboard_store.
-- DATASET-029 lit les pages Margxt en lecture seule ; DATASET-030 provient exclusivement des JSON PokemonGo-Data résolus.
+- DATASET-030 provient exclusivement des JSON PokemonGo-Data résolus.
 
 ## 4. Relations et dépendances
 
@@ -65,7 +65,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | --- | --- | --- |
 | DATASET-001 à 011 | proviennent de | PokemonGo-Data |
 | DATASET-012 à 018 | sont servis par | PokemonGo-API |
-| DATASET-019 et 029 | sont servis par | Dashboard Admin privé |
+| DATASET-019 | est servi par | Dashboard Admin privé |
 
 ## 5. Diagramme vérifié
 
@@ -73,7 +73,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 flowchart TD
   STATIC["DATASET-001 à 011"] --> SYNC["Sync statique"]
   CURRENT["DATASET-012 à 018"] --> PIPE["Pipeline current"]
-  PRIVATE["DATASET-019 et 029"] --> DASH["BFF Dashboard"]
+  PRIVATE["DATASET-019"] --> DASH["BFF Dashboard"]
   SYNC --> DB[("MongoDB")]
   PIPE --> DB
   DASH --> DDB[("MongoDB Dashboard")]

@@ -129,7 +129,6 @@ const GameMasterExplorerPanel = dynamic(
 
 const BestDefendersPanel = dynamic(() => import("./best-defenders-panel").then((module) => module.BestDefendersPanel));
 const CostumeAuditPanel = dynamic(() => import("./costume-audit-panel").then((module) => module.CostumeAuditPanel));
-const PokemonReleaseAuditPanel = dynamic(() => import("./pokemon-release-audit-panel").then((module) => module.PokemonReleaseAuditPanel));
 const PvpBattleLab = dynamic(
   () => import("./pvp-battle-lab").then((module) => module.PvpBattleLab),
   {
@@ -146,12 +145,6 @@ const filtersAssetBase =
   "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers/Filters";
 const pokemonAssetBase =
   "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/divers";
-const pokemonAuditKinds = {
-  "pokemon-audit-available": "available",
-  "pokemon-audit-shiny": "shiny",
-  "pokemon-audit-costume": "costume",
-  "pokemon-audit-shadow": "shadow",
-};
 const navItems = [
   {
     id: "overview",
@@ -284,7 +277,6 @@ const navItems = [
     icon: Database,
     group: "quality",
   },
-  { id: "pokemon-audits", label: "Vérification Pokémon", icon: ClipboardCheck, group: "quality" },
   { id: "checks", label: "Contrôles", icon: AlertTriangle, group: "quality" },
   { id: "sources", label: "Veille", icon: Radar, group: "quality" },
   { id: "compare", label: "Comparaison", icon: FileDiff, group: "quality" },
@@ -1279,7 +1271,6 @@ export function AdminApp() {
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [active, setActive] = useState("overview");
-  const [pokemonAuditKind, setPokemonAuditKind] = useState("available");
   const [bootstrap, setBootstrap] = useState({
     loading: false,
     payload: null,
@@ -1362,22 +1353,10 @@ export function AdminApp() {
   const [rulesSyncing, setRulesSyncing] = useState(false);
 
   function selectSection(sectionId) {
-    const legacyAuditKind = pokemonAuditKinds[sectionId];
-    const normalizedSection = legacyAuditKind ? "pokemon-audits" : sectionId;
-    if (legacyAuditKind) setPokemonAuditKind(legacyAuditKind);
-    setActive(normalizedSection);
+    setActive(sectionId);
     const url = new URL(window.location.href);
-    url.searchParams.set("section", normalizedSection);
-    if (legacyAuditKind) url.searchParams.set("audit", legacyAuditKind);
-    window.history.replaceState({}, "", url);
-  }
-
-  function selectPokemonAuditKind(kind) {
-    setPokemonAuditKind(kind);
-    setActive("pokemon-audits");
-    const url = new URL(window.location.href);
-    url.searchParams.set("section", "pokemon-audits");
-    url.searchParams.set("audit", kind);
+    url.searchParams.set("section", sectionId);
+    url.searchParams.delete("audit");
     window.history.replaceState({}, "", url);
   }
 
@@ -1414,19 +1393,13 @@ export function AdminApp() {
     setCollections(readLocalJson(collectionsKey, []));
     const requestedParams = new URLSearchParams(window.location.search);
     const requestedSection = requestedParams.get("section");
-    const legacyAuditKind = pokemonAuditKinds[requestedSection];
-    const requestedAuditKind = requestedParams.get("audit") || legacyAuditKind;
     const requestedSearch = requestedParams.get("q") || "";
-    if (requestedAuditKind && ["available", "shiny", "costume", "shadow"].includes(requestedAuditKind)) {
-      setPokemonAuditKind(requestedAuditKind);
-    }
-    if (legacyAuditKind) {
-      setActive("pokemon-audits");
-      requestedParams.set("section", "pokemon-audits");
-      requestedParams.set("audit", legacyAuditKind);
-      window.history.replaceState({}, "", `${window.location.pathname}?${requestedParams}${window.location.hash}`);
-    } else if (requestedSection && navItems.some((item) => item.id === requestedSection)) {
+    if (requestedSection && navItems.some((item) => item.id === requestedSection)) {
       setActive(requestedSection);
+    } else if (requestedSection) {
+      requestedParams.set("section", "overview");
+      requestedParams.delete("audit");
+      window.history.replaceState({}, "", `${window.location.pathname}?${requestedParams}${window.location.hash}`);
     }
     if (requestedSearch) updateGlobalSearch(requestedSearch);
   }, [updateGlobalSearch]);
@@ -3394,18 +3367,8 @@ export function AdminApp() {
                     </div>
                   }
                 >
-                  <SourceRows sourceWatch={sourceWatch} onNavigate={selectSection} />
+                  <SourceRows sourceWatch={sourceWatch} />
                 </Panel>
-              ) : null}
-
-              {active === "pokemon-audits" ? (
-                <PokemonReleaseAuditPanel
-                  key={pokemonAuditKind}
-                  kind={pokemonAuditKind}
-                  localEntries={entries}
-                  onOpenPokemon={openDetail}
-                  onKindChange={selectPokemonAuditKind}
-                />
               ) : null}
 
               {active === "logs" ? (

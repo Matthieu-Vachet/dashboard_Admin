@@ -6,15 +6,15 @@ status: Accepted
 last_update: 2026-07-31
 author: Matthieu Vachet
 affected_projects: [Dashboard Admin, PokemonGo-Data]
-references: [PROVIDER-021, DATASET-029]
+references: [PROVIDER-021, DATASET-019, DATASET-028]
 ---
 
 # ADR-014 — Audit externe en lecture seule
 
 ## Décision
 
-Une page externe sert de contrôle et jamais de source d’écriture implicite. Le Dashboard produit des écarts traçables, laisse les ambiguïtés ouvertes et sépare indisponibilité réseau, erreur de parsing, résolution d’identité et divergence métier.
+Une page externe sert de signal de veille et jamais de source d’écriture implicite. Le Dashboard sépare indisponibilité réseau, erreur de parsing et donnée canonique.
 
 ## Conséquences
 
-Les corrections locales passent par un workflow humain, un provider versionné, une validation puis un commit dédié. Le centre de contrôle n’expose aucune mutation. Une divergence doit toujours montrer le champ JSON, la valeur externe, la valeur locale et la raison.
+Les corrections locales passent par un workflow humain, un provider versionné, une validation puis un commit dédié. La Veille n’expose aucune mutation ; le véritable Engine JSON reste l’autorité de contrôle structurel.

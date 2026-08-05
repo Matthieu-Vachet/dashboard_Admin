@@ -1,7 +1,7 @@
 ---
 id: DOC-033
 title: "Datasets publics et privés"
-description: "Référence de la visibilité effective des 20 datasets, 160 routes, 32 collections et 49 pages ou sections."
+description: "Référence de la visibilité effective des datasets, routes, collections et pages actives."
 version: 2.0.0
 status: Official
 owner: Matthieu Vachet
@@ -34,7 +34,7 @@ related:
 
 ## 1. Périmètre vérifié
 
-Référence de la visibilité effective des 20 datasets, 160 routes, 32 collections et 49 pages ou sections.
+Référence de la visibilité effective des datasets, routes, collections et pages actives.
 
 Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, archives et rapports historiques ne servent pas de preuve runtime lorsqu’un fichier source actif existe.
 
@@ -46,7 +46,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | Routes privées/admin | inventoriées depuis les handlers protégés |
 | Route interne bloquée | 1 |
 | Datasets avec sortie publique | référentiels et projections explicitement documentés |
-| Datasets privés | DATASET-017, DATASET-019 et DATASET-029 |
+| Datasets privés | DATASET-017 et DATASET-019 |
 | Collections | 16 exposées sélectivement, 15 privées, 1 interne |
 
 ## 3. Implémentation observée
@@ -54,7 +54,6 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - DATASET-001 à 016 et DATASET-018 ont une sortie publique, même lorsque leur dépôt source est privé.
 - DATASET-017 Shiny exige le secret sur quatre lectures/mutations, utilise deux collections privées et reste absent d’OpenAPI.
 - DATASET-019 Source Watch reste dans le Dashboard privé et dashboard_store.
-- DATASET-029 reste dans le BFF Dashboard privé et ne publie ni le HTML source ni une route OpenAPI.
 - La collection events est privée mais GET /api/events publie une projection métier cacheable.
 - Le préfixe /admin de six lectures current ne les rend pas privées; les handlers GET restent publics selon le routeur.
 
@@ -65,7 +64,6 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 | Client public | accède | projections publiques documentées |
 | Dashboard | accède avec session | routes privées Dashboard |
 | Dashboard BFF | accède avec secret | routes privées API |
-| Audits Margxt | restent | privés et en lecture seule |
 
 ## 5. Diagramme vérifié
 
@@ -74,7 +72,6 @@ flowchart LR
   PUB["Datasets publics"] --> API["Routes documentées"]
   SHINY["DATASET-017"] --> SECRET["Secret API"]
   WATCH["DATASET-019"] --> SESSION["Session Dashboard"]
-  AUDIT["DATASET-029"] --> SESSION
   SESSION --> PRIVATE["Routes privées"]
 ```
 

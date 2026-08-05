@@ -13,7 +13,6 @@ Documentation fonctionnelle :
 - [Pokémon GO PvP Battle Lab](./PVP-BATTLE-LAB.md)
 - [Organisation des assets publics](./ASSET-MAP.md)
 - [Audit documentaire du 31 juillet 2026](./Reports/DOCUMENTATION-AUDIT-2026-07-31.md)
-- [Investigation de fiabilisation des audits Pokémon](./Reports/Audits/2026-07-31-pokemon-audit-reliability-investigation.md)
 - [Migration de retrait de la collection personnelle](./migrations/2026-07-30-retire-trainer-pokemon.md)
 - [Third-party notices](./THIRD-PARTY-NOTICES.md)
 
@@ -179,7 +178,7 @@ Exemples :
 - Shiny Tracker *(privé)*
 - Calendrier des événements
 - Assets
-- Centre de contrôle Pokémon : disponibilité, chromatiques, costumes et Shadow
+- Contrôles JSON et veille des sources
 
 Chaque dataset est documenté individuellement.
 

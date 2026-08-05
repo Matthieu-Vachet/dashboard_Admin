@@ -26,6 +26,19 @@ test("la navigation Admin Pokémon est compacte sur desktop et devient une sheet
   assert.doesNotMatch(source, /2xl:grid-cols-5/);
 });
 
+test("le module de vérification Pokémon et ses quatre anciennes entrées sont absents", () => {
+  const app = read("src/components/admin/pokemon/admin-app.jsx");
+  const watch = read("src/components/admin/pokemon/source-watch-panel.tsx");
+  const proxy = read("src/app/api/pokemon-admin/route.ts");
+
+  assert.doesNotMatch(app, /pokemon-audits|pokemon-audit-(available|shiny|costume|shadow)|PokemonReleaseAuditPanel/);
+  assert.doesNotMatch(watch, /pokemon-release-audit|pokemon-audit-(available|shiny|costume|shadow)/);
+  assert.doesNotMatch(proxy, /pokemon-release-audit/);
+  assert.equal(fs.existsSync(path.join(root, "src/components/admin/pokemon/pokemon-release-audit-panel.tsx")), false);
+  assert.equal(fs.existsSync(path.join(root, "src/server/pokemon-go/apps/checklist/server/pokemon-release-audit.js")), false);
+  assert.equal(fs.existsSync(path.join(root, "src/server/pokemon-go/apps/checklist/server/pokemon-release-audit-schema.js")), false);
+});
+
 test("le burger global conserve les libellés complets sur mobile", () => {
   const frame = read("src/components/admin/layout/admin-app-frame.tsx");
   assert.match(frame, /renderSidebar\(collapsed\)/);
@@ -399,9 +412,6 @@ test("Identity Manager reste privé et expose un CRUD traçable sans secret navi
   assert.match(proxy, /identity-manager-sync-apply/);
   assert.match(panel, /Nouvelle identité/);
   assert.match(panel, /identity-manager-alias-create/);
-  assert.match(proxy, /pokemon-release-audit-manual-match/);
-  assert.match(proxy, /provider: "margxt"/);
-  assert.match(proxy, /source: "manual"/);
   assert.match(panel, /identity-manager-merge/);
   assert.match(panel, /mode: "preview"/);
   assert.match(panel, /Aucune écriture n’est possible avant une prévisualisation sans conflit/);
