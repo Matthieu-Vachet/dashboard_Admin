@@ -10,6 +10,9 @@ import { DatasetFilterBar } from "./dataset-filter-bar";
 import { DatasetSourceHeader } from "./dataset-source-header";
 import { PokemonArtwork } from "./pokemon-artwork";
 import { buttonClass, fieldClass, Panel } from "./admin-ui";
+import { toast } from "sonner";
+import { executePokemonAdminRegeneration } from "@/lib/admin-pokemon-global-regeneration";
+import { runRegenerationWithToast } from "@/lib/admin-regeneration-notifications.mjs";
 
 function downloadJson(value) {
   const url = URL.createObjectURL(new Blob([JSON.stringify(value, null, 2)], { type: "application/json" }));
@@ -24,7 +27,7 @@ export function CostumeAuditPanel({ globalSearch = "", onSearchChange }) {
   const [error, setError] = useState("");
   const requestSequence = useRef(0);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async ({ propagate = false } = {}) => {
     const sequence = requestSequence.current + 1;
     requestSequence.current = sequence;
     setLoading(true); setError("");
@@ -36,7 +39,10 @@ export function CostumeAuditPanel({ globalSearch = "", onSearchChange }) {
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
       if (requestSequence.current === sequence) setDataset(payload.data);
-    } catch (caught) { if (requestSequence.current === sequence) setError(caught instanceof Error ? caught.message : "Audit costumes indisponible."); }
+    } catch (caught) {
+      if (requestSequence.current === sequence) setError(caught instanceof Error ? caught.message : "Audit costumes indisponible.");
+      if (propagate) throw caught;
+    }
     finally { if (requestSequence.current === sequence) setLoading(false); }
   }, [globalSearch, options]);
   useEffect(() => {
@@ -47,11 +53,16 @@ export function CostumeAuditPanel({ globalSearch = "", onSearchChange }) {
   async function regenerate() {
     setRegenerating(true); setError("");
     try {
-      const response = await fetch("/api/pokemon-admin", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "regenerate-costume-audit" }) });
-      const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
-      await load();
-    } catch (caught) { setError(caught instanceof Error ? caught.message : "Régénération Margxt impossible."); }
+      await runRegenerationWithToast({
+        key: "costume-audit",
+        operation: () => executePokemonAdminRegeneration("regenerate-costume-audit"),
+        invalidate: () => load({ propagate: true }),
+        notifier: toast,
+        pendingMessage: "Régénération Costumes / Event en cours…",
+        successMessage: "Costumes / Event régénérés et actualisés.",
+        errorMessage: "Régénération Costumes / Event impossible.",
+      });
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "Régénération Costumes / Event impossible."); }
     finally { setRegenerating(false); }
   }
 

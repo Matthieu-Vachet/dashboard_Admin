@@ -22,6 +22,7 @@
     "test:pvp-engine": "tsx --test scripts/test-pvp-battle-engine.mts",
     "test:pvp-parity": "node --conditions=react-server --import tsx --test scripts/test-pvp-parity.mts",
     "test:candy-assets": "node --test scripts/test-pokemon-candy-assets.mjs",
+    "test:regeneration-notifications": "node --test scripts/test-regeneration-notifications.mjs",
     "test:pvp-local-data": "node --test scripts/test-pvp-ranking-local-data.mjs",
     "test:xl-candy-audit": "node --test scripts/test-xl-candy-audit.mjs",
     "test:docs": "node scripts/validate-documentation.mjs",

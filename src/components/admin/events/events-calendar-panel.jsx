@@ -66,6 +66,7 @@ import { fieldClass, Panel, primaryButtonClass, buttonClass } from "@/components
 import { DatasetSourceHeader } from "@/components/admin/pokemon/dataset-source-header";
 import { PokemonArtwork } from "@/components/admin/pokemon/pokemon-artwork";
 import { resolvePokemonVariant } from "@/lib/pokemon-variant-resolver";
+import { runRegenerationWithToast } from "@/lib/admin-regeneration-notifications.mjs";
 
 const monthFormat = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" });
 const dateTimeFormat = new Intl.DateTimeFormat("fr-FR", {
@@ -622,22 +623,32 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
   async function scrapeEvents() {
     setBusy("scrape");
     try {
-      const response = await fetch(adminEventsScrapePath, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: "{}",
+      await runRegenerationWithToast({
+        key: "events-scrape",
+        operation: async (signal) => {
+          const response = await fetch(adminEventsScrapePath, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: "{}",
+            signal,
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(payload.error || `Scrape LeekDuck impossible (HTTP ${response.status}).`);
+          return payload;
+        },
+        invalidate: (payload) => {
+          const nextEvents = Array.isArray(payload.data?.events) ? payload.data.events : [];
+          if (!nextEvents.length) throw new Error("Aucun event récupéré depuis LeekDuck.");
+          setEvents(nextEvents);
+          setMeta((current) => ({ ...current, configured: true, seeded: false, sourceRun: payload.data?.sourceRun || current.sourceRun || null }));
+        },
+        notifier: toast,
+        pendingMessage: "Régénération des Events en cours…",
+        successMessage: (payload) => `LeekDuck rescrapé: ${payload.data?.eventsParsed || payload.data?.events?.length || 0} events, ${payload.data?.pokemonMatched || 0} Pokémon matchés.`,
+        errorMessage: "Régénération des Events impossible.",
       });
-      const payload = await response.json();
-      if (!response.ok || payload.success === false) throw new Error(payload.error || "Scrape LeekDuck impossible.");
-      const nextEvents = Array.isArray(payload.data?.events) ? payload.data.events : [];
-      if (!nextEvents.length) throw new Error("Aucun event récupéré depuis LeekDuck.");
-      setEvents(nextEvents);
-      setMeta((current) => ({ ...current, configured: true, seeded: false, sourceRun: payload.data?.sourceRun || current.sourceRun || null }));
-      toast.success(
-        `LeekDuck rescrapé: ${payload.data?.eventsParsed || nextEvents.length} events, ${payload.data?.pokemonMatched || 0} Pokémon matchés.`,
-      );
-    } catch (error) {
-      toast.error(error.message || "Scrape LeekDuck impossible.");
+    } catch {
+      // Le gestionnaire partagé remplace le toast en cours par l’erreur exacte.
     } finally {
       setBusy("");
     }
