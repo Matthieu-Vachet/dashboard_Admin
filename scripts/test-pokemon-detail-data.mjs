@@ -77,3 +77,11 @@ test("les erreurs HTTP sont explicites", async () => {
     /Fiche introuvable/,
   );
 });
+
+test("une modale fermée accepte une entrée nulle sans erreur", () => {
+  assert.deepEqual(assemblePokemonDetail(null, null), {
+    availability: {},
+    shinyAvailability: null,
+    shadowShinyAvailability: null,
+  });
+});

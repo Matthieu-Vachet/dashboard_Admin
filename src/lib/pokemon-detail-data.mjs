@@ -16,13 +16,14 @@ export function pokemonDetailKey(entry = {}) {
 }
 
 export function assemblePokemonDetail(entry = {}, value = {}) {
+  const summary = entry && typeof entry === "object" ? entry : {};
   const remote = detailPayload(value);
   const source = remote.sourceData || {};
   const availability =
-    remote.availability || source.availability || entry.availability || {};
+    remote.availability || source.availability || summary.availability || {};
 
   return {
-    ...entry,
+    ...summary,
     ...source,
     ...remote,
     availability,
@@ -30,13 +31,13 @@ export function assemblePokemonDetail(entry = {}, value = {}) {
       "shinyAvailability",
       remote,
       source,
-      entry,
+      summary,
     ),
     shadowShinyAvailability: firstDeclaredField(
       "shadowShinyAvailability",
       remote,
       source,
-      entry,
+      summary,
     ),
   };
 }
