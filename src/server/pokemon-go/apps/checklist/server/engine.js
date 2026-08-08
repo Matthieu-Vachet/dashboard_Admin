@@ -1593,6 +1593,8 @@ function buildChecklist(customRulesOverride = null) {
       buddyDistance: displayData.buddyDistance ?? null,
       secondChargeMoveCost: displayData.secondChargeMoveCost || null,
       availability: displayData.availability || null,
+      shinyAvailability: displayData.shinyAvailability || null,
+      shadowShinyAvailability: displayData.shadowShinyAvailability || null,
       weatherBoost: displayData.weatherBoost || [],
       pvpLeagues:
         displayData.pvp && typeof displayData.pvp === "object"

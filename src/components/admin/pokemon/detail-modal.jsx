@@ -12,6 +12,7 @@ import {
   typeName,
 } from "@/components/site/pokemon-style";
 import { pokemonVariantBadges } from "@/lib/pokemon-variant-resolver";
+import { assemblePokemonDetail } from "@/lib/pokemon-detail-data.mjs";
 import { resolvePokemonShinyReleases } from "@/lib/pokemon-shiny-release.mjs";
 import { uiAssets } from "@/components/site/ui-assets";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -1462,7 +1463,10 @@ export function DetailModal({
 }) {
   const dialogTitleId = useId();
   const [activeTab, setActiveTab] = useState("overview");
-  const payload = useMemo(() => detail?.detail || detail || {}, [detail]);
+  const payload = useMemo(
+    () => assemblePokemonDetail(entry, detail),
+    [entry, detail],
+  );
   const tabs = useMemo(
     () =>
       [

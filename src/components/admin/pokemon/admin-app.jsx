@@ -43,6 +43,10 @@ import { Select } from "@/components/ui/select";
 import { MetricCard } from "@/components/site/metric-card";
 import { uiAssets } from "@/components/site/ui-assets";
 import {
+  assemblePokemonDetail,
+  loadPokemonDetail,
+} from "@/lib/pokemon-detail-data.mjs";
+import {
   AssetStatCard,
   BarList,
   CompletionList,
@@ -1334,6 +1338,7 @@ export function AdminApp() {
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [detail, setDetail] = useState(null);
+  const detailRequestRef = useRef(null);
   const [extraPanel, setExtraPanel] = useState(null);
   const [search, setSearch] = useState("");
   const [assetChecks, setAssetChecks] = useState({});
@@ -2345,21 +2350,34 @@ export function AdminApp() {
   }
 
   async function openDetail(entry) {
+    detailRequestRef.current?.abort();
+    const controller = new AbortController();
+    detailRequestRef.current = controller;
     const index = filtered.findIndex((item) => item.key === entry.key);
     setSelectedIndex(index);
     setSelectedEntry(entry);
     setExtraPanel(null);
-    setDetail(null);
-    const detailKey = entry.baseKey || entry.key;
-    const response = await fetch(
-      `${adminApiPath}?action=detail&key=${encodeURIComponent(detailKey)}`,
-    );
-    const payload = await response.json();
-    setDetail(
-      response.ok
-        ? payload.data
-        : { detail: { error: payload.error || "Erreur de chargement." } },
-    );
+    // Le résumé canonique contient déjà les sorties shiny. Tous les points
+    // d’entrée rendent donc la même fiche pendant le chargement du détail.
+    setDetail(assemblePokemonDetail(entry));
+    try {
+      const loaded = await loadPokemonDetail({
+        fetcher: fetch,
+        adminApiPath,
+        entry,
+        signal: controller.signal,
+      });
+      if (detailRequestRef.current === controller) setDetail(loaded);
+    } catch (error) {
+      if (error?.name === "AbortError") return;
+      if (detailRequestRef.current === controller) {
+        setDetail(
+          assemblePokemonDetail(entry, {
+            error: errorMessage(error, "Erreur de chargement."),
+          }),
+        );
+      }
+    }
   }
 
   function findEntryForPokemonReference(pokemon) {
@@ -3588,6 +3606,8 @@ export function AdminApp() {
           allEntries={entries}
           onOpenRelated={openDetail}
           onClose={() => {
+            detailRequestRef.current?.abort();
+            detailRequestRef.current = null;
             setSelectedIndex(-1);
             setSelectedEntry(null);
             setDetail(null);
