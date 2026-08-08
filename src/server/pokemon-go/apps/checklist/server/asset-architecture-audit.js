@@ -206,6 +206,18 @@ function buildAssetArchitectureAudit() {
     sourceFile: relativeDataPath(file),
     data: readJson(file),
   }));
+  const legacyEmbeddedFields = {
+    home: 0,
+    shuffle: 0,
+    assetForms: 0,
+    locationCards: 0,
+  };
+  for (const { data } of coreRecords) {
+    if (data.assets?.home != null) legacyEmbeddedFields.home += 1;
+    if (data.assets?.shuffle != null) legacyEmbeddedFields.shuffle += 1;
+    if (Array.isArray(data.assets?.assetForms) && data.assets.assetForms.length) legacyEmbeddedFields.assetForms += 1;
+    if (Array.isArray(data.assets?.locationCards) && data.assets.locationCards.length) legacyEmbeddedFields.locationCards += 1;
+  }
   const coreByFormId = new Map();
   for (const core of coreRecords) {
     const classification = classifyEntity(core.data);
@@ -545,6 +557,7 @@ function buildAssetArchitectureAudit() {
       uniqueUrls: new Set(urls).size,
       temporaryLegacyRefs,
       legacyMonoliths: legacyFiles.length,
+      legacyEmbeddedFields,
       errors,
       warnings,
       aggregateSha256: manifest.source?.aggregateSha256 || null,

@@ -177,6 +177,7 @@ function buildPvpArchitectureAudit(options = {}) {
       classification,
     };
   });
+  const legacyEmbeddedBlocks = sources.filter((source) => source.data.pvp != null).length;
   const sourcesByRef = new Map();
   for (const source of sources) {
     if (source.classification.ambiguous) {
@@ -434,6 +435,7 @@ function buildPvpArchitectureAudit(options = {}) {
     checkMetric(moveReference.moveId, expectedCategory, diagnosticContext);
   }
 
+  const leagueStatusCounts = Object.fromEntries([...LEAGUE_STATUSES].map((status) => [status, 0]));
   for (const pvpFile of pvpFiles) {
     const pvpRef = relativeDataPath(pvpFile);
     const linkedSources = sourcesByRef.get(pvpRef) || [];
@@ -584,6 +586,7 @@ function buildPvpArchitectureAudit(options = {}) {
       checkedProviderIds.set(provider.providerId, owners);
     }
     for (const [leagueId, league] of Object.entries(record.leagues || {})) {
+      if (LEAGUE_STATUSES.has(league?.status)) leagueStatusCounts[league.status] += 1;
       if (!LEAGUE_STATUSES.has(league?.status))
         add(issue({
           ...context,
@@ -695,6 +698,8 @@ function buildPvpArchitectureAudit(options = {}) {
       sourceCommit: manifest.source?.commit || null,
       sourceHash: manifest.source?.hash || null,
       syncedAt: manifest.source?.syncedAt || null,
+      leagueStatusCounts,
+      legacyEmbeddedBlocks,
     },
     issues: diagnostics,
     diagnosticsByRef,

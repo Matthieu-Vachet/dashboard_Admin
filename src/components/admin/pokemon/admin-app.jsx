@@ -1353,6 +1353,48 @@ function PvpArchitectureControlPanel({ audit }) {
   );
 }
 
+function CanonicalEngineReportPanel({ report, onDownload }) {
+  const performance = report?.performance || {};
+  const diagnostics = report?.diagnostics || {};
+  const taxonomy = report?.diagnosticTaxonomy || {};
+  const heapMb = Number(performance.memoryAfter?.heapUsedBytes || 0) / 1024 / 1024;
+  const valid = report?.status === "VALID" || report?.status === "VALID_WITH_DIAGNOSTICS";
+
+  return (
+    <Panel
+      title="Rapport Engine canonique"
+      eyebrow="audit global exportable"
+      action={
+        <button className={buttonClass} type="button" onClick={onDownload} disabled={!report}>
+          <FileJson size={17} /> Exporter le rapport
+        </button>
+      }
+    >
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        {[
+          ["Statut", report?.status || "—"],
+          ["Durée", Number.isFinite(performance.durationMs) ? `${performance.durationMs} ms` : "—"],
+          ["Heap final", heapMb ? `${heapMb.toFixed(1)} Mio` : "—"],
+          ["Erreurs architecture", diagnostics.architectureErrors ?? "—"],
+          ["Migration incomplète", taxonomy.MIGRATION_INCOMPLETE?.count ?? "—"],
+        ].map(([label, value]) => (
+          <article className="rounded-2xl border border-line bg-surface-inset p-4" key={label}>
+            <small className="type-overline text-muted">{label}</small>
+            <strong className={`mt-2 block font-mono text-lg ${valid ? "text-domain-foreground" : "text-red-100"}`}>
+              {value}
+            </strong>
+          </article>
+        ))}
+      </div>
+      <p className="mt-4 rounded-2xl border border-cyan-200/15 bg-cyan-400/10 p-4 type-body-strong text-cyan-50/85">
+        Le rapport distingue absences légitimes, données optionnelles, formes non supportées,
+        non classées, mappings manquants, références cassées, orphelins, migrations incomplètes
+        et erreurs bloquantes. Les index Map/Set sont construits une seule fois par audit.
+      </p>
+    </Panel>
+  );
+}
+
 function AssetArchitectureControlPanel({ audit }) {
   const summary = audit?.summary || {};
   const issues = Array.isArray(audit?.issues) ? audit.issues : [];
@@ -3597,6 +3639,17 @@ export function AdminApp() {
 
               {active === "checks" ? (
                 <>
+                  <CanonicalEngineReportPanel
+                    report={bootstrap.payload?.engineReport}
+                    onDownload={() => {
+                      if (!bootstrap.payload?.engineReport) {
+                        toast.error("Rapport Engine indisponible.");
+                        return;
+                      }
+                      downloadJsonPayload(bootstrap.payload.engineReport, "pokemon-engine-canonical-report");
+                      toast.success("Rapport Engine exporté.");
+                    }}
+                  />
                   <AssetArchitectureControlPanel
                     audit={bootstrap.payload?.assetArchitecture}
                   />

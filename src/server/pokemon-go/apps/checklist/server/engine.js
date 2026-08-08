@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { performance } = require("perf_hooks");
 const {
   dataPath,
   isInsideData,
@@ -1832,6 +1833,130 @@ function buildCustomRuleCatalogChecklist(customRulesOverride = null) {
   });
 }
 
+function issueCounts(issues) {
+  const counts = new Map();
+  for (const item of issues) {
+    const code = item?.issue || "unknown";
+    counts.set(code, (counts.get(code) || 0) + 1);
+  }
+  return Object.fromEntries([...counts.entries()].sort(([left], [right]) => left.localeCompare(right)));
+}
+
+function measuredMemory() {
+  const memory = process.memoryUsage();
+  return {
+    rssBytes: memory.rss,
+    heapTotalBytes: memory.heapTotal,
+    heapUsedBytes: memory.heapUsed,
+    externalBytes: memory.external,
+  };
+}
+
+function buildCanonicalEngineReport(customRulesOverride = null, options = {}) {
+  const startedAt = new Date().toISOString();
+  const started = performance.now();
+  const memoryBefore = measuredMemory();
+  const pvpArchitecture = options.pvpArchitecture || buildPvpArchitectureAudit();
+  const assetArchitecture = options.assetArchitecture || buildAssetArchitectureAudit();
+  const entries = buildChecklist(customRulesOverride, { pvpArchitecture });
+  const customRuleEntries = buildCustomRuleCatalogChecklist(customRulesOverride);
+  const checklistIssues = entries.flatMap((entry) => entry.issues || []);
+  const customRuleIssues = customRuleEntries.flatMap((entry) => entry.issues || []);
+  const architectureIssues = [...assetArchitecture.issues, ...pvpArchitecture.issues];
+  const memoryAfter = measuredMemory();
+  const durationMs = Number((performance.now() - started).toFixed(3));
+  const legitimateAbsences = Object.values(assetArchitecture.summary.legitimateAbsences || {})
+    .reduce((total, value) => total + Number(value || 0), 0);
+  const leagueStatuses = pvpArchitecture.summary.leagueStatusCounts || {};
+  const brokenReferences = architectureIssues.filter((item) => /(?:ref_broken|ref_invalid|reference_mismatch)$/.test(item.issue || "")).length;
+  const orphans = architectureIssues.filter((item) => /orphan/.test(item.issue || "")).length;
+  const legacyEmbeddedFields = assetArchitecture.summary.legacyEmbeddedFields || {};
+  const migrationIncomplete = Number(assetArchitecture.summary.temporaryLegacyRefs || 0)
+    + Number(assetArchitecture.summary.legacyMonoliths || 0)
+    + Object.values(legacyEmbeddedFields).reduce((total, value) => total + Number(value || 0), 0)
+    + Number(pvpArchitecture.summary.legacyEmbeddedBlocks || 0);
+  const trueErrors = Number(assetArchitecture.summary.errors || 0) + Number(pvpArchitecture.summary.errors || 0);
+  const status = trueErrors || migrationIncomplete
+    ? "INVALID"
+    : architectureIssues.length || checklistIssues.length || customRuleIssues.length
+      ? "VALID_WITH_DIAGNOSTICS"
+      : "VALID";
+
+  const report = {
+    schemaVersion: 1,
+    reportId: "ENGINE-CANONICAL-ARCHITECTURE-001",
+    generatedAt: startedAt,
+    status,
+    architecture: {
+      resolver: "family + entityCategory + canonicalFilename",
+      categories: ["NORMAL", "FORM", "MEGA", "DYNAMAX", "GIGANTAMAX"],
+      assets: assetArchitecture.summary,
+      pvp: pvpArchitecture.summary,
+      legacyRequirements: {
+        pokemonPvpEmbedded: Number(pvpArchitecture.summary.legacyEmbeddedBlocks || 0) > 0,
+        assetsHomeEmbedded: Number(legacyEmbeddedFields.home || 0) > 0,
+        assetsShuffleEmbedded: Number(legacyEmbeddedFields.shuffle || 0) > 0,
+        assetsAssetFormsEmbedded: Number(legacyEmbeddedFields.assetForms || 0) > 0,
+        assetsLocationCardsEmbedded: Number(legacyEmbeddedFields.locationCards || 0) > 0,
+        monolithicAssetFiles: Number(assetArchitecture.summary.legacyMonoliths || 0) > 0,
+      },
+    },
+    coverage: {
+      pokemonAndForms: entries.length,
+      moves: listJsonFiles(movesDir).length,
+      types: listJsonFiles(typesDir).length,
+      weather: listJsonFiles(weatherDir).length,
+      generations: listJsonFiles(generationsDir).length,
+      stickers: listJsonFiles(stickersDir).length,
+      assetCore: assetArchitecture.summary.core || 0,
+      assetFamilies: assetArchitecture.summary.familyRecords || 0,
+      pvpRecords: pvpArchitecture.summary.records || 0,
+      customRuleCatalogEntries: customRuleEntries.length,
+    },
+    diagnosticTaxonomy: {
+      LEGITIMATE_ABSENCE: { count: legitimateAbsences, blocking: false },
+      OPTIONAL: { count: 0, blocking: false },
+      UNSUPPORTED_FORM: { count: Number(leagueStatuses.UNSUPPORTED_FORM || 0), blocking: false },
+      NOT_RANKED: { count: Number(leagueStatuses.NOT_RANKED || 0), blocking: false },
+      MAPPING_MISSING: { count: Number(pvpArchitecture.summary.mappingWarnings || 0), blocking: false },
+      BROKEN_REFERENCE: { count: brokenReferences, blocking: true },
+      ORPHAN: { count: orphans, blocking: true },
+      MIGRATION_INCOMPLETE: { count: migrationIncomplete, blocking: true },
+      ERROR: { count: trueErrors, blocking: true },
+    },
+    diagnostics: {
+      architectureByCode: issueCounts(architectureIssues),
+      checklistByCode: issueCounts(checklistIssues),
+      customRulesByCode: issueCounts(customRuleIssues),
+      architectureErrors: trueErrors,
+      architectureWarnings: architectureIssues.length - trueErrors,
+      dataQualityFindings: checklistIssues.length,
+      customRuleFindings: customRuleIssues.length,
+    },
+    indexes: {
+      strategy: "Map/Set indexes built once per audit",
+      pokemonByFormId: entries.length,
+      assetReferences: assetArchitecture.summary.references || 0,
+      pvpReferences: pvpArchitecture.summary.references || 0,
+      moveCatalog: listJsonFiles(movesDir).length,
+    },
+    performance: {
+      durationMs,
+      memoryBefore,
+      memoryAfter,
+      heapDeltaBytes: memoryAfter.heapUsedBytes - memoryBefore.heapUsedBytes,
+    },
+  };
+
+  return {
+    report,
+    entries,
+    customRuleEntries,
+    assetArchitecture,
+    pvpArchitecture,
+  };
+}
+
 function detailForKey(key) {
   const separator = key.indexOf(":");
   const kind = key.slice(0, separator);
@@ -1890,6 +2015,7 @@ module.exports = {
   buildAssetFamilyPatches,
   buildAssetArchitectureAudit,
   buildCustomRuleCatalogChecklist,
+  buildCanonicalEngineReport,
   buildPvpArchitectureAudit,
   buildSuggestedPatch,
   buildChecklist,

@@ -55,12 +55,12 @@ async function requireDashboardSession() {
 }
 
 function loadAdminModules() {
-  const { buildAssetArchitectureAudit, buildAssetFamilyPatches, buildChecklist, buildCustomRuleCatalogChecklist, buildPvpArchitectureAudit, detailForKey } = require("@/server/pokemon-go/apps/checklist/server/engine");
+  const { buildAssetFamilyPatches, buildCanonicalEngineReport, detailForKey } = require("@/server/pokemon-go/apps/checklist/server/engine");
   const { sourceWatch } = require("@/server/pokemon-go/apps/checklist/server/source-watch");
   const workshop = require("@/server/pokemon-go/apps/checklist/server/workshop");
   const { summarizeChecklist } = require("@/server/pokemon-go/src/lib/site-dashboard");
 
-  return { buildAssetArchitectureAudit, buildAssetFamilyPatches, buildChecklist, buildCustomRuleCatalogChecklist, buildPvpArchitectureAudit, detailForKey, sourceWatch, summarizeChecklist, workshop };
+  return { buildAssetFamilyPatches, buildCanonicalEngineReport, detailForKey, sourceWatch, summarizeChecklist, workshop };
 }
 
 async function readPokemonApiCurrent(
@@ -705,13 +705,14 @@ async function deleteCustomRule(owner: string, body: JsonValue, workshop: Return
 }
 
 async function bootstrapResponse(owner: string, customRules: unknown = null) {
-  const { buildAssetArchitectureAudit, buildChecklist, buildCustomRuleCatalogChecklist, buildPvpArchitectureAudit, summarizeChecklist, workshop } = loadAdminModules();
+  const { buildCanonicalEngineReport, summarizeChecklist, workshop } = loadAdminModules();
   const rules = Array.isArray(customRules)
     ? (customRules as RuleRecord[])
     : await readCustomRules(owner, workshop);
-  const pvpArchitectureAudit = buildPvpArchitectureAudit();
-  const assetArchitectureAudit = buildAssetArchitectureAudit();
-  const entries = buildChecklist(rules, { pvpArchitecture: pvpArchitectureAudit });
+  const engineRun = buildCanonicalEngineReport(rules);
+  const pvpArchitectureAudit = engineRun.pvpArchitecture;
+  const assetArchitectureAudit = engineRun.assetArchitecture;
+  const entries = engineRun.entries;
   const pvpArchitecture = {
     summary: pvpArchitectureAudit.summary,
     issues: pvpArchitectureAudit.issues,
@@ -725,10 +726,11 @@ async function bootstrapResponse(owner: string, customRules: unknown = null) {
   return {
     viewer: { admin: true },
     entries,
-    customRuleEntries: buildCustomRuleCatalogChecklist(rules),
+    customRuleEntries: engineRun.customRuleEntries,
     summary: summarizeChecklist(entries),
     pvpArchitecture,
     assetArchitecture,
+    engineReport: engineRun.report,
     catalog: {
       types: dataCatalog.types.length,
       weather: dataCatalog.weather.length,
