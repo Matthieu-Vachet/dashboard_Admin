@@ -266,7 +266,7 @@ test("résout une fiche régionale propre sans revenir à HOME", () => {
   assert.equal(resolution.explicitVariant, true);
 });
 
-test("n'utilise jamais HOME pour une fiche spéciale exacte sans asset GO", () => {
+test("utilise HOME pour une Méga exacte sans asset Pokémon GO", () => {
   const resolution = resolvePokemonVariant({
     id: "RAYQUAZA_MEGA",
     formId: "RAYQUAZA_MEGA",
@@ -275,8 +275,8 @@ test("n'utilise jamais HOME pour une fiche spéciale exacte sans asset GO", () =
     mega: true,
     assets: { image: null, home: { image: "rayquaza-home.png" } },
   });
-  assert.equal(resolution.image, null);
-  assert.equal(resolution.source, "missing");
+  assert.equal(resolution.image, "rayquaza-home.png");
+  assert.equal(resolution.source, "home-mega");
   assert.equal(resolution.explicitVariant, true);
 });
 
@@ -296,8 +296,62 @@ test("conserve l'asset principal d'une fiche Méga déjà exacte", () => {
   };
   const resolution = resolvePokemonVariant(mega);
   assert.equal(resolution.image, "https://assets.example/rayquaza-mega.png");
-  assert.equal(resolution.source, "primary-assets");
+  assert.equal(resolution.source, "pokemon-go-mega");
   assert.ok(pokemonVariantBadges(mega).includes("Méga / Primo"));
+});
+
+test("l'ordre Méga est Pokémon GO, HOME, fallback portrait, puis placeholder", () => {
+  const base = {
+    id: "VENUSAUR_MEGA",
+    formId: "VENUSAUR_MEGA",
+    baseFormId: "VENUSAUR",
+    form: "mega",
+    image: "venusaur-portrait-summary.png",
+    goImage: "venusaur-go.png",
+    homeImage: "venusaur-home.png",
+    portraitImage: "venusaur-portrait.png",
+  };
+  assert.deepEqual(
+    [
+      resolvePokemonVariant(base),
+      resolvePokemonVariant({ ...base, goImage: null }),
+      resolvePokemonVariant({
+        ...base,
+        goImage: "javascript:alert(1)",
+        homeImage: null,
+      }),
+      resolvePokemonVariant({
+        id: base.id,
+        formId: base.formId,
+        baseFormId: base.baseFormId,
+        form: base.form,
+      }),
+    ].map(({ image, source }) => [image, source]),
+    [
+      ["venusaur-go.png", "pokemon-go-mega"],
+      ["venusaur-home.png", "home-mega"],
+      ["venusaur-portrait.png", "mega-fallback"],
+      [null, "missing"],
+    ],
+  );
+});
+
+test("les variantes Méga X/Y et shiny utilisent le même ordre central", () => {
+  for (const form of ["mega-x", "mega-y"]) {
+    const resolution = resolvePokemonVariant(
+      {
+        id: `CHARIZARD_${form.toUpperCase()}`,
+        formId: `CHARIZARD_${form.toUpperCase()}`,
+        baseFormId: "CHARIZARD",
+        form,
+        goShinyImage: `${form}-go-shiny.png`,
+        homeShinyImage: `${form}-home-shiny.png`,
+      },
+      { shiny: true },
+    );
+    assert.equal(resolution.image, `${form}-go-shiny.png`);
+    assert.equal(resolution.source, "pokemon-go-mega");
+  }
 });
 
 test("conserve l'artwork exact et les badges Obscur et Purifié", () => {
@@ -353,10 +407,23 @@ test("les fiches Admin conservent les assets exacts des formes et le fallback HO
     assert.equal(resolution.source, "primary-assets");
   }
 
-  for (const formId of ["RATTATA_ALOLA", "RAYQUAZA_MEGA"]) {
+  for (const formId of ["RATTATA_ALOLA"]) {
     const entry = entries.find((candidate) => candidate.formId === formId);
     assert.ok(entry, `fiche spéciale ${formId} absente`);
     assert.equal(resolvePokemonVariant(entry).source, "primary-assets");
+  }
+
+  const expectedMegaAssets = new Map([
+    ["VENUSAUR_MEGA", /Pokemon\/pm3\.fMEGA\.icon\.png$/],
+    ["CHARIZARD_MEGA_X", /Pokemon\/pm6\.fMEGA_X\.icon\.png$/],
+    ["CHARIZARD_MEGA_Y", /Pokemon\/pm6\.fMEGA_Y\.icon\.png$/],
+  ]);
+  for (const [formId, assetPattern] of expectedMegaAssets) {
+    const entry = entries.find((candidate) => candidate.formId === formId);
+    assert.ok(entry, `fiche Méga ${formId} absente`);
+    const resolution = resolvePokemonVariant(entry);
+    assert.match(resolution.image || "", assetPattern);
+    assert.equal(resolution.source, "pokemon-go-mega");
   }
 
   const unreleasedHomeOnly = entries.find((entry) =>

@@ -342,7 +342,13 @@ function createValidator() {
     }
   }
 
-  function assets(value, pathName, nullable = false, partial = false) {
+  function assets(
+    value,
+    pathName,
+    nullable = false,
+    partial = false,
+    allowHomeFallback = false,
+  ) {
     if (value === null && nullable) return;
     if (actualType(value) !== "object") {
       add(
@@ -361,10 +367,12 @@ function createValidator() {
       !relaxedAssetFields &&
       !(nullable && value.image === undefined && value.shinyImage === undefined)
     ) {
-      field(value, "image", `${pathName}.image`, "string", { nonEmpty: true });
-      field(value, "shinyImage", `${pathName}.shinyImage`, "string", {
-        nonEmpty: true,
-      });
+      if (!(allowHomeFallback && value.home?.image))
+        field(value, "image", `${pathName}.image`, "string", { nonEmpty: true });
+      if (!(allowHomeFallback && value.home?.shinyImage))
+        field(value, "shinyImage", `${pathName}.shinyImage`, "string", {
+          nonEmpty: true,
+        });
     } else {
       if (value.image !== undefined)
         field(value, "image", `${pathName}.image`, "string", {
@@ -629,6 +637,8 @@ function createValidator() {
       value.assets,
       `${pathName}.assets`,
       value.availability?.released === false,
+      false,
+      true,
     );
   }
 
@@ -1572,6 +1582,10 @@ function buildChecklist(customRulesOverride = null) {
       form: data.form || "normal",
       file: relativeToApp(file),
       assetsRef: data.assets?.assetsRef || null,
+      goImage: displayData.assets?.image || null,
+      goShinyImage: displayData.assets?.shinyImage || null,
+      portraitImage: displayData.assets?.portrait || null,
+      portraitShinyImage: displayData.assets?.portraitShiny || null,
       image: displayData.assets?.portrait || displayData.assets?.image || null,
       homeImage,
       shuffleImage,

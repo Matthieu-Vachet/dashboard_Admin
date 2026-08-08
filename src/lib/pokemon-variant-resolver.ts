@@ -25,7 +25,7 @@ export type PokemonVariantResolution = {
   shinyImage: string | null;
   assetVariant: PokemonVariantAsset | null;
   status: "matched" | "missing-asset";
-  source: "canonical-identity" | "asset-form" | "home-variant" | "primary-assets" | "home-assets" | "portrait-assets" | "pre-resolved" | "missing";
+  source: "canonical-identity" | "asset-form" | "home-variant" | "primary-assets" | "home-assets" | "portrait-assets" | "pokemon-go-mega" | "home-mega" | "mega-fallback" | "pre-resolved" | "missing";
   reason: string | null;
   matchedForm: string | null;
   matchedCostume: string | null;
@@ -52,7 +52,103 @@ function text(value: unknown): string | null {
 }
 
 function image(value: unknown): string | null {
-  return text(value);
+  const normalized = text(value);
+  if (!normalized) return null;
+  if (/^https?:/i.test(normalized)) {
+    try {
+      const url = new URL(normalized);
+      return url.hostname ? normalized : null;
+    } catch {
+      return null;
+    }
+  }
+  if (/^data:/i.test(normalized)) {
+    return /^data:image\//i.test(normalized) ? normalized : null;
+  }
+  if (/^[a-z][a-z\d+.-]*:/i.test(normalized)) return null;
+  return normalized;
+}
+
+function isMegaVariant(
+  pokemon: UnknownRecord,
+  request: Required<PokemonVariantRequest>,
+): boolean {
+  const form = normalizePokemonVariantToken(
+    firstDefined(request.form, pokemon.form, pokemon.formId),
+  );
+  return (
+    request.mega ||
+    pokemon.kind === "mega" ||
+    form.includes("MEGA") ||
+    form.includes("PRIMAL")
+  );
+}
+
+function megaAssetPair(pokemon: UnknownRecord) {
+  const assets = record(pokemon.assets);
+  const data = record(pokemon.data);
+  const dataAssets = record(data.assets);
+  const sourceData = record(pokemon.sourceData);
+  const sourceAssets = record(sourceData.assets);
+  const identity = record(pokemon.identity);
+  const assetResolution = record(identity.assetResolution);
+  const home = record(assets.home);
+  const dataHome = record(dataAssets.home);
+  const sourceHome = record(sourceAssets.home);
+
+  // Ordre canonique Méga : Pokémon GO, HOME, fallback portrait/pré-résolu.
+  const normalCandidates = [
+    [assets.image, "pokemon-go-mega"],
+    [dataAssets.image, "pokemon-go-mega"],
+    [sourceAssets.image, "pokemon-go-mega"],
+    [pokemon.goImage, "pokemon-go-mega"],
+    [data.goImage, "pokemon-go-mega"],
+    [sourceData.goImage, "pokemon-go-mega"],
+    [home.image, "home-mega"],
+    [dataHome.image, "home-mega"],
+    [sourceHome.image, "home-mega"],
+    [pokemon.homeImage, "home-mega"],
+    [data.homeImage, "home-mega"],
+    [sourceData.homeImage, "home-mega"],
+    [assets.portrait, "mega-fallback"],
+    [dataAssets.portrait, "mega-fallback"],
+    [sourceAssets.portrait, "mega-fallback"],
+    [pokemon.portraitImage, "mega-fallback"],
+    [identity.image, "mega-fallback"],
+    [assetResolution.image, "mega-fallback"],
+    [pokemon.image, "mega-fallback"],
+    [pokemon.shuffleImage, "mega-fallback"],
+  ] as const;
+  const shinyCandidates = [
+    [assets.shinyImage, "pokemon-go-mega"],
+    [dataAssets.shinyImage, "pokemon-go-mega"],
+    [sourceAssets.shinyImage, "pokemon-go-mega"],
+    [pokemon.goShinyImage, "pokemon-go-mega"],
+    [data.goShinyImage, "pokemon-go-mega"],
+    [sourceData.goShinyImage, "pokemon-go-mega"],
+    [home.shinyImage, "home-mega"],
+    [dataHome.shinyImage, "home-mega"],
+    [sourceHome.shinyImage, "home-mega"],
+    [pokemon.homeShinyImage, "home-mega"],
+    [data.homeShinyImage, "home-mega"],
+    [sourceData.homeShinyImage, "home-mega"],
+    [assets.portraitShiny, "mega-fallback"],
+    [dataAssets.portraitShiny, "mega-fallback"],
+    [sourceAssets.portraitShiny, "mega-fallback"],
+    [pokemon.portraitShinyImage, "mega-fallback"],
+    [identity.shinyImage, "mega-fallback"],
+    [assetResolution.shinyImage, "mega-fallback"],
+    [pokemon.shinyImage, "mega-fallback"],
+    [pokemon.shuffleShinyImage, "mega-fallback"],
+  ] as const;
+  const normal = normalCandidates.find(([candidate]) => image(candidate));
+  const shiny = shinyCandidates.find(([candidate]) => image(candidate));
+  return {
+    image: image(normal?.[0]),
+    imageSource: normal?.[1] || null,
+    shinyImage: image(shiny?.[0]),
+    shinyImageSource: shiny?.[1] || null,
+  };
 }
 
 export function normalizePokemonVariantToken(value: unknown): string {
@@ -393,6 +489,23 @@ export function resolvePokemonVariant(
 ): PokemonVariantResolution {
   const pokemon = record(pokemonValue);
   const request = normalizedRequest(pokemon, overrides);
+  if (isMegaVariant(pokemon, request)) {
+    const mega = megaAssetPair(pokemon);
+    const requestedImage = request.shiny ? mega.shinyImage : mega.image;
+    const requestedSource = request.shiny
+      ? mega.shinyImageSource
+      : mega.imageSource;
+    return finalizeResolution(pokemon, {
+      image: requestedImage,
+      shinyImage: mega.shinyImage,
+      assetVariant: null,
+      status: requestedImage ? "matched" : "missing-asset",
+      source: requestedImage ? requestedSource || "mega-fallback" : "missing",
+      reason: requestedImage ? null : "MEGA_ASSET_NOT_FOUND",
+      explicitVariant: true,
+      request,
+    });
+  }
   const identity = record(pokemon.identity);
   const assetResolution = record(identity.assetResolution);
   const canonicalId = text(identity.canonicalId);
