@@ -44,8 +44,9 @@ test("Modal conserve son API publique et son rendu portal", () => {
     /return createPortal\(/,
     /document\.body/,
   ]) assert.match(modal, contract);
-  assert.match(modal, /className="fixed inset-0 z-\[1100\] grid place-items-center bg-overlay p-3 backdrop-blur-xl sm:p-5"/);
-  assert.match(modal, /relative max-h-\[92dvh\] w-full max-w-2xl overflow-hidden rounded-overlay/);
+  assert.match(modal, /className="fixed inset-0 z-\[1100\] grid place-items-center bg-overlay px-3/);
+  assert.match(modal, /pb-\[max\(\.75rem,env\(safe-area-inset-bottom\)\)\]/);
+  assert.match(modal, /relative flex max-h-\[calc\(100dvh-max\(1\.5rem,env\(safe-area-inset-top\)\)-max\(1\.5rem,env\(safe-area-inset-bottom\)\)\)\] w-full max-w-2xl flex-col overflow-hidden rounded-overlay/);
   assert.match(modal, /shadow-overlay/);
 });
 
@@ -111,7 +112,8 @@ test("les dialogs legacy restent caractérisables sans migration partielle", () 
   const histories = source("src/components/admin/pokemon/source-watch-panel.tsx");
   assert.equal([...histories.matchAll(/role="dialog"/g)].length, 2);
   assert.equal([...histories.matchAll(/aria-modal="true"/g)].length, 2);
-  assert.equal([...histories.matchAll(/aria-labelledby=/g)].length, 2);
+  assert.match(histories, /role="dialog"[\s\S]{0,180}aria-labelledby="source-history-title"/);
+  assert.match(histories, /role="dialog"[\s\S]{0,180}aria-labelledby="data-deploy-history-title"/);
   assert.doesNotMatch(histories, /@\/components\/ui\/modal/);
 });
 

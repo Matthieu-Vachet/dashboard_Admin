@@ -50,14 +50,15 @@ function readEnvironment() {
 }
 
 const artwork = "/assets/ui/branding/zygardDexLogo.png";
+const eventNow = Date.now();
 const event = {
   id: "responsive-fixture-event",
   title: "Shadow Palkia in Shadow Raids",
   type: "raid_battles",
   source: "leekduck",
   sourceUrl: "https://example.test/events/palkia",
-  startDate: "2026-07-01T04:00:00.000Z",
-  endDate: "2026-08-04T20:00:00.000Z",
+  startDate: new Date(eventNow - 24 * 60 * 60 * 1_000).toISOString(),
+  endDate: new Date(eventNow + 24 * 60 * 60 * 1_000).toISOString(),
   description: "Événement fixture destiné à la vérification responsive.",
   featuredPokemon: [{ id: "PALKIA", name: "Palkia", image: artwork }],
   bonuses: ["Bonus de test lisible sur écran étroit"],

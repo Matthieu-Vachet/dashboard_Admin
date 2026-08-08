@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.43.0",
+    date: "2026-08-08",
+    title: "Rapport Engine canonique et publication finale",
+    changes: [
+      "Expose un rapport Engine sérialisable couvrant toutes les collections, Assets et fiches PvP séparées.",
+      "Distingue absences légitimes, non classés, mappings manquants, références cassées, orphelins et erreurs réelles.",
+      "Mesure durée et mémoire tout en réutilisant les index et audits partagés pour éviter les parcours quadratiques.",
+      "Valide la migration canonique sur desktop, mobile, Light, Dark, API, Engine et production.",
+    ],
+  },
+  {
     version: "V1.42.0",
     date: "2026-08-08",
     title: "Catégories Pokémon séparées pour Assets et PvP",

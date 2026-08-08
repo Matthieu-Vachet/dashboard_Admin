@@ -204,8 +204,8 @@ test("Modal et contenus techniques contiennent leur scroll", () => {
   const events = read("src/components/admin/events/events-calendar-panel.jsx");
   const docs = read("src/components/admin/pokemon/pokemon-docs-viewer.tsx");
   const mappings = read("src/components/admin/pokemon/pokemon-identity-mappings-panel.jsx");
-  assert.match(modal, /max-h-\[92dvh\]/);
-  assert.match(modal, /max-h-\[calc\(92dvh-9rem\)\] overflow-auto/);
+  assert.match(modal, /max-h-\[calc\(100dvh-max\(1\.5rem,env\(safe-area-inset-top\)\)-max\(1\.5rem,env\(safe-area-inset-bottom\)\)\)\]/);
+  assert.match(modal, /min-h-0 flex-1 overscroll-contain overflow-y-auto/);
   assert.match(events, /event-detail-modal[^\n]+max-h-\[94dvh\]/);
   assert.match(events, /keyEvent\.key === "Escape"/);
   assert.match(events, /keyEvent\.key !== "Tab"/);

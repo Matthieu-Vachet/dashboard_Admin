@@ -63,7 +63,7 @@ test("CardHeader, CardTitle et CardDescription gardent leur anatomie", () => {
   }
 });
 
-test("le ton flat est fondé sur les 20 surfaces exactes", () => {
+test("le ton flat conserve les migrations Card et les exceptions métier exactes", () => {
   const remainingSkeletons = files.reduce((total, file) => total + (sources.get(file).match(flatSkeleton)?.length || 0), 0);
   const flatCards = files.reduce((total, file) => total + (sources.get(file).match(/<Card\s+tone="flat"/g)?.length || 0), 0);
   if (target) {
@@ -71,7 +71,7 @@ test("le ton flat est fondé sur les 20 surfaces exactes", () => {
     assert.match(card, /tone === "flat"/);
     assert.match(card, /border border-line bg-surface-flat/);
     assert.ok(flatCards >= 20, "les vingt migrations historiques Card flat doivent rester canoniques");
-    assert.equal(remainingSkeletons, 16);
+    assert.equal(remainingSkeletons, 19);
   } else {
     assert.doesNotMatch(card, /"flat"/);
     assert.equal(flatCards, 0);

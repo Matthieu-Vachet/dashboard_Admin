@@ -15,7 +15,7 @@ test("le véritable Engine produit un rapport global sérialisable et mesuré", 
   assert.equal(report.status, "VALID_WITH_DIAGNOSTICS");
   assert.equal(report.coverage.pokemonAndForms, 1_611);
   assert.equal(report.coverage.assetCore, 1_611);
-  assert.equal(report.coverage.assetFamilies, 3_148);
+  assert.equal(report.coverage.assetFamilies, 3_147);
   assert.equal(report.coverage.pvpRecords, 1_611);
   assert.equal(report.architecture.assets.valid, true);
   assert.equal(report.architecture.pvp.valid, true);

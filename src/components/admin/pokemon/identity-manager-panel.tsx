@@ -460,7 +460,7 @@ function IdentitySyncConflictCard({ conflict, index }: { conflict: IdentitySyncC
     <article className="rounded-xl border border-danger/35 bg-danger/10 p-4">
       <div className="flex flex-wrap items-center gap-2">
         <Badge tone="red">Conflit {index + 1}</Badge>
-        <code className="break-all text-xs font-bold text-rose-100">{conflict.code || "IDENTITY_SYNC_CONFLICT"}</code>
+        <code className="break-all type-caption-strong text-rose-100">{conflict.code || "IDENTITY_SYNC_CONFLICT"}</code>
       </div>
       <h4 className="mt-2 font-black text-rose-50">{cause}</h4>
       <div className="mt-3 grid gap-3 lg:grid-cols-2">
@@ -473,7 +473,7 @@ function IdentitySyncConflictCard({ conflict, index }: { conflict: IdentitySyncC
       <div className="mt-3 rounded-lg border border-warning/35 bg-warning/10 p-3 text-sm text-amber-50">
         <p className="font-black">Résolution recommandée</p>
         <p className="mt-1">{conflict.resolution?.recommendation || "Comparer les IDs, formes, fichiers et alias avant toute correction explicite."}</p>
-        <p className="mt-2 text-xs font-bold text-amber-100">Aucune sélection et aucune suppression MongoDB automatiques.</p>
+        <p className="mt-2 type-caption-strong text-amber-100">Aucune sélection et aucune suppression MongoDB automatiques.</p>
       </div>
     </article>
   );

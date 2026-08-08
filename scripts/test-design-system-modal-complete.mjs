@@ -29,10 +29,12 @@ test("Modal conserve son API publique finie et son anatomie visuelle", () => {
     assert.doesNotMatch(modal, new RegExp(forbidden));
   }
   assert.match(modal, /createPortal\([\s\S]*document\.body/);
-  assert.match(modal, /fixed inset-0 z-\[1100\] grid place-items-center bg-overlay p-3 backdrop-blur-xl sm:p-5/);
-  assert.match(modal, /max-h-\[92dvh\] w-full max-w-2xl overflow-hidden rounded-overlay/);
+  assert.match(modal, /fixed inset-0 z-\[1100\] grid place-items-center bg-overlay px-3/);
+  assert.match(modal, /pb-\[max\(\.75rem,env\(safe-area-inset-bottom\)\)\]/);
+  assert.match(modal, /sm:pt-\[max\(1\.25rem,env\(safe-area-inset-top\)\)\]/);
+  assert.match(modal, /max-h-\[calc\(100dvh-max\(1\.5rem,env\(safe-area-inset-top\)\)-max\(1\.5rem,env\(safe-area-inset-bottom\)\)\)\] w-full max-w-2xl flex-col overflow-hidden rounded-overlay/);
   assert.match(modal, /shadow-overlay/);
-  assert.match(modal, /max-h-\[calc\(92dvh-9rem\)\] overflow-auto p-4 sm:p-5/);
+  assert.match(modal, /min-h-0 flex-1 overscroll-contain overflow-y-auto p-4 sm:p-5/);
 });
 
 test("chaque instance Modal courante importe la primitive canonique", () => {
@@ -132,7 +134,9 @@ test("les corrections spécialisées restent sémantiques et locales", () => {
     assert.match(collections, /aria-labelledby="collections-editor-title"/);
     const sourceDialogs = sources.match(/role="dialog"/g)?.length || 0;
     assert.ok(sourceDialogs > 0);
-    assert.equal(sources.match(/aria-labelledby=/g)?.length || 0, sourceDialogs);
+    assert.equal(sourceDialogs, 2);
+    assert.match(sources, /role="dialog"[\s\S]{0,180}aria-labelledby="source-history-title"/);
+    assert.match(sources, /role="dialog"[\s\S]{0,180}aria-labelledby="data-deploy-history-title"/);
     assert.match(pokemon, /aria-labelledby=\{dialogTitleId\}/);
     assert.match(pokemon, /aria-label=\{`Aperçu asset \$\{preview\.label\}`\}/);
   }

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.43.0 - 2026-08-08
+
+- Publie le rapport Engine canonique transversal avec couverture, diagnostics,
+  exigences legacy, durée et mémoire exportables.
+- Coordonne les audits Assets, PvP, checklist et catalogue sans rescanner inutilement
+  les 1 611 entités et leurs familles séparées.
+- Finalise les validations desktop/mobile, Light/Dark, API et production de la migration
+  canonique Pokémon.
+
 ## 1.42.0 - 2026-08-08
 
 - Adapte les loaders Assets et PvP aux catégories Pokémon séparées et centralise la résolution des chemins.

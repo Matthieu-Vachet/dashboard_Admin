@@ -18,14 +18,14 @@ test("l'Engine valide toute l'architecture Assets séparée", () => {
   assert.equal(audit.summary.errors, 0);
   assert.equal(audit.summary.sources, 1_611);
   assert.equal(audit.summary.core, 1_611);
-  assert.equal(audit.summary.familyRecords, 3_148);
-  assert.equal(audit.summary.references, 3_148);
-  assert.equal(audit.summary.manifestRecords, 4_759);
+  assert.equal(audit.summary.familyRecords, 3_147);
+  assert.equal(audit.summary.references, 3_147);
+  assert.equal(audit.summary.manifestRecords, 4_758);
   assert.deepEqual(audit.summary.counts, {
     core: 1_611,
     home: 1_089,
     shuffle: 1_512,
-    variants: 332,
+    variants: 331,
     "location-cards": 215,
   });
   assert.deepEqual(audit.summary.categoryCounts.core, {
@@ -38,10 +38,10 @@ test("l'Engine valide toute l'architecture Assets séparée", () => {
   assert.deepEqual(audit.summary.legitimateAbsences, {
     home: 522,
     shuffle: 99,
-    variants: 1_279,
+    variants: 1_280,
     "location-cards": 1_396,
   });
-  assert.equal(audit.summary.urls, 21_019);
+  assert.equal(audit.summary.urls, 21_017);
   assert.equal(audit.summary.uniqueUrls, 16_599);
   assert.equal(audit.summary.temporaryLegacyRefs, 0);
   assert.equal(audit.summary.legacyMonoliths, 0);

@@ -38,9 +38,10 @@ const shinyEntries = [
   shiny: { odds: { raw: odds, denominator: Number(String(odds).split(" ").at(-1)) }, seen: 1_000, ratePercent: 0.4, rarity: "Fixture" },
   source: { trend: "flat" }, lastSeenAt: "2026-07-25T04:05:00.000Z",
 }));
+const eventNow = Date.now();
 const event = {
   id: "fixture-shadow-palkia", sourceId: "fixture-shadow-palkia", title: "Shadow Palkia in Shadow Raids", category: "Raid Battles", source: "leekduck",
-  startDate: "2026-07-01T04:00:00.000Z", endDate: "2026-08-04T20:00:00.000Z", description: "Raid Battles – Shadow Palkia in Shadow Raids",
+  startDate: new Date(eventNow - 24 * 60 * 60 * 1_000).toISOString(), endDate: new Date(eventNow + 24 * 60 * 60 * 1_000).toISOString(), description: "Raid Battles – Shadow Palkia in Shadow Raids",
   featuredPokemon: [{ name: "Palkia", src: artwork }], bonuses: [], rewards: [], sections: [], links: [], status: "active",
 };
 const pvpMimikyu = {
@@ -201,7 +202,16 @@ try {
         const pokemonAdminActions = [];
         page.on("console", (message) => { if (message.type() === "error") consoleErrors.push(message.text()); });
         page.on("pageerror", (error) => pageErrors.push(error.message));
-        page.on("requestfailed", (request) => failedRequests.push(`${request.method()} ${request.url()} · ${request.failure()?.errorText || "échec inconnu"}`));
+        page.on("requestfailed", (request) => {
+          const errorText = request.failure()?.errorText || "échec inconnu";
+          const requestUrl = new URL(request.url());
+          const isCancelledRscPrefetch = request.method() === "GET"
+            && errorText === "net::ERR_ABORTED"
+            && requestUrl.searchParams.has("_rsc");
+          if (!isCancelledRscPrefetch) {
+            failedRequests.push(`${request.method()} ${request.url()} · ${errorText}`);
+          }
+        });
         page.on("response", (response) => {
           if (response.status() >= 400) failedResponses.push(`${response.status()} ${response.request().method()} ${response.url()}`);
         });

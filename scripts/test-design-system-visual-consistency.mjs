@@ -38,6 +38,10 @@ const arbitrarySpacingExceptions = arbitrarySpacing.filter((token) => [
   "2xl:pl-[286px]",
   "pb-[max(1rem,env(safe-area-inset-bottom))]",
   "pt-[max(1rem,env(safe-area-inset-top))]",
+  "pb-[max(.75rem,env(safe-area-inset-bottom))]",
+  "pt-[max(.75rem,env(safe-area-inset-top))]",
+  "sm:pb-[max(1.25rem,env(safe-area-inset-bottom))]",
+  "sm:pt-[max(1.25rem,env(safe-area-inset-top))]",
   "m-[-38%]",
 ].includes(token));
 const arbitraryGenericSpacing = arbitrarySpacing.filter((token) => !arbitrarySpacingExceptions.includes(token));
@@ -255,7 +259,7 @@ test("l’inventaire global reste exhaustif et auto-cohérent", () => {
   assert.ok(inventory.surface.cardConsumers > 0);
   assert.ok(inventory.surface.canonicalCard >= inventory.surface.cardConsumers);
   assert.equal(inventory.surface.businessWrappersComposingCard, 4);
-  assert.equal(inventory.surface.flatNonCardExceptions, 16);
+  assert.equal(inventory.surface.flatNonCardExceptions, 19);
 });
 
 test("le spacing générique reste sur l’échelle et les exceptions structurelles sont finies", () => {
@@ -266,8 +270,12 @@ test("le spacing générique reste sur l’échelle et les exceptions structurel
       "lg:pl-[236px]",
       "lg:pl-[84px]",
       "m-[-38%]",
+      "pb-[max(.75rem,env(safe-area-inset-bottom))]",
       "pb-[max(1rem,env(safe-area-inset-bottom))]",
+      "pt-[max(.75rem,env(safe-area-inset-top))]",
       "pt-[max(1rem,env(safe-area-inset-top))]",
+      "sm:pb-[max(1.25rem,env(safe-area-inset-bottom))]",
+      "sm:pt-[max(1.25rem,env(safe-area-inset-top))]",
     ],
   );
   if (target) assert.deepEqual(arbitraryGenericSpacing, []);
@@ -276,7 +284,7 @@ test("le spacing générique reste sur l’échelle et les exceptions structurel
 
 test("les rôles radius sont centralisés sans absorber les formes décoratives", () => {
   assert.equal(arbitraryRadiusUtilities.length, 11);
-  assert.equal(cssRadiusDeclarations, target ? 7 : 4);
+  assert.equal(cssRadiusDeclarations, target ? 9 : 4);
   assert.equal(inlineRadiusDeclarations, 3);
   if (target) {
     for (const token of ["control", "surface", "overlay"]) {
