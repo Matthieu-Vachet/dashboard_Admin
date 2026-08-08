@@ -1267,6 +1267,92 @@ function RulesPanel({
   );
 }
 
+function PvpArchitectureControlPanel({ audit }) {
+  const summary = audit?.summary || {};
+  const issues = Array.isArray(audit?.issues) ? audit.issues : [];
+  const errors = issues.filter((item) => item.severity === "error");
+  const warnings = issues.filter((item) => item.severity !== "error");
+  const compactHash = summary.sourceCommit
+    ? `${summary.sourceCommit.slice(0, 12)}…`
+    : "indisponible";
+
+  return (
+    <Panel
+      title="Architecture PvP dédiée"
+      eyebrow="contrôle canonique PvPoke"
+      action={
+        <span
+          className={`rounded-full border px-3 py-2 type-label ${
+            summary.valid
+              ? "border-emerald-300/25 bg-emerald-400/10 text-emerald-100"
+              : "border-red-300/25 bg-red-400/10 text-red-100"
+          }`}
+        >
+          {summary.valid ? "intégrité valide" : `${errors.length} erreur(s)`}
+        </span>
+      }
+    >
+      <p className="rounded-2xl border border-cyan-200/15 bg-cyan-400/10 p-4 type-body-strong text-cyan-50/85">
+        Vérification des pvpRef, identités, mappings, manifestes, empreintes,
+        movesets, métriques, listes Elite, builds XL, fraîcheur mensuelle,
+        orphelins et collisions.
+      </p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        {[
+          ["Fiches PvP", summary.records],
+          ["Références", summary.references],
+          ["Mappings OK", summary.mappedRecords],
+          ["Alertes mapping", summary.mappingWarnings],
+          ["Âge snapshot", summary.freshnessDays == null ? "—" : `${summary.freshnessDays} j`],
+        ].map(([label, value]) => (
+          <article
+            className="rounded-2xl border border-line bg-surface-inset p-4"
+            key={label}
+          >
+            <small className="type-overline text-muted">{label}</small>
+            <strong className="mt-2 block font-mono text-2xl text-domain-foreground">
+              {value ?? "—"}
+            </strong>
+          </article>
+        ))}
+      </div>
+      <div className="mt-4 grid gap-3 rounded-2xl border border-line bg-surface-inset p-4 text-sm sm:grid-cols-3">
+        <span><strong className="text-domain-foreground">Commit</strong><br /><code>{compactHash}</code></span>
+        <span><strong className="text-domain-foreground">Synchronisé</strong><br />{summary.syncedAt || "—"}</span>
+        <span><strong className="text-domain-foreground">Diagnostics</strong><br />{errors.length} erreur(s) · {warnings.length} avertissement(s)</span>
+      </div>
+      {issues.length ? (
+        <div className="mt-4 grid gap-2">
+          {issues.slice(0, 12).map((item, index) => (
+            <article
+              className={`rounded-2xl border p-3 ${
+                item.severity === "error"
+                  ? "border-red-300/20 bg-red-400/[0.08]"
+                  : "border-amber-300/20 bg-amber-400/[0.08]"
+              }`}
+              key={`${item.issue}-${item.pvpRef || item.path}-${index}`}
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <strong className="text-sm text-domain-foreground">{item.issue}</strong>
+                <span className="type-label text-muted">{item.severity}</span>
+              </div>
+              <code className="mt-1 block break-all text-xs text-foreground-secondary">
+                {item.pvpRef || item.sourceFile || item.path}
+              </code>
+              <p className="mt-1 text-xs text-muted">Attendu : {String(item.expected)} · Reçu : {String(item.actual)}</p>
+            </article>
+          ))}
+          {issues.length > 12 ? (
+            <p className="type-caption-strong text-muted">
+              {issues.length - 12} diagnostic(s) supplémentaire(s) sont rattachés aux fiches concernées.
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+    </Panel>
+  );
+}
+
 export function AdminApp() {
   const [session, setSession] = useState({
     loading: true,
@@ -3342,24 +3428,29 @@ export function AdminApp() {
               ) : null}
 
               {active === "checks" ? (
-                <section className="grid items-start gap-5 xl:grid-cols-[1.2fr_.8fr]">
-                  <ControlCardsPanel
-                    title="Fiches à contrôler"
-                    entries={issueEntries}
-                    onOpen={openDetail}
-                    description="Liste dédiée pour ouvrir toutes les fiches qui ont une correction à faire, y compris les nouvelles règles JSON personnalisées."
+                <>
+                  <PvpArchitectureControlPanel
+                    audit={bootstrap.payload?.pvpArchitecture}
                   />
-                  <Panel
-                    title="Règles personnalisées"
-                    eyebrow="focus custom"
-                    action={<Wand2 className="text-amber-100" size={22} />}
-                  >
-                    <MiniCardList
-                      entries={customIssueEntries.slice(0, 120)}
+                  <section className="grid items-start gap-5 xl:grid-cols-[1.2fr_.8fr]">
+                    <ControlCardsPanel
+                      title="Fiches à contrôler"
+                      entries={issueEntries}
                       onOpen={openDetail}
+                      description="Liste dédiée pour ouvrir toutes les fiches qui ont une correction à faire, y compris les nouvelles règles JSON personnalisées."
                     />
-                  </Panel>
-                </section>
+                    <Panel
+                      title="Règles personnalisées"
+                      eyebrow="focus custom"
+                      action={<Wand2 className="text-amber-100" size={22} />}
+                    >
+                      <MiniCardList
+                        entries={customIssueEntries.slice(0, 120)}
+                        onOpen={openDetail}
+                      />
+                    </Panel>
+                  </section>
+                </>
               ) : null}
 
               {active === "sources" ? (

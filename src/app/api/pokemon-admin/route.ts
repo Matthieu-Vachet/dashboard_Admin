@@ -55,12 +55,12 @@ async function requireDashboardSession() {
 }
 
 function loadAdminModules() {
-  const { buildChecklist, buildCustomRuleCatalogChecklist, detailForKey } = require("@/server/pokemon-go/apps/checklist/server/engine");
+  const { buildChecklist, buildCustomRuleCatalogChecklist, buildPvpArchitectureAudit, detailForKey } = require("@/server/pokemon-go/apps/checklist/server/engine");
   const { sourceWatch } = require("@/server/pokemon-go/apps/checklist/server/source-watch");
   const workshop = require("@/server/pokemon-go/apps/checklist/server/workshop");
   const { summarizeChecklist } = require("@/server/pokemon-go/src/lib/site-dashboard");
 
-  return { buildChecklist, buildCustomRuleCatalogChecklist, detailForKey, sourceWatch, summarizeChecklist, workshop };
+  return { buildChecklist, buildCustomRuleCatalogChecklist, buildPvpArchitectureAudit, detailForKey, sourceWatch, summarizeChecklist, workshop };
 }
 
 async function readPokemonApiCurrent(
@@ -705,11 +705,16 @@ async function deleteCustomRule(owner: string, body: JsonValue, workshop: Return
 }
 
 async function bootstrapResponse(owner: string, customRules: unknown = null) {
-  const { buildChecklist, buildCustomRuleCatalogChecklist, summarizeChecklist, workshop } = loadAdminModules();
+  const { buildChecklist, buildCustomRuleCatalogChecklist, buildPvpArchitectureAudit, summarizeChecklist, workshop } = loadAdminModules();
   const rules = Array.isArray(customRules)
     ? (customRules as RuleRecord[])
     : await readCustomRules(owner, workshop);
-  const entries = buildChecklist(rules);
+  const pvpArchitectureAudit = buildPvpArchitectureAudit();
+  const entries = buildChecklist(rules, { pvpArchitecture: pvpArchitectureAudit });
+  const pvpArchitecture = {
+    summary: pvpArchitectureAudit.summary,
+    issues: pvpArchitectureAudit.issues,
+  };
   const dataCatalog = workshop.catalog();
 
   return {
@@ -717,6 +722,7 @@ async function bootstrapResponse(owner: string, customRules: unknown = null) {
     entries,
     customRuleEntries: buildCustomRuleCatalogChecklist(rules),
     summary: summarizeChecklist(entries),
+    pvpArchitecture,
     catalog: {
       types: dataCatalog.types.length,
       weather: dataCatalog.weather.length,

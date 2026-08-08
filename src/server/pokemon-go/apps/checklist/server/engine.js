@@ -11,6 +11,7 @@ const {
   applyCustomRules,
   enabledCustomRules,
 } = require("./custom-rules");
+const { buildPvpArchitectureAudit } = require("./pvp-architecture-audit");
 
 const pokemonDir = dataPath("pokemon");
 const formsDir = dataPath("pokemon-forms");
@@ -1485,7 +1486,7 @@ function referenceIssues(data, moveIds, formIds) {
   return issues;
 }
 
-function buildChecklist(customRulesOverride = null) {
+function buildChecklist(customRulesOverride = null, options = {}) {
   const customRules = Array.isArray(customRulesOverride)
     ? customRulesOverride.filter((rule) => rule?.enabled !== false)
     : enabledCustomRules();
@@ -1535,6 +1536,8 @@ function buildChecklist(customRulesOverride = null) {
   }
   const moveIds = new Set(buildMoveCatalog().keys());
   const regions = generationCatalog();
+  const pvpArchitecture =
+    options.pvpArchitecture || buildPvpArchitectureAudit();
   const formIds = new Set();
   for (const source of sources) {
     for (const value of [source.data.id, source.data.formId, source.data.baseFormId])
@@ -1558,6 +1561,10 @@ function buildChecklist(customRulesOverride = null) {
     for (const issue of validator.issues)
       issue.path = issue.path.replace(/^\./, "");
     validator.issues.push(...referenceIssues(data, moveIds, formIds));
+    const pvpSourceFile = relativeToApp(file).replace(/^data\//, "");
+    validator.issues.push(
+      ...(pvpArchitecture.diagnosticsBySource.get(pvpSourceFile) || []),
+    );
     const parent =
       parents.get(data.baseFormId) ||
       parents.get(data.inherits) ||
@@ -1792,6 +1799,7 @@ function detailForKey(key) {
 module.exports = {
   assetSummary,
   buildCustomRuleCatalogChecklist,
+  buildPvpArchitectureAudit,
   buildSuggestedPatch,
   buildChecklist,
   detailForKey,
