@@ -55,12 +55,12 @@ async function requireDashboardSession() {
 }
 
 function loadAdminModules() {
-  const { buildAssetFamilyPatches, buildChecklist, buildCustomRuleCatalogChecklist, buildPvpArchitectureAudit, detailForKey } = require("@/server/pokemon-go/apps/checklist/server/engine");
+  const { buildAssetArchitectureAudit, buildAssetFamilyPatches, buildChecklist, buildCustomRuleCatalogChecklist, buildPvpArchitectureAudit, detailForKey } = require("@/server/pokemon-go/apps/checklist/server/engine");
   const { sourceWatch } = require("@/server/pokemon-go/apps/checklist/server/source-watch");
   const workshop = require("@/server/pokemon-go/apps/checklist/server/workshop");
   const { summarizeChecklist } = require("@/server/pokemon-go/src/lib/site-dashboard");
 
-  return { buildAssetFamilyPatches, buildChecklist, buildCustomRuleCatalogChecklist, buildPvpArchitectureAudit, detailForKey, sourceWatch, summarizeChecklist, workshop };
+  return { buildAssetArchitectureAudit, buildAssetFamilyPatches, buildChecklist, buildCustomRuleCatalogChecklist, buildPvpArchitectureAudit, detailForKey, sourceWatch, summarizeChecklist, workshop };
 }
 
 async function readPokemonApiCurrent(
@@ -705,15 +705,20 @@ async function deleteCustomRule(owner: string, body: JsonValue, workshop: Return
 }
 
 async function bootstrapResponse(owner: string, customRules: unknown = null) {
-  const { buildChecklist, buildCustomRuleCatalogChecklist, buildPvpArchitectureAudit, summarizeChecklist, workshop } = loadAdminModules();
+  const { buildAssetArchitectureAudit, buildChecklist, buildCustomRuleCatalogChecklist, buildPvpArchitectureAudit, summarizeChecklist, workshop } = loadAdminModules();
   const rules = Array.isArray(customRules)
     ? (customRules as RuleRecord[])
     : await readCustomRules(owner, workshop);
   const pvpArchitectureAudit = buildPvpArchitectureAudit();
+  const assetArchitectureAudit = buildAssetArchitectureAudit();
   const entries = buildChecklist(rules, { pvpArchitecture: pvpArchitectureAudit });
   const pvpArchitecture = {
     summary: pvpArchitectureAudit.summary,
     issues: pvpArchitectureAudit.issues,
+  };
+  const assetArchitecture = {
+    summary: assetArchitectureAudit.summary,
+    issues: assetArchitectureAudit.issues,
   };
   const dataCatalog = workshop.catalog();
 
@@ -723,6 +728,7 @@ async function bootstrapResponse(owner: string, customRules: unknown = null) {
     customRuleEntries: buildCustomRuleCatalogChecklist(rules),
     summary: summarizeChecklist(entries),
     pvpArchitecture,
+    assetArchitecture,
     catalog: {
       types: dataCatalog.types.length,
       weather: dataCatalog.weather.length,

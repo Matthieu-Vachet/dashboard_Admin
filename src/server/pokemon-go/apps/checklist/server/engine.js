@@ -12,6 +12,7 @@ const {
   enabledCustomRules,
 } = require("./custom-rules");
 const { buildPvpArchitectureAudit } = require("./pvp-architecture-audit");
+const { buildAssetArchitectureAudit } = require("./asset-architecture-audit");
 
 const pokemonDir = dataPath("pokemon");
 const formsDir = dataPath("pokemon-forms");
@@ -1884,6 +1885,7 @@ module.exports = {
   assetPresentation,
   assetSummary,
   buildAssetFamilyPatches,
+  buildAssetArchitectureAudit,
   buildCustomRuleCatalogChecklist,
   buildPvpArchitectureAudit,
   buildSuggestedPatch,

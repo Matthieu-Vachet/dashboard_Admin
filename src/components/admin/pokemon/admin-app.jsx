@@ -1353,6 +1353,110 @@ function PvpArchitectureControlPanel({ audit }) {
   );
 }
 
+function AssetArchitectureControlPanel({ audit }) {
+  const summary = audit?.summary || {};
+  const issues = Array.isArray(audit?.issues) ? audit.issues : [];
+  const errors = issues.filter((item) => item.severity === "error");
+  const warnings = issues.filter((item) => item.severity !== "error");
+  const counts = summary.counts || {};
+  const absences = summary.legitimateAbsences || {};
+  const compactHash = summary.aggregateSha256
+    ? `${summary.aggregateSha256.slice(0, 12)}…`
+    : "indisponible";
+
+  return (
+    <Panel
+      title="Architecture Assets séparée"
+      eyebrow="contrôle canonique core + familles"
+      action={
+        <span
+          className={`rounded-full border px-3 py-2 type-label ${
+            summary.valid
+              ? "border-emerald-300/25 bg-emerald-400/10 text-emerald-100"
+              : "border-red-300/25 bg-red-400/10 text-red-100"
+          }`}
+        >
+          {summary.valid ? "intégrité valide" : `${errors.length} erreur(s)`}
+        </span>
+      }
+    >
+      <p className="rounded-2xl border border-cyan-200/15 bg-cyan-400/10 p-4 type-body-strong text-cyan-50/85">
+        Vérification des assetsRef, assetRefs, identités, chemins, collisions,
+        orphelins, manifestes, compteurs, empreintes, URL et absences légitimes.
+      </p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+        {[
+          ["Sources", summary.sources],
+          ["Core", summary.core],
+          ["Familles", summary.familyRecords],
+          ["Références", summary.references],
+          ["Manifeste", summary.manifestRecords],
+          ["URL", summary.urls],
+        ].map(([label, value]) => (
+          <article
+            className="rounded-2xl border border-line bg-surface-inset p-4"
+            key={label}
+          >
+            <small className="type-overline text-muted">{label}</small>
+            <strong className="mt-2 block font-mono text-2xl text-domain-foreground">
+              {value ?? "—"}
+            </strong>
+          </article>
+        ))}
+      </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          ["HOME HD", "home"],
+          ["Shuffle", "shuffle"],
+          ["Variants", "variants"],
+          ["Location Cards", "location-cards"],
+        ].map(([label, family]) => (
+          <article
+            className="rounded-2xl border border-line bg-surface-inset p-4"
+            key={family}
+          >
+            <strong className="type-title-card text-domain-foreground">{label}</strong>
+            <p className="mt-2 type-body-strong text-foreground-secondary">
+              {counts[family] ?? "—"} fichier(s)
+            </p>
+            <p className="mt-1 type-caption-strong text-muted">
+              {absences[family] ?? "—"} absence(s) légitime(s)
+            </p>
+          </article>
+        ))}
+      </div>
+      <div className="mt-4 grid gap-3 rounded-2xl border border-line bg-surface-inset p-4 text-sm sm:grid-cols-3">
+        <span><strong className="text-domain-foreground">Archive</strong><br /><code>{summary.archiveTag || "—"}</code></span>
+        <span><strong className="text-domain-foreground">Empreinte source</strong><br /><code>{compactHash}</code></span>
+        <span><strong className="text-domain-foreground">Diagnostics</strong><br />{errors.length} erreur(s) · {warnings.length} avertissement(s)</span>
+      </div>
+      {issues.length ? (
+        <div className="mt-4 grid gap-2">
+          {issues.slice(0, 12).map((item, index) => (
+            <article
+              className={`rounded-2xl border p-3 ${
+                item.severity === "error"
+                  ? "border-red-300/20 bg-red-400/[0.08]"
+                  : "border-amber-300/20 bg-amber-400/[0.08]"
+              }`}
+              key={`${item.issue}-${item.assetRef || item.path}-${index}`}
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <strong className="text-sm text-domain-foreground">{item.issue}</strong>
+                <span className="type-label text-muted">{item.severity}</span>
+              </div>
+              <code className="mt-1 block break-all text-xs text-foreground-secondary">
+                {item.assetRef || item.sourceFile || item.path}
+              </code>
+              <p className="mt-1 text-xs text-muted">Attendu : {String(item.expected)} · Reçu : {String(item.actual)}</p>
+            </article>
+          ))}
+        </div>
+      ) : null}
+    </Panel>
+  );
+}
+
 export function AdminApp() {
   const [session, setSession] = useState({
     loading: true,
@@ -3493,6 +3597,9 @@ export function AdminApp() {
 
               {active === "checks" ? (
                 <>
+                  <AssetArchitectureControlPanel
+                    audit={bootstrap.payload?.assetArchitecture}
+                  />
                   <PvpArchitectureControlPanel
                     audit={bootstrap.payload?.pvpArchitecture}
                   />
