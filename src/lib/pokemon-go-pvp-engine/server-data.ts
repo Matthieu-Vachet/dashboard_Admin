@@ -61,6 +61,8 @@ export type PvpCatalogPokemon = {
       reason: string | null;
     };
   };
+  pvpRef: string | null;
+  pvpSource: JsonRecord | null;
   moves: { fast: CombatMove[]; charged: CombatMove[] };
   recommended: Record<string, { fast: string | null; charged: string[] }>;
   searchText: string;
@@ -75,6 +77,8 @@ export type PvpCatalog = {
     package: string;
     commit: string;
     syncedAt: string | null;
+    pvpCommit: string;
+    pvpSyncedAt: string | null;
   };
 };
 
@@ -322,19 +326,17 @@ function selectAsset(entry: JsonRecord, assetDocument: JsonRecord | null) {
   };
 }
 
-function recommendation(entry: JsonRecord, league: string) {
-  const key =
-    league === "ultra"
-      ? "ultraLeague"
-      : league === "master"
-        ? "masterLeague"
-        : league === "little"
-          ? "littleCup"
-          : "greatLeague";
-  const moves = entry.pvp?.[key]?.bestMovesets;
+function recommendation(pvpRecord: JsonRecord | null, league: string) {
+  const dedicated = pvpRecord?.leagues?.[league];
+  const primary = dedicated?.variants?.find((variant: JsonRecord) => variant.variant === "normal")
+    || dedicated?.variants?.[0]
+    || null;
+  const moves = primary?.bestMoveset;
   return {
-    fast: moves?.fast || null,
-    charged: Array.isArray(moves?.charged) ? moves.charged : [],
+    fast: moves?.fast?.moveId || dedicated?.legacyBestMovesets?.fast || null,
+    charged: Array.isArray(moves?.charged)
+      ? moves.charged.map((move: JsonRecord) => move.moveId).filter(Boolean)
+      : dedicated?.legacyBestMovesets?.charged || [],
   };
 }
 
@@ -386,6 +388,7 @@ async function createCatalog(): Promise<PvpCatalog> {
     packageJson,
     snapshot,
     leagues,
+    pvpManifest,
   ] = await Promise.all([
     loadMoves(root),
     readJson(path.join(root, "types", "types.json")),
@@ -396,6 +399,7 @@ async function createCatalog(): Promise<PvpCatalog> {
       (): JsonRecord => ({}),
     ),
     dynamicLeagues(root),
+    readJson(path.join(root, "pvp", "manifest.json")),
   ]);
   const records = await mapConcurrent(
     [...pokemonFiles, ...formFiles],
@@ -408,6 +412,10 @@ async function createCatalog(): Promise<PvpCatalog> {
         ? await readJson(
             path.join(/* turbopackIgnore: true */ root, assetsRef),
           ).catch(() => null)
+        : null;
+      const pvpRef = entry.pvpRef || null;
+      const pvpRecord = pvpRef
+        ? await readJson(path.join(/* turbopackIgnore: true */ root, pvpRef)).catch(() => null)
         : null;
       const fastIds = [
         ...new Set([
@@ -478,12 +486,14 @@ async function createCatalog(): Promise<PvpCatalog> {
             reason: selectedAssets.image ? null : "ASSET_ENTRY_NOT_FOUND",
           },
         },
+        pvpRef,
+        pvpSource: pvpRecord?.source || null,
         moves: { fast, charged },
         recommended: {
-          little: recommendation(entry, "little"),
-          great: recommendation(entry, "great"),
-          ultra: recommendation(entry, "ultra"),
-          master: recommendation(entry, "master"),
+          little: recommendation(pvpRecord, "little"),
+          great: recommendation(pvpRecord, "great"),
+          ultra: recommendation(pvpRecord, "ultra"),
+          master: recommendation(pvpRecord, "master"),
         },
         searchText: [
           canonical,
@@ -525,6 +535,8 @@ async function createCatalog(): Promise<PvpCatalog> {
       package: packageVersion,
       commit,
       syncedAt: snapshot.syncedAt || null,
+      pvpCommit: String(pvpManifest.source?.commit || "unknown"),
+      pvpSyncedAt: pvpManifest.source?.syncedAt || null,
     },
   };
 }

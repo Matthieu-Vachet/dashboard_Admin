@@ -17,6 +17,7 @@ const formsDir = dataPath("pokemon-forms");
 const movesDir = dataPath("moves");
 const generationsDir = dataPath("generations");
 const assetsDir = dataPath("pokemon-assets");
+const pvpDir = dataPath("pvp");
 const typesDir = dataPath("types");
 const weatherDir = dataPath("weather");
 const stickersDir = dataPath("stickers");
@@ -58,6 +59,42 @@ function readAssetRecord(data) {
   return readJson(file);
 }
 
+function readPvpRecord(data) {
+  const pvpRef = data?.pvpRef;
+  if (!pvpRef) return null;
+  const file = resolveDataFile(pvpRef);
+  if (!isInsideData(file) || !file.startsWith(pvpDir) || !fs.existsSync(file)) return null;
+  const record = readJson(file);
+  return record?.identity?.canonicalId === data.formId ? record : null;
+}
+
+function legacyPvpFromRecord(record) {
+  if (!record?.leagues) return null;
+  const keys = {
+    little: "littleCup",
+    great: "greatLeague",
+    ultra: "ultraLeague",
+    master: "masterLeague",
+  };
+  return Object.fromEntries(Object.entries(keys).map(([leagueId, legacyKey]) => {
+    const league = record.leagues[leagueId];
+    if (!league) return [legacyKey, null];
+    if (league.status !== "RANKED") return [legacyKey, null];
+    const primary = league.variants?.find((variant) => variant.variant === "normal") || league.variants?.[0] || null;
+    return [legacyKey, {
+      tierRank: league.tier ?? null,
+      rank1: league.rank1 ?? null,
+      bestMovesets: primary ? {
+        fast: primary.bestMoveset?.fast?.moveId || null,
+        charged: (primary.bestMoveset?.charged || []).map((move) => move.moveId).filter(Boolean),
+      } : league.legacyBestMovesets ?? null,
+      status: league.status,
+      source: record.source,
+      variants: league.variants || [],
+    }];
+  }));
+}
+
 function normalizeAssetForm(asset) {
   const source = asset && typeof asset === "object" ? asset : {};
   return {
@@ -76,20 +113,21 @@ function normalizeAssetForms(assetForms) {
 
 function hydrateSourceData(data) {
   const record = readAssetRecord(data);
-  if (!record?.assets) return data;
+  const pvpRecord = readPvpRecord(data);
   return {
     ...data,
+    ...(pvpRecord ? { pvp: legacyPvpFromRecord(pvpRecord), pvpRecord } : {}),
     assets: {
       ...(data.assets || {}),
-      home: record.assets.home ?? null,
-      portrait: record.assets.portrait ?? null,
-      portraitShiny: record.assets.portraitShiny ?? null,
-      locationCards: Array.isArray(record.assets.locationCards)
+      home: record?.assets?.home ?? null,
+      portrait: record?.assets?.portrait ?? null,
+      portraitShiny: record?.assets?.portraitShiny ?? null,
+      locationCards: Array.isArray(record?.assets?.locationCards)
         ? record.assets.locationCards
         : [],
-      shuffle: record.assets.shuffle ?? null,
+      shuffle: record?.assets?.shuffle ?? null,
     },
-    assetForms: normalizeAssetForms(record.assets.assetForms),
+    assetForms: normalizeAssetForms(record?.assets?.assetForms),
   };
 }
 
@@ -1143,6 +1181,8 @@ function mergeInheritedForm(parent, form) {
     secondaryType:
       form.secondaryType === undefined ? parent.secondaryType : form.secondaryType,
     pvp: form.pvp === undefined ? parent.pvp : form.pvp,
+    pvpRef: form.pvpRef || parent.pvpRef || null,
+    pvpRecord: form.pvpRecord || parent.pvpRecord || null,
     assets: mergedFormAssets(parent, form),
   };
   if (!isMaxForm) return merged;
@@ -1582,6 +1622,7 @@ function buildChecklist(customRulesOverride = null) {
       form: data.form || "normal",
       file: relativeToApp(file),
       assetsRef: data.assets?.assetsRef || null,
+      pvpRef: data.pvpRef || null,
       goImage: displayData.assets?.image || null,
       goShinyImage: displayData.assets?.shinyImage || null,
       portraitImage: displayData.assets?.portrait || null,
@@ -1708,6 +1749,7 @@ function detailForKey(key) {
   if (!isInsideData(file) || !fs.existsSync(file)) return null;
   const sourceData = readJson(file);
   const assetSourceData = readAssetRecord(sourceData);
+  const pvpSourceData = readPvpRecord(sourceData);
   let data = hydrateSourceData(sourceData);
 
   if (relativeFile.startsWith("data/pokemon-forms/")) {
@@ -1734,6 +1776,8 @@ function detailForKey(key) {
     sourceData,
     assetSourceData,
     assetSourceFile: sourceData.assets?.assetsRef || null,
+    pvpSourceData,
+    pvpSourceFile: sourceData.pvpRef || null,
     moveDetails: {
       quickMoves: resolveMoves(data.quickMoves, moveCatalog),
       cinematicMoves: resolveMoves(data.cinematicMoves, moveCatalog),

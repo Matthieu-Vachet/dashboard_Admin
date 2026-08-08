@@ -15,8 +15,9 @@ const requiredFolders = [
   "weather",
   "stickers",
   "pokemon-assets",
+  "pvp",
 ];
-const jsonFolderPattern = /^(pokemon|pokemon-forms|moves|generations|types|weather|stickers|pokemon-assets)\//;
+const jsonFolderPattern = /^(pokemon|pokemon-forms|moves|generations|types|weather|stickers|pokemon-assets|pvp)\//;
 
 function parseRepo(value) {
   const repo = String(value || defaultRepo)
