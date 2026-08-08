@@ -32,6 +32,7 @@ const languages = [
   "Spanish",
 ];
 const copySuffix = / \d+\.json$/;
+const assetFamilies = ["home", "shuffle", "variants", "location-cards"];
 
 function listJsonFiles(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -50,14 +51,52 @@ function readJson(file) {
   return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
+function canonicalAssetStem(data) {
+  const identity = String(data?.formId || data?.id || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return `${String(data?.dexId || "").padStart(4, "0")}-${identity}`;
+}
+
+function canonicalCoreRef(data) {
+  return `pokemon-assets/core/${canonicalAssetStem(data)}.assets.json`;
+}
+
+function readSafeAssetFile(reference, expectedFamily, formId) {
+  if (typeof reference !== "string") return null;
+  const file = resolveDataFile(reference);
+  const familyRoot = path.join(assetsDir, expectedFamily);
+  if (!isInsideData(file) || !file.startsWith(`${familyRoot}${path.sep}`) || !fs.existsSync(file)) return null;
+  const record = readJson(file);
+  return !formId || record?.formId === formId ? record : null;
+}
+
 function readAssetRecord(data) {
-  const assetsRef = data?.assets?.assetsRef;
-  if (!assetsRef) return null;
-  const file = resolveDataFile(assetsRef);
-  if (!isInsideData(file) || !file.startsWith(assetsDir) || !fs.existsSync(file)) {
-    return null;
+  const coreRef = canonicalCoreRef(data);
+  const core = readSafeAssetFile(coreRef, "core", data?.formId);
+  if (core) return { ...core, assetsRef: coreRef };
+  const legacyRef = data?.assets?.assetsRef;
+  if (!legacyRef) return null;
+  const file = resolveDataFile(legacyRef);
+  if (!isInsideData(file) || !file.startsWith(assetsDir) || !fs.existsSync(file)) return null;
+  return { ...readJson(file), assetsRef: legacyRef };
+}
+
+function readAssetBundle(data, { families = assetFamilies } = {}) {
+  const core = readAssetRecord(data);
+  if (!core) return null;
+  const requested = new Set(families.filter((family) => assetFamilies.includes(family)));
+  const documents = {};
+  if (core.assetRefs) {
+    for (const family of requested) {
+      const reference = core.assetRefs[family];
+      if (!reference) continue;
+      const record = readSafeAssetFile(reference, family, core.formId);
+      if (record) documents[family] = record;
+    }
   }
-  return readJson(file);
+  return { core, families: documents };
 }
 
 function readPvpRecord(data) {
@@ -112,23 +151,38 @@ function normalizeAssetForms(assetForms) {
   return Array.isArray(assetForms) ? assetForms.map(normalizeAssetForm) : [];
 }
 
-function hydrateSourceData(data) {
-  const record = readAssetRecord(data);
+function hydrateSourceData(data, { families = assetFamilies } = {}) {
+  const bundle = readAssetBundle(data, { families });
+  const record = bundle?.core || null;
+  const familyDocuments = bundle?.families || {};
   const pvpRecord = readPvpRecord(data);
+  const separated = Boolean(record?.assetRefs);
+  const home = separated ? familyDocuments.home?.home ?? null : record?.assets?.home ?? null;
+  const shuffle = separated ? familyDocuments.shuffle?.shuffle ?? null : record?.assets?.shuffle ?? null;
+  const locationCards = separated
+    ? familyDocuments["location-cards"]?.locationCards ?? []
+    : Array.isArray(record?.assets?.locationCards) ? record.assets.locationCards : [];
+  const variants = separated
+    ? familyDocuments.variants?.variants ?? []
+    : record?.assets?.assetForms ?? [];
   return {
     ...data,
     ...(pvpRecord ? { pvp: legacyPvpFromRecord(pvpRecord), pvpRecord } : {}),
+    assetRefs: record?.assetRefs || {},
     assets: {
       ...(data.assets || {}),
-      home: record?.assets?.home ?? null,
+      image: record?.assets?.image ?? data.assets?.image ?? null,
+      shinyImage: record?.assets?.shinyImage ?? data.assets?.shinyImage ?? null,
+      candy: record?.assets?.candy ?? data.assets?.candy ?? null,
+      assetsRef: record?.assetsRef || data.assets?.assetsRef || null,
+      assetRefs: record?.assetRefs || {},
+      home,
       portrait: record?.assets?.portrait ?? null,
       portraitShiny: record?.assets?.portraitShiny ?? null,
-      locationCards: Array.isArray(record?.assets?.locationCards)
-        ? record.assets.locationCards
-        : [],
-      shuffle: record?.assets?.shuffle ?? null,
+      locationCards,
+      shuffle,
     },
-    assetForms: normalizeAssetForms(record?.assets?.assetForms),
+    assetForms: normalizeAssetForms(variants),
   };
 }
 
@@ -1420,6 +1474,49 @@ function assetSummary(data) {
   };
 }
 
+function assetPresentation(data, { includeLocationCards = false } = {}) {
+  const home = data.assets?.home || {};
+  const homeVariants = Array.isArray(home.variants) ? home.variants : [];
+  const shuffleVariants = Array.isArray(data.assets?.shuffle?.variants)
+    ? data.assets.shuffle.variants
+    : [];
+  const homeVariant = homeVariants.find((asset) => asset?.image || asset?.shinyImage);
+  const shuffleVariant =
+    shuffleVariants.find((asset) => !asset?.shiny && (asset?.image || asset?.shinyImage)) ||
+    shuffleVariants.find((asset) => asset?.image || asset?.shinyImage);
+  const shuffleShinyVariant = shuffleVariants.find(
+    (asset) => asset?.shiny && (asset?.image || asset?.shinyImage),
+  );
+  const eventAssets = Array.isArray(data.assetForms)
+    ? data.assetForms
+        .filter((asset) => asset?.image || asset?.shinyImage)
+        .map((asset) => ({
+          form: asset.form || null,
+          costume: asset.costume || null,
+          image: asset.image || null,
+          shinyImage: asset.shinyImage || null,
+          isFemale: Boolean(asset.isFemale),
+        }))
+    : [];
+  const summary = assetSummary(data);
+  return {
+    goImage: data.assets?.image || null,
+    goShinyImage: data.assets?.shinyImage || null,
+    portraitImage: data.assets?.portrait || null,
+    portraitShinyImage: data.assets?.portraitShiny || null,
+    image: data.assets?.portrait || data.assets?.image || null,
+    homeImage: home.image || home.shinyImage || homeVariant?.image || homeVariant?.shinyImage || null,
+    shuffleImage: shuffleVariant?.image || shuffleVariant?.shinyImage || null,
+    homeShinyImage: home.shinyImage || homeVariant?.shinyImage || null,
+    shuffleShinyImage: shuffleShinyVariant?.image || shuffleShinyVariant?.shinyImage || null,
+    shinyImage: data.assets?.portraitShiny || data.assets?.shinyImage || null,
+    eventAssets,
+    assets: includeLocationCards
+      ? { ...summary, locationCards: data.assets?.locationCards || [] }
+      : summary,
+  };
+}
+
 function referenceIssues(data, moveIds, formIds) {
   const issues = [];
   const add = (pathName, expected, actual) =>
@@ -1501,12 +1598,12 @@ function buildChecklist(customRulesOverride = null, options = {}) {
       file,
       kind: "pokemon",
       sourceData,
-      data: hydrateSourceData(sourceData),
+      data: hydrateSourceData(sourceData, { families: [] }),
     });
   }
   for (const file of listJsonFiles(formsDir).sort()) {
     const sourceData = readJson(file);
-    const data = hydrateSourceData(sourceData);
+    const data = hydrateSourceData(sourceData, { families: [] });
     const form = String(data.form || "");
     sources.push({
       file,
@@ -1582,38 +1679,7 @@ function buildChecklist(customRulesOverride = null, options = {}) {
       data.id ||
       path.basename(file);
     const quality = qualitySummary(validator.issues);
-    const home = displayData.assets?.home || {};
-    const homeVariants = Array.isArray(home.variants) ? home.variants : [];
-    const shuffleVariants = Array.isArray(displayData.assets?.shuffle?.variants)
-      ? displayData.assets.shuffle.variants
-      : [];
-    const homeVariant = homeVariants.find((asset) => asset?.image || asset?.shinyImage);
-    const shuffleVariant =
-      shuffleVariants.find((asset) => !asset?.shiny && (asset?.image || asset?.shinyImage)) ||
-      shuffleVariants.find((asset) => asset?.image || asset?.shinyImage);
-    const shuffleShinyVariant = shuffleVariants.find(
-      (asset) => asset?.shiny && (asset?.image || asset?.shinyImage),
-    );
-    const homeImage =
-      home.image ||
-      home.shinyImage ||
-      homeVariant?.image ||
-      homeVariant?.shinyImage ||
-      null;
-    const shuffleImage = shuffleVariant?.image || shuffleVariant?.shinyImage || null;
-    // assetForms reste dans le fichier asset lourd, mais le dashboard a besoin
-    // d'un résumé léger pour construire les collections de costumes.
-    const eventAssets = Array.isArray(displayData.assetForms)
-      ? displayData.assetForms
-          .filter((asset) => asset?.image || asset?.shinyImage)
-          .map((asset) => ({
-            form: asset.form || null,
-            costume: asset.costume || null,
-            image: asset.image || null,
-            shinyImage: asset.shinyImage || null,
-            isFemale: Boolean(asset.isFemale),
-          }))
-      : [];
+    const presentedAssets = assetPresentation(displayData);
     return {
       key: `${kind}:${relativeToApp(file)}${
         kind === "mega" ? `#${data.formId || data.id}` : ""
@@ -1629,19 +1695,9 @@ function buildChecklist(customRulesOverride = null, options = {}) {
       form: data.form || "normal",
       file: relativeToApp(file),
       assetsRef: data.assets?.assetsRef || null,
+      assetRefs: data.assetRefs || {},
       pvpRef: data.pvpRef || null,
-      goImage: displayData.assets?.image || null,
-      goShinyImage: displayData.assets?.shinyImage || null,
-      portraitImage: displayData.assets?.portrait || null,
-      portraitShinyImage: displayData.assets?.portraitShiny || null,
-      image: displayData.assets?.portrait || displayData.assets?.image || null,
-      homeImage,
-      shuffleImage,
-      homeShinyImage: home.shinyImage || homeVariant?.shinyImage || null,
-      shuffleShinyImage: shuffleShinyVariant?.image || shuffleShinyVariant?.shinyImage || null,
-      shinyImage:
-        displayData.assets?.portraitShiny || displayData.assets?.shinyImage || null,
-      eventAssets,
+      ...presentedAssets,
       primaryType:
         typeof displayData.primaryType === "string"
           ? displayData.primaryType
@@ -1683,7 +1739,31 @@ function buildChecklist(customRulesOverride = null, options = {}) {
       suggestedPatch: buildSuggestedPatch(validator.issues, kind),
       quality,
       issueCategories: quality.categories,
-      assets: assetSummary(displayData),
+    };
+  });
+}
+
+function buildAssetFamilyPatches(families = assetFamilies) {
+  const selectedFamilies = [...new Set(families)].filter((family) => assetFamilies.includes(family));
+  const sources = [
+    ...fs.readdirSync(pokemonDir)
+      .filter((name) => name.endsWith(".json") && !copySuffix.test(name))
+      .sort()
+      .map((name) => ({ file: path.join(pokemonDir, name), kind: "pokemon" })),
+    ...listJsonFiles(formsDir).sort().map((file) => ({ file, kind: null })),
+  ];
+  return sources.map(({ file, kind }) => {
+    const sourceData = readJson(file);
+    const form = String(sourceData.form || "");
+    const resolvedKind = kind || (form.startsWith("mega") || form === "primal"
+      ? "mega"
+      : ["dynamax", "gigantamax"].includes(form) ? form : "form");
+    const data = hydrateSourceData(sourceData, { families: selectedFamilies });
+    return {
+      key: `${resolvedKind}:${relativeToApp(file)}${resolvedKind === "mega" ? `#${sourceData.formId || sourceData.id}` : ""}`,
+      assetRefs: data.assetRefs || {},
+      loadedAssetFamilies: selectedFamilies,
+      ...assetPresentation(data, { includeLocationCards: selectedFamilies.includes("location-cards") }),
     };
   });
 }
@@ -1755,7 +1835,10 @@ function detailForKey(key) {
   const file = resolveDataFile(relativeFile);
   if (!isInsideData(file) || !fs.existsSync(file)) return null;
   const sourceData = readJson(file);
-  const assetSourceData = readAssetRecord(sourceData);
+  const assetBundle = readAssetBundle(sourceData);
+  const assetSourceData = assetBundle
+    ? { ...assetBundle.core, familyDocuments: assetBundle.families }
+    : null;
   const pvpSourceData = readPvpRecord(sourceData);
   let data = hydrateSourceData(sourceData);
 
@@ -1782,7 +1865,7 @@ function detailForKey(key) {
     ...data,
     sourceData,
     assetSourceData,
-    assetSourceFile: sourceData.assets?.assetsRef || null,
+    assetSourceFile: assetBundle?.core?.assetsRef || sourceData.assets?.assetsRef || null,
     pvpSourceData,
     pvpSourceFile: sourceData.pvpRef || null,
     moveDetails: {
@@ -1797,13 +1880,18 @@ function detailForKey(key) {
 }
 
 module.exports = {
+  assetFamilies,
+  assetPresentation,
   assetSummary,
+  buildAssetFamilyPatches,
   buildCustomRuleCatalogChecklist,
   buildPvpArchitectureAudit,
   buildSuggestedPatch,
   buildChecklist,
   detailForKey,
   hydrateSourceData,
+  readAssetBundle,
+  readAssetRecord,
   issueCategory,
   qualitySummary,
   releaseMetadataConflicts,

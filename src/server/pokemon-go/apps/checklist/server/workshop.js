@@ -123,17 +123,8 @@ async function allHdAssets() {
   return remoteHdCache;
 }
 
-function usedAssetUrls() {
-  const urls = [];
-  for (const file of [
-    ...listFiles(dataPath("pokemon")),
-    ...listFiles(dataPath("pokemon-forms")),
-  ]) {
-    const text = fs.readFileSync(file, "utf8");
-    for (const match of text.matchAll(/https?:[^"\\]+poke_capture_[^"\\]+\.png/g))
-      urls.push({ url: match[0], file: relativeToApp(file) });
-  }
-  return urls;
+function usedAssetUrls(assets = allGoAssets()) {
+  return assets.map((asset) => ({ url: asset.url, file: asset.file }));
 }
 
 function allGoAssets() {
@@ -297,7 +288,7 @@ function knownCandyFamilies() {
     ...listFiles(dataPath("pokemon")),
     ...listFiles(dataPath("pokemon-forms")),
   ]) {
-    const data = hydrateSourceData(readJson(file, {}));
+    const data = hydrateSourceData(readJson(file, {}), { families: [] });
     const value = data.assets?.candy?.familyId;
     if (value === null || value === undefined || value === "") continue;
     const familyId = Number(value);
@@ -374,7 +365,7 @@ async function assetAudit(dexId = "") {
     .filter((result) => result.status === "rejected")
     .map((result) => result.reason?.message || "Bibliothèque distante indisponible."))];
   const goAssets = allGoAssets();
-  const used = usedAssetUrls();
+  const used = usedAssetUrls(goAssets);
   const counts = new Map();
   for (const item of used)
     counts.set(item.url, (counts.get(item.url) || 0) + 1);
@@ -490,7 +481,7 @@ function buildMoveLinks() {
     ...listFiles(dataPath("pokemon-forms")),
   ];
   for (const file of files) {
-    const data = hydrateSourceData(readJson(file, {}));
+    const data = hydrateSourceData(readJson(file, {}), { families: [] });
     if (data.availability?.released === false) continue;
     const kind = sourceKindForFile(file, data);
     const relativeFile = relativeToApp(file);

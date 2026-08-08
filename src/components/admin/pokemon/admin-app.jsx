@@ -1371,6 +1371,13 @@ export function AdminApp() {
   const [assetAuditLoading, setAssetAuditLoading] = useState(false);
   const [assetAuditError, setAssetAuditError] = useState("");
   const assetAuditRequestRef = useRef(null);
+  const [assetFamilyData, setAssetFamilyData] = useState({
+    loading: false,
+    loaded: [],
+    patches: {},
+    error: "",
+  });
+  const assetFamilyRequestRef = useRef(null);
   const [sourceWatch, setSourceWatch] = useState(null);
   const [sourceHistory, setSourceHistory] = useState([]);
   const [sourceHistoryOpen, setSourceHistoryOpen] = useState(false);
@@ -1577,6 +1584,7 @@ export function AdminApp() {
         payload: checklistPayload.data,
         error: "",
       });
+      setAssetFamilyData({ loading: false, loaded: [], patches: {}, error: "" });
       setCatalog(catalogPayload.data || null);
       setHistory(historyPayload.data || []);
       setCustomRules(
@@ -1623,6 +1631,47 @@ export function AdminApp() {
         setAssetAuditLoading(false);
       });
     assetAuditRequestRef.current = request;
+    return request;
+  }
+
+  function loadAssetFamilies(families) {
+    const requested = [...new Set(families)].filter(
+      (family) => !assetFamilyData.loaded.includes(family),
+    );
+    if (!requested.length) return Promise.resolve(assetFamilyData.patches);
+    if (assetFamilyRequestRef.current) return assetFamilyRequestRef.current;
+    setAssetFamilyData((current) => ({ ...current, loading: true, error: "" }));
+    const request = fetch(
+      `${adminApiPath}?action=asset-families&families=${encodeURIComponent(requested.join(","))}`,
+    )
+      .then(async (response) => {
+        const payload = await response.json();
+        if (!response.ok)
+          throw new Error(payload.error || "Familles assets indisponibles.");
+        const entries = Array.isArray(payload.data?.entries)
+          ? payload.data.entries
+          : [];
+        setAssetFamilyData((current) => ({
+          loading: false,
+          loaded: [...new Set([...current.loaded, ...requested])],
+          patches: {
+            ...current.patches,
+            ...Object.fromEntries(entries.map((entry) => [entry.key, entry])),
+          },
+          error: "",
+        }));
+        return entries;
+      })
+      .catch((error) => {
+        const message = error.message || "Familles assets indisponibles.";
+        setAssetFamilyData((current) => ({ ...current, loading: false, error: message }));
+        toast.error(message);
+        return [];
+      })
+      .finally(() => {
+        assetFamilyRequestRef.current = null;
+      });
+    assetFamilyRequestRef.current = request;
     return request;
   }
 
@@ -1725,9 +1774,24 @@ export function AdminApp() {
     }
   }, [active, session.authenticated, assetAudit]);
 
+  useEffect(() => {
+    if (!session.authenticated) return;
+    if (active === "collections") {
+      void loadAssetFamilies(["home", "shuffle", "variants"]);
+    } else if (active === "backgrounds") {
+      void loadAssetFamilies(["location-cards"]);
+    }
+  }, [active, session.authenticated, assetFamilyData.loaded]);
+
   const entries = useMemo(
-    () => bootstrap.payload?.entries || [],
-    [bootstrap.payload],
+    () =>
+      (bootstrap.payload?.entries || []).map((entry) => {
+        const patch = assetFamilyData.patches[entry.key];
+        return patch
+          ? { ...entry, ...patch, assets: { ...entry.assets, ...patch.assets } }
+          : entry;
+      }),
+    [bootstrap.payload, assetFamilyData.patches],
   );
   const customRuleEntries = useMemo(
     () => bootstrap.payload?.customRuleEntries || [],

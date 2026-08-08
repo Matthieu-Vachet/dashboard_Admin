@@ -55,12 +55,12 @@ async function requireDashboardSession() {
 }
 
 function loadAdminModules() {
-  const { buildChecklist, buildCustomRuleCatalogChecklist, buildPvpArchitectureAudit, detailForKey } = require("@/server/pokemon-go/apps/checklist/server/engine");
+  const { buildAssetFamilyPatches, buildChecklist, buildCustomRuleCatalogChecklist, buildPvpArchitectureAudit, detailForKey } = require("@/server/pokemon-go/apps/checklist/server/engine");
   const { sourceWatch } = require("@/server/pokemon-go/apps/checklist/server/source-watch");
   const workshop = require("@/server/pokemon-go/apps/checklist/server/workshop");
   const { summarizeChecklist } = require("@/server/pokemon-go/src/lib/site-dashboard");
 
-  return { buildChecklist, buildCustomRuleCatalogChecklist, buildPvpArchitectureAudit, detailForKey, sourceWatch, summarizeChecklist, workshop };
+  return { buildAssetFamilyPatches, buildChecklist, buildCustomRuleCatalogChecklist, buildPvpArchitectureAudit, detailForKey, sourceWatch, summarizeChecklist, workshop };
 }
 
 async function readPokemonApiCurrent(
@@ -760,7 +760,7 @@ export async function GET(request: NextRequest) {
 
     await recordDashboardApiCall(session!.email, `/api/pokemon-admin:${action}`, "GET");
 
-    const { detailForKey, sourceWatch, workshop } = loadAdminModules();
+    const { buildAssetFamilyPatches, detailForKey, sourceWatch, workshop } = loadAdminModules();
 
     if (action === "bootstrap") {
       return json({ data: await bootstrapResponse(session!.email) });
@@ -770,6 +770,19 @@ export async function GET(request: NextRequest) {
       const data = detailForKey(String(request.nextUrl.searchParams.get("key") || ""));
       if (!data) return json({ error: "Fiche introuvable." }, { status: 404 });
       return json({ data: { viewer: { admin: true }, detail: data } });
+    }
+
+    if (action === "asset-families") {
+      const families = String(request.nextUrl.searchParams.get("families") || "")
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean);
+      return json({
+        data: {
+          families,
+          entries: buildAssetFamilyPatches(families),
+        },
+      });
     }
 
     if (action === "catalog") {

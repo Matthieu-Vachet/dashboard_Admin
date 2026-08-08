@@ -391,8 +391,8 @@ test("résout les vrais assets Bulbizarre FALL 2019 et Pikachu WINTER 2020", {
   assert.match(pikachuResolution.image || "", /pm25\.fWINTER_2020\.s\.icon\.png$/);
 });
 
-test("les fiches Admin conservent les assets exacts des formes et le fallback HOME normal", () => {
-  const { buildChecklist } = require("../src/server/pokemon-go/apps/checklist/server/engine.js");
+test("les fiches Admin conservent les assets exacts des formes et chargent le fallback HOME à la demande", () => {
+  const { buildAssetFamilyPatches, buildChecklist } = require("../src/server/pokemon-go/apps/checklist/server/engine.js");
   const entries = buildChecklist();
   const expectedTauros = new Map([
     ["TAUROS_PALDEA_AQUA", "fPALDEA_AQUA.icon.png"],
@@ -426,7 +426,9 @@ test("les fiches Admin conservent les assets exacts des formes et le fallback HO
     assert.equal(resolution.source, "pokemon-go-mega");
   }
 
-  const unreleasedHomeOnly = entries.find((entry) =>
+  const homePatches = new Map(buildAssetFamilyPatches(["home"]).map((entry) => [entry.key, entry]));
+  const entriesWithHome = entries.map((entry) => ({ ...entry, ...(homePatches.get(entry.key) || {}) }));
+  const unreleasedHomeOnly = entriesWithHome.find((entry) =>
     entry.form === "normal"
     && entry.availability?.released === false
     && !entry.image

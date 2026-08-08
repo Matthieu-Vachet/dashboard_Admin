@@ -313,17 +313,27 @@ function selectAsset(entry: JsonRecord, assetDocument: JsonRecord | null) {
   return {
     image:
       entry.assets?.image ||
+      assets.image ||
       assets.home?.image ||
       assets.portrait ||
       normalShuffle?.image ||
       null,
     shinyImage:
       entry.assets?.shinyImage ||
+      assets.shinyImage ||
       assets.home?.shinyImage ||
       assets.portraitShiny ||
       shinyShuffle?.image ||
       null,
   };
+}
+
+function canonicalAssetCoreRef(entry: JsonRecord) {
+  const identity = String(entry.formId || entry.id || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return `pokemon-assets/core/${String(entry.dexId || "").padStart(4, "0")}-${identity}.assets.json`;
 }
 
 function recommendation(pvpRecord: JsonRecord | null, league: string) {
@@ -408,11 +418,12 @@ async function createCatalog(): Promise<PvpCatalog> {
       const entry = await readJson(file);
       const reference = path.relative(root, file).replaceAll(path.sep, "/");
       const assetsRef = entry.assets?.assetsRef || null;
-      const assetDocument = assetsRef
-        ? await readJson(
-            path.join(/* turbopackIgnore: true */ root, assetsRef),
-          ).catch(() => null)
-        : null;
+      const canonicalAssetsRef = canonicalAssetCoreRef(entry);
+      const assetDocument = await readJson(
+        path.join(/* turbopackIgnore: true */ root, canonicalAssetsRef),
+      ).catch(async () => assetsRef
+        ? readJson(path.join(/* turbopackIgnore: true */ root, assetsRef)).catch(() => null)
+        : null);
       const pvpRef = entry.pvpRef || null;
       const pvpRecord = pvpRef
         ? await readJson(path.join(/* turbopackIgnore: true */ root, pvpRef)).catch(() => null)
