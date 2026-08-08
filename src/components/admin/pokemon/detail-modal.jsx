@@ -12,6 +12,7 @@ import {
   typeName,
 } from "@/components/site/pokemon-style";
 import { pokemonVariantBadges } from "@/lib/pokemon-variant-resolver";
+import { resolvePokemonShinyReleases } from "@/lib/pokemon-shiny-release.mjs";
 import { uiAssets } from "@/components/site/ui-assets";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EmptyState } from "@/components/admin/shared/state-system";
@@ -519,10 +520,10 @@ const availabilityLabels = {
   apex: "Apex",
 };
 
-function ReleaseStatusGrid({ shinyAvailability, shadowShinyAvailability }) {
+function ReleaseStatusGrid({ releaseStatuses }) {
   const items = [
-    ["Chromatique", shinyAvailability, uiAssets.icons.shiny],
-    ["Shadow chromatique", shadowShinyAvailability, uiAssets.icons.shadow],
+    ["Chromatique", releaseStatuses.shiny, uiAssets.icons.shiny],
+    ["Shadow chromatique", releaseStatuses.shadow, uiAssets.icons.shadow],
   ];
   return (
     <Section
@@ -531,8 +532,9 @@ function ReleaseStatusGrid({ shinyAvailability, shadowShinyAvailability }) {
       tone="violet"
     >
       <div className="grid gap-3 lg:grid-cols-2">
-        {items.map(([label, record, icon]) => {
-          const released = Boolean(record?.released);
+        {items.map(([label, status, icon]) => {
+          const released = status.released;
+          const record = status.details;
           return (
             <article
               className={`rounded-2xl border p-4 ${
@@ -567,24 +569,26 @@ function ReleaseStatusGrid({ shinyAvailability, shadowShinyAvailability }) {
                   </span>
                 </span>
               </div>
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                <span className="rounded-xl border border-line bg-surface-inset px-3 py-2">
-                  <small className="block type-overline-compact text-disabled">
-                    Date
-                  </small>
-                  <strong className="mt-1 block text-domain-foreground">
-                    {formatDate(record?.releaseDate)}
-                  </strong>
-                </span>
-                <span className="rounded-xl border border-line bg-surface-inset px-3 py-2">
-                  <small className="block type-overline-compact text-disabled">
-                    Évènement
-                  </small>
-                  <strong className="mt-1 block break-words text-domain-foreground">
-                    {record?.event || "-"}
-                  </strong>
-                </span>
-              </div>
+              {released && record ? (
+                <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                  <span className="rounded-xl border border-line bg-surface-inset px-3 py-2">
+                    <small className="block type-overline-compact text-disabled">
+                      Date
+                    </small>
+                    <strong className="mt-1 block text-domain-foreground">
+                      {formatDate(record?.releaseDate)}
+                    </strong>
+                  </span>
+                  <span className="rounded-xl border border-line bg-surface-inset px-3 py-2">
+                    <small className="block type-overline-compact text-disabled">
+                      Évènement
+                    </small>
+                    <strong className="mt-1 block break-words text-domain-foreground">
+                      {record?.event || "-"}
+                    </strong>
+                  </span>
+                </div>
+              ) : null}
             </article>
           );
         })}
@@ -1494,6 +1498,11 @@ export function DetailModal({
     payload.shadowShinyAvailability ||
     payload.sourceData?.shadowShinyAvailability ||
     null;
+  const releaseStatuses = resolvePokemonShinyReleases({
+    availability,
+    shinyAvailability,
+    shadowShinyAvailability,
+  });
   const pvp = payload.pvp || {};
   const moveDetails = payload.moveDetails || {};
   const cpByLevel = payload.cpByLevel || [];
@@ -1609,7 +1618,7 @@ export function DetailModal({
                     🏷 {label}
                   </span>
                 ))}
-                {availability.shinyReleased || shinyAvailability?.released ? (
+                {releaseStatuses.shiny.released ? (
                   <span className="inline-flex items-center gap-2 rounded-full border border-cyan-100/35 bg-cyan-300/16 px-3 py-1.5 text-sm font-black text-cyan-50">
                     <img
                       className="h-4 w-4 object-contain"
@@ -1875,10 +1884,7 @@ export function DetailModal({
                     ))}
                   </div>
                 </Section>
-                <ReleaseStatusGrid
-                  shinyAvailability={shinyAvailability}
-                  shadowShinyAvailability={shadowShinyAvailability}
-                />
+                <ReleaseStatusGrid releaseStatuses={releaseStatuses} />
               </>
             ) : null}
 

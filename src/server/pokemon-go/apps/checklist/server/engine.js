@@ -119,6 +119,45 @@ function actualType(value) {
   return typeof value;
 }
 
+function releaseMetadataConflicts(
+  availability,
+  flagName,
+  value,
+  pathName,
+) {
+  const conflicts = [];
+  const canonical = availability?.[flagName];
+  const metadataFields = ["releaseDate", "event", "source", "matchedName"];
+  const populated =
+    actualType(value) === "object" &&
+    metadataFields.some(
+      (fieldName) =>
+        typeof value[fieldName] === "string" && value[fieldName].trim(),
+    );
+
+  if (canonical !== true && populated) {
+    conflicts.push({
+      path: pathName,
+      issue: "release_metadata_conflict",
+      expected: `${flagName} à true ou métadonnées vides`,
+      actual: `${String(canonical)} avec métadonnées de sortie`,
+    });
+  }
+  if (
+    actualType(value) === "object" &&
+    typeof value.released === "boolean" &&
+    value.released !== (canonical === true)
+  ) {
+    conflicts.push({
+      path: `${pathName}.released`,
+      issue: "release_flag_conflict",
+      expected: String(canonical === true),
+      actual: String(value.released),
+    });
+  }
+  return conflicts;
+}
+
 function createValidator() {
   const issues = [];
 
@@ -501,6 +540,22 @@ function createValidator() {
     }
   }
 
+  function releaseConsistency(availability, flagName, value, pathName) {
+    for (const conflict of releaseMetadataConflicts(
+      availability,
+      flagName,
+      value,
+      pathName,
+    )) {
+      add(
+        conflict.path,
+        conflict.issue,
+        conflict.expected,
+        conflict.actual,
+      );
+    }
+  }
+
   function mega(value, pathName) {
     if (actualType(value) !== "object") {
       add(pathName, "type", "objet Méga / Primo", actualType(value));
@@ -537,7 +592,19 @@ function createValidator() {
         field(availability, key, `${pathName}.availability.${key}`, "boolean");
     }
     releaseRecord(value.shinyAvailability, `${pathName}.shinyAvailability`);
+    releaseConsistency(
+      availability,
+      "shinyReleased",
+      value.shinyAvailability,
+      `${pathName}.shinyAvailability`,
+    );
     releaseRecord(
+      value.shadowShinyAvailability,
+      `${pathName}.shadowShinyAvailability`,
+    );
+    releaseConsistency(
+      availability,
+      "shadowShinyReleased",
       value.shadowShinyAvailability,
       `${pathName}.shadowShinyAvailability`,
     );
@@ -652,7 +719,19 @@ function createValidator() {
             );
     }
     releaseRecord(value.shinyAvailability, `${prefix}shinyAvailability`);
+    releaseConsistency(
+      value.availability,
+      "shinyReleased",
+      value.shinyAvailability,
+      `${prefix}shinyAvailability`,
+    );
     releaseRecord(
+      value.shadowShinyAvailability,
+      `${prefix}shadowShinyAvailability`,
+    );
+    releaseConsistency(
+      value.availability,
+      "shadowShinyReleased",
       value.shadowShinyAvailability,
       `${prefix}shadowShinyAvailability`,
     );
@@ -764,7 +843,19 @@ function createValidator() {
       }
     }
     releaseRecord(value.shinyAvailability, `${prefix}shinyAvailability`);
+    releaseConsistency(
+      availability,
+      "shinyReleased",
+      value.shinyAvailability,
+      `${prefix}shinyAvailability`,
+    );
     releaseRecord(
+      value.shadowShinyAvailability,
+      `${prefix}shadowShinyAvailability`,
+    );
+    releaseConsistency(
+      availability,
+      "shadowShinyReleased",
       value.shadowShinyAvailability,
       `${prefix}shadowShinyAvailability`,
     );
@@ -1647,6 +1738,7 @@ module.exports = {
   hydrateSourceData,
   issueCategory,
   qualitySummary,
+  releaseMetadataConflicts,
   referenceIssues,
   validateSourceData,
 };
