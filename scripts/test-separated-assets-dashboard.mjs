@@ -10,11 +10,15 @@ process.env.POKEMON_GO_DATA_DIR = dataRoot;
 const require = createRequire(import.meta.url);
 const engine = require("../src/server/pokemon-go/apps/checklist/server/engine.js");
 const bulbasaurSource = JSON.parse(fs.readFileSync(path.join(dataRoot, "pokemon/0001-bulbasaur.json"), "utf8"));
-const bulbasaurLegacy = JSON.parse(fs.readFileSync(path.join(dataRoot, "pokemon-assets/normal/0001-bulbasaur.assets.json"), "utf8"));
+const bulbasaurCore = JSON.parse(fs.readFileSync(path.join(dataRoot, bulbasaurSource.assets.assetsRef), "utf8"));
+const bulbasaurHome = JSON.parse(fs.readFileSync(path.join(dataRoot, bulbasaurCore.assetRefs.home), "utf8"));
+const bulbasaurShuffle = JSON.parse(fs.readFileSync(path.join(dataRoot, bulbasaurCore.assetRefs.shuffle), "utf8"));
+const bulbasaurVariants = JSON.parse(fs.readFileSync(path.join(dataRoot, bulbasaurCore.assetRefs.variants), "utf8"));
+const bulbasaurLocations = JSON.parse(fs.readFileSync(path.join(dataRoot, bulbasaurCore.assetRefs["location-cards"]), "utf8"));
 
 test("le loader par défaut ne lit que le core léger", () => {
   const data = engine.hydrateSourceData(bulbasaurSource, { families: [] });
-  assert.equal(data.assets.assetsRef, "pokemon-assets/core/0001-bulbasaur.assets.json");
+  assert.equal(data.assets.assetsRef, "pokemon-assets/core/normal/0001-bulbasaur.assets.json");
   assert.equal(data.assets.image, bulbasaurSource.assets.image);
   assert.deepEqual(data.assets.candy, bulbasaurSource.assets.candy);
   assert.equal(data.assets.home, null);
@@ -26,10 +30,10 @@ test("le loader par défaut ne lit que le core léger", () => {
 
 test("le détail charge à la demande les quatre familles séparées sans perte", () => {
   const data = engine.hydrateSourceData(bulbasaurSource);
-  assert.deepEqual(data.assets.home, bulbasaurLegacy.assets.home);
-  assert.deepEqual(data.assets.shuffle, bulbasaurLegacy.assets.shuffle);
-  assert.deepEqual(data.assets.locationCards, bulbasaurLegacy.assets.locationCards);
-  assert.deepEqual(data.assetForms, bulbasaurLegacy.assets.assetForms.map((asset) => ({
+  assert.deepEqual(data.assets.home, bulbasaurHome.home);
+  assert.deepEqual(data.assets.shuffle, bulbasaurShuffle.shuffle);
+  assert.deepEqual(data.assets.locationCards, bulbasaurLocations.locationCards);
+  assert.deepEqual(data.assetForms, bulbasaurVariants.variants.map((asset) => ({
     ...asset,
     form: asset.form ?? null,
     image: asset.image,
@@ -51,7 +55,7 @@ test("l’endpoint paresseux construit 1 611 patches et conserve Location Cards 
 
 test("la fiche détaillée expose le core et les documents de famille séparés", () => {
   const detail = engine.detailForKey("pokemon:data/pokemon/0001-bulbasaur.json");
-  assert.equal(detail.assetSourceFile, "pokemon-assets/core/0001-bulbasaur.assets.json");
+  assert.equal(detail.assetSourceFile, "pokemon-assets/core/normal/0001-bulbasaur.assets.json");
   assert.equal(detail.assetSourceData.formId, "BULBASAUR");
   assert.deepEqual(Object.keys(detail.assetSourceData.familyDocuments).sort(), ["home", "location-cards", "shuffle", "variants"]);
 });

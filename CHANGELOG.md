@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.42.0 - 2026-08-08
+
+- Adapte les loaders Assets et PvP aux catégories Pokémon séparées et centralise la résolution des chemins.
+- Étend le véritable Engine aux mauvais dossiers, références divergentes, catégories incohérentes et classifications ambiguës.
+- Couvre le chargement NORMAL, FORM, MEGA, DYNAMAX et GIGANTAMAX dans les tests Dashboard.
+
 ## 1.41.0 - 2026-08-02
 
 - Ajoute le centre de contrôle privé `/discord-bot` avec navigation, santé, versions et registre opérationnel du bot.

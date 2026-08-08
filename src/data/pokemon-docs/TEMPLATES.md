@@ -115,7 +115,7 @@ Template complet:
     "image": null,
     "shinyImage": null,
     "candy": null,
-    "assetsRef": "pokemon-assets/normal/0001-bulbasaur.assets.json"
+    "assetsRef": "pokemon-assets/core/normal/0001-bulbasaur.assets.json"
   },
   "regionForms": [],
   "evolutions": [],
@@ -129,21 +129,22 @@ Template complet:
 
 Le JSON principal doit rester leger. Ne jamais y remettre `assets.home`,
 `assets.locationCards`, `assets.shuffle`, `assets.portrait`, `assets.portraitShiny` ou
-`assetForms`: ces champs vivent dans `PokemonGo-Data/pokemon-assets/**/*.assets.json`
-et dans la collection MongoDB `pokemonAssets`.
+`assetForms`: ces champs vivent dans les familles dédiées de `PokemonGo-Data/pokemon-assets/`
+et dans les collections MongoDB `pokemonAssets`/`pokemonAssetFamilies`.
 
 ## Template Assets Séparés
 
 Nom du fichier:
 
 ```text
-PokemonGo-Data/pokemon-assets/[forme]/[dexId]-[slug].assets.json
+PokemonGo-Data/pokemon-assets/core/[catégorie]/[dexId]-[identité].assets.json
 ```
 
 Template complet:
 
 ```json
 {
+  "schemaVersion": 1,
   "id": "",
   "formId": "",
   "baseFormId": "",
@@ -152,12 +153,14 @@ Template complet:
   "dexNr": null,
   "dexId": "",
   "assets": {
-    "home": null,
+    "image": null,
+    "shinyImage": null,
     "portrait": null,
     "portraitShiny": null,
-    "locationCards": [],
-    "shuffle": null,
-    "assetForms": []
+    "candy": null
+  },
+  "assetRefs": {
+    "home": "pokemon-assets/home/normal/0001-bulbasaur.home.json"
   }
 }
 ```
@@ -332,7 +335,7 @@ A créer dans `data/pokemon-forms/`, puis ajouter son `formId` à la liste
     "image": null,
     "shinyImage": null,
     "candy": null,
-    "assetsRef": "pokemon-assets/mega/0003-venusaur-mega.assets.json"
+    "assetsRef": "pokemon-assets/core/mega/0003-venusaur-mega.assets.json"
   }
 }
 ```
@@ -384,7 +387,7 @@ references vers `data/moves/gmax/`. Leur bloc `maxCp` contient uniquement
 
 Le bloc `assets` est obligatoire sur chaque fiche Max et peut contenir uniquement
 `image`, `shinyImage`, `candy` et `assetsRef`. Les variantes Shuffle, Home, portraits et
-cartes de lieu restent dans le fichier `pokemon-assets/**/*.assets.json`. Une forme
+cartes de lieu restent dans leurs fichiers de famille sous `pokemon-assets/<famille>/<catégorie>/`. Une forme
 Dynamax conserve également son tableau `evolutions`.
 
 ## Bloc Asset Form

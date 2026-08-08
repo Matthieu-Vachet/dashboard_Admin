@@ -28,6 +28,13 @@ test("l'Engine valide toute l'architecture Assets séparée", () => {
     variants: 332,
     "location-cards": 215,
   });
+  assert.deepEqual(audit.summary.categoryCounts.core, {
+    normal: 1_025,
+    forms: 372,
+    mega: 58,
+    dynamax: 127,
+    gigantamax: 29,
+  });
   assert.deepEqual(audit.summary.legitimateAbsences, {
     home: 522,
     shuffle: 99,
@@ -36,10 +43,10 @@ test("l'Engine valide toute l'architecture Assets séparée", () => {
   });
   assert.equal(audit.summary.urls, 21_019);
   assert.equal(audit.summary.uniqueUrls, 16_599);
-  assert.equal(audit.summary.temporaryLegacyRefs, 1_611);
-  assert.equal(audit.summary.legacyMonoliths, 1_611);
-  assert.equal(audit.summary.warnings, 1);
-  assert.equal(audit.issues[0].issue, "asset_legacy_transition_retained");
+  assert.equal(audit.summary.temporaryLegacyRefs, 0);
+  assert.equal(audit.summary.legacyMonoliths, 0);
+  assert.equal(audit.summary.warnings, 0);
+  assert.deepEqual(audit.issues, []);
   assert.equal(
     audit.summary.archiveTag,
     "archive/assets-monolithic-before-separated-records-2026-08-08",

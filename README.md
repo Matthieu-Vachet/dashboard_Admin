@@ -6,6 +6,10 @@ La section Admin Pokémon regroupe les classements PvPoke enrichis, une checklis
 
 L’encyclopédie d’architecture est indexée dans [`docs/TOME-INDEX.md`](docs/TOME-INDEX.md). Les Tomes 1 à 14 couvrent fondations, Dashboard, Design System, architecture, providers, datasets, API, MongoDB, assets, tests, performance, responsive, sécurité et roadmap. `npm run test:docs` contrôle leur présence, leurs IDs et leurs liens.
 
+La résolution canonique des Assets et fiches PvP par catégories `normal`, `forms`,
+`mega`, `dynamax` et `gigantamax`, ainsi que les diagnostics de l’Engine et le rollback,
+sont décrits dans [`docs/ENTITY-CATEGORY-ARCHITECTURE.md`](docs/ENTITY-CATEGORY-ARCHITECTURE.md).
+
 ## Stack
 
 - Next.js App Router, React, TypeScript

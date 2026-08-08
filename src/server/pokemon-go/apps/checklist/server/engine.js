@@ -13,6 +13,7 @@ const {
 } = require("./custom-rules");
 const { buildPvpArchitectureAudit } = require("./pvp-architecture-audit");
 const { buildAssetArchitectureAudit } = require("./asset-architecture-audit");
+const { categoryFromReference, classifyEntity, resolveCanonicalReference } = require("./entity-category");
 
 const pokemonDir = dataPath("pokemon");
 const formsDir = dataPath("pokemon-forms");
@@ -61,7 +62,7 @@ function canonicalAssetStem(data) {
 }
 
 function canonicalCoreRef(data) {
-  return `pokemon-assets/core/${canonicalAssetStem(data)}.assets.json`;
+  return resolveCanonicalReference(data, { family: "core" });
 }
 
 function readSafeAssetFile(reference, expectedFamily, formId) {
@@ -70,7 +71,8 @@ function readSafeAssetFile(reference, expectedFamily, formId) {
   const familyRoot = path.join(assetsDir, expectedFamily);
   if (!isInsideData(file) || !file.startsWith(`${familyRoot}${path.sep}`) || !fs.existsSync(file)) return null;
   const record = readJson(file);
-  return !formId || record?.formId === formId ? record : null;
+  const classification = classifyEntity(record);
+  return (!formId || record?.formId === formId) && !classification.ambiguous && categoryFromReference(reference) === classification.category ? record : null;
 }
 
 function readAssetRecord(data) {
@@ -103,6 +105,7 @@ function readAssetBundle(data, { families = assetFamilies } = {}) {
 function readPvpRecord(data) {
   const pvpRef = data?.pvpRef;
   if (!pvpRef) return null;
+  if (pvpRef !== resolveCanonicalReference(data, { family: "pvp" })) return null;
   const file = resolveDataFile(pvpRef);
   if (!isInsideData(file) || !file.startsWith(pvpDir) || !fs.existsSync(file)) return null;
   const record = readJson(file);

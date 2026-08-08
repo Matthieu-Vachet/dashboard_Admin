@@ -29,6 +29,9 @@ test("l'Engine couvre l'architecture PvP dédiée et son snapshot mensuel", () =
     "pvp_elite_move_duplicate",
     "pvp_xl_asset_missing",
     "pvp_league_status_invalid",
+    "PVP_WRONG_CATEGORY_DIRECTORY",
+    "REFERENCE_CATEGORY_MISMATCH",
+    "ENTITY_CLASSIFICATION_AMBIGUOUS",
   ]);
 
   assert.equal(audit.summary.records, 1_611);
@@ -36,6 +39,13 @@ test("l'Engine couvre l'architecture PvP dédiée et son snapshot mensuel", () =
   assert.equal(audit.summary.errors, 0);
   assert.equal(audit.summary.references, audit.summary.records);
   assert.equal(audit.summary.manifestRecords, audit.summary.records);
+  assert.deepEqual(audit.summary.categoryCounts, {
+    normal: 1_025,
+    forms: 372,
+    mega: 58,
+    dynamax: 127,
+    gigantamax: 29,
+  });
   assert.equal(audit.summary.monthlyFresh, true);
   assert.equal(audit.summary.freshnessDays, 0);
   assert.equal(audit.summary.mappingWarnings, 394);

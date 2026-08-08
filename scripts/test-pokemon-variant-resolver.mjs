@@ -371,10 +371,15 @@ test("conserve les états Dynamax et Gigamax sans inventer d'asset", () => {
 });
 
 test("résout les vrais assets Bulbizarre FALL 2019 et Pikachu WINTER 2020", {
-  skip: !fs.existsSync(path.join(dataRoot, "pokemon-assets/normal/0001-bulbasaur.assets.json")),
+  skip: !fs.existsSync(path.join(dataRoot, "pokemon-assets/core/normal/0001-bulbasaur.assets.json")),
 }, () => {
-  const bulbasaur = JSON.parse(fs.readFileSync(path.join(dataRoot, "pokemon-assets/normal/0001-bulbasaur.assets.json"), "utf8"));
-  const pikachuAssetFile = JSON.parse(fs.readFileSync(path.join(dataRoot, "pokemon-assets/normal/0025-pikachu.assets.json"), "utf8"));
+  const loadBundle = (stem) => {
+    const core = JSON.parse(fs.readFileSync(path.join(dataRoot, `pokemon-assets/core/normal/${stem}.assets.json`), "utf8"));
+    const variants = JSON.parse(fs.readFileSync(path.join(dataRoot, core.assetRefs.variants), "utf8"));
+    return { ...core, assetForms: variants.variants };
+  };
+  const bulbasaur = loadBundle("0001-bulbasaur");
+  const pikachuAssetFile = loadBundle("0025-pikachu");
   const bulbasaurResolution = resolvePokemonVariant(bulbasaur, {
     id: "BULBASAUR",
     form: "BULBASAUR_NORMAL",

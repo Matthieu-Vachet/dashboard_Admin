@@ -5,8 +5,10 @@
 - Le depot prive `PokemonGo-Data` contient les JSON sources.
 - `PokemonGo-Data/pokemon/` contient uniquement les fiches principales.
 - `PokemonGo-Data/pokemon-forms/` contient les données complètes de chaque forme.
-- `PokemonGo-Data/pokemon-assets/` contient les assets lourds séparés : Home, portraits,
-  portraits shiny, Location Cards, Shuffle et variantes visuelles.
+- `PokemonGo-Data/pokemon-assets/` sépare les familles Core, HOME, Shuffle, Variants et
+  Location Cards, puis les catégories `normal`, `forms`, `mega`, `dynamax` et
+  `gigantamax` dans chaque famille.
+- `PokemonGo-Data/pvp/pokemon/` utilise exactement les mêmes catégories pour `pvpRef`.
 - `regionForms`, `megaEvolutions`, `dynamaxForms` et `gigantamaxForms` sont des
   listes de références `formId`.
 - `PokemonGo-Data/moves/`, `PokemonGo-Data/types/`, `PokemonGo-Data/generations/` et `PokemonGo-Data/weather/` sont les
@@ -19,7 +21,8 @@
 Ne jamais recopier les données complètes d'une forme dans une fiche principale. Ne jamais
 remettre `assets.home`, `assets.shuffle`, `assets.locationCards`, `assets.portrait`,
 `assets.portraitShiny` ou `assetForms` dans `pokemon/` ou `pokemon-forms/` : ces champs
-doivent rester dans `pokemon-assets/` et dans la collection MongoDB `pokemonAssets`.
+doivent rester dans les familles dédiées de `pokemon-assets/`, puis dans les collections
+MongoDB `pokemonAssets` et `pokemonAssetFamilies`.
 
 ## Contrôles Avant Contribution
 
@@ -29,6 +32,7 @@ npm run audit:forms
 npm run audit:identifiers
 npm run audit:moves
 npm run audit:weather
+npm run test:entity-categories
 npm test
 ```
 

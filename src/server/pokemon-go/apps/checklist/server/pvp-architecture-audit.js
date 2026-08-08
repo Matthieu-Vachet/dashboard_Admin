@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const { dataPath, dataRoot, resolveDataFile } = require("../../../src/lib/data-repository");
+const { CATEGORY_DIRECTORIES, categoryFromReference, classifyEntity, resolveCanonicalReference } = require("./entity-category");
 
 const MONTHLY_FRESHNESS_DAYS = 45;
 const LEAGUE_STATUSES = new Set([
@@ -121,8 +122,18 @@ function buildPvpArchitectureAudit(options = {}) {
         actual: "absent",
       }));
   }
+  for (const category of Object.values(CATEGORY_DIRECTORIES)) {
+    const directory = path.join(pvpPokemonDirectory, category);
+    if (!fs.existsSync(directory))
+      add(issue({
+        path: relativeDataPath(directory),
+        code: "pvp_category_directory_missing",
+        expected: "dossier de catégorie canonique présent",
+        actual: "absent",
+      }));
+  }
 
-  if (requiredFiles.some((file) => !fs.existsSync(file))) {
+  if (requiredFiles.some((file) => !fs.existsSync(file)) || diagnostics.some((diagnostic) => diagnostic.severity === "error")) {
     return {
       summary: {
         valid: false,
@@ -149,6 +160,7 @@ function buildPvpArchitectureAudit(options = {}) {
   const sources = sourceFiles.map((file) => {
     const data = readJson(file);
     const sourceFile = relativeDataPath(file);
+    const classification = classifyEntity(data, { sourceFile });
     return {
       data,
       file,
@@ -162,10 +174,15 @@ function buildPvpArchitectureAudit(options = {}) {
         ...(data.eliteQuickMoves || []),
         ...(data.eliteCinematicMoves || []),
       ]),
+      classification,
     };
   });
   const sourcesByRef = new Map();
   for (const source of sources) {
+    if (source.classification.ambiguous) {
+      add(issue({ sourceFile: source.sourceFile, path: "form", code: "ENTITY_CLASSIFICATION_AMBIGUOUS", expected: "une catégorie canonique unique", actual: source.classification.signals.join(", ") }));
+      continue;
+    }
     if (!source.pvpRef) {
       add(issue({
         sourceFile: source.sourceFile,
@@ -176,6 +193,11 @@ function buildPvpArchitectureAudit(options = {}) {
       }));
       continue;
     }
+    const expectedRef = resolveCanonicalReference(source.data, { family: "pvp", sourceFile: source.sourceFile });
+    if (source.pvpRef !== expectedRef)
+      add(issue({ sourceFile: source.sourceFile, pvpRef: source.pvpRef, path: "pvpRef", code: "PVP_WRONG_CATEGORY_DIRECTORY", expected: expectedRef, actual: source.pvpRef }));
+    if (categoryFromReference(source.pvpRef) !== source.classification.category)
+      add(issue({ sourceFile: source.sourceFile, pvpRef: source.pvpRef, path: "pvpRef", code: "REFERENCE_CATEGORY_MISMATCH", expected: source.classification.category, actual: categoryFromReference(source.pvpRef) || "absent" }));
     const values = sourcesByRef.get(source.pvpRef) || [];
     values.push(source);
     sourcesByRef.set(source.pvpRef, values);
@@ -228,6 +250,11 @@ function buildPvpArchitectureAudit(options = {}) {
       expected: `${pvpFiles.length} fichiers PvP`,
       actual: `${manifest.records} records / ${manifestEntries.length} entrées`,
     }));
+  for (const [category, directory] of Object.entries(CATEGORY_DIRECTORIES)) {
+    const count = pvpFiles.filter((file) => categoryFromReference(relativeDataPath(file)) === category).length;
+    if (manifest.counts?.[directory] !== count)
+      add(issue({ path: `pvp/manifest.json.counts.${directory}`, code: "pvp_manifest_category_count_mismatch", expected: count, actual: manifest.counts?.[directory] ?? "absent" }));
+  }
 
   const providerPokemonMappings = new Map();
   for (const mapping of pokemonMap.mappings || []) {
@@ -443,6 +470,19 @@ function buildPvpArchitectureAudit(options = {}) {
         actual: actualHash,
       }));
     const record = readJson(pvpFile);
+    const recordClassification = classifyEntity(record.identity, { sourceFile: record.identity?.localFile });
+    if (recordClassification.ambiguous)
+      add(issue({ ...context, path: "identity.form", code: "ENTITY_CLASSIFICATION_AMBIGUOUS", expected: "une catégorie canonique unique", actual: recordClassification.signals.join(", ") }));
+    else if (categoryFromReference(pvpRef) !== recordClassification.category)
+      add(issue({ ...context, path: "category", code: "PVP_WRONG_CATEGORY_DIRECTORY", expected: recordClassification.directory, actual: pvpRef.split("/")[2] || "absent" }));
+    if (source && !recordClassification.ambiguous && recordClassification.category !== source.classification.category)
+      add(issue({
+        ...context,
+        path: "identity.entityCategory",
+        code: "ENTITY_CATEGORY_MISMATCH",
+        expected: source.classification.category,
+        actual: recordClassification.category,
+      }));
     if (record.pvpRef !== pvpRef)
       add(issue({
         ...context,
@@ -464,6 +504,7 @@ function buildPvpArchitectureAudit(options = {}) {
         canonicalId: source.canonicalId,
         pokemonId: source.data.id || source.data.baseFormId || source.canonicalId,
         formId: source.canonicalId,
+        baseFormId: source.data.baseFormId,
         form: source.data.form,
         dexNr: source.data.dexNr,
         dexId: source.data.dexId,
@@ -639,6 +680,7 @@ function buildPvpArchitectureAudit(options = {}) {
       records: pvpFiles.length,
       references: sourcesByRef.size,
       manifestRecords: manifest.records ?? null,
+      categoryCounts: manifest.counts || {},
       mappedRecords: sources.filter((source) => {
         if (!source.pvpRef || !fs.existsSync(resolveDataFile(source.pvpRef))) return false;
         return readJson(resolveDataFile(source.pvpRef)).mapping?.status === "MATCHED";

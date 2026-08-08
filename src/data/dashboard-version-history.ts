@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.42.0",
+    date: "2026-08-08",
+    title: "Catégories Pokémon séparées pour Assets et PvP",
+    changes: [
+      "Classe les résolutions NORMAL, FORM, MEGA, DYNAMAX et GIGANTAMAX avec un chemin canonique partagé.",
+      "Adapte les loaders Core, familles secondaires et PvP sans créer de données absentes.",
+      "Étend l’Engine aux mauvais dossiers, références divergentes, catégories incohérentes et classifications ambiguës.",
+      "Valide les manifestes, l’API et les fiches Dashboard sur des représentants des cinq catégories.",
+    ],
+  },
+  {
     version: "V1.41.0",
     date: "2026-08-02",
     title: "Centre de contrôle Discord Bot",

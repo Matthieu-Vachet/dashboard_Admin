@@ -4,6 +4,7 @@ import "server-only";
 
 import fs from "node:fs/promises";
 import path from "node:path";
+import { resolvePokemonDataReference } from "../pokemon-entity-category";
 import { getBattleFormMechanic } from "./form-mechanics";
 import { rankIvs, rankIvTable } from "./rules";
 import type {
@@ -329,11 +330,7 @@ function selectAsset(entry: JsonRecord, assetDocument: JsonRecord | null) {
 }
 
 function canonicalAssetCoreRef(entry: JsonRecord) {
-  const identity = String(entry.formId || entry.id || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-  return `pokemon-assets/core/${String(entry.dexId || "").padStart(4, "0")}-${identity}.assets.json`;
+  return resolvePokemonDataReference(entry, "core");
 }
 
 function recommendation(pvpRecord: JsonRecord | null, league: string) {
