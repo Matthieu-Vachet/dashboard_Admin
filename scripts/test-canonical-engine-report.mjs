@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { createRequire } from "node:module";
 
-process.env.POKEMON_GO_DATA_DIR = path.resolve(process.cwd(), "../PokemonGo-Data");
+process.env.POKEMON_GO_DATA_DIR ||= path.resolve(process.cwd(), "../PokemonGo-Data");
 const require = createRequire(import.meta.url);
-const { buildCanonicalEngineReport } = require("../src/server/pokemon-go/apps/checklist/server/engine.js");
+const { buildCanonicalEngineReport, validateSourceData } = require("../src/server/pokemon-go/apps/checklist/server/engine.js");
 const engineRun = buildCanonicalEngineReport([]);
 
 test("le véritable Engine produit un rapport global sérialisable et mesuré", () => {
@@ -45,4 +46,24 @@ test("le rapport distingue les absences légitimes des erreurs et refuse les rel
   assert.equal(report.diagnosticTaxonomy.ERROR.count, 0);
   assert.ok(Object.values(report.architecture.legacyRequirements).every((required) => required === false));
   assert.match(report.indexes.strategy, /Map\/Set/);
+});
+
+test("la checklist n'exige plus l'ancien bloc pvp embarqué", () => {
+  const issues = engineRun.entries.flatMap((entry) => entry.issues || []);
+  assert.equal(engineRun.report.diagnostics.checklistByCode.type || 0, 0);
+  assert.equal(issues.some((issue) => /^pvp\.(?:littleCup|greatLeague|ultraLeague|masterLeague)(?:\.|$)/.test(String(issue.path))), false);
+  assert.equal(issues.some((issue) => /(?:tierRank|bestMovesets)/.test(String(issue.path))), false);
+});
+
+test("le contrôle d'une fiche reprend les diagnostics du fichier dédié résolu par pvpRef", () => {
+  const sourceFile = path.join(process.env.POKEMON_GO_DATA_DIR, "pokemon-forms", "dynamax", "0001-bulbasaur-dynamax.json");
+  const source = JSON.parse(fs.readFileSync(sourceFile, "utf8"));
+  const issues = validateSourceData(source, "data/pokemon-forms/dynamax/0001-bulbasaur-dynamax.json", "dynamax", {
+    pvpArchitecture: engineRun.pvpArchitecture,
+    customRules: [],
+  });
+  const mapping = issues.find((issue) => issue.issue === "pvp_mapping_missing");
+  assert.equal(mapping?.path, "mapping.status");
+  assert.equal(mapping?.pvpRef, source.pvpRef);
+  assert.equal(issues.some((issue) => String(issue.path).startsWith("pvp.")), false);
 });

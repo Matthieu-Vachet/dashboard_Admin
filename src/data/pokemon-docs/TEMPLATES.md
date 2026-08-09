@@ -200,31 +200,19 @@ Les fiches Pokemon stockent uniquement les identifiants. Les details complets so
 }
 ```
 
-## Bloc PvP
+## Référence PvP
 
-A placer dans `pvp.littleCup`, `pvp.greatLeague`, `pvp.ultraLeague` ou `pvp.masterLeague`.
+À placer dans la fiche Pokémon ou forme :
 
 ```json
 {
-  "tierRank": "",
-  "rank1": {
-    "ivs": {
-      "attack": null,
-      "defense": null,
-      "stamina": null
-    },
-    "level": null,
-    "cp": null
-  },
-  "bestMovesets": {
-    "fast": "",
-    "charged": []
-  }
+  "pvpRef": "pvp/pokemon/normal/0001-bulbasaur.pvp.json"
 }
 ```
 
-`pvp` peut valoir `null`. Sinon, conserver les quatre cles de ligue et utiliser `null`
-pour chaque ligue non applicable.
+Ne pas ajouter de bloc `pvp` embarqué. La fiche `.pvp.json` est générée par le pipeline
+PvP canonique et contient les quatre clés `leagues.little`, `leagues.great`,
+`leagues.ultra` et `leagues.master` avec leurs statuts explicites.
 
 ## Attaques Elite
 

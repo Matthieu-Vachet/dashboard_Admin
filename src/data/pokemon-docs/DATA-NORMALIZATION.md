@@ -73,32 +73,22 @@ Les sept météos Pokémon GO vivent dans `PokemonGo-Data/weather/`. Chaque entr
 traductions, son icône et les identifiants des types boostés. Les Pokémon utilisent
 `weatherBoost: string[]`; chaque type utilise `weatherBoost: string`.
 
-## PvP Nullable
+## PvP séparé
 
-`pvp` peut valoir `null` lorsqu'aucune information PvP n'est utile. Sinon, les quatre
-ligues sont explicites et chaque ligue peut valoir `null`.
+La fiche Pokémon ne contient plus de bloc `pvp`. Elle porte uniquement une référence
+canonique vers la fiche dédiée :
 
 ```json
 {
-  "pvp": {
-    "littleCup": null,
-    "greatLeague": {
-      "tierRank": "F",
-      "rank1": {
-        "ivs": { "attack": 15, "defense": 15, "stamina": 15 },
-        "level": 50,
-        "cp": 1260
-      },
-      "bestMovesets": {
-        "fast": "VINE_WHIP_FAST",
-        "charged": ["POWER_WHIP", "SLUDGE_BOMB"]
-      }
-    },
-    "ultraLeague": null,
-    "masterLeague": null
-  }
+  "pvpRef": "pvp/pokemon/normal/0001-bulbasaur.pvp.json"
 }
 ```
+
+Le fichier `.pvp.json` contient `mapping`, `source` et les ligues `leagues.little`,
+`leagues.great`, `leagues.ultra` et `leagues.master`. Chaque ligue expose un `status`
+explicite ; `tier`, `rank1` et `variants[].bestMoveset` ne sont requis que lorsque ce
+statut est `RANKED`. L'Engine résout et contrôle cette fiche via `pvpRef` sans exiger
+une copie des données PvP dans la fiche Pokémon.
 
 ## Dynamax Et Gigantamax
 

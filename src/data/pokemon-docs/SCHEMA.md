@@ -301,41 +301,25 @@ reste present avec `[]` sur les fiches non Max pour garder un pattern uniforme.
 
 ## PvP
 
-`pvp` peut valoir `null` si aucune information PvP n'est applicable. Sinon, les quatre
-ligues sont explicites et chaque ligue peut valoir `null`.
+La fiche Pokémon stocke uniquement `pvpRef`, qui doit pointer vers son fichier PvP
+canonique sous `pvp/pokemon/<catégorie>/`.
 
 ```json
 {
-  "pvp": {
-    "littleCup": null,
-    "greatLeague": {
-      "tierRank": "F",
-      "rank1": {
-        "ivs": {
-          "attack": 15,
-          "defense": 15,
-          "stamina": 15
-        },
-        "level": 50,
-        "cp": 1260
-      },
-      "bestMovesets": {
-        "fast": "VINE_WHIP_FAST",
-        "charged": ["POWER_WHIP", "SLUDGE_BOMB"]
-      }
-    },
-    "ultraLeague": null,
-    "masterLeague": null
-  }
+  "pvpRef": "pvp/pokemon/normal/0001-bulbasaur.pvp.json"
 }
 ```
 
-Ligues recommandees:
+Le fichier référencé porte le contrat PvP dédié :
 
-- `littleCup`
-- `greatLeague`
-- `ultraLeague`
-- `masterLeague`
+- `mapping.status` et les identifiants fournisseur ;
+- `source` et l'identité du snapshot PvPoke ;
+- `leagues.little`, `leagues.great`, `leagues.ultra`, `leagues.master` ;
+- un `status` par ligue ;
+- `tier`, `rank1` et `variants[].bestMoveset` pour une ligue `RANKED`.
+
+Les statuts non classés expliquent l'absence de classement ; ils ne doivent pas être
+remplacés par des champs vides dans la fiche Pokémon.
 
 ## Evolutions
 

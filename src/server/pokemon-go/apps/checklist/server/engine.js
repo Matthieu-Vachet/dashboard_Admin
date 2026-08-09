@@ -376,70 +376,6 @@ function createValidator() {
     moveDictionary(value, pathName, true);
   }
 
-  function pvp(value, pathName) {
-    if (value === null) return;
-    if (actualType(value) !== "object") {
-      add(
-        pathName,
-        value === undefined ? "missing" : "type",
-        "objet non vide",
-        actualType(value),
-      );
-      return;
-    }
-    if (Object.keys(value).length === 0)
-      add(pathName, "empty", "objet non vide", "vide");
-    for (const league of [
-      "littleCup",
-      "greatLeague",
-      "ultraLeague",
-      "masterLeague",
-    ]) {
-      const leagueData = value[league];
-      const leaguePath = `${pathName}.${league}`;
-      if (leagueData === undefined) {
-        add(leaguePath, "missing", "objet ligue ou null", "absent");
-        continue;
-      }
-      if (leagueData === null) continue;
-      if (actualType(leagueData) !== "object") {
-        add(leaguePath, "type", "objet ligue ou null", actualType(leagueData));
-        continue;
-      }
-      field(leagueData, "tierRank", `${leaguePath}.tierRank`, "string", {
-        nonEmpty: true,
-      });
-      const rank1 = field(leagueData, "rank1", `${leaguePath}.rank1`, "object");
-      if (actualType(rank1) === "object") {
-        const ivs = field(rank1, "ivs", `${leaguePath}.rank1.ivs`, "object");
-        if (actualType(ivs) === "object") {
-          for (const key of ["attack", "defense", "stamina"])
-            field(ivs, key, `${leaguePath}.rank1.ivs.${key}`, "number");
-        }
-        field(rank1, "level", `${leaguePath}.rank1.level`, "number");
-        field(rank1, "cp", `${leaguePath}.rank1.cp`, "number");
-      }
-      const movesets = field(
-        leagueData,
-        "bestMovesets",
-        `${leaguePath}.bestMovesets`,
-        "object",
-      );
-      if (actualType(movesets) === "object") {
-        field(movesets, "fast", `${leaguePath}.bestMovesets.fast`, "string", {
-          nonEmpty: true,
-        });
-        field(
-          movesets,
-          "charged",
-          `${leaguePath}.bestMovesets.charged`,
-          "array",
-          { nonEmpty: true },
-        );
-      }
-    }
-  }
-
   function assets(
     value,
     pathName,
@@ -973,7 +909,6 @@ function createValidator() {
       add(`${prefix}shadow`, "missing", "données Shadow", "absent");
     if (value.availability?.shadow === false && value.shadow !== undefined && value.shadow !== null)
       add(`${prefix}shadow`, "unexpected", "absent si Shadow non sorti", "présent");
-    pvp(value.pvp, `${prefix}pvp`);
     typeBlock(value.primaryType, `${prefix}primaryType`);
     typeBlock(value.secondaryType, `${prefix}secondaryType`, true);
     field(value, "pokemonClass", `${prefix}pokemonClass`, "string", {
@@ -1156,6 +1091,11 @@ function validateSourceData(data, relativeFile = "", kindHint = "", options = {}
   );
   for (const issue of validator.issues)
     issue.path = issue.path.replace(/^\./, "");
+  const pvpArchitecture = options.pvpArchitecture || buildPvpArchitectureAudit();
+  const pvpSourceFile = String(relativeFile).replace(/^data\//, "");
+  validator.issues.push(
+    ...(pvpArchitecture.diagnosticsBySource.get(pvpSourceFile) || []),
+  );
   const moveIds = new Set(buildMoveCatalog().keys());
   const formIds = new Set();
   for (const directory of [pokemonDir, formsDir]) {
@@ -1323,15 +1263,6 @@ function setPatchValue(target, pathName, value) {
 
 function suggestedValue(issue, kind = "pokemon") {
   if (issue.suggested !== undefined) return structuredClone(issue.suggested);
-  const pvpLeague = {
-    tierRank: "",
-    rank1: {
-      ivs: { attack: null, defense: null, stamina: null },
-      level: null,
-      cp: null,
-    },
-    bestMovesets: { fast: "", charged: [""] },
-  };
   const templates = {
     size: { height: null, weight: null },
     availability:
@@ -1372,23 +1303,6 @@ function suggestedValue(issue, kind = "pokemon") {
     regionId: "",
     names: Object.fromEntries(languages.map((language) => [language, ""])),
     maxBattle: { moves: [""] },
-    pvp: {
-      littleCup: null,
-      greatLeague: null,
-      ultraLeague: null,
-      masterLeague: null,
-    },
-    littleCup: pvpLeague,
-    greatLeague: pvpLeague,
-    ultraLeague: pvpLeague,
-    masterLeague: pvpLeague,
-    rank1: {
-      ivs: { attack: null, defense: null, stamina: null },
-      level: null,
-      cp: null,
-    },
-    ivs: { attack: null, defense: null, stamina: null },
-    bestMovesets: { fast: "", charged: [""] },
     quickMoves: [""],
     cinematicMoves: [""],
     eliteQuickMoves: [],
