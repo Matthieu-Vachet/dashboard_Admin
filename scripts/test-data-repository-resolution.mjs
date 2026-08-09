@@ -98,4 +98,11 @@ test("les Functions qui lisent PokemonGo-Data embarquent son marqueur de racine"
     assert.match(definition, /PokemonGo-Data\/package\.json/);
     assert.match(definition, /PokemonGo-Data\/\.dashboard-data-snapshot\.json/);
   }
+
+  const excludesStart = config.indexOf("outputFileTracingExcludes");
+  const pvpExcludesStart = config.indexOf('"/api/admin/pvp-simulator"', excludesStart);
+  const pvpExcludesEnd = config.indexOf("],", pvpExcludesStart);
+  const pvpExcludes = config.slice(pvpExcludesStart, pvpExcludesEnd);
+  assert.match(pvpExcludes, /PokemonGo-Data\/archives\/\*\*/);
+  assert.match(pvpExcludes, /PokemonGo-Data\/pvp-rankings\/\*\*/);
 });

@@ -73,6 +73,10 @@ const nextConfig: NextConfig = {
   // in a server route at runtime. Excluding them prevents dynamic fs tracing
   // from packaging the complete test-results tree into Vercel Functions.
   outputFileTracingExcludes: {
+    "/api/admin/pvp-simulator": [
+      "./.data/PokemonGo-Data/archives/**",
+      "./.data/PokemonGo-Data/pvp-rankings/**",
+    ],
     "/*": ["./test-results/**/*"],
   },
   images: {

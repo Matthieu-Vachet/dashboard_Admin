@@ -11,7 +11,12 @@ function repositoryError(message, code, details = null) {
 function hasDataShape(directory) {
   let packageName = null;
   try {
-    packageName = JSON.parse(fs.readFileSync(path.join(directory, "package.json"), "utf8")).name;
+    packageName = JSON.parse(
+      fs.readFileSync(
+        path.join(/*turbopackIgnore: true*/ directory, "package.json"),
+        "utf8",
+      ),
+    ).name;
   } catch {
     return false;
   }

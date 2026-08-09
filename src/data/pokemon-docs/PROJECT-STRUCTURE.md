@@ -52,7 +52,9 @@ rapport avec la Function appelante.
 Tous les chemins métier passent ensuite par `dataPath`, qui refuse les `..`, chemins
 absolus et liens symboliques sortant de cette racine. Les bundles Vercel qui lisent le
 snapshot embarquent `package.json`, `.dashboard-data-snapshot.json` et leurs familles
-de données requises.
+de données requises. Le bundle du simulateur PvP exclut explicitement les archives et
+les classements régénérés, qui ne participent jamais à une simulation et dépasseraient
+inutilement la limite de taille d'une Function.
 
 La synchronisation vers MongoDB ne modifie jamais ces sources. Le catalogue d'attaques
 central est dans `PokemonGo-Data/moves/`, avec les categories classiques, Elite, Max et
