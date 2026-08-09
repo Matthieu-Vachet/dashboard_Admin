@@ -7,6 +7,7 @@ const {
   resolveDataFile,
 } = require("../../../src/lib/data-repository");
 const { CATEGORY_DIRECTORIES, categoryFromReference, classifyEntity, resolveCanonicalReference } = require("./entity-category");
+const { enrichDiagnostic } = require("./diagnostic-taxonomy");
 
 const ASSET_FAMILY_FIELDS = Object.freeze({
   home: "home",
@@ -90,7 +91,7 @@ function buildAssetArchitectureAudit() {
     actual,
     severity = "error",
   }) {
-    const diagnostic = {
+    const diagnostic = enrichDiagnostic({
       category: "assets",
       severity,
       sourceFile,
@@ -99,7 +100,7 @@ function buildAssetArchitectureAudit() {
       issue: code,
       expected,
       actual,
-    };
+    });
     diagnostics.push(diagnostic);
     if (assetRef) {
       const values = diagnosticsByRef.get(assetRef) || [];

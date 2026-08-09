@@ -18,11 +18,34 @@ function hasAssets(entry) {
   );
 }
 
-/** Isole les clés manquantes, y compris celles remontées par les règles personnalisées. */
+/** Isole uniquement les absences de schéma réelles. */
 function missingKeyIssues(entry) {
-  return (entry?.issues || []).filter(
-    (issue) => issue.issue === "missing" || issue.category === "custom",
-  );
+  return (entry?.issues || []).filter((issue) => issue.issue === "missing");
+}
+
+const diagnosticCategoryLabels = {
+  schema: "Schéma",
+  "pokemon-pvpoke-mapping": "Mapping Pokémon PvPoke",
+  "move-mapping": "Mapping attaque",
+  movepool: "Movepool",
+  source: "Source",
+  "release-metadata": "Release metadata",
+  type: "Type",
+  reference: "Référence",
+  architecture: "Architecture",
+};
+
+function groupedCardDiagnostics(entry) {
+  const groups = new Map();
+  for (const issue of (entry?.issues || []).filter((item) => item.issue !== "missing")) {
+    const severity = issue.severity || "warning";
+    const category = issue.diagnosticCategory || "architecture";
+    const key = `${severity}:${category}:${issue.issue}`;
+    const current = groups.get(key) || { ...issue, severity, diagnosticCategory: category, count: 0 };
+    current.count += 1;
+    groups.set(key, current);
+  }
+  return [...groups.values()];
 }
 
 function TypeBadge({ type, catalog }) {
@@ -84,6 +107,7 @@ export function PokemonCard({
   const weather = (entry.weatherBoost || []).filter(Boolean);
   const assetsPresent = hasAssets(entry);
   const missingKeys = missingKeyIssues(entry);
+  const diagnostics = groupedCardDiagnostics(entry);
   const mainType = String(entry.primaryType || "NORMAL").toUpperCase();
   const background = typeBackground(mainType, typeCatalog);
   const visibleWeather = compact ? weather.slice(0, 1) : weather.slice(0, 2);
@@ -181,7 +205,7 @@ export function PokemonCard({
               : "border-amber-300/30 bg-amber-300/10 text-amber-200"
           }`}
         >
-          {entry.complete ? "JSON complet" : `${entry.issues.length} problème(s)`}
+          {entry.complete ? "JSON complet" : `${entry.issues.length} diagnostic(s)`}
         </span>
         <span
           className={`inline-flex min-h-8 items-center justify-center rounded-lg border px-3 text-xs font-black ${
@@ -198,7 +222,7 @@ export function PokemonCard({
         <div className="mt-3 rounded-xl border border-amber-300/25 bg-surface-inset-strong p-3">
           <div className="flex items-center justify-between gap-3">
             <span className="type-overline text-amber-100">
-              Clés manquantes
+              Schéma · clés manquantes
             </span>
             <span className="rounded-full bg-amber-300/15 px-2 py-1 text-[11px] font-black text-amber-100">
               {missingKeys.length}
@@ -219,6 +243,26 @@ export function PokemonCard({
                 +{missingKeys.length - 5}
               </span>
             ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      {diagnostics.length ? (
+        <div className="mt-3 rounded-xl border border-line bg-surface-inset-strong p-3">
+          <div className="flex items-center justify-between gap-3">
+            <span className="type-overline text-domain-foreground">Diagnostics classés</span>
+            <span className="rounded-full bg-white/10 px-2 py-1 text-[11px] font-black text-foreground">{diagnostics.reduce((total, item) => total + item.count, 0)}</span>
+          </div>
+          <div className="mt-2 grid gap-1.5">
+            {diagnostics.slice(0, 4).map((item) => (
+              <div className="flex min-w-0 items-center justify-between gap-2 rounded-lg border border-line bg-surface-emphasis px-2 py-1.5 text-[11px]" key={`${item.severity}-${item.diagnosticCategory}-${item.issue}`}>
+                <span className="min-w-0 truncate font-bold text-foreground" title={item.issue}>{diagnosticCategoryLabels[item.diagnosticCategory] || "Architecture"} · {item.issue}</span>
+                <span className={`shrink-0 font-black ${item.severity === "error" ? "text-danger" : item.severity === "info" ? "text-brand-2" : "text-warning"}`}>
+                  {item.severity === "error" ? "Error" : item.severity === "info" ? "Info" : "Warning"}{item.count > 1 ? ` ×${item.count}` : ""}
+                </span>
+              </div>
+            ))}
+            {diagnostics.length > 4 ? <span className="text-[11px] font-bold text-muted">+{diagnostics.length - 4} catégorie(s)</span> : null}
           </div>
         </div>
       ) : null}

@@ -31,6 +31,24 @@ test("le véritable Engine produit un rapport global sérialisable et mesuré", 
   assert.ok(report.performance.durationMs >= 0);
   assert.ok(report.performance.memoryAfter.heapUsedBytes > 0);
   assert.doesNotThrow(() => JSON.stringify(report));
+  assert.deepEqual(Object.keys(report.diagnostics.categories), [
+    "schema",
+    "pokemon-pvpoke-mapping",
+    "move-mapping",
+    "movepool",
+    "source",
+    "release-metadata",
+    "type",
+    "reference",
+    "architecture",
+  ]);
+  assert.equal(report.diagnostics.severityCounts.error, 0);
+  assert.ok(report.diagnostics.severityCounts.warning > 0);
+  assert.ok(report.diagnostics.severityCounts.info > 0);
+  assert.equal(
+    Object.values(report.diagnostics.categories).reduce((total, category) => total + category.info, 0),
+    report.diagnostics.severityCounts.info,
+  );
 });
 
 test("le rapport distingue les absences légitimes des erreurs et refuse les reliquats legacy", () => {
@@ -52,6 +70,7 @@ test("le rapport distingue les absences légitimes des erreurs et refuse les rel
 test("la checklist n'exige plus l'ancien bloc pvp embarqué", () => {
   const issues = engineRun.entries.flatMap((entry) => entry.issues || []);
   assert.equal(engineRun.report.diagnostics.checklistByCode.type || 0, 0);
+  assert.equal(engineRun.report.diagnostics.checklistByCode.release_metadata_conflict || 0, 0);
   assert.equal(issues.some((issue) => /^pvp\.(?:littleCup|greatLeague|ultraLeague|masterLeague)(?:\.|$)/.test(String(issue.path))), false);
   assert.equal(issues.some((issue) => /(?:tierRank|bestMovesets)/.test(String(issue.path))), false);
 });

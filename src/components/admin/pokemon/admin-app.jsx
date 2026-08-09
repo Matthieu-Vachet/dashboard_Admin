@@ -1272,11 +1272,48 @@ function RulesPanel({
   );
 }
 
+const diagnosticCategoryLabels = {
+  schema: "Schéma",
+  "pokemon-pvpoke-mapping": "Mapping Pokémon PvPoke",
+  "move-mapping": "Mapping attaque",
+  movepool: "Movepool",
+  source: "Source",
+  "release-metadata": "Release metadata",
+  type: "Type",
+  reference: "Référence",
+  architecture: "Architecture",
+};
+
+const diagnosticSeverityLabels = {
+  error: "Error",
+  warning: "Warning",
+  info: "Info",
+};
+
+function groupedDiagnostics(issues) {
+  const groups = new Map();
+  for (const issue of issues) {
+    const severity = issue.severity || "warning";
+    const category = issue.diagnosticCategory || "architecture";
+    const key = `${severity}:${category}:${issue.issue}`;
+    const current = groups.get(key) || { ...issue, severity, diagnosticCategory: category, count: 0 };
+    current.count += 1;
+    groups.set(key, current);
+  }
+  const priority = { error: 0, warning: 1, info: 2 };
+  return [...groups.values()].sort((left, right) =>
+    (priority[left.severity] ?? 3) - (priority[right.severity] ?? 3)
+    || right.count - left.count
+    || left.issue.localeCompare(right.issue));
+}
+
 function PvpArchitectureControlPanel({ audit }) {
   const summary = audit?.summary || {};
   const issues = Array.isArray(audit?.issues) ? audit.issues : [];
   const errors = issues.filter((item) => item.severity === "error");
-  const warnings = issues.filter((item) => item.severity !== "error");
+  const warnings = issues.filter((item) => item.severity === "warning");
+  const infos = issues.filter((item) => item.severity === "info");
+  const groups = groupedDiagnostics(issues);
   const compactHash = summary.sourceCommit
     ? `${summary.sourceCommit.slice(0, 12)}…`
     : "indisponible";
@@ -1297,18 +1334,19 @@ function PvpArchitectureControlPanel({ audit }) {
         </span>
       }
     >
-      <p className="rounded-2xl border border-cyan-200/15 bg-cyan-400/10 p-4 type-body-strong text-cyan-50/85">
+      <p className="rounded-2xl border border-cyan-200/15 bg-cyan-400/10 p-4 type-body-strong text-domain-foreground">
         Vérification des pvpRef, identités, mappings, manifestes, empreintes,
         movesets, métriques, listes Elite, builds XL, fraîcheur mensuelle,
         orphelins et collisions.
       </p>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
         {[
           ["Fiches PvP", summary.records],
           ["Références", summary.references],
           ["Mappings OK", summary.mappedRecords],
-          ["Alertes mapping", summary.mappingWarnings],
-          ["Âge snapshot", summary.freshnessDays == null ? "—" : `${summary.freshnessDays} j`],
+          ["Error", errors.length],
+          ["Warning", warnings.length],
+          ["Info", infos.length],
         ].map(([label, value]) => (
           <article
             className="rounded-2xl border border-line bg-surface-inset p-4"
@@ -1324,22 +1362,24 @@ function PvpArchitectureControlPanel({ audit }) {
       <div className="mt-4 grid gap-3 rounded-2xl border border-line bg-surface-inset p-4 text-sm sm:grid-cols-3">
         <span><strong className="text-domain-foreground">Commit</strong><br /><code>{compactHash}</code></span>
         <span><strong className="text-domain-foreground">Synchronisé</strong><br />{summary.syncedAt || "—"}</span>
-        <span><strong className="text-domain-foreground">Diagnostics</strong><br />{errors.length} erreur(s) · {warnings.length} avertissement(s)</span>
+        <span><strong className="text-domain-foreground">Diagnostics</strong><br />{errors.length} Error · {warnings.length} Warning · {infos.length} Info</span>
       </div>
       {issues.length ? (
         <div className="mt-4 grid gap-2">
-          {issues.slice(0, 12).map((item, index) => (
+          {groups.slice(0, 12).map((item, index) => (
             <article
               className={`rounded-2xl border p-3 ${
                 item.severity === "error"
                   ? "border-red-300/20 bg-red-400/[0.08]"
-                  : "border-amber-300/20 bg-amber-400/[0.08]"
+                  : item.severity === "info"
+                    ? "border-cyan-300/20 bg-cyan-400/[0.08]"
+                    : "border-amber-300/20 bg-amber-400/[0.08]"
               }`}
               key={`${item.issue}-${item.pvpRef || item.path}-${index}`}
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <strong className="text-sm text-domain-foreground">{item.issue}</strong>
-                <span className="type-label text-muted">{item.severity}</span>
+                <strong className="text-sm text-domain-foreground">{item.issue} {item.count > 1 ? `× ${item.count}` : ""}</strong>
+                <span className="type-label text-muted">{diagnosticCategoryLabels[item.diagnosticCategory]} · {diagnosticSeverityLabels[item.severity]}</span>
               </div>
               <code className="mt-1 block break-all text-xs text-foreground-secondary">
                 {item.pvpRef || item.sourceFile || item.path}
@@ -1347,9 +1387,9 @@ function PvpArchitectureControlPanel({ audit }) {
               <p className="mt-1 text-xs text-muted">Attendu : {String(item.expected)} · Reçu : {String(item.actual)}</p>
             </article>
           ))}
-          {issues.length > 12 ? (
+          {groups.length > 12 ? (
             <p className="type-caption-strong text-muted">
-              {issues.length - 12} diagnostic(s) supplémentaire(s) sont rattachés aux fiches concernées.
+              {groups.length - 12} groupe(s) de diagnostics supplémentaire(s) sont rattachés aux fiches concernées.
             </p>
           ) : null}
         </div>
@@ -1362,6 +1402,8 @@ function CanonicalEngineReportPanel({ report, onDownload }) {
   const performance = report?.performance || {};
   const diagnostics = report?.diagnostics || {};
   const taxonomy = report?.diagnosticTaxonomy || {};
+  const categories = diagnostics.categories || {};
+  const severities = diagnostics.severityCounts || {};
   const heapMb = Number(performance.memoryAfter?.heapUsedBytes || 0) / 1024 / 1024;
   const valid = report?.status === "VALID" || report?.status === "VALID_WITH_DIAGNOSTICS";
 
@@ -1383,19 +1425,45 @@ function CanonicalEngineReportPanel({ report, onDownload }) {
           ["Erreurs architecture", diagnostics.architectureErrors ?? "—"],
           ["Migration incomplète", taxonomy.MIGRATION_INCOMPLETE?.count ?? "—"],
         ].map(([label, value]) => (
-          <article className="rounded-2xl border border-line bg-surface-inset p-4" key={label}>
+          <article className="min-w-0 rounded-2xl border border-line bg-surface-inset p-4" key={label}>
             <small className="type-overline text-muted">{label}</small>
-            <strong className={`mt-2 block font-mono text-lg ${valid ? "text-domain-foreground" : "text-red-100"}`}>
+            <strong className={`mt-2 block break-all font-mono text-lg leading-tight ${valid ? "text-domain-foreground" : "text-danger"}`}>
               {value}
             </strong>
           </article>
         ))}
       </div>
-      <p className="mt-4 rounded-2xl border border-cyan-200/15 bg-cyan-400/10 p-4 type-body-strong text-cyan-50/85">
+      <p className="mt-4 rounded-2xl border border-cyan-200/15 bg-cyan-400/10 p-4 type-body-strong text-domain-foreground">
         Le rapport distingue absences légitimes, données optionnelles, formes non supportées,
         non classées, mappings manquants, références cassées, orphelins, migrations incomplètes
         et erreurs bloquantes. Les index Map/Set sont construits une seule fois par audit.
       </p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        {[["Error", severities.error, "text-danger"], ["Warning", severities.warning, "text-warning"], ["Info", severities.info, "text-brand-2"]].map(([label, value, tone]) => (
+          <article className="rounded-2xl border border-line bg-surface-inset p-4" key={label}>
+            <small className="type-overline text-muted">{label}</small>
+            <strong className={`mt-2 block font-mono text-2xl ${tone}`}>{value ?? "—"}</strong>
+          </article>
+        ))}
+      </div>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+        {Object.entries(diagnosticCategoryLabels).map(([category, label]) => {
+          const counts = categories[category] || {};
+          return (
+            <article className="min-w-0 rounded-2xl border border-line bg-surface-inset p-3" key={category}>
+              <strong className="block text-sm text-domain-foreground">{label}</strong>
+              <span className="mt-1 block font-mono text-xs text-muted">{counts.error || 0} Error · {counts.warning || 0} Warning · {counts.info || 0} Info</span>
+            </article>
+          );
+        })}
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {["NOT_RANKED", "UNSUPPORTED_FORM", "UNRELEASED", "FORMAT_EXCLUDED"].map((status) => (
+          <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1.5 type-label text-domain-foreground" key={status}>
+            Info · {status} {taxonomy[status]?.count ?? 0}
+          </span>
+        ))}
+      </div>
     </Panel>
   );
 }
@@ -1427,7 +1495,7 @@ function AssetArchitectureControlPanel({ audit }) {
         </span>
       }
     >
-      <p className="rounded-2xl border border-cyan-200/15 bg-cyan-400/10 p-4 type-body-strong text-cyan-50/85">
+      <p className="rounded-2xl border border-cyan-200/15 bg-cyan-400/10 p-4 type-body-strong text-domain-foreground">
         Vérification des assetsRef, assetRefs, identités, chemins, collisions,
         orphelins, manifestes, compteurs, empreintes, URL et absences légitimes.
       </p>

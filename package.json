@@ -35,6 +35,7 @@
     "test:asset-architecture": "node --test scripts/test-asset-architecture-audit.mjs",
     "test:entity-categories": "node --test scripts/test-entity-category-architecture.mjs",
     "test:canonical-engine": "node --test scripts/test-canonical-engine-report.mjs",
+    "test:engine-diagnostics": "node --test scripts/test-engine-diagnostic-taxonomy.mjs",
     "test:assets-separated": "node --test scripts/test-separated-assets-dashboard.mjs",
     "test:xl-candy-audit": "node --test scripts/test-xl-candy-audit.mjs",
     "test:docs": "node scripts/validate-documentation.mjs",

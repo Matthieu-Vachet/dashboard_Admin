@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const { dataPath, dataRoot, resolveDataFile } = require("../../../src/lib/data-repository");
 const { CATEGORY_DIRECTORIES, categoryFromReference, classifyEntity, resolveCanonicalReference } = require("./entity-category");
+const { enrichDiagnostic } = require("./diagnostic-taxonomy");
 
 const MONTHLY_FRESHNESS_DAYS = 45;
 const LEAGUE_STATUSES = new Set([
@@ -57,7 +58,7 @@ function issue({
   actual,
   severity = "error",
 }) {
-  return {
+  return enrichDiagnostic({
     category: "pvp",
     severity,
     sourceFile,
@@ -66,7 +67,7 @@ function issue({
     issue: code,
     expected,
     actual,
-  };
+  });
 }
 
 function duplicateValues(values) {

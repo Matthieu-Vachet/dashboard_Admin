@@ -15,6 +15,7 @@ const {
 const { buildPvpArchitectureAudit } = require("./pvp-architecture-audit");
 const { buildAssetArchitectureAudit } = require("./asset-architecture-audit");
 const { categoryFromReference, classifyEntity, resolveCanonicalReference } = require("./entity-category");
+const { categoryCounts, enrichDiagnostic } = require("./diagnostic-taxonomy");
 
 const pokemonDir = dataPath("pokemon");
 const formsDir = dataPath("pokemon-forms");
@@ -260,7 +261,7 @@ function createValidator() {
   const issues = [];
 
   function add(pathName, issue, expected, actual, extras = {}) {
-    issues.push({ path: pathName, issue, expected, actual, ...extras });
+    issues.push(enrichDiagnostic({ path: pathName, issue, expected, actual, ...extras }));
   }
 
   function field(object, key, pathName, type, options = {}) {
@@ -1112,7 +1113,7 @@ function validateSourceData(data, relativeFile = "", kindHint = "", options = {}
     }
   }
   validator.issues.push(...referenceIssues(data, moveIds, formIds));
-  return validator.issues;
+  return validator.issues.map(enrichDiagnostic);
 }
 
 function evolutionProfile(data, incomingIds) {
@@ -1576,7 +1577,7 @@ function buildChecklist(customRulesOverride = null, options = {}) {
     });
     for (const issue of validator.issues)
       issue.path = issue.path.replace(/^\./, "");
-    validator.issues.push(...referenceIssues(data, moveIds, formIds));
+    validator.issues.push(...referenceIssues(data, moveIds, formIds).map(enrichDiagnostic));
     const pvpSourceFile = relativeToApp(file).replace(/^data\//, "");
     validator.issues.push(
       ...(pvpArchitecture.diagnosticsBySource.get(pvpSourceFile) || []),
@@ -1777,6 +1778,8 @@ function buildCanonicalEngineReport(customRulesOverride = null, options = {}) {
   const checklistIssues = entries.flatMap((entry) => entry.issues || []);
   const customRuleIssues = customRuleEntries.flatMap((entry) => entry.issues || []);
   const architectureIssues = [...assetArchitecture.issues, ...pvpArchitecture.issues];
+  const checklistOnlyIssues = checklistIssues.filter((item) => !["assets", "pvp"].includes(item.category));
+  const displayedDiagnostics = [...architectureIssues, ...checklistOnlyIssues, ...customRuleIssues].map(enrichDiagnostic);
   const memoryAfter = measuredMemory();
   const durationMs = Number((performance.now() - started).toFixed(3));
   const legitimateAbsences = Object.values(assetArchitecture.summary.legitimateAbsences || {})
@@ -1790,6 +1793,25 @@ function buildCanonicalEngineReport(customRulesOverride = null, options = {}) {
     + Object.values(legacyEmbeddedFields).reduce((total, value) => total + Number(value || 0), 0)
     + Number(pvpArchitecture.summary.legacyEmbeddedBlocks || 0);
   const trueErrors = Number(assetArchitecture.summary.errors || 0) + Number(pvpArchitecture.summary.errors || 0);
+  const expectedInfoCount = legitimateAbsences
+    + Number(leagueStatuses.UNSUPPORTED_FORM || 0)
+    + Number(leagueStatuses.NOT_RANKED || 0)
+    + Number(leagueStatuses.UNRELEASED || 0)
+    + Number(leagueStatuses.FORMAT_EXCLUDED || 0);
+  const severityCounts = {
+    error: displayedDiagnostics.filter((item) => item.severity === "error").length,
+    warning: displayedDiagnostics.filter((item) => item.severity === "warning").length,
+    info: expectedInfoCount,
+  };
+  const diagnosticCategories = categoryCounts(displayedDiagnostics);
+  const architectureInfo = legitimateAbsences
+    + Number(leagueStatuses.UNSUPPORTED_FORM || 0)
+    + Number(leagueStatuses.NOT_RANKED || 0)
+    + Number(leagueStatuses.FORMAT_EXCLUDED || 0);
+  diagnosticCategories.architecture.info += architectureInfo;
+  diagnosticCategories.architecture.total += architectureInfo;
+  diagnosticCategories["release-metadata"].info += Number(leagueStatuses.UNRELEASED || 0);
+  diagnosticCategories["release-metadata"].total += Number(leagueStatuses.UNRELEASED || 0);
   const status = trueErrors || migrationIncomplete
     ? "INVALID"
     : architectureIssues.length || checklistIssues.length || customRuleIssues.length
@@ -1828,15 +1850,19 @@ function buildCanonicalEngineReport(customRulesOverride = null, options = {}) {
       customRuleCatalogEntries: customRuleEntries.length,
     },
     diagnosticTaxonomy: {
-      LEGITIMATE_ABSENCE: { count: legitimateAbsences, blocking: false },
-      OPTIONAL: { count: 0, blocking: false },
-      UNSUPPORTED_FORM: { count: Number(leagueStatuses.UNSUPPORTED_FORM || 0), blocking: false },
-      NOT_RANKED: { count: Number(leagueStatuses.NOT_RANKED || 0), blocking: false },
-      MAPPING_MISSING: { count: Number(pvpArchitecture.summary.mappingWarnings || 0), blocking: false },
-      BROKEN_REFERENCE: { count: brokenReferences, blocking: true },
-      ORPHAN: { count: orphans, blocking: true },
-      MIGRATION_INCOMPLETE: { count: migrationIncomplete, blocking: true },
-      ERROR: { count: trueErrors, blocking: true },
+      LEGITIMATE_ABSENCE: { count: legitimateAbsences, blocking: false, category: "architecture", severity: "info" },
+      OPTIONAL: { count: 0, blocking: false, category: "schema", severity: "info" },
+      UNSUPPORTED_FORM: { count: Number(leagueStatuses.UNSUPPORTED_FORM || 0), blocking: false, category: "architecture", severity: "info" },
+      NOT_RANKED: { count: Number(leagueStatuses.NOT_RANKED || 0), blocking: false, category: "architecture", severity: "info" },
+      UNRELEASED: { count: Number(leagueStatuses.UNRELEASED || 0), blocking: false, category: "release-metadata", severity: "info" },
+      FORMAT_EXCLUDED: { count: Number(leagueStatuses.FORMAT_EXCLUDED || 0), blocking: false, category: "architecture", severity: "info" },
+      MAPPING_MISSING: { count: Number(pvpArchitecture.summary.mappingWarnings || 0), blocking: false, category: "pokemon-pvpoke-mapping", severity: "warning" },
+      MOVE_MAPPING_MISSING: { count: Number(issueCounts(architectureIssues).pvp_move_mapping_missing || 0), blocking: false, category: "move-mapping", severity: "warning" },
+      SOURCE_MISMATCH: { count: Number(issueCounts(architectureIssues).pvp_provider_source_movepool_mismatch || 0), blocking: false, category: "source", severity: "warning" },
+      BROKEN_REFERENCE: { count: brokenReferences, blocking: true, category: "reference", severity: "error" },
+      ORPHAN: { count: orphans, blocking: true, category: "reference", severity: "error" },
+      MIGRATION_INCOMPLETE: { count: migrationIncomplete, blocking: true, category: "architecture", severity: "error" },
+      ERROR: { count: trueErrors, blocking: true, category: "architecture", severity: "error" },
     },
     diagnostics: {
       architectureByCode: issueCounts(architectureIssues),
@@ -1846,6 +1872,8 @@ function buildCanonicalEngineReport(customRulesOverride = null, options = {}) {
       architectureWarnings: architectureIssues.length - trueErrors,
       dataQualityFindings: checklistIssues.length,
       customRuleFindings: customRuleIssues.length,
+      severityCounts,
+      categories: diagnosticCategories,
     },
     indexes: {
       strategy: "Map/Set indexes built once per audit",
@@ -1916,6 +1944,8 @@ function detailForKey(key) {
       cinematicMoves: resolveMoves(data.cinematicMoves, moveCatalog),
       eliteQuickMoves: resolveMoves(data.eliteQuickMoves, moveCatalog),
       eliteCinematicMoves: resolveMoves(data.eliteCinematicMoves, moveCatalog),
+      legacyQuickMoves: resolveMoves(data.legacyQuickMoves, moveCatalog),
+      legacyCinematicMoves: resolveMoves(data.legacyCinematicMoves, moveCatalog),
       maxMoves: resolveMoves(data.maxBattle?.moves, moveCatalog),
     },
     cpByLevel: buildCpByLevel(data.stats),
