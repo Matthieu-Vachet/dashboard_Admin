@@ -15,7 +15,7 @@ test("le détail Dashboard hydrate pvpRef depuis la fiche dédiée", () => {
   const source = JSON.parse(fs.readFileSync(path.join(root, "pokemon", "0001-bulbasaur.json"), "utf8"));
   const hydrated = engine.hydrateSourceData(source);
   assert.equal(hydrated.pvpRecord.pvpId, "BULBASAUR");
-  assert.equal(hydrated.pvpRecord.source.commit, "5aa3fe6e99c270c3b0404e3135960ce943fa582a");
+  assert.equal(hydrated.pvpRecord.source.commit, "ea8f7691cdee95cb33a485b8e89ff39819d41ba4");
   assert.equal(hydrated.pvp.greatLeague.status, "RANKED");
   assert.equal(hydrated.pvp.greatLeague.bestMovesets.fast, "VINE_WHIP_FAST");
 });
@@ -29,4 +29,3 @@ test("le moteur de combat préfère les recommandations de la fiche PvP dédiée
   assert.deepEqual(bulbasaur.recommended.great.charged, primary.bestMoveset.charged.map((move) => move.moveId).filter(Boolean));
   assert.equal(catalog.versions.pvpCommit, record.source.commit);
 });
-

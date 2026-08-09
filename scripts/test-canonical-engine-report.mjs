@@ -43,7 +43,7 @@ test("le véritable Engine produit un rapport global sérialisable et mesuré", 
     "architecture",
   ]);
   assert.equal(report.diagnostics.severityCounts.error, 0);
-  assert.ok(report.diagnostics.severityCounts.warning > 0);
+  assert.equal(report.diagnostics.severityCounts.warning, 0);
   assert.ok(report.diagnostics.severityCounts.info > 0);
   assert.equal(
     Object.values(report.diagnostics.categories).reduce((total, category) => total + category.info, 0),
@@ -58,6 +58,9 @@ test("le rapport distingue les absences légitimes des erreurs et refuse les rel
   assert.ok(report.diagnosticTaxonomy.UNSUPPORTED_FORM.count >= 0);
   assert.ok(report.diagnosticTaxonomy.NOT_RANKED.count >= 0);
   assert.equal(report.diagnosticTaxonomy.MAPPING_MISSING.count, 0);
+  assert.equal(report.diagnosticTaxonomy.MOVE_MAPPING_MISSING.count, 0);
+  assert.equal(report.diagnosticTaxonomy.SOURCE_MISMATCH.count, 1);
+  assert.equal(report.diagnosticTaxonomy.SOURCE_MISMATCH.severity, "info");
   assert.ok(report.diagnosticTaxonomy.UNSUPPORTED_FORM.count > 0);
   assert.equal(report.diagnosticTaxonomy.BROKEN_REFERENCE.count, 0);
   assert.equal(report.diagnosticTaxonomy.ORPHAN.count, 0);

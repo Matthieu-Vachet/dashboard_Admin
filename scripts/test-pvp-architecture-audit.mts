@@ -37,6 +37,8 @@ test("l'Engine couvre l'architecture PvP dédiée et son snapshot mensuel", () =
   assert.equal(audit.summary.records, 1_611);
   assert.equal(audit.summary.valid, true);
   assert.equal(audit.summary.errors, 0);
+  assert.equal(audit.summary.warnings, 0);
+  assert.equal(audit.summary.infos, 1);
   assert.equal(audit.summary.references, audit.summary.records);
   assert.equal(audit.summary.manifestRecords, audit.summary.records);
   assert.deepEqual(audit.summary.categoryCounts, {
@@ -53,7 +55,7 @@ test("l'Engine couvre l'architecture PvP dédiée et son snapshot mensuel", () =
   assert.equal(audit.summary.providerMoveMappings, 347);
   assert.equal(
     audit.summary.sourceCommit,
-    "5aa3fe6e99c270c3b0404e3135960ce943fa582a",
+    "ea8f7691cdee95cb33a485b8e89ff39819d41ba4",
   );
   assert.equal(
     audit.issues.filter((diagnostic: { issue: string }) =>
@@ -61,7 +63,8 @@ test("l'Engine couvre l'architecture PvP dédiée et son snapshot mensuel", () =
     ).length,
     0,
   );
-  assert.equal(audit.summary.movesetAudit.auditedOccurrences, 96);
+  assert.equal(audit.summary.movesetAudit.auditedOccurrences, 140);
+  assert.equal(audit.summary.movesetAudit.classifications.PURIFIED_ONLY, 18);
   assert.equal(audit.summary.movesetAudit.openOccurrences, 0);
   assert.equal(
     audit.issues.filter((diagnostic: { issue: string }) => diagnostic.issue === "pvp_moveset_outside_local_movepool").length,
@@ -70,6 +73,10 @@ test("l'Engine couvre l'architecture PvP dédiée et son snapshot mensuel", () =
   assert.equal(
     audit.issues.filter((diagnostic: { issue: string }) => diagnostic.issue === "pvp_provider_source_movepool_mismatch").length,
     1,
+  );
+  assert.equal(
+    audit.issues.find((diagnostic: { issue: string }) => diagnostic.issue === "pvp_provider_source_movepool_mismatch")?.severity,
+    "info",
   );
   assert.equal(
     (audit.diagnosticsBySource.get("pokemon/0001-bulbasaur.json") || []).filter(

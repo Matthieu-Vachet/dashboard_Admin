@@ -32,14 +32,21 @@ test("les codes post-migration reçoivent une catégorie et un niveau explicites
     ["pvp_mapping_missing", "pokemon-pvpoke-mapping", "warning"],
     ["pvp_move_mapping_missing", "move-mapping", "warning"],
     ["pvp_moveset_outside_local_movepool", "movepool", "warning"],
-    ["pvp_provider_source_movepool_mismatch", "source", "warning"],
+    ["pvp_provider_source_movepool_mismatch", "source", "info"],
     ["release_metadata_conflict", "release-metadata", "warning"],
     ["pvp_ref_invalid", "reference", "error"],
     ["asset_manifest_hash_mismatch", "architecture", "error"],
     ["LEGACY_EMBEDDED_ASSET_DUPLICATE", "architecture", "warning"],
   ];
   for (const [issue, category, severity] of examples) {
-    const result = enrichDiagnostic({ issue, severity: ["pvp_ref_invalid", "asset_manifest_hash_mismatch"].includes(issue) ? "error" : undefined });
+    const result = enrichDiagnostic({
+      issue,
+      severity: issue === "pvp_provider_source_movepool_mismatch"
+        ? "info"
+        : ["pvp_ref_invalid", "asset_manifest_hash_mismatch"].includes(issue)
+          ? "error"
+          : undefined,
+    });
     assert.equal(result.diagnosticCategory, category, issue);
     assert.equal(result.severity, severity, issue);
   }

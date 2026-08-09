@@ -144,6 +144,7 @@ function buildPvpArchitectureAudit(options = {}) {
         references: 0,
         errors: diagnostics.length,
         warnings: 0,
+        infos: 0,
         freshnessDays: null,
         sourceCommit: null,
         syncedAt: null,
@@ -666,6 +667,7 @@ function buildPvpArchitectureAudit(options = {}) {
             if (!source.moveIds.has(moveId)) {
               const audited = movesetAuditByIdentity.get(`${source.canonicalId}:${moveId}`);
               if (audited?.classification === "SHADOW_ONLY" && variant.sourceId?.endsWith("_shadow")) continue;
+              if (audited?.classification === "PURIFIED_ONLY" && audited.status === "EXPECTED") continue;
               add(issue({
                 ...context,
                 path: `${basePath}.bestMoveset`,
@@ -676,7 +678,9 @@ function buildPvpArchitectureAudit(options = {}) {
                   ? "attaque présente dans le Game Master PvPoke du même commit"
                   : "attaque présente dans le movepool standard, Elite ou Legacy local",
                 actual: moveId,
-                severity: "warning",
+                severity: audited?.classification === "SOURCE_SNAPSHOT_MISMATCH"
+                  ? "info"
+                  : "warning",
               }));
             }
         }
@@ -712,7 +716,8 @@ function buildPvpArchitectureAudit(options = {}) {
       }));
 
   const errors = diagnostics.filter((item) => item.severity === "error").length;
-  const warnings = diagnostics.length - errors;
+  const warnings = diagnostics.filter((item) => item.severity === "warning").length;
+  const infos = diagnostics.filter((item) => item.severity === "info").length;
   return {
     summary: {
       valid: errors === 0,
@@ -729,6 +734,7 @@ function buildPvpArchitectureAudit(options = {}) {
       providerMoveMappings: (moveMap.mappings || []).length,
       errors,
       warnings,
+      infos,
       freshnessDays,
       monthlyFresh: freshnessDays !== null && freshnessDays <= MONTHLY_FRESHNESS_DAYS,
       movesetAudit: movesetAudit.summary || {},

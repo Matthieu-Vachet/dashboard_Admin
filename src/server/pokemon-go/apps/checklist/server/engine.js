@@ -1797,7 +1797,7 @@ function buildCanonicalEngineReport(customRulesOverride = null, options = {}) {
   const severityCounts = {
     error: displayedDiagnostics.filter((item) => item.severity === "error").length,
     warning: displayedDiagnostics.filter((item) => item.severity === "warning").length,
-    info: expectedInfoCount,
+    info: expectedInfoCount + displayedDiagnostics.filter((item) => item.severity === "info").length,
   };
   const diagnosticCategories = categoryCounts(displayedDiagnostics);
   const architectureInfo = legitimateAbsences
@@ -1854,7 +1854,7 @@ function buildCanonicalEngineReport(customRulesOverride = null, options = {}) {
       FORMAT_EXCLUDED: { count: Number(leagueStatuses.FORMAT_EXCLUDED || 0), blocking: false, category: "architecture", severity: "info" },
       MAPPING_MISSING: { count: Number(pvpArchitecture.summary.mappingWarnings || 0), blocking: false, category: "pokemon-pvpoke-mapping", severity: "warning" },
       MOVE_MAPPING_MISSING: { count: Number(issueCounts(architectureIssues).pvp_move_mapping_missing || 0), blocking: false, category: "move-mapping", severity: "warning" },
-      SOURCE_MISMATCH: { count: Number(issueCounts(architectureIssues).pvp_provider_source_movepool_mismatch || 0), blocking: false, category: "source", severity: "warning" },
+      SOURCE_MISMATCH: { count: Number(issueCounts(architectureIssues).pvp_provider_source_movepool_mismatch || 0), blocking: false, category: "source", severity: "info" },
       BROKEN_REFERENCE: { count: brokenReferences, blocking: true, category: "reference", severity: "error" },
       ORPHAN: { count: orphans, blocking: true, category: "reference", severity: "error" },
       MIGRATION_INCOMPLETE: { count: migrationIncomplete, blocking: true, category: "architecture", severity: "error" },
@@ -1865,7 +1865,7 @@ function buildCanonicalEngineReport(customRulesOverride = null, options = {}) {
       checklistByCode: issueCounts(checklistIssues),
       customRulesByCode: issueCounts(customRuleIssues),
       architectureErrors: trueErrors,
-      architectureWarnings: architectureIssues.length - trueErrors,
+      architectureWarnings: architectureIssues.filter((item) => item.severity === "warning").length,
       dataQualityFindings: checklistIssues.length,
       customRuleFindings: customRuleIssues.length,
       severityCounts,
