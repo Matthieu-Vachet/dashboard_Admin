@@ -211,7 +211,7 @@ function FormatSelect({ formats, value, onChange }) {
   return <Select className={fieldClass} value={value} onChange={onChange} aria-label="Ligue">{grouped.map((group) => <optgroup label={group.label} key={group.id}>{group.formats.map((format) => <option value={format.id} key={format.id}>{format.label}{format.labelEnglish && format.labelEnglish !== format.label ? ` · ${format.labelEnglish}` : ""} · {format.cp} CP{format.available === false ? " · indisponible" : ""}</option>)}</optgroup>)}</Select>;
 }
 
-export function PvpRankingsPanel({ dataset, localEntries = [], loading, regenerating, options, onOptionsChange, onRefresh, onDownload, onRegenerate, onOpenPokemon }) {
+export function PvpRankingsPanel({ dataset, localEntries = [], loading, regenerating, regeneration, options, onOptionsChange, onRefresh, onDownload, onRegenerate, onOpenPokemon }) {
   const [view, setView] = useState("rankings");
   const [expanded, setExpanded] = useState("");
   const [teammatesByEntry, setTeammatesByEntry] = useState({});
@@ -226,6 +226,9 @@ export function PvpRankingsPanel({ dataset, localEntries = [], loading, regenera
   const meta = dataset?.meta || {};
   const selectedFormat = formats.find((format) => format.id === (dataset?.data?.league || options.league));
   const league = dataset?.data?.league || options.league;
+  const retryLabel = ["partial", "failed", "cancelled"].includes(regeneration?.status)
+    ? "Relancer"
+    : "Régénérer";
 
   function simulateRanking(entry) {
     const fighter = fighterFromRanking(entry, "Rank 1");
@@ -260,7 +263,7 @@ export function PvpRankingsPanel({ dataset, localEntries = [], loading, regenera
 
   return (
     <div className="space-y-5">
-      <Panel eyebrow="Source officielle · dépôt MIT PvPoke" title="Classements PvP" action={<div className="flex flex-wrap gap-2"><Button icon={<Download size={16} />} onClick={onDownload} disabled={!dataset}>JSON</Button><Button icon={<RefreshCcw size={16} />} loading={loading} loadingText="Actualisation…" onClick={onRefresh}>Actualiser</Button><Button variant="primary" icon={<RotateCcw size={16} />} loading={regenerating} loadingText="Régénération…" onClick={onRegenerate}>Régénérer</Button></div>}><DatasetSourceHeader dataset={dataset} total={meta.total || entries.length} /></Panel>
+      <Panel eyebrow="Source officielle · dépôt MIT PvPoke" title="Classements PvP" action={<div className="flex flex-wrap gap-2"><Button icon={<Download size={16} />} onClick={onDownload} disabled={!dataset}>JSON</Button><Button icon={<RefreshCcw size={16} />} loading={loading} loadingText="Actualisation…" onClick={onRefresh}>Actualiser</Button><Button variant="primary" icon={<RotateCcw size={16} />} loading={regenerating} loadingText="Régénération…" onClick={onRegenerate}>{retryLabel}</Button></div>}><DatasetSourceHeader dataset={dataset} total={meta.total || entries.length} regeneration={regeneration} onRetry={onRegenerate} /></Panel>
       <div className="flex gap-2 overflow-x-auto rounded-2xl border border-line bg-surface-inset-subtle p-2" role="tablist" aria-label="Vues PvP"><button className={`min-h-11 rounded-xl px-4 text-sm font-black ${view === "rankings" ? "bg-cyan-300/14 text-cyan-50" : "text-muted"}`} type="button" role="tab" aria-selected={view === "rankings"} onClick={() => setView("rankings")}>Classements</button><button className={`min-h-11 rounded-xl px-4 text-sm font-black ${view === "checklist" ? "bg-cyan-300/14 text-cyan-50" : "text-muted"}`} type="button" role="tab" aria-selected={view === "checklist"} onClick={() => setView("checklist")}>Ma Checklist</button></div>
       {view === "checklist" ? <PvpChecklist league={dataset?.data?.league || options.league} sourceHash={dataset?.meta?.sourceHash} onOpenPokemon={onOpenPokemon} /> : <>
       <DatasetFilterBar query={options.search} onQueryChange={(search) => onOptionsChange({ ...options, search, page: 1 })} resultCount={entries.length} totalCount={meta.total || entries.length} />

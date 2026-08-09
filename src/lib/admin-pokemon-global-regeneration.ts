@@ -1,4 +1,4 @@
-export type GlobalRegenerationStatus = "pending" | "running" | "success" | "warning" | "error";
+export type GlobalRegenerationStatus = "idle" | "running" | "success" | "partial" | "failed" | "cancelled";
 
 export type GlobalRegenerationStep = {
   id: string;
@@ -36,7 +36,7 @@ export const globalRegenerationDefinitions: GlobalRegenerationDefinition[] = [
 ];
 
 export function initialGlobalRegenerationSteps(): GlobalRegenerationStep[] {
-  return globalRegenerationDefinitions.map(({ id, label }) => ({ id, label, status: "pending" }));
+  return globalRegenerationDefinitions.map(({ id, label }) => ({ id, label, status: "idle" }));
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -78,6 +78,18 @@ function firstErrorMessage(run: Record<string, unknown>) {
   return first && typeof first.message === "string" ? first.message : null;
 }
 
+export class AdminRegenerationRunError extends Error {
+  regenerationStatus: "failed" | "cancelled";
+  run: Record<string, unknown>;
+
+  constructor(message: string, regenerationStatus: "failed" | "cancelled", run: Record<string, unknown>) {
+    super(message);
+    this.name = "AdminRegenerationRunError";
+    this.regenerationStatus = regenerationStatus;
+    this.run = run;
+  }
+}
+
 async function waitForRegeneration(value: unknown) {
   const accepted = responseCandidates(value).find((candidate) => candidate.accepted === true);
   if (!accepted) return value;
@@ -96,10 +108,13 @@ async function waitForRegeneration(value: unknown) {
       await sleep(1_500);
       continue;
     }
-    if (["failed", "error", "cancelled", "canceled"].includes(status)) {
-      throw new Error(firstErrorMessage(current) || "La régénération de fond a échoué.");
+    if (["failed", "error"].includes(status)) {
+      throw new AdminRegenerationRunError(firstErrorMessage(current) || "La régénération de fond a échoué.", "failed", current);
     }
-    if (["completed", "complete", "success", "succeeded", "unchanged", "warning", "completed-with-warnings"].includes(status)) return current;
+    if (["cancelled", "canceled"].includes(status)) {
+      throw new AdminRegenerationRunError(firstErrorMessage(current) || "La régénération de fond a été annulée.", "cancelled", current);
+    }
+    if (["completed", "complete", "success", "succeeded", "partial", "unchanged", "warning", "completed-with-warnings"].includes(status)) return current;
 
     throw new Error(`État de régénération inattendu : ${status}.`);
   }
@@ -148,8 +163,12 @@ function compactDiagnostics(value: unknown) {
     "processed",
     "matched",
     "unmatched",
+    "unmatchedCount",
+    "mappingMissingCount",
+    "ignoredCount",
     "warnings",
     "warningCount",
+    "warningsCount",
     "diff",
     "create",
     "update",
@@ -157,6 +176,7 @@ function compactDiagnostics(value: unknown) {
     "conflict",
     "errors",
     "durationMs",
+    "totalAfter",
   ];
   const diagnostics: Record<string, unknown> = {};
   for (const candidate of responseCandidates(value).reverse()) {
@@ -194,9 +214,10 @@ function successResult(value: unknown, fallbackSummary: string): Omit<GlobalRege
   const diagnostics = compactDiagnostics(value);
   const terminal = responseCandidates(value).map(regenerationState).find(Boolean) || "";
   const unchanged = terminal === "unchanged" || responseCandidates(value).some((candidate) => candidate.changed === false);
+  const partial = terminal === "partial" || warnings > 0;
   return {
-    status: warnings > 0 ? "warning" : "success",
-    summary: warnings > 0
+    status: partial ? "partial" : "success",
+    summary: partial
       ? `${unchanged ? "Contenu inchangé" : fallbackSummary} · ${warnings} avertissement(s)`
       : unchanged ? "Contenu inchangé · snapshot actuel conservé" : fallbackSummary,
     diagnostics: Object.keys(diagnostics).length ? diagnostics : undefined,
@@ -214,7 +235,7 @@ async function executeIdentitySync(): Promise<Omit<GlobalRegenerationStep, "id" 
 
   if (conflict > 0) {
     return {
-      status: "warning",
+      status: "partial",
       summary: `Synchronisation non appliquée · ${conflict} conflit(s) à résoudre`,
       diagnostics: { mode: "dry-run", create, update, orphan, conflict },
     };

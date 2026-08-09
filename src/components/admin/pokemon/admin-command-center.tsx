@@ -198,8 +198,9 @@ function EventLine({ event, label }: { event?: EventItem; label: string }) {
 function RegenerationStatusIcon({ status }: { status: GlobalRegenerationStep["status"] }) {
   if (status === "running") return <LoaderCircle className="animate-spin text-cyan-200 motion-reduce:animate-none" size={17} />;
   if (status === "success") return <CheckCircle2 className="text-emerald-200" size={17} />;
-  if (status === "warning") return <AlertTriangle className="text-amber-200" size={17} />;
-  if (status === "error") return <XCircle className="text-rose-200" size={17} />;
+  if (status === "partial") return <AlertTriangle className="text-amber-200" size={17} />;
+  if (status === "failed") return <XCircle className="text-rose-200" size={17} />;
+  if (status === "cancelled") return <XCircle className="text-amber-200" size={17} />;
   return <CircleDashed className="text-muted" size={17} />;
 }
 
@@ -273,9 +274,9 @@ export function AdminCommandCenter({
   const lastSync = freshness?.data?.iso || freshness?.data?.date || history[0]?.iso || history[0]?.date;
   const recentHistory = history.slice(0, 3);
   const regenerationRunning = regenerationSteps.some((step) => step.status === "running");
-  const regenerationCompleted = regenerationSteps.filter((step) => ["success", "warning", "error"].includes(step.status)).length;
-  const regenerationErrors = regenerationSteps.filter((step) => step.status === "error").length;
-  const regenerationWarnings = regenerationSteps.filter((step) => step.status === "warning").length;
+  const regenerationCompleted = regenerationSteps.filter((step) => ["success", "partial", "failed", "cancelled"].includes(step.status)).length;
+  const regenerationErrors = regenerationSteps.filter((step) => step.status === "failed").length;
+  const regenerationWarnings = regenerationSteps.filter((step) => ["partial", "cancelled"].includes(step.status)).length;
   const regenerationProgress = Math.round((regenerationCompleted / regenerationSteps.length) * 100);
 
   function refreshAll() {
@@ -302,7 +303,7 @@ export function AdminCommandCenter({
       } catch (caught) {
         const message = caught instanceof Error ? caught.message : "Erreur de régénération non identifiée.";
         updateRegenerationStep(definition.id, {
-          status: "error",
+          status: caught instanceof Error && "regenerationStatus" in caught && caught.regenerationStatus === "cancelled" ? "cancelled" : "failed",
           summary: message,
           diagnostics: { error: message },
         });

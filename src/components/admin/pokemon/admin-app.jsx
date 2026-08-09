@@ -110,6 +110,11 @@ import {
 } from "@/utils/admin/pokemon-presentation-entries.mjs";
 import { persistSourceSignatures } from "@/utils/admin/source-watch";
 import { executePokemonAdminRegeneration } from "@/lib/admin-pokemon-global-regeneration";
+import {
+  createPvpRankingRegenerationState,
+  normalizePvpRankingRegeneration,
+  pvpRankingRegenerationToast,
+} from "@/lib/pvp-ranking-regeneration-state.mjs";
 
 const legacyAssetChecksKey = "pokedex-v4-asset-checks";
 const assetChecksStoreKey = "matweb.pokemon.assetChecks";
@@ -1555,6 +1560,9 @@ export function AdminApp() {
   const [pvpRankings, setPvpRankings] = useState(null);
   const [pvpRankingsLoading, setPvpRankingsLoading] = useState(false);
   const [pvpRankingsRegenerating, setPvpRankingsRegenerating] = useState(false);
+  const [pvpRankingRegeneration, setPvpRankingRegeneration] = useState(() =>
+    createPvpRankingRegenerationState(),
+  );
   const [pvpOptions, setPvpOptions] = useState(initialPvpOptions);
   const [gblCalendar, setGblCalendar] = useState(null);
   const [gblCalendarLoading, setGblCalendarLoading] = useState(false);
@@ -2272,20 +2280,40 @@ export function AdminApp() {
   async function regenerateRankedDataset({
     action,
     setRegenerating,
+    setRegenerationState,
     reload,
     label,
   }) {
     setRegenerating(true);
+    setRegenerationState?.(createPvpRankingRegenerationState("running"));
     try {
       const payload = await executePokemonAdminRegeneration(action);
       const report = assertSuccessfulAdminAction(
         payload,
         `Régénération ${label} impossible.`,
       );
-      toast.success(regenerationMessage(report));
       await reload();
+      if (setRegenerationState) {
+        const state = normalizePvpRankingRegeneration(report);
+        setRegenerationState(state);
+        const notification = pvpRankingRegenerationToast(state);
+        if (notification?.kind === "warning") toast.warning(notification.message);
+        else toast.success(notification?.message || regenerationMessage(report));
+      } else {
+        toast.success(regenerationMessage(report));
+      }
     } catch (error) {
-      toast.error(errorMessage(error, `Régénération ${label} impossible.`));
+      const message = errorMessage(error, `Régénération ${label} impossible.`);
+      if (setRegenerationState) {
+        const status = error?.regenerationStatus === "cancelled" ? "cancelled" : "failed";
+        const state = normalizePvpRankingRegeneration({ status, errors: [{ message }] });
+        setRegenerationState(state);
+        const notification = pvpRankingRegenerationToast(state);
+        if (notification?.kind === "warning") toast.warning(notification.message);
+        else toast.error(notification?.message || message);
+      } else {
+        toast.error(message);
+      }
     } finally {
       setRegenerating(false);
     }
@@ -3311,6 +3339,7 @@ export function AdminApp() {
                   localEntries={entries}
                   loading={pvpRankingsLoading}
                   regenerating={pvpRankingsRegenerating}
+                  regeneration={pvpRankingRegeneration}
                   options={pvpOptions}
                   onOptionsChange={setPvpOptions}
                   onRefresh={() => loadPvpRankings({ notify: true })}
@@ -3321,6 +3350,7 @@ export function AdminApp() {
                     regenerateRankedDataset({
                       action: "regenerate-pvp-rankings",
                       setRegenerating: setPvpRankingsRegenerating,
+                      setRegenerationState: setPvpRankingRegeneration,
                       reload: loadPvpRankings,
                       label: "PvP Rankings",
                     })

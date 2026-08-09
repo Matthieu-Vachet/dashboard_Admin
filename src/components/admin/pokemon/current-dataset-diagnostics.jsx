@@ -3,6 +3,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 
 import {
+  AlertTriangle,
   CheckCircle2,
   ChevronDown,
   Copy,
@@ -10,12 +11,15 @@ import {
   ExternalLink,
   GitCompare,
   History,
+  LoaderCircle,
   Search,
+  XCircle,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { EmptyState, ErrorState, FetchLoadingState } from "@/components/admin/shared/state-system";
+import { pvpRankingRegenerationMessage } from "@/lib/pvp-ranking-regeneration-state.mjs";
 
 function firstDefined(...values) {
   return values.find((value) => value !== undefined && value !== null && value !== "");
@@ -70,6 +74,46 @@ function DatasetDiffBadge({ changed, hasDiff }) {
   );
 }
 
+function DatasetRegenerationStatus({ state, onReport, onRetry }) {
+  if (!state) return null;
+  const status = state.status || "idle";
+  const partial = status === "partial";
+  const failed = status === "failed";
+  const cancelled = status === "cancelled";
+  const running = status === "running";
+  const success = status === "success";
+  const tone = partial || cancelled
+    ? "border-warning/25 bg-warning/10 text-warning-foreground"
+    : failed
+      ? "border-danger/25 bg-danger/10 text-danger-foreground"
+      : success
+        ? "border-success/25 bg-success/10 text-success-foreground"
+        : "border-line bg-surface-inset-subtle text-foreground-secondary";
+  const Icon = running ? LoaderCircle : partial || cancelled ? AlertTriangle : failed ? XCircle : CheckCircle2;
+  const label = {
+    idle: "Prêt",
+    running: "En cours",
+    success: "Succès",
+    partial: "Résultat partiel",
+    failed: "Échec",
+    cancelled: "Annulé",
+  }[status] || status;
+
+  return (
+    <div className={`mt-3 flex flex-col gap-3 rounded-xl border p-3 sm:flex-row sm:items-center ${tone}`} role={failed ? "alert" : "status"} data-regeneration-status={status}>
+      <Icon className={`shrink-0 ${running ? "animate-spin motion-reduce:animate-none" : ""}`} size={18} aria-hidden="true" />
+      <div className="min-w-0 flex-1">
+        <strong className="type-label">{label}</strong>
+        <p className="mt-1 text-xs font-bold">{pvpRankingRegenerationMessage(state)}</p>
+      </div>
+      <div className="flex shrink-0 flex-wrap gap-2">
+        {state.reportAvailable ? <Button size="sm" variant="ghost" type="button" onClick={onReport}>Voir le rapport</Button> : null}
+        {["partial", "failed", "cancelled"].includes(status) ? <Button size="sm" variant="secondary" type="button" onClick={onRetry}>Relancer</Button> : null}
+      </div>
+    </div>
+  );
+}
+
 function DiagnosticCard({ entry, provider, onCopy }) {
   const rawAlias = firstDefined(entry.rawAlias, entry.sourceAlias, entry.sourceId, entry.sourceName, "—");
   const normalizedAlias = firstDefined(entry.normalizedAlias, entry.normalizedSourceId, "—");
@@ -117,7 +161,7 @@ function DiagnosticCard({ entry, provider, onCopy }) {
   );
 }
 
-export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", historyUrl = "" }) {
+export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", historyUrl = "", regeneration = null, onRetry = null }) {
   const [expanded, setExpanded] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -212,6 +256,9 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
         changed: diff.changed,
         matchedCount: diagnostics.matchedCount,
         unmatchedCount: diagnostics.unmatchedCount,
+        mappingMissingCount: diagnostics.mappingMissingCount ?? diagnostics.unmatchedCount,
+        ignoredCount: diagnostics.ignoredCount,
+        warningsCount: diagnostics.warningsCount ?? warnings.length,
         diffUnavailableReason: diagnostics.diffUnavailableReason,
       });
     }
@@ -267,6 +314,12 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
           </Button>
         </div>
       </div>
+
+      <DatasetRegenerationStatus
+        state={regeneration}
+        onReport={() => openHistory(true)}
+        onRetry={onRetry}
+      />
 
       {error ? <ErrorState className="mt-3" title="Diagnostic indisponible" message={errorMessage} /> : null}
 
@@ -329,6 +382,9 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
               <Metric label="Total" value={selectedRun?.totalAfter ?? count} mono />
               <Metric label="Matchés" value={selectedRun?.matchedCount ?? diagnostics.matchedCount ?? 0} mono />
               <Metric label="Non matchés" value={selectedRun?.unmatchedCount ?? diagnostics.unmatchedCount ?? 0} mono />
+              <Metric label="MAPPING_MISSING" value={selectedRun?.mappingMissingCount ?? diagnostics.mappingMissingCount ?? diagnostics.unmatchedCount ?? 0} mono />
+              <Metric label="Ignorés" value={selectedRun?.ignoredCount ?? diagnostics.ignoredCount ?? 0} mono />
+              <Metric label="WARNING" value={selectedRun?.warningsCount ?? diagnostics.warningsCount ?? warnings.length} mono />
             </dl>
             <label className="relative mt-4 block">
               <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-disabled" size={16} />

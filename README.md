@@ -64,6 +64,10 @@ En local, le Dashboard résout les données dans cet ordre : `POKEMON_GO_DATA_DI
 
 Sur Vercel, ne configurez pas `POKEMON_GO_DATA_DIR` avec un chemin de machine. Le `prebuild` clone la révision demandée dans `.data/PokemonGo-Data`, puis Next.js embarque le marqueur du dépôt et les seules familles requises par chaque Function. Configurez plutôt `POKEMON_GO_DATA_REPO`, `POKEMON_GO_DATA_REF` et, pour le dépôt privé, `POKEMON_GO_DATA_TOKEN`.
 
+## Régénération PvP
+
+Le suivi des classements PvP distingue `idle`, `running`, `success`, `partial`, `failed` et `cancelled`. Un résultat `partial` signifie que les classements valides ont été persistés et relus depuis MongoDB, avec des diagnostics résiduels ; il affiche les nombres générés, ignorés, `MAPPING_MISSING` et `WARNING`, un accès au rapport et une action de relance. `failed` et `cancelled` interrompent le parcours sans résultat réussi, tout en restant deux états distincts.
+
 ## Raids Pokemon GO
 
 La section `Pokemon Admin > Raids` lit `PokemonGo-Data/raids/currentRaids.json`

@@ -109,8 +109,11 @@ test("l’audit d’assets est paresseux, mutualisé et résilient aux limites G
 test("la fonction Admin Pokémon n’embarque pas les classements volumineux", () => {
   const config = read("next.config.ts");
   const repository = read("src/server/pokemon-go/src/lib/data-repository.js");
+  const routeStart = config.indexOf('"/api/pokemon-admin"');
+  const routeEnd = config.indexOf("],", routeStart);
+  const routeIncludes = config.slice(routeStart, routeEnd);
   assert.doesNotMatch(config, /PokemonGo-Data\/\*\*/);
-  assert.doesNotMatch(config, /pvp-rankings|best-attackers|shiny-tracker/);
+  assert.doesNotMatch(routeIncludes, /pvp-rankings|best-attackers|shiny-tracker/);
   for (const directory of ["pokemon", "pokemon-forms", "pokemon-assets", "moves", "generations", "types", "weather", "stickers", "source-watch", "raids", "eggs", "max-battles", "rocket", "research", "items"]) {
     assert.match(config, new RegExp(`PokemonGo-Data/${directory.replace("-", "\\-")}/\\*\\*`));
   }
@@ -532,7 +535,27 @@ test("la Home orchestre une régénération globale séquentielle et tolérante 
   for (const state of ["pending", "queued", "accepted", "running", "processing"]) {
     assert.match(orchestrator, new RegExp(`"${state}"`));
   }
+  for (const state of ["idle", "success", "partial", "failed", "cancelled"]) {
+    assert.match(orchestrator, new RegExp(`"${state}"`));
+  }
+  assert.match(orchestrator, /"partial", "unchanged"/);
   assert.match(adminApp, /executePokemonAdminRegeneration\(action\)/);
+  assert.match(adminApp, /setPvpRankingRegeneration/);
+  assert.match(adminApp, /pvpRankingRegenerationToast/);
+  assert.match(adminApp, /toast\.warning\(notification\.message\)/);
+  assert.match(adminApp, /regeneration=\{pvpRankingRegeneration\}/);
+  const pvpPanel = read("src/components/admin/pokemon/pvp-rankings-panel.jsx");
+  const diagnostics = read("src/components/admin/pokemon/current-dataset-diagnostics.jsx");
+  assert.match(pvpPanel, /retryLabel/);
+  assert.match(pvpPanel, /regeneration=\{regeneration\}/);
+  assert.match(diagnostics, /Voir le rapport/);
+  assert.match(diagnostics, /Relancer/);
+  for (const label of ["MAPPING_MISSING", "Ignorés", "WARNING"]) {
+    assert.match(diagnostics, new RegExp(label));
+  }
+  for (const field of ["mappingMissingCount", "ignoredCount", "warningsCount", "unmatchedCount"]) {
+    assert.match(orchestrator, new RegExp(`"${field}"`));
+  }
   assert.match(adminRoute, /asynchronousRegenerationDomains/);
   assert.match(adminRoute, /\/regenerate\/\$\{encodeURIComponent\(runId\)\}/);
 });
