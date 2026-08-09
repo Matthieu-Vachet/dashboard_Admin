@@ -84,7 +84,16 @@ Configuration requise sur Vercel :
 - ajouter son URL dans la variable d'environnement
   `DASHBOARD_VERCEL_DEPLOY_HOOK_URL` ;
 - garder `POKEMON_GO_DATA_REPO`, `POKEMON_GO_DATA_REF` et
-  `POKEMON_GO_DATA_TOKEN` configurés pour que le build puisse cloner les JSON.
+  `POKEMON_GO_DATA_TOKEN` configurés pour que le build puisse cloner les JSON ;
+- ne pas définir `POKEMON_GO_DATA_DIR` avec un chemin local de machine : la production
+  utilise le clone `.data/PokemonGo-Data` créé par `prebuild` et embarqué dans les
+  Functions concernées.
+
+Le runtime résout les données dans l'ordre suivant : chemin explicite valide, snapshot
+de build, dépôt workspace voisin. Un chemin explicite absent ou invalide n'est jamais
+masqué par un fallback. La Function Calendrier Events embarque le marqueur du dépôt et
+les familles Pokémon/items nécessaires ; elle ne dépend pas de la présence d'un
+manifeste PvP sans rapport avec son pipeline.
 
 Chaque redéploiement demandé depuis le Dashboard est historisé dans Mongo via
 `matweb.dashboard.deployHistory`. L'historique compare le commit data utilisé par le

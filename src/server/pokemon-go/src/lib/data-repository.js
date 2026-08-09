@@ -1,55 +1,119 @@
 const fs = require("fs");
 const path = require("path");
 
-const appRoot = path.resolve(
-  process.env.POKEMON_GO_APP_ROOT || /*turbopackIgnore: true*/ process.cwd(),
-);
+function repositoryError(message, code, details = null) {
+  const error = new Error(message);
+  error.code = code;
+  error.details = details;
+  return error;
+}
 
 function hasDataShape(directory) {
+  let packageName = null;
+  try {
+    packageName = JSON.parse(fs.readFileSync(path.join(directory, "package.json"), "utf8")).name;
+  } catch {
+    return false;
+  }
   return (
     directory &&
+    packageName === "pokemon-go-data" &&
     fs.existsSync(path.join(directory, "pokemon")) &&
     fs.existsSync(path.join(directory, "pokemon-forms")) &&
-    fs.existsSync(path.join(directory, "pokemon-assets")) &&
-    fs.existsSync(path.join(directory, "pvp", "manifest.json")) &&
-    fs.existsSync(path.join(directory, "moves")) &&
-    fs.existsSync(path.join(directory, "raids", "currentRaids.json")) &&
-    fs.existsSync(path.join(directory, "eggs", "currentEggs.json")) &&
-    fs.existsSync(path.join(directory, "max-battles", "currentsMaxBattle.json")) &&
-    fs.existsSync(path.join(directory, "rocket", "currentRocket.json")) &&
-    fs.existsSync(path.join(directory, "research", "currentResearch.json"))
+    fs.existsSync(path.join(directory, "pokemon-assets"))
   );
 }
 
-function candidateRoots() {
-  // Le Dashboard lit d'abord le clone .data mis a jour par scripts/data/ensure-data.js.
-  // Cela garde le build local, Vercel et les écrans d'admin sur la même photo JSON.
-  return [
-    process.env.POKEMON_GO_DATA_DIR,
-    process.env.DATA_REPOSITORY_DIR,
-    path.join(/*turbopackIgnore: true*/ appRoot, ".data", "PokemonGo-Data"),
-    path.resolve(/*turbopackIgnore: true*/ appRoot, "..", "PokemonGo-Data"),
-    path.join(/*turbopackIgnore: true*/ appRoot, "data"),
-  ].filter(Boolean);
+function resolveCandidate(appDirectory, candidate) {
+  return path.isAbsolute(candidate)
+    ? path.resolve(candidate)
+    : path.resolve(/*turbopackIgnore: true*/ appDirectory, candidate);
 }
 
-function resolveDataRoot() {
-  const explicit = process.env.POKEMON_GO_DATA_DIR || process.env.DATA_REPOSITORY_DIR;
-  for (const candidate of candidateRoots()) {
-    const root = path.resolve(/*turbopackIgnore: true*/ candidate);
+function resolveDataRoot(options = {}) {
+  const environment = options.env || process.env;
+  const applicationRoot = path.resolve(
+    options.appRoot
+      || environment.POKEMON_GO_APP_ROOT
+      || /*turbopackIgnore: true*/ process.cwd(),
+  );
+  const explicit = String(
+    environment.POKEMON_GO_DATA_DIR || environment.DATA_REPOSITORY_DIR || "",
+  ).trim();
+
+  if (explicit) {
+    const root = resolveCandidate(applicationRoot, explicit);
+    if (hasDataShape(root)) return root;
+    throw repositoryError(
+      `POKEMON_GO_DATA_DIR invalide : ${explicit}. Le chemin résolu ne contient pas un dépôt PokemonGo-Data complet.`,
+      "POKEMON_DATA_ROOT_INVALID",
+      { configured: explicit, resolved: root },
+    );
+  }
+
+  // Le clone de build est l'emplacement officiel en environnement déployé.
+  // Le dépôt voisin est la convention workspace démontrée pour le développement local.
+  const candidates = [
+    path.join(/*turbopackIgnore: true*/ applicationRoot, ".data", "PokemonGo-Data"),
+    path.resolve(/*turbopackIgnore: true*/ applicationRoot, "..", "PokemonGo-Data"),
+  ];
+  for (const root of candidates) {
     if (hasDataShape(root)) return root;
   }
 
-  const expected = explicit || "../PokemonGo-Data";
-  throw new Error(
-    `Depot Pokemon GO data introuvable. Configure POKEMON_GO_DATA_DIR. Attendu: ${expected}`,
+  throw repositoryError(
+    "Dépôt PokemonGo-Data introuvable. Configurez POKEMON_GO_DATA_DIR en local ou vérifiez que le prebuild a créé .data/PokemonGo-Data.",
+    "POKEMON_DATA_ROOT_NOT_FOUND",
+    { candidates },
   );
 }
 
+const appRoot = path.resolve(
+  process.env.POKEMON_GO_APP_ROOT || /*turbopackIgnore: true*/ process.cwd(),
+);
 const dataRoot = resolveDataRoot();
 
+function isPathInside(root, target) {
+  const relative = path.relative(root, target);
+  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+}
+
+function nearestExistingPath(target) {
+  let candidate = target;
+  while (!fs.existsSync(candidate)) {
+    const parent = path.dirname(candidate);
+    if (parent === candidate) return null;
+    candidate = parent;
+  }
+  return candidate;
+}
+
+function resolvePathInsideDataRoot(root, ...segments) {
+  const absoluteRoot = path.resolve(root);
+  const target = path.resolve(absoluteRoot, ...segments);
+  if (!isPathInside(absoluteRoot, target)) {
+    throw repositoryError(
+      "Lecture refusée en dehors du dépôt PokemonGo-Data.",
+      "POKEMON_DATA_PATH_OUTSIDE_ROOT",
+      { root: absoluteRoot, target },
+    );
+  }
+
+  const existingTarget = nearestExistingPath(target);
+  const realRoot = fs.realpathSync(absoluteRoot);
+  const realTarget = existingTarget ? fs.realpathSync(existingTarget) : null;
+  if (realTarget && !isPathInside(realRoot, realTarget)) {
+    throw repositoryError(
+      "Lecture refusée via un lien symbolique hors du dépôt PokemonGo-Data.",
+      "POKEMON_DATA_PATH_OUTSIDE_ROOT",
+      { root: realRoot, target: realTarget },
+    );
+  }
+  return target;
+}
+
 function dataPath(...segments) {
-  return path.join(dataRoot, ...segments);
+  return resolvePathInsideDataRoot(dataRoot, ...segments);
 }
 
 function appPath(...segments) {
@@ -80,8 +144,13 @@ function relativeToApp(file) {
 }
 
 function isInsideData(file) {
-  const relative = path.relative(dataRoot, path.resolve(file));
-  return Boolean(relative) && !relative.startsWith("..") && !path.isAbsolute(relative);
+  const absolute = path.resolve(file);
+  try {
+    resolvePathInsideDataRoot(dataRoot, path.relative(dataRoot, absolute));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function resolveDataFile(relativeFile) {
@@ -94,9 +163,12 @@ module.exports = {
   dataPath,
   dataPathFromRelative,
   dataRoot,
+  hasDataShape,
   isInsideData,
+  resolveDataRoot,
   relativeToApp,
   relativeToData,
   resolveDataFile,
+  resolvePathInsideDataRoot,
   stripDataPrefix,
 };

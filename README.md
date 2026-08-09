@@ -58,6 +58,12 @@ POKEMON_API_ADMIN_SECRET=meme-valeur-que-API_ADMIN_SECRET-cote-pokemon-go-api
 Cette variable ne doit jamais etre prefixee par `NEXT_PUBLIC_`. Le dashboard l'utilise
 uniquement dans ses routes serveur pour envoyer le header `x-api-admin-secret`.
 
+## Snapshot PokemonGo-Data
+
+En local, le Dashboard résout les données dans cet ordre : `POKEMON_GO_DATA_DIR` lorsqu’il est défini, le snapshot `.data/PokemonGo-Data` créé au build, puis le dépôt workspace voisin `../PokemonGo-Data`. Un chemin explicite invalide provoque une erreur ; il n’est jamais remplacé silencieusement par une autre copie.
+
+Sur Vercel, ne configurez pas `POKEMON_GO_DATA_DIR` avec un chemin de machine. Le `prebuild` clone la révision demandée dans `.data/PokemonGo-Data`, puis Next.js embarque le marqueur du dépôt et les seules familles requises par chaque Function. Configurez plutôt `POKEMON_GO_DATA_REPO`, `POKEMON_GO_DATA_REF` et, pour le dépôt privé, `POKEMON_GO_DATA_TOKEN`.
+
 ## Raids Pokemon GO
 
 La section `Pokemon Admin > Raids` lit `PokemonGo-Data/raids/currentRaids.json`

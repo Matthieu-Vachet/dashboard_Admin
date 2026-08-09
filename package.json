@@ -23,6 +23,7 @@
     "test:pvp-parity": "node --conditions=react-server --import tsx --test scripts/test-pvp-parity.mts",
     "test:candy-assets": "node --test scripts/test-pokemon-candy-assets.mjs",
     "test:regeneration-notifications": "node --test scripts/test-regeneration-notifications.mjs",
+    "test:data-repository": "node --test scripts/test-data-repository-resolution.mjs",
     "test:source-watch": "node --no-warnings --experimental-strip-types --test scripts/test-source-watch-presentation.mts",
     "test:shiny-release": "node --test scripts/test-pokemon-shiny-release.mjs",
     "test:pokemon-detail": "node --test scripts/test-pokemon-detail-data.mjs",

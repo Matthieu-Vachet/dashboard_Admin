@@ -23,6 +23,8 @@ const nextConfig: NextConfig = {
       "./.data/PokemonGo-Data/gbl-calendar/**",
     ],
     "/api/pokemon-admin": [
+      "./.data/PokemonGo-Data/package.json",
+      "./.data/PokemonGo-Data/.dashboard-data-snapshot.json",
       "./.data/PokemonGo-Data/pokemon/**",
       "./.data/PokemonGo-Data/pokemon-forms/**",
       "./.data/PokemonGo-Data/pokemon-assets/**",
@@ -46,11 +48,15 @@ const nextConfig: NextConfig = {
       "./public/assets/**",
     ],
     "/api/admin/community-days/**": [
+      "./.data/PokemonGo-Data/package.json",
+      "./.data/PokemonGo-Data/.dashboard-data-snapshot.json",
       "./.data/PokemonGo-Data/pokemon/**",
       "./.data/PokemonGo-Data/pokemon-forms/**",
       "./.data/PokemonGo-Data/pokemon-assets/**",
     ],
     "/api/admin/events/scrape": [
+      "./.data/PokemonGo-Data/package.json",
+      "./.data/PokemonGo-Data/.dashboard-data-snapshot.json",
       "./.data/PokemonGo-Data/pokemon/**",
       "./.data/PokemonGo-Data/pokemon-forms/**",
       "./.data/PokemonGo-Data/pokemon-assets/**",

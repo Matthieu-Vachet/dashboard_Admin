@@ -41,9 +41,18 @@ Dans le depot Dashboard Admin, la feature `Pokemon Admin > Calendrier Events` aj
 ## Donnees Protegees
 
 Le dossier `config/` reste dans ce depot car il décrit les index Atlas Search. Les JSON
-metier vivent dans `PokemonGo-Data`. Les outils les trouvent via `POKEMON_GO_DATA_DIR`,
-le clone local `.data/PokemonGo-Data/`, le depot voisin `../PokemonGo-Data` ou, en
-dernier recours historique, un ancien dossier `data/`.
+metier vivent dans `PokemonGo-Data`. Le résolveur central utilise d’abord
+`POKEMON_GO_DATA_DIR` lorsqu’il est défini, puis le clone officiel de build
+`.data/PokemonGo-Data/`, puis la convention workspace démontrée
+`../PokemonGo-Data`. Un chemin explicite invalide est bloquant : il ne déclenche aucun
+fallback silencieux. Le dépôt est identifié par son `package.json` canonique et ses
+racines `pokemon/`, `pokemon-forms/` et `pokemon-assets/`, sans exiger un dataset sans
+rapport avec la Function appelante.
+
+Tous les chemins métier passent ensuite par `dataPath`, qui refuse les `..`, chemins
+absolus et liens symboliques sortant de cette racine. Les bundles Vercel qui lisent le
+snapshot embarquent `package.json`, `.dashboard-data-snapshot.json` et leurs familles
+de données requises.
 
 La synchronisation vers MongoDB ne modifie jamais ces sources. Le catalogue d'attaques
 central est dans `PokemonGo-Data/moves/`, avec les categories classiques, Elite, Max et
