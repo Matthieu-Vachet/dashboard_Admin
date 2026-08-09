@@ -2,6 +2,7 @@
 
 import { Download, ExternalLink, RefreshCcw, RotateCcw, Shield } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { typeColors, typeLabels } from "@/components/site/pokemon-style";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
@@ -43,7 +44,7 @@ export function BestDefendersPanel({ onOpenPokemon, globalSearch = "", onSearchC
   const [sourceIssue, setSourceIssue] = useState(null);
   const requestSequence = useRef(0);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async ({ notify = false } = {}) => {
     const sequence = requestSequence.current + 1;
     requestSequence.current = sequence;
     setLoading(true);
@@ -60,9 +61,15 @@ export function BestDefendersPanel({ onOpenPokemon, globalSearch = "", onSearchC
         setDataset(payload.data);
         setSourceIssue(issue);
       }
+      if (notify) {
+        if (issue) toast.warning(`${issue.code} · ${issue.message}`);
+        else toast.success("Best Defenders actualisé.");
+      }
       return issue;
     } catch (caught) {
-      if (requestSequence.current === sequence) setError(caught instanceof Error ? caught.message : "Best Defenders indisponible.");
+      const message = caught instanceof Error ? caught.message : "Best Defenders indisponible.";
+      if (requestSequence.current === sequence) setError(message);
+      if (notify) toast.error(message);
       return null;
     } finally {
       if (requestSequence.current === sequence) setLoading(false);
@@ -80,13 +87,17 @@ export function BestDefendersPanel({ onOpenPokemon, globalSearch = "", onSearchC
     try {
       await executePokemonAdminRegeneration("regenerate-best-defenders");
       await load();
+      toast.success("Best Defenders régénéré.");
     } catch (caught) {
       const issue = bestDefendersSourceIssue(caught) || await load();
       if (issue) {
         setSourceIssue(issue);
         setError("");
+        toast.warning(`${issue.code} · ${issue.message} Le dernier snapshot MongoDB validé reste actif.`);
       } else {
-        setError(caught instanceof Error ? caught.message : "Régénération Best Defenders impossible.");
+        const message = caught instanceof Error ? caught.message : "Régénération Best Defenders impossible.";
+        setError(message);
+        toast.error(message);
       }
     } finally {
       setRegenerating(false);
@@ -99,7 +110,7 @@ export function BestDefendersPanel({ onOpenPokemon, globalSearch = "", onSearchC
 
   return (
     <div className="min-w-0 space-y-5">
-      <Panel eyebrow="Provider Pokémon GO Hub · assets canoniques locaux" title="Best Defenders" action={<div className="flex flex-wrap gap-2"><Button icon={<Download size={16} />} disabled={!dataset} onClick={() => downloadJson(dataset, "best-defenders")}>JSON</Button><Button icon={<RefreshCcw size={16} />} loading={loading} loadingText="Actualisation…" onClick={() => void load()}>Actualiser</Button><Button variant="primary" icon={<RotateCcw size={16} />} loading={regenerating} loadingText="Régénération…" onClick={() => void regenerate()}>Régénérer</Button></div>}>
+      <Panel eyebrow="Provider Pokémon GO Hub · assets canoniques locaux" title="Best Defenders" action={<div className="flex flex-wrap gap-2"><Button icon={<Download size={16} />} disabled={!dataset} onClick={() => downloadJson(dataset, "best-defenders")}>JSON</Button><Button icon={<RefreshCcw size={16} />} loading={loading} loadingText="Actualisation…" onClick={() => void load({ notify: true })}>Actualiser</Button><Button variant="primary" icon={<RotateCcw size={16} />} loading={regenerating} loadingText="Régénération…" onClick={() => void regenerate()}>Régénérer</Button></div>}>
         <DatasetSourceHeader dataset={dataset} total={meta.total || entries.length} refreshError={dataset && !sourceIssue ? error : ""} />
         {sourceIssue ? (
           <section className="mt-3 rounded-2xl border border-warning/30 bg-warning/12 p-4 text-warning-foreground" role="status" data-source-availability={sourceIssue.code}>

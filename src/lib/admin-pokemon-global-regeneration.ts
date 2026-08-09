@@ -54,10 +54,16 @@ async function requestJson(url: string, init?: RequestInit) {
 
 function responseCandidates(value: unknown) {
   const candidates: Record<string, unknown>[] = [];
-  let current = value;
-  for (let depth = 0; depth < 4 && isRecord(current); depth += 1) {
+  const pending: unknown[] = [value];
+  const seen = new Set<Record<string, unknown>>();
+  while (pending.length && candidates.length < 24) {
+    const current = pending.shift();
+    if (!isRecord(current) || seen.has(current)) continue;
+    seen.add(current);
     candidates.push(current);
-    current = current.data;
+    for (const key of ["data", "run", "sourceRun", "current", "diagnostics"]) {
+      if (isRecord(current[key])) pending.push(current[key]);
+    }
   }
   return candidates;
 }
@@ -143,16 +149,6 @@ export async function executePokemonAdminRegeneration(action: string) {
   }
 }
 
-function numericField(candidates: Record<string, unknown>[], names: string[]) {
-  for (const candidate of candidates) {
-    for (const name of names) {
-      const value = candidate[name];
-      if (typeof value === "number" && Number.isFinite(value)) return value;
-    }
-  }
-  return 0;
-}
-
 function compactDiagnostics(value: unknown) {
   const keys = [
     "status",
@@ -198,7 +194,11 @@ function compactDiagnostics(value: unknown) {
 
 function warningCount(value: unknown) {
   const candidates = responseCandidates(value);
-  const direct = numericField(candidates, ["warningCount", "warningsCount", "conflict", "conflicts"]);
+  const direct = Math.max(0, ...candidates.flatMap((candidate) =>
+    ["warningCount", "warningsCount", "unmatchedCount", "unmatched", "conflict", "conflicts"]
+      .map((name) => candidate[name])
+      .filter((item): item is number => typeof item === "number" && Number.isFinite(item)),
+  ));
   if (direct > 0) return direct;
   for (const candidate of candidates) {
     if (Array.isArray(candidate.warnings)) return candidate.warnings.length;
