@@ -14,3 +14,5 @@ references: [DATASET-027, PROVIDER-020, API-177, API-178]
 Section Admin Pokémon → Combat placée sous Best Attackers. Elle affiche les défenseurs groupés par tiers Pokémon GO Hub, avec score, nom français, Pokédex, types locaux et `PokemonArtwork`. La couleur de carte réutilise les tokens de types existants avec une faible opacité.
 
 Recherche, tier, type, pagination, source, JSON, actualisation, régénération, erreurs et états de chargement réutilisent les primitives des autres datasets. Un clic ouvre la fiche Pokémon canonique. Une identité non résolue conserve sa place, reste sans image et mène aux diagnostics Identity Manager.
+
+Une régénération bloquée par Cloudflare n'est pas présentée comme une panne de migration. Le panneau conserve et continue d'afficher la dernière version MongoDB validée, puis rend un warning non bloquant `SOURCE_PROTECTED`. Une panne réseau ou une page amont inattendue utilise `SOURCE_TEMPORARILY_UNAVAILABLE`. Le warning rappelle explicitement qu'aucune donnée n'a été remplacée ; les erreurs sans ce contrat restent des erreurs techniques normales.

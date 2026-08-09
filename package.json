@@ -29,6 +29,7 @@
     "test:pokemon-detail": "node --test scripts/test-pokemon-detail-data.mjs",
     "test:pvp-local-data": "node --test scripts/test-pvp-ranking-local-data.mjs",
     "test:pvp-regeneration": "node --test scripts/test-pvp-ranking-regeneration-state.mjs",
+    "test:best-defenders-source": "node --test scripts/test-best-defenders-source-state.mjs",
     "test:pvp-dedicated": "node --conditions=react-server --import tsx --test scripts/test-pvp-dedicated-data.mts",
     "test:pvp-architecture": "node --import tsx --test scripts/test-pvp-architecture-audit.mts",
     "test:asset-architecture": "node --test scripts/test-asset-architecture-audit.mjs",
