@@ -55,12 +55,15 @@ export function BestDefendersPanel({ onOpenPokemon, globalSearch = "", onSearchC
       const response = await fetch(`/api/pokemon-admin?${query}`, { cache: "no-store" });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+      const issue = bestDefendersSourceIssue(payload.data);
       if (requestSequence.current === sequence) {
         setDataset(payload.data);
-        setSourceIssue(bestDefendersSourceIssue(payload.data));
+        setSourceIssue(issue);
       }
+      return issue;
     } catch (caught) {
       if (requestSequence.current === sequence) setError(caught instanceof Error ? caught.message : "Best Defenders indisponible.");
+      return null;
     } finally {
       if (requestSequence.current === sequence) setLoading(false);
     }
@@ -78,7 +81,7 @@ export function BestDefendersPanel({ onOpenPokemon, globalSearch = "", onSearchC
       await executePokemonAdminRegeneration("regenerate-best-defenders");
       await load();
     } catch (caught) {
-      const issue = bestDefendersSourceIssue(caught);
+      const issue = bestDefendersSourceIssue(caught) || await load();
       if (issue) {
         setSourceIssue(issue);
         setError("");

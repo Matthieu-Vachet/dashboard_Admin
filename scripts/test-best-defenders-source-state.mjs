@@ -27,6 +27,21 @@ test("un run Cloudflare devient un warning SOURCE_PROTECTED non retryable", () =
   });
 });
 
+test("une erreur de run Cloudflare conserve son diagnostic structure", () => {
+  const error = new Error("La régénération de fond a échoué.");
+  error.run = {
+    status: "failed",
+    errors: [{
+      code: "SOURCE_PROTECTED",
+      message: "Cloudflare protège la source.",
+      details: { preservation: "Conserver le snapshot." },
+    }],
+  };
+  const issue = bestDefendersSourceIssue(error);
+  assert.equal(issue?.code, "SOURCE_PROTECTED");
+  assert.equal(issue?.preservation, "Conserver le snapshot.");
+});
+
 test("le diagnostic MongoDB persistant expose SOURCE_TEMPORARILY_UNAVAILABLE", () => {
   const issue = bestDefendersSourceIssue({
     data: {
@@ -56,4 +71,5 @@ test("le panneau conserve le dataset et rend un warning de disponibilité explic
   assert.match(panel, /data-source-availability=\{sourceIssue\.code\}/);
   assert.match(panel, /La dernière version MongoDB validée reste affichée/);
   assert.match(panel, /setDataset\(payload\.data\)/);
+  assert.match(panel, /bestDefendersSourceIssue\(caught\) \|\| await load\(\)/);
 });
