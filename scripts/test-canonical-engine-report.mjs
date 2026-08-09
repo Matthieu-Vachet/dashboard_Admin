@@ -39,7 +39,8 @@ test("le rapport distingue les absences légitimes des erreurs et refuse les rel
   assert.ok(report.diagnosticTaxonomy.LEGITIMATE_ABSENCE.count > 0);
   assert.ok(report.diagnosticTaxonomy.UNSUPPORTED_FORM.count >= 0);
   assert.ok(report.diagnosticTaxonomy.NOT_RANKED.count >= 0);
-  assert.ok(report.diagnosticTaxonomy.MAPPING_MISSING.count > 0);
+  assert.equal(report.diagnosticTaxonomy.MAPPING_MISSING.count, 0);
+  assert.ok(report.diagnosticTaxonomy.UNSUPPORTED_FORM.count > 0);
   assert.equal(report.diagnosticTaxonomy.BROKEN_REFERENCE.count, 0);
   assert.equal(report.diagnosticTaxonomy.ORPHAN.count, 0);
   assert.equal(report.diagnosticTaxonomy.MIGRATION_INCOMPLETE.count, 0);
@@ -63,7 +64,7 @@ test("le contrôle d'une fiche reprend les diagnostics du fichier dédié résol
     customRules: [],
   });
   const mapping = issues.find((issue) => issue.issue === "pvp_mapping_missing");
-  assert.equal(mapping?.path, "mapping.status");
-  assert.equal(mapping?.pvpRef, source.pvpRef);
+  assert.equal(mapping, undefined);
+  assert.ok(engineRun.report.architecture.pvp.leagueStatusCounts.UNSUPPORTED_FORM > 0);
   assert.equal(issues.some((issue) => String(issue.path).startsWith("pvp.")), false);
 });

@@ -48,7 +48,7 @@ test("l'Engine couvre l'architecture PvP dédiée et son snapshot mensuel", () =
   });
   assert.equal(audit.summary.monthlyFresh, true);
   assert.equal(audit.summary.freshnessDays, 0);
-  assert.equal(audit.summary.mappingWarnings, 394);
+  assert.equal(audit.summary.mappingWarnings, 0);
   assert.equal(audit.summary.providerPokemonMappings, 1_736);
   assert.equal(audit.summary.providerMoveMappings, 347);
   assert.equal(
@@ -60,6 +60,16 @@ test("l'Engine couvre l'architecture PvP dédiée et son snapshot mensuel", () =
       forbiddenIntegrityCodes.has(diagnostic.issue),
     ).length,
     0,
+  );
+  assert.equal(audit.summary.movesetAudit.auditedOccurrences, 96);
+  assert.equal(audit.summary.movesetAudit.openOccurrences, 0);
+  assert.equal(
+    audit.issues.filter((diagnostic: { issue: string }) => diagnostic.issue === "pvp_moveset_outside_local_movepool").length,
+    0,
+  );
+  assert.equal(
+    audit.issues.filter((diagnostic: { issue: string }) => diagnostic.issue === "pvp_provider_source_movepool_mismatch").length,
+    1,
   );
   assert.equal(
     (audit.diagnosticsBySource.get("pokemon/0001-bulbasaur.json") || []).filter(

@@ -88,6 +88,7 @@ function buildPvpArchitectureAudit(options = {}) {
   const moveMapFile = dataPath("mappings", "pvpoke", "move-map.json");
   const pokemonOverrideFile = dataPath("mappings", "pvpoke", "pokemon-overrides.json");
   const moveOverrideFile = dataPath("mappings", "pvpoke", "move-overrides.json");
+  const movesetAuditFile = dataPath("reports", "pvpoke", "moveset-mapping-audit-current.json");
   const diagnostics = [];
   const diagnosticsByRef = new Map();
   const diagnosticsBySource = new Map();
@@ -112,6 +113,7 @@ function buildPvpArchitectureAudit(options = {}) {
     moveMapFile,
     pokemonOverrideFile,
     moveOverrideFile,
+    movesetAuditFile,
   ];
   for (const file of requiredFiles) {
     if (!fs.existsSync(file))
@@ -156,6 +158,8 @@ function buildPvpArchitectureAudit(options = {}) {
   const moveMap = readJson(moveMapFile);
   const pokemonOverrides = readJson(pokemonOverrideFile);
   const moveOverrides = readJson(moveOverrideFile);
+  const movesetAudit = readJson(movesetAuditFile);
+  const movesetAuditByIdentity = new Map((movesetAudit.mappings || []).map((mapping) => [`${mapping.canonicalId}:${mapping.moveId}`, mapping]));
   const sourceFiles = pokemonDirectories.flatMap(listJsonFiles).sort();
   const sources = sourceFiles.map((file) => {
     const data = readJson(file);
@@ -173,11 +177,27 @@ function buildPvpArchitectureAudit(options = {}) {
         ...(data.cinematicMoves || []),
         ...(data.eliteQuickMoves || []),
         ...(data.eliteCinematicMoves || []),
+        ...(data.legacyQuickMoves || []),
+        ...(data.legacyCinematicMoves || []),
       ]),
       classification,
     };
   });
   const legacyEmbeddedBlocks = sources.filter((source) => source.data.pvp != null).length;
+  if (movesetAudit.source?.repositoryCommit !== manifest.source?.commit)
+    add(issue({
+      path: "reports/pvpoke/moveset-mapping-audit-current.json.source.repositoryCommit",
+      code: "pvp_moveset_audit_snapshot_mismatch",
+      expected: manifest.source?.commit || "commit du manifeste",
+      actual: movesetAudit.source?.repositoryCommit || "absent",
+    }));
+  if (movesetAudit.summary?.openOccurrences !== 0)
+    add(issue({
+      path: "reports/pvpoke/moveset-mapping-audit-current.json.summary.openOccurrences",
+      code: "pvp_moveset_audit_incomplete",
+      expected: 0,
+      actual: movesetAudit.summary?.openOccurrences ?? "absent",
+    }));
   const sourcesByRef = new Map();
   for (const source of sources) {
     if (source.classification.ambiguous) {
@@ -634,15 +654,22 @@ function buildPvpArchitectureAudit(options = {}) {
             ...(variant.bestMoveset?.charged || []).map((move) => move.moveId),
           ].filter(Boolean);
           for (const moveId of rankedMoveIds)
-            if (!source.moveIds.has(moveId))
+            if (!source.moveIds.has(moveId)) {
+              const audited = movesetAuditByIdentity.get(`${source.canonicalId}:${moveId}`);
+              if (audited?.classification === "SHADOW_ONLY" && variant.sourceId?.endsWith("_shadow")) continue;
               add(issue({
                 ...context,
                 path: `${basePath}.bestMoveset`,
-                code: "pvp_moveset_outside_local_movepool",
-                expected: "attaque présente dans le movepool standard ou Elite local",
+                code: audited?.classification === "SOURCE_SNAPSHOT_MISMATCH"
+                  ? "pvp_provider_source_movepool_mismatch"
+                  : "pvp_moveset_outside_local_movepool",
+                expected: audited?.classification === "SOURCE_SNAPSHOT_MISMATCH"
+                  ? "attaque présente dans le Game Master PvPoke du même commit"
+                  : "attaque présente dans le movepool standard, Elite ou Legacy local",
                 actual: moveId,
                 severity: "warning",
               }));
+            }
         }
       }
       if (league?.legacyBestMovesets) {
@@ -695,6 +722,7 @@ function buildPvpArchitectureAudit(options = {}) {
       warnings,
       freshnessDays,
       monthlyFresh: freshnessDays !== null && freshnessDays <= MONTHLY_FRESHNESS_DAYS,
+      movesetAudit: movesetAudit.summary || {},
       sourceCommit: manifest.source?.commit || null,
       sourceHash: manifest.source?.hash || null,
       syncedAt: manifest.source?.syncedAt || null,

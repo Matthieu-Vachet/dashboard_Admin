@@ -104,6 +104,8 @@ Template complet:
   "cinematicMoves": [],
   "eliteQuickMoves": [],
   "eliteCinematicMoves": [],
+  "legacyQuickMoves": [],
+  "legacyCinematicMoves": [],
   "maxBattle": null,
   "pvp": {
     "littleCup": null,
