@@ -78,14 +78,11 @@ function readSafeAssetFile(reference, expectedFamily, formId) {
 }
 
 function readAssetRecord(data) {
-  const coreRef = canonicalCoreRef(data);
+  const coreRef = data?.assetsRef;
+  if (!coreRef || coreRef !== canonicalCoreRef(data)) return null;
   const core = readSafeAssetFile(coreRef, "core", data?.formId);
   if (core) return { ...core, assetsRef: coreRef };
-  const legacyRef = data?.assets?.assetsRef;
-  if (!legacyRef) return null;
-  const file = resolveDataFile(legacyRef);
-  if (!isInsideData(file) || !file.startsWith(assetsDir) || !fs.existsSync(file)) return null;
-  return { ...readJson(file), assetsRef: legacyRef };
+  return null;
 }
 
 function readAssetBundle(data, { families = assetFamilies } = {}) {
@@ -171,16 +168,15 @@ function hydrateSourceData(data, { families = assetFamilies } = {}) {
   const variants = separated
     ? familyDocuments.variants?.variants ?? []
     : record?.assets?.assetForms ?? [];
+  const { assets: _legacyEmbeddedAssets, ...withoutEmbeddedAssets } = data;
   return {
-    ...data,
+    ...withoutEmbeddedAssets,
     ...(pvpRecord ? { pvp: legacyPvpFromRecord(pvpRecord), pvpRecord } : {}),
     assetRefs: record?.assetRefs || {},
     assets: {
-      ...(data.assets || {}),
-      image: record?.assets?.image ?? data.assets?.image ?? null,
-      shinyImage: record?.assets?.shinyImage ?? data.assets?.shinyImage ?? null,
-      candy: record?.assets?.candy ?? data.assets?.candy ?? null,
-      assetsRef: record?.assetsRef || data.assets?.assetsRef || null,
+      image: record?.assets?.image ?? null,
+      shinyImage: record?.assets?.shinyImage ?? null,
+      candy: record?.assets?.candy ?? null,
       assetRefs: record?.assetRefs || {},
       home,
       portrait: record?.assets?.portrait ?? null,
@@ -1614,7 +1610,7 @@ function buildChecklist(customRulesOverride = null, options = {}) {
       generation: displayData.generation || null,
       form: data.form || "normal",
       file: relativeToApp(file),
-      assetsRef: data.assets?.assetsRef || null,
+      assetsRef: data.assetsRef || null,
       assetRefs: data.assetRefs || {},
       pvpRef: data.pvpRef || null,
       ...presentedAssets,
@@ -1936,7 +1932,7 @@ function detailForKey(key) {
     ...data,
     sourceData,
     assetSourceData,
-    assetSourceFile: assetBundle?.core?.assetsRef || sourceData.assets?.assetsRef || null,
+    assetSourceFile: assetBundle?.core?.assetsRef || sourceData.assetsRef || null,
     pvpSourceData,
     pvpSourceFile: sourceData.pvpRef || null,
     moveDetails: {

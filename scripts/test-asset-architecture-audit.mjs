@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
+import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+const dashboardRoot = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+process.env.POKEMON_GO_DATA_DIR ||= path.resolve(dashboardRoot, "..", "PokemonGo-Data");
 
 const require = createRequire(import.meta.url);
 const {

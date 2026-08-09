@@ -104,7 +104,7 @@ function DatasetRegenerationStatus({ state, onReport, onRetry }) {
       <Icon className={`shrink-0 ${running ? "animate-spin motion-reduce:animate-none" : ""}`} size={18} aria-hidden="true" />
       <div className="min-w-0 flex-1">
         <strong className="type-label">{label}</strong>
-        <p className="mt-1 text-xs font-bold">{pvpRankingRegenerationMessage(state)}</p>
+        <p className="mt-1 type-caption-strong">{pvpRankingRegenerationMessage(state)}</p>
       </div>
       <div className="flex shrink-0 flex-wrap gap-2">
         {state.reportAvailable ? <Button size="sm" variant="ghost" type="button" onClick={onReport}>Voir le rapport</Button> : null}

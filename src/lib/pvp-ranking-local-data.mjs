@@ -19,7 +19,7 @@ export function enrichPvpRankingWithLocalData(entry, localEntries = []) {
   const local = findLocalPokemonForRanking(entry, localEntries);
   if (!local) return entry;
   const sourceCost = local.secondChargeMoveCost || local.sourceData?.secondChargeMoveCost;
-  const sourceCandy = local.assets?.candy || local.sourceData?.assets?.candy;
+  const sourceCandy = local.assets?.candy || local.assetSourceData?.assets?.candy;
   const sourceBuddyDistance = local.buddyDistance ?? local.sourceData?.buddyDistance;
   const hasCost = sourceCost && typeof sourceCost === "object";
   return {
@@ -48,7 +48,7 @@ export function enrichPvpRankingWithLocalData(entry, localEntries = []) {
       localDataProvenance: {
         ...(entry.pvp?.localDataProvenance || {}),
         ...(sourceBuddyDistance == null ? {} : { buddyDistance: "pokemon.sourceData.buddyDistance" }),
-        ...(sourceCandy?.familyId == null ? {} : { candyFamily: "pokemon.sourceData.assets.candy.familyId" }),
+        ...(sourceCandy?.familyId == null ? {} : { candyFamily: "pokemon.assetSourceData.assets.candy.familyId" }),
         ...(hasCost ? { secondChargedMoveCost: "pokemon.sourceData.secondChargeMoveCost" } : {}),
       },
     },

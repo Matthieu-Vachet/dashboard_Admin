@@ -166,8 +166,16 @@ function buildPvpArchitectureAudit(options = {}) {
     const data = readJson(file);
     const sourceFile = relativeDataPath(file);
     const classification = classifyEntity(data, { sourceFile });
+    const assetsRef = typeof data.assetsRef === "string" ? data.assetsRef : null;
+    let assetCore = null;
+    if (assetsRef) {
+      const assetFile = resolveDataFile(assetsRef);
+      if (isInside(dataPath("pokemon-assets", "core"), assetFile) && fs.existsSync(assetFile))
+        assetCore = readJson(assetFile);
+    }
     return {
       data,
+      assetCore,
       file,
       sourceFile,
       pvpRef: typeof data.pvpRef === "string" ? data.pvpRef : null,
@@ -616,7 +624,7 @@ function buildPvpArchitectureAudit(options = {}) {
           expected: [...LEAGUE_STATUSES].join(" | "),
           actual: league?.status ?? "absent",
         }));
-      if (league?.rank1?.level > 40 && !source?.data.assets?.candy?.xlImage)
+      if (league?.rank1?.level > 40 && !source.assetCore?.assets?.candy?.xlImage)
         add(issue({
           ...context,
           path: `leagues.${leagueId}.rank1.level`,

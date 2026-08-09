@@ -278,11 +278,22 @@ function buildAssetArchitectureAudit() {
     if (classification.ambiguous) continue;
     const canonicalCoreRef = resolveCanonicalReference(source.data, { family: "core", sourceFile: source.sourceFile });
     const core = coreByFormId.get(formId)?.[0] || null;
-    const pokemonAssetsRef = source.data.assets?.assetsRef;
+    const embeddedAssetFields = ["image", "shinyImage", "candy", "colors"]
+      .filter((field) => Object.hasOwn(source.data.assets || {}, field));
+    if (embeddedAssetFields.length)
+      issue({
+        sourceFile: source.sourceFile,
+        path: "assets",
+        code: "LEGACY_EMBEDDED_ASSET_DUPLICATE",
+        expected: "assetsRef racine uniquement",
+        actual: embeddedAssetFields.join(", "),
+        severity: "warning",
+      });
+    const pokemonAssetsRef = source.data.assetsRef;
     if (typeof pokemonAssetsRef !== "string" || !pokemonAssetsRef) {
       issue({
         sourceFile: source.sourceFile,
-        path: "assets.assetsRef",
+        path: "assetsRef",
         code: "assets_ref_missing",
         expected: canonicalCoreRef,
         actual: "absent",
@@ -293,20 +304,20 @@ function buildAssetArchitectureAudit() {
         issue({
           sourceFile: source.sourceFile,
           assetRef: pokemonAssetsRef,
-          path: "assets.assetsRef",
+          path: "assetsRef",
           code: "assets_ref_broken",
           expected: "référence existante sous pokemon-assets",
           actual: pokemonAssetsRef,
         });
       if (pokemonAssetsRef !== canonicalCoreRef) temporaryLegacyRefs += 1;
       if (categoryFromReference(pokemonAssetsRef) !== classification.category)
-        issue({ sourceFile: source.sourceFile, assetRef: pokemonAssetsRef, path: "assets.assetsRef", code: "REFERENCE_CATEGORY_MISMATCH", expected: classification.category, actual: categoryFromReference(pokemonAssetsRef) || "absent" });
+        issue({ sourceFile: source.sourceFile, assetRef: pokemonAssetsRef, path: "assetsRef", code: "REFERENCE_CATEGORY_MISMATCH", expected: classification.category, actual: categoryFromReference(pokemonAssetsRef) || "absent" });
     }
     if (!core) {
       issue({
         sourceFile: source.sourceFile,
         assetRef: canonicalCoreRef,
-        path: "assets.assetsRef",
+        path: "assetsRef",
         code: "asset_core_missing",
         expected: "fiche core canonique existante",
         actual: "absente",
@@ -327,7 +338,7 @@ function buildAssetArchitectureAudit() {
       issue({
         sourceFile: source.sourceFile,
         assetRef: relativeDataPath(core.file).replace(/^data\//, ""),
-        path: "assets.assetsRef",
+        path: "assetsRef",
         code: "asset_core_path_mismatch",
         expected: canonicalCoreRef,
         actual: relativeDataPath(core.file).replace(/^data\//, ""),
@@ -534,7 +545,7 @@ function buildAssetArchitectureAudit() {
     : [];
   if (temporaryLegacyRefs || legacyFiles.length)
     issue({
-      path: "assets.assetsRef",
+      path: "assetsRef",
       code: "asset_legacy_transition_retained",
       expected: "références temporaires retirées au lot de finalisation",
       actual: `${temporaryLegacyRefs} référence(s), ${legacyFiles.length} monolithe(s)`,

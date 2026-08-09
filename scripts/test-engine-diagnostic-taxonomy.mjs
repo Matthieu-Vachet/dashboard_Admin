@@ -36,6 +36,7 @@ test("les codes post-migration reçoivent une catégorie et un niveau explicites
     ["release_metadata_conflict", "release-metadata", "warning"],
     ["pvp_ref_invalid", "reference", "error"],
     ["asset_manifest_hash_mismatch", "architecture", "error"],
+    ["LEGACY_EMBEDDED_ASSET_DUPLICATE", "architecture", "warning"],
   ];
   for (const [issue, category, severity] of examples) {
     const result = enrichDiagnostic({ issue, severity: ["pvp_ref_invalid", "asset_manifest_hash_mismatch"].includes(issue) ? "error" : undefined });

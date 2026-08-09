@@ -36,16 +36,17 @@ test("le Dashboard résout et charge les cinq catégories avec le même résolve
     const source = readJson(sourceFile);
     const classification = classifyEntity(source, { sourceFile });
     assert.equal(classification.category, category, sourceFile);
-    assert.equal(source.assets.assetsRef, resolveCanonicalReference(source, { family: "core", sourceFile }));
+    assert.equal(source.assets, undefined, sourceFile);
+    assert.equal(source.assetsRef, resolveCanonicalReference(source, { family: "core", sourceFile }));
     assert.equal(source.pvpRef, resolveCanonicalReference(source, { family: "pvp", sourceFile }));
-    assert.equal(categoryFromReference(source.assets.assetsRef), category);
+    assert.equal(categoryFromReference(source.assetsRef), category);
     assert.equal(categoryFromReference(source.pvpRef), category);
-    assert.match(source.assets.assetsRef, new RegExp(`/core/${directory}/`));
+    assert.match(source.assetsRef, new RegExp(`/core/${directory}/`));
 
     const detail = engine.detailForKey(`pokemon:data/${sourceFile}`);
     assert.ok(detail, sourceFile);
     assert.equal(detail.sourceData.formId, source.formId);
-    assert.equal(detail.assetSourceFile, source.assets.assetsRef);
+    assert.equal(detail.assetSourceFile, source.assetsRef);
     assert.equal(detail.pvpSourceFile, source.pvpRef);
     assert.equal(detail.assetSourceData.formId, source.formId);
     assert.equal(detail.pvpSourceData.identity.formId, source.formId);

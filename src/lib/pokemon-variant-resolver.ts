@@ -89,30 +89,25 @@ function megaAssetPair(pokemon: UnknownRecord) {
   const data = record(pokemon.data);
   const dataAssets = record(data.assets);
   const sourceData = record(pokemon.sourceData);
-  const sourceAssets = record(sourceData.assets);
   const identity = record(pokemon.identity);
   const assetResolution = record(identity.assetResolution);
   const home = record(assets.home);
   const dataHome = record(dataAssets.home);
-  const sourceHome = record(sourceAssets.home);
 
   // Ordre canonique Méga : Pokémon GO, HOME, fallback portrait/pré-résolu.
   const normalCandidates = [
     [assets.image, "pokemon-go-mega"],
     [dataAssets.image, "pokemon-go-mega"],
-    [sourceAssets.image, "pokemon-go-mega"],
     [pokemon.goImage, "pokemon-go-mega"],
     [data.goImage, "pokemon-go-mega"],
     [sourceData.goImage, "pokemon-go-mega"],
     [home.image, "home-mega"],
     [dataHome.image, "home-mega"],
-    [sourceHome.image, "home-mega"],
     [pokemon.homeImage, "home-mega"],
     [data.homeImage, "home-mega"],
     [sourceData.homeImage, "home-mega"],
     [assets.portrait, "mega-fallback"],
     [dataAssets.portrait, "mega-fallback"],
-    [sourceAssets.portrait, "mega-fallback"],
     [pokemon.portraitImage, "mega-fallback"],
     [identity.image, "mega-fallback"],
     [assetResolution.image, "mega-fallback"],
@@ -122,19 +117,16 @@ function megaAssetPair(pokemon: UnknownRecord) {
   const shinyCandidates = [
     [assets.shinyImage, "pokemon-go-mega"],
     [dataAssets.shinyImage, "pokemon-go-mega"],
-    [sourceAssets.shinyImage, "pokemon-go-mega"],
     [pokemon.goShinyImage, "pokemon-go-mega"],
     [data.goShinyImage, "pokemon-go-mega"],
     [sourceData.goShinyImage, "pokemon-go-mega"],
     [home.shinyImage, "home-mega"],
     [dataHome.shinyImage, "home-mega"],
-    [sourceHome.shinyImage, "home-mega"],
     [pokemon.homeShinyImage, "home-mega"],
     [data.homeShinyImage, "home-mega"],
     [sourceData.homeShinyImage, "home-mega"],
     [assets.portraitShiny, "mega-fallback"],
     [dataAssets.portraitShiny, "mega-fallback"],
-    [sourceAssets.portraitShiny, "mega-fallback"],
     [pokemon.portraitShinyImage, "mega-fallback"],
     [identity.shinyImage, "mega-fallback"],
     [assetResolution.shinyImage, "mega-fallback"],
@@ -266,16 +258,12 @@ function assetVariantList(pokemon: UnknownRecord): PokemonVariantAsset[] {
   const assets = record(pokemon.assets);
   const data = record(pokemon.data);
   const dataAssets = record(data.assets);
-  const sourceData = record(pokemon.sourceData);
-  const sourceAssets = record(sourceData.assets);
   const candidates = [
     assets.assetForms,
     pokemon.assetForms,
     pokemon.eventAssets,
     data.assetForms,
     dataAssets.assetForms,
-    sourceData.assetForms,
-    sourceAssets.assetForms,
   ];
   const variants = candidates.flatMap((candidate) => Array.isArray(candidate)
     ? candidate.map((variant) => ({ ...record(variant), source: "asset-form" }))
@@ -283,7 +271,6 @@ function assetVariantList(pokemon: UnknownRecord): PokemonVariantAsset[] {
   const homeCandidates = [
     record(assets.home).variants,
     record(dataAssets.home).variants,
-    record(sourceAssets.home).variants,
   ];
   variants.push(...homeCandidates.flatMap((candidate) => Array.isArray(candidate)
     ? candidate.map((variant) => ({ ...record(variant), source: "home-variant" }))
@@ -376,42 +363,34 @@ function primaryAssetPair(
   const data = record(pokemon.data);
   const dataAssets = record(data.assets);
   const sourceData = record(pokemon.sourceData);
-  const sourceAssets = record(sourceData.assets);
   const home = record(assets.home);
   const dataHome = record(dataAssets.home);
-  const sourceHome = record(sourceAssets.home);
   const normalVariant = options.includeNormalAssetForm ? normalAssetVariant(pokemon, species) : null;
   const normalCandidates = [
     [assets.image, "primary-assets"],
     [dataAssets.image, "primary-assets"],
-    [sourceAssets.image, "primary-assets"],
     [pokemon.image, "primary-assets"],
     [normalVariant?.image, "asset-form"],
     [options.allowHome ? home.image : null, "home-assets"],
     [options.allowHome ? dataHome.image : null, "home-assets"],
-    [options.allowHome ? sourceHome.image : null, "home-assets"],
     [options.allowHome ? pokemon.homeImage : null, "home-assets"],
     [options.allowHome ? data.homeImage : null, "home-assets"],
     [options.allowHome ? sourceData.homeImage : null, "home-assets"],
     [assets.portrait, "portrait-assets"],
     [dataAssets.portrait, "portrait-assets"],
-    [sourceAssets.portrait, "portrait-assets"],
   ] as const;
   const shinyCandidates = [
     [assets.shinyImage, "primary-assets"],
     [dataAssets.shinyImage, "primary-assets"],
-    [sourceAssets.shinyImage, "primary-assets"],
     [pokemon.shinyImage, "primary-assets"],
     [normalVariant?.shinyImage, "asset-form"],
     [options.allowHome ? home.shinyImage : null, "home-assets"],
     [options.allowHome ? dataHome.shinyImage : null, "home-assets"],
-    [options.allowHome ? sourceHome.shinyImage : null, "home-assets"],
     [options.allowHome ? pokemon.homeShinyImage : null, "home-assets"],
     [options.allowHome ? data.homeShinyImage : null, "home-assets"],
     [options.allowHome ? sourceData.homeShinyImage : null, "home-assets"],
     [assets.portraitShiny, "portrait-assets"],
     [dataAssets.portraitShiny, "portrait-assets"],
-    [sourceAssets.portraitShiny, "portrait-assets"],
   ] as const;
   const normal = normalCandidates.find(([value]) => image(value));
   const shiny = shinyCandidates.find(([value]) => image(value));

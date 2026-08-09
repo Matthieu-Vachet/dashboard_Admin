@@ -414,13 +414,11 @@ async function createCatalog(): Promise<PvpCatalog> {
     async (file) => {
       const entry = await readJson(file);
       const reference = path.relative(root, file).replaceAll(path.sep, "/");
-      const assetsRef = entry.assets?.assetsRef || null;
+      const assetsRef = entry.assetsRef || null;
       const canonicalAssetsRef = canonicalAssetCoreRef(entry);
-      const assetDocument = await readJson(
-        path.join(/* turbopackIgnore: true */ root, canonicalAssetsRef),
-      ).catch(async () => assetsRef
-        ? readJson(path.join(/* turbopackIgnore: true */ root, assetsRef)).catch(() => null)
-        : null);
+      const assetDocument = assetsRef === canonicalAssetsRef
+        ? await readJson(path.join(/* turbopackIgnore: true */ root, assetsRef)).catch(() => null)
+        : null;
       const pvpRef = entry.pvpRef || null;
       const pvpRecord = pvpRef
         ? await readJson(path.join(/* turbopackIgnore: true */ root, pvpRef)).catch(() => null)

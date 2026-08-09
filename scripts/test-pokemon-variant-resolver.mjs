@@ -15,6 +15,7 @@ const winterShiny = "https://assets.example/pikachu-winter-2020-shiny.png";
 const female = "https://assets.example/pikachu-female.png";
 const dashboardRoot = path.resolve(import.meta.dirname, "..");
 const dataRoot = path.resolve(dashboardRoot, "..", "PokemonGo-Data");
+process.env.POKEMON_GO_DATA_DIR ||= dataRoot;
 const require = createRequire(import.meta.url);
 
 function pikachu() {
