@@ -22,17 +22,19 @@ function summarizeChecklist(entries) {
   const kindMap = new Map();
 
   for (const entry of entries) {
+    const actionableIssues = (entry.issues || []).filter((issue) => issue.severity !== "info");
+    const complete = actionableIssues.length === 0;
     const generation = entry.generation || 0;
     const generationStats = generationMap.get(generation) || { generation, count: 0, complete: 0, issues: 0 };
     generationStats.count += 1;
-    if (entry.complete) generationStats.complete += 1;
-    generationStats.issues += entry.issues.length;
+    if (complete) generationStats.complete += 1;
+    generationStats.issues += actionableIssues.length;
     generationMap.set(generation, generationStats);
 
     const kindStats = kindMap.get(entry.kind) || { id: entry.kind, count: 0, complete: 0, issues: 0 };
     kindStats.count += 1;
-    if (entry.complete) kindStats.complete += 1;
-    kindStats.issues += entry.issues.length;
+    if (complete) kindStats.complete += 1;
+    kindStats.issues += actionableIssues.length;
     kindMap.set(entry.kind, kindStats);
 
     for (const category of entry.issueCategories || [])
@@ -46,8 +48,11 @@ function summarizeChecklist(entries) {
 
   return {
     total: entries.length,
-    complete: entries.filter((entry) => entry.complete).length,
-    issues: entries.reduce((sum, entry) => sum + entry.issues.length, 0),
+    complete: entries.filter((entry) => (entry.issues || []).every((issue) => issue.severity === "info")).length,
+    issues: entries.reduce(
+      (sum, entry) => sum + (entry.issues || []).filter((issue) => issue.severity !== "info").length,
+      0,
+    ),
     generations: [...generationMap.entries()]
       .map(([, item]) => decorate(item))
       .sort((left, right) => left.generation - right.generation),
@@ -130,6 +135,10 @@ function loadSiteDashboard() {
     .sort((left, right) => right.quality.score - left.quality.score)
     .slice(0, 3);
   const needsAttention = [...entries]
+    .map((entry) => ({
+      ...entry,
+      issues: (entry.issues || []).filter((issue) => issue.severity !== "info"),
+    }))
     .filter((entry) => entry.issues.length > 0)
     .sort((left, right) => right.issues.length - left.issues.length)
     .slice(0, 6);

@@ -7,6 +7,7 @@ import { createRequire } from "node:module";
 process.env.POKEMON_GO_DATA_DIR ||= path.resolve(process.cwd(), "../PokemonGo-Data");
 const require = createRequire(import.meta.url);
 const { buildCanonicalEngineReport, validateSourceData } = require("../src/server/pokemon-go/apps/checklist/server/engine.js");
+const { summarizeChecklist } = require("../src/server/pokemon-go/src/lib/site-dashboard.js");
 const engineRun = buildCanonicalEngineReport([]);
 
 test("le véritable Engine produit un rapport global sérialisable et mesuré", () => {
@@ -68,6 +69,17 @@ test("le rapport distingue les absences légitimes des erreurs et refuse les rel
   assert.equal(report.diagnosticTaxonomy.ERROR.count, 0);
   assert.ok(Object.values(report.architecture.legacyRequirements).every((required) => required === false));
   assert.match(report.indexes.strategy, /Map\/Set/);
+});
+
+test("une information fournisseur reste visible sans créer une fiche à corriger", () => {
+  const skiddo = engineRun.entries.find((entry) => entry.formId === "SKIDDO");
+  assert.ok(skiddo.issues.some((issue) => issue.issue === "pvp_provider_source_movepool_mismatch" && issue.severity === "info"));
+  assert.equal(skiddo.complete, true);
+  assert.equal(skiddo.quality.score, 100);
+  assert.deepEqual(skiddo.issueCategories, []);
+  const summary = summarizeChecklist(engineRun.entries);
+  assert.equal(summary.complete, 1_611);
+  assert.equal(summary.issues, 0);
 });
 
 test("la checklist n'exige plus l'ancien bloc pvp embarqué", () => {

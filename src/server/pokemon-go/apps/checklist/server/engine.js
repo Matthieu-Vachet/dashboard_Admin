@@ -1224,16 +1224,17 @@ function issueCategory(input) {
 }
 
 function qualitySummary(issues) {
-  const categories = [...new Set(issues.map((issue) => issueCategory(issue)))];
-  const missing = issues.filter((issue) => issue.issue === "missing").length;
-  const invalid = issues.length - missing;
+  const actionable = issues.filter((issue) => issue.severity !== "info");
+  const categories = [...new Set(actionable.map((issue) => issueCategory(issue)))];
+  const missing = actionable.filter((issue) => issue.issue === "missing").length;
+  const invalid = actionable.length - missing;
   const score = Math.max(0, Math.round(100 - missing * 3 - invalid * 5));
   return {
     score,
     categories,
     missing,
     invalid,
-    priority: issues.length ? score * 100 - issues.length : -1,
+    priority: actionable.length ? score * 100 - actionable.length : -1,
   };
 }
 
@@ -1650,7 +1651,7 @@ function buildChecklist(customRulesOverride = null, options = {}) {
       evolutionCount: Array.isArray(data.evolutions)
         ? data.evolutions.length
         : 0,
-      complete: validator.issues.length === 0,
+      complete: validator.issues.every((issue) => issue.severity === "info"),
       issues: validator.issues,
       suggestedPatch: buildSuggestedPatch(validator.issues, kind),
       quality,
@@ -1735,7 +1736,7 @@ function buildCustomRuleCatalogChecklist(customRulesOverride = null) {
       kind,
       name,
       file: `${relativeToApp(file)}${itemId !== undefined ? `#${itemId}` : ""}`,
-      complete: validator.issues.length === 0,
+      complete: validator.issues.every((issue) => issue.severity === "info"),
       issues: validator.issues,
       suggestedPatch: buildSuggestedPatch(validator.issues, kind),
       quality,

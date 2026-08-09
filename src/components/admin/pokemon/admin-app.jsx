@@ -2021,7 +2021,10 @@ export function AdminApp() {
   );
   const summary = bootstrap.payload?.summary || {};
   const issueEntries = useMemo(
-    () => entries.filter((entry) => entry.issues.length),
+    () => entries.flatMap((entry) => {
+      const issues = (entry.issues || []).filter((issue) => issue.severity !== "info");
+      return issues.length ? [{ ...entry, issues }] : [];
+    }),
     [entries],
   );
   const customIssueEntries = useMemo(

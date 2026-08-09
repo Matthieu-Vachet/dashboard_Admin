@@ -56,9 +56,11 @@ test("les codes post-migration reçoivent une catégorie et un niveau explicites
 
 test("la carte Pokémon réserve ‘clés manquantes’ au schéma et affiche les diagnostics classés", () => {
   const source = fs.readFileSync(path.resolve("src/components/admin/pokemon/pokemon-card.jsx"), "utf8");
+  const adminSource = fs.readFileSync(path.resolve("src/components/admin/pokemon/admin-app.jsx"), "utf8");
   assert.match(source, /filter\(\(issue\) => issue\.issue === "missing"\)/);
   assert.match(source, /Schéma · clés manquantes/);
   assert.match(source, /Diagnostics classés/);
   assert.match(source, /Mapping Pokémon PvPoke/);
   assert.doesNotMatch(source, /issue\.issue === "missing" \|\| issue\.category === "custom"/);
+  assert.match(adminSource, /filter\(\(issue\) => issue\.severity !== "info"\)/);
 });
