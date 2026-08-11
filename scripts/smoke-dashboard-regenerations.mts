@@ -2,6 +2,17 @@ import { adminRegenerationRegistry } from "../src/lib/admin-regeneration-registr
 
 const target = String(process.env.DASHBOARD_SMOKE_TARGET || "https://dashboard-admin-pi-ebon.vercel.app").replace(/\/$/, "");
 let cookie = String(process.env.DASHBOARD_SESSION_COOKIE || "").trim();
+const requestedIds = new Set(String(process.env.REGENERATION_SMOKE_IDS || "")
+  .split(",")
+  .map((value) => value.trim())
+  .filter(Boolean));
+const registrations = requestedIds.size
+  ? adminRegenerationRegistry.filter((registration) => requestedIds.has(registration.id))
+  : [...adminRegenerationRegistry];
+if (requestedIds.size !== registrations.length) {
+  const known = new Set(registrations.map((registration) => registration.id));
+  throw new Error(`Action(s) de smoke inconnue(s): ${[...requestedIds].filter((id) => !known.has(id)).join(", ")}`);
+}
 
 async function authenticate() {
   if (cookie) return cookie;
@@ -134,7 +145,7 @@ async function call(registration: (typeof adminRegenerationRegistry)[number]) {
 }
 
 const results = [];
-for (const registration of adminRegenerationRegistry) {
+for (const registration of registrations) {
   const startedAt = Date.now();
   try {
     const completion = await call(registration);

@@ -42,6 +42,11 @@ assert.match(adminRoute, /regeneration\.timeoutSeconds/);
 assert.match(adminRoute, /process\.env\.VERCEL === "1"/);
 assert.doesNotMatch(adminRoute, /action === "regenerate-(?:raids|eggs|max-battles|rocket|research|shiny|pvp-rankings|gbl-calendar|best-attackers|best-defenders|costume-audit|pokemon-identity-mappings|game-master)"/);
 
+const dynamaxScanRoute = fs.readFileSync(path.join(root, "src/app/api/admin/dynamax-images/scan/route.ts"), "utf8");
+const dynamaxApi = fs.readFileSync(path.join(root, "src/lib/dynamax-images-api.ts"), "utf8");
+assert.match(dynamaxScanRoute, /export const maxDuration = 180/);
+assert.match(dynamaxApi, /170_000/);
+
 const eventsScraper = fs.readFileSync(path.join(root, "src/lib/leekduck-events-scraper.ts"), "utf8");
 assert.match(eventsScraper, /data-repository/);
 const nextConfig = fs.readFileSync(path.join(root, "next.config.ts"), "utf8");

@@ -3,7 +3,7 @@ import { assertSameOrigin, rateLimit } from "@/lib/security";
 import { callDynamaxApi, requireDynamaxAdmin, routeError } from "@/lib/dynamax-images-api";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+export const maxDuration = 180;
 
 export async function POST(request: NextRequest) {
   try {
