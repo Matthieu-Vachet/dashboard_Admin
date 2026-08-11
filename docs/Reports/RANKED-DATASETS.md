@@ -12,4 +12,11 @@ Le diagnostic privé « Résolution variantes » expose la matrice Game Master e
 
 Les boutons de régénération appellent les routes Admin non documentées avec le secret serveur. Les URLs et secrets externes ne sont jamais envoyés au client. Pour PvP, le démarrage répond `202` avec un `run.id`; le BFF authentifié interroge ensuite la route de statut privée jusqu'au succès ou à l'échec. Le client n'attend donc jamais directement la génération et l'import du payload complet.
 
+Le polling accepte explicitement `success`, `partial`, `unchanged` et `failed` comme
+états API terminaux. `partial` affiche les données persistées, les nombres générés,
+ignorés, `MAPPING_MISSING` et `WARNING`, le rapport et l’action de relance. La validation
+du 9 août 2026 a relu 20 436 lignes, zéro mapping ou entrée non appariée et un warning
+Volcarona Bayou ; elle ne doit pas être confondue avec l’information Engine
+`SKIDDO`/`ROCK_SLIDE`.
+
 L'explorateur API charge OpenAPI à l'exécution et présente toutes les routes publiques sans liste manuelle. Les actions privées de régénération sont ajoutées séparément, marquées privées et exécutées uniquement par le proxy serveur.

@@ -76,6 +76,12 @@ MAJOR.MINOR.PATCH
 
 Cette convention est utilisée pour le Dashboard, l'API et la documentation lorsqu'elle est applicable.
 
+Les trois dépôts gardent des versions indépendantes : la stabilisation courante associe
+PokemonGo-Data `1.21.0`, PokemonGo-API `1.21.0` et Dashboard Admin `1.43.0`. Un commit
+documentaire qui précise un contrat existant ne modifie pas automatiquement la version
+du payload API. Toute publication coordonnée consigne néanmoins les trois commits Data,
+API et Dashboard afin de rendre le rollback reproductible.
+
 ---
 
 # Alternatives étudiées

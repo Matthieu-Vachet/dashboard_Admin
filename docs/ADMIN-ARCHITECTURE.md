@@ -32,6 +32,11 @@ Le Dashboard Admin est organisé autour du dossier canonique `src/components/adm
 - La confidentialité est contrôlée côté serveur. Le navigateur n’obtient jamais le secret de PokemonGo-API.
 - Le centre de commande exécute les domaines séquentiellement et conserve pour chaque étape un état `pending`, `running`, `success`, `warning` ou `error`.
 - Le PvP répond `202 Accepted` avec un identifiant d’exécution ; le Dashboard interroge ensuite le statut privé jusqu’à l’état terminal.
+- Le contrat PvP distingue `idle`, `running`, `success`, `partial`, `failed` et
+  `cancelled`. `partial` reste un résultat persistant ; le centre global le traduit en
+  `warning` avec ses compteurs, jamais en erreur générique.
+- L’agrégateur parcourt aussi `data`, `run`, `sourceRun`, `current` et `diagnostics` afin
+  que les warnings Events ou provider imbriqués ne soient pas perdus.
 - Les actions longues utilisent la primitive `Button`, son état `loading`, `aria-busy` et le respect de `prefers-reduced-motion`.
 
 ## Qualité et supervision

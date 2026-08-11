@@ -144,6 +144,13 @@ un rapport exploitable :
 Si LeekDuck ne retourne aucun event ou si l'import échoue, la route renvoie
 `success: false` et aucun toast de succès ne doit être affiché.
 
+La régénération globale inspecte le résultat imbriqué `sourceRun` en plus de `data`,
+`run`, `current` et `diagnostics`. Un scraping Events partiel conserve donc son statut,
+ses compteurs et ses non-matchés dans la matrice globale au lieu d’être résumé à tort en
+succès simple. La validation de production du 9 août 2026 a relu 39 événements visibles,
+8 actifs et 29 à venir ; 126 identités source sont restées diagnostiquées sans asset
+inventé.
+
 Routes publiques de l’archive dans PokemonGo-API :
 
 ```http

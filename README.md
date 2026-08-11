@@ -9,6 +9,9 @@ L’encyclopédie d’architecture est indexée dans [`docs/TOME-INDEX.md`](docs
 La résolution canonique des Assets et fiches PvP par catégories `normal`, `forms`,
 `mega`, `dynamax` et `gigantamax`, ainsi que les diagnostics de l’Engine et le rollback,
 sont décrits dans [`docs/ENTITY-CATEGORY-ARCHITECTURE.md`](docs/ENTITY-CATEGORY-ARCHITECTURE.md).
+Le runbook transversal, la matrice des 16 régénérations, les compteurs Engine finaux,
+le versionnement et le rollback coordonné sont dans
+[`docs/POST-MIGRATION-STABILIZATION.md`](docs/POST-MIGRATION-STABILIZATION.md).
 
 ## Stack
 

@@ -92,7 +92,7 @@ Les valeurs inconnues ou non applicables utilisent `null`. Les listes vides util
 | `dexId` | string | Numero Pokedex formate sur 4 chiffres. |
 | `names` | object | Noms localises par langue. |
 | `form` | string | Forme technique en minuscules, ex. `normal`, `alola`, `mega`. |
-| `regionId` | string | Référence vers la région centrale de `data/generations/`. |
+| `regionId` | string | Référence vers la région centrale de `PokemonGo-Data/generations/`. |
 | `pokemonClass` | string/null | Classe speciale si disponible, sinon `null`. |
 
 L'API, la bibliothèque et le Dashboard recomposent `region` et `generation` depuis `regionId`. Les formes
@@ -124,7 +124,7 @@ Les objets de noms utilisent ces cles:
 ### Types
 
 `primaryType` est obligatoire. `secondaryType` vaut `null` pour un Pokemon mono-type.
-Ces champs referencent les identifiants courts de `data/types/`.
+Ces champs referencent les identifiants courts de `PokemonGo-Data/types/`.
 
 ```json
 {
@@ -137,7 +137,7 @@ Ces champs referencent les identifiants courts de `data/types/`.
 
 | Champ | Type | Description |
 | --- | --- | --- |
-| `weatherBoost` | string[] | Références vers les identifiants de `data/weather/`. |
+| `weatherBoost` | string[] | Références vers les identifiants de `PokemonGo-Data/weather/`. |
 | `buddyDistance` | number | Distance en km pour obtenir un bonbon. |
 | `catchRate` | number | Taux de capture de base. |
 | `fleeRate` | number | Taux de fuite de base. |
@@ -255,7 +255,7 @@ Dynamax/Gigamax. Le validateur accepte donc `number` ou `null`.
 ## Attaques
 
 Les Pokemon stockent uniquement les identifiants de leurs attaques. Les details complets
-sont centralises dans `data/moves/`.
+sont centralises dans `PokemonGo-Data/moves/`.
 
 ```json
 {
@@ -291,12 +291,12 @@ Chaque fichier du catalogue central contient :
 Les quatre tableaux peuvent etre vides uniquement lorsque le Pokemon ne possede aucune
 attaque dans la categorie correspondante. Les references doivent exister dans :
 
-- `data/moves/fast/`
-- `data/moves/charged/`
-- `data/moves/fast_elite/`
-- `data/moves/charged_elite/`
-- `data/moves/max/`
-- `data/moves/gmax/`
+- `PokemonGo-Data/moves/fast/`
+- `PokemonGo-Data/moves/charged/`
+- `PokemonGo-Data/moves/fast_elite/`
+- `PokemonGo-Data/moves/charged_elite/`
+- `PokemonGo-Data/moves/max/`
+- `PokemonGo-Data/moves/gmax/`
 
 `maxBattle.moves` contient les attaques Max ou G-Max quand la fiche est compatible. Il
 reste present avec `[]` sur les fiches non Max pour garder un pattern uniforme.
@@ -375,7 +375,7 @@ Une entree de `megaEvolutions` contient:
 - Gameplay: `size`, `catchRate`, `fleeRate`, `availability`.
 - Combat: `maxCp`, `stats`, `primaryType`, `secondaryType`.
 - Mega: `megaEnergyCost`.
-- Images légères: `assets.image`, `assets.shinyImage`, `assets.assetsRef`.
+- Référence d’assets : `assetsRef` à la racine ; les images vivent dans le Core.
 
 `availability` d'une Mega contient `released`, `shinyReleased`, `tradable` et
 `pokemonHomeTransfer`.
@@ -402,10 +402,7 @@ duplique que les informations propres au combat Max et garde sa propre identite 
   "maxBattle": {
     "moves": ["GMAX_VINE_LASH"]
   },
-  "assets": {
-    "image": "",
-    "shinyImage": ""
-  }
+  "assetsRef": "pokemon-assets/core/gigantamax/0003-venusaur-gigantamax.assets.json"
 }
 ```
 
@@ -417,41 +414,31 @@ duplique que les informations propres au combat Max et garde sa propre identite 
 | `maxCp.maxLevel50` | number | PC maximum au niveau 50 de cette fiche Max. |
 | `maxCp.maxLevel40` | number | PC maximum au niveau 40 de cette fiche Max. |
 | `maxCp.maxBattlesLevel20` | number/null | PC de rencontre en combat Max au niveau 20. |
-| `maxBattle.moves` | string[] | References vers `data/moves/max/` ou `data/moves/gmax/`. |
+| `maxBattle.moves` | string[] | References vers `PokemonGo-Data/moves/max/` ou `PokemonGo-Data/moves/gmax/`. |
 
 `maxCp` est obligatoire sur les formes Dynamax et Gigantamax et contient uniquement
 `maxLevel50`, `maxLevel40` et `maxBattlesLevel20`. Les champs propres aux Pokemon normaux,
 comme `weatherBoostLevel25`, `raidLevel20` et `researchLevel15`, ne doivent pas y figurer.
 
-`assets` est obligatoire afin que chaque fiche Max expose ses propres visuels disponibles.
+`assetsRef` est obligatoire afin que chaque fiche Max référence ses propres visuels disponibles.
 Une forme Dynamax conserve aussi son tableau `evolutions`. Les autres champs qui changent
 reellement, comme `availability`, `names`, `stats` ou les types, peuvent etre ajoutes a la
 forme et sont valides lorsqu'ils existent.
 
 ## Assets
 
-La fiche Pokemon principale ne garde que les assets legers et un pointeur vers son
-fichier lourd :
+La fiche Pokemon principale ne garde qu’un pointeur racine vers son Core :
 
 ```json
 {
-  "assets": {
-    "image": "https://raw.githubusercontent.com/.../pm1.icon.png",
-    "shinyImage": "https://raw.githubusercontent.com/.../pm1.s.icon.png",
-    "candy": {
-      "familyId": 1,
-      "image": "https://raw.githubusercontent.com/.../candy/001.png",
-      "primaryColor": "rgba(0.21, 0.79, 0.65, 1)",
-      "secondaryColor": "rgba(0.63, 0.98, 0.50, 1)"
-    },
-    "assetsRef": "pokemon-assets/core/normal/0001-bulbasaur.assets.json"
-  }
+  "assetsRef": "pokemon-assets/core/normal/0001-bulbasaur.assets.json"
 }
 ```
 
 Le Core correspondant vit dans `PokemonGo-Data/pokemon-assets/core/<catégorie>/` et dans
-MongoDB `pokemonAssets.data`. Les familles secondaires vivent dans
-`pokemonAssetFamilies` et sont référencées par `assetRefs` :
+MongoDB `pokemonAssets.data`. Les payloads HOME, Shuffle, Variants et Location Cards sont
+des documents séparés référencés par `assetRefs` et persistés dans
+`pokemonAssetFamilies` :
 
 ```json
 {
@@ -481,22 +468,15 @@ MongoDB `pokemonAssets.data`. Les familles secondaires vivent dans
 
 | Champ | Type | Description |
 | --- | --- | --- |
-| `assets.image` | string/null | Image principale légère stockée dans la fiche Pokémon. |
-| `assets.shinyImage` | string/null | Image chromatique principale légère stockée dans la fiche Pokémon. |
-| `assets.candy.familyId` | number | Famille de bonbon partagée par le Pokémon de base, ses évolutions et ses formes. |
-| `assets.candy.image` | string | Image publique du bonbon, servie depuis `PokemonGo-Assets-API`. |
-| `assets.candy.primaryColor` | object | Couleur principale RGBA issue de `PokemonCandyColorData.json`. |
-| `assets.candy.secondaryColor` | object | Couleur secondaire RGBA issue de `PokemonCandyColorData.json`. |
-| `assets.assetsRef` | string/null | Chemin vers le Core `pokemon-assets/core/<catégorie>/*.assets.json`. |
+| `assetsRef` | string | Chemin racine vers le Core `pokemon-assets/core/<catégorie>/*.assets.json`. |
+| Core `assets.image` | string/null | Image principale, stockée uniquement dans le Core. |
+| Core `assets.shinyImage` | string/null | Image chromatique principale, stockée uniquement dans le Core. |
+| Core `assets.candy` | object/null | Bonbon, XL et couleurs, stockés uniquement dans le Core. |
 
-Les assets sont séparés par famille et catégorie dans `PokemonGo-Data/pokemon-assets` et
-dans `pokemonAssets`/`pokemonAssetFamilies`. Les routes de détail et le Dashboard
-hydratent le Core depuis `assets.assetsRef`, puis les familles depuis ses `assetRefs`.
-
-Si une fiche affiche encore `assets.home`, `assets.shuffle`, `assets.locationCards`,
-`assets.portrait`, `assets.portraitShiny` ou `assetForms` dans son `JSON source`, la
-source ou la collection `pokemons` utilise une ancienne structure. Relancer la
-synchronisation doit nettoyer ces champs et les replacer dans `pokemonAssets`.
+Les assets sont séparés par famille et catégorie dans `PokemonGo-Data/pokemon-assets`.
+Les routes de détail et le Dashboard hydratent le Core depuis `assetsRef`, puis
+les familles depuis ses `assetRefs`. La convention complète est décrite dans
+`docs/ENTITY-CATEGORY-ARCHITECTURE.md`.
 
 | Champ asset lourd | Type | Description |
 | --- | --- | --- |
@@ -525,20 +505,20 @@ Une fiche principale déjà sortie doit conserver `assets.image` et `assets.shin
 quand les URLs existent. Les visuels Home, portraits, Shuffle, location cards et
 `assetForms` appartiennent au fichier asset lourd et à la collection `pokemonAssets`.
 
-Les types vivent dans `data/types/<slug>.json`. Leur bloc `assets` contient `icon` et
-`background`. `data/types/types.json` reste un index complet compatible avec les anciens
-consommateurs. Leur champ `weatherBoost` contient un identifiant de `data/weather/`.
+Les types vivent dans `PokemonGo-Data/types/<slug>.json`. Leur bloc `assets` contient `icon` et
+`background`. `PokemonGo-Data/types/types.json` reste un index complet compatible avec les anciens
+consommateurs. Leur champ `weatherBoost` contient un identifiant de `PokemonGo-Data/weather/`.
 
-Les sept météos vivent dans `data/weather/<slug>.json`. Chaque entrée possède `id`,
-`slug`, `names`, `assets.icon` et `boostedTypes`. `data/weather/weather.json` reste
+Les sept météos vivent dans `PokemonGo-Data/weather/<slug>.json`. Chaque entrée possède `id`,
+`slug`, `names`, `assets.icon` et `boostedTypes`. `PokemonGo-Data/weather/weather.json` reste
 l'index complet de compatibilité.
 
-Le catalogue `data/stickers/stickers.json` expose pour chaque sticker `id`, `filename`,
+Le catalogue `PokemonGo-Data/stickers/stickers.json` expose pour chaque sticker `id`, `filename`,
 `category` et `image`.
 
 ## Formes Separees
 
-Les fiches de `data/pokemon-forms/` couvrent les formes Alola, Galar, Hisui, Paldea,
+Les fiches de `PokemonGo-Data/pokemon-forms/` couvrent les formes Alola, Galar, Hisui, Paldea,
 Dynamax, Gigantamax, Mega et Mega X/Y.
 
 - Une forme regionale utilise le schema Pokemon complet.
@@ -616,12 +596,7 @@ Dynamax, Gigantamax, Mega et Mega X/Y.
     "researchLevel15": 477,
     "maxBattlesLevel20": null
   },
-  "pvp": {
-    "littleCup": null,
-    "greatLeague": null,
-    "ultraLeague": null,
-    "masterLeague": null
-  },
+  "pvpRef": "pvp/pokemon/normal/0001-bulbasaur.pvp.json",
   "stats": {
     "stamina": 128,
     "attack": 118,
@@ -637,12 +612,7 @@ Dynamax, Gigantamax, Mega et Mega X/Y.
   "maxBattle": {
     "moves": []
   },
-  "assets": {
-    "image": "",
-    "shinyImage": "",
-    "candy": null,
-    "assetsRef": "pokemon-assets/core/normal/0001-bulbasaur.assets.json"
-  },
+  "assetsRef": "pokemon-assets/core/normal/0001-bulbasaur.assets.json",
   "regionForms": [],
   "evolutions": [],
   "hasMegaEvolution": false,

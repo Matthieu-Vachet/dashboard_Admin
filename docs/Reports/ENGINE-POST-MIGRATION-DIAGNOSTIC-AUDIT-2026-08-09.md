@@ -1,5 +1,19 @@
 # Audit des diagnostics Engine post-migration
 
+## Clôture de stabilisation
+
+Les tableaux ci-dessous expliquent des findings historiques observés avant correction ;
+ils ne décrivent plus le contrat courant. Le run final couvre 1 611 Pokémon/formes,
+1 611 Core, 3 147 familles secondaires et 1 611 fiches PvP. Son statut est
+`VALID_WITH_DIAGNOSTICS`, avec 0 erreur, 0 warning, zéro `MAPPING_MISSING`, zéro
+`MOVE_MAPPING_MISSING`, zéro `BROKEN_REFERENCE`, zéro `ORPHAN` et zéro
+`MIGRATION_INCOMPLETE`.
+
+L’unique diagnostic PvP résiduel est l’information fournisseur
+`SKIDDO`/`ROCK_SLIDE` (`SOURCE_MISMATCH`). Elle n’est pas actionnable dans une fiche et
+n’apparaît plus dans « Fiches à contrôler ». Le runbook courant est
+[`docs/POST-MIGRATION-STABILIZATION.md`](../POST-MIGRATION-STABILIZATION.md).
+
 ## 122 findings `type`
 
 Le code `type` désignait le type JavaScript attendu par l’ancien validateur PvP

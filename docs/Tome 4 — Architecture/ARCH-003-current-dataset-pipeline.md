@@ -1,9 +1,9 @@
 ---
 id: ARCH-003
 title: Current Dataset Pipeline
-version: 1.0.0
+version: 1.1.0
 status: Stable
-last_updated: 2026-07-14
+last_updated: 2026-08-09
 author: Matthieu Vachet
 related:
   - ARCH-001-provider-architecture.md
@@ -33,6 +33,9 @@ Le pipeline actuel repose sur une succession d'étapes indépendantes permettant
 Sources externes
         │
         ▼
+Registre des sources
+        │
+        ▼
     Providers
         │
         ▼
@@ -45,12 +48,17 @@ Transformation
 Normalisation
         │
         ▼
-Datasets courants
+    Datasets courants
+        │
+        ▼
+Staging + validation
+        │
+        ▼
+Upsert MongoDB + relecture
         │
         ├── API publique
         ├── Dashboard Admin
-        ├── Workflows
-        └── MongoDB
+        └── historique des runs
 ```
 
 Chaque étape produit un résultat exploitable par l'étape suivante sans modifier les responsabilités des autres couches.
@@ -94,6 +102,10 @@ Ils deviennent la référence utilisée par :
 - Les données publiées sont issues d'informations déjà validées.
 - Les transformations restent confinées aux Providers.
 - Les consommateurs utilisent uniquement les datasets générés.
+- Un échec avant relecture n’active jamais un staging incomplet.
+- `partial` signifie que le dataset courant a été écrit et relu avec diagnostics.
+- `SOURCE_PROTECTED` conserve le dernier snapshot valide sans fabriquer un dataset vide.
+- La régénération globale est séquentielle et agrège aussi les diagnostics imbriqués.
 
 ---
 
@@ -136,3 +148,8 @@ Ils deviennent la référence utilisée par :
 ## Version 1.0.0 — 2026-07-14
 
 - Création du document décrivant le pipeline actuel de génération des datasets.
+
+## Version 1.1.0 — 2026-08-09
+
+- Ajout du registre canonique, du staging atomique, de la relecture et des statuts
+  stabilisés de régénération.

@@ -14,6 +14,11 @@ affected_projects:
 
 # Rapport final — migration canonique Pokémon GO
 
+> Ce rapport est une photographie de la migration du 8 août 2026. Ses compteurs PvPoke
+> et Engine ont été dépassés par la stabilisation du 9 août ; le contrat et les valeurs
+> courants sont documentés dans
+> [`docs/POST-MIGRATION-STABILIZATION.md`](../POST-MIGRATION-STABILIZATION.md).
+
 ## Résultat
 
 La migration globale est validée. Les fiches Assets et PvP sont séparées par

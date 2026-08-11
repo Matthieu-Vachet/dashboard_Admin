@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.43.0 - 2026-08-08
+## 1.43.0 - 2026-08-09
 
 - Publie le rapport Engine canonique transversal avec couverture, diagnostics,
   exigences legacy, durée et mémoire exportables.
@@ -8,6 +8,12 @@
   les 1 611 entités et leurs familles séparées.
 - Finalise les validations desktop/mobile, Light/Dark, API et production de la migration
   canonique Pokémon.
+- Rend les 667 anciens warnings PvP non reproductibles : zéro mapping Pokémon ou
+  attaque référencée manquant, et un seul écart fournisseur informatif non actionnable.
+- Vérifie en production les 16 étapes de la régénération globale, y compris le statut
+  PvP `partial`, le `SOURCE_PROTECTED` Best Defenders et les diagnostics imbriqués Events.
+- Aligne les templates intégrés sur `assetsRef` et `pvpRef` à la racine, documente
+  l’Engine final, le registre des sources, le calendrier, le versionnement et le rollback.
 
 ## 1.42.0 - 2026-08-08
 

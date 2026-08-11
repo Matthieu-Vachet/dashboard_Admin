@@ -23,6 +23,11 @@ depuis `assetRefs`, puis la fiche PvP depuis `pvpRef`. Les listes et caches lég
 chargent pas les payloads secondaires inutiles. L’absence d’une famille ou d’un
 classement PvP reste explicite et ne déclenche aucun fallback inventé.
 
+Le Core est l’unique autorité des images, portraits, bonbons et couleurs. Une fiche
+Pokémon ne contient ni bloc `assets`, ni `assets.assetsRef`, ni bloc `pvp` embarqué :
+`assetsRef` et `pvpRef` sont deux champs racine. Une projection hydratée par l’API reste
+dérivée et ne peut pas être réécrite comme source.
+
 ## Engine
 
 Les audits Assets et PvP contrôlent les cinq sous-répertoires, les compteurs des
@@ -39,6 +44,11 @@ Diagnostics canoniques :
 
 Une ambiguïté bloque la validation et reste visible dans l’Engine ; le nom de fichier
 seul n’est jamais utilisé pour décider.
+
+État stabilisé : 1 611 Pokémon/formes, 1 611 Core, 3 147 familles secondaires et
+1 611 fiches PvP. `MAPPING_MISSING`, `MOVE_MAPPING_MISSING`, `BROKEN_REFERENCE`,
+`ORPHAN` et `MIGRATION_INCOMPLETE` valent zéro. L’unique `SOURCE_MISMATCH` PvP est une
+information fournisseur et ne crée aucune clé dans « Fiches à contrôler ».
 
 ## Tests, déploiement et rollback
 

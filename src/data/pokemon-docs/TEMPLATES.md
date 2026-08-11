@@ -107,18 +107,8 @@ Template complet:
   "legacyQuickMoves": [],
   "legacyCinematicMoves": [],
   "maxBattle": null,
-  "pvp": {
-    "littleCup": null,
-    "greatLeague": null,
-    "ultraLeague": null,
-    "masterLeague": null
-  },
-  "assets": {
-    "image": null,
-    "shinyImage": null,
-    "candy": null,
-    "assetsRef": "pokemon-assets/core/normal/0001-bulbasaur.assets.json"
-  },
+  "pvpRef": "pvp/pokemon/normal/0001-bulbasaur.pvp.json",
+  "assetsRef": "pokemon-assets/core/normal/0001-bulbasaur.assets.json",
   "regionForms": [],
   "evolutions": [],
   "hasMegaEvolution": false,
@@ -170,7 +160,7 @@ Template complet:
 ## Bloc Type
 
 A utiliser pour `primaryType`, `secondaryType` et le type d'une attaque. La valeur
-reference un fichier de `data/types/`.
+reference un fichier de `PokemonGo-Data/types/`.
 
 ```json
 {
@@ -191,7 +181,7 @@ Pour un Pokemon mono-type:
 ## References D'Attaques
 
 Les fiches Pokemon stockent uniquement les identifiants. Les details complets sont dans
-`data/moves/`.
+`PokemonGo-Data/moves/`.
 
 ```json
 {
@@ -254,7 +244,7 @@ Regles selon le stade:
 
 ## Bloc Mega / Primo
 
-A créer dans `data/pokemon-forms/`, puis ajouter son `formId` à la liste
+A créer dans `PokemonGo-Data/pokemon-forms/`, puis ajouter son `formId` à la liste
 `megaEvolutions` de la fiche principale.
 
 ```json
@@ -321,12 +311,7 @@ A créer dans `data/pokemon-forms/`, puis ajouter son `formId` à la liste
     "source": null,
     "matchedName": null
   },
-  "assets": {
-    "image": null,
-    "shinyImage": null,
-    "candy": null,
-    "assetsRef": "pokemon-assets/core/mega/0003-venusaur-mega.assets.json"
-  }
+  "assetsRef": "pokemon-assets/core/mega/0003-venusaur-mega.assets.json"
 }
 ```
 
@@ -342,8 +327,8 @@ référence sa région avec `regionId`.
 
 ## Dynamax Et Gigantamax
 
-Ces formes vivent dans `data/pokemon-forms/dynamax/` ou
-`data/pokemon-forms/gigantamax/`. Elles heritent du Pokemon normal et ne repetent que les
+Ces formes vivent dans `PokemonGo-Data/pokemon-forms/dynamax/` ou
+`PokemonGo-Data/pokemon-forms/gigantamax/`. Elles heritent du Pokemon normal et ne repetent que les
 champs differents.
 
 ```json
@@ -371,8 +356,8 @@ champs differents.
 ```
 
 Pour une forme Dynamax, utiliser `"form": "dynamax"` et des references vers
-`data/moves/max/`. Pour une forme Gigantamax, utiliser `"form": "gigantamax"` et des
-references vers `data/moves/gmax/`. Leur bloc `maxCp` contient uniquement
+`PokemonGo-Data/moves/max/`. Pour une forme Gigantamax, utiliser `"form": "gigantamax"` et des
+references vers `PokemonGo-Data/moves/gmax/`. Leur bloc `maxCp` contient uniquement
 `maxLevel50`, `maxLevel40` et `maxBattlesLevel20`.
 
 Le bloc `assets` est obligatoire sur chaque fiche Max et peut contenir uniquement
@@ -401,8 +386,8 @@ reste toujours présent, même sans costume, et une variante femelle conserve
 
 ## Type
 
-Entrée individuelle du catalogue `data/types/<slug>.json`. L'index
-`data/types/types.json` est conservé pour compatibilité.
+Entrée individuelle du catalogue `PokemonGo-Data/types/<slug>.json`. L'index
+`PokemonGo-Data/types/types.json` est conservé pour compatibilité.
 
 ```json
 {
@@ -421,7 +406,7 @@ Entrée individuelle du catalogue `data/types/<slug>.json`. L'index
 }
 ```
 
-`weatherBoost` référence une entrée de `data/weather/`. Les traductions et l'icône de
+`weatherBoost` référence une entrée de `PokemonGo-Data/weather/`. Les traductions et l'icône de
 la météo ne doivent pas être recopiées dans le type.
 
 ## Checklist Avant Ajout
@@ -432,8 +417,8 @@ la météo ne doivent pas être recopiées dans le type.
 - Le slug est en minuscules et en anglais.
 - Les langues de `names` sont toutes presentes.
 - Les tableaux vides sont `[]`, les valeurs inconnues sont `null`.
-- Les fiches complètes référencent `data/generations/` avec `regionId`.
-- Les Pokémon et les types référencent `data/weather/` avec leurs identifiants.
+- Les fiches complètes référencent `PokemonGo-Data/generations/` avec `regionId`.
+- Les Pokémon et les types référencent `PokemonGo-Data/weather/` avec leurs identifiants.
 - Les assets principaux et chromatiques sont renseignes quand ils existent.
 - Les attaques contiennent `id`, `slug`, donnees PvE, identifiant de type, traductions et donnees PvP.
 - Les evolutions contiennent `targetFormId`, `candies`, `item` et `quests`.
