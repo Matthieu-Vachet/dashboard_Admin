@@ -23,9 +23,9 @@ function hasDataShape(directory) {
   return (
     directory &&
     packageName === "pokemon-go-data" &&
-    fs.existsSync(path.join(directory, "pokemon")) &&
-    fs.existsSync(path.join(directory, "pokemon-forms")) &&
-    fs.existsSync(path.join(directory, "pokemon-assets"))
+    fs.existsSync(path.join(directory, "data", "pokemon")) &&
+    fs.existsSync(path.join(directory, "data", "assets")) &&
+    fs.existsSync(path.join(directory, "data", "pvp"))
   );
 }
 
@@ -128,7 +128,8 @@ function appPath(...segments) {
 function stripDataPrefix(relativePath) {
   return String(relativePath || "")
     .replace(/\\/g, "/")
-    .replace(/^\.?\/*data\//, "")
+    .replace(/^\.?\/*data\/data\//, "data/")
+    .replace(/^\.?\/*repository\//, "")
     .replace(/^\.?\/*/, "");
 }
 
@@ -144,7 +145,7 @@ function relativeToApp(file) {
   const absolute = path.resolve(file);
   const dataRelative = relativeToData(absolute);
   if (dataRelative && !dataRelative.startsWith("..") && !path.isAbsolute(dataRelative))
-    return `data/${dataRelative}`;
+    return dataRelative.startsWith("data/") ? dataRelative : `repository/${dataRelative}`;
   return path.relative(appRoot, absolute).replace(/\\/g, "/");
 }
 

@@ -134,23 +134,22 @@ function trackedDataFile(file: GithubFile) {
   const filename = file.filename || "";
   return (
     filename.endsWith(".json") &&
-    (filename.startsWith("pokemon/") ||
-      filename.startsWith("pokemon-forms/") ||
-      filename.startsWith("pokemon-assets/") ||
-      filename.startsWith("moves/") ||
-      filename.startsWith("types/") ||
-      filename.startsWith("weather/") ||
-      filename.startsWith("generations/") ||
-      filename.startsWith("stickers/") ||
-      filename.startsWith("source-watch/"))
+    (filename.startsWith("data/pokemon/") ||
+      filename.startsWith("data/assets/") ||
+      filename.startsWith("data/moves/") ||
+      filename.startsWith("data/reference/types/") ||
+      filename.startsWith("data/reference/weather/") ||
+      filename.startsWith("data/reference/generations/") ||
+      filename.startsWith("data/reference/stickers/") ||
+      filename.startsWith("operations/audits/sources/"))
   );
 }
 
 function dataFileCategory(filename: string) {
-  if (filename.startsWith("pokemon-assets/")) return "assets";
-  if (filename.startsWith("pokemon-forms/")) return "form";
-  if (filename.startsWith("pokemon/")) return "pokemon";
-  if (filename.startsWith("source-watch/")) return "source";
+  if (filename.startsWith("data/assets/")) return "assets";
+  if (filename.startsWith("data/pokemon/") && !filename.startsWith("data/pokemon/normal/")) return "form";
+  if (filename.startsWith("data/pokemon/")) return "pokemon";
+  if (filename.startsWith("operations/audits/sources/")) return "source";
   return "catalogue";
 }
 

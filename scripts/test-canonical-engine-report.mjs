@@ -23,8 +23,13 @@ test("le véritable Engine produit un rapport global sérialisable et mesuré", 
   assert.equal(report.architecture.pvp.valid, true);
   assert.deepEqual(new Set(report.architecture.categories), new Set([
     "NORMAL",
+    "ALOLA",
+    "GALAR",
+    "HISUI",
+    "PALDEA",
     "FORM",
     "MEGA",
+    "PRIMAL",
     "DYNAMAX",
     "GIGANTAMAX",
   ]));
@@ -91,9 +96,9 @@ test("la checklist n'exige plus l'ancien bloc pvp embarqué", () => {
 });
 
 test("le contrôle d'une fiche reprend les diagnostics du fichier dédié résolu par pvpRef", () => {
-  const sourceFile = path.join(process.env.POKEMON_GO_DATA_DIR, "pokemon-forms", "dynamax", "0001-bulbasaur-dynamax.json");
+  const sourceFile = path.join(process.env.POKEMON_GO_DATA_DIR, "data", "pokemon", "dynamax", "0001-bulbasaur-dynamax.json");
   const source = JSON.parse(fs.readFileSync(sourceFile, "utf8"));
-  const issues = validateSourceData(source, "data/pokemon-forms/dynamax/0001-bulbasaur-dynamax.json", "dynamax", {
+  const issues = validateSourceData(source, "data/pokemon/dynamax/0001-bulbasaur-dynamax.json", "dynamax", {
     pvpArchitecture: engineRun.pvpArchitecture,
     customRules: [],
   });

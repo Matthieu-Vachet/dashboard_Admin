@@ -308,8 +308,7 @@ function collectJsonFiles(directory: string): string[] {
 function loadPokemonIndex() {
   const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
   const files = [
-    ...collectJsonFiles(dataPath("pokemon")),
-    ...collectJsonFiles(dataPath("pokemon-forms")),
+    ...collectJsonFiles(dataPath("data", "pokemon")),
   ];
   const entries: PokemonIndexEntry[] = [];
   const lookup = new Map<string, PokemonIndexEntry>();
@@ -362,8 +361,8 @@ function loadItemIndex() {
   const entries: ItemIndexEntry[] = [];
   const lookup = new Map<string, ItemIndexEntry>();
 
-  const itemsFile = dataPath("items", "items.json");
-  const aliasesFile = dataPath("items", "itemAliases.json");
+  const itemsFile = dataPath("data", "reference", "items", "items.json");
+  const aliasesFile = dataPath("data", "reference", "items", "itemAliases.json");
   const aliasRecords = new Map<string, string[]>();
 
   try {

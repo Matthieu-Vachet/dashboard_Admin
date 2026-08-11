@@ -19,16 +19,17 @@ dossier d’audit documentaire restent des preuves historiques, pas des contrats
 ## Contrat de données
 
 - Les fiches JSON portent `assetsRef` et `pvpRef` à la racine.
-- Le Core `pokemon-assets/core/<catégorie>/` est l’unique autorité des images,
+- Le Core `data/assets/core/<catégorie>/` est l’unique autorité des images,
   portraits, bonbons, couleurs et références secondaires.
-- Les fiches `pvp/pokemon/<catégorie>/*.pvp.json` sont l’unique autorité PvP.
-- Les catégories sont `normal`, `forms`, `mega`, `dynamax` et `gigantamax`.
+- Les fiches `data/pvp/pokemon/<catégorie>/*.pvp.json` sont l’unique autorité PvP.
+- Les catégories sont `normal`, `alola`, `galar`, `hisui`, `paldea`, `forms`, `mega`,
+  `primal`, `dynamax` et `gigantamax`.
 - Le Dashboard suit les références ; aucun composant ne concatène un ancien chemin ou
   ne reconstruit un bloc `assets`/`pvp` source.
 
 Les contrats `assets.assetsRef`, `data.assets.assetsRef`, les champs embarqués
 `pvp.littleCup|greatLeague|ultraLeague|masterLeague` et les répertoires
-`pokemon-assets/normal|mega|…` sont historiques et interdits dans les guides actifs.
+assets monolithiques historiques sont interdits dans les guides actifs.
 
 ## Engine final
 
@@ -45,7 +46,7 @@ contrôler.
 
 ## Sources, Identity Manager et chemins
 
-`PokemonGo-Data/source-watch/sources.json` est l’autorité du registre. Les IDs
+`PokemonGo-Data/operations/audits/sources/current.json` est l’autorité du registre. Les IDs
 `leekduck-eggs`, `leekduck-research` et `leekduck-rocket` sont des provenances qui
 convergent vers l’unique provider Identity Manager `leekduck`. Le run validé a appliqué
 1 920 mises à jour, 5 créations, 2 marquages orphelins non destructifs et zéro conflit,

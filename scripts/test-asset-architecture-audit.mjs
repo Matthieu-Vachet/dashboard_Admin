@@ -35,8 +35,13 @@ test("l'Engine valide toute l'architecture Assets séparée", () => {
   });
   assert.deepEqual(audit.summary.categoryCounts.core, {
     normal: 1_025,
-    forms: 372,
-    mega: 58,
+    alola: 18,
+    galar: 20,
+    hisui: 17,
+    paldea: 4,
+    forms: 313,
+    mega: 56,
+    primal: 2,
     dynamax: 127,
     gigantamax: 29,
   });

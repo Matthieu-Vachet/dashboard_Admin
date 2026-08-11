@@ -17,21 +17,23 @@ const {
 } = require("../src/server/pokemon-go/apps/checklist/server/entity-category.js");
 
 const cases = [
-  ["pokemon/0001-bulbasaur.json", "NORMAL", "normal"],
-  ["pokemon/0003-venusaur.json", "NORMAL", "normal"],
-  ["pokemon-forms/alola/0019-rattata-alola.json", "FORM", "forms"],
-  ["pokemon-forms/mega/0003-venusaur-mega.json", "MEGA", "mega"],
-  ["pokemon-forms/mega-x/0006-charizard-mega-x.json", "MEGA", "mega"],
-  ["pokemon-forms/mega-y/0006-charizard-mega-y.json", "MEGA", "mega"],
-  ["pokemon-forms/dynamax/0001-bulbasaur-dynamax.json", "DYNAMAX", "dynamax"],
-  ["pokemon-forms/gigantamax/0003-venusaur-gigantamax.json", "GIGANTAMAX", "gigantamax"],
+  ["data/pokemon/normal/0001-bulbasaur.json", "NORMAL", "normal"],
+  ["data/pokemon/alola/0019-rattata-alola.json", "ALOLA", "alola"],
+  ["data/pokemon/galar/0110-weezing-galarian.json", "GALAR", "galar"],
+  ["data/pokemon/hisui/0215-sneasel-hisuian.json", "HISUI", "hisui"],
+  ["data/pokemon/paldea/0128-tauros-paldea-combat.json", "PALDEA", "paldea"],
+  ["data/pokemon/forms/0876-indeedee-female.json", "FORM", "forms"],
+  ["data/pokemon/mega/0003-venusaur-mega.json", "MEGA", "mega"],
+  ["data/pokemon/primal/0382-kyogre-primal.json", "PRIMAL", "primal"],
+  ["data/pokemon/dynamax/0001-bulbasaur-dynamax.json", "DYNAMAX", "dynamax"],
+  ["data/pokemon/gigantamax/0003-venusaur-gigantamax.json", "GIGANTAMAX", "gigantamax"],
 ];
 
 function readJson(reference) {
   return JSON.parse(fs.readFileSync(path.join(dataRoot, reference), "utf8"));
 }
 
-test("le Dashboard résout et charge les cinq catégories avec le même résolveur", () => {
+test("le Dashboard résout et charge les dix catégories avec le même résolveur", () => {
   for (const [sourceFile, category, directory] of cases) {
     const source = readJson(sourceFile);
     const classification = classifyEntity(source, { sourceFile });
@@ -43,7 +45,7 @@ test("le Dashboard résout et charge les cinq catégories avec le même résolve
     assert.equal(categoryFromReference(source.pvpRef), category);
     assert.match(source.assetsRef, new RegExp(`/core/${directory}/`));
 
-    const detail = engine.detailForKey(`pokemon:data/${sourceFile}`);
+    const detail = engine.detailForKey(`pokemon:${sourceFile}`);
     assert.ok(detail, sourceFile);
     assert.equal(detail.sourceData.formId, source.formId);
     assert.equal(detail.assetSourceFile, source.assetsRef);

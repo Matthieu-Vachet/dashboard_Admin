@@ -43,8 +43,13 @@ test("l'Engine couvre l'architecture PvP dédiée et son snapshot mensuel", () =
   assert.equal(audit.summary.manifestRecords, audit.summary.records);
   assert.deepEqual(audit.summary.categoryCounts, {
     normal: 1_025,
-    forms: 372,
-    mega: 58,
+    alola: 18,
+    galar: 20,
+    hisui: 17,
+    paldea: 4,
+    forms: 313,
+    mega: 56,
+    primal: 2,
     dynamax: 127,
     gigantamax: 29,
   });
@@ -79,7 +84,7 @@ test("l'Engine couvre l'architecture PvP dédiée et son snapshot mensuel", () =
     "info",
   );
   assert.equal(
-    (audit.diagnosticsBySource.get("pokemon/0001-bulbasaur.json") || []).filter(
+    (audit.diagnosticsBySource.get("data/pokemon/normal/0001-bulbasaur.json") || []).filter(
       (diagnostic: { severity: string }) => diagnostic.severity === "error",
     ).length,
     0,

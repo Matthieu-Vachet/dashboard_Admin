@@ -17,15 +17,16 @@ const { buildAssetArchitectureAudit } = require("./asset-architecture-audit");
 const { categoryFromReference, classifyEntity, resolveCanonicalReference } = require("./entity-category");
 const { categoryCounts, enrichDiagnostic } = require("./diagnostic-taxonomy");
 
-const pokemonDir = dataPath("pokemon");
-const formsDir = dataPath("pokemon-forms");
-const movesDir = dataPath("moves");
-const generationsDir = dataPath("generations");
-const assetsDir = dataPath("pokemon-assets");
-const pvpDir = dataPath("pvp");
-const typesDir = dataPath("types");
-const weatherDir = dataPath("weather");
-const stickersDir = dataPath("stickers");
+const pokemonRoot = dataPath("data", "pokemon");
+const pokemonDir = dataPath("data", "pokemon", "normal");
+const formsDir = pokemonRoot;
+const movesDir = dataPath("data", "moves");
+const generationsDir = dataPath("data", "reference", "generations");
+const assetsDir = dataPath("data", "assets");
+const pvpDir = dataPath("data", "pvp");
+const typesDir = dataPath("data", "reference", "types");
+const weatherDir = dataPath("data", "reference", "weather");
+const stickersDir = dataPath("data", "reference", "stickers");
 const languages = [
   "English",
   "German",
@@ -49,6 +50,10 @@ function listJsonFiles(directory) {
       ? [entryPath]
       : [];
   });
+}
+
+function listFormJsonFiles() {
+  return listJsonFiles(formsDir).filter((file) => !file.startsWith(`${pokemonDir}${path.sep}`));
 }
 
 function readJson(file) {
@@ -991,7 +996,7 @@ function createValidator() {
       add(
         `${prefix}regionForms`,
         "invalid",
-        "tableau de formId, les donnees vivent dans data/pokemon-forms",
+        "tableau de formId, les données vivent dans data/pokemon/<catégorie>",
         "objet imbrique",
       );
     } else if (Array.isArray(regionForms)) {
@@ -1023,7 +1028,7 @@ function createValidator() {
       add(
         `${prefix}megaEvolutions`,
         "invalid",
-        "tableau de formId, les donnees Mega vivent dans data/pokemon-forms/mega",
+        "tableau de formId, les données Méga vivent dans data/pokemon/mega",
         "objet imbrique",
       );
     } else if (Array.isArray(megas)) {
@@ -1064,17 +1069,14 @@ function createValidator() {
 function validateSourceData(data, relativeFile = "", kindHint = "", options = {}) {
   const validator = createValidator();
   data = hydrateSourceData(data);
-  const kind =
-    relativeFile.startsWith("data/pokemon/") ? "pokemon" :
-    kindHint ||
-    (relativeFile.startsWith("data/pokemon-forms/")
-      ? String(data.form || "").startsWith("mega") || data.form === "primal"
-        ? "mega"
-        : ["dynamax", "gigantamax"].includes(data.form)
-          ? data.form
-          : "form"
-      : "pokemon");
-  if (kind === "mega" && relativeFile.startsWith("data/pokemon-forms/"))
+  const category = classifyEntity(data, { sourceFile: relativeFile }).category;
+  const kind = kindHint || (
+    ["MEGA", "PRIMAL"].includes(category) ? "mega"
+      : category === "DYNAMAX" ? "dynamax"
+        : category === "GIGANTAMAX" ? "gigantamax"
+          : category === "NORMAL" ? "pokemon" : "form"
+  );
+  if (kind === "mega")
     validator.mega(data, "");
   else if (kind === "dynamax" || kind === "gigantamax")
     validator.maxForm(data, "");
@@ -1089,13 +1091,13 @@ function validateSourceData(data, relativeFile = "", kindHint = "", options = {}
   for (const issue of validator.issues)
     issue.path = issue.path.replace(/^\./, "");
   const pvpArchitecture = options.pvpArchitecture || buildPvpArchitectureAudit();
-  const pvpSourceFile = String(relativeFile).replace(/^data\//, "");
+  const pvpSourceFile = String(relativeFile).replace(/^data\/(?=data\/)/, "");
   validator.issues.push(
     ...(pvpArchitecture.diagnosticsBySource.get(pvpSourceFile) || []),
   );
   const moveIds = new Set(buildMoveCatalog().keys());
   const formIds = new Set();
-  for (const directory of [pokemonDir, formsDir]) {
+  for (const directory of [pokemonRoot]) {
     for (const file of listJsonFiles(directory)) {
       const source = readJson(file);
       for (const value of [source.id, source.formId, source.baseFormId])
@@ -1518,7 +1520,7 @@ function buildChecklist(customRulesOverride = null, options = {}) {
       data: hydrateSourceData(sourceData, { families: [] }),
     });
   }
-  for (const file of listJsonFiles(formsDir).sort()) {
+  for (const file of listFormJsonFiles().sort()) {
     const sourceData = readJson(file);
     const data = hydrateSourceData(sourceData, { families: [] });
     const form = String(data.form || "");
@@ -1575,7 +1577,7 @@ function buildChecklist(customRulesOverride = null, options = {}) {
     for (const issue of validator.issues)
       issue.path = issue.path.replace(/^\./, "");
     validator.issues.push(...referenceIssues(data, moveIds, formIds).map(enrichDiagnostic));
-    const pvpSourceFile = relativeToApp(file).replace(/^data\//, "");
+    const pvpSourceFile = relativeToApp(file);
     validator.issues.push(
       ...(pvpArchitecture.diagnosticsBySource.get(pvpSourceFile) || []),
     );
@@ -1667,7 +1669,7 @@ function buildAssetFamilyPatches(families = assetFamilies) {
       .filter((name) => name.endsWith(".json") && !copySuffix.test(name))
       .sort()
       .map((name) => ({ file: path.join(pokemonDir, name), kind: "pokemon" })),
-    ...listJsonFiles(formsDir).sort().map((file) => ({ file, kind: null })),
+    ...listFormJsonFiles().sort().map((file) => ({ file, kind: null })),
   ];
   return sources.map(({ file, kind }) => {
     const sourceData = readJson(file);
@@ -1822,7 +1824,7 @@ function buildCanonicalEngineReport(customRulesOverride = null, options = {}) {
     status,
     architecture: {
       resolver: "family + entityCategory + canonicalFilename",
-      categories: ["NORMAL", "FORM", "MEGA", "DYNAMAX", "GIGANTAMAX"],
+      categories: ["NORMAL", "ALOLA", "GALAR", "HISUI", "PALDEA", "FORM", "MEGA", "PRIMAL", "DYNAMAX", "GIGANTAMAX"],
       assets: assetArchitecture.summary,
       pvp: pvpArchitecture.summary,
       legacyRequirements: {
@@ -1910,7 +1912,7 @@ function detailForKey(key) {
   const pvpSourceData = readPvpRecord(sourceData);
   let data = hydrateSourceData(sourceData);
 
-  if (relativeFile.startsWith("data/pokemon-forms/")) {
+  if (classifyEntity(sourceData, { sourceFile: relativeFile }).category !== "NORMAL") {
     const parent = fs
       .readdirSync(pokemonDir)
       .filter((name) => name.endsWith(".json") && !copySuffix.test(name))

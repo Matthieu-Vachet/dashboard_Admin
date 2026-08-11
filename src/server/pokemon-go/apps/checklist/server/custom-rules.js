@@ -4,7 +4,7 @@ const path = require("path");
 const vm = require("vm");
 const { dataPath } = require("../../../src/lib/data-repository");
 
-const localRulesDir = dataPath("checklist");
+const localRulesDir = dataPath("operations", "audits", "architecture");
 const runtimeRulesDir =
   process.env.POKEMON_GO_RULES_DIR ||
   (process.env.DASHBOARD_STATE_DIR
@@ -17,7 +17,12 @@ const rulesFile = path.join(rulesDir, "custom-rules.json");
 const allowedKinds = [
   "pokemon",
   "form",
+  "alola",
+  "galar",
+  "hisui",
+  "paldea",
   "mega",
+  "primal",
   "dynamax",
   "gigantamax",
   "move",

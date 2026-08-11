@@ -73,7 +73,7 @@ Le suivi des classements PvP distingue `idle`, `running`, `success`, `partial`, 
 
 ## Raids Pokemon GO
 
-La section `Pokemon Admin > Raids` lit `PokemonGo-Data/raids/currentRaids.json`
+La section `Pokemon Admin > Raids` lit `PokemonGo-Data/data/battles/raids/current.json`
 depuis le snapshot data du dashboard. Elle affiche les boss par bucket LeekDuck :
 Ultra Beast, Mega, 5 etoiles, 3 etoiles, 1 etoile et Shadow.
 
@@ -85,8 +85,8 @@ cote API.
 ## Oeufs Et Max Battles Pokemon GO
 
 Les sections `Pokemon Admin > Oeufs` et `Pokemon Admin > Max Battles` lisent les
-fichiers `PokemonGo-Data/eggs/currentEggs.json` et
-`PokemonGo-Data/max-battles/currentsMaxBattle.json` depuis le snapshot data du
+fichiers `PokemonGo-Data/data/activities/eggs/current.json` et
+`PokemonGo-Data/data/battles/max-battles/current.json` depuis le snapshot data du
 dashboard.
 
 `Oeufs` affiche les categories LeekDuck, la rarete visuelle, le CP, le shiny,
@@ -100,16 +100,16 @@ dashboard. Ils utilisent aussi `POKEMON_API_ADMIN_SECRET`.
 ## Rocket Et Research Pokemon GO
 
 Les sections `Pokemon Admin > Rocket` et `Pokemon Admin > Research` lisent les
-fichiers `PokemonGo-Data/rocket/currentRocket.json` et
-`PokemonGo-Data/research/currentResearch.json` depuis le snapshot data du
+fichiers `PokemonGo-Data/data/battles/rocket/current.json` et
+`PokemonGo-Data/data/activities/research/current.json` depuis le snapshot data du
 dashboard.
 
 `Rocket` affiche Giovanni, les leaders et les grunts avec portraits Rocket
 locaux, slots, rewards possibles, icones Shadow/Shiny, couleurs par profil et
-phrases françaises depuis `PokemonGo-Data/rocket/rocketTexts.json`.
+phrases françaises depuis `PokemonGo-Data/data/battles/rocket/texts.json`.
 `Research` affiche les quetes par categorie dans des panneaux repliables avec
 rewards Pokemon/items, CP, shiny, types et assets UI locaux. Les rewards items
-sont relies a `PokemonGo-Data/items/items.json` quand un alias LeekDuck existe.
+sont relies a `PokemonGo-Data/data/reference/items/items.json` quand un alias LeekDuck existe.
 
 Les boutons `Envoyer MongoDB` et `Regenerer` appellent les routes privees
 `/api/v1/admin/rocket/*` et `/api/v1/admin/research/*` via le serveur

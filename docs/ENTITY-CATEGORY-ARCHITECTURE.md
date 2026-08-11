@@ -2,11 +2,9 @@
 
 ## Autorité commune
 
-Le Dashboard utilise la classification `NORMAL`, `FORM`, `MEGA`, `DYNAMAX` et
-`GIGANTAMAX`, stockée respectivement sous `normal`, `forms`, `mega`, `dynamax` et
-`gigantamax`. `src/server/pokemon-go/apps/checklist/server/entity-category.js` et
-`src/lib/pokemon-entity-category.ts` centralisent la résolution
-`family + entityCategory + canonicalFilename` pour le serveur et les loaders typés.
+Le Dashboard utilise les dix catégories `NORMAL`, `ALOLA`, `GALAR`, `HISUI`, `PALDEA`,
+`FORM`, `MEGA`, `PRIMAL`, `DYNAMAX` et `GIGANTAMAX`. Les résolveurs serveur et TypeScript
+appliquent le même contrat que `tooling/lib/entity-paths.js` dans PokemonGo-Data.
 
 Les composants React ne concatènent aucun chemin. Ils reçoivent les données hydratées
 depuis le Core et ses références secondaires.
@@ -14,8 +12,8 @@ depuis le Core et ses références secondaires.
 ## Assets, PvP et chargement
 
 ```text
-pokemon-assets/<core|home|shuffle|variants|location-cards>/<catégorie>/
-pvp/pokemon/<catégorie>/
+data/assets/<core|home|shuffle|variants|location-cards>/<catégorie>/
+data/pvp/pokemon/<catégorie>/
 ```
 
 Le détail Pokémon charge le Core depuis `assetsRef`, les familles réellement présentes
@@ -30,7 +28,7 @@ dérivée et ne peut pas être réécrite comme source.
 
 ## Engine
 
-Les audits Assets et PvP contrôlent les cinq sous-répertoires, les compteurs des
+Les audits Assets et PvP contrôlent les dix sous-répertoires, les compteurs des
 manifestes, la catégorie attendue, le dossier réel, les références, `id`, `formId`,
 `baseFormId`, `form`, `slug`, `dexId`, les collisions, les orphelins et les empreintes.
 

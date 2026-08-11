@@ -56,7 +56,7 @@ Le contenu décrit l’état du code au 13 juillet 2026. Les builds, caches, arc
 - DATASET-012 à 016 lisent uniquement MongoDB au runtime; leurs JSON locaux ne servent pas de fallback runtime.
 - DATASET-017 utilise shiny_rankings et shiny_snapshots, exige le secret API et reste absent d’OpenAPI.
 - DATASET-018 utilise pvprankings, un document current compressé et des routes publiques.
-- DATASET-019 stocke la configuration dans source-watch/sources.json et l’historique dans dashboard_store.
+- DATASET-019 stocke la configuration dans operations/audits/sources/current.json et l’historique dans dashboard_store.
 - DATASET-030 provient exclusivement des JSON PokemonGo-Data résolus.
 
 ## 4. Relations et dépendances

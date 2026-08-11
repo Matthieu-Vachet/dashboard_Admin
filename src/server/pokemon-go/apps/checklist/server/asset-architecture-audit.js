@@ -76,8 +76,8 @@ function collectUrls(value, output = []) {
 }
 
 function buildAssetArchitectureAudit() {
-  const assetsDirectory = dataPath("pokemon-assets");
-  const manifestFile = dataPath("pokemon-assets", "manifests", "separation-manifest.json");
+  const assetsDirectory = dataPath("data", "assets");
+  const manifestFile = dataPath("data", "assets", "manifests", "separation-manifest.json");
   const diagnostics = [];
   const diagnosticsByRef = new Map();
   const diagnosticsBySource = new Map();
@@ -126,7 +126,7 @@ function buildAssetArchitectureAudit() {
     const absolute = path.join(assetsDirectory, directory);
     if (!fs.existsSync(absolute))
       issue({
-        path: `pokemon-assets/${directory}`,
+        path: `data/assets/${directory}`,
         code: "asset_directory_missing",
         expected: "dossier canonique présent",
         actual: "absent",
@@ -137,7 +137,7 @@ function buildAssetArchitectureAudit() {
       const absolute = path.join(assetsDirectory, family, category);
       if (!fs.existsSync(absolute))
         issue({
-          path: `pokemon-assets/${family}/${category}`,
+          path: `data/assets/${family}/${category}`,
           code: "asset_category_directory_missing",
           expected: "dossier de catégorie canonique présent",
           actual: "absent",
@@ -146,7 +146,7 @@ function buildAssetArchitectureAudit() {
   }
   if (!fs.existsSync(manifestFile))
     issue({
-      path: "pokemon-assets/manifests/separation-manifest.json",
+      path: "data/assets/manifests/separation-manifest.json",
       code: "asset_manifest_missing",
       expected: "manifeste de séparation présent",
       actual: "absent",
@@ -171,9 +171,7 @@ function buildAssetArchitectureAudit() {
     };
   }
 
-  const sourceFiles = [dataPath("pokemon"), dataPath("pokemon-forms")]
-    .flatMap(listJsonFiles)
-    .sort();
+  const sourceFiles = listJsonFiles(dataPath("data", "pokemon")).sort();
   const sources = sourceFiles.map((file) => ({
     file,
     sourceFile: relativeDataPath(file),
@@ -201,7 +199,7 @@ function buildAssetArchitectureAudit() {
         actual: `${formId} dans ${values.map((value) => value.sourceFile).join(", ")}`,
       }));
 
-  const coreFiles = listJsonFiles(dataPath("pokemon-assets", "core")).sort();
+  const coreFiles = listJsonFiles(dataPath("data", "assets", "core")).sort();
   const coreRecords = coreFiles.map((file) => ({
     file,
     sourceFile: relativeDataPath(file),
@@ -222,7 +220,7 @@ function buildAssetArchitectureAudit() {
   const coreByFormId = new Map();
   for (const core of coreRecords) {
     const classification = classifyEntity(core.data);
-    const coreRef = relativeDataPath(core.file).replace(/^data\//, "");
+    const coreRef = relativeDataPath(core.file);
     if (classification.ambiguous)
       issue({ assetRef: coreRef, path: "form", code: "ENTITY_CLASSIFICATION_AMBIGUOUS", expected: "une catégorie canonique unique", actual: classification.signals.join(", ") });
     else if (categoryFromReference(coreRef) !== classification.category)
@@ -234,7 +232,7 @@ function buildAssetArchitectureAudit() {
   for (const [formId, values] of coreByFormId)
     if (!formId || values.length > 1)
       values.forEach((core) => issue({
-        assetRef: core.sourceFile.replace(/^data\//, ""),
+        assetRef: core.sourceFile,
         path: "formId",
         code: "asset_core_identity_collision",
         expected: "formId core présent et unique",
@@ -244,11 +242,11 @@ function buildAssetArchitectureAudit() {
   const familyRecords = [];
   const familyCounts = {};
   for (const [family, field] of Object.entries(ASSET_FAMILY_FIELDS)) {
-    const files = listJsonFiles(dataPath("pokemon-assets", family)).sort();
+    const files = listJsonFiles(dataPath("data", "assets", family)).sort();
     familyCounts[family] = files.length;
     for (const file of files) {
       const data = readJson(file);
-      const assetRef = relativeDataPath(file).replace(/^data\//, "");
+      const assetRef = relativeDataPath(file);
       familyRecords.push({ family, field, file, assetRef, data });
       const classification = classifyEntity(data);
       if (classification.ambiguous)
@@ -267,7 +265,7 @@ function buildAssetArchitectureAudit() {
   }
 
   const canonicalFiles = [...coreRecords.map((record) => record.file), ...familyRecords.map((record) => record.file)];
-  const canonicalPaths = new Set(canonicalFiles.map((file) => relativeDataPath(file).replace(/^data\//, "")));
+  const canonicalPaths = new Set(canonicalFiles.map((file) => relativeDataPath(file)));
   const referencesByPath = new Map();
   const legitimateAbsences = Object.fromEntries(Object.keys(ASSET_FAMILY_FIELDS).map((family) => [family, 0]));
   let temporaryLegacyRefs = 0;
@@ -306,7 +304,7 @@ function buildAssetArchitectureAudit() {
           assetRef: pokemonAssetsRef,
           path: "assetsRef",
           code: "assets_ref_broken",
-          expected: "référence existante sous pokemon-assets",
+          expected: "référence existante sous data/assets",
           actual: pokemonAssetsRef,
         });
       if (pokemonAssetsRef !== canonicalCoreRef) temporaryLegacyRefs += 1;
@@ -334,14 +332,14 @@ function buildAssetArchitectureAudit() {
         expected: classification.category,
         actual: coreClassification.category,
       });
-    if (relativeDataPath(core.file).replace(/^data\//, "") !== canonicalCoreRef)
+    if (relativeDataPath(core.file) !== canonicalCoreRef)
       issue({
         sourceFile: source.sourceFile,
-        assetRef: relativeDataPath(core.file).replace(/^data\//, ""),
+        assetRef: relativeDataPath(core.file),
         path: "assetsRef",
         code: "asset_core_path_mismatch",
         expected: canonicalCoreRef,
-        actual: relativeDataPath(core.file).replace(/^data\//, ""),
+        actual: relativeDataPath(core.file),
       });
     for (const field of IDENTITY_FIELDS)
       if (!sameIdentityValue(field, core.data[field], source.data[field]))
@@ -392,7 +390,7 @@ function buildAssetArchitectureAudit() {
           assetRef: reference,
           path: `assetRefs.${family}`,
           code: "asset_family_ref_broken",
-          expected: `fichier existant sous pokemon-assets/${family}`,
+          expected: `fichier existant sous data/assets/${family}`,
           actual: reference,
         });
         continue;
@@ -452,7 +450,7 @@ function buildAssetArchitectureAudit() {
     if (!manifestPath || entries.length > 1)
       issue({
         assetRef: manifestPath || null,
-        path: "pokemon-assets/manifests/separation-manifest.json.files",
+        path: "data/assets/manifests/separation-manifest.json.files",
         code: "asset_manifest_path_collision",
         expected: "chemin présent et unique",
         actual: manifestPath ? `${entries.length} occurrences` : "chemin absent",
@@ -463,7 +461,7 @@ function buildAssetArchitectureAudit() {
     if (!entry) {
       issue({
         assetRef: filePath,
-        path: "pokemon-assets/manifests/separation-manifest.json.files",
+        path: "data/assets/manifests/separation-manifest.json.files",
         code: "asset_manifest_entry_missing",
         expected: "entrée de manifeste",
         actual: "absente",
@@ -493,7 +491,7 @@ function buildAssetArchitectureAudit() {
     if (manifestPath && !canonicalPaths.has(manifestPath))
       issue({
         assetRef: manifestPath,
-        path: "pokemon-assets/manifests/separation-manifest.json.files",
+        path: "data/assets/manifests/separation-manifest.json.files",
         code: "asset_manifest_orphan",
         expected: "fichier canonique existant",
         actual: "entrée sans fichier canonique",
@@ -503,7 +501,7 @@ function buildAssetArchitectureAudit() {
   for (const [family, count] of Object.entries(actualCounts))
     if (manifest.totals?.[family] !== count)
       issue({
-        path: `pokemon-assets/manifests/separation-manifest.json.totals.${family}`,
+        path: `data/assets/manifests/separation-manifest.json.totals.${family}`,
         code: "asset_manifest_count_mismatch",
         expected: count,
         actual: manifest.totals?.[family] ?? "absent",
@@ -511,13 +509,13 @@ function buildAssetArchitectureAudit() {
   const categorizedFiles = { core: coreRecords, ...Object.fromEntries(Object.keys(ASSET_FAMILY_FIELDS).map((family) => [family, familyRecords.filter((record) => record.family === family)])) };
   for (const [family, records] of Object.entries(categorizedFiles))
     for (const [category, directory] of Object.entries(CATEGORY_DIRECTORIES)) {
-      const count = records.filter((record) => categoryFromReference(relativeDataPath(record.file).replace(/^data\//, "")) === category).length;
+      const count = records.filter((record) => categoryFromReference(relativeDataPath(record.file)) === category).length;
       if (manifest.counts?.[family]?.[directory] !== count)
-        issue({ path: `pokemon-assets/manifests/separation-manifest.json.counts.${family}.${directory}`, code: "asset_manifest_category_count_mismatch", expected: count, actual: manifest.counts?.[family]?.[directory] ?? "absent" });
+        issue({ path: `data/assets/manifests/separation-manifest.json.counts.${family}.${directory}`, code: "asset_manifest_category_count_mismatch", expected: count, actual: manifest.counts?.[family]?.[directory] ?? "absent" });
     }
   if (manifestEntries.length !== canonicalFiles.length)
     issue({
-      path: "pokemon-assets/manifests/separation-manifest.json.files",
+      path: "data/assets/manifests/separation-manifest.json.files",
       code: "asset_manifest_total_mismatch",
       expected: canonicalFiles.length,
       actual: manifestEntries.length,

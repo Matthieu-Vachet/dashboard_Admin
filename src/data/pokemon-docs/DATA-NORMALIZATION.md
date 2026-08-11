@@ -5,14 +5,14 @@ centralisees pour eviter les doublons et faciliter la maintenance.
 
 ## Attaques
 
-Les details des attaques sont centralises dans `PokemonGo-Data/moves/`.
+Les details des attaques sont centralises dans `PokemonGo-Data/data/moves/`.
 
-- `PokemonGo-Data/moves/fast/`
-- `PokemonGo-Data/moves/charged/`
-- `PokemonGo-Data/moves/fast_elite/`
-- `PokemonGo-Data/moves/charged_elite/`
-- `PokemonGo-Data/moves/max/`
-- `PokemonGo-Data/moves/gmax/`
+- `PokemonGo-Data/data/moves/fast/`
+- `PokemonGo-Data/data/moves/charged/`
+- `PokemonGo-Data/data/moves/fast-elite/`
+- `PokemonGo-Data/data/moves/charged-elite/`
+- `PokemonGo-Data/data/moves/max/`
+- `PokemonGo-Data/data/moves/gmax/`
 
 Les fiches Pokemon et leurs formes stockent uniquement des identifiants dans :
 
@@ -32,7 +32,7 @@ GET /api/v1/pokemon/{identifier}/moves
 
 ## Types
 
-Les types complets vivent dans `PokemonGo-Data/types/`. Les Pokemon et les attaques utilisent
+Les types complets vivent dans `PokemonGo-Data/data/reference/types/`. Les Pokemon et les attaques utilisent
 uniquement l'identifiant court :
 
 ```json
@@ -47,16 +47,16 @@ uniquement l'identifiant court :
 objets `{ "type": "POKEMON_TYPE_GRASS", "names": {} }`, mais les migrations ecrivent le
 format normalise.
 
-Chaque entrée possède un fichier `PokemonGo-Data/types/<slug>.json`, un `id` technique stable et un `slug`
+Chaque entrée possède un fichier `PokemonGo-Data/data/reference/types/<slug>.json`, un `id` technique stable et un `slug`
 public. Les attaques possedent aussi un `id` stable, un slug avec tirets et, si necessaire,
 `legacySlugs` pour garder les anciennes URL compatibles.
 
-`PokemonGo-Data/types/types.json` reste généré comme index de compatibilité. Les nouveaux outils
+`PokemonGo-Data/data/reference/types/types.json` reste généré comme index de compatibilité. Les nouveaux outils
 lisent les fichiers individuels afin qu'un type puisse être modifié sans toucher les 17 autres.
 
 ## Régions Et Générations
 
-Les traductions et le numéro de génération vivent uniquement dans `PokemonGo-Data/generations/`.
+Les traductions et le numéro de génération vivent uniquement dans `PokemonGo-Data/data/reference/generations/`.
 Une fiche Pokémon complète stocke la référence stable :
 
 ```json
@@ -71,7 +71,7 @@ La lecture des sources, l'API, la bibliothèque et le Dashboard recomposent auto
 
 ## Météo
 
-Les sept météos Pokémon GO vivent dans `PokemonGo-Data/weather/`. Chaque entrée contient ses
+Les sept météos Pokémon GO vivent dans `PokemonGo-Data/data/reference/weather/`. Chaque entrée contient ses
 traductions, son icône et les identifiants des types boostés. Les Pokémon utilisent
 `weatherBoost: string[]`; chaque type utilise `weatherBoost: string`.
 
@@ -82,7 +82,7 @@ canonique vers la fiche dédiée :
 
 ```json
 {
-  "pvpRef": "pvp/pokemon/normal/0001-bulbasaur.pvp.json"
+  "pvpRef": "data/pvp/pokemon/normal/0001-bulbasaur.pvp.json"
 }
 ```
 

@@ -114,8 +114,8 @@ test("la fonction Admin Pokémon n’embarque pas les classements volumineux", (
   const routeIncludes = config.slice(routeStart, routeEnd);
   assert.doesNotMatch(config, /PokemonGo-Data\/\*\*/);
   assert.doesNotMatch(routeIncludes, /pvp-rankings|best-attackers|shiny-tracker/);
-  for (const directory of ["pokemon", "pokemon-forms", "pokemon-assets", "moves", "generations", "types", "weather", "stickers", "source-watch", "raids", "eggs", "max-battles", "rocket", "research", "items"]) {
-    assert.match(config, new RegExp(`PokemonGo-Data/${directory.replace("-", "\\-")}/\\*\\*`));
+  for (const directory of ["data/pokemon", "data/assets", "data/moves", "data/reference/generations", "data/reference/types", "data/reference/weather", "data/reference/stickers", "operations/audits/sources", "data/battles/raids", "data/activities/eggs", "data/battles/max-battles", "data/battles/rocket", "data/activities/research", "data/reference/items"]) {
+    assert.match(config, new RegExp(`PokemonGo-Data/${directory.replaceAll("-", "\\-")}/\\*\\*`));
   }
   assert.match(repository, /path\.join\(\/\*turbopackIgnore: true\*\/ appRoot/);
 });
@@ -123,9 +123,9 @@ test("la fonction Admin Pokémon n’embarque pas les classements volumineux", (
 test("Research embarque et valide le référentiel items sans masquer les erreurs", () => {
   const proxy = read("src/app/api/pokemon-admin/route.ts");
   const app = read("src/components/admin/pokemon/admin-app.jsx");
-  const items = JSON.parse(read(".data/PokemonGo-Data/items/items.json"));
+  const items = JSON.parse(fs.readFileSync(path.resolve(root, "../PokemonGo-Data/data/reference/items/items.json"), "utf8"));
   assert.ok(Array.isArray(items.items) && items.items.length > 0);
-  assert.match(proxy, /dataPath\("items", "items\.json"\)/);
+  assert.match(proxy, /dataPath\("data", "reference", "items", "items\.json"\)/);
   assert.match(proxy, /référentiel local des items Pokémon GO est indisponible/);
   assert.match(proxy, /référentiel local des items Pokémon GO est vide ou invalide/);
   assert.match(app, /refreshError=\{researchLoadError\}/);

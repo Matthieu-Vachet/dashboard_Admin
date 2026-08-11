@@ -57,7 +57,7 @@ La veille est dans:
 
 - UI: `src/components/pokemon-admin/admin-app.jsx`
 - serveur: `src/server/pokemon-go/apps/checklist/server/source-watch.js`
-- sources: `PokemonGo-Data/source-watch/sources.json`
+- sources: `PokemonGo-Data/operations/audits/sources/current.json`
 
 Le dashboard garde en `localStorage` la signature precedente des sources. Si une signature
 change, la page Veille affiche maintenant les noms des sources modifiees.

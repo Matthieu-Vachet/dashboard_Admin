@@ -9,7 +9,7 @@ const dataRoot = path.resolve(root, "../PokemonGo-Data");
 process.env.POKEMON_GO_DATA_DIR = dataRoot;
 const require = createRequire(import.meta.url);
 const engine = require("../src/server/pokemon-go/apps/checklist/server/engine.js");
-const bulbasaurSource = JSON.parse(fs.readFileSync(path.join(dataRoot, "pokemon/0001-bulbasaur.json"), "utf8"));
+const bulbasaurSource = JSON.parse(fs.readFileSync(path.join(dataRoot, "data/pokemon/normal/0001-bulbasaur.json"), "utf8"));
 const bulbasaurCore = JSON.parse(fs.readFileSync(path.join(dataRoot, bulbasaurSource.assetsRef), "utf8"));
 const bulbasaurHome = JSON.parse(fs.readFileSync(path.join(dataRoot, bulbasaurCore.assetRefs.home), "utf8"));
 const bulbasaurShuffle = JSON.parse(fs.readFileSync(path.join(dataRoot, bulbasaurCore.assetRefs.shuffle), "utf8"));
@@ -19,7 +19,7 @@ const bulbasaurLocations = JSON.parse(fs.readFileSync(path.join(dataRoot, bulbas
 test("le loader par défaut ne lit que le core léger", () => {
   const data = engine.hydrateSourceData(bulbasaurSource, { families: [] });
   assert.equal(bulbasaurSource.assets, undefined);
-  assert.equal(data.assetsRef, "pokemon-assets/core/normal/0001-bulbasaur.assets.json");
+  assert.equal(data.assetsRef, "data/assets/core/normal/0001-bulbasaur.assets.json");
   assert.equal(data.assets.assetsRef, undefined);
   assert.equal(data.assets.image, bulbasaurCore.assets.image);
   assert.deepEqual(data.assets.candy, bulbasaurCore.assets.candy);
@@ -48,7 +48,7 @@ test("le détail charge à la demande les quatre familles séparées sans perte"
 test("l’endpoint paresseux construit 1 611 patches et conserve Location Cards et costumes", () => {
   const patches = engine.buildAssetFamilyPatches(["home", "shuffle", "variants", "location-cards"]);
   assert.equal(patches.length, 1611);
-  const bulbasaur = patches.find((entry) => entry.key === "pokemon:data/pokemon/0001-bulbasaur.json");
+  const bulbasaur = patches.find((entry) => entry.key === "pokemon:data/pokemon/normal/0001-bulbasaur.json");
   assert.ok(bulbasaur.homeImage);
   assert.ok(bulbasaur.shuffleImage);
   assert.equal(bulbasaur.assets.locationCards.length, 3);
@@ -56,8 +56,8 @@ test("l’endpoint paresseux construit 1 611 patches et conserve Location Cards 
 });
 
 test("la fiche détaillée expose le core et les documents de famille séparés", () => {
-  const detail = engine.detailForKey("pokemon:data/pokemon/0001-bulbasaur.json");
-  assert.equal(detail.assetSourceFile, "pokemon-assets/core/normal/0001-bulbasaur.assets.json");
+  const detail = engine.detailForKey("pokemon:data/pokemon/normal/0001-bulbasaur.json");
+  assert.equal(detail.assetSourceFile, "data/assets/core/normal/0001-bulbasaur.assets.json");
   assert.equal(detail.assetSourceData.formId, "BULBASAUR");
   assert.deepEqual(Object.keys(detail.assetSourceData.familyDocuments).sort(), ["home", "location-cards", "shuffle", "variants"]);
 });

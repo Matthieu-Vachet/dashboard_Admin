@@ -380,7 +380,7 @@ async function readDatasetHistory(request: NextRequest) {
 
 function readItems() {
   const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
-  const file = dataPath("items", "items.json");
+  const file = dataPath("data", "reference", "items", "items.json");
   let data;
   try {
     data = JSON.parse(fs.readFileSync(file, "utf8"));
@@ -393,7 +393,7 @@ function readItems() {
   return {
     data,
     meta: {
-      source: "PokemonGo-Data/items/items.json",
+      source: "PokemonGo-Data/data/reference/items/items.json",
       total: data.items.length,
     },
   };
@@ -401,7 +401,7 @@ function readItems() {
 
 function readRocketTexts() {
   const { dataPath } = require("@/server/pokemon-go/src/lib/data-repository");
-  const file = dataPath("rocket", "rocketTexts.json");
+  const file = dataPath("data", "battles", "rocket", "texts.json");
   const data = JSON.parse(fs.readFileSync(file, "utf8"));
   return {
     data,

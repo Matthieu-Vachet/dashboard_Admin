@@ -15,7 +15,7 @@ Registre privé des sources GitHub et web suivies par le Dashboard. Chaque entr�
 
 Source Watch contrôle uniquement la joignabilité, les statuts et les signatures. Les contrôles structurels et référentiels des données canoniques restent dans l’Engine JSON afin de ne pas confondre transport et conformité.
 
-L’autorité machine est `PokemonGo-Data/source-watch/sources.json`. Tout dataset
+L’autorité machine est `PokemonGo-Data/operations/audits/sources/current.json`. Tout dataset
 régénérable déclare `regenerationDataset`; un identifiant historique ne peut survivre
 que dans `aliases`. `leekduck-eggs`, `leekduck-research` et `leekduck-rocket` gardent
 leur provenance distincte mais utilisent tous `identityProvider: leekduck`. Retirer une

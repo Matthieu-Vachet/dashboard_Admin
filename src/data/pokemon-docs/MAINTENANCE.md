@@ -3,25 +3,25 @@
 ## Sources De Vérité
 
 - Le depot prive `PokemonGo-Data` contient les JSON sources.
-- `PokemonGo-Data/pokemon/` contient uniquement les fiches principales.
-- `PokemonGo-Data/pokemon-forms/` contient les données complètes de chaque forme.
-- `PokemonGo-Data/pokemon-assets/` sépare les familles Core, HOME, Shuffle, Variants et
-  Location Cards, puis les catégories `normal`, `forms`, `mega`, `dynamax` et
-  `gigantamax` dans chaque famille.
-- `PokemonGo-Data/pvp/pokemon/` utilise exactement les mêmes catégories pour `pvpRef`.
+- `PokemonGo-Data/data/pokemon/normal/` contient les fiches principales.
+- `PokemonGo-Data/data/pokemon/{alola,galar,hisui,paldea,forms,mega,primal,dynamax,gigantamax}/`
+  contient les entités non normales selon une taxonomie unique.
+- `PokemonGo-Data/data/assets/` sépare les familles Core, HOME, Shuffle, Variants et
+  Location Cards, puis les dix catégories canoniques dans chaque famille.
+- `PokemonGo-Data/data/pvp/pokemon/` utilise exactement les mêmes catégories pour `pvpRef`.
 - `regionForms`, `megaEvolutions`, `dynamaxForms` et `gigantamaxForms` sont des
   listes de références `formId`.
-- `PokemonGo-Data/moves/`, `PokemonGo-Data/types/`, `PokemonGo-Data/generations/` et `PokemonGo-Data/weather/` sont les
+- `PokemonGo-Data/data/moves/`, `PokemonGo-Data/data/reference/types/`, `PokemonGo-Data/data/reference/generations/` et `PokemonGo-Data/data/reference/weather/` sont les
   catalogues centraux.
 - Les fiches complètes utilisent `regionId`; ne jamais recopier l'objet région ni
   la génération. Les formes Méga et Max héritent ces informations de leur base.
-- `weatherBoost` et `PokemonGo-Data/types/*/weatherBoost` utilisent les identifiants de
-  `PokemonGo-Data/weather/`.
+- `weatherBoost` et `PokemonGo-Data/data/reference/types/*/weatherBoost` utilisent les identifiants de
+  `PokemonGo-Data/data/reference/weather/`.
 
 Ne jamais recopier les données complètes d'une forme dans une fiche principale. Ne jamais
 remettre `assets.home`, `assets.shuffle`, `assets.locationCards`, `assets.portrait`,
-`assets.portraitShiny` ou `assetForms` dans `pokemon/` ou `pokemon-forms/` : ces champs
-doivent rester dans les familles dédiées de `pokemon-assets/`, puis dans les collections
+`assets.portraitShiny` ou `assetForms` dans `data/pokemon/` : ces champs
+doivent rester dans les familles dédiées de `data/assets/`, puis dans les collections
 MongoDB `pokemonAssets` et `pokemonAssetFamilies`.
 
 ## Contrôles Avant Contribution
@@ -47,14 +47,14 @@ fiche déjà sortie.
 Après une modification manuelle des JSON, lancer au minimum une validation locale puis
 une synchronisation Mongo. Si une fiche de l'admin affiche encore des assets lourds dans
 son `JSON source`, le snapshot utilisé par l'application est obsolète ou n'a pas récupéré
-`pokemon-assets/`.
+`data/assets/`.
 
 ## Snapshot Du Dashboard Admin
 
 Le Dashboard Admin ne doit pas lire un vieux dossier `.data/PokemonGo-Data`. Avant
 chaque build, `scripts/data/ensure-data.js` synchronise automatiquement ce clone local
 sur `PokemonGo-Data@main` avec `git fetch`, `git reset --hard origin/main` et
-`git clean -fd`. La structure est refusée si `pokemon-assets/` est absent.
+`git clean -fd`. La structure est refusée si `data/assets/` est absent.
 
 Flux normal après une modification manuelle :
 
@@ -98,7 +98,7 @@ manifeste PvP sans rapport avec son pipeline.
 Chaque redéploiement demandé depuis le Dashboard est historisé dans Mongo via
 `matweb.dashboard.deployHistory`. L'historique compare le commit data utilisé par le
 Dashboard deployé avec le dernier commit GitHub et liste les fichiers JSON suivis :
-fiches, formes, `pokemon-assets/`, catalogues, stickers et sources.
+fiches, formes, `data/assets/`, catalogues, stickers et sources.
 
 Ne jamais corriger directement les JSON dans `.data/PokemonGo-Data` : ce dossier est un
 cache ignoré et sera écrasé à la prochaine synchronisation.

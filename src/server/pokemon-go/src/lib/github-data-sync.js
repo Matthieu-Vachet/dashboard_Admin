@@ -7,17 +7,16 @@ const snapshotRoot = path.join(os.tmpdir(), "matweb-dashboard-admin");
 const snapshotDir = path.join(snapshotRoot, "PokemonGo-Data-live");
 const metaFile = path.join(snapshotDir, ".sync-meta.json");
 const requiredFolders = [
-  "pokemon",
-  "pokemon-forms",
-  "moves",
-  "generations",
-  "types",
-  "weather",
-  "stickers",
-  "pokemon-assets",
-  "pvp",
+  "data/pokemon",
+  "data/assets",
+  "data/moves",
+  "data/pvp",
+  "data/reference/generations",
+  "data/reference/types",
+  "data/reference/weather",
+  "data/reference/stickers",
 ];
-const jsonFolderPattern = /^(pokemon|pokemon-forms|moves|generations|types|weather|stickers|pokemon-assets|pvp)\//;
+const jsonFolderPattern = /^(?:data\/(?:pokemon|assets|moves|pvp|reference|battles|activities|rankings)|mappings|operations\/audits\/sources)\//;
 
 function parseRepo(value) {
   const repo = String(value || defaultRepo)

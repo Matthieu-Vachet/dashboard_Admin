@@ -20,7 +20,7 @@ function temporaryWorkspace(t) {
 function createDataRepository(root) {
   fs.mkdirSync(root, { recursive: true });
   fs.writeFileSync(path.join(root, "package.json"), `${JSON.stringify({ name: "pokemon-go-data" })}\n`);
-  for (const directory of ["pokemon", "pokemon-forms", "pokemon-assets"]) {
+  for (const directory of ["data/pokemon", "data/assets", "data/pvp"]) {
     fs.mkdirSync(path.join(root, directory), { recursive: true });
   }
   return root;
@@ -72,18 +72,18 @@ test("aucun chemin relatif ou lien symbolique ne peut sortir du data root", (t) 
   const dataRoot = createDataRepository(path.join(workspace, "PokemonGo-Data"));
   const outside = path.join(workspace, "outside");
   fs.mkdirSync(outside);
-  fs.symlinkSync(outside, path.join(dataRoot, "pokemon", "escape"), "dir");
+  fs.symlinkSync(outside, path.join(dataRoot, "data", "pokemon", "escape"), "dir");
 
   assert.throws(
     () => resolvePathInsideDataRoot(dataRoot, "..", "outside"),
     (error) => error.code === "POKEMON_DATA_PATH_OUTSIDE_ROOT",
   );
   assert.throws(
-    () => resolvePathInsideDataRoot(dataRoot, "pokemon", "escape"),
+    () => resolvePathInsideDataRoot(dataRoot, "data", "pokemon", "escape"),
     (error) => error.code === "POKEMON_DATA_PATH_OUTSIDE_ROOT",
   );
   assert.throws(
-    () => resolvePathInsideDataRoot(dataRoot, "pokemon", "escape", "future.json"),
+    () => resolvePathInsideDataRoot(dataRoot, "data", "pokemon", "escape", "future.json"),
     (error) => error.code === "POKEMON_DATA_PATH_OUTSIDE_ROOT",
   );
 });
@@ -104,5 +104,5 @@ test("les Functions qui lisent PokemonGo-Data embarquent son marqueur de racine"
   const pvpExcludesEnd = config.indexOf("],", pvpExcludesStart);
   const pvpExcludes = config.slice(pvpExcludesStart, pvpExcludesEnd);
   assert.match(pvpExcludes, /PokemonGo-Data\/archives\/\*\*/);
-  assert.match(pvpExcludes, /PokemonGo-Data\/pvp-rankings\/\*\*/);
+  assert.match(pvpExcludes, /PokemonGo-Data\/data\/pvp\/rankings\/\*\*/);
 });

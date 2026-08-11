@@ -5,7 +5,7 @@ Les fichiers du depot prive `PokemonGo-Data` restent la source de verite des
 referentiels statiques et ne sont jamais modifies par la synchronisation. Pour les
 datasets courants raids, oeufs, Max Battles, Rocket et Research, MongoDB est l'unique
 source lue par le Dashboard. Les details des attaques vivent dans
-`PokemonGo-Data/moves/`; les Pokemon ne conservent que leurs identifiants.
+`PokemonGo-Data/data/moves/`; les Pokemon ne conservent que leurs identifiants.
 
 ## Architecture
 
@@ -95,7 +95,7 @@ vide ne provoque jamais une suppression massive automatique.
 `rockets` et `researches`. Elles sont ecrites uniquement par leur pipeline dedie.
 
 Depuis la séparation des assets, `npm run ensure:data` et la synchronisation doivent
-récupérer aussi `PokemonGo-Data/pokemon-assets/`. Après l'import, les champs lourds
+récupérer aussi `PokemonGo-Data/data/assets/`. Après l'import, les champs lourds
 historiques (`data.assets.home`, `data.assets.shuffle`, `data.assets.locationCards`,
 `data.assets.portrait`, `data.assets.portraitShiny` et `data.assetForms`) sont supprimés
 de la collection `pokemons`. Ils appartiennent uniquement à `pokemonAssets`, reliée par

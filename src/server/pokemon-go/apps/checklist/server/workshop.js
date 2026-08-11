@@ -24,10 +24,10 @@ const notesFile = path.join(rootDir, ".checklist-notes.json");
 const reviewsFile = path.join(rootDir, ".checklist-image-reviews.json");
 const hdDir = path.join(rootDir, "asset", "HD");
 const shuffleDir = path.join(rootDir, "asset", "pokemonShuffle");
-const typesFile = dataPath("types", "types.json");
-const weatherFile = dataPath("weather", "weather.json");
-const stickersFile = dataPath("stickers", "stickers.json");
-const movesDir = dataPath("moves");
+const typesFile = dataPath("data", "reference", "types", "types.json");
+const weatherFile = dataPath("data", "reference", "weather", "weather.json");
+const stickersFile = dataPath("data", "reference", "stickers", "stickers.json");
+const movesDir = dataPath("data", "moves");
 const remoteHd =
   "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/PokemonHd";
 const remoteShuffle =
@@ -145,8 +145,7 @@ function allGoAssets() {
     });
   };
   for (const file of [
-    ...listFiles(dataPath("pokemon")),
-    ...listFiles(dataPath("pokemon-forms")),
+    ...listFiles(dataPath("data", "pokemon")),
   ]) {
     const data = hydrateSourceData(readJson(file, {}));
     add(data, file, "Image principale", data.assets?.image, false, "", "go");
@@ -285,8 +284,7 @@ async function allLocationCardAssets() {
 function knownCandyFamilies() {
   const families = new Map();
   for (const file of [
-    ...listFiles(dataPath("pokemon")),
-    ...listFiles(dataPath("pokemon-forms")),
+    ...listFiles(dataPath("data", "pokemon")),
   ]) {
     const data = hydrateSourceData(readJson(file, {}), { families: [] });
     const value = data.assets?.candy?.familyId;
@@ -456,7 +454,7 @@ function moveIdsFrom(value) {
 
 function sourceKindForFile(file, data) {
   const relativeFile = relativeToData(file);
-  if (relativeFile.startsWith("pokemon/")) return "pokemon";
+  if (relativeFile.startsWith("data/pokemon/normal/")) return "pokemon";
   const form = String(data.form || "");
   if (form.startsWith("mega") || form === "primal") return "mega";
   if (form === "dynamax" || form === "gigantamax") return form;
@@ -477,8 +475,7 @@ function linkedPokemonImage(data) {
 function buildMoveLinks() {
   const links = new Map();
   const files = [
-    ...listFiles(dataPath("pokemon")),
-    ...listFiles(dataPath("pokemon-forms")),
+    ...listFiles(dataPath("data", "pokemon")),
   ];
   for (const file of files) {
     const data = hydrateSourceData(readJson(file, {}), { families: [] });

@@ -465,7 +465,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
           ["Dynamax", stats.dynamax, uiAssets.icons.maxPc, "Fiches ou formes Dynamax"],
           ["Gigamax", stats.gigantamax, uiAssets.icons.maxPc, "Fiches ou formes Gigamax"],
           ["Mega", stats.mega, uiAssets.icons.mega, "Mega et Primo"],
-          ["Formes", stats.forms, uiAssets.icons.pokedex, "Fiches du dossier pokemon-forms"],
+          ["Formes", stats.forms, uiAssets.icons.pokedex, "Fiches alternatives de data/pokemon/forms"],
           ["Regionales", stats.regional, uiAssets.icons.pokedex, "Alola, Galar, Hisui, Paldea"],
           ["Evenements", stats.event, uiAssets.icons.pokeball, "Cartes construites depuis assetForms"],
         ].map(([label, value, icon, detail]) => (

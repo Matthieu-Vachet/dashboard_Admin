@@ -1,7 +1,7 @@
 const fs = require("fs");
 const { dataPath } = require("../../../src/lib/data-repository");
 
-const sourcesFile = dataPath("source-watch", "sources.json");
+const sourcesFile = dataPath("operations", "audits", "sources", "current.json");
 const userAgent =
   "Mozilla/5.0 (compatible; MatWebPokemonGoSourceWatch/1.0; +https://pokemon-go-api.vercel.app)";
 const timeoutMs = 12000;

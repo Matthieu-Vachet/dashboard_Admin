@@ -82,14 +82,14 @@ function duplicateValues(values) {
 
 function buildPvpArchitectureAudit(options = {}) {
   const now = options.now ? new Date(options.now) : new Date();
-  const pokemonDirectories = [dataPath("pokemon"), dataPath("pokemon-forms")];
-  const pvpPokemonDirectory = dataPath("pvp", "pokemon");
-  const manifestFile = dataPath("pvp", "manifest.json");
-  const pokemonMapFile = dataPath("mappings", "pvpoke", "pokemon-map.json");
-  const moveMapFile = dataPath("mappings", "pvpoke", "move-map.json");
-  const pokemonOverrideFile = dataPath("mappings", "pvpoke", "pokemon-overrides.json");
-  const moveOverrideFile = dataPath("mappings", "pvpoke", "move-overrides.json");
-  const movesetAuditFile = dataPath("reports", "pvpoke", "moveset-mapping-audit-current.json");
+  const pokemonDirectories = [dataPath("data", "pokemon")];
+  const pvpPokemonDirectory = dataPath("data", "pvp", "pokemon");
+  const manifestFile = dataPath("data", "pvp", "manifests", "current.json");
+  const pokemonMapFile = dataPath("mappings", "providers", "pvpoke", "pokemon-map.json");
+  const moveMapFile = dataPath("mappings", "providers", "pvpoke", "move-map.json");
+  const pokemonOverrideFile = dataPath("mappings", "providers", "pvpoke", "pokemon-overrides.json");
+  const moveOverrideFile = dataPath("mappings", "providers", "pvpoke", "move-overrides.json");
+  const movesetAuditFile = dataPath("operations", "reports", "pvpoke", "moveset-mapping-audit-current.json");
   const diagnostics = [];
   const diagnosticsByRef = new Map();
   const diagnosticsBySource = new Map();
@@ -171,7 +171,7 @@ function buildPvpArchitectureAudit(options = {}) {
     let assetCore = null;
     if (assetsRef) {
       const assetFile = resolveDataFile(assetsRef);
-      if (isInside(dataPath("pokemon-assets", "core"), assetFile) && fs.existsSync(assetFile))
+      if (isInside(dataPath("data", "assets", "core"), assetFile) && fs.existsSync(assetFile))
         assetCore = readJson(assetFile);
     }
     return {
@@ -196,14 +196,14 @@ function buildPvpArchitectureAudit(options = {}) {
   const legacyEmbeddedBlocks = sources.filter((source) => source.data.pvp != null).length;
   if (movesetAudit.source?.repositoryCommit !== manifest.source?.commit)
     add(issue({
-      path: "reports/pvpoke/moveset-mapping-audit-current.json.source.repositoryCommit",
+      path: "operations/reports/pvpoke/moveset-mapping-audit-current.json.source.repositoryCommit",
       code: "pvp_moveset_audit_snapshot_mismatch",
       expected: manifest.source?.commit || "commit du manifeste",
       actual: movesetAudit.source?.repositoryCommit || "absent",
     }));
   if (movesetAudit.summary?.openOccurrences !== 0)
     add(issue({
-      path: "reports/pvpoke/moveset-mapping-audit-current.json.summary.openOccurrences",
+      path: "operations/reports/pvpoke/moveset-mapping-audit-current.json.summary.openOccurrences",
       code: "pvp_moveset_audit_incomplete",
       expected: 0,
       actual: movesetAudit.summary?.openOccurrences ?? "absent",
@@ -219,7 +219,7 @@ function buildPvpArchitectureAudit(options = {}) {
         sourceFile: source.sourceFile,
         path: "pvpRef",
         code: "pvp_ref_missing",
-        expected: "référence vers pvp/pokemon/*.pvp.json",
+        expected: "référence vers data/pvp/pokemon/*.pvp.json",
         actual: "absent",
       }));
       continue;
@@ -259,7 +259,7 @@ function buildPvpArchitectureAudit(options = {}) {
     if (entries.length > 1)
       add(issue({
         pvpRef: manifestPath,
-        path: "pvp/manifest.json.files",
+        path: "data/pvp/manifests/current.json.files",
         code: "pvp_manifest_path_collision",
         expected: "chemin unique",
         actual: `${entries.length} occurrences`,
@@ -267,7 +267,7 @@ function buildPvpArchitectureAudit(options = {}) {
   }
   for (const pvpId of duplicateValues(manifestEntries.map((entry) => entry?.pvpId).filter(Boolean)))
     add(issue({
-      path: "pvp/manifest.json.files.pvpId",
+      path: "data/pvp/manifests/current.json.files.pvpId",
       code: "pvp_manifest_id_collision",
       expected: "pvpId unique",
       actual: pvpId,
@@ -276,7 +276,7 @@ function buildPvpArchitectureAudit(options = {}) {
   const pvpFiles = listJsonFiles(pvpPokemonDirectory).sort();
   if (manifest.records !== pvpFiles.length || manifestEntries.length !== pvpFiles.length)
     add(issue({
-      path: "pvp/manifest.json.records",
+      path: "data/pvp/manifests/current.json.records",
       code: "pvp_manifest_count_mismatch",
       expected: `${pvpFiles.length} fichiers PvP`,
       actual: `${manifest.records} records / ${manifestEntries.length} entrées`,
@@ -284,7 +284,7 @@ function buildPvpArchitectureAudit(options = {}) {
   for (const [category, directory] of Object.entries(CATEGORY_DIRECTORIES)) {
     const count = pvpFiles.filter((file) => categoryFromReference(relativeDataPath(file)) === category).length;
     if (manifest.counts?.[directory] !== count)
-      add(issue({ path: `pvp/manifest.json.counts.${directory}`, code: "pvp_manifest_category_count_mismatch", expected: count, actual: manifest.counts?.[directory] ?? "absent" }));
+      add(issue({ path: `data/pvp/manifests/current.json.counts.${directory}`, code: "pvp_manifest_category_count_mismatch", expected: count, actual: manifest.counts?.[directory] ?? "absent" }));
   }
 
   const providerPokemonMappings = new Map();
@@ -302,7 +302,7 @@ function buildPvpArchitectureAudit(options = {}) {
     providerMoveMappings.set(mapping.providerId, values);
   }
   const moveCatalog = new Map();
-  for (const file of listJsonFiles(dataPath("moves"))) {
+  for (const file of listJsonFiles(dataPath("data", "moves"))) {
     const move = readJson(file);
     if (move?.id) moveCatalog.set(move.id, { ...move, file: relativeDataPath(file) });
   }
@@ -313,7 +313,7 @@ function buildPvpArchitectureAudit(options = {}) {
     );
     if (canonicalIds.size > 1)
       add(issue({
-        path: `mappings/pvpoke/pokemon-map.json.${providerId}`,
+        path: `mappings/providers/pvpoke/pokemon-map.json.${providerId}`,
         code: "pvp_provider_collision",
         expected: "un seul ID canonique par providerId",
         actual: [...canonicalIds].join(", "),
@@ -325,7 +325,7 @@ function buildPvpArchitectureAudit(options = {}) {
     );
     if (moveIds.size > 1)
       add(issue({
-        path: `mappings/pvpoke/move-map.json.${providerId}`,
+        path: `mappings/providers/pvpoke/move-map.json.${providerId}`,
         code: "pvp_move_mapping_collision",
         expected: "une seule attaque interne par providerId",
         actual: [...moveIds].join(", "),
@@ -339,7 +339,7 @@ function buildPvpArchitectureAudit(options = {}) {
     const commit = mappingDocument.metadata?.repositoryCommit;
     if (!commit || commit !== manifest.source?.commit)
       add(issue({
-        path: `mappings/pvpoke/${label}.json.metadata.repositoryCommit`,
+        path: `mappings/providers/pvpoke/${label}.json.metadata.repositoryCommit`,
         code: "pvp_snapshot_commit_mismatch",
         expected: manifest.source?.commit || "commit du manifeste",
         actual: commit || "absent",
@@ -347,7 +347,7 @@ function buildPvpArchitectureAudit(options = {}) {
   }
   if (!Array.isArray(pokemonOverrides.overrides) || !Array.isArray(moveOverrides.overrides))
     add(issue({
-      path: "mappings/pvpoke/*-overrides.json.overrides",
+      path: "mappings/providers/pvpoke/*-overrides.json.overrides",
       code: "pvp_override_catalog_invalid",
       expected: "tableaux d'overrides explicites",
       actual: "structure invalide",
@@ -359,7 +359,7 @@ function buildPvpArchitectureAudit(options = {}) {
     : null;
   if (freshnessDays === null || freshnessDays > MONTHLY_FRESHNESS_DAYS)
     add(issue({
-      path: "pvp/manifest.json.source.syncedAt",
+      path: "data/pvp/manifests/current.json.source.syncedAt",
       code: "pvp_monthly_freshness",
       expected: `snapshot âgé de ${MONTHLY_FRESHNESS_DAYS} jours maximum`,
       actual: freshnessDays === null ? "date invalide" : `${freshnessDays} jours`,
@@ -484,7 +484,7 @@ function buildPvpArchitectureAudit(options = {}) {
     if (manifestRecords.length !== 1) {
       add(issue({
         ...context,
-        path: "pvp/manifest.json.files",
+        path: "data/pvp/manifests/current.json.files",
         code: "pvp_manifest_reference_mismatch",
         expected: "une entrée manifeste",
         actual: `${manifestRecords.length} entrée(s)`,
@@ -496,7 +496,7 @@ function buildPvpArchitectureAudit(options = {}) {
     if (manifestRecord.sha256 !== actualHash)
       add(issue({
         ...context,
-        path: "pvp/manifest.json.files.sha256",
+        path: "data/pvp/manifests/current.json.files.sha256",
         code: "pvp_manifest_hash_mismatch",
         expected: manifestRecord.sha256,
         actual: actualHash,
@@ -709,7 +709,7 @@ function buildPvpArchitectureAudit(options = {}) {
   for (const [providerId, owners] of checkedProviderIds)
     if (owners.size > 1)
       add(issue({
-        path: `pvp/pokemon/*.mapping.providerIds.${providerId}`,
+        path: `data/pvp/pokemon/*.mapping.providerIds.${providerId}`,
         code: "pvp_record_provider_collision",
         expected: "providerId rattaché à une identité canonique",
         actual: [...owners].join(", "),

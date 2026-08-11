@@ -103,7 +103,7 @@
       "writing": "upsert compressé vérifié",
       "toast": "warning partiel explicite",
       "refresh": "preview MongoDB rechargée",
-      "target": "pvp-rankings/current.json · MongoDB pvp_rankings",
+      "target": "data/pvp/rankings/current.json · MongoDB pvp_rankings",
       "commitDispatch": "non applicable",
       "result": "pass-partial",
       "diagnostics": { "mappingMissingCount": 0, "unmatchedCount": 0, "warningsCount": 1, "warning": "bayou-1500: volcarona sans Rank 1 calculable", "modified": 641, "durationMs": 62630 }

@@ -3,6 +3,7 @@ import "server-only";
 /* eslint-disable @typescript-eslint/no-explicit-any -- Les JSON PokemonGo-Data sont validés à leur frontière métier. */
 
 import fs from "node:fs/promises";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { resolvePokemonDataReference } from "../pokemon-entity-category";
 import { getBattleFormMechanic } from "./form-mechanics";
@@ -195,9 +196,18 @@ function parseLocalizedTypes(values: string[]) {
 let catalogPromise: Promise<PvpCatalog> | null = null;
 
 function dataRoot() {
-  return process.env.POKEMON_GO_DATA_DIR
-    ? path.resolve(process.env.POKEMON_GO_DATA_DIR)
-    : path.join(process.cwd(), ".data", "PokemonGo-Data");
+  const candidates = [
+    process.env.POKEMON_GO_DATA_DIR && path.resolve(process.env.POKEMON_GO_DATA_DIR),
+    path.join(process.cwd(), ".data", "PokemonGo-Data"),
+    path.resolve(process.cwd(), "..", "PokemonGo-Data"),
+  ].filter((candidate): candidate is string => Boolean(candidate));
+  const root = candidates.find((candidate) =>
+    existsSync(path.join(candidate, "data", "pokemon"))
+      && existsSync(path.join(candidate, "data", "assets"))
+      && existsSync(path.join(candidate, "data", "pvp")),
+  );
+  if (!root) throw new Error("Dépôt PokemonGo-Data canonique introuvable pour le moteur PvP.");
+  return root;
 }
 
 async function readJson(file: string): Promise<JsonRecord> {
@@ -268,13 +278,13 @@ function normalizedBuffs(
 async function loadMoves(root: string) {
   const folders = [
     ["fast", false],
-    ["fast_elite", true],
+    ["fast-elite", true],
     ["charged", false],
-    ["charged_elite", true],
+    ["charged-elite", true],
   ] as const;
   const byId = new Map<string, CombatMove>();
   for (const [folder, elite] of folders) {
-    for (const file of await jsonFiles(path.join(root, "moves", folder))) {
+    for (const file of await jsonFiles(path.join(root, "data", "moves", folder))) {
       const entry = await readJson(file);
       if (!entry.combat || !entry.id) continue;
       const id = String(entry.id).toUpperCase();
@@ -349,7 +359,7 @@ function recommendation(pvpRecord: JsonRecord | null, league: string) {
 
 async function dynamicLeagues(root: string) {
   const calendar = await readJson(
-    path.join(root, "gbl-calendar", "current.json"),
+    path.join(root, "data", "battles", "gbl", "calendar.json"),
   ).catch(() => null);
   const seen = new Set(defaultLeagues.map((league) => league.id));
   const additions: PvpLeague[] = [];
@@ -391,25 +401,23 @@ async function createCatalog(): Promise<PvpCatalog> {
     moves,
     typeData,
     pokemonFiles,
-    formFiles,
     packageJson,
     snapshot,
     leagues,
     pvpManifest,
   ] = await Promise.all([
     loadMoves(root),
-    readJson(path.join(root, "types", "types.json")),
-    jsonFiles(path.join(root, "pokemon")),
-    jsonFiles(path.join(root, "pokemon-forms")),
+    readJson(path.join(root, "data", "reference", "types", "types.json")),
+    jsonFiles(path.join(root, "data", "pokemon")),
     readJson(path.join(root, "package.json")),
     readJson(path.join(root, ".dashboard-data-snapshot.json")).catch(
       (): JsonRecord => ({}),
     ),
     dynamicLeagues(root),
-    readJson(path.join(root, "pvp", "manifest.json")),
+    readJson(path.join(root, "data", "pvp", "manifests", "current.json")),
   ]);
   const records = await mapConcurrent(
-    [...pokemonFiles, ...formFiles],
+    pokemonFiles,
     16,
     async (file) => {
       const entry = await readJson(file);
