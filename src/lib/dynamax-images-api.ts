@@ -24,13 +24,22 @@ export async function requireDynamaxAdmin(endpoint: string) {
   return session;
 }
 
-export async function callDynamaxApi(path: string, method: "GET" | "POST" | "DELETE" = "GET") {
+export async function callDynamaxApi(
+  path: string,
+  method: "GET" | "POST" | "DELETE" = "GET",
+  body?: Record<string, unknown>,
+) {
   const response = await fetch(new URL(`/api/v1/admin/dynamax-images${path}`, apiBase), {
     method,
     cache: "no-store",
     redirect: "error",
-    signal: AbortSignal.timeout(method === "POST" ? 170_000 : 25_000),
-    headers: { "x-api-admin-secret": adminSecret(), accept: path.endsWith(".zip") ? "application/zip" : "application/json" },
+    signal: AbortSignal.timeout(method === "POST" ? 55_000 : 25_000),
+    headers: {
+      "x-api-admin-secret": adminSecret(),
+      accept: path.endsWith(".zip") ? "application/zip" : "application/json",
+      ...(body ? { "content-type": "application/json" } : {}),
+    },
+    body: body ? JSON.stringify(body) : undefined,
   });
   return response;
 }

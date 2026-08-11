@@ -8,7 +8,7 @@
 - Trace séparément le snapshot minimal de `/api/dashboard-redeploy` afin que chaque Function reconnaisse la racine canonique sans dupliquer les datasets inutiles.
 - Classe `SOURCE_PROTECTED` Best Defenders comme avertissement global avec conservation explicite du dernier snapshot MongoDB.
 - Applique les timeouts du registre au proxy, réutilise le snapshot Data packagé en production et attend l’état persistant du scan Dynamax dans le smoke.
-- Autorise 180 secondes au scan Dynamax Vercel, tandis que la réindexation Game Master conserve son budget de 300 secondes.
+- Orchestre les curseurs de reprise Game Master et Dynamax afin que chaque appel API respecte le plafond Vercel de 60 secondes.
 
 ## 1.43.0 - 2026-08-09
 

@@ -45,7 +45,9 @@ assert.doesNotMatch(adminRoute, /action === "regenerate-(?:raids|eggs|max-battle
 const dynamaxScanRoute = fs.readFileSync(path.join(root, "src/app/api/admin/dynamax-images/scan/route.ts"), "utf8");
 const dynamaxApi = fs.readFileSync(path.join(root, "src/lib/dynamax-images-api.ts"), "utf8");
 assert.match(dynamaxScanRoute, /export const maxDuration = 180/);
-assert.match(dynamaxApi, /170_000/);
+assert.match(dynamaxScanRoute, /continuation/);
+assert.match(dynamaxApi, /55_000/);
+assert.match(adminRoute, /runPokemonApiContinuation/);
 
 const eventsScraper = fs.readFileSync(path.join(root, "src/lib/leekduck-events-scraper.ts"), "utf8");
 assert.match(eventsScraper, /data-repository/);

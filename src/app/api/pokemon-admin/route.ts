@@ -455,6 +455,24 @@ async function requestPokemonApiAdmin(
   return payload;
 }
 
+async function runPokemonApiContinuation(path: string, timeoutSeconds: number) {
+  let continuation: Record<string, unknown> | undefined;
+  for (let step = 0; step < 64; step += 1) {
+    const payload = await requestPokemonApiAdmin(path, {
+      method: "POST",
+      body: continuation ? { continuation } : {},
+      timeoutMs: Math.min(55_000, timeoutSeconds * 1_000),
+    });
+    const result = asRecord(asRecord(payload).data);
+    if (String(result.status || "").toLowerCase() !== "running") return payload;
+    continuation = asRecord(result.continuation);
+    if (!Object.keys(continuation).length) {
+      throw requestError("PokemonGo-API a interrompu une opération sans curseur de reprise.", 502);
+    }
+  }
+  throw requestError("PokemonGo-API a dépassé le nombre maximal d'étapes de reprise.", 504);
+}
+
 async function callPokemonApiAdmin(path: string, body?: unknown, user?: string) {
   return requestPokemonApiAdmin(path, { method: "POST", body, user });
 }
@@ -1129,6 +1147,9 @@ export async function POST(request: NextRequest) {
 
     const regeneration = pokemonAdminProxyRegeneration(action);
     if (regeneration?.apiPath) {
+      if (regeneration.id === "game-master-reindex") {
+        return json({ data: await runPokemonApiContinuation(regeneration.apiPath, regeneration.timeoutSeconds) });
+      }
       return json({ data: await requestPokemonApiAdmin(regeneration.apiPath, {
         method: "POST",
         timeoutMs: (regeneration.timeoutSeconds + 5) * 1_000,

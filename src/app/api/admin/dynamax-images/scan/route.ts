@@ -13,9 +13,25 @@ export async function POST(request: NextRequest) {
     const startedAt = new Date().toISOString();
     after(async () => {
       try {
-        const upstream = await callDynamaxApi("/scan", "POST");
-        await upstream.arrayBuffer();
-        if (!upstream.ok) console.error(`[dynamax-images] Scan API terminé avec HTTP ${upstream.status}.`);
+        let continuation: Record<string, unknown> | undefined;
+        for (let step = 0; step < 64; step += 1) {
+          const upstream = await callDynamaxApi("/scan", "POST", continuation ? { continuation } : {});
+          const payload = await upstream.json().catch(() => ({})) as {
+            data?: { status?: string; continuation?: Record<string, unknown> };
+            error?: unknown;
+          };
+          if (!upstream.ok) {
+            console.error(`[dynamax-images] Étape ${step + 1} terminée avec HTTP ${upstream.status}.`, payload.error || "");
+            return;
+          }
+          if (payload.data?.status !== "running") return;
+          continuation = payload.data.continuation;
+          if (!continuation) {
+            console.error("[dynamax-images] Étape sans curseur de reprise.");
+            return;
+          }
+        }
+        console.error("[dynamax-images] Nombre maximal d'étapes de reprise dépassé.");
       } catch (error) {
         console.error("[dynamax-images] Fin de suivi du scan API.", error instanceof Error ? error.message : error);
       }
