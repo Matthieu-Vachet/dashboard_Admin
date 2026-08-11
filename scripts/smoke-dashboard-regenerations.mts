@@ -9,7 +9,7 @@ const requestedIds = new Set(String(process.env.REGENERATION_SMOKE_IDS || "")
 const registrations = requestedIds.size
   ? adminRegenerationRegistry.filter((registration) => requestedIds.has(registration.id))
   : [...adminRegenerationRegistry];
-if (requestedIds.size !== registrations.length) {
+if (requestedIds.size > 0 && requestedIds.size !== registrations.length) {
   const known = new Set(registrations.map((registration) => registration.id));
   throw new Error(`Action(s) de smoke inconnue(s): ${[...requestedIds].filter((id) => !known.has(id)).join(", ")}`);
 }

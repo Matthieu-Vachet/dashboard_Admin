@@ -48,6 +48,8 @@ assert.match(dynamaxScanRoute, /export const maxDuration = 180/);
 assert.match(dynamaxScanRoute, /continuation/);
 assert.match(dynamaxApi, /55_000/);
 assert.match(adminRoute, /runPokemonApiContinuation/);
+const smokeScript = fs.readFileSync(path.join(root, "scripts/smoke-dashboard-regenerations.mts"), "utf8");
+assert.match(smokeScript, /requestedIds\.size > 0/);
 
 const eventsScraper = fs.readFileSync(path.join(root, "src/lib/leekduck-events-scraper.ts"), "utf8");
 assert.match(eventsScraper, /data-repository/);
