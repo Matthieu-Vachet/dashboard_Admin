@@ -34,7 +34,7 @@ export const adminRegenerationRegistry: readonly AdminRegenerationRegistration[]
   { id: "shiny", label: "Shiny Tracker", dashboardAction: "regenerate-shiny", apiPath: "/api/v1/admin/shiny/regenerate", generatorKey: "shiny", owner: "pokemon-api", kind: "generator", provider: "snacknap", output: "operations/audits/shiny/current.json + MongoDB", permission: "dashboard-admin", timeoutSeconds: 180, status: "active", global: true },
   { id: "game-master-reindex", label: "Réindexation Game Master", dashboardAction: "reindex-game-master", apiPath: "/api/v1/admin/game-master/reindex", owner: "pokemon-api", kind: "index", provider: "PokemonGo-Data", output: "MongoDB game-master index", permission: "dashboard-admin", timeoutSeconds: 300, status: "active", global: false },
   { id: "github-data-sync", label: "Actualisation snapshot GitHub Data", dashboardAction: "sync-github-data", owner: "dashboard", kind: "sync", provider: "GitHub", output: "runtime Data snapshot", permission: "dashboard-admin", timeoutSeconds: 60, status: "active", global: false },
-  { id: "dynamax-image-scan", label: "Scan images Dynamax", dashboardEndpoint: "/api/admin/dynamax-images/scan", owner: "assets-api", kind: "scan", provider: "PokemonGo-Assets-API", output: "Dynamax image inventory", permission: "dashboard-admin", timeoutSeconds: 60, status: "active", global: false },
+  { id: "dynamax-image-scan", label: "Scan images Dynamax", dashboardEndpoint: "/api/admin/dynamax-images/scan", owner: "pokemon-api", kind: "scan", provider: "Pokémon GO Hub via PokemonGo-API", output: "MongoDB dynamax image inventory/cache", permission: "dashboard-admin", timeoutSeconds: 90, status: "active", global: false },
 ]);
 
 export function globalAdminRegenerations() {

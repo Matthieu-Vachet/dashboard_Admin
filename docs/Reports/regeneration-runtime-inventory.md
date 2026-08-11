@@ -38,7 +38,7 @@ Réponses au diagnostic packaging :
 | Community Days | `/api/admin/community-days/sync` | Dashboard tracé | LeekDuck | community days MongoDB |
 | Shiny | `regenerate-shiny` | Registry API | Snacknap | audit + snapshots MongoDB |
 | Réindexation GM | `reindex-game-master` | API statique | PokemonGo-Data | index MongoDB |
-| Snapshot GitHub | `sync-github-data` | Dashboard | GitHub | snapshot runtime |
-| Images Dynamax | `/api/admin/dynamax-images/scan` | Assets API | Assets API | inventaire/cache |
+| Snapshot GitHub | `sync-github-data` | Dashboard | GitHub au build / racine packagée en production | snapshot runtime |
+| Images Dynamax | `/api/admin/dynamax-images/scan` | PokemonGo-API REST | Pokémon GO Hub + Chromium tracé | inventaire/cache MongoDB |
 
 Le registre Dashboard contient 19 actions, dont 16 participent au flux « Tout régénérer ». Le registre API contient 12 générateurs Data.

@@ -7,6 +7,7 @@
 - Vérifie après build le manifest Serverless Calendar, ajoute les smokes/CI et documente l’inventaire et l’architecture runtime.
 - Trace séparément le snapshot minimal de `/api/dashboard-redeploy` afin que chaque Function reconnaisse la racine canonique sans dupliquer les datasets inutiles.
 - Classe `SOURCE_PROTECTED` Best Defenders comme avertissement global avec conservation explicite du dernier snapshot MongoDB.
+- Applique les timeouts du registre au proxy, réutilise le snapshot Data packagé en production et attend l’état persistant du scan Dynamax dans le smoke.
 
 ## 1.43.0 - 2026-08-09
 

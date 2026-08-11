@@ -104,14 +104,31 @@ async function bestDefendersSourceProtected() {
   }
 }
 
+async function dynamaxScanMarker() {
+  const current = await request("/api/admin/dynamax-images");
+  return String(records(current.payload).find((candidate) => typeof candidate.lastScanAt === "string")?.lastScanAt || "");
+}
+
 async function call(registration: (typeof adminRegenerationRegistry)[number]) {
   const endpoint = registration.dashboardEndpoint || "/api/pokemon-admin";
+  const previousDynamaxScan = registration.id === "dynamax-image-scan" ? await dynamaxScanMarker() : "";
   const result = await request(endpoint, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: registration.dashboardEndpoint ? "{}" : JSON.stringify({ action: registration.dashboardAction }),
     signal: AbortSignal.timeout((registration.timeoutSeconds + 60) * 1_000),
   });
+  if (registration.id === "dynamax-image-scan" && result.response.status === 202) {
+    const deadline = Date.now() + registration.timeoutSeconds * 1_000;
+    while (Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 2_500));
+      const currentMarker = await dynamaxScanMarker();
+      if (currentMarker && currentMarker !== previousDynamaxScan) {
+        return { status: result.response.status, runStatus: "completed" };
+      }
+    }
+    throw new Error("Le scan Dynamax n'a pas produit de nouvel état persistant dans le délai imparti.");
+  }
   const completion = await waitForAcceptedRegeneration(result.payload);
   return { status: result.response.status, runStatus: completion.runStatus };
 }

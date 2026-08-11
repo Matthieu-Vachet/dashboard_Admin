@@ -11,7 +11,7 @@ import {
 import { assertJsonPayloadSize, assertSameOrigin, rateLimit } from "@/lib/security";
 import { pokemonAdminProxyRegeneration } from "@/lib/admin-regeneration-registry";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 type JsonValue = Record<string, unknown>;
 type CurrentPayload = {
@@ -534,6 +534,13 @@ function clearPokemonModuleCache() {
 }
 
 async function refreshLatestGithubDataSnapshot() {
+  if (process.env.VERCEL === "1" || process.env.NODE_ENV === "production") {
+    const repository = require("@/server/pokemon-go/src/lib/data-repository");
+    const dataDir = repository.getPokemonGoDataRuntimeRoot();
+    process.env.POKEMON_GO_DATA_DIR = dataDir;
+    clearPokemonModuleCache();
+    return dataDir;
+  }
   if (process.env.POKEMON_GO_DATA_LIVE_SYNC === "false") return null;
   const { syncGithubDataSnapshot } = require("@/server/pokemon-go/src/lib/github-data-sync");
   const dataDir = await syncGithubDataSnapshot();
@@ -1122,7 +1129,10 @@ export async function POST(request: NextRequest) {
 
     const regeneration = pokemonAdminProxyRegeneration(action);
     if (regeneration?.apiPath) {
-      return json({ data: await callPokemonApiAdmin(regeneration.apiPath) });
+      return json({ data: await requestPokemonApiAdmin(regeneration.apiPath, {
+        method: "POST",
+        timeoutMs: (regeneration.timeoutSeconds + 5) * 1_000,
+      }) });
     }
 
     if (action === "open-file") {

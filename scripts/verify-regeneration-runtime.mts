@@ -37,6 +37,9 @@ for (const relative of [
 
 const adminRoute = fs.readFileSync(path.join(root, "src/app/api/pokemon-admin/route.ts"), "utf8");
 assert.match(adminRoute, /pokemonAdminProxyRegeneration\(action\)/);
+assert.match(adminRoute, /export const maxDuration = 300/);
+assert.match(adminRoute, /regeneration\.timeoutSeconds/);
+assert.match(adminRoute, /process\.env\.VERCEL === "1"/);
 assert.doesNotMatch(adminRoute, /action === "regenerate-(?:raids|eggs|max-battles|rocket|research|shiny|pvp-rankings|gbl-calendar|best-attackers|best-defenders|costume-audit|pokemon-identity-mappings|game-master)"/);
 
 const eventsScraper = fs.readFileSync(path.join(root, "src/lib/leekduck-events-scraper.ts"), "utf8");
