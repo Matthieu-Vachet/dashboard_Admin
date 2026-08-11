@@ -12,22 +12,35 @@ function collect(directory) {
 }
 collect(serverRoot);
 
-const eventsManifest = manifests.find((file) => file.replaceAll("\\", "/").includes("app/api/admin/events/scrape/route.js.nft.json"));
-if (!eventsManifest) throw new Error("Manifest serverless Calendar Events introuvable.");
-const files = JSON.parse(fs.readFileSync(eventsManifest, "utf8")).files || [];
-const trace = files.join("\n");
-for (const marker of [
-  "runtime-data/PokemonGo-Data/package.json",
-  "runtime-data/PokemonGo-Data/data/pokemon/",
-  "runtime-data/PokemonGo-Data/data/assets/",
-  "runtime-data/PokemonGo-Data/data/reference/items/",
-]) {
-  if (!trace.includes(marker)) throw new Error(`Calendar Events: ressource serverless non tracee: ${marker}`);
+function verifyRoute(label, manifestSuffix, markers) {
+  const manifest = manifests.find((file) => file.replaceAll("\\", "/").includes(manifestSuffix));
+  if (!manifest) throw new Error(`Manifest serverless ${label} introuvable.`);
+  const files = JSON.parse(fs.readFileSync(manifest, "utf8")).files || [];
+  const trace = files.join("\n");
+  for (const marker of markers) {
+    if (!trace.includes(marker)) throw new Error(`${label}: ressource serverless non tracee: ${marker}`);
+  }
+  return {
+    route: label,
+    manifest: path.relative(path.resolve(import.meta.dirname, ".."), manifest),
+    tracedFiles: files.length,
+  };
 }
+
+const routes = [
+  verifyRoute("Calendar Events", "app/api/admin/events/scrape/route.js.nft.json", [
+    "runtime-data/PokemonGo-Data/package.json",
+    "runtime-data/PokemonGo-Data/data/pokemon/",
+    "runtime-data/PokemonGo-Data/data/assets/",
+    "runtime-data/PokemonGo-Data/data/reference/items/",
+  ]),
+  verifyRoute("Dashboard Redeploy", "app/api/dashboard-redeploy/route.js.nft.json", [
+    "runtime-data/PokemonGo-Data/package.json",
+    "runtime-data/PokemonGo-Data/.dashboard-data-snapshot.json",
+  ]),
+];
 
 console.log(JSON.stringify({
   success: true,
-  route: "Calendar Events",
-  manifest: path.relative(path.resolve(import.meta.dirname, ".."), eventsManifest),
-  tracedFiles: files.length,
+  routes,
 }, null, 2));

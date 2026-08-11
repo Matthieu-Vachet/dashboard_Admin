@@ -20,13 +20,12 @@ function hasDataShape(directory) {
   } catch {
     return false;
   }
-  return (
-    directory &&
-    packageName === "pokemon-go-data" &&
-    fs.existsSync(path.join(directory, "data", "pokemon")) &&
-    fs.existsSync(path.join(directory, "data", "assets")) &&
-    fs.existsSync(path.join(directory, "data", "pvp"))
-  );
+  // Next/Vercel creates one route-specific file trace. Some consumers, such
+  // as dashboard-redeploy, only need the snapshot marker and must not embed
+  // thousands of unrelated datasets merely to prove the root exists. The
+  // package marker identifies the canonical repository; each consumer then
+  // resolves and validates the exact resources it needs.
+  return Boolean(directory && packageName === "pokemon-go-data");
 }
 
 function resolveCandidate(appDirectory, candidate) {
@@ -50,7 +49,7 @@ function resolveDataRoot(options = {}) {
     const root = resolveCandidate(applicationRoot, explicit);
     if (hasDataShape(root)) return root;
     throw repositoryError(
-      `POKEMON_GO_DATA_DIR invalide : ${explicit}. Le chemin résolu ne contient pas un dépôt PokemonGo-Data complet.`,
+      `POKEMON_GO_DATA_DIR invalide : ${explicit}. Le chemin résolu ne contient pas le package canonique PokemonGo-Data.`,
       "POKEMON_DATA_ROOT_INVALID",
       { configured: explicit, resolved: root },
     );

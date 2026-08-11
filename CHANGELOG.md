@@ -5,6 +5,7 @@
 - Centralise 19 actions de régénération/synchronisation, dont les 16 étapes globales, dans un registre Dashboard unique.
 - Standardise le checkout déployé sous `runtime-data/PokemonGo-Data` et corrige les globs récursifs du Calendrier Events.
 - Vérifie après build le manifest Serverless Calendar, ajoute les smokes/CI et documente l’inventaire et l’architecture runtime.
+- Trace séparément le snapshot minimal de `/api/dashboard-redeploy` afin que chaque Function reconnaisse la racine canonique sans dupliquer les datasets inutiles.
 
 ## 1.43.0 - 2026-08-09
 

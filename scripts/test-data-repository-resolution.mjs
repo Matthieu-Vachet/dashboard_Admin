@@ -97,7 +97,7 @@ test("aucun chemin relatif ou lien symbolique ne peut sortir du data root", (t) 
 
 test("les Functions qui lisent PokemonGo-Data embarquent la racine runtime et des globs récursifs", () => {
   const config = fs.readFileSync(new URL("../next.config.ts", import.meta.url), "utf8");
-  for (const route of ["/api/pokemon-admin", "/api/admin/community-days/**/*", "/api/admin/events/scrape"]) {
+  for (const route of ["/api/dashboard-redeploy", "/api/pokemon-admin", "/api/admin/community-days/**/*", "/api/admin/events/scrape"]) {
     assert.ok(config.includes(`"${route}"`), `${route} doit être tracée`);
   }
   assert.match(config, /runtime-data\/PokemonGo-Data/);

@@ -15,6 +15,7 @@ Le Dashboard utilise `src/lib/admin-regeneration-registry.ts` pour les actions, 
 - Le prebuild matérialise un seul checkout sous `runtime-data/PokemonGo-Data`.
 - L’API utilise des imports statiques pour les modules et `outputFileTracingIncludes` pour les datasets lus par la Function REST commune.
 - Le Dashboard utilise des globs littéraux `/**/*` par route. Calendar Events ne reçoit que les catalogues nécessaires.
+- `/api/dashboard-redeploy` ne reçoit que le marqueur de package et le snapshot de commit. Le resolver reconnaît la racine au `package.json`, puis chaque consommateur valide ses ressources exactes.
 - Le postbuild inspecte le JavaScript et les manifests `.nft.json`; il échoue si un export ou une ressource manque.
 - Aucun cache, archive ou fixture de test n’est ajouté au runtime.
 

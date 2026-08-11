@@ -4,6 +4,10 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   turbopack: { root: process.cwd() },
   outputFileTracingIncludes: {
+    "/api/dashboard-redeploy": [
+      "./runtime-data/PokemonGo-Data/package.json",
+      "./runtime-data/PokemonGo-Data/.dashboard-data-snapshot.json",
+    ],
     "/api/admin/pvp-simulator": [
       "./runtime-data/PokemonGo-Data/package.json",
       "./runtime-data/PokemonGo-Data/.dashboard-data-snapshot.json",
