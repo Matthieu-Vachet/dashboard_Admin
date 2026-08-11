@@ -499,6 +499,7 @@ test("la Home Admin Pokémon est un centre de commande quotidien sans perdre les
 test("la Home orchestre une régénération globale séquentielle et tolérante aux erreurs", () => {
   const home = read("src/components/admin/pokemon/admin-command-center.tsx");
   const orchestrator = read("src/lib/admin-pokemon-global-regeneration.ts");
+  const registry = read("src/lib/admin-regeneration-registry.ts");
   const adminApp = read("src/components/admin/pokemon/admin-app.jsx");
   const adminRoute = read("src/app/api/pokemon-admin/route.ts");
   assert.match(home, /Tout régénérer/);
@@ -508,10 +509,10 @@ test("la Home orchestre une régénération globale séquentielle et tolérante 
   assert.match(home, /Diagnostic/);
   assert.match(adminApp, /bootstrap\.loading && !bootstrap\.payload/);
   assert.match(adminApp, /bootstrap\.payload &&\s+active === "overview"/);
-  assert.match(orchestrator, /regenerate-game-master/);
+  assert.match(registry, /regenerate-game-master/);
   assert.match(orchestrator, /identity-manager-sync-preview/);
   assert.match(orchestrator, /identity-manager-sync-apply/);
-  assert.match(orchestrator, /regenerate-pokemon-identity-mappings/);
+  assert.match(registry, /regenerate-pokemon-identity-mappings/);
   for (const action of [
     "regenerate-raids",
     "regenerate-max-battles",
@@ -522,10 +523,11 @@ test("la Home orchestre une régénération globale séquentielle et tolérante 
     "regenerate-research",
     "regenerate-shiny",
   ]) {
-    assert.match(orchestrator, new RegExp(action));
+    assert.match(registry, new RegExp(action));
   }
-  assert.match(orchestrator, /\/api\/admin\/events\/scrape/);
-  assert.match(orchestrator, /\/api\/admin\/community-days\/sync/);
+  assert.match(registry, /\/api\/admin\/events\/scrape/);
+  assert.match(registry, /\/api\/admin\/community-days\/sync/);
+  assert.match(orchestrator, /globalAdminRegenerations/);
   assert.match(orchestrator, /Synchronisation non appliquée/);
   assert.match(orchestrator, /waitForRegeneration/);
   assert.match(orchestrator, /regeneration-status/);

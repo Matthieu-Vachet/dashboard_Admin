@@ -1,0 +1,54 @@
+import assert from "node:assert/strict";
+import { createRequire } from "node:module";
+import fs from "node:fs";
+import path from "node:path";
+import {
+  adminRegenerationRegistry,
+  globalAdminRegenerations,
+  pokemonAdminProxyRegeneration,
+} from "../src/lib/admin-regeneration-registry";
+
+const require = createRequire(import.meta.url);
+const dataRepository = require("../src/server/pokemon-go/src/lib/data-repository.js");
+const root = path.resolve(import.meta.dirname, "..");
+
+assert.equal(adminRegenerationRegistry.length, 19, "Le registre doit couvrir les 19 actions de regeneration/synchronisation.");
+assert.equal(globalAdminRegenerations().length, 16, "Le flux Tout regenerer doit conserver 16 etapes.");
+assert.equal(new Set(adminRegenerationRegistry.map((entry) => entry.id)).size, adminRegenerationRegistry.length, "IDs de registre dupliques.");
+
+for (const registration of adminRegenerationRegistry) {
+  assert.ok(registration.provider && registration.output && registration.permission, `${registration.id}: metadonnees incompletes`);
+  assert.ok(registration.timeoutSeconds > 0, `${registration.id}: timeout invalide`);
+  if (registration.dashboardAction?.startsWith("regenerate-") || registration.dashboardAction === "reindex-game-master") {
+    assert.equal(pokemonAdminProxyRegeneration(registration.dashboardAction)?.apiPath, registration.apiPath, `${registration.id}: proxy API absent`);
+  }
+}
+
+const dataRoot = dataRepository.getPokemonGoDataRuntimeRoot();
+for (const relative of [
+  "package.json",
+  "data/pokemon",
+  "data/assets",
+  "data/moves",
+  "data/reference/items/items.json",
+]) {
+  assert.ok(fs.existsSync(dataRepository.resolvePokemonGoDataFile(relative)), `Data runtime absent: ${relative}`);
+}
+
+const adminRoute = fs.readFileSync(path.join(root, "src/app/api/pokemon-admin/route.ts"), "utf8");
+assert.match(adminRoute, /pokemonAdminProxyRegeneration\(action\)/);
+assert.doesNotMatch(adminRoute, /action === "regenerate-(?:raids|eggs|max-battles|rocket|research|shiny|pvp-rankings|gbl-calendar|best-attackers|best-defenders|costume-audit|pokemon-identity-mappings|game-master)"/);
+
+const eventsScraper = fs.readFileSync(path.join(root, "src/lib/leekduck-events-scraper.ts"), "utf8");
+assert.match(eventsScraper, /data-repository/);
+const nextConfig = fs.readFileSync(path.join(root, "next.config.ts"), "utf8");
+assert.match(nextConfig, /runtime-data\/PokemonGo-Data/);
+assert.match(nextConfig, /data\/pokemon\/\*\*\/\*/);
+assert.doesNotMatch(nextConfig, /\.data\/PokemonGo-Data/);
+
+console.log(JSON.stringify({
+  success: true,
+  registryActions: adminRegenerationRegistry.length,
+  globalActions: globalAdminRegenerations().length,
+  dataRoot,
+}, null, 2));

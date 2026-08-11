@@ -5,8 +5,11 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "validate:learning": "node --no-warnings --experimental-strip-types scripts/validate-learning.mjs",
-    "prebuild": "npm run validate:learning && node scripts/data/ensure-data.js",
+    "prebuild": "npm run validate:learning && node scripts/data/ensure-data.js && node --import tsx scripts/verify-regeneration-runtime.mts",
     "build": "next build",
+    "postbuild": "node scripts/verify-regeneration-bundle.mjs",
+    "verify:regenerations": "node scripts/data/ensure-data.js && node --import tsx scripts/verify-regeneration-runtime.mts && npm run test:data-repository && npm run test:regeneration-matrix && npm run typecheck && npm run build",
+    "smoke:regenerations": "node --import tsx scripts/smoke-dashboard-regenerations.mts",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit --pretty false",

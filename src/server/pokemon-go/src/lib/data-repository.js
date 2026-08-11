@@ -59,6 +59,7 @@ function resolveDataRoot(options = {}) {
   // Le clone de build est l'emplacement officiel en environnement déployé.
   // Le dépôt voisin est la convention workspace démontrée pour le développement local.
   const candidates = [
+    path.join(/*turbopackIgnore: true*/ applicationRoot, "runtime-data", "PokemonGo-Data"),
     path.join(/*turbopackIgnore: true*/ applicationRoot, ".data", "PokemonGo-Data"),
     path.resolve(/*turbopackIgnore: true*/ applicationRoot, "..", "PokemonGo-Data"),
   ];
@@ -67,7 +68,7 @@ function resolveDataRoot(options = {}) {
   }
 
   throw repositoryError(
-    "Dépôt PokemonGo-Data introuvable. Configurez POKEMON_GO_DATA_DIR en local ou vérifiez que le prebuild a créé .data/PokemonGo-Data.",
+    "Dépôt PokemonGo-Data introuvable. Configurez POKEMON_GO_DATA_DIR en local ou vérifiez que le prebuild a créé runtime-data/PokemonGo-Data.",
     "POKEMON_DATA_ROOT_NOT_FOUND",
     { candidates },
   );
@@ -95,7 +96,7 @@ function nearestExistingPath(target) {
 
 function resolvePathInsideDataRoot(root, ...segments) {
   const absoluteRoot = path.resolve(root);
-  const target = path.resolve(absoluteRoot, ...segments);
+  const target = path.resolve(/*turbopackIgnore: true*/ absoluteRoot, ...segments);
   if (!isPathInside(absoluteRoot, target)) {
     throw repositoryError(
       "Lecture refusée en dehors du dépôt PokemonGo-Data.",
@@ -105,8 +106,8 @@ function resolvePathInsideDataRoot(root, ...segments) {
   }
 
   const existingTarget = nearestExistingPath(target);
-  const realRoot = fs.realpathSync(absoluteRoot);
-  const realTarget = existingTarget ? fs.realpathSync(existingTarget) : null;
+  const realRoot = fs.realpathSync(/*turbopackIgnore: true*/ absoluteRoot);
+  const realTarget = existingTarget ? fs.realpathSync(/*turbopackIgnore: true*/ existingTarget) : null;
   if (realTarget && !isPathInside(realRoot, realTarget)) {
     throw repositoryError(
       "Lecture refusée via un lien symbolique hors du dépôt PokemonGo-Data.",
@@ -163,18 +164,41 @@ function resolveDataFile(relativeFile) {
   return dataPathFromRelative(relativeFile);
 }
 
+function getPokemonGoDataRuntimeRoot() {
+  return dataRoot;
+}
+
+function resolvePokemonGoDataFile(relativeFile) {
+  return dataPathFromRelative(relativeFile);
+}
+
+function resolvePokemonGoDataModule(relativeFile) {
+  const modulePath = dataPathFromRelative(relativeFile);
+  if (!fs.existsSync(modulePath) || !/\.(?:c?js|mjs)$/.test(modulePath)) {
+    throw repositoryError(
+      `Module PokemonGo-Data introuvable ou invalide : ${relativeFile}.`,
+      "POKEMON_DATA_MODULE_INVALID",
+      { relativeFile, modulePath },
+    );
+  }
+  return modulePath;
+}
+
 module.exports = {
   appPath,
   appRoot,
   dataPath,
   dataPathFromRelative,
   dataRoot,
+  getPokemonGoDataRuntimeRoot,
   hasDataShape,
   isInsideData,
   resolveDataRoot,
   relativeToApp,
   relativeToData,
   resolveDataFile,
+  resolvePokemonGoDataFile,
+  resolvePokemonGoDataModule,
   resolvePathInsideDataRoot,
   stripDataPrefix,
 };

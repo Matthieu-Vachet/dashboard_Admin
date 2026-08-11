@@ -9,6 +9,7 @@ const eslintConfig = [
       ".next/**",
       ".vercel/**",
       ".data/**",
+      "runtime-data/**",
       "out/**",
       "next-env.d.ts",
       "scripts/data/**",

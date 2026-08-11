@@ -1,3 +1,5 @@
+import { globalAdminRegenerations } from "@/lib/admin-regeneration-registry";
+
 export type GlobalRegenerationStatus = "idle" | "running" | "success" | "partial" | "failed" | "cancelled";
 
 export type GlobalRegenerationStep = {
@@ -16,24 +18,13 @@ type GlobalRegenerationDefinition = {
   kind?: "identity-sync";
 };
 
-export const globalRegenerationDefinitions: GlobalRegenerationDefinition[] = [
-  { id: "game-master", label: "Game Master", action: "regenerate-game-master" },
-  { id: "identity-manager", label: "Identity Manager", kind: "identity-sync" },
-  { id: "variant-resolution", label: "Résolution des variantes", action: "regenerate-pokemon-identity-mappings" },
-  { id: "raids", label: "Raids", action: "regenerate-raids" },
-  { id: "max-battles", label: "Max Battles", action: "regenerate-max-battles" },
-  { id: "rocket", label: "Team GO Rocket", action: "regenerate-rocket" },
-  { id: "pvp", label: "Classements PvP", action: "regenerate-pvp-rankings" },
-  { id: "gbl-calendar", label: "Calendrier GBL", action: "regenerate-gbl-calendar" },
-  { id: "best-attackers", label: "Best Attackers", action: "regenerate-best-attackers" },
-  { id: "best-defenders", label: "Best Defenders", action: "regenerate-best-defenders" },
-  { id: "costume-audit", label: "Costumes / Event Pokémon", action: "regenerate-costume-audit" },
-  { id: "eggs", label: "Œufs", action: "regenerate-eggs" },
-  { id: "research", label: "Research", action: "regenerate-research" },
-  { id: "events", label: "Calendrier Events", endpoint: "/api/admin/events/scrape" },
-  { id: "community-days", label: "Community Days", endpoint: "/api/admin/community-days/sync" },
-  { id: "shiny", label: "Shiny Tracker", action: "regenerate-shiny" },
-];
+export const globalRegenerationDefinitions: GlobalRegenerationDefinition[] = globalAdminRegenerations().map((registration) => ({
+  id: registration.id,
+  label: registration.label,
+  action: registration.id === "identity-manager" ? undefined : registration.dashboardAction,
+  endpoint: registration.dashboardEndpoint,
+  kind: registration.id === "identity-manager" ? "identity-sync" : undefined,
+}));
 
 export function initialGlobalRegenerationSteps(): GlobalRegenerationStep[] {
   return globalRegenerationDefinitions.map(({ id, label }) => ({ id, label, status: "idle" }));

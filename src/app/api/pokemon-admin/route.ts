@@ -9,6 +9,7 @@ import {
   writeDashboardStoreValue,
 } from "@/lib/dashboard-store";
 import { assertJsonPayloadSize, assertSameOrigin, rateLimit } from "@/lib/security";
+import { pokemonAdminProxyRegeneration } from "@/lib/admin-regeneration-registry";
 
 export const maxDuration = 60;
 
@@ -1119,60 +1120,9 @@ export async function POST(request: NextRequest) {
       }) });
     }
 
-    if (action === "regenerate-raids") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/raids/regenerate") });
-    }
-
-    if (action === "regenerate-eggs") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/eggs/regenerate") });
-    }
-
-    if (action === "regenerate-max-battles") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/max-battles/regenerate") });
-    }
-
-    if (action === "regenerate-rocket") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/rocket/regenerate") });
-    }
-
-    if (action === "regenerate-research") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/research/regenerate") });
-    }
-
-    if (action === "regenerate-shiny") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/shiny/regenerate") });
-    }
-
-    if (action === "regenerate-pvp-rankings") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/pvp-rankings/regenerate") });
-    }
-
-    if (action === "regenerate-gbl-calendar") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/gbl-calendar/regenerate") });
-    }
-
-    if (action === "regenerate-best-attackers") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/best-attackers/regenerate") });
-    }
-
-    if (action === "regenerate-best-defenders") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/best-defenders/regenerate") });
-    }
-
-    if (action === "regenerate-costume-audit") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/costume-audit/regenerate") });
-    }
-
-    if (action === "regenerate-pokemon-identity-mappings") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/pokemon-identity-mappings/regenerate") });
-    }
-
-    if (action === "regenerate-game-master") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/game-master/regenerate") });
-    }
-
-    if (action === "reindex-game-master") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/game-master/reindex") });
+    const regeneration = pokemonAdminProxyRegeneration(action);
+    if (regeneration?.apiPath) {
+      return json({ data: await callPokemonApiAdmin(regeneration.apiPath) });
     }
 
     if (action === "open-file") {

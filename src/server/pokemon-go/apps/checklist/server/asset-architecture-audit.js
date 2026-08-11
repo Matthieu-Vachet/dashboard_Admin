@@ -123,8 +123,8 @@ function buildAssetArchitectureAudit() {
     "manifests",
   ];
   for (const directory of requiredDirectories) {
-    const absolute = path.join(assetsDirectory, directory);
-    if (!fs.existsSync(absolute))
+    const absolute = path.join(/*turbopackIgnore: true*/ assetsDirectory, directory);
+    if (!fs.existsSync(/*turbopackIgnore: true*/ absolute))
       issue({
         path: `data/assets/${directory}`,
         code: "asset_directory_missing",

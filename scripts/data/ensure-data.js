@@ -4,7 +4,7 @@ const path = require("path");
 
 const appRoot = path.resolve(__dirname, "../..");
 const defaultRepo = "https://github.com/Matthieu-Vachet/PokemonGo-Data.git";
-const targetDir = path.join(appRoot, ".data", "PokemonGo-Data");
+const targetDir = path.join(appRoot, "runtime-data", "PokemonGo-Data");
 const snapshotFilename = ".dashboard-data-snapshot.json";
 
 function hasDataShape(directory) {
@@ -29,7 +29,24 @@ function explicitCandidates() {
 }
 
 function fallbackCandidates() {
-  return [path.resolve(appRoot, "..", "PokemonGo-Data"), path.join(appRoot, "data")];
+  return [
+    path.resolve(appRoot, "..", "PokemonGo-Data"),
+    path.join(appRoot, ".data", "PokemonGo-Data"),
+    path.join(appRoot, "data"),
+  ];
+}
+
+function materializeLocalData(sourceDirectory) {
+  const source = path.resolve(sourceDirectory);
+  if (source === targetDir) return;
+  if (fs.existsSync(targetDir)) fs.rmSync(targetDir, { recursive: true, force: true });
+  fs.mkdirSync(path.dirname(targetDir), { recursive: true });
+  // A real directory is required: Vercel/Next output tracing does not follow a
+  // workspace symlink outside the project root consistently.
+  fs.cpSync(source, targetDir, {
+    recursive: true,
+    filter: (entry) => !String(entry).split(path.sep).includes(".git"),
+  });
 }
 
 function authenticatedRepoUrl(repo, token) {
@@ -115,8 +132,8 @@ function ensureData() {
   for (const candidate of explicitCandidates()) {
     const resolved = path.resolve(candidate);
     if (hasDataShape(resolved)) {
-      console.log(`[data] dataset explicite: ${resolved}`);
-      if (resolved === targetDir) writeSnapshot({ repo: resolved, ref: "local", source: "local" });
+      materializeLocalData(resolved);
+      console.log(`[data] dataset explicite materialise: ${targetDir}`);
       return;
     }
   }
@@ -128,7 +145,8 @@ function ensureData() {
     for (const candidate of fallbackCandidates()) {
       const resolved = path.resolve(candidate);
       if (hasDataShape(resolved)) {
-        console.warn(`[data] sync distante impossible, dataset local utilise: ${resolved}`);
+        materializeLocalData(resolved);
+        console.warn(`[data] sync distante impossible, dataset local materialise: ${targetDir}`);
         return;
       }
     }

@@ -44,11 +44,18 @@ test("un chemin explicite invalide échoue sans fallback silencieux", (t) => {
   );
 });
 
-test("le snapshot .data est l’emplacement production-like officiel", (t) => {
+test("le snapshot runtime-data est l’emplacement production-like officiel", (t) => {
   const workspace = temporaryWorkspace(t);
   const appRoot = path.join(workspace, "Dashboard Admin");
-  const snapshot = createDataRepository(path.join(appRoot, ".data", "PokemonGo-Data"));
+  const snapshot = createDataRepository(path.join(appRoot, "runtime-data", "PokemonGo-Data"));
   assert.equal(resolveDataRoot({ appRoot, env: {} }), snapshot);
+});
+
+test("le snapshot .data historique reste un fallback de migration", (t) => {
+  const workspace = temporaryWorkspace(t);
+  const appRoot = path.join(workspace, "Dashboard Admin");
+  const legacy = createDataRepository(path.join(appRoot, ".data", "PokemonGo-Data"));
+  assert.equal(resolveDataRoot({ appRoot, env: {} }), legacy);
 });
 
 test("le dépôt voisin reste la convention workspace locale démontrée", (t) => {
@@ -88,21 +95,14 @@ test("aucun chemin relatif ou lien symbolique ne peut sortir du data root", (t) 
   );
 });
 
-test("les Functions qui lisent PokemonGo-Data embarquent son marqueur de racine", () => {
+test("les Functions qui lisent PokemonGo-Data embarquent la racine runtime et des globs récursifs", () => {
   const config = fs.readFileSync(new URL("../next.config.ts", import.meta.url), "utf8");
-  for (const route of ["/api/pokemon-admin", "/api/admin/community-days/**", "/api/admin/events/scrape"]) {
-    const start = config.indexOf(`\"${route}\"`);
-    assert.notEqual(start, -1, `${route} doit être tracée`);
-    const end = config.indexOf("],", start);
-    const definition = config.slice(start, end);
-    assert.match(definition, /PokemonGo-Data\/package\.json/);
-    assert.match(definition, /PokemonGo-Data\/\.dashboard-data-snapshot\.json/);
+  for (const route of ["/api/pokemon-admin", "/api/admin/community-days/**/*", "/api/admin/events/scrape"]) {
+    assert.ok(config.includes(`"${route}"`), `${route} doit être tracée`);
   }
-
-  const excludesStart = config.indexOf("outputFileTracingExcludes");
-  const pvpExcludesStart = config.indexOf('"/api/admin/pvp-simulator"', excludesStart);
-  const pvpExcludesEnd = config.indexOf("],", pvpExcludesStart);
-  const pvpExcludes = config.slice(pvpExcludesStart, pvpExcludesEnd);
-  assert.match(pvpExcludes, /PokemonGo-Data\/archives\/\*\*/);
-  assert.match(pvpExcludes, /PokemonGo-Data\/data\/pvp\/rankings\/\*\*/);
+  assert.match(config, /runtime-data\/PokemonGo-Data/);
+  assert.match(config, /data\/pokemon\/\*\*\/\*/);
+  assert.match(config, /archives\/\*\*\/\*/);
+  assert.match(config, /data\/pvp\/rankings\/\*\*\/\*/);
+  assert.doesNotMatch(config, /\.data\/PokemonGo-Data/);
 });

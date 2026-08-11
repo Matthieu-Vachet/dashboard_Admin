@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "node:fs/promises";
-import path from "node:path";
 import { getSession } from "@/lib/auth";
 import {
   dashboardStoreConfigured,
@@ -9,10 +8,13 @@ import {
   writeDashboardStoreValue,
 } from "@/lib/dashboard-store";
 import { assertSameOrigin, rateLimit } from "@/lib/security";
+import dataRepository from "@/server/pokemon-go/src/lib/data-repository";
 
 const deployHistoryKey = "matweb.dashboard.deployHistory";
 const defaultDataRepo = "https://github.com/Matthieu-Vachet/PokemonGo-Data.git";
-const dataSnapshotPath = path.join(process.cwd(), ".data", "PokemonGo-Data", ".dashboard-data-snapshot.json");
+// The runtime resolver is the sole authority for the packaged Data root.
+const { dataPath } = dataRepository;
+const dataSnapshotPath = dataPath(".dashboard-data-snapshot.json");
 
 type DeployHistoryEvent = Record<string, unknown>;
 
