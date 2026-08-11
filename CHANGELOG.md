@@ -6,6 +6,7 @@
 - Standardise le checkout déployé sous `runtime-data/PokemonGo-Data` et corrige les globs récursifs du Calendrier Events.
 - Vérifie après build le manifest Serverless Calendar, ajoute les smokes/CI et documente l’inventaire et l’architecture runtime.
 - Trace séparément le snapshot minimal de `/api/dashboard-redeploy` afin que chaque Function reconnaisse la racine canonique sans dupliquer les datasets inutiles.
+- Classe `SOURCE_PROTECTED` Best Defenders comme avertissement global avec conservation explicite du dernier snapshot MongoDB.
 
 ## 1.43.0 - 2026-08-09
 

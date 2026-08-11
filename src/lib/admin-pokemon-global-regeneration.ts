@@ -52,7 +52,7 @@ function responseCandidates(value: unknown) {
     if (!isRecord(current) || seen.has(current)) continue;
     seen.add(current);
     candidates.push(current);
-    for (const key of ["data", "run", "sourceRun", "current", "diagnostics"]) {
+    for (const key of ["data", "run", "sourceRun", "current", "diagnostics", "sourceAvailability", "details"]) {
       if (isRecord(current[key])) pending.push(current[key]);
     }
   }
@@ -215,6 +215,28 @@ function successResult(value: unknown, fallbackSummary: string): Omit<GlobalRege
   };
 }
 
+function sourceAvailabilityResult(value: unknown): Omit<GlobalRegenerationStep, "id" | "label"> | null {
+  const issue = responseCandidates(value).find((candidate) => [
+    "SOURCE_PROTECTED",
+    "SOURCE_TEMPORARILY_UNAVAILABLE",
+  ].includes(String(candidate.code || "").trim().toUpperCase()));
+  if (!issue) return null;
+  const code = String(issue.code).trim().toUpperCase();
+  const message = typeof issue.message === "string"
+    ? issue.message
+    : "La source externe est indisponible, le dernier snapshot MongoDB validé reste actif.";
+  return {
+    status: "partial",
+    summary: `${code} · ${message} · snapshot MongoDB conservé`,
+    diagnostics: {
+      code,
+      httpStatus: issue.httpStatus || (isRecord(issue.details) ? issue.details.httpStatus : undefined),
+      challenge: issue.challenge || (isRecord(issue.details) ? issue.details.challenge : undefined),
+      preserved: true,
+    },
+  };
+}
+
 async function executeIdentitySync(): Promise<Omit<GlobalRegenerationStep, "id" | "label">> {
   const preview = await requestJson("/api/pokemon-admin?action=identity-manager-sync-preview");
   const candidates = responseCandidates(preview);
@@ -251,13 +273,22 @@ async function executeIdentitySync(): Promise<Omit<GlobalRegenerationStep, "id" 
 export async function executeGlobalRegenerationStep(definition: GlobalRegenerationDefinition) {
   if (definition.kind === "identity-sync") return executeIdentitySync();
 
-  const value = definition.endpoint
-    ? await requestJson(definition.endpoint, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: "{}",
-      })
-    : await executePokemonAdminRegeneration(String(definition.action || ""));
+  let value: unknown;
+  try {
+    value = definition.endpoint
+      ? await requestJson(definition.endpoint, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: "{}",
+        })
+      : await executePokemonAdminRegeneration(String(definition.action || ""));
+  } catch (error) {
+    if (definition.id !== "best-defenders") throw error;
+    const current = await requestJson("/api/pokemon-admin?action=best-defenders&page=1&limit=1");
+    const availability = sourceAvailabilityResult(current) || sourceAvailabilityResult(error);
+    if (!availability) throw error;
+    return availability;
+  }
 
   return successResult(value, "Régénération terminée");
 }

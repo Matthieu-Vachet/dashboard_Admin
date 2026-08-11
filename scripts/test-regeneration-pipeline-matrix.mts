@@ -72,6 +72,43 @@ test("un sourceRun Events partiel est reflété dans la matrice globale", async 
   }
 });
 
+test("Best Defenders classe SOURCE_PROTECTED en avertissement avec snapshot conservé", async () => {
+  const originalFetch = globalThis.fetch;
+  let request = 0;
+  globalThis.fetch = async () => {
+    request += 1;
+    if (request === 1) {
+      return new Response(JSON.stringify({ error: "HTTP 403 · protection Cloudflare active" }), {
+        status: 502,
+        headers: { "content-type": "application/json" },
+      });
+    }
+    return new Response(JSON.stringify({
+      data: {
+        current: {
+          diagnostics: {
+            sourceAvailability: {
+              code: "SOURCE_PROTECTED",
+              message: "Protection Cloudflare active",
+              httpStatus: 403,
+              challenge: true,
+            },
+          },
+        },
+      },
+    }), { status: 200, headers: { "content-type": "application/json" } });
+  };
+  try {
+    const result = await executeGlobalRegenerationStep({ id: "best-defenders", label: "Best Defenders", action: "regenerate-best-defenders" });
+    assert.equal(result.status, "partial");
+    assert.match(result.summary || "", /SOURCE_PROTECTED/);
+    assert.equal(result.diagnostics?.preserved, true);
+    assert.equal(result.diagnostics?.httpStatus, 403);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("Best Defenders notifie le snapshot protégé sans faux succès", () => {
   const source = fs.readFileSync(path.join(root, "src/components/admin/pokemon/best-defenders-panel.jsx"), "utf8");
   assert.match(source, /toast\.warning\(`\$\{issue\.code\}/);
