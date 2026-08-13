@@ -7,6 +7,16 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.44.1",
+    date: "2026-08-13",
+    title: "Packaging canonique de l’Engine corrigé",
+    changes: [
+      "Embarque le classificateur des variantes événementielles dans la Function Admin Pokémon déployée.",
+      "Restaure le bootstrap, l’Engine et le filtre Fiches Costume/Event en production.",
+      "Ajoute une non-régression postbuild sur le manifest Serverless exact.",
+    ],
+  },
+  {
     version: "V1.44.0",
     date: "2026-08-13",
     title: "Audit Costumes retiré, filtre local restauré",

@@ -114,6 +114,7 @@ test("la fonction Admin Pokémon n’embarque pas les classements volumineux", (
   for (const directory of ["data/pokemon", "data/assets", "data/moves", "data/reference/generations", "data/reference/types", "data/reference/weather", "data/reference/stickers", "operations/audits/sources", "data/battles/raids", "data/activities/eggs", "data/battles/max-battles", "data/battles/rocket", "data/activities/research", "data/reference/items"]) {
     assert.match(config, new RegExp(`PokemonGo-Data/${directory.replaceAll("-", "\\-")}/\\*\\*`));
   }
+  assert.match(config, /data\/reference\/event-variant-classification\.json/);
   assert.match(repository, /path\.join\(\/\*turbopackIgnore: true\*\/ appRoot/);
 });
 

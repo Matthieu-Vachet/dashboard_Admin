@@ -31,6 +31,7 @@ const nextConfig: NextConfig = {
       "./runtime-data/PokemonGo-Data/data/reference/types/**/*",
       "./runtime-data/PokemonGo-Data/data/reference/weather/**/*",
       "./runtime-data/PokemonGo-Data/data/reference/stickers/**/*",
+      "./runtime-data/PokemonGo-Data/data/reference/event-variant-classification.json",
       "./runtime-data/PokemonGo-Data/operations/audits/sources/**/*",
       "./runtime-data/PokemonGo-Data/mappings/margxtAuditAliases.json",
       "./runtime-data/PokemonGo-Data/mappings/pokemon/identity-inventory.json",

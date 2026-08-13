@@ -28,6 +28,10 @@ function verifyRoute(label, manifestSuffix, markers) {
 }
 
 const routes = [
+  verifyRoute("Admin Pokémon", "app/api/pokemon-admin/route.js.nft.json", [
+    "runtime-data/PokemonGo-Data/package.json",
+    "runtime-data/PokemonGo-Data/data/reference/event-variant-classification.json",
+  ]),
   verifyRoute("Calendar Events", "app/api/admin/events/scrape/route.js.nft.json", [
     "runtime-data/PokemonGo-Data/package.json",
     "runtime-data/PokemonGo-Data/data/pokemon/",

@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 1.44.1 - 2026-08-13
+
+### Fixed
+
+- Embarque le classificateur canonique des variantes événementielles dans la Function Admin Pokémon afin de restaurer le bootstrap, l’Engine et le filtre Fiches en production.
+- Étend le postbuild au manifest Serverless Admin Pokémon pour empêcher une nouvelle publication sans ce référentiel.
+
 ## 1.44.0 - 2026-08-13
 
 ### Added
