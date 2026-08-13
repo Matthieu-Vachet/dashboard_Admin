@@ -13,14 +13,14 @@ const historySource = fs.readFileSync(
 );
 const changelog = fs.readFileSync(path.join(root, "CHANGELOG.md"), "utf8");
 
-assert.match(
-  appVersionSource,
-  new RegExp(`DASHBOARD_VERSION\\s*=\\s*["]${expectedUiVersion}["]`),
-);
+assert.match(appVersionSource, /import packageMetadata from "\.\.\/\.\.\/package\.json"/);
+assert.match(appVersionSource, /DASHBOARD_VERSION\s*=\s*`V\$\{packageMetadata\.version\}`/);
+assert.doesNotMatch(appVersionSource, /V\d+\.\d+\.\d+/);
 assert.match(
   historySource,
   new RegExp(`dashboardVersionHistory:[\\s\\S]*?version:\\s*["]${expectedUiVersion}["]`),
 );
 assert.match(changelog, new RegExp(`^## ${packageJson.version} - `, "m"));
+for (const section of ["Added", "Changed", "Fixed"]) assert.match(changelog, new RegExp(`^### ${section}$`, "m"));
 
 console.log(`Version Dashboard alignée : ${expectedUiVersion}`);

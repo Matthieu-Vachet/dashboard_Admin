@@ -76,7 +76,7 @@ PokeMiners, Margxt, pogoapi.net, PokeAPI, Bulbapedia, Serebii et le repository A
 
 ### 4.5 Catalogue de veille
 
-`source-watch/sources.json` contient 21 sources. Certaines produisent des datasets; d’autres sont uniquement surveillées: Pokémon GO Live, Pokémon GO Hub, pages news Margxt, Serebii GO, GoDex, PkmnShuffleMap et pages PokeMiners. Elles ne doivent pas recevoir artificiellement le statut de Provider productif.
+Le registre canonique `operations/audits/sources/current.json` contient 27 sources. Certaines produisent des datasets; d’autres sont uniquement surveillées, notamment Pokémon GO Live, Pokémon GO Hub, les pages Margxt encore actives, Serebii GO, PkmnShuffleMap et PokeMiners. La source GO Dex et la source Margxt Costumes dédiées à l'ancien audit ont été retirées; elles ne doivent pas être réintroduites comme providers productifs.
 
 ### 4.6 Matching et aliases
 

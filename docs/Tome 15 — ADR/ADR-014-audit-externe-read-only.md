@@ -6,7 +6,7 @@ status: Accepted
 last_update: 2026-07-31
 author: Matthieu Vachet
 affected_projects: [Dashboard Admin, PokemonGo-Data]
-references: [PROVIDER-021, DATASET-019, DATASET-028]
+references: [PROVIDER-021, DATASET-019]
 ---
 
 # ADR-014 — Audit externe en lecture seule

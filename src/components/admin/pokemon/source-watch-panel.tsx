@@ -36,7 +36,7 @@ type SourceItem = {
 };
 
 const sourceTaxonomy = [
-  { id: "pokemon", label: "Disponibilité Pokémon", categories: ["pokemon-availability", "pokemon-shiny-availability", "pokemon-costumes", "pokemon-shadow-availability", "shiny", "costume-audit"] },
+  { id: "pokemon", label: "Disponibilité Pokémon", categories: ["pokemon-availability", "pokemon-shiny-availability", "pokemon-shadow-availability", "shiny"] },
   { id: "combat", label: "Combat", categories: ["pvp", "pve", "best-defenders", "gbl-calendar", "raids", "max-battles", "team-go-rocket"] },
   { id: "events", label: "Événements", categories: ["events", "events-reference", "eggs", "research-tasks", "news", "official"] },
   { id: "assets", label: "Assets", categories: ["assets", "shuffle"] },

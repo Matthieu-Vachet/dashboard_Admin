@@ -56,15 +56,12 @@ test("le compte est compact, replié par défaut et mémorisé sur tous les form
   assert.match(sidebar, /safe-area-inset-bottom/);
 });
 
-test("Costumes réhydrate les assets Identity Manager et expose tous les filtres demandés", () => {
-  const panel = read("src/components/admin/pokemon/costume-audit-panel.jsx");
+test("la fonctionnalité d'audit Costumes / Event est absente du Dashboard", () => {
+  const app = read("src/components/admin/pokemon/admin-app.jsx");
   const proxy = read("src/app/api/pokemon-admin/route.ts");
-  assert.match(panel, /identity: item\.identity/);
-  for (const field of ["event", "type", "sort", "order"]) assert.match(panel, new RegExp(`options\\.${field}`));
-  for (const sort of ["date", "event", "type", "name", "pokemonId"]) assert.match(panel, new RegExp(`value="${sort}"`));
-  assert.match(panel, /Plus ancien → plus récent/);
-  assert.match(panel, /Plus récent → plus ancien/);
-  assert.match(proxy, /"event", "type", "sort", "order"/);
+  const registry = read("src/lib/admin-regeneration-registry.ts");
+  assert.equal(fs.existsSync(path.join(root, "src/components/admin/pokemon/costume-audit-panel.jsx")), false);
+  for (const source of [app, proxy, registry]) assert.doesNotMatch(source, /costume-audit|regenerate-costume-audit/);
 });
 
 test("Best Attackers utilise un sélecteur de types visuel et des cartes mobiles compactes", () => {
@@ -421,7 +418,7 @@ test("le Dashboard n'appelle Shiny qu'avec le secret serveur", () => {
 
 test("le proxy Admin conserve une marge avant la limite Vercel", () => {
   const source = read("src/app/api/pokemon-admin/route.ts");
-  assert.match(source, /export const maxDuration = 60/);
+  assert.match(source, /export const maxDuration = 300/);
   assert.match(source, /pokemonAdminMutationTimeoutMs = 55_000/);
   assert.match(source, /timeoutMs = method === "GET" \? 30_000 : pokemonAdminMutationTimeoutMs/);
   assert.match(source, /AbortSignal\.timeout\(timeoutMs\)/);

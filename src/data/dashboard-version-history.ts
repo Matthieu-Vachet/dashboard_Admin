@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.44.0",
+    date: "2026-08-13",
+    title: "Audit Costumes retiré, filtre local restauré",
+    changes: [
+      "Supprime la section Costumes / Event, ses routes privées, sa régénération Margxt et toutes ses dépendances d’interface.",
+      "Conserve les costumes, formes, aliases, assets et validations canoniques gérés manuellement avec l’Identity Manager.",
+      "Recharge la famille Assets variants dans l’Engine et restaure le filtre Costume/Event, y compris les clones et formes événementielles sans costume artificiel.",
+      "Dérive le badge Dashboard de package.json et bloque en CI les releases produit sans version ni changelog.",
+    ],
+  },
+  {
     version: "V1.43.0",
     date: "2026-08-08",
     title: "Rapport Engine canonique et publication finale",

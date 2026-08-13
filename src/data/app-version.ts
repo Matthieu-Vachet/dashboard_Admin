@@ -1,1 +1,3 @@
-export const DASHBOARD_VERSION = "V1.43.0";
+import packageMetadata from "../../package.json";
+
+export const DASHBOARD_VERSION = `V${packageMetadata.version}`;

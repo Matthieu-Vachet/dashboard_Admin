@@ -1,6 +1,32 @@
 # Changelog
 
-## Unreleased - 2026-08-11
+## Unreleased
+
+## 1.44.0 - 2026-08-13
+
+### Added
+
+- Ajoute une CI qui exige une version et un changelog pour les changements produit sans bloquer les missions limitées aux tests ou à la documentation.
+- Ajoute une non-régression responsive du deep link historique, désormais redirigé proprement vers l'accueil sans appel à l'ancien audit.
+
+### Changed
+
+- Confie la maintenance des costumes et événements aux seules données canoniques locales, sans audit externe automatique.
+- Dérive le badge Dashboard de `package.json`, source unique de la version applicative.
+
+### Fixed
+
+- Recharge uniquement la famille Assets `variants` dans l’Engine et restaure 184 fiches Costume/Event calculées au lieu du compteur nul après la séparation Assets.
+- Regroupe les variantes de genre, accepte les clones comme `COPY_2019` et exclut les formes structurelles via le référentiel canonique partagé.
+- Aligne le test du budget Serverless Admin sur la durée de 300 secondes déjà publiée, tout en conservant le timeout de mutation à 55 secondes.
+- Écrit le marqueur de snapshot lors d'une matérialisation Data locale explicite afin que le postbuild vérifie le même contrat qu'en déploiement.
+
+### Removed
+
+- Supprime la section et la navigation Costumes / Event, son composant, sa recherche, ses compteurs, ses toasts et ses deep links actifs.
+- Retire le proxy API, la régénération, les registres, fixtures, matrices et documentation exclusivement dédiés à Costume Audit.
+
+### Changed — travail précédemment non publié du 2026-08-11
 
 - Centralise 19 actions de régénération/synchronisation, dont les 16 étapes globales, dans un registre Dashboard unique.
 - Standardise le checkout déployé sous `runtime-data/PokemonGo-Data` et corrige les globs récursifs du Calendrier Events.

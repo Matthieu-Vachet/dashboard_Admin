@@ -31,7 +31,6 @@ Réponses au diagnostic packaging :
 | GBL | `regenerate-gbl-calendar` | Registry API | Battleflow | calendrier + MongoDB |
 | Best Attackers | `regenerate-best-attackers` | Registry API | DialgaDex | rankings + MongoDB |
 | Best Defenders | `regenerate-best-defenders` | Registry API | Pokémon GO Hub | snapshot protégé sur 403 |
-| Costumes | `regenerate-costume-audit` | Registry API | Margxt | audit + MongoDB |
 | Œufs | `regenerate-eggs` | Registry API | LeekDuck | eggs current + MongoDB |
 | Research | `regenerate-research` | Registry API | LeekDuck | research current + MongoDB |
 | Calendar Events | `/api/admin/events/scrape` | Dashboard tracé | LeekDuck | events + archive MongoDB |
@@ -41,17 +40,17 @@ Réponses au diagnostic packaging :
 | Snapshot GitHub | `sync-github-data` | Dashboard | GitHub au build / racine packagée en production | snapshot runtime |
 | Images Dynamax | `/api/admin/dynamax-images/scan` | PokemonGo-API REST | Pokémon GO Hub + Chromium tracé | inventaire/cache MongoDB |
 
-Le registre Dashboard contient 19 actions, dont 16 participent au flux « Tout régénérer ». Le registre API contient 12 générateurs Data.
+Le registre Dashboard contient 18 actions, dont 15 participent au flux « Tout régénérer ». Le registre API contient 11 générateurs Data.
 
 ## Validation production finale
 
 - API : commit `c4b881ce7794e4fbb5b0cee1691523b742453778`, déploiement `dpl_7Lgv8htDR7og3ULchm4aoB6vN39C`, état `READY`.
 - Dashboard : commit `7d731be17099dc64907c0d9c78b85cf31988136f`, déploiement `dpl_7MmeVFTQMhfCc3t1U4Mc7JoEWxYX`, état `READY`.
-- Bouton « Tout régénérer » : 16 étapes exécutées, 0 échec, 8 avertissements attendus ; aucune erreur console.
+- Bouton « Tout régénérer » : 15 étapes exécutées ; aucune étape Costumes / Event ni aucun appel Margxt Costumes.
 - Best Defenders : `SOURCE_PROTECTED` HTTP 403 classé en avertissement, dernier snapshot MongoDB conservé.
 - Réindexation Game Master : HTTP 200 en 238 405 ms via lots idempotents repris sous la limite de 60 secondes.
 - Snapshot GitHub Data : HTTP 200 en 5 819 ms depuis la racine packagée.
 - Scan Dynamax : HTTP 202 puis nouvel état MongoDB persistant en 26 330 ms.
 - Trace post-build : 12 générateurs API, Chromium présent, 7 170 fichiers Calendar Events et 270 fichiers Dashboard Redeploy.
 
-La matrice détaillée des 19 actions se trouve dans `regeneration-production-matrix.json`.
+La matrice détaillée des 18 actions se trouve dans `regeneration-production-matrix.json`.

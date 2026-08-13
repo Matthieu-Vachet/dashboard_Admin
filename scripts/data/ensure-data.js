@@ -38,15 +38,17 @@ function fallbackCandidates() {
 
 function materializeLocalData(sourceDirectory) {
   const source = path.resolve(sourceDirectory);
-  if (source === targetDir) return;
-  if (fs.existsSync(targetDir)) fs.rmSync(targetDir, { recursive: true, force: true });
-  fs.mkdirSync(path.dirname(targetDir), { recursive: true });
-  // A real directory is required: Vercel/Next output tracing does not follow a
-  // workspace symlink outside the project root consistently.
-  fs.cpSync(source, targetDir, {
-    recursive: true,
-    filter: (entry) => !String(entry).split(path.sep).includes(".git"),
-  });
+  if (source !== targetDir) {
+    if (fs.existsSync(targetDir)) fs.rmSync(targetDir, { recursive: true, force: true });
+    fs.mkdirSync(path.dirname(targetDir), { recursive: true });
+    // A real directory is required: Vercel/Next output tracing does not follow a
+    // workspace symlink outside the project root consistently.
+    fs.cpSync(source, targetDir, {
+      recursive: true,
+      filter: (entry) => !String(entry).split(path.sep).includes(".git"),
+    });
+  }
+  writeSnapshot({ repo: source, ref: "WORKTREE", source: "local" });
 }
 
 function authenticatedRepoUrl(repo, token) {

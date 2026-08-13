@@ -72,7 +72,7 @@ export function costumePresentationEntries(entries = []) {
   return entries.flatMap((entry) => {
     const groups = new Map();
     for (const asset of Array.isArray(entry.eventAssets) ? entry.eventAssets : []) {
-      if (!asset?.costume) continue;
+      if (!asset?.costume && !asset?.form) continue;
       const identity = costumeIdentity(entry, asset);
       const current = groups.get(identity) || [];
       current.push(asset);

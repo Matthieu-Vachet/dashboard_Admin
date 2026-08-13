@@ -14,7 +14,7 @@ export type PokemonApiPrivateEndpoint = {
 
 const datasetDomains = [
   "raids", "eggs", "max-battles", "rocket", "research", "shiny", "pvp-rankings",
-  "gbl-calendar", "best-attackers", "best-defenders", "costume-audit", "pokemon-identity-mappings",
+  "gbl-calendar", "best-attackers", "best-defenders", "pokemon-identity-mappings",
 ] as const;
 
 const datasetEndpoints: PokemonApiPrivateEndpoint[] = datasetDomains.flatMap((domain) => {

@@ -114,12 +114,8 @@ test("le contrat détecte aussi les compteurs d’erreur imbriqués", () => {
   assert.throws(() => assertCompleteRegeneration({ data: { success: true, data: { failed: 1 } } }), /échoué/);
 });
 
-test("Costume et Event utilisent le même contrat de notification", () => {
-  const costume = fs.readFileSync(path.join(root, "src/components/admin/pokemon/costume-audit-panel.jsx"), "utf8");
+test("Events utilise le contrat de notification partagé", () => {
   const events = fs.readFileSync(path.join(root, "src/components/admin/events/events-calendar-panel.jsx"), "utf8");
-  assert.match(costume, /runRegenerationWithToast\(\{[\s\S]*key: "costume-audit"/);
-  assert.match(costume, /executePokemonAdminRegeneration\("regenerate-costume-audit"\)/);
-  assert.match(costume, /load\(\{ propagate: true \}\)/);
   assert.match(events, /runRegenerationWithToast\(\{[\s\S]*key: "events-scrape"/);
   assert.match(events, /signal,/);
 });

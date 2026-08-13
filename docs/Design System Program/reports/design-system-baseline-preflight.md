@@ -11,10 +11,9 @@ Réparer les baselines rendues obsolètes par l’ajout de consommateurs conform
 
 Les tests mélangeaient deux responsabilités : préserver une cohorte historique et imposer son nombre exact au code courant. L’ajout légitime de Card, Modal, Select, Field/Input et états génériques faisait donc échouer des assertions malgré une consommation canonique. Quelques assertions vérifiaient aussi des couleurs, chemins de documentation ou structures antérieurs aux consolidations Color System et Modal.
 
-Deux consommateurs violaient avec certitude le contrat `ErrorState` déjà validé :
+Un consommateur violait avec certitude le contrat `ErrorState` déjà validé :
 
-- `src/components/admin/pokemon/best-defenders-panel.jsx` ;
-- `src/components/admin/pokemon/costume-audit-panel.jsx`.
+- `src/components/admin/pokemon/best-defenders-panel.jsx`.
 
 La correction autorisée est exclusivement mécanique : `description={error}` devient `message={error}`. Aucun texte, handler, style, comportement, donnée, structure UI ni API de primitive n’est modifié.
 

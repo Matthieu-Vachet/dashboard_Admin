@@ -1,9 +1,9 @@
 ---
 id: DOC-007
 titre: Versionnage
-version: 1.1.0
+version: 2.0.0
 statut: Actif
-derniere_mise_a_jour: 2026-07-13
+derniere_mise_a_jour: 2026-08-13
 auteur: Matthieu Vachet
 categorie: Fondation
 tome: 1
@@ -21,7 +21,7 @@ references:
 
 # Versionnage
 
-> Ce document définit la stratégie de versionnage commune visée pour l'ensemble de la plateforme. L'audit montre que les applications utilisent plusieurs marqueurs SemVer, tandis que les datasets, schémas et Providers ne suivent pas encore un contrat homogène.
+> Ce document définit la stratégie de versionnage appliquée à l'ensemble de la plateforme. Les versions logicielles, données et schémas sont indépendantes et contrôlées en CI.
 
 ## Objectifs
 
@@ -47,7 +47,7 @@ MAJOR.MINOR.PATCH
 | MINOR | Nouvelle fonctionnalité compatible | 1.5.0 |
 | PATCH | Correction compatible | 1.5.3 |
 
-État observé : Dashboard Admin, `PokemonGo-API-` et `PokemonGo-Data` utilisent des versions SemVer dans leur `package.json`. La Landing possède un package `1.0.0`. `PokemonGo-Assets-API` n'a pas de package ni de version applicative trouvée. Aucun outil de release automatisée ou règle SemVer exécutable n'a été trouvé.
+État appliqué au 2026-08-13 : Dashboard Admin, `PokemonGo-API-` et `PokemonGo-Data` utilisent SemVer dans leur `package.json`. `PokemonGo-Assets-API`, dépôt statique sans package Node, utilise `version.json`. Chaque dépôt produit possède un garde-fou de release exécutable en CI.
 
 ---
 
@@ -69,17 +69,28 @@ Concerne :
 
 | Projet | Package | Autre marqueur observé |
 |--------|---------|-------------------------|
-| Dashboard Admin | `1.21.1` | UI `V1.21.1`, changelog `1.21.1` |
-| PokemonGo-API- | `1.7.0` | OpenAPI `1.4.1`, changelog `1.6.1`, chemin REST `/api/v1` |
-| PokemonGo-Data | `1.8.0` | changelog `1.7.0` |
+| Dashboard Admin | `1.44.0` | badge dérivé du package, historique `V1.44.0` |
+| PokemonGo-API- | `1.21.0` | OpenAPI `1.21.0`, chemin REST public `/api/v1` |
+| PokemonGo-Data | `1.22.0` | `version.json` : Data `2026.08.13.1`, schéma `1.0.0` |
 | Landing-Page-PogoApi | `1.0.0` | aucun changelog trouvé |
-| PokemonGo-Assets-API | Non trouvé | aucun marqueur trouvé |
+| PokemonGo-Assets-API | Sans package | `version.json` : `1.0.0`, Assets `2026.08.13.1` |
 
 ---
 
 ## Datasets
 
-Les datasets peuvent porter des marqueurs de version, mais l'audit ne trouve pas de contrat global appliqué aux 19 datasets.
+PokemonGo-Data expose un contrat global dans `version.json` :
+
+```json
+{
+  "appVersion": "1.22.0",
+  "dataVersion": "2026.08.13.1",
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-08-13T13:45:48.000Z"
+}
+```
+
+`dataVersion` change lorsqu’un contenu canonique ou sa génération change. `schemaVersion` ne change que pour une évolution structurelle.
 
 Exemples :
 
@@ -174,7 +185,7 @@ Avant toute publication, vérifier :
 - compatibilité MongoDB ;
 - compatibilité documentation.
 
-Ces vérifications sont des exigences. L'audit ne trouve pas de gate automatisé commun prouvant qu'elles sont toutes exécutées avant chaque release.
+Ces vérifications sont des exigences. Les workflows de Data, Dashboard et Assets comparent le commit à sa base : un changement produit exige la version et le changelog correspondants, tandis qu’un changement limité aux docs/tests/CI ne déclenche pas de release artificielle. L'API reste `1.21.0` pour cette mission, car aucune route publique ni aucun contrat public n'est modifié.
 
 ---
 

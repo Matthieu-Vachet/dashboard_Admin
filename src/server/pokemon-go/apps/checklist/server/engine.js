@@ -159,6 +159,19 @@ function normalizeAssetForms(assetForms) {
   return Array.isArray(assetForms) ? assetForms.map(normalizeAssetForm) : [];
 }
 
+let excludedCostumeEventForms = null;
+
+function eventAssetIsCostumeOrEvent(asset = {}) {
+  if (asset.costume) return true;
+  const form = String(asset.form || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  if (!form) return false;
+  if (!excludedCostumeEventForms) {
+    const classification = readJson(dataPath("data", "reference", "event-variant-classification.json"));
+    excludedCostumeEventForms = new Set((classification.excludedForms || []).map((value) => String(value).toLowerCase()));
+  }
+  return !excludedCostumeEventForms.has(form);
+}
+
 function hydrateSourceData(data, { families = assetFamilies } = {}) {
   const bundle = readAssetBundle(data, { families });
   const record = bundle?.core || null;
@@ -1408,7 +1421,7 @@ function assetPresentation(data, { includeLocationCards = false } = {}) {
   );
   const eventAssets = Array.isArray(data.assetForms)
     ? data.assetForms
-        .filter((asset) => asset?.image || asset?.shinyImage)
+        .filter((asset) => (asset?.image || asset?.shinyImage) && eventAssetIsCostumeOrEvent(asset))
         .map((asset) => ({
           form: asset.form || null,
           costume: asset.costume || null,
@@ -1517,12 +1530,12 @@ function buildChecklist(customRulesOverride = null, options = {}) {
       file,
       kind: "pokemon",
       sourceData,
-      data: hydrateSourceData(sourceData, { families: [] }),
+      data: hydrateSourceData(sourceData, { families: ["variants"] }),
     });
   }
   for (const file of listFormJsonFiles().sort()) {
     const sourceData = readJson(file);
-    const data = hydrateSourceData(sourceData, { families: [] });
+    const data = hydrateSourceData(sourceData, { families: ["variants"] });
     const form = String(data.form || "");
     sources.push({
       file,
@@ -1963,6 +1976,7 @@ module.exports = {
   buildSuggestedPatch,
   buildChecklist,
   detailForKey,
+  eventAssetIsCostumeOrEvent,
   hydrateSourceData,
   readAssetBundle,
   readAssetRecord,

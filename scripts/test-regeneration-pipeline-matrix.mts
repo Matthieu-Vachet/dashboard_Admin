@@ -42,7 +42,6 @@ test("les parcours critiques conservent leurs preuves de production", () => {
   assert.match(byId.eggs.preview, /76/);
   assert.match(byId.research.preview, /59/);
   assert.equal(byId.events.diagnostics.archivePreserved, true);
-  assert.equal(byId["costume-audit"].diagnostics.unmatched, 1);
 });
 
 test("un sourceRun Events partiel est reflété dans la matrice globale", async () => {

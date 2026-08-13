@@ -12,8 +12,8 @@ const require = createRequire(import.meta.url);
 const dataRepository = require("../src/server/pokemon-go/src/lib/data-repository.js");
 const root = path.resolve(import.meta.dirname, "..");
 
-assert.equal(adminRegenerationRegistry.length, 19, "Le registre doit couvrir les 19 actions de regeneration/synchronisation.");
-assert.equal(globalAdminRegenerations().length, 16, "Le flux Tout regenerer doit conserver 16 etapes.");
+assert.equal(adminRegenerationRegistry.length, 18, "Le registre doit couvrir les 18 actions de regeneration/synchronisation.");
+assert.equal(globalAdminRegenerations().length, 15, "Le flux Tout regenerer doit couvrir les 15 etapes actives.");
 assert.equal(new Set(adminRegenerationRegistry.map((entry) => entry.id)).size, adminRegenerationRegistry.length, "IDs de registre dupliques.");
 
 for (const registration of adminRegenerationRegistry) {
@@ -40,7 +40,7 @@ assert.match(adminRoute, /pokemonAdminProxyRegeneration\(action\)/);
 assert.match(adminRoute, /export const maxDuration = 300/);
 assert.match(adminRoute, /regeneration\.timeoutSeconds/);
 assert.match(adminRoute, /process\.env\.VERCEL === "1"/);
-assert.doesNotMatch(adminRoute, /action === "regenerate-(?:raids|eggs|max-battles|rocket|research|shiny|pvp-rankings|gbl-calendar|best-attackers|best-defenders|costume-audit|pokemon-identity-mappings|game-master)"/);
+assert.doesNotMatch(adminRoute, /action === "regenerate-(?:raids|eggs|max-battles|rocket|research|shiny|pvp-rankings|gbl-calendar|best-attackers|best-defenders|pokemon-identity-mappings|game-master)"/);
 
 const dynamaxScanRoute = fs.readFileSync(path.join(root, "src/app/api/admin/dynamax-images/scan/route.ts"), "utf8");
 const dynamaxApi = fs.readFileSync(path.join(root, "src/lib/dynamax-images-api.ts"), "utf8");

@@ -161,26 +161,8 @@ function entryMatchesCollection(entry, collection, region, query) {
   return !needle || textForEntry(entry).includes(needle);
 }
 
-const nonEventAssetForms = new Set([
-  "normal",
-  "mega",
-  "mega-x",
-  "mega-y",
-  "primal",
-  "dynamax",
-  "gigantamax",
-  "shadow",
-  "purified",
-  "alola",
-  "galar",
-  "hisui",
-  "paldea",
-]);
-
 function eventAssetIsCollectionItem(asset = {}) {
-  const form = String(asset.form || "").toLowerCase();
-  if (asset.costume) return true;
-  return Boolean(form) && !nonEventAssetForms.has(form);
+  return Boolean(asset.costume || asset.form);
 }
 
 function readableAssetLabel(value) {

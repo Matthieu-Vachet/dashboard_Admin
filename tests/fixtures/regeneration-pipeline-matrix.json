@@ -4,7 +4,7 @@
   "dashboardUrl": "https://dashboard-admin-pi-ebon.vercel.app/pokemon-admin",
   "execution": {
     "mode": "dashboard-sequential",
-    "steps": 16,
+    "steps": 15,
     "consoleErrors": 0,
     "gitCommitOrDispatch": false,
     "persistence": "MongoDB atomic upsert with dataset run history"
@@ -149,20 +149,6 @@
       "commitDispatch": "non applicable",
       "result": "pass-source-protected",
       "diagnostics": { "code": "SOURCE_PROTECTED", "http": 403, "preserved": true }
-    },
-    {
-      "id": "costume-audit",
-      "source": "Margxt Pokémon déguisés",
-      "preview": "197 références · 196 présentes · 1 à corriger",
-      "network": "POST Dashboard puis GET privé terminés",
-      "parsing": "197 entrées",
-      "writing": "upsert compressé vérifié",
-      "toast": "toast partagé succès/erreur",
-      "refresh": "preview MongoDB privée rechargée",
-      "target": "costume-audit/current.json · MongoDB costume_audits",
-      "commitDispatch": "non applicable",
-      "result": "pass-with-warning",
-      "diagnostics": { "unmatched": 1, "modified": 192 }
     },
     {
       "id": "eggs",

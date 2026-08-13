@@ -109,17 +109,13 @@ async function installRoutes(page) {
       { rank: 2, tier: "S", score: 62_300, scoreLabel: "62.3k", source: { name: "Leveinard", slug: "113", url: "https://example.test/113" }, pokemon: pokemon(113, "Leveinard", "NORMAL") },
       { rank: 1, tier: "A+", score: 55_800, scoreLabel: "55.8k", source: { name: "Ronflex", slug: "143", url: "https://example.test/143" }, pokemon: pokemon(143, "Ronflex", "NORMAL") },
     ] }, 3));
-    if (action === "costume-audit") return json(route, datasetEnvelope({ metadata: { total: 2, sourceUrl: "https://www.margxt.fr/guide-les-pokemon-deguises-dans-pokemon-go/", statusCounts: { present: 1, missing: 1, shinyAvailable: 2 }, availableEvents: ["Ultra Bonus 2026", "City Safari"], availableTypes: ["ELECTRIC"] }, items: [
-      { id: "costume-1", source: { pokemonName: "Pikachu", costumeName: "Assistant du Professeur Willow" }, shinyAvailable: true, events: ["Ultra Bonus 2026"], notes: [], types: ["ELECTRIC"], eventDate: "2026-07-21T00:00:00.000Z", identity: { pokemonId: 25, canonicalId: "PIKACHU_WILLOW", form: "NORMAL", costume: "WILLOW", image: artwork, shinyImage: artwork, resolutionStatus: "matched", resolution: { status: "matched" } }, pokemonGoData: { status: "present", canonicalId: "PIKACHU_WILLOW", exactNormalAsset: artwork, exactShinyAsset: artwork } },
-      { id: "costume-2", source: { pokemonName: "Évoli", costumeName: "Chapeau explorateur" }, shinyAvailable: true, events: ["City Safari"], notes: [], identity: { pokemonId: 133, resolution: { reason: "ALIAS_UNKNOWN" } }, pokemonGoData: { status: "unresolved", canonicalId: null, exactNormalAsset: null, exactShinyAsset: null } },
-    ] }, 2));
     if (action === "shiny") return json(route, datasetEnvelope({ rankings: shinyEntries, podium: shinyEntries.slice(0, 3), summary: { today: 381, total: 381, rare: 50 } }, shinyEntries.length));
     if (action === "pvp-rankings") return json(route, datasetEnvelope(pvpDataset, 1));
     if (action === "pvp-teammates") return json(route, { data: { data: [{ rankOrOrder: 1, rawName: "Forgelina", providerAlias: "tinkaton", canonicalId: "TINKATON_NORMAL", resolutionStatus: "matched", pokemon: pokemon(959, "Forgelina", "FAIRY") }] } });
     if (action === "gbl-calendar") return json(route, datasetEnvelope(gblDataset, 1));
     if (action === "identity-manager-providers") return json(route, { data: [
       { id: "pokemon-go-hub", label: "Pokémon GO Hub", domains: ["best-defenders"], visibility: "public", status: "active", aliases: 2, activeAliases: 2, openDiagnostics: 1, occurrences: 2 },
-      { id: "margxt", label: "Margxt", domains: ["costume-audit"], visibility: "private", status: "active", aliases: 4, activeAliases: 4, openDiagnostics: 193, occurrences: 193 },
+      { id: "margxt", label: "Margxt", domains: ["pokemon-availability", "pokemon-shiny-availability", "pokemon-shadow-availability"], visibility: "private", status: "active", aliases: 4, activeAliases: 4, openDiagnostics: 193, occurrences: 193 },
     ] });
     if (action === "identity-manager-sync-preview") return json(route, { data: {
       mode: "dry-run", inventory: { schemaVersion: 1, fingerprint: "fixture-catalog-fingerprint", total: 1605, issues: 0 },
@@ -171,7 +167,7 @@ async function assertNoOverflow(page, label) {
 const scenarios = [
   { id: "overview", path: "/pokemon-admin?section=overview", ready: /Voici ce qui demande votre attention aujourd’hui/ },
   { id: "best-defenders", path: "/pokemon-admin?section=best-defenders", ready: /Best Defenders/ },
-  { id: "costume-audit", path: "/pokemon-admin?section=costume-audit", ready: /Costumes \/ Event Pokémon/ },
+  { id: "removed-costume-audit", path: "/pokemon-admin?section=costume-audit", ready: /Voici ce qui demande votre attention aujourd’hui/ },
   { id: "shiny", path: "/pokemon-admin?section=shiny", ready: /Shiny Tracker/ },
   { id: "pvp-rankings", path: "/pokemon-admin?section=pvp-rankings", ready: /Classements PvP/, pvpDetail: true },
   { id: "pvp-simulator", path: "/pokemon-admin?section=pvp-simulator", ready: /POKÉMON GO · MOTEUR NATIF/, battleLab: true },
@@ -257,12 +253,10 @@ try {
             }
           }
         }
-        if (scenario.id === "costume-audit") {
-          await page.getByRole("combobox", { name: "Filtrer par événement" }).waitFor({ state: "visible" });
-          await page.getByRole("combobox", { name: "Filtrer par type" }).selectOption("ELECTRIC");
-          await page.getByRole("combobox", { name: "Trier les costumes" }).selectOption("pokemonId");
-          await page.getByRole("combobox", { name: "Ordre du tri" }).selectOption("asc");
-          await page.locator('[data-asset-status="matched"]').first().waitFor({ state: "visible" });
+        if (scenario.id === "removed-costume-audit") {
+          assert.equal(new URL(page.url()).searchParams.get("section"), "overview");
+          assert.equal(await page.getByText("Costumes / Event", { exact: true }).count(), 0);
+          assert.equal(pokemonAdminActions.includes("costume-audit"), false);
         }
         if (scenario.id === "shiny" && width < 640) {
           const visualOrder = await page.locator('[aria-label="Podium Shiny"] > button').evaluateAll((buttons) => buttons
@@ -389,7 +383,7 @@ try {
         assert.deepEqual(failedRequests, [], `${scenario.id}-${theme}-${width}: requêtes réseau échouées`);
         assert.deepEqual(failedResponses, [], `${scenario.id}-${theme}-${width}: réponses HTTP en erreur`);
         assert.deepEqual(brokenImages, [], `${scenario.id}-${theme}-${width}: images visibles cassées`);
-        if ((width === 375 && theme === "dark" && ["overview", "best-defenders", "costume-audit", "shiny", "pvp-simulator", "events", "notes"].includes(scenario.id)) || (width === 1440 && theme === "light" && ["best-defenders", "costume-audit"].includes(scenario.id))) {
+        if ((width === 375 && theme === "dark" && ["overview", "best-defenders", "shiny", "pvp-simulator", "events", "notes"].includes(scenario.id)) || (width === 1440 && theme === "light" && ["best-defenders"].includes(scenario.id))) {
           await page.screenshot({ path: path.join(artifactRoot, `${scenario.id}-${theme}-${width}.png`), fullPage: true });
         }
         results.push({ scenario: scenario.id, theme, width, overflow });

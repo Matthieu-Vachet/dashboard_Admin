@@ -340,15 +340,6 @@ async function readCurrentBestDefenders(request: NextRequest) {
   );
 }
 
-async function readCurrentCostumeAudit(request: NextRequest) {
-  const query = forwardedRankedQuery(request, ["search", "status", "shiny", "event", "type", "sort", "order", "page", "limit"]);
-  return readPokemonApiCurrent(
-    `/api/v1/admin/costume-audit${query ? `?${query}` : ""}`,
-    (data) => Array.isArray(data.items) && Boolean(data.metadata),
-    (data, meta, current) => ({ data, meta: normalizeCurrentMeta(meta), current }),
-  );
-}
-
 async function readCurrentPokemonIdentityMappings(request: NextRequest) {
   const query = forwardedRankedQuery(request, ["status", "search", "page", "limit", "full"]);
   return readPokemonApiCurrent(
@@ -373,7 +364,7 @@ async function readShinyHistory(request: NextRequest) {
 
 async function readDatasetHistory(request: NextRequest) {
   const domain = String(request.nextUrl.searchParams.get("domain") || "");
-  const allowed = new Set(["raids", "eggs", "max-battles", "rocket", "research", "shiny", "pvp-rankings", "gbl-calendar", "best-attackers", "best-defenders", "costume-audit", "pokemon-identity-mappings"]);
+  const allowed = new Set(["raids", "eggs", "max-battles", "rocket", "research", "shiny", "pvp-rankings", "gbl-calendar", "best-attackers", "best-defenders", "pokemon-identity-mappings"]);
   if (!allowed.has(domain)) throw requestError("Domaine d'historique invalide.", 400);
   const query = forwardedRankedQuery(request, ["page", "limit", "status"]);
   return readPokemonApiAdmin(`/api/v1/${domain}/history${query ? `?${query}` : ""}`);
@@ -888,10 +879,6 @@ export async function GET(request: NextRequest) {
 
     if (action === "best-defenders") {
       return json({ data: await readCurrentBestDefenders(request) });
-    }
-
-    if (action === "costume-audit") {
-      return json({ data: await readCurrentCostumeAudit(request) });
     }
 
     if (action === "pokemon-identity-mappings") {

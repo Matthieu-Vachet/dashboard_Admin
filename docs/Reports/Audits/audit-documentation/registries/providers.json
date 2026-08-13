@@ -25,6 +25,6 @@
   "watchOnlySources": {
     "path": "PokemonGo-Data/source-watch/sources.json",
     "count": 22,
-    "note": "The file also lists news/reference/watch targets that are not dataset providers: Pokemon GO Live, GO Hub, Serebii GO, Margxt news, GoDex, PkmnShuffleMap and PokeMiners pages."
+    "note": "The file also lists news/reference/watch targets that are not dataset providers: Pokemon GO Live, GO Hub, Serebii GO, active Margxt pages, PkmnShuffleMap and PokeMiners pages. GoDex and the retired Margxt Costume audit source are not active providers."
   }
 }

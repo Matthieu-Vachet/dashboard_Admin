@@ -57,11 +57,14 @@ test("un costume uniquement femelle reste visible avec son asset exact", () => {
   assert.equal(entry.presentationVariant.selectedGender, "female");
 });
 
-test("les formes sans costume ne polluent pas le filtre Costume", () => {
+test("une forme clone reconnue par l'Engine reste visible sans costume dupliqué", () => {
   const entries = costumePresentationEntries([
-    pikachu({ eventAssets: [{ form: "PIKACHU_FEMALE", costume: null, isFemale: true, image: "female-form.png" }] }),
+    pikachu({ eventAssets: [{ form: "COPY_2019", costume: null, isFemale: true, image: "clone-form.png" }] }),
   ]);
-  assert.deepEqual(entries, []);
+  assert.equal(entries.length, 1);
+  assert.equal(entries[0].form, "COPY_2019");
+  assert.equal(entries[0].costume, null);
+  assert.equal(entries[0].eventAsset.image, "clone-form.png");
 });
 
 test("le filtre Chromatique marque explicitement la sélection shiny", () => {

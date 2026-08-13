@@ -6,9 +6,9 @@
 
 L’API résout les fichiers par `getPokemonGoDataRuntimeRoot`, `resolvePokemonGoDataFile` et `resolvePokemonGoDataModule`. Le resolver valide la forme du dépôt, résout les liens symboliques, bloque le path traversal et émet des erreurs structurées. Le debug serveur s’active avec `POKEMON_GO_RUNTIME_DEBUG=1`.
 
-Les modules de génération ne sont jamais chargés par `require()` dynamique. `src/lib/generator-registry.js` contient des imports littéraux des 12 modules. Next peut ainsi embarquer leur code et toutes leurs dépendances transitives. Chaque appel reçoit explicitement `rootDir`, donc aucun générateur ne dépend de son `__dirname` une fois bundlé.
+Les modules de génération ne sont jamais chargés par `require()` dynamique. `src/lib/generator-registry.js` contient des imports littéraux des 11 modules actifs. Next peut ainsi embarquer leur code et toutes leurs dépendances transitives. Chaque appel reçoit explicitement `rootDir`, donc aucun générateur ne dépend de son `__dirname` une fois bundlé.
 
-Le Dashboard utilise `src/lib/admin-regeneration-registry.ts` pour les actions, routes API, providers, sorties, permissions et timeouts. Les 16 étapes globales et le proxy `/api/pokemon-admin` dérivent de ce registre.
+Le Dashboard utilise `src/lib/admin-regeneration-registry.ts` pour les actions, routes API, providers, sorties, permissions et timeouts. Les 15 étapes globales et le proxy `/api/pokemon-admin` dérivent de ce registre.
 
 ## Packaging Vercel
 
@@ -38,3 +38,5 @@ Ne pas ajouter un fallback ou une copie manuelle. Vérifier dans cet ordre : val
 ## Gouvernance
 
 > Toute nouvelle fonctionnalité de régénération doit être enregistrée dans le Generator Registry et couverte par `verify:regenerations`. Aucun module de génération ne doit être référencé par chemin absolu ou hardcodé directement depuis une page/action.
+
+Les costumes et événements sont désormais maintenus manuellement dans les données canoniques. Aucun audit externe automatique Costumes / Event n'est exécuté. L'Engine et l'Identity Manager continuent toutefois de valider les formes, costumes, aliases et assets locaux.

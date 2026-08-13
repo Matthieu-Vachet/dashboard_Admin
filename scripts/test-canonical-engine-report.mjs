@@ -6,7 +6,7 @@ import { createRequire } from "node:module";
 
 process.env.POKEMON_GO_DATA_DIR ||= path.resolve(process.cwd(), "../PokemonGo-Data");
 const require = createRequire(import.meta.url);
-const { buildCanonicalEngineReport, validateSourceData } = require("../src/server/pokemon-go/apps/checklist/server/engine.js");
+const { buildCanonicalEngineReport, buildChecklist, eventAssetIsCostumeOrEvent, validateSourceData } = require("../src/server/pokemon-go/apps/checklist/server/engine.js");
 const { summarizeChecklist } = require("../src/server/pokemon-go/src/lib/site-dashboard.js");
 const engineRun = buildCanonicalEngineReport([]);
 
@@ -55,6 +55,20 @@ test("le véritable Engine produit un rapport global sérialisable et mesuré", 
     Object.values(report.diagnostics.categories).reduce((total, category) => total + category.info, 0),
     report.diagnostics.severityCounts.info,
   );
+});
+
+test("le filtre Costume/Event charge les variants séparés et couvre la famille Bulbizarre", () => {
+  const entries = buildChecklist([]);
+  const eventFiches = entries.filter((entry) => Array.isArray(entry.eventAssets) && entry.eventAssets.length > 0);
+  assert.ok(eventFiches.length > 0);
+  const bulbasaur = entries.find((entry) => entry.formId === "BULBASAUR");
+  const ivysaur = entries.find((entry) => entry.formId === "IVYSAUR");
+  const venusaur = entries.find((entry) => entry.formId === "VENUSAUR");
+  assert.ok(bulbasaur.eventAssets.some((asset) => asset.costume === "JAN_2020_NOEVOLVE"));
+  assert.ok(ivysaur.eventAssets.some((asset) => asset.costume === "JAN_2020_NOEVOLVE"));
+  assert.ok(venusaur.eventAssets.some((asset) => asset.form === "COPY_2019"));
+  assert.equal(eventAssetIsCostumeOrEvent({ form: "normal" }), false);
+  assert.equal(eventAssetIsCostumeOrEvent({ form: "COPY_2019" }), true);
 });
 
 test("le rapport distingue les absences légitimes des erreurs et refuse les reliquats legacy", () => {

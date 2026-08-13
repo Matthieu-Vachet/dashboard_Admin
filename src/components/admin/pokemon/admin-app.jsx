@@ -137,7 +137,6 @@ const GameMasterExplorerPanel = dynamic(
 );
 
 const BestDefendersPanel = dynamic(() => import("./best-defenders-panel").then((module) => module.BestDefendersPanel));
-const CostumeAuditPanel = dynamic(() => import("./costume-audit-panel").then((module) => module.CostumeAuditPanel));
 const PvpBattleLab = dynamic(
   () => import("./pvp-battle-lab").then((module) => module.PvpBattleLab),
   {
@@ -231,7 +230,6 @@ const navItems = [
     group: "combat",
   },
   { id: "best-defenders", label: "Best Defenders", icon: ShieldCheck, group: "combat" },
-  { id: "costume-audit", label: "Costumes / Event", icon: Sparkles, group: "events" },
   {
     id: "eggs",
     label: "Œufs",
@@ -2061,7 +2059,7 @@ export function AdminApp() {
       Object.fromEntries(
         ficheFilterOptions.map(([id]) => [
           id,
-          pokemonPresentationEntries(entries, id).filter((entry) =>
+          (id === "costume" ? entries : pokemonPresentationEntries(entries, id)).filter((entry) =>
             entryMatchesFicheFilter(entry, id),
           ).length,
         ]),
@@ -3479,8 +3477,6 @@ export function AdminApp() {
               ) : null}
 
               {active === "best-defenders" ? <BestDefendersPanel onOpenPokemon={openPokemonReference} globalSearch={search} onSearchChange={updateGlobalSearch} /> : null}
-
-              {active === "costume-audit" ? <CostumeAuditPanel globalSearch={search} onSearchChange={updateGlobalSearch} /> : null}
 
               {active === "pokemon-identity-mappings" ? (
                 <PokemonIdentityMappingsPanel
