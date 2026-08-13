@@ -31,6 +31,7 @@ const routes = [
   verifyRoute("Admin Pokémon", "app/api/pokemon-admin/route.js.nft.json", [
     "runtime-data/PokemonGo-Data/package.json",
     "runtime-data/PokemonGo-Data/data/reference/event-variant-classification.json",
+    "runtime-data/PokemonGo-Data/operations/reports/pvpoke/moveset-mapping-audit-current.json",
   ]),
   verifyRoute("Calendar Events", "app/api/admin/events/scrape/route.js.nft.json", [
     "runtime-data/PokemonGo-Data/package.json",

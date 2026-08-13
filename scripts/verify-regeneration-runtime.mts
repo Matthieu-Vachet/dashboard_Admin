@@ -32,6 +32,7 @@ for (const relative of [
   "data/moves",
   "data/reference/items/items.json",
   "data/reference/event-variant-classification.json",
+  "operations/reports/pvpoke/moveset-mapping-audit-current.json",
 ]) {
   assert.ok(fs.existsSync(dataRepository.resolvePokemonGoDataFile(relative)), `Data runtime absent: ${relative}`);
 }

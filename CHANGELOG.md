@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 1.44.2 - 2026-08-13
+
+### Fixed
+
+- Embarque le rapport canonique de mapping des movesets PvPoke requis par l’Engine, supprimant l’erreur d’architecture artificielle observée uniquement dans la Function Vercel.
+- Vérifie explicitement ce fichier dans les contrôles runtime et postbuild de la route Admin Pokémon.
+
 ## 1.44.1 - 2026-08-13
 
 ### Fixed

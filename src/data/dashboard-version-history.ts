@@ -7,6 +7,16 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.44.2",
+    date: "2026-08-13",
+    title: "Rapport PvP canonique embarqué dans l’Engine",
+    changes: [
+      "Embarque le rapport de mapping des movesets PvPoke attendu par le sous-audit d’architecture.",
+      "Élimine l’erreur Engine artificielle créée par l’absence de ce fichier dans la Function Vercel.",
+      "Étend les gardes runtime et postbuild au référentiel PvP exact.",
+    ],
+  },
+  {
     version: "V1.44.1",
     date: "2026-08-13",
     title: "Packaging canonique de l’Engine corrigé",
