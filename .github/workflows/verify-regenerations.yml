@@ -8,6 +8,8 @@ on:
 jobs:
   dashboard-runtime:
     runs-on: ubuntu-latest
+    env:
+      POKEMON_GO_DATA_TOKEN: ${{ secrets.POKEMON_GO_DATA_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,6 +24,17 @@ jobs:
           RELEASE_GUARD_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: npm run verify:release-change
       - run: npm run test:version
-      - run: npm run verify:regenerations
-        env:
-          POKEMON_GO_DATA_TOKEN: ${{ secrets.POKEMON_GO_DATA_TOKEN }}
+      - name: Vérifier le runtime complet avec PokemonGo-Data privé
+        if: ${{ env.POKEMON_GO_DATA_TOKEN != '' }}
+        run: npm run verify:regenerations
+      - name: Vérifier le Dashboard sans accès inter-dépôt
+        if: ${{ env.POKEMON_GO_DATA_TOKEN == '' }}
+        run: >-
+          npm run test:regeneration-notifications &&
+          npm run test:regeneration-matrix &&
+          npm run test:source-watch &&
+          npm run test:pokemon-presentation &&
+          npm run test:design-system &&
+          npm run test:docs &&
+          npm run typecheck &&
+          npm run lint
