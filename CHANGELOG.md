@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+## 1.46.0 - 2026-08-14
+
+### Added
+
+- Ajoute `buildCollectionCatalog`, un moteur pur produisant une `CollectionEntry` stable par case de checklist pour Normal, Event, Chanceux, Obscur, Purifié, Méga/Primo, Dynamax et Gigamax.
+- Ajoute une table de vérité de 32 contrats et les diagnostics `COLLECTION_UNRELEASED_ENTRY`, `COLLECTION_DUPLICATE_ENTRY`, `COLLECTION_WRONG_ASSET_VARIANT`, `COLLECTION_INVALID_EVENT_KIND`, `COLLECTION_INVALID_GENDER_VARIANT`, `COLLECTION_INVALID_CATEGORY`, `COLLECTION_SHINY_NOT_RELEASED` et `COLLECTION_MISSING_ASSET` dans l'Engine canonique.
+- Ajoute les tests de contrat, migration et fixtures Bulbizarre, Florizarre, Rattata régional, Sulfura de Galar, Méga X/Y, Dynamax et Gigamax, ainsi qu'un parcours Playwright mobile multi-viewport.
+
+### Changed
+
+- Projette les 521 variantes secondaires séparées vers `collectionVariants`, dont 94 différences de genre et 427 variantes `kind === costume|event`, sans faire dépendre l'UI de l'ancien `assetForms`.
+- Applique strictement `availability.released === true`, remplace entièrement la checklist par les assets shiny lorsque Chromatique est actif et utilise `shadowShinyReleased` pour Obscur/Purifié.
+- Reconstruit la page mobile autour de la collection active : recherche immédiate, ALL/HAVE/NEED sticky, filtres et régions en bottom sheets, cartes compactes en deux colonnes et statistiques repliées après la liste.
+- Passe la persistance Collections au schéma 2 et à `matweb.pokemon.collections` dans `dashboard_store`, tout en conservant la clé locale historique `pokedex-v4-admin-collections` comme rollback.
+
+### Fixed
+
+- Corrige Gigamax + Non variante + ALL + Toutes régions, qui retourne désormais les 25 fiches sorties au lieu de `0/0`.
+- Regroupe Event Non variante en 315 identités principales et réserve les 427 variantes mâle/femelle au mode Multi variante sur le snapshot Data de production `e615642`.
+- Empêche les formes régionales, genres, Méga, Dynamax et Gigamax d'être classés comme événements.
+- Conserve les sélections HAVE/NEED lors du tri, de la recherche, du changement de région et de la migration des clés historiques.
+- Fusionne sans perte les snapshots MongoDB et localStorage : une collection locale non vide n'est jamais masquée par un document serveur vide, et les sélections HAVE concurrentes sont réunies.
+
 ## 1.45.0 - 2026-08-14
 
 ### Added

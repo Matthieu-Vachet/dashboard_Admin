@@ -1,36 +1,48 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import Image from "next/image";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Gauge, Image as ImageIcon, LayoutDashboard, Sparkles } from "lucide-react";
+import {
+  BarChart3,
+  Check,
+  ChevronDown,
+  Filter,
+  Image as ImageIcon,
+  Info,
+  LayoutDashboard,
+  MoreHorizontal,
+  Search,
+  Sparkles,
+  Trash2,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
-import { pokemonVariantLabel, preferredPokemonImage, typeColors } from "@/components/site/pokemon-style";
+import * as collectionCatalogEngine from "@/lib/collections/collection-catalog";
 import { uiAssets } from "@/components/site/ui-assets";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EmptyState } from "@/components/admin/shared/state-system";
 
-const panelClass =
-  "rounded-surface border border-line bg-surface-subtle p-4 shadow-raised backdrop-blur-xl sm:p-5";
-const fieldClass =
-  "min-h-12 w-full rounded-2xl border border-line bg-surface-inset-strong px-4 text-sm font-bold text-domain-foreground outline-none transition placeholder:text-disabled focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-400/10";
-const primaryButtonClass =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-400 px-4 py-2 text-sm font-black text-domain-foreground shadow-[0_14px_45px_rgba(14,165,233,.26)] transition hover:scale-[1.01]";
-const initialCollectionLimit = 96;
-const collectionLimitStep = 96;
+const {
+  COLLECTION_SCHEMA_VERSION,
+  buildCollectionCatalog,
+  buildCollectionDataStats,
+  migrateCollectionSelections,
+} = collectionCatalogEngine;
 
-const assetStatTone = {
-  cyan: "from-sky-500/24 via-cyan-300/12 to-slate-900/20 text-cyan-100 border-cyan-200/25",
-  violet: "from-violet-500/24 via-fuchsia-300/10 to-slate-900/20 text-violet-100 border-violet-200/25",
-  green: "from-emerald-400/24 via-teal-300/10 to-slate-900/20 text-emerald-100 border-emerald-200/25",
-  amber: "from-amber-400/24 via-orange-300/10 to-slate-900/20 text-amber-100 border-amber-200/25",
-};
+const panelClass = "rounded-surface border border-line bg-surface-subtle p-3 shadow-raised backdrop-blur-xl sm:p-5";
+const fieldClass = "min-h-11 w-full rounded-control border border-line bg-surface-inset-strong px-4 text-sm font-bold text-domain-foreground outline-none transition placeholder:text-disabled focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-400/10";
+const primaryButtonClass = "inline-flex min-h-11 items-center justify-center gap-2 rounded-control bg-gradient-to-r from-sky-500 to-cyan-400 px-4 py-2 text-sm font-black text-on-accent shadow-raised transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/30";
+const secondaryButtonClass = "inline-flex min-h-11 items-center justify-center gap-2 rounded-control border border-line bg-surface-control px-3 py-2 text-sm font-black text-domain-foreground transition hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/20";
+const initialCollectionLimit = 72;
+const collectionLimitStep = 72;
 
 const collectionTypes = [
   ["normal", "Normal", uiAssets.icons.pokeball || "/assets/ui/icons/general/pokeball.webp"],
-  ["event", "Evenement", "/assets/ui/icons/general/pokeball.webp"],
+  ["event", "Événement", "/assets/ui/icons/general/pokeball.webp"],
   ["lucky", "Chanceux", uiAssets.icons.shiny || "/assets/ui/icons/general/ic_shiny_white.webp"],
   ["shadow", "Obscur", uiAssets.icons.shadow || "/assets/ui/icons/general/shadow.png"],
-  ["purified", "Purifie", uiAssets.icons.purified || "/assets/ui/icons/general/purified.png"],
+  ["purified", "Purifié", uiAssets.icons.purified || "/assets/ui/icons/general/purified.png"],
   ["mega", "Méga", uiAssets.icons.mega || "/assets/ui/icons/general/mega.png"],
   ["dynamax", "Dynamax", uiAssets.icons.maxCp || "/assets/ui/icons/general/max_pc.webp"],
   ["gigantamax", "Gigamax", uiAssets.icons.maxCp || "/assets/ui/icons/general/max_pc.webp"],
@@ -55,351 +67,289 @@ const collectionRegionFilters = [
   ["9", "Paldea", "/assets/ui/icons/general/pokedex-paldea.webp"],
 ];
 
-const generationLabels = {
-  1: "Kanto",
-  2: "Johto",
-  3: "Hoenn",
-  4: "Sinnoh",
-  5: "Unys",
-  6: "Kalos",
-  7: "Alola",
-  8: "Galar",
-  9: "Paldea",
-  hisui: "Hisui",
-  unknown: "Inconnue",
-};
+const generationLabels = Object.fromEntries(collectionRegionFilters.map(([id, label]) => [id, label]));
 
 function formatCount(value) {
   return Number(value || 0).toLocaleString("fr-FR");
 }
 
-function textForEntry(entry) {
-  return [
-    entry.name,
-    entry.dexId,
-    entry.form,
-    entry.kind,
-    entry.profile,
-    entry.file,
-    entry.primaryType,
-    entry.secondaryType,
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
+function typeLabel(type) {
+  return collectionTypes.find(([id]) => id === type)?.[1] || type;
 }
 
-function entryIsReleased(entry) {
-  return entry.availability?.released !== false;
+function variantModeLabel(mode) {
+  return collectionVariantModes.find(([id]) => id === mode)?.[1] || mode;
 }
 
-function entryIsMega(entry) {
-  const kind = String(entry.kind || "").toLowerCase();
-  const form = String(entry.form || "").toLowerCase();
-  return kind === "mega" || form.startsWith("mega") || form === "primal";
+function statusLabel(status) {
+  return status === "have" ? "HAVE" : status === "need" ? "NEED" : "ALL";
 }
 
-function entryIsMax(entry, type) {
-  const kind = String(entry.kind || "").toLowerCase();
-  const form = String(entry.form || "").toLowerCase();
-  return kind === type || form === type;
-}
+function Sheet({ open, title, description, onClose, children, footer, size = "lg" }) {
+  const dialogRef = useRef(null);
+  const previousFocusRef = useRef(null);
 
-function entryIsEvent(entry) {
-  return entry.collectionType === "event" || String(entry.kind || "").toLowerCase() === "event";
-}
-
-function entryMatchesCollectionType(entry, type) {
-  if (!entryIsReleased(entry)) return false;
-  const availability = entry.availability || {};
-  const isMega = entryIsMega(entry);
-  const isDynamax = entryIsMax(entry, "dynamax");
-  const isGigantamax = entryIsMax(entry, "gigantamax");
-  const isEvent = entryIsEvent(entry);
-  if (type === "normal") {
-    return !isEvent && !isMega && !isDynamax && !isGigantamax;
-  }
-  if (type === "event") return isEvent;
-  if (type === "lucky") return !isEvent && !isMega && !isDynamax && !isGigantamax;
-  if (type === "shadow" || type === "purified") return !isEvent && !isMega && !isDynamax && !isGigantamax && availability.shadow === true;
-  if (type === "mega") return isMega;
-  if (type === "dynamax") return !isEvent && isDynamax;
-  if (type === "gigantamax") return !isEvent && isGigantamax;
-  return true;
-}
-
-function entryMatchesVariantMode(entry, variantMode) {
-  if (entry.collectionType === "event") return true;
-  if (variantMode !== "single") return true;
-  return String(entry.kind || "").toLowerCase() === "pokemon" && String(entry.form || "normal").toLowerCase() === "normal";
-}
-
-function entryMatchesCollectionRegion(entry, region) {
-  if (region === "all") return true;
-  if (region === "hisui") return textForEntry(entry).includes("hisui");
-  return String(entry.generation || "") === String(region);
-}
-
-function entryMatchesCollection(entry, collection, region, query) {
-  if (!entryMatchesCollectionType(entry, collection.type)) return false;
-  if (!entryMatchesVariantMode(entry, collection.variantMode)) return false;
-  if (!entryMatchesCollectionRegion(entry, region)) return false;
-  const availability = entry.availability || {};
-  if (collection.shiny) {
-    if (collection.type === "event") {
-      if (!entry.shinyImage) return false;
-    } else {
-      const isShadowCollection = ["shadow", "purified"].includes(collection.type);
-      const released = isShadowCollection
-        ? availability.shadowShinyReleased === true
-        : availability.shinyReleased === true;
-      if (!released) return false;
-      if (!entry.shinyImage && !entry.homeShinyImage && !entry.shuffleShinyImage) return false;
+  useEffect(() => {
+    if (!open) return undefined;
+    previousFocusRef.current = document.activeElement;
+    const dialog = dialogRef.current;
+    const focusableSelector = "button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])";
+    const focusFirst = window.requestAnimationFrame(() => dialog?.querySelector(focusableSelector)?.focus());
+    function onKeyDown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== "Tab" || !dialog) return;
+      const focusable = [...dialog.querySelectorAll(focusableSelector)];
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     }
-  }
-  const needle = query.trim().toLowerCase();
-  return !needle || textForEntry(entry).includes(needle);
-}
+    document.addEventListener("keydown", onKeyDown);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.cancelAnimationFrame(focusFirst);
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "";
+      previousFocusRef.current?.focus?.();
+    };
+  }, [onClose, open]);
 
-function eventAssetIsCollectionItem(asset = {}) {
-  return Boolean(asset.costume || asset.form);
-}
-
-function readableAssetLabel(value) {
-  return String(value || "")
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase())
-    .replace(/\bNoevolve\b/g, "No evolve");
-}
-
-function eventAssetName(entry, asset) {
-  return entry.name || readableAssetLabel(asset.costume || asset.form || "Pokémon");
-}
-
-function eventCollectionItems(entries) {
-  return entries.filter(entryIsReleased).flatMap((entry) => {
-    const eventAssets = Array.isArray(entry.eventAssets) ? entry.eventAssets : [];
-    const seen = new Set();
-    return eventAssets
-      .filter(eventAssetIsCollectionItem)
-      .filter((asset) => {
-        const key = `${asset.costume || ""}|${asset.form || ""}|${asset.image || ""}|${asset.shinyImage || ""}`;
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      })
-      .map((asset, index) => ({
-        ...entry,
-        key: `${entry.key}:event:${asset.costume || asset.form || index}`,
-        baseKey: entry.key,
-        collectionType: "event",
-        kind: "event",
-        form: asset.form || asset.costume || "event",
-        costume: asset.costume || null,
-        isFemale: Boolean(asset.isFemale),
-        name: eventAssetName(entry, asset),
-        eventAsset: asset,
-        availability: {
-          ...(entry.availability || {}),
-          shinyReleased: Boolean(asset.shinyImage),
-        },
-      }));
-  });
-}
-
-function collectionPool(entries, collection) {
-  if (!collection) return [];
-  return collection.type === "event" ? eventCollectionItems(entries) : entries;
-}
-
-function collectionImage(entry, collection) {
-  return preferredPokemonImage(entry, { preferShiny: Boolean(collection?.shiny) });
-}
-
-function generationKey(entry) {
-  if (textForEntry(entry).includes("hisui")) return "hisui";
-  return String(entry.generation || "unknown");
-}
-
-function dexSortValue(entry) {
-  const value = Number.parseInt(String(entry.dexId || "").replace(/\D/g, ""), 10);
-  return Number.isFinite(value) ? value : Number.MAX_SAFE_INTEGER;
-}
-
-function collectionSortKey(entry) {
-  const form = String(entry.form || "normal").toLowerCase();
-  const kindRank = collectionVariantRank(entry);
-  return [dexSortValue(entry), kindRank, form, String(entry.name || ""), String(entry.key || "")];
-}
-
-function collectionVariantRank(entry) {
-  const kind = String(entry.kind || "").toLowerCase();
-  const form = String(entry.form || "normal").toLowerCase();
-  if (kind === "pokemon" && ["normal", "base"].includes(form)) return 0;
-  if (["alola", "galar", "hisui", "paldea"].some((value) => kind === value || form.includes(value))) return 1;
-  if (kind === "form") return 1;
-  if (kind === "mega" || form.includes("mega") || form.includes("primal")) return 2;
-  if (kind === "dynamax" || form.includes("dynamax")) return 3;
-  if (kind === "gigantamax" || form.includes("gigantamax")) return 4;
-  if (kind === "event") return 5;
-  return 9;
-}
-
-function sortCollectionEntries(entries) {
-  return [...entries].sort((left, right) => {
-    const leftKey = collectionSortKey(left);
-    const rightKey = collectionSortKey(right);
-    return (
-      leftKey[0] - rightKey[0] ||
-      leftKey[1] - rightKey[1] ||
-      leftKey[2].localeCompare(rightKey[2], "fr") ||
-      leftKey[3].localeCompare(rightKey[3], "fr") ||
-      leftKey[4].localeCompare(rightKey[4], "fr")
-    );
-  });
-}
-
-function groupedByGeneration(entries) {
-  const groups = new Map();
-  for (const entry of sortCollectionEntries(entries)) {
-    const key = generationKey(entry);
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(entry);
-  }
-  return Array.from(groups.entries()).sort(([left], [right]) => {
-    const order = ["1", "2", "3", "4", "5", "6", "7", "8", "hisui", "9", "unknown"];
-    const leftIndex = order.includes(left) ? order.indexOf(left) : order.length;
-    const rightIndex = order.includes(right) ? order.indexOf(right) : order.length;
-    return leftIndex - rightIndex;
-  });
-}
-
-function collectionStats(entries) {
-  const stats = {
-    shiny: 0,
-    shadow: 0,
-    shadowShiny: 0,
-    dynamax: 0,
-    gigantamax: 0,
-    mega: 0,
-    regional: 0,
-    event: eventCollectionItems(entries).length,
-    forms: 0,
-  };
-  for (const entry of entries) {
-    if (!entryIsReleased(entry)) continue;
-    const kind = String(entry.kind || "").toLowerCase();
-    const form = String(entry.form || "normal").toLowerCase();
-    const availability = entry.availability || {};
-    if (availability.shinyReleased) stats.shiny += 1;
-    if (availability.shadow) stats.shadow += 1;
-    if (availability.shadowShinyReleased) stats.shadowShiny += 1;
-    if (entryIsMax(entry, "dynamax")) stats.dynamax += 1;
-    if (entryIsMax(entry, "gigantamax")) stats.gigantamax += 1;
-    if (entryIsMega(entry)) stats.mega += 1;
-    if (kind === "form") stats.forms += 1;
-    if (["alola", "galar", "hisui", "paldea"].includes(form)) stats.regional += 1;
-  }
-  return stats;
-}
-
-function CollectionStatCard({ label, value, icon, tone = "cyan", detail }) {
-  return (
-    <article
-      className={`relative min-w-0 overflow-hidden rounded-surface border bg-gradient-to-br p-3 shadow-surface ${assetStatTone[tone] || assetStatTone.cyan}`}
+  if (!open || typeof document === "undefined") return null;
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[1100] overflow-y-auto flex items-end justify-center bg-overlay p-0 backdrop-blur-md md:items-center md:p-6"
+      onMouseDown={(event) => event.target === event.currentTarget && onClose()}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,.22),transparent_34%),linear-gradient(135deg,rgba(255,255,255,.1),transparent_45%)]" />
-      <div className="relative grid min-w-0 grid-cols-[3rem_minmax(0,1fr)] items-center gap-3">
-        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-line bg-surface-inset-strong p-2 shadow-inner">
-          {icon ? <img className="max-h-full object-contain" src={icon} alt="" /> : <Gauge size={21} />}
+      <section
+        ref={dialogRef}
+        className={`flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-overlay border border-line bg-panel-strong shadow-overlay ${size === "sm" ? "md:max-w-xl" : "md:max-w-3xl"}`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="collections-editor-title"
+        aria-describedby={description ? "collections-editor-description" : undefined}
+      >
+        <header className="flex shrink-0 items-start justify-between gap-4 border-b border-line bg-panel-strong p-4 sm:p-5">
+          <div>
+            <h3 id="collections-editor-title" className="type-title-section text-domain-foreground">{title}</h3>
+            {description ? <p id="collections-editor-description" className="mt-1 text-sm font-semibold text-muted">{description}</p> : null}
+          </div>
+          <button className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-line bg-surface-control text-domain-foreground" type="button" onClick={onClose} aria-label="Fermer">
+            <X size={20} />
+          </button>
+        </header>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5">{children}</div>
+        {footer ? <footer className="shrink-0 border-t border-line bg-panel-strong p-4 sm:p-5">{footer}</footer> : null}
+      </section>
+    </div>,
+    document.body,
+  );
+}
+
+function CollectionStatCard({ label, value, icon, detail, tone = "cyan" }) {
+  const toneClass = tone === "violet"
+    ? "border-violet-300/25 bg-violet-400/10"
+    : tone === "amber"
+      ? "border-amber-300/25 bg-amber-400/10"
+      : "border-cyan-300/25 bg-cyan-400/10";
+  return (
+    <article className={`min-w-0 rounded-surface border p-3 shadow-surface ${toneClass}`}>
+      <div className="grid grid-cols-[2.75rem_minmax(0,1fr)] items-center gap-3">
+        <span className="grid h-11 w-11 place-items-center rounded-control border border-line bg-surface-inset-strong p-2">
+          {icon ? <Image src={icon} alt="" width={40} height={40} className="h-full w-full object-contain" unoptimized /> : <BarChart3 size={20} />}
         </span>
         <span className="min-w-0">
-          <span className="block truncate type-overline text-domain-foreground/72">
-            {label}
-          </span>
-          <strong className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[clamp(1.6rem,3vw,2.75rem)] font-black leading-none text-domain-foreground drop-shadow-[0_0_18px_rgba(255,255,255,.16)]">
-            {formatCount(value)}
-          </strong>
+          <span className="block truncate type-overline-compact text-muted">{label}</span>
+          <strong className="block font-mono text-2xl font-black leading-none text-domain-foreground">{formatCount(value)}</strong>
         </span>
       </div>
-      {detail ? (
-        <p className="relative mt-3 truncate type-caption-strong text-domain-foreground/70">{detail}</p>
+      {detail ? <p className="mt-2 truncate type-caption-strong text-muted">{detail}</p> : null}
+    </article>
+  );
+}
+
+function CollectionStats({ stats }) {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      {[
+        ["Chromatiques", stats.shiny, uiAssets.icons.shiny, "Fiches shiny sorties"],
+        ["Shadow", stats.shadow, uiAssets.icons.shadow, "Fiches Shadow sorties", "violet"],
+        ["Dynamax", stats.dynamax, uiAssets.icons.maxPc, "Fiches Dynamax sorties"],
+        ["Gigamax", stats.gigantamax, uiAssets.icons.maxPc, "Fiches Gigamax sorties"],
+        ["Méga", stats.mega, uiAssets.icons.mega, "Méga et Primo sorties"],
+        ["Formes", stats.forms, uiAssets.icons.pokedex, "Formes canoniques sorties"],
+        ["Régionales", stats.regional, uiAssets.icons.pokedex, "Alola, Galar, Hisui, Paldea"],
+        ["Événements", stats.event, uiAssets.icons.pokeball, "Identités costume/event", "amber"],
+      ].map(([label, value, icon, detail, tone]) => (
+        <CollectionStatCard key={label} label={label} value={value} icon={icon} detail={detail} tone={tone} />
+      ))}
+    </div>
+  );
+}
+
+function StatusTabs({ value, onChange, compact = false }) {
+  return (
+    <div className="grid grid-cols-3 gap-1 rounded-control border border-line bg-surface-inset p-1" aria-label="État de progression">
+      {["all", "have", "need"].map((id) => (
+        <button
+          className={`${compact ? "min-h-9 px-2 text-[11px]" : "min-h-10 px-4 text-xs"} rounded-control font-black tracking-wide transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/50 ${value === id ? "bg-cyan-400/20 text-accent-text shadow-surface" : "text-muted hover:bg-surface-hover"}`}
+          key={id}
+          type="button"
+          aria-pressed={value === id}
+          onClick={() => onChange(id)}
+        >
+          {statusLabel(id)}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function PokemonCollectionCard({ entry, selected, onToggle, onOpen }) {
+  const descriptor = [entry.label, entry.gender === "female" ? "♀" : entry.gender === "male" ? "♂" : null, entry.shiny ? "Shiny" : null, entry.hundo ? "Hundo" : null].filter(Boolean).join(" · ");
+  return (
+    <article className="collection-pokemon-card group relative min-w-0 overflow-hidden rounded-surface border border-line bg-surface-inset shadow-surface transition hover:-translate-y-0.5" data-tone={entry.tone} data-selected={selected ? "true" : "false"}>
+      <button
+        className="absolute inset-0 z-10 rounded-surface focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-cyan-300/55"
+        type="button"
+        aria-label={`${selected ? "Retirer" : "Ajouter"} ${entry.name}, ${descriptor}`}
+        aria-pressed={selected}
+        onClick={onToggle}
+      >
+        <span className="sr-only">{selected ? "Obtenu" : "Manquant"}</span>
+      </button>
+      <span className={`pointer-events-none absolute right-2.5 top-2.5 z-20 grid h-10 w-10 place-items-center rounded-full border ${selected ? "border-emerald-200/70 bg-emerald-400 text-slate-950" : "border-line-strong bg-panel/80 text-transparent"}`} aria-hidden="true">
+        <Check size={20} strokeWidth={3} />
+      </span>
+      <div className="pointer-events-none relative grid min-h-[8.5rem] place-items-center px-3 pb-1 pt-4 sm:min-h-[10rem]">
+        {entry.asset ? (
+          <Image
+            className="h-[7.5rem] w-[7.5rem] object-contain drop-shadow-[0_18px_30px_rgba(0,0,0,.38)] transition duration-motion-normal group-hover:scale-105 sm:h-[9rem] sm:w-[9rem]"
+            src={entry.asset}
+            alt={entry.name}
+            width={180}
+            height={180}
+            sizes="(max-width: 639px) 42vw, (max-width: 1279px) 28vw, 180px"
+            unoptimized
+          />
+        ) : <ImageIcon className="text-muted" size={36} />}
+      </div>
+      <div className="pointer-events-none relative min-h-[5.8rem] border-t border-line bg-surface-control p-3 pr-10">
+        <strong className="block truncate text-sm font-black text-domain-foreground sm:text-base">{entry.name}</strong>
+        <span className="mt-0.5 block font-mono text-xs font-bold text-foreground-secondary">#{entry.dexId}</span>
+        <span className="mt-1.5 block truncate text-[11px] font-bold text-muted sm:text-xs">{descriptor}</span>
+      </div>
+      {onOpen ? (
+        <button className="absolute bottom-2.5 right-2.5 z-20 grid h-9 w-9 place-items-center rounded-full border border-line bg-panel/90 text-muted transition hover:text-domain-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/50" type="button" onClick={() => onOpen(entry)} aria-label={`Ouvrir la fiche de ${entry.name}`}>
+          <Info size={16} />
+        </button>
       ) : null}
     </article>
   );
 }
 
 export function CollectionsPanel({ entries = [], collections = [], onSave, onOpen, globalSearch = "" }) {
-  const [modalOpen, setModalOpen] = useState(false);
+  const [sheet, setSheet] = useState(null);
   const [activeId, setActiveId] = useState(collections[0]?.id || "");
   const [region, setRegion] = useState("all");
   const [status, setStatus] = useState("all");
   const [query, setQuery] = useState("");
+  const [deleteConfirmation, setDeleteConfirmation] = useState(false);
   const [collectionView, setCollectionView] = useState({ key: "", limit: initialCollectionLimit });
-  const [draft, setDraft] = useState({
-    name: "",
-    type: "normal",
-    variantMode: "multi",
-    shiny: false,
-    hundo: false,
-  });
+  const [draft, setDraft] = useState({ name: "", type: "normal", variantMode: "multi", shiny: false, hundo: false });
 
   const activeCollection = collections.find((collection) => collection.id === activeId) || collections[0] || null;
-  const canUsePortal = typeof document !== "undefined";
   const activeItems = useMemo(() => activeCollection?.items || {}, [activeCollection]);
-  const combinedSearch = [globalSearch, query].filter(Boolean).join(" ");
+  const stats = useMemo(() => buildCollectionDataStats(entries), [entries]);
+  const catalog = useMemo(() => activeCollection ? buildCollectionCatalog(entries, activeCollection) : [], [activeCollection, entries]);
+  const combinedSearch = [globalSearch, query].filter(Boolean).join(" ").trim().toLocaleLowerCase("fr-FR");
+  const allMatching = useMemo(() => catalog.filter((entry) =>
+    (region === "all" || entry.region === region)
+    && (!combinedSearch || entry.searchText.includes(combinedSearch))), [catalog, combinedSearch, region]);
+  const collectionEntries = useMemo(() => allMatching.filter((entry) => {
+    if (status === "have") return Boolean(activeItems[entry.key]);
+    if (status === "need") return !activeItems[entry.key];
+    return true;
+  }), [activeItems, allMatching, status]);
   const collectionFilterKey = [activeCollection?.id || "", region, status, combinedSearch].join("|");
-  const collectionLimit =
-    collectionView.key === collectionFilterKey ? collectionView.limit : initialCollectionLimit;
-  const stats = useMemo(() => collectionStats(entries), [entries]);
-  const pool = useMemo(() => collectionPool(entries, activeCollection), [activeCollection, entries]);
-  const collectionEntries = useMemo(() => {
-    if (!activeCollection) return [];
-    return sortCollectionEntries(pool.filter((entry) => {
-      if (!entryMatchesCollection(entry, activeCollection, region, combinedSearch)) return false;
-      if (status === "have") return Boolean(activeItems[entry.key]);
-      if (status === "need") return !activeItems[entry.key];
-      return true;
-    }));
-  }, [activeCollection, activeItems, combinedSearch, pool, region, status]);
-  const allMatching = useMemo(
-    () => (activeCollection ? sortCollectionEntries(pool.filter((entry) => entryMatchesCollection(entry, activeCollection, region, combinedSearch))) : []),
-    [activeCollection, combinedSearch, pool, region],
-  );
+  const collectionLimit = collectionView.key === collectionFilterKey ? collectionView.limit : initialCollectionLimit;
   const visibleCollectionEntries = collectionEntries.slice(0, collectionLimit);
-  const generationGroups = useMemo(() => groupedByGeneration(visibleCollectionEntries), [visibleCollectionEntries]);
-  const haveCount = activeCollection ? Object.values(activeItems).filter(Boolean).length : 0;
-  const visibleHaveCount = allMatching.filter((entry) => activeItems[entry.key]).length;
+  const generationGroups = useMemo(() => {
+    const groups = new Map();
+    for (const entry of visibleCollectionEntries) {
+      const key = entry.region || "unknown";
+      const current = groups.get(key) || [];
+      current.push(entry);
+      groups.set(key, current);
+    }
+    return [...groups.entries()];
+  }, [visibleCollectionEntries]);
+  const haveCount = catalog.filter((entry) => activeItems[entry.key]).length;
+  const activeFilterCount = Number(activeCollection?.shiny) + Number(activeCollection?.hundo) + Number(activeCollection?.variantMode === "multi") + Number(region !== "all");
+  const draftCount = useMemo(() => buildCollectionCatalog(entries, draft).length, [draft, entries]);
+
+  useEffect(() => {
+    if (!entries.length || !collections.some((collection) => Number(collection.schemaVersion || 1) < COLLECTION_SCHEMA_VERSION)) return;
+    let mapped = 0;
+    let unmapped = 0;
+    let ambiguous = 0;
+    const migrated = collections.map((collection) => {
+      if (Number(collection.schemaVersion || 1) >= COLLECTION_SCHEMA_VERSION) return collection;
+      const collectionCatalog = buildCollectionCatalog(entries, collection);
+      const next = migrateCollectionSelections(collection, collectionCatalog);
+      mapped += next.migration.mapped;
+      unmapped += next.migration.unmapped;
+      ambiguous += next.migration.ambiguous;
+      return next;
+    });
+    onSave(migrated);
+    toast.success(`Migration Collections : ${mapped} sélection(s) mappée(s), ${unmapped} conservée(s) en historique${ambiguous ? `, ${ambiguous} ambiguë(s)` : ""}.`);
+  }, [collections, entries, onSave]);
+
+  function closeSheet() {
+    setSheet(null);
+    setDeleteConfirmation(false);
+  }
 
   function createCollection() {
     const name = draft.name.trim();
     if (!name) {
-      toast.error("Donne un nom a la collection.");
+      toast.error("Donne un nom à la collection.");
       return;
     }
-    const next = [
-      {
-        id: `collection-${Date.now()}`,
-        name,
-        type: draft.type,
-        variantMode: draft.variantMode,
-        shiny: draft.shiny,
-        hundo: draft.hundo,
-        items: {},
-        createdAt: new Date().toISOString(),
-      },
-      ...collections,
-    ];
-    onSave(next);
-    setActiveId(next[0].id);
-    setModalOpen(false);
+    const nextCollection = {
+      id: `collection-${Date.now()}`,
+      schemaVersion: COLLECTION_SCHEMA_VERSION,
+      name,
+      type: draft.type,
+      variantMode: draft.variantMode,
+      shiny: draft.shiny,
+      hundo: draft.hundo,
+      items: {},
+      legacyItems: {},
+      createdAt: new Date().toISOString(),
+    };
+    onSave([nextCollection, ...collections]);
+    setActiveId(nextCollection.id);
     setDraft({ name: "", type: "normal", variantMode: "multi", shiny: false, hundo: false });
-    toast.success("Collection creee.");
+    closeSheet();
+    toast.success("Collection créée.");
   }
 
   function updateActive(patch) {
     if (!activeCollection) return;
-    onSave(collections.map((collection) => (collection.id === activeCollection.id ? { ...collection, ...patch } : collection)));
+    onSave(collections.map((collection) => collection.id === activeCollection.id
+      ? { ...collection, ...patch, schemaVersion: COLLECTION_SCHEMA_VERSION, updatedAt: new Date().toISOString() }
+      : collection));
   }
 
   function toggleEntry(entry) {
@@ -407,357 +357,278 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
     const nextItems = { ...activeItems };
     if (nextItems[entry.key]) delete nextItems[entry.key];
     else nextItems[entry.key] = true;
-    updateActive({ items: nextItems, updatedAt: new Date().toISOString() });
+    updateActive({ items: nextItems });
   }
 
   function selectEntries(entriesToSelect) {
     if (!activeCollection || !entriesToSelect.length) return;
     const nextItems = { ...activeItems };
     for (const entry of entriesToSelect) nextItems[entry.key] = true;
-    updateActive({ items: nextItems, updatedAt: new Date().toISOString() });
+    updateActive({ items: nextItems });
     toast.success(`${entriesToSelect.length} Pokémon sélectionné(s).`);
   }
 
   function deleteActive() {
     if (!activeCollection) return;
+    if (!deleteConfirmation) {
+      setDeleteConfirmation(true);
+      return;
+    }
     const next = collections.filter((collection) => collection.id !== activeCollection.id);
     onSave(next);
     setActiveId(next[0]?.id || "");
-    toast.success("Collection supprimee.");
+    closeSheet();
+    toast.success("Collection supprimée.");
   }
 
+  function resetViewFilters() {
+    setRegion("all");
+    setStatus("all");
+    setQuery("");
+  }
+
+  const collectionSelector = (
+    <button className={`${secondaryButtonClass} w-full justify-between text-left`} type="button" onClick={() => setSheet("collections")}>
+      <span className="min-w-0">
+        <small className="block type-overline-compact text-muted">Collection</small>
+        <strong className="block truncate">{activeCollection?.name || "Choisir une collection"}</strong>
+      </span>
+      <ChevronDown size={18} />
+    </button>
+  );
+
   return (
-    <section className={panelClass}>
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <section className={panelClass} data-testid="collections-panel">
+      <header className="mb-2 flex items-start justify-between gap-3 sm:mb-4">
         <div>
-          <p className="mb-1 type-overline text-cyan-200/70">
-            experimentation checklist
-          </p>
-          <h2 className="type-title-subsection text-domain-foreground">Collections Pokemon GO</h2>
+          <p className="type-overline text-cyan-200/70">Checklist canonique</p>
+          <h2 className="text-lg font-black leading-tight text-domain-foreground sm:type-title-subsection">Collections Pokémon GO</h2>
         </div>
-        <button className={primaryButtonClass} type="button" onClick={() => setModalOpen(true)}>
-          <Sparkles size={17} /> Nouvelle collection
+        <button className={`${primaryButtonClass} shrink-0 px-3 sm:px-4`} type="button" onClick={() => setSheet("create")} aria-label="Nouvelle collection" data-testid="collection-create-trigger">
+          <Sparkles size={17} /> <span className="hidden sm:inline">Nouvelle collection</span>
         </button>
-      </div>
+      </header>
 
-      <div className="mb-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          ["Chromatiques", stats.shiny, uiAssets.icons.shiny, "Fiches dont availability.shinyReleased est vrai"],
-          ["Shadow", stats.shadow, uiAssets.icons.shadow, "Fiches disponibles en Obscur"],
-          ["Dynamax", stats.dynamax, uiAssets.icons.maxPc, "Fiches ou formes Dynamax"],
-          ["Gigamax", stats.gigantamax, uiAssets.icons.maxPc, "Fiches ou formes Gigamax"],
-          ["Mega", stats.mega, uiAssets.icons.mega, "Mega et Primo"],
-          ["Formes", stats.forms, uiAssets.icons.pokedex, "Fiches alternatives de data/pokemon/forms"],
-          ["Regionales", stats.regional, uiAssets.icons.pokedex, "Alola, Galar, Hisui, Paldea"],
-          ["Evenements", stats.event, uiAssets.icons.pokeball, "Cartes construites depuis assetForms"],
-        ].map(([label, value, icon, detail]) => (
-          <CollectionStatCard
-            detail={detail}
-            icon={icon}
-            key={label}
-            label={label}
-            tone={label === "Shadow" ? "violet" : label === "Evenements" ? "amber" : "cyan"}
-            value={value}
-          />
-        ))}
-      </div>
+      <div className="mb-5 hidden xl:block"><CollectionStats stats={stats} /></div>
 
-      <div className="mb-5 grid gap-3 xl:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)]">
-        <div className="rounded-3xl border border-line bg-surface-inset p-4">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <strong className="font-black text-domain-foreground">Mes collections</strong>
-            <span className="rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-1 type-label text-emerald-100">
-              {collections.length}
-            </span>
-          </div>
-          <div className="grid gap-2">
-            {collections.length ? (
-              collections.map((collection) => (
-                <button
-                  className={`rounded-2xl border p-3 text-left transition ${
-                    activeCollection?.id === collection.id
-                      ? "border-cyan-200/55 bg-cyan-400/18"
-                      : "border-line bg-surface-flat hover:border-cyan-200/35"
-                  }`}
-                  key={collection.id}
-                  type="button"
-                  onClick={() => setActiveId(collection.id)}
-                >
-                  <span className="flex items-center justify-between gap-3">
-                    <strong className="truncate text-sm font-black text-domain-foreground">{collection.name}</strong>
-                    <small className="shrink-0 rounded-full bg-surface-emphasis px-2 py-1 text-[10px] font-black uppercase text-foreground">
-                      {collection.shiny ? "shiny" : "standard"}
-                    </small>
-                  </span>
-                  <small className="mt-2 block truncate type-caption-strong text-muted">
-                    {collectionTypes.find(([id]) => id === collection.type)?.[1] || collection.type} -{" "}
-                    {collectionVariantModes.find(([id]) => id === collection.variantMode)?.[1]}
-                    {collection.hundo ? " - Hundo" : ""}
-                  </small>
-                </button>
-              ))
-            ) : (
-              <EmptyState title="Aucune collection" description="Crée une première collection pour afficher les Pokémon correspondants." />
-            )}
-          </div>
-        </div>
-
-        <div className="rounded-3xl border border-line bg-gradient-to-br from-sky-500/12 via-cyan-400/8 to-emerald-400/12 p-4">
-          {activeCollection ? (
-            <>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="type-overline text-cyan-100/70">Collection active</p>
-                  <h3 className="mt-1 type-title-section text-domain-foreground">{activeCollection.name}</h3>
-                  <p className="mt-1 text-sm font-bold text-foreground-secondary">
-                    {visibleHaveCount}/{allMatching.length} selectionnes sur le filtre actuel - {haveCount} au total
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <button className="rounded-2xl border border-cyan-200/25 bg-cyan-400/10 px-3 py-2 type-label text-cyan-50" type="button" onClick={() => selectEntries(allMatching)}>
-                    Sélectionner tous
-                  </button>
-                  <button className="rounded-2xl border border-rose-300/25 bg-rose-500/10 px-3 py-2 type-label text-rose-100" type="button" onClick={deleteActive}>
-                    Supprimer
-                  </button>
-                </div>
-              </div>
-              <div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
-                <input
-                  aria-label="Rechercher dans la collection..."
-                  className={fieldClass}
-                  placeholder="Rechercher dans la collection..."
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                />
-                <div className="grid grid-cols-3 gap-2">
-                  {["all", "have", "need"].map((id) => (
-                    <button
-                      className={`rounded-2xl border px-4 py-2 text-xs font-black uppercase ${
-                        status === id ? "border-cyan-200/55 bg-cyan-400/20 text-cyan-50" : "border-line bg-surface-subtle text-foreground-secondary"
-                      }`}
-                      key={id}
-                      type="button"
-                      onClick={() => setStatus(id)}
-                    >
-                      {id}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="grid min-h-48 place-items-center text-center">
-              <div>
-                <Sparkles className="mx-auto mb-3 text-cyan-100" size={30} />
-                <h3 className="type-title-subsection text-domain-foreground">Aucune collection active</h3>
-                <p className="mt-2 text-sm font-bold text-muted">Cree une collection pour generer automatiquement sa grille.</p>
-              </div>
-            </div>
-          )}
-        </div>
+      <div className="mb-2 md:hidden">{collectionSelector}</div>
+      <div className="mb-3 hidden items-center justify-between gap-3 md:flex">
+        <div className="w-full max-w-md">{collectionSelector}</div>
+        <span className="shrink-0 rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-2 type-label text-success-foreground">{collections.length} collection(s)</span>
       </div>
 
       {activeCollection ? (
         <>
-          <div className="mb-5 grid grid-cols-[repeat(auto-fit,minmax(8.5rem,1fr))] gap-2">
+          <div className="mb-2 rounded-surface border border-cyan-300/25 bg-gradient-to-br from-sky-500/12 via-cyan-400/8 to-emerald-400/10 p-3 shadow-surface sm:mb-3 sm:p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="type-overline-compact text-cyan-100/70"><span className="md:hidden">Active · {typeLabel(activeCollection.type)}</span><span className="hidden md:inline">Collection active · {typeLabel(activeCollection.type)}</span></p>
+                <h3 className="mt-1 truncate text-xl font-black text-domain-foreground sm:type-title-section">{activeCollection.name}</h3>
+                <p className="mt-1 text-sm font-bold text-foreground-secondary">{haveCount} / {catalog.length} obtenus</p>
+              </div>
+              <button className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-line bg-surface-control text-domain-foreground" type="button" onClick={() => setSheet("actions")} aria-label="Actions de la collection">
+                <MoreHorizontal size={20} />
+              </button>
+            </div>
+            <label className="relative mt-3 hidden md:block">
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-disabled" size={17} />
+              <input aria-label="Rechercher dans la collection..." className={`${fieldClass} pl-10`} placeholder="Rechercher nom, dex, forme…" value={query} onChange={(event) => setQuery(event.target.value)} />
+            </label>
+            <div className="mt-3 hidden grid-cols-[minmax(0,1fr)_auto_auto] gap-3 md:grid">
+              <StatusTabs value={status} onChange={setStatus} />
+              <button className={secondaryButtonClass} type="button" onClick={() => selectEntries(allMatching)}>Tout sélectionner</button>
+              <button className={secondaryButtonClass} type="button" onClick={() => setSheet("filters")}><Filter size={17} /> Filtres · {activeFilterCount}</button>
+            </div>
+          </div>
+
+          <div className="sticky top-2 z-30 mb-2 rounded-surface border border-line bg-panel-strong/95 p-2 shadow-floating backdrop-blur-xl md:hidden" data-testid="collections-sticky-bar">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto_auto] items-center gap-1.5">
+              <StatusTabs value={status} onChange={setStatus} compact />
+              <button className="grid h-10 w-10 place-items-center rounded-control border border-line bg-surface-control text-domain-foreground" type="button" onClick={() => setSheet("search")} aria-label="Ouvrir la recherche"><Search size={17} /></button>
+              <button className="grid h-10 w-10 place-items-center rounded-control border border-line bg-surface-control text-domain-foreground" type="button" onClick={() => setSheet("filters")} aria-label={`Ouvrir les filtres, ${activeFilterCount} actifs`}><Filter size={17} /></button>
+              <button className="grid h-10 w-10 place-items-center rounded-control border border-line bg-surface-control text-domain-foreground" type="button" onClick={() => setSheet("region")} aria-label="Changer de région"><LayoutDashboard size={17} /></button>
+              <span className="shrink-0 rounded-full border border-cyan-300/25 bg-cyan-400/10 px-2 py-1 font-mono text-[11px] font-black text-accent-text">{haveCount}/{catalog.length}</span>
+            </div>
+          </div>
+
+          <div className="mb-4 hidden grid-cols-[repeat(auto-fit,minmax(7rem,1fr))] gap-2 md:grid">
             {collectionRegionFilters.map(([id, label, icon]) => (
-              <button
-                className={`relative min-h-[72px] overflow-hidden rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 ${
-                  region === id ? "border-cyan-200/55 bg-cyan-400/20" : "border-line bg-surface-flat"
-                }`}
-                key={id}
-                type="button"
-                onClick={() => setRegion(id)}
-              >
-                {icon ? (
-                  <img className="absolute bottom-1 right-1 h-12 max-w-[56%] object-contain opacity-60 drop-shadow-xl" src={icon} alt="" />
-                ) : (
-                  <LayoutDashboard className="absolute bottom-3 right-3 text-cyan-100/50" size={24} />
-                )}
-                <small className="relative block type-overline-compact text-muted">
-                  {id === "all" ? "Regions" : `Gen. ${id}`}
-                </small>
+              <button className={`relative min-h-16 overflow-hidden rounded-control border p-3 text-left transition hover:-translate-y-0.5 ${region === id ? "border-cyan-200/55 bg-cyan-400/20" : "border-line bg-surface-flat"}`} key={id} type="button" aria-pressed={region === id} onClick={() => setRegion(id)}>
+                {icon ? <Image className="absolute bottom-1 right-1 h-10 w-10 object-contain opacity-50" src={icon} alt="" width={48} height={48} unoptimized /> : <LayoutDashboard className="absolute bottom-3 right-3 text-cyan-100/40" size={22} />}
+                <small className="relative block type-overline-compact text-muted">{id === "all" ? "Régions" : id === "hisui" ? "Région" : `Gen. ${id}`}</small>
                 <strong className="relative mt-1 block text-sm font-black text-domain-foreground">{label}</strong>
               </button>
             ))}
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-5" data-testid="collection-pokemon-list">
             {generationGroups.map(([groupId, groupEntries]) => (
               <section key={groupId}>
-                <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+                <div className="mb-2 flex items-end justify-between gap-3 sm:mb-3">
                   <div>
-                    <p className="type-overline text-cyan-100/65">
-                      Generation
-                    </p>
-                    <h3 className="type-title-section text-domain-foreground">
-                      {generationLabels[groupId] || `Gen. ${groupId}`}
-                    </h3>
+                    <p className="type-overline-compact text-cyan-100/65">Région / génération</p>
+                    <h3 className="text-lg font-black text-domain-foreground sm:type-title-section">{generationLabels[groupId] || `Gen. ${groupId}`}</h3>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <button className="rounded-full border border-cyan-200/25 bg-cyan-400/12 px-3 py-1.5 type-label text-cyan-50" type="button" onClick={() => selectEntries(groupEntries)}>
-                      Sélectionner tous
-                    </button>
-                    <span className="rounded-full border border-cyan-200/25 bg-cyan-400/12 px-3 py-1.5 type-label text-cyan-50">
-                      {groupEntries.filter((entry) => activeItems[entry.key]).length}/{groupEntries.length}
-                    </span>
+                  <div className="flex items-center gap-2">
+                    <button className="hidden rounded-full border border-cyan-200/25 bg-cyan-400/10 px-3 py-1.5 type-label text-accent-text sm:inline-flex" type="button" onClick={() => selectEntries(groupEntries)}>Sélectionner tous</button>
+                    <span className="rounded-full border border-cyan-200/25 bg-cyan-400/10 px-3 py-1.5 font-mono text-xs font-black text-accent-text">{groupEntries.filter((entry) => activeItems[entry.key]).length}/{groupEntries.length}</span>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
-                  {groupEntries.map((entry) => {
-                    const selected = Boolean(activeItems[entry.key]);
-                    const image = collectionImage(entry, activeCollection);
-                    const color = typeColors[entry.primaryType] || "#38bdf8";
-                    return (
-                      <button
-                        className={`group relative min-h-[13rem] overflow-hidden rounded-3xl border p-3 text-left transition hover:-translate-y-1 ${
-                          selected
-                            ? "border-pink-200/70 bg-pink-400/16 shadow-[0_18px_55px_rgba(244,114,182,.18)]"
-                            : "border-line bg-slate-950/42 hover:border-cyan-200/45"
-                        }`}
-                        key={entry.key}
-                        type="button"
-                        onClick={() => toggleEntry(entry)}
-                        onDoubleClick={() => onOpen(entry)}
-                      >
-                        <span
-                          className="pointer-events-none absolute inset-x-3 bottom-3 h-16 rounded-2xl opacity-70"
-                          style={{ background: `linear-gradient(135deg, ${color}55, rgba(255,255,255,.08))` }}
-                        />
-                        <span className="absolute right-3 top-3 grid h-7 w-7 place-items-center rounded-full border border-white/20 bg-slate-950/70 type-label text-domain-foreground">
-                          {selected ? "OK" : ""}
-                        </span>
-                        <span className="relative grid h-28 place-items-center p-2">
-                          {image ? (
-                            <img className="max-h-full object-contain drop-shadow-[0_18px_28px_rgba(0,0,0,.5)] transition group-hover:scale-110" src={image} alt="" />
-                          ) : (
-                            <ImageIcon className="text-cyan-100/55" size={34} />
-                          )}
-                        </span>
-                        <span className="relative mt-2 block">
-                          <strong className="block truncate text-sm font-black text-domain-foreground">{entry.name}</strong>
-                          <small className="mt-1 block truncate font-mono text-xs font-black text-foreground-secondary">{entry.dexId}</small>
-                          <small className="mt-1 block truncate text-[11px] font-bold text-muted">{pokemonVariantLabel(entry)}</small>
-                        </span>
-                      </button>
-                    );
-                  })}
+                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
+                  {groupEntries.map((entry) => (
+                    <PokemonCollectionCard key={entry.key} entry={entry} selected={Boolean(activeItems[entry.key])} onToggle={() => toggleEntry(entry)} onOpen={onOpen ? () => onOpen({ ...entry, key: entry.sourceEntityId }) : null} />
+                  ))}
                 </div>
               </section>
             ))}
           </div>
+
           {visibleCollectionEntries.length < collectionEntries.length ? (
             <div className="mt-5 flex justify-center">
-              <button
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-cyan-200/30 bg-cyan-400/12 px-5 py-2 text-sm font-black text-cyan-50 transition hover:border-cyan-200/55 hover:bg-cyan-400/20"
-                type="button"
-                onClick={() =>
-                  setCollectionView({
-                    key: collectionFilterKey,
-                    limit: collectionLimit + collectionLimitStep,
-                  })
-                }
-              >
-                Afficher plus · {(collectionEntries.length - visibleCollectionEntries.length).toLocaleString("fr-FR")} restant(s)
+              <button className={secondaryButtonClass} type="button" onClick={() => setCollectionView({ key: collectionFilterKey, limit: collectionLimit + collectionLimitStep })}>
+                Afficher plus · {formatCount(collectionEntries.length - visibleCollectionEntries.length)} restant(s)
               </button>
             </div>
           ) : null}
+
           {!collectionEntries.length ? (
-            <EmptyState className="mt-4" title="Aucun Pokémon ne correspond à cette combinaison de filtres" />
+            <div className="mt-4 rounded-surface border border-line bg-surface-inset p-4 text-center">
+              <EmptyState title="Aucun résultat" description={`${typeLabel(activeCollection.type)} · ${variantModeLabel(activeCollection.variantMode)} · ${generationLabels[region]} · ${statusLabel(status)}`} />
+              <button className={`${secondaryButtonClass} mt-3`} type="button" onClick={resetViewFilters}>Réinitialiser les filtres</button>
+            </div>
           ) : null}
+
+          <details className="mt-6 rounded-surface border border-line bg-surface-inset p-3 xl:hidden">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 font-black text-domain-foreground">
+              <span className="inline-flex items-center gap-2"><BarChart3 size={18} /> Statistiques de données</span>
+              <span className="text-xs text-accent-text">Afficher</span>
+            </summary>
+            <div className="mt-3"><CollectionStats stats={stats} /></div>
+          </details>
         </>
-      ) : null}
+      ) : (
+        <div className="grid min-h-56 place-items-center rounded-surface border border-dashed border-line bg-surface-inset p-5 text-center">
+          <div>
+            <Sparkles className="mx-auto mb-3 text-cyan-200" size={30} />
+            <h3 className="type-title-subsection text-domain-foreground">Crée ta première checklist</h3>
+            <p className="mt-2 text-sm font-bold text-muted">Les Pokémon sortis et leurs assets canoniques seront ajoutés automatiquement.</p>
+            <button className={`${primaryButtonClass} mt-4`} type="button" onClick={() => setSheet("create")}><Sparkles size={17} /> Nouvelle collection</button>
+          </div>
+        </div>
+      )}
 
-      {canUsePortal && modalOpen ? createPortal(
-        <div className="fixed inset-0 z-[1100] overflow-y-auto bg-slate-950/78 p-3 backdrop-blur-xl sm:p-6" role="dialog" aria-modal="true" aria-labelledby="collections-editor-title">
-          <section className="mx-auto my-3 flex max-h-[calc(100dvh-1.5rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[1.5rem] border border-line bg-zinc-900 shadow-overlay sm:my-0 sm:max-h-[calc(100dvh-3rem)] sm:rounded-[2rem]">
-            <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-line bg-zinc-900/95 p-4 backdrop-blur sm:p-5">
-              <h3 id="collections-editor-title" className="type-title-section text-domain-foreground">Nouvelle collection</h3>
-              <button className="grid h-10 w-10 place-items-center rounded-full border border-line bg-surface-control type-title-subsection text-domain-foreground" type="button" onClick={() => setModalOpen(false)} aria-label="Fermer l’éditeur de collection">
-                x
-              </button>
+      <Sheet open={sheet === "collections"} title="Mes collections" description={`${collections.length} collection(s)`} onClose={closeSheet} size="sm">
+        <div className="grid gap-2">
+          {collections.map((collection) => (
+            <button className={`rounded-control border p-3 text-left transition ${activeCollection?.id === collection.id ? "border-cyan-200/55 bg-cyan-400/18" : "border-line bg-surface-flat hover:bg-surface-hover"}`} key={collection.id} type="button" onClick={() => { setActiveId(collection.id); closeSheet(); }}>
+              <span className="flex items-center justify-between gap-3"><strong className="truncate text-domain-foreground">{collection.name}</strong><small className="rounded-full bg-surface-emphasis px-2 py-1 type-label text-foreground">{collection.shiny ? "SHINY" : "STANDARD"}</small></span>
+              <small className="mt-1 block truncate font-bold text-muted">{typeLabel(collection.type)} · {variantModeLabel(collection.variantMode)}{collection.hundo ? " · Hundo" : ""}</small>
+            </button>
+          ))}
+          {!collections.length ? <EmptyState title="Aucune collection" /> : null}
+        </div>
+      </Sheet>
+
+      <Sheet open={sheet === "region"} title="Région / génération" description={`Filtre actuel : ${generationLabels[region]}`} onClose={closeSheet} size="sm">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {collectionRegionFilters.map(([id, label, icon]) => (
+            <button className={`min-h-20 rounded-control border p-3 text-left ${region === id ? "border-cyan-200/55 bg-cyan-400/18" : "border-line bg-surface-flat"}`} key={id} type="button" onClick={() => { setRegion(id); closeSheet(); }} aria-pressed={region === id}>
+              <span className="flex items-center justify-between gap-2"><strong className="text-domain-foreground">{label}</strong>{icon ? <Image src={icon} alt="" width={40} height={40} className="h-10 w-10 object-contain opacity-70" unoptimized /> : <LayoutDashboard size={22} className="text-muted" />}</span>
+            </button>
+          ))}
+        </div>
+      </Sheet>
+
+      <Sheet
+        open={sheet === "search"}
+        title="Rechercher"
+        description="Nom français ou anglais, numéro, forme, costume ou catégorie."
+        onClose={closeSheet}
+        size="sm"
+        footer={<button className={`${primaryButtonClass} w-full`} type="button" onClick={closeSheet}>Afficher {formatCount(collectionEntries.length)} Pokémon</button>}
+      >
+        <label className="relative block">
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-disabled" size={17} />
+          <input aria-label="Rechercher dans la collection..." className={`${fieldClass} pl-10`} placeholder="Rechercher nom, dex, forme…" value={query} onChange={(event) => setQuery(event.target.value)} />
+        </label>
+      </Sheet>
+
+      <Sheet
+        open={sheet === "filters"}
+        title="Filtres de la checklist"
+        description={`${activeFilterCount} filtre(s) actif(s)`}
+        onClose={closeSheet}
+        footer={<button className={`${primaryButtonClass} w-full`} type="button" onClick={closeSheet}>Afficher {formatCount(allMatching.length)} Pokémon</button>}
+      >
+        {activeCollection ? <div className="space-y-5">
+          <div>
+            <h4 className="mb-2 type-overline text-muted">Type de collection</h4>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {collectionTypes.map(([id, label, icon]) => (
+                <button className={`min-h-20 rounded-control border p-3 text-center ${activeCollection.type === id ? "border-cyan-200/55 bg-cyan-400/18" : "border-line bg-surface-flat"}`} key={id} type="button" onClick={() => updateActive({ type: id })} aria-pressed={activeCollection.type === id}>
+                  <Image className="mx-auto mb-1 h-8 w-8 object-contain" src={icon} alt="" width={32} height={32} unoptimized /><strong className="text-sm text-domain-foreground">{label}</strong>
+                </button>
+              ))}
             </div>
-
-            <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain p-4 pb-5 sm:p-5">
-              <div>
-                <h4 className="mb-3 text-sm font-black uppercase tracking-[0.18em] text-foreground-secondary">Type de collection</h4>
-                <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-                  {collectionTypes.map(([id, label, icon]) => (
-                    <button
-                      className={`min-h-20 rounded-2xl border p-3 text-center transition sm:min-h-24 sm:p-4 ${
-                        draft.type === id ? "border-emerald-200/65 bg-emerald-400/22" : "border-white/20 bg-surface-subtle hover:border-cyan-200/45"
-                      }`}
-                      key={id}
-                      type="button"
-                      onClick={() => setDraft((current) => ({ ...current, type: id }))}
-                    >
-                      <img className="mx-auto mb-2 h-10 w-10 object-contain" src={icon} alt="" />
-                      <strong className="font-black text-domain-foreground">{label}</strong>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h4 className="mb-3 text-sm font-black uppercase tracking-[0.18em] text-foreground-secondary">Mode Pokedex</h4>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {collectionVariantModes.map(([id, label]) => (
-                    <button
-                      className={`rounded-2xl border p-5 text-center font-black transition ${
-                        draft.variantMode === id ? "border-cyan-200/60 bg-cyan-400/18 text-domain-foreground" : "border-white/20 bg-surface-subtle text-foreground"
-                      }`}
-                      key={id}
-                      type="button"
-                      onClick={() => setDraft((current) => ({ ...current, variantMode: id }))}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                <p className="mt-3 rounded-2xl border border-line bg-surface-flat p-3 type-body-strong text-foreground-secondary">
-                  Multi variante inclut les formes disponibles. Non variante limite aux fiches de base normales.
-                </p>
-              </div>
-
-              <div>
-                <h4 className="mb-3 text-sm font-black uppercase tracking-[0.18em] text-foreground-secondary">Autres caracteristiques</h4>
-                <div className="grid gap-3">
-                  {[
-                    ["shiny", "Chromatique"],
-                    ["hundo", "Hundo 100%"],
-                  ].map(([id, label]) => (
-                    <label className="flex items-center justify-between gap-4 rounded-2xl border border-line-medium bg-surface-subtle p-4 text-sm font-black text-domain-foreground" key={id}>
-                      {label}
-                      <Checkbox
-                        className="h-6 w-6 accent-cyan-400"
-                        checked={Boolean(draft[id])}
-                        onChange={(event) => setDraft((current) => ({ ...current, [id]: event.target.checked }))}
-                      />
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <label className="block">
-                <span className="mb-2 block text-sm font-black uppercase tracking-[0.18em] text-foreground-secondary">Nom de la collection</span>
-                <input
-                  className={fieldClass}
-                  value={draft.name}
-                  placeholder="ex. Shiny Shadow Kanto"
-                  onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))}
-                />
+          </div>
+          <div>
+            <h4 className="mb-2 type-overline text-muted">Mode Pokédex</h4>
+            <div className="grid grid-cols-2 gap-2">
+              {collectionVariantModes.map(([id, label]) => <button className={`min-h-12 rounded-control border px-3 font-black ${activeCollection.variantMode === id ? "border-cyan-200/55 bg-cyan-400/18 text-domain-foreground" : "border-line bg-surface-flat text-muted"}`} key={id} type="button" onClick={() => updateActive({ variantMode: id })}>{label}</button>)}
+            </div>
+          </div>
+          <div className="grid gap-2">
+            {[["shiny", "Chromatique", "Remplace la checklist par les seules entrées shiny sorties."], ["hundo", "Hundo 100 %", "Caractéristique orthogonale, sans modifier l’asset."]].map(([id, label, detail]) => (
+              <label className="flex items-center justify-between gap-4 rounded-control border border-line bg-surface-flat p-4" key={id}>
+                <span><strong className="block text-domain-foreground">{label}</strong><small className="mt-1 block font-semibold text-muted">{detail}</small></span>
+                <Checkbox checked={Boolean(activeCollection[id])} onChange={(event) => updateActive({ [id]: event.target.checked })} />
               </label>
+            ))}
+          </div>
+          <button className={secondaryButtonClass} type="button" onClick={() => { updateActive({ type: "normal", variantMode: "single", shiny: false, hundo: false }); resetViewFilters(); }}>Réinitialiser</button>
+        </div> : null}
+      </Sheet>
+
+      <Sheet open={sheet === "actions"} title="Actions de la collection" description={activeCollection?.name} onClose={closeSheet} size="sm">
+        {activeCollection ? <div className="space-y-4">
+          <label className="block"><span className="mb-2 block type-overline text-muted">Renommer</span><input className={fieldClass} value={activeCollection.name} onChange={(event) => updateActive({ name: event.target.value })} /></label>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <button className={secondaryButtonClass} type="button" onClick={() => selectEntries(catalog)}>Tout sélectionner</button>
+            <button className={`${secondaryButtonClass} border-rose-300/30 text-danger`} type="button" onClick={deleteActive}><Trash2 size={17} /> {deleteConfirmation ? "Confirmer la suppression" : "Supprimer"}</button>
+          </div>
+          {deleteConfirmation ? <p className="rounded-control border border-rose-300/25 bg-rose-400/10 p-3 text-sm font-bold text-danger">Cette action supprime uniquement cette collection après confirmation. Les autres collections restent intactes.</p> : null}
+          {activeCollection.migration ? <p className="rounded-control border border-line bg-surface-flat p-3 type-caption-strong text-muted">Migration : {activeCollection.migration.mapped} mappée(s) · {activeCollection.migration.unmapped} historique(s) conservée(s) · {activeCollection.migration.ambiguous} ambiguë(s).</p> : null}
+        </div> : null}
+      </Sheet>
+
+      <Sheet
+        open={sheet === "create"}
+        title="Nouvelle collection"
+        description="Le compteur se met à jour depuis les données canoniques sorties."
+        onClose={closeSheet}
+        footer={<button className={`${primaryButtonClass} w-full`} type="button" onClick={createCollection}>Créer la collection · {formatCount(draftCount)} Pokémon</button>}
+      >
+        <div className="space-y-5">
+          <div>
+            <h4 className="mb-2 type-overline text-muted">Type de collection</h4>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {collectionTypes.map(([id, label, icon]) => (
+                <button className={`min-h-20 rounded-control border p-3 text-center ${draft.type === id ? "border-emerald-200/55 bg-emerald-400/18" : "border-line bg-surface-flat"}`} key={id} type="button" onClick={() => setDraft((current) => ({ ...current, type: id }))} aria-pressed={draft.type === id}>
+                  <Image className="mx-auto mb-1 h-8 w-8 object-contain" src={icon} alt="" width={32} height={32} unoptimized /><strong className="text-sm text-domain-foreground">{label}</strong>
+                </button>
+              ))}
             </div>
-            <div className="sticky bottom-0 border-t border-line bg-zinc-900/95 p-4 backdrop-blur sm:p-5">
-              <button className="min-h-12 w-full rounded-2xl bg-white px-5 text-base font-black text-on-accent transition hover:scale-[1.01]" type="button" onClick={createCollection}>
-                Creer une Collection
-              </button>
-            </div>
-          </section>
-        </div>,
-        document.body,
-      ) : null}
+          </div>
+          <div>
+            <h4 className="mb-2 type-overline text-muted">Mode Pokédex</h4>
+            <div className="grid grid-cols-2 gap-2">{collectionVariantModes.map(([id, label]) => <button className={`min-h-12 rounded-control border px-3 font-black ${draft.variantMode === id ? "border-cyan-200/55 bg-cyan-400/18 text-domain-foreground" : "border-line bg-surface-flat text-muted"}`} key={id} type="button" onClick={() => setDraft((current) => ({ ...current, variantMode: id }))}>{label}</button>)}</div>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {[["shiny", "Chromatique"], ["hundo", "Hundo 100 %"]].map(([id, label]) => <label className="flex items-center justify-between gap-4 rounded-control border border-line bg-surface-flat p-4 font-black text-domain-foreground" key={id}>{label}<Checkbox checked={Boolean(draft[id])} onChange={(event) => setDraft((current) => ({ ...current, [id]: event.target.checked }))} /></label>)}
+          </div>
+          <label className="block"><span className="mb-2 block type-overline text-muted">Nom de la collection</span><input className={fieldClass} value={draft.name} placeholder="ex. Shiny Shadow Kanto" onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} /></label>
+        </div>
+      </Sheet>
     </section>
   );
 }

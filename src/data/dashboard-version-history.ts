@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.46.0",
+    date: "2026-08-14",
+    title: "Checklist Collections canonique et mobile-first",
+    changes: [
+      "Reconstruit les huit types de collections avec un moteur CollectionEntry pur, strictement limité aux Pokémon sortis et aux assets correspondant au mode shiny.",
+      "Restaure les catalogues Méga, Dynamax et Gigamax en Non variante, sépare 315 identités Event des 427 variantes légitimes et ajoute les différences de genre en Multi variante.",
+      "Transforme l'expérience mobile en checklist compacte avec filtres et régions en bottom sheets, progression sticky, cartes deux colonnes et statistiques repliées.",
+      "Migre les sélections historiques vers des clés stables versionnées, conserve les clés non mappées et synchronise les collections vers MongoDB sans supprimer la copie locale.",
+    ],
+  },
+  {
     version: "V1.45.0",
     date: "2026-08-14",
     title: "Variantes secondaires canoniques",

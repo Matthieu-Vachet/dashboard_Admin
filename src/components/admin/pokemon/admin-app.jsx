@@ -66,6 +66,7 @@ import { BackgroundPanel } from "./background-panel";
 import { BestAttackersPanel } from "./best-attackers-panel";
 import { CatalogPanel } from "./catalog-panel";
 import { CollectionsPanel } from "./collections-panel";
+import * as collectionCatalogEngine from "@/lib/collections/collection-catalog";
 import { EggsPanel } from "./eggs-panel";
 import { EventsCalendarPanel } from "./events-calendar-panel";
 import { CommunityDaysPanel } from "./community-days-panel";
@@ -120,6 +121,8 @@ const legacyAssetChecksKey = "pokedex-v4-asset-checks";
 const assetChecksStoreKey = "matweb.pokemon.assetChecks";
 const sourceWatchSignatureKey = "pokedex-v4-source-watch-signatures";
 const collectionsKey = "pokedex-v4-admin-collections";
+const collectionsStoreKey = "matweb.pokemon.collections";
+const { mergeCollectionSnapshots } = collectionCatalogEngine;
 
 const GameMasterExplorerPanel = dynamic(
   () =>
@@ -1400,6 +1403,8 @@ function CanonicalEngineReportPanel({ report, onDownload }) {
   const performance = report?.performance || {};
   const diagnostics = report?.diagnostics || {};
   const taxonomy = report?.diagnosticTaxonomy || {};
+  const collectionCatalog = report?.architecture?.collectionCatalog || {};
+  const collectionCounts = collectionCatalog.counts || {};
   const categories = diagnostics.categories || {};
   const severities = diagnostics.severityCounts || {};
   const heapMb = Number(performance.memoryAfter?.heapUsedBytes || 0) / 1024 / 1024;
@@ -1436,6 +1441,45 @@ function CanonicalEngineReportPanel({ report, onDownload }) {
         non classées, mappings manquants, références cassées, orphelins, migrations incomplètes
         et erreurs bloquantes. Les index Map/Set sont construits une seule fois par audit.
       </p>
+      <section className="mt-4 rounded-2xl border border-cyan-200/20 bg-cyan-400/[0.07] p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <small className="type-overline text-cyan-100/70">Collection Catalog</small>
+            <h3 className="type-title-card text-domain-foreground">Contrats de checklist canoniques</h3>
+          </div>
+          <span className={`rounded-full border px-3 py-1.5 type-label ${collectionCatalog.valid ? "border-emerald-300/25 bg-emerald-400/10 text-emerald-100" : "border-red-300/25 bg-red-400/10 text-red-100"}`}>
+            {collectionCatalog.valid ? "VALID" : `${collectionCatalog.diagnostics || 0} erreur(s)`}
+          </span>
+        </div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+          {[
+            ["Contrats", Object.keys(collectionCounts).length],
+            ["Event principal", collectionCounts["event.single.standard"]],
+            ["Event multi", collectionCounts["event.multi.standard"]],
+            ["Dynamax", collectionCounts["dynamax.single.standard"]],
+            ["Gigamax", collectionCounts["gigantamax.single.standard"]],
+          ].map(([label, value]) => (
+            <article className="rounded-2xl border border-line bg-surface-inset p-3" key={label}>
+              <small className="type-overline-compact text-muted">{label}</small>
+              <strong className="mt-1 block font-mono text-xl text-domain-foreground">{value ?? "—"}</strong>
+            </article>
+          ))}
+        </div>
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {[
+            "COLLECTION_UNRELEASED_ENTRY",
+            "COLLECTION_DUPLICATE_ENTRY",
+            "COLLECTION_WRONG_ASSET_VARIANT",
+            "COLLECTION_INVALID_EVENT_KIND",
+            "COLLECTION_INVALID_GENDER_VARIANT",
+            "COLLECTION_INVALID_CATEGORY",
+            "COLLECTION_SHINY_NOT_RELEASED",
+            "COLLECTION_MISSING_ASSET",
+          ].map((code) => (
+            <span className="rounded-full border border-line bg-surface-flat px-2.5 py-1 font-mono text-[10px] font-bold text-muted" key={code}>{code} · {taxonomy[code]?.count ?? 0}</span>
+          ))}
+        </div>
+      </section>
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
         {[["Error", severities.error, "text-danger"], ["Warning", severities.warning, "text-warning"], ["Info", severities.info, "text-brand-2"]].map(([label, value, tone]) => (
           <article className="rounded-2xl border border-line bg-surface-inset p-4" key={label}>
@@ -1751,6 +1795,42 @@ export function AdminApp() {
 
     void hydrateAssetChecks();
 
+    return () => {
+      cancelled = true;
+    };
+  }, [session.authenticated]);
+
+  useEffect(() => {
+    if (!session.authenticated) return;
+    let cancelled = false;
+
+    async function hydrateCollections() {
+      const legacyValue = readLocalJson(collectionsKey, []);
+      const stored = await readDashboardStoreValue(collectionsStoreKey);
+      if (cancelled || !stored.ok || !stored.configured) return;
+
+      if (Array.isArray(stored.value)) {
+        const merged = mergeCollectionSnapshots(stored.value, legacyValue);
+        setCollections(merged);
+        localStorage.setItem(collectionsKey, JSON.stringify(merged));
+        if (JSON.stringify(merged) !== JSON.stringify(stored.value)) {
+          const saved = await writeDashboardStoreValue(collectionsStoreKey, merged);
+          if (!saved) toast.error("La fusion des collections reste locale : aucune sélection HAVE n'a été supprimée.");
+        }
+        return;
+      }
+
+      if (Array.isArray(legacyValue) && legacyValue.length) {
+        setCollections(legacyValue);
+        const saved = await writeDashboardStoreValue(collectionsStoreKey, legacyValue);
+        if (!saved) toast.error("La sauvegarde Mongo des collections n'a pas abouti. La copie locale est conservée.");
+        return;
+      }
+
+      setCollections([]);
+    }
+
+    void hydrateCollections();
     return () => {
       cancelled = true;
     };
@@ -2835,6 +2915,9 @@ export function AdminApp() {
   function saveCollections(next) {
     setCollections(next);
     localStorage.setItem(collectionsKey, JSON.stringify(next));
+    void writeDashboardStoreValue(collectionsStoreKey, next).then((saved) => {
+      if (!saved) toast.error("MongoDB indisponible : la copie locale des collections reste active.");
+    });
   }
 
   async function loadSources({ automatic = false } = {}) {
@@ -3084,7 +3167,7 @@ export function AdminApp() {
         <div className="w-full">
           <section className="min-w-0">
             <header
-              className="relative overflow-hidden rounded-surface border border-line bg-surface-control p-4 shadow-raised backdrop-blur-2xl sm:p-5"
+              className={`relative overflow-hidden rounded-surface border border-line bg-surface-control shadow-raised backdrop-blur-2xl ${active === "collections" ? "p-3 sm:p-5" : "p-4 sm:p-5"}`}
               style={{
                 backgroundImage:
                   'linear-gradient(135deg, rgba(15,23,42,.88), rgba(14,165,233,.18)), url("/assets/ui/backgrounds/library/catchCards/CatchCard_TypeBG_Water.png")',
@@ -3100,11 +3183,11 @@ export function AdminApp() {
                     <p className="mb-1 type-overline text-cyan-200/70">
                       Dashboard sécurisé
                     </p>
-                    <h1 className="type-title-page">
+                    <h1 className={active === "collections" ? "text-2xl font-black sm:type-title-page" : "type-title-page"}>
                       {navItems.find((item) => item.id === active)?.label}
                     </h1>
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] xl:w-[780px]">
+                  <div className={`gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] xl:w-[780px] ${active === "collections" ? "hidden md:grid" : "grid"}`}>
                     <label className="relative block">
                       <Search
                         className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-disabled"
@@ -3141,16 +3224,18 @@ export function AdminApp() {
                     </Button>
                   </div>
                 </div>
-                <AdminSectionNavigation
-                  key={active}
-                  items={navItems}
-                  active={active}
-                  onSelect={selectSection}
-                />
+                <div className={active === "collections" ? "hidden md:block" : "block"}>
+                  <AdminSectionNavigation
+                    key={active}
+                    items={navItems}
+                    active={active}
+                    onSelect={selectSection}
+                  />
+                </div>
               </div>
             </header>
 
-            <div className="mt-5 space-y-5">
+            <div className={`${active === "collections" ? "mt-3 sm:mt-5" : "mt-5"} space-y-5`}>
               {bootstrap.loading && !bootstrap.payload ? (
                 <FetchLoadingState
                   title="Chargement du dashboard…"

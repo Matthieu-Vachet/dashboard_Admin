@@ -1,6 +1,6 @@
 {
   "name": "dashboard-admin",
-  "version": "1.45.0",
+  "version": "1.46.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -42,6 +42,8 @@
     "test:canonical-engine": "node --test scripts/test-canonical-engine-report.mjs",
     "test:engine-diagnostics": "node --test scripts/test-engine-diagnostic-taxonomy.mjs",
     "test:assets-separated": "node --test scripts/test-separated-assets-dashboard.mjs",
+    "test:collections": "node --test scripts/test-collection-catalog.mjs",
+    "test:collections:e2e": "node scripts/test-collections-e2e.mjs",
     "test:xl-candy-audit": "node --test scripts/test-xl-candy-audit.mjs",
     "test:docs": "node scripts/validate-documentation.mjs",
     "audit:docs:foundation": "node scripts/audit-foundation-documentation.mjs",

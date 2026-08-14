@@ -55,6 +55,14 @@
   --elevation-strong: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 0 1px var(--accent-muted), 0 30px 120px rgba(0, 0, 0, 0.28);
   --elevation-overlay: 0 30px 120px rgba(0, 0, 0, 0.46);
   --elevation-floating: 0 24px 80px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --collection-lucky-border: rgba(250, 204, 21, 0.56);
+  --collection-lucky-glow: 0 16px 42px rgba(250, 204, 21, 0.2), inset 0 0 28px rgba(250, 204, 21, 0.08);
+  --collection-shadow-border: rgba(192, 132, 252, 0.62);
+  --collection-shadow-glow: 0 16px 44px rgba(168, 85, 247, 0.24), inset 0 0 30px rgba(168, 85, 247, 0.1);
+  --collection-purified-border: rgba(125, 211, 252, 0.64);
+  --collection-purified-glow: 0 16px 44px rgba(56, 189, 248, 0.22), inset 0 0 30px rgba(125, 211, 252, 0.1);
+  --collection-max-border: rgba(34, 211, 238, 0.48);
+  --collection-max-glow: 0 16px 44px rgba(34, 211, 238, 0.16), inset 0 0 28px rgba(34, 211, 238, 0.08);
   --radius: 8px;
   --motion-duration-fast: 150ms;
   --motion-duration-normal: 200ms;
@@ -119,6 +127,39 @@
   --elevation-strong: inset 0 1px 0 rgba(255, 255, 255, 0.96), 0 0 0 1px var(--accent-muted), 0 24px 80px rgba(31, 45, 69, 0.12);
   --elevation-overlay: inset 0 1px 0 rgba(255, 255, 255, 0.96), 0 24px 80px rgba(31, 45, 69, 0.2);
   --elevation-floating: 0 22px 62px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.94);
+  --collection-lucky-border: rgba(180, 132, 0, 0.58);
+  --collection-lucky-glow: 0 14px 34px rgba(180, 132, 0, 0.18), inset 0 0 24px rgba(250, 204, 21, 0.12);
+  --collection-shadow-border: rgba(126, 34, 206, 0.56);
+  --collection-shadow-glow: 0 14px 34px rgba(126, 34, 206, 0.18), inset 0 0 24px rgba(168, 85, 247, 0.1);
+  --collection-purified-border: rgba(2, 132, 199, 0.56);
+  --collection-purified-glow: 0 14px 34px rgba(2, 132, 199, 0.16), inset 0 0 24px rgba(56, 189, 248, 0.1);
+  --collection-max-border: rgba(8, 145, 178, 0.48);
+  --collection-max-glow: 0 14px 34px rgba(8, 145, 178, 0.14), inset 0 0 24px rgba(34, 211, 238, 0.08);
+}
+
+.collection-pokemon-card[data-tone="lucky"] {
+  border-color: var(--collection-lucky-border);
+  box-shadow: var(--collection-lucky-glow);
+}
+
+.collection-pokemon-card[data-tone="shadow"] {
+  border-color: var(--collection-shadow-border);
+  box-shadow: var(--collection-shadow-glow);
+}
+
+.collection-pokemon-card[data-tone="purified"] {
+  border-color: var(--collection-purified-border);
+  box-shadow: var(--collection-purified-glow);
+}
+
+.collection-pokemon-card:is([data-tone="mega"], [data-tone="primal"], [data-tone="dynamax"], [data-tone="gigantamax"]) {
+  border-color: var(--collection-max-border);
+  box-shadow: var(--collection-max-glow);
+}
+
+.collection-pokemon-card[data-selected="true"] {
+  outline: 2px solid color-mix(in oklab, var(--success) 72%, transparent);
+  outline-offset: -2px;
 }
 
 @theme inline {

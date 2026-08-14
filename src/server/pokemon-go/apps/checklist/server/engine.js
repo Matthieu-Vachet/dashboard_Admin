@@ -16,6 +16,9 @@ const { buildPvpArchitectureAudit } = require("./pvp-architecture-audit");
 const { buildAssetArchitectureAudit } = require("./asset-architecture-audit");
 const { categoryFromReference, classifyEntity, resolveCanonicalReference } = require("./entity-category");
 const { categoryCounts, enrichDiagnostic } = require("./diagnostic-taxonomy");
+const {
+  buildCollectionContractReport,
+} = require("../../../../../lib/collections/collection-catalog");
 
 const pokemonRoot = dataPath("data", "pokemon");
 const pokemonDir = dataPath("data", "pokemon", "normal");
@@ -1412,9 +1415,9 @@ function assetPresentation(data, { includeLocationCards = false } = {}) {
   const shuffleShinyVariant = shuffleVariants.find(
     (asset) => asset?.shiny && (asset?.image || asset?.shinyImage),
   );
-  const eventAssets = Array.isArray(data.assetForms)
+  const collectionVariants = Array.isArray(data.assetForms)
     ? data.assetForms
-        .filter((asset) => (asset?.image || asset?.shinyImage) && eventAssetIsCostumeOrEvent(asset))
+        .filter((asset) => asset?.image || asset?.shinyImage)
         .map((asset) => ({
           kind: asset.kind || (asset.costume ? "costume" : null),
           gender: asset.gender || (asset.isFemale === true ? "female" : "male"),
@@ -1425,6 +1428,7 @@ function assetPresentation(data, { includeLocationCards = false } = {}) {
           isFemale: Boolean(asset.isFemale),
         }))
     : [];
+  const eventAssets = collectionVariants.filter(eventAssetIsCostumeOrEvent);
   const summary = assetSummary(data);
   return {
     goImage: data.assets?.image || null,
@@ -1437,6 +1441,7 @@ function assetPresentation(data, { includeLocationCards = false } = {}) {
     homeShinyImage: home.shinyImage || homeVariant?.shinyImage || null,
     shuffleShinyImage: shuffleShinyVariant?.image || shuffleShinyVariant?.shinyImage || null,
     shinyImage: data.assets?.portraitShiny || data.assets?.shinyImage || null,
+    collectionVariants,
     eventAssets,
     assets: includeLocationCards
       ? { ...summary, locationCards: data.assets?.locationCards || [] }
@@ -1614,6 +1619,7 @@ function buildChecklist(customRulesOverride = null, options = {}) {
       kind,
       profile,
       name,
+      names: displayData.names || {},
       id: data.id || null,
       formId: data.formId || data.id || null,
       baseFormId: data.baseFormId || data.id || null,
@@ -1781,6 +1787,7 @@ function buildCanonicalEngineReport(customRulesOverride = null, options = {}) {
   const pvpArchitecture = options.pvpArchitecture || buildPvpArchitectureAudit();
   const assetArchitecture = options.assetArchitecture || buildAssetArchitectureAudit();
   const entries = buildChecklist(customRulesOverride, { pvpArchitecture });
+  const collectionCatalog = buildCollectionContractReport(entries);
   const customRuleEntries = buildCustomRuleCatalogChecklist(customRulesOverride);
   const checklistIssues = entries.flatMap((entry) => entry.issues || []);
   const customRuleIssues = customRuleEntries.flatMap((entry) => entry.issues || []);
@@ -1799,7 +1806,8 @@ function buildCanonicalEngineReport(customRulesOverride = null, options = {}) {
     + Number(assetArchitecture.summary.legacyMonoliths || 0)
     + Object.values(legacyEmbeddedFields).reduce((total, value) => total + Number(value || 0), 0)
     + Number(pvpArchitecture.summary.legacyEmbeddedBlocks || 0);
-  const trueErrors = Number(assetArchitecture.summary.errors || 0) + Number(pvpArchitecture.summary.errors || 0);
+  const collectionErrors = collectionCatalog.diagnostics.length;
+  const trueErrors = Number(assetArchitecture.summary.errors || 0) + Number(pvpArchitecture.summary.errors || 0) + collectionErrors;
   const expectedInfoCount = legitimateAbsences
     + Number(leagueStatuses.UNSUPPORTED_FORM || 0)
     + Number(leagueStatuses.NOT_RANKED || 0)
@@ -1835,6 +1843,12 @@ function buildCanonicalEngineReport(customRulesOverride = null, options = {}) {
       categories: ["NORMAL", "ALOLA", "GALAR", "HISUI", "PALDEA", "FORM", "MEGA", "PRIMAL", "DYNAMAX", "GIGANTAMAX"],
       assets: assetArchitecture.summary,
       pvp: pvpArchitecture.summary,
+      collectionCatalog: {
+        schemaVersion: collectionCatalog.schemaVersion,
+        valid: collectionCatalog.valid,
+        counts: collectionCatalog.counts,
+        diagnostics: collectionCatalog.diagnostics.length,
+      },
       legacyRequirements: {
         pokemonPvpEmbedded: Number(pvpArchitecture.summary.legacyEmbeddedBlocks || 0) > 0,
         assetsHomeEmbedded: Number(legacyEmbeddedFields.home || 0) > 0,
@@ -1855,6 +1869,7 @@ function buildCanonicalEngineReport(customRulesOverride = null, options = {}) {
       assetFamilies: assetArchitecture.summary.familyRecords || 0,
       pvpRecords: pvpArchitecture.summary.records || 0,
       customRuleCatalogEntries: customRuleEntries.length,
+      collectionCatalogContracts: Object.keys(collectionCatalog.counts).length,
     },
     diagnosticTaxonomy: {
       LEGITIMATE_ABSENCE: { count: legitimateAbsences, blocking: false, category: "architecture", severity: "info" },
@@ -1875,6 +1890,14 @@ function buildCanonicalEngineReport(customRulesOverride = null, options = {}) {
       VARIANT_KIND_INVALID: { count: Number(issueCounts(architectureIssues).VARIANT_KIND_INVALID || 0), blocking: true, category: "schema", severity: "error" },
       VARIANT_AMBIGUOUS: { count: Number(issueCounts(architectureIssues).VARIANT_AMBIGUOUS || 0), blocking: true, category: "architecture", severity: "error" },
       ERROR: { count: trueErrors, blocking: true, category: "architecture", severity: "error" },
+      COLLECTION_UNRELEASED_ENTRY: { count: collectionCatalog.diagnostics.filter((item) => item.code === "COLLECTION_UNRELEASED_ENTRY").length, blocking: true, category: "release-metadata", severity: "error" },
+      COLLECTION_DUPLICATE_ENTRY: { count: collectionCatalog.diagnostics.filter((item) => item.code === "COLLECTION_DUPLICATE_ENTRY").length, blocking: true, category: "architecture", severity: "error" },
+      COLLECTION_WRONG_ASSET_VARIANT: { count: collectionCatalog.diagnostics.filter((item) => item.code === "COLLECTION_WRONG_ASSET_VARIANT").length, blocking: true, category: "assets", severity: "error" },
+      COLLECTION_INVALID_EVENT_KIND: { count: collectionCatalog.diagnostics.filter((item) => item.code === "COLLECTION_INVALID_EVENT_KIND").length, blocking: true, category: "architecture", severity: "error" },
+      COLLECTION_INVALID_GENDER_VARIANT: { count: collectionCatalog.diagnostics.filter((item) => item.code === "COLLECTION_INVALID_GENDER_VARIANT").length, blocking: true, category: "architecture", severity: "error" },
+      COLLECTION_INVALID_CATEGORY: { count: collectionCatalog.diagnostics.filter((item) => item.code === "COLLECTION_INVALID_CATEGORY").length, blocking: true, category: "architecture", severity: "error" },
+      COLLECTION_SHINY_NOT_RELEASED: { count: collectionCatalog.diagnostics.filter((item) => item.code === "COLLECTION_SHINY_NOT_RELEASED").length, blocking: true, category: "release-metadata", severity: "error" },
+      COLLECTION_MISSING_ASSET: { count: collectionCatalog.diagnostics.filter((item) => item.code === "COLLECTION_MISSING_ASSET").length, blocking: true, category: "assets", severity: "error" },
     },
     diagnostics: {
       architectureByCode: issueCounts(architectureIssues),
@@ -1884,6 +1907,7 @@ function buildCanonicalEngineReport(customRulesOverride = null, options = {}) {
       architectureWarnings: architectureIssues.filter((item) => item.severity === "warning").length,
       dataQualityFindings: checklistIssues.length,
       customRuleFindings: customRuleIssues.length,
+      collectionCatalogByCode: issueCounts(collectionCatalog.diagnostics.map((item) => ({ issue: item.code }))),
       severityCounts,
       categories: diagnosticCategories,
     },

@@ -283,7 +283,7 @@ test("le spacing générique reste sur l’échelle et les exceptions structurel
 });
 
 test("les rôles radius sont centralisés sans absorber les formes décoratives", () => {
-  assert.equal(arbitraryRadiusUtilities.length, 11);
+  assert.equal(arbitraryRadiusUtilities.length, 9);
   assert.equal(cssRadiusDeclarations, target ? 9 : 4);
   assert.equal(inlineRadiusDeclarations, 3);
   if (target) {
