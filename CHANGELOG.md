@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+## 1.45.0 - 2026-08-14
+
+### Added
+
+- Ajoute dans l’Engine les diagnostics bloquants `VARIANT_DUPLICATES_CANONICAL_ENTITY`, `VARIANT_CANONICAL_CATEGORY_FORBIDDEN`, `VARIANT_KIND_MISSING`, `VARIANT_KIND_INVALID` et `VARIANT_AMBIGUOUS`.
+
+### Changed
+
+- Fonde le filtre Fiches Costume/Event sur le champ canonique `kind` et conserve uniquement le fallback rétrocompatible par `costume` pour les anciennes réponses API.
+- Aligne l’audit Assets sur 217 fichiers et 531 variantes secondaires, sans forme régionale, Méga, Primo, Dynamax ou Gigamax dupliquée.
+
+### Fixed
+
+- Empêche les variantes de genre et les anciennes formes structurelles sans `kind` d’apparaître comme costumes ou événements dans le Dashboard.
+
 ## 1.44.2 - 2026-08-13
 
 ### Fixed

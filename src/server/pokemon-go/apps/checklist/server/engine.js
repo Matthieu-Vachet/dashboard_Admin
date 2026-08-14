@@ -159,17 +159,10 @@ function normalizeAssetForms(assetForms) {
   return Array.isArray(assetForms) ? assetForms.map(normalizeAssetForm) : [];
 }
 
-let excludedCostumeEventForms = null;
-
 function eventAssetIsCostumeOrEvent(asset = {}) {
-  if (asset.costume) return true;
-  const form = String(asset.form || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  if (!form) return false;
-  if (!excludedCostumeEventForms) {
-    const classification = readJson(dataPath("data", "reference", "event-variant-classification.json"));
-    excludedCostumeEventForms = new Set((classification.excludedForms || []).map((value) => String(value).toLowerCase()));
-  }
-  return !excludedCostumeEventForms.has(form);
+  if (["costume", "event"].includes(asset.kind)) return true;
+  if (asset.kind === "gender") return false;
+  return Boolean(asset.costume);
 }
 
 function hydrateSourceData(data, { families = assetFamilies } = {}) {
@@ -1423,6 +1416,8 @@ function assetPresentation(data, { includeLocationCards = false } = {}) {
     ? data.assetForms
         .filter((asset) => (asset?.image || asset?.shinyImage) && eventAssetIsCostumeOrEvent(asset))
         .map((asset) => ({
+          kind: asset.kind || (asset.costume ? "costume" : null),
+          gender: asset.gender || (asset.isFemale === true ? "female" : "male"),
           form: asset.form || null,
           costume: asset.costume || null,
           image: asset.image || null,
@@ -1874,6 +1869,11 @@ function buildCanonicalEngineReport(customRulesOverride = null, options = {}) {
       BROKEN_REFERENCE: { count: brokenReferences, blocking: true, category: "reference", severity: "error" },
       ORPHAN: { count: orphans, blocking: true, category: "reference", severity: "error" },
       MIGRATION_INCOMPLETE: { count: migrationIncomplete, blocking: true, category: "architecture", severity: "error" },
+      VARIANT_DUPLICATES_CANONICAL_ENTITY: { count: Number(issueCounts(architectureIssues).VARIANT_DUPLICATES_CANONICAL_ENTITY || 0), blocking: true, category: "architecture", severity: "error" },
+      VARIANT_CANONICAL_CATEGORY_FORBIDDEN: { count: Number(issueCounts(architectureIssues).VARIANT_CANONICAL_CATEGORY_FORBIDDEN || 0), blocking: true, category: "architecture", severity: "error" },
+      VARIANT_KIND_MISSING: { count: Number(issueCounts(architectureIssues).VARIANT_KIND_MISSING || 0), blocking: true, category: "schema", severity: "error" },
+      VARIANT_KIND_INVALID: { count: Number(issueCounts(architectureIssues).VARIANT_KIND_INVALID || 0), blocking: true, category: "schema", severity: "error" },
+      VARIANT_AMBIGUOUS: { count: Number(issueCounts(architectureIssues).VARIANT_AMBIGUOUS || 0), blocking: true, category: "architecture", severity: "error" },
       ERROR: { count: trueErrors, blocking: true, category: "architecture", severity: "error" },
     },
     diagnostics: {

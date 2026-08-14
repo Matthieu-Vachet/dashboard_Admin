@@ -26,9 +26,9 @@ test("le filtre Costume crée une fiche par costume et groupe les sexes", () => 
   const entries = costumePresentationEntries([
     pikachu({
       eventAssets: [
-        { form: null, costume: "PIKACHU_FALL_2019", isFemale: false, image: "male.png", shinyImage: "male-shiny.png" },
-        { form: null, costume: "PIKACHU_FALL_2019", isFemale: true, image: "female.png", shinyImage: "female-shiny.png" },
-        { form: null, costume: "PIKACHU_WINTER_2020", isFemale: false, image: "winter.png" },
+        { kind: "costume", gender: "male", form: null, costume: "PIKACHU_FALL_2019", isFemale: false, image: "male.png", shinyImage: "male-shiny.png" },
+        { kind: "costume", gender: "female", form: null, costume: "PIKACHU_FALL_2019", isFemale: true, image: "female.png", shinyImage: "female-shiny.png" },
+        { kind: "costume", gender: "male", form: null, costume: "PIKACHU_WINTER_2020", isFemale: false, image: "winter.png" },
       ],
     }),
   ]);
@@ -47,7 +47,7 @@ test("un costume uniquement femelle reste visible avec son asset exact", () => {
   const [entry] = costumePresentationEntries([
     pikachu({
       eventAssets: [
-        { form: null, costume: "PIKACHU_FEMALE_ONLY", isFemale: true, image: "female-only.png" },
+        { kind: "costume", gender: "female", form: null, costume: "PIKACHU_FEMALE_ONLY", isFemale: true, image: "female-only.png" },
       ],
     }),
   ]);
@@ -59,7 +59,7 @@ test("un costume uniquement femelle reste visible avec son asset exact", () => {
 
 test("une forme clone reconnue par l'Engine reste visible sans costume dupliqué", () => {
   const entries = costumePresentationEntries([
-    pikachu({ eventAssets: [{ form: "COPY_2019", costume: null, isFemale: true, image: "clone-form.png" }] }),
+    pikachu({ eventAssets: [{ kind: "event", gender: "female", form: "COPY_2019", costume: null, isFemale: true, image: "clone-form.png" }] }),
   ]);
   assert.equal(entries.length, 1);
   assert.equal(entries[0].form, "COPY_2019");
@@ -76,9 +76,21 @@ test("le filtre Chromatique marque explicitement la sélection shiny", () => {
   assert.equal(entries[0].shinyImage, "pikachu-shiny.png");
 });
 
+test("le filtre Costume exclut les différences de genre et les anciennes formes structurelles", () => {
+  const entries = costumePresentationEntries([
+    pikachu({
+      eventAssets: [
+        { kind: "gender", gender: "female", form: null, costume: null, isFemale: true, image: "female.png" },
+        { form: "galar", costume: null, isFemale: false, image: "legacy-galar.png" },
+      ],
+    }),
+  ]);
+  assert.deepEqual(entries, []);
+});
+
 test("la recherche inclut costume et variantes sexuées", () => {
   const [entry] = pokemonPresentationEntries([
-    pikachu({ eventAssets: [{ costume: "PIKACHU_FALL_2019", isFemale: false, image: "male.png" }] }),
+    pikachu({ eventAssets: [{ kind: "costume", costume: "PIKACHU_FALL_2019", isFemale: false, image: "male.png" }] }),
   ], "costume");
   assert.match(pokemonPresentationSearchText(entry), /pikachu_fall_2019/);
 });

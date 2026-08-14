@@ -7,6 +7,16 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.45.0",
+    date: "2026-08-14",
+    title: "Variantes secondaires canoniques",
+    changes: [
+      "Affiche les costumes et événements depuis le champ kind versionné, avec un fallback costume limité aux anciennes réponses API.",
+      "Exclut les différences de genre et les formes Pokémon autonomes du filtre Costume/Event.",
+      "Expose cinq diagnostics Engine bloquants contre les doublons, catégories interdites, kinds invalides et ambiguïtés.",
+    ],
+  },
+  {
     version: "V1.44.2",
     date: "2026-08-13",
     title: "Rapport PvP canonique embarqué dans l’Engine",

@@ -36,6 +36,12 @@ function defaultGenderAsset(genderVariants) {
   return genderVariants.find((asset) => asset.isFemale !== true) || genderVariants[0] || null;
 }
 
+function isCostumeOrEventAsset(asset = {}) {
+  if (["costume", "event"].includes(asset.kind)) return true;
+  if (asset.kind === "gender") return false;
+  return Boolean(asset.costume);
+}
+
 function costumePresentationEntry(entry, identity, assets) {
   const genderVariants = uniqueAssets(assets);
   const selectedAsset = defaultGenderAsset(genderVariants);
@@ -72,7 +78,7 @@ export function costumePresentationEntries(entries = []) {
   return entries.flatMap((entry) => {
     const groups = new Map();
     for (const asset of Array.isArray(entry.eventAssets) ? entry.eventAssets : []) {
-      if (!asset?.costume && !asset?.form) continue;
+      if (!isCostumeOrEventAsset(asset)) continue;
       const identity = costumeIdentity(entry, asset);
       const current = groups.get(identity) || [];
       current.push(asset);

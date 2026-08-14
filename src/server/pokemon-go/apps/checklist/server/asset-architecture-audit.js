@@ -24,6 +24,59 @@ const IDENTITY_FIELDS = Object.freeze([
   "dexNr",
   "dexId",
 ]);
+const VARIANT_KINDS = new Set(["gender", "costume", "event"]);
+const FORBIDDEN_VARIANT_CATEGORIES = new Set([
+  "ALOLA",
+  "GALAR",
+  "HISUI",
+  "PALDEA",
+  "MEGA",
+  "PRIMAL",
+  "DYNAMAX",
+  "GIGANTAMAX",
+]);
+
+function variantToken(value) {
+  return String(value || "")
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .replace(/_+/g, "_");
+}
+
+function expectedVariantKind(variant = {}) {
+  if (String(variant.costume || "").trim()) return "costume";
+  if (!variant.form && variant.isFemale === true) return "gender";
+  if (variant.form) return "event";
+  return null;
+}
+
+function canonicalVariantMatches(document, variant, candidates = []) {
+  if (String(variant.costume || "").trim()) return [];
+  if (!variant.form && variant.isFemale === true) return [];
+  if (!variant.form) {
+    return candidates.filter((candidate) =>
+      variantToken(candidate.data.formId || candidate.data.id) === variantToken(document.formId || document.id),
+    );
+  }
+  const form = variantToken(variant.form);
+  const base = variantToken(document.baseFormId || document.id);
+  const preferred = form.startsWith(`${base}_`) ? form : `${base}_${form}`;
+  const scored = candidates.map((candidate) => {
+    const formId = variantToken(candidate.data.formId || candidate.data.id);
+    const entityForm = variantToken(candidate.data.form);
+    let score = 0;
+    if (formId === preferred) score = 120;
+    else if (formId === form) score = 115;
+    else if (entityForm === form) score = 110;
+    else if (formId.endsWith(`_${form}`)) score = 100;
+    return { candidate, score };
+  }).filter(({ score }) => score >= 100);
+  if (!scored.length) return [];
+  const bestScore = Math.max(...scored.map(({ score }) => score));
+  return scored.filter(({ score }) => score === bestScore).map(({ candidate }) => candidate);
+}
 
 function listJsonFiles(directory) {
   if (!fs.existsSync(directory)) return [];
@@ -183,11 +236,16 @@ function buildAssetArchitectureAudit() {
       issue({ sourceFile: source.sourceFile, path: "form", code: "ENTITY_CLASSIFICATION_AMBIGUOUS", expected: "une catégorie canonique unique", actual: classification.signals.join(", ") });
   }
   const sourcesByFormId = new Map();
+  const sourcesByDex = new Map();
   for (const source of sources) {
     const formId = source.data.formId || source.data.id;
     const values = sourcesByFormId.get(formId) || [];
     values.push(source);
     sourcesByFormId.set(formId, values);
+    const dex = Number(source.data.dexNr);
+    const dexSources = sourcesByDex.get(dex) || [];
+    dexSources.push(source);
+    sourcesByDex.set(dex, dexSources);
   }
   for (const [formId, values] of sourcesByFormId)
     if (values.length > 1)
@@ -261,6 +319,32 @@ function buildAssetArchitectureAudit() {
           expected: "famille secondaire non vide",
           actual: data[field] == null ? "absente" : "vide",
         });
+      if (family === "variants") {
+        if (data.schemaVersion !== 2)
+          issue({ assetRef, path: "schemaVersion", code: "VARIANT_KIND_INVALID", expected: 2, actual: data.schemaVersion ?? "absent" });
+        for (const [index, variant] of (Array.isArray(data.variants) ? data.variants : []).entries()) {
+          const variantPath = `variants[${index}]`;
+          const expectedKind = expectedVariantKind(variant);
+          if (!Object.hasOwn(variant, "kind"))
+            issue({ assetRef, path: `${variantPath}.kind`, code: "VARIANT_KIND_MISSING", expected: expectedKind || [...VARIANT_KINDS].join(" | "), actual: "absent" });
+          else if (!VARIANT_KINDS.has(variant.kind) || !expectedKind || variant.kind !== expectedKind)
+            issue({ assetRef, path: `${variantPath}.kind`, code: "VARIANT_KIND_INVALID", expected: expectedKind || [...VARIANT_KINDS].join(" | "), actual: variant.kind });
+          const expectedGender = variant.isFemale === true ? "female" : "male";
+          if (variant.gender !== expectedGender)
+            issue({ assetRef, path: `${variantPath}.gender`, code: "VARIANT_KIND_INVALID", expected: expectedGender, actual: variant.gender ?? "absent" });
+
+          const matches = canonicalVariantMatches(data, variant, sourcesByDex.get(Number(data.dexNr)) || []);
+          if (matches.length > 1)
+            issue({ assetRef, path: variantPath, code: "VARIANT_AMBIGUOUS", expected: "une identité canonique unique", actual: matches.map(({ sourceFile }) => sourceFile).join(", ") });
+          if (matches.length === 1) {
+            const target = matches[0];
+            const category = classifyEntity(target.data, { sourceFile: target.sourceFile }).category;
+            issue({ assetRef, path: variantPath, code: "VARIANT_DUPLICATES_CANONICAL_ENTITY", expected: "variante secondaire uniquement", actual: target.sourceFile });
+            if (FORBIDDEN_VARIANT_CATEGORIES.has(category))
+              issue({ assetRef, path: variantPath, code: "VARIANT_CANONICAL_CATEGORY_FORBIDDEN", expected: "gender | costume | event", actual: category });
+          }
+        }
+      }
     }
   }
 

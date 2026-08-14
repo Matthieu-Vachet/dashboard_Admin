@@ -17,7 +17,7 @@ test("le véritable Engine produit un rapport global sérialisable et mesuré", 
   assert.equal(report.status, "VALID_WITH_DIAGNOSTICS");
   assert.equal(report.coverage.pokemonAndForms, 1_611);
   assert.equal(report.coverage.assetCore, 1_611);
-  assert.equal(report.coverage.assetFamilies, 3_147);
+  assert.equal(report.coverage.assetFamilies, 3_033);
   assert.equal(report.coverage.pvpRecords, 1_611);
   assert.equal(report.architecture.assets.valid, true);
   assert.equal(report.architecture.pvp.valid, true);
@@ -67,8 +67,11 @@ test("le filtre Costume/Event charge les variants séparés et couvre la famille
   assert.ok(bulbasaur.eventAssets.some((asset) => asset.costume === "JAN_2020_NOEVOLVE"));
   assert.ok(ivysaur.eventAssets.some((asset) => asset.costume === "JAN_2020_NOEVOLVE"));
   assert.ok(venusaur.eventAssets.some((asset) => asset.form === "COPY_2019"));
-  assert.equal(eventAssetIsCostumeOrEvent({ form: "normal" }), false);
-  assert.equal(eventAssetIsCostumeOrEvent({ form: "COPY_2019" }), true);
+  assert.equal(eventAssetIsCostumeOrEvent({ kind: "gender", costume: null }), false);
+  assert.equal(eventAssetIsCostumeOrEvent({ kind: "event", form: "COPY_2019" }), true);
+  assert.equal(eventAssetIsCostumeOrEvent({ kind: "costume", costume: "TEST" }), true);
+  assert.equal(eventAssetIsCostumeOrEvent({ costume: "LEGACY_TEST" }), true);
+  assert.equal(eventAssetIsCostumeOrEvent({ form: "galar" }), false);
 });
 
 test("le rapport distingue les absences légitimes des erreurs et refuse les reliquats legacy", () => {
@@ -85,6 +88,11 @@ test("le rapport distingue les absences légitimes des erreurs et refuse les rel
   assert.equal(report.diagnosticTaxonomy.BROKEN_REFERENCE.count, 0);
   assert.equal(report.diagnosticTaxonomy.ORPHAN.count, 0);
   assert.equal(report.diagnosticTaxonomy.MIGRATION_INCOMPLETE.count, 0);
+  assert.equal(report.diagnosticTaxonomy.VARIANT_DUPLICATES_CANONICAL_ENTITY.count, 0);
+  assert.equal(report.diagnosticTaxonomy.VARIANT_CANONICAL_CATEGORY_FORBIDDEN.count, 0);
+  assert.equal(report.diagnosticTaxonomy.VARIANT_KIND_MISSING.count, 0);
+  assert.equal(report.diagnosticTaxonomy.VARIANT_KIND_INVALID.count, 0);
+  assert.equal(report.diagnosticTaxonomy.VARIANT_AMBIGUOUS.count, 0);
   assert.equal(report.diagnosticTaxonomy.ERROR.count, 0);
   assert.ok(Object.values(report.architecture.legacyRequirements).every((required) => required === false));
   assert.match(report.indexes.strategy, /Map\/Set/);
