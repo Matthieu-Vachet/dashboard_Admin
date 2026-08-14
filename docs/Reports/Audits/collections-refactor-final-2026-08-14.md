@@ -120,4 +120,9 @@ Le rapport courant est valide et chaque compteur de diagnostic vaut zéro.
 
 ## Publication
 
-Le commit, le push `main` et la validation de production sont renseignés après publication dans la dernière révision de ce rapport.
+- Commit produit : `1a95e6570121deb263d1f790628c51a4e07906e5` (`refactor(collections): rebuild canonical pokemon checklist engine`).
+- Push : `origin/main`, confirmé de `6d4c976` vers `1a95e65`.
+- Déploiement Vercel production : `dpl_83TCqQQbWsRVWjLhzXUduVgRRW9t`, framework Next.js, état `READY`, build distant terminé en 53 secondes et alias attachés sans erreur.
+- URL validée : `https://dashboard-admin-pi-ebon.vercel.app/pokemon-admin?section=collections`.
+- Parcours Playwright production : `PASS`, 15 scénarios, 7 viewports, 2 thèmes, 0 erreur console et suppression limitée à la collection de test isolée.
+- Scan Vercel des erreurs runtime sur `/pokemon-admin`, `/api/pokemon-admin` et `/api/dashboard-store` : aucune erreur trouvée après déploiement.
