@@ -15,10 +15,10 @@ test("le véritable Engine produit un rapport global sérialisable et mesuré", 
 
   assert.equal(report.reportId, "ENGINE-CANONICAL-ARCHITECTURE-001");
   assert.equal(report.status, "VALID_WITH_DIAGNOSTICS");
-  assert.equal(report.coverage.pokemonAndForms, 1_611);
-  assert.equal(report.coverage.assetCore, 1_611);
-  assert.equal(report.coverage.assetFamilies, 3_033);
-  assert.equal(report.coverage.pvpRecords, 1_611);
+  assert.equal(report.coverage.pokemonAndForms, 1_614);
+  assert.equal(report.coverage.assetCore, 1_614);
+  assert.equal(report.coverage.assetFamilies, 3_027);
+  assert.equal(report.coverage.pvpRecords, 1_614);
   assert.equal(report.architecture.assets.valid, true);
   assert.equal(report.architecture.pvp.valid, true);
   assert.deepEqual(new Set(report.architecture.categories), new Set([
@@ -105,7 +105,7 @@ test("une information fournisseur reste visible sans créer une fiche à corrige
   assert.equal(skiddo.quality.score, 100);
   assert.deepEqual(skiddo.issueCategories, []);
   const summary = summarizeChecklist(engineRun.entries);
-  assert.equal(summary.complete, 1_611);
+  assert.equal(summary.complete, 1_614);
   assert.equal(summary.issues, 0);
 });
 
