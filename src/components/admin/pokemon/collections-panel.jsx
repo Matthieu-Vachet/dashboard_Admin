@@ -97,7 +97,11 @@ function Sheet({ open, title, description, onClose, children, footer, size = "lg
     previousFocusRef.current = document.activeElement;
     const dialog = dialogRef.current;
     const focusableSelector = "button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])";
-    const focusFirst = window.requestAnimationFrame(() => dialog?.querySelector(focusableSelector)?.focus());
+    const focusFirst = window.requestAnimationFrame(() => {
+      if (dialog && !dialog.contains(document.activeElement)) {
+        dialog.querySelector(focusableSelector)?.focus();
+      }
+    });
     function onKeyDown(event) {
       if (event.key === "Escape") {
         event.preventDefault();

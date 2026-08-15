@@ -233,6 +233,7 @@ test("les Collections compactes gardent les couleurs, libellés, icônes et acti
   assert.match(panel, /Désélectionner tous les résultats/);
   assert.match(panel, /aria-label="Pagination Collections"/);
   assert.match(panel, /grid-cols-2[^\n]+2xl:grid-cols-10/);
+  assert.match(panel, /dialog\.contains\(document\.activeElement\)/);
   assert.doesNotMatch(panel, /Afficher plus|onOpen|<Info/);
   assert.match(assets, /collectionMax: "\/assets\/ui\/categories\/max-battles\/max-battles\.webp"/);
   assert.match(assets, /collectionShiny: "\/assets\/ui\/categories\/max-battles\/ic_shiny\.png"/);
