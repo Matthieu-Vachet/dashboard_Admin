@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+## 1.47.0 - 2026-08-15
+
+### Added
+
+- Ajoute une pagination canonique de 48 entrées aux Collections, avec sélection de page, précédent/suivant et remise à la première page après chaque changement de filtre.
+- Ajoute « Désélectionner tous les résultats » à côté de la sélection globale ; les deux actions portent sur tout le filtre courant et non sur la seule page visible.
+- Ajoute les icônes canoniques Méga/Primo, Shadow, Purifié, Shiny et Max aux cartes de checklist, avec badge Shiny secondaire et tone rouge partagé pour Dynamax/Gigamax.
+
+### Changed
+
+- Compacte les cartes Collections, leurs images, métadonnées et indicateurs visuels, conserve une zone tactile de 44 px et porte la grille de 2 colonnes mobiles jusqu’à 10 colonnes desktop.
+- Aligne le catalogue Moves sur un view-model unique fusionnant les 502 fichiers en 371 IDs canoniques, avec métriques PvP et disponibilité normale/Elite explicite.
+- Lit la section PvP des fiches et le simulateur depuis `pvpRef`, les fiches `.pvp.json` dédiées et la racine packagée `runtime-data/PokemonGo-Data`.
+- Remplace les icônes visuelles Fast/Charged historiques par `TodayView_Icon_AttackMove.webp` dans le registre partagé et les tests responsive.
+
+### Fixed
+
+- Corrige la perte de focus après chaque caractère dans les sheets Collections en stabilisant le callback de fermeture et le cycle de focus sur le seul état d’ouverture.
+- Restaure le catalogue serveur du Simulateur PvP en production, où la racine Data packagée n’était pas recherchée, et journalise désormais les erreurs structurées de la route.
+- Affiche rang, score, rating, Rank 1, statut, source et date de synchronisation issus des fiches PvP dédiées, y compris les statuts non classés explicites.
+- Clarifie le filtre Best Attackers comme « Type du Pokémon » ; le filtrage exact est appliqué côté API avant pagination et tri.
+- Présente une indisponibilité Shiny `Today` comme un résultat partiel qui conserve le snapshot MongoDB courant au lieu d’un faux échec destructif.
+
 ## 1.46.0 - 2026-08-14
 
 ### Added

@@ -529,22 +529,88 @@ function buildMoveLinks() {
   return links;
 }
 
-function catalog() {
+function moveFolder(file) {
+  const parts = relativeToData(file).replaceAll("\\", "/").split("/");
+  return parts[0] === "data" && parts[1] === "moves" ? parts[2] : "unknown";
+}
+
+function movePvpViewModel(move) {
+  const combat = move.combat && typeof move.combat === "object" ? move.combat : null;
+  const category = String(move.category || "").toUpperCase();
+  const fast = category === "FAST";
+  if (!combat) return {
+    category: fast ? "fast" : "charged",
+    power: null,
+    energy: null,
+    turns: null,
+    damagePerTurn: null,
+    energyPerTurn: null,
+    energyCost: null,
+    damagePerEnergy: null,
+    buffs: null,
+  };
+  const power = Number(combat.power);
+  const energy = Number(combat.energy);
+  const turns = Number(combat.turns);
+  const energyCost = Number(combat.energyCost || Math.abs(Math.min(0, energy)));
+  return {
+    category: fast ? "fast" : "charged",
+    power: Number.isFinite(power) ? power : null,
+    energy: Number.isFinite(energy) ? energy : null,
+    turns: fast && Number.isFinite(turns) ? turns : null,
+    damagePerTurn: fast && Number.isFinite(Number(combat.dpt))
+      ? Number(combat.dpt)
+      : fast && turns > 0 ? Number((power / turns).toFixed(3)) : null,
+    energyPerTurn: fast && Number.isFinite(Number(combat.ept))
+      ? Number(combat.ept)
+      : fast && turns > 0 ? Number((energy / turns).toFixed(3)) : null,
+    energyCost: !fast && energyCost > 0 ? energyCost : null,
+    damagePerEnergy: !fast && Number.isFinite(Number(combat.dpe))
+      ? Number(combat.dpe)
+      : !fast && energyCost > 0 ? Number((power / energyCost).toFixed(3)) : null,
+    buffs: combat.buffs || null,
+  };
+}
+
+function buildMoveCatalog() {
   const moveLinks = buildMoveLinks();
+  const groups = new Map();
+  for (const file of listFiles(movesDir)) {
+    const move = readJson(file);
+    if (!move?.id) continue;
+    const current = groups.get(move.id) || [];
+    current.push({ move, folder: moveFolder(file), file: relativeToData(file) });
+    groups.set(move.id, current);
+  }
+  const priority = { fast: 0, charged: 0, "charged-plus": 1, max: 2, gmax: 2, "fast-elite": 3, "charged-elite": 3 };
+  return [...groups.entries()].map(([id, records]) => {
+    const ordered = [...records].sort((left, right) => (priority[left.folder] ?? 9) - (priority[right.folder] ?? 9));
+    const base = ordered[0].move;
+    const folders = [...new Set(records.map((record) => record.folder))].sort();
+    const elite = folders.some((folder) => folder.endsWith("-elite"));
+    const normal = folders.some((folder) => !folder.endsWith("-elite"));
+    return {
+      ...base,
+      id,
+      pvp: movePvpViewModel(base),
+      availability: {
+        normal,
+        elite,
+        eliteRequirement: elite ? (normal ? "conditional" : "required") : "none",
+        folders,
+      },
+      sourceFiles: ordered.map((record) => record.file),
+      pokemon: moveLinks.get(id) || [],
+    };
+  }).sort((left, right) => String(left.names?.French || left.id).localeCompare(String(right.names?.French || right.id), "fr"));
+}
+
+function catalog() {
   return {
     types: readJson(typesFile, []),
     weather: readJson(weatherFile, []),
     stickers: readJson(stickersFile, []),
-    moves: listFiles(movesDir)
-      .map((file) => readJson(file))
-      .filter(Boolean)
-      .map((move) => ({ ...move, pokemon: moveLinks.get(move.id) || [] }))
-      .sort((a, b) =>
-        String(a.names?.French || a.id).localeCompare(
-          String(b.names?.French || b.id),
-          "fr",
-        ),
-      ),
+    moves: buildMoveCatalog(),
   };
 }
 
@@ -690,6 +756,7 @@ module.exports = {
   assetAudit,
   auditXlCandyAssets,
   auditUrls,
+  buildMoveCatalog,
   catalog,
   customRules,
   deleteCustomRule,

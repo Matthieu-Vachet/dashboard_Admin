@@ -1288,8 +1288,26 @@ function PvpPanel({ pvp, moveDetails }) {
     masterLeague: uiAssets.icons.masterLeague,
   };
   const leagues = Object.entries(labels);
+  const statusLabels = {
+    RANKED: "Classé",
+    NOT_RANKED: "Non classé",
+    NOT_ELIGIBLE: "Non éligible",
+    UNRELEASED: "Non sorti",
+    MAPPING_MISSING: "Mapping manquant",
+    SOURCE_MISSING: "Source absente",
+    FORMAT_EXCLUDED: "Format exclu",
+    UNSUPPORTED_FORM: "Forme non supportée",
+  };
+  const source = leagues.map(([key]) => pvp?.[key]?.source).find(Boolean);
   return (
     <Section title="Ligues PvP" icon={uiAssets.icons.battle}>
+      {source ? (
+        <div className="mb-3 grid gap-2 rounded-2xl border border-line bg-surface-inset p-3 text-xs sm:grid-cols-3">
+          <span><small className="block type-overline-compact text-disabled">Source</small><strong className="text-domain-foreground">{source.provider || "PvPoke"}</strong></span>
+          <span><small className="block type-overline-compact text-disabled">Commit</small><code className="text-foreground-secondary">{source.commit?.slice(0, 12) || "—"}</code></span>
+          <span><small className="block type-overline-compact text-disabled">Synchronisé</small><strong className="text-domain-foreground">{source.syncedAt ? new Date(source.syncedAt).toLocaleString("fr-FR") : "—"}</strong></span>
+        </div>
+      ) : null}
       <div className="grid gap-3 lg:grid-cols-2">
         {leagues.map(([key, label]) => {
           const value = pvp?.[key];
@@ -1335,11 +1353,19 @@ function PvpPanel({ pvp, moveDetails }) {
                   </strong>
                 </span>
                 <span className="rounded-full bg-surface-inset-strong px-3 py-1 type-label text-cyan-100">
-                  {value.tierRank || "Non classé"}
+                  {statusLabels[value.status] || value.status || "Statut inconnu"}{value.tierRank ? ` · Tier ${value.tierRank}` : ""}
                 </span>
               </div>
+              {value.status !== "RANKED" ? (
+                <p className="rounded-xl border border-line bg-surface-inset p-3 text-sm font-bold text-muted">
+                  {statusLabels[value.status] || value.status}. Aucune position de classement n’est publiée pour cette forme et cette ligue.
+                </p>
+              ) : null}
               <div className="grid gap-2 sm:grid-cols-3">
                 {[
+                  ["Rang", value.rank],
+                  ["Score", value.score],
+                  ["Rating", value.rating],
                   ["Niveau", rank.level],
                   ["PC", rank.cp],
                   [
@@ -1360,7 +1386,7 @@ function PvpPanel({ pvp, moveDetails }) {
                   </span>
                 ))}
               </div>
-              <div className="mt-3 rounded-xl border border-line bg-surface-inset p-3">
+              {moves.fast ? <div className="mt-3 rounded-xl border border-line bg-surface-inset p-3">
                 <small className="block type-overline-compact text-disabled">
                   Meilleur moveset
                 </small>
@@ -1370,7 +1396,8 @@ function PvpPanel({ pvp, moveDetails }) {
                     ? ` + ${(moves.charged || []).map((id) => moveName(id, moveDetails)).join(" / ")}`
                     : ""}
                 </strong>
-              </div>
+              </div> : null}
+              {value.requirements ? <p className="mt-3 rounded-xl border border-amber-300/20 bg-amber-400/10 p-3 text-sm font-bold text-warning-foreground">Prérequis : {JSON.stringify(value.requirements)}</p> : null}
             </article>
           );
         })}

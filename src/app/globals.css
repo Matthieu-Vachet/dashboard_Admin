@@ -61,8 +61,8 @@
   --collection-shadow-glow: 0 16px 44px rgba(168, 85, 247, 0.24), inset 0 0 30px rgba(168, 85, 247, 0.1);
   --collection-purified-border: rgba(125, 211, 252, 0.64);
   --collection-purified-glow: 0 16px 44px rgba(56, 189, 248, 0.22), inset 0 0 30px rgba(125, 211, 252, 0.1);
-  --collection-max-border: rgba(34, 211, 238, 0.48);
-  --collection-max-glow: 0 16px 44px rgba(34, 211, 238, 0.16), inset 0 0 28px rgba(34, 211, 238, 0.08);
+  --collection-max-border: rgba(248, 113, 113, 0.68);
+  --collection-max-glow: 0 14px 38px rgba(239, 68, 68, 0.3), inset 0 0 26px rgba(248, 113, 113, 0.12);
   --radius: 8px;
   --motion-duration-fast: 150ms;
   --motion-duration-normal: 200ms;
@@ -133,8 +133,8 @@
   --collection-shadow-glow: 0 14px 34px rgba(126, 34, 206, 0.18), inset 0 0 24px rgba(168, 85, 247, 0.1);
   --collection-purified-border: rgba(2, 132, 199, 0.56);
   --collection-purified-glow: 0 14px 34px rgba(2, 132, 199, 0.16), inset 0 0 24px rgba(56, 189, 248, 0.1);
-  --collection-max-border: rgba(8, 145, 178, 0.48);
-  --collection-max-glow: 0 14px 34px rgba(8, 145, 178, 0.14), inset 0 0 24px rgba(34, 211, 238, 0.08);
+  --collection-max-border: rgba(220, 38, 38, 0.6);
+  --collection-max-glow: 0 12px 30px rgba(220, 38, 38, 0.22), inset 0 0 22px rgba(248, 113, 113, 0.12);
 }
 
 .collection-pokemon-card[data-tone="lucky"] {
@@ -152,7 +152,7 @@
   box-shadow: var(--collection-purified-glow);
 }
 
-.collection-pokemon-card:is([data-tone="mega"], [data-tone="primal"], [data-tone="dynamax"], [data-tone="gigantamax"]) {
+.collection-pokemon-card[data-tone="max"] {
   border-color: var(--collection-max-border);
   box-shadow: var(--collection-max-glow);
 }

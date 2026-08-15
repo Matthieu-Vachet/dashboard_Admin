@@ -339,7 +339,7 @@ try {
             await timelineTab.click();
             const timeline = page.locator("section").filter({ hasText: "Timeline complète" }).filter({ visible: true }).first();
             await timeline.waitFor({ state: "visible" });
-            for (const asset of ["fast-attack.png", "charged-attack.png", "shield-0.png"]) {
+            for (const asset of ["TodayView_Icon_AttackMove.webp", "shield-0.png"]) {
               assert.ok(await timeline.locator(`img[src$="/${asset}"]`).count() > 0, `pvp-single-${theme}-${width}: asset timeline ${asset} absent`);
             }
             await assertNoOverflow(page, `pvp-single-${theme}-${width}`);

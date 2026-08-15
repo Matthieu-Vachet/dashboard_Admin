@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.47.0",
+    date: "2026-08-15",
+    title: "Collections compactes et outils de combat stabilisés",
+    changes: [
+      "Pagine les Collections par 48, compacte les cartes, corrige la saisie continue et ajoute sélection/désélection de tous les résultats filtrés.",
+      "Centralise les icônes de catégories et d’attaques, avec badge Shiny combiné et lueurs Lucky, Shadow, Purifié et Max préservées.",
+      "Restaure la racine Data packagée du Simulateur PvP et aligne les fiches sur les 1 614 enregistrements PvP dédiés synchronisés.",
+      "Déduplique le catalogue Moves, corrige la sémantique Type du Pokémon de Best Attackers et conserve le dernier snapshot Shiny lors d’un Today amont vide.",
+    ],
+  },
+  {
     version: "V1.46.0",
     date: "2026-08-14",
     title: "Checklist Collections canonique et mobile-first",

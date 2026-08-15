@@ -2,8 +2,8 @@
 id: PAGE-IDENTITY-001
 title: Identity Manager Pokémon
 status: active
-version: 2.0.0
-updated: 2026-07-31
+version: 2.1.0
+updated: 2026-08-15
 author: Matthieu Vachet
 affected_projects: [Dashboard Admin, PokemonGo-API-, PokemonGo-Data]
 references: []
@@ -53,6 +53,11 @@ Les champs dérivés de PokemonGo-Data sont verrouillés pour une identité sync
 - afficher l’asset bundle ou signaler explicitement son absence.
 - rejeter tout provider absent du registre actif avec `IDENTITY_PROVIDER_NOT_REGISTERED` ;
 - ne jamais réinjecter un provider rencontré seulement dans un historique ou une sauvegarde.
+- relier un ancien tuple de forme uniquement si le `canonicalId`, le numéro Pokédex, les dimensions costume/transformation et la forme suffixée convergent vers une unique identité locale ; sinon conserver un conflit bloquant.
+
+## Relink des anciennes formes suffixées
+
+Les anciens documents Xerneas/Cramorant pouvaient stocker `716|NEUTRAL|none|none`, `845|GORGING_FORM|none|none` ou `845|GULPING_FORM|none|none`, alors que leurs identités locales sont `XERNEAS_NEUTRAL`, `CRAMORANT_GORGING_FORM` et `CRAMORANT_GULPING_FORM`. Une règle générique et déterministe accepte ce relink uniquement pour la même identité canonique unique, le même numéro, sans costume/transformation, lorsque la forme locale finit exactement par `_` suivi du token MongoDB et que l’asset local canonique est disponible. Elle remplace les références locales/Core obsolètes, conserve tous les alias et devient idempotente. Toute divergence plus large reste bloquée.
 
 ## Retrait de la collection personnelle
 
@@ -77,3 +82,4 @@ Les variantes mâle et femelle d’un même costume restent une seule identité 
 - 2026-07-18 — branchement à l’inventaire exhaustif PokemonGo-Data, synchronisation prévisualisée et provenance locale visible.
 - 2026-07-26 — catalogue central de providers, GO Hub et Margxt, avec diagnostics groupés réutilisables par Résolution des variantes.
 - 2026-07-31 — registre fermé, retrait de la source obsolète, migration réversible et rejet des providers inconnus.
+- 2026-08-15 — relink déterministe des anciens tuples Xerneas Neutral et Cramorant Gorging/Gulping vers leurs fiches et Assets de forme, avec alias préservés et couverture de non-régression.

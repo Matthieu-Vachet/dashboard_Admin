@@ -1,10 +1,13 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
 import test from "node:test";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
+const require = createRequire(import.meta.url);
+const { buildMoveCatalog } = require("../src/server/pokemon-go/apps/checklist/server/workshop");
 
 test("la navigation Admin Pokémon est compacte sur desktop et devient une sheet sur mobile", () => {
   const source = read("src/components/admin/pokemon/admin-section-navigation.jsx");
@@ -79,6 +82,41 @@ test("Best Attackers utilise un sélecteur de types visuel et des cartes mobiles
   assert.match(source, /priority=\{entry\.rank <= 6\}/);
   assert.doesNotMatch(source, /showVariant=/);
   assert.match(source, /relative col-start-1 row-start-1 h-\[4\.75rem\]/);
+});
+
+test("Moves fusionne les doublons normal/élite et expose le modèle PvP canonique", () => {
+  const moves = buildMoveCatalog();
+  assert.equal(moves.length, 371);
+  assert.equal(new Set(moves.map((move) => move.id)).size, moves.length);
+  assert.equal(moves.reduce((count, move) => count + move.sourceFiles.length, 0), 502);
+
+  const bite = moves.find((move) => move.id === "BITE_FAST");
+  assert.deepEqual(bite.availability, {
+    normal: true,
+    elite: true,
+    eliteRequirement: "conditional",
+    folders: ["fast", "fast-elite"],
+  });
+  assert.deepEqual(bite.pvp, {
+    category: "fast",
+    power: 4,
+    energy: 2,
+    turns: 1,
+    damagePerTurn: 4,
+    energyPerTurn: 2,
+    energyCost: null,
+    damagePerEnergy: null,
+    buffs: null,
+  });
+
+  const acrobatics = moves.find((move) => move.id === "ACROBATICS");
+  assert.equal(acrobatics.pvp.category, "charged");
+  assert.equal(acrobatics.pvp.energyCost, 55);
+  assert.equal(acrobatics.pvp.damagePerEnergy, 2);
+  assert.equal(acrobatics.availability.eliteRequirement, "conditional");
+  assert.ok(moves.some((move) => move.availability.folders.includes("charged-plus")));
+  assert.ok(moves.some((move) => move.availability.folders.includes("max")));
+  assert.ok(moves.some((move) => move.availability.folders.includes("gmax")));
 });
 
 test("les artworks partagés n'affichent plus de badge de variante superposé", () => {

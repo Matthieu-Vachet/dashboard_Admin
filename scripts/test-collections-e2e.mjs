@@ -71,12 +71,15 @@ page.on("pageerror", (error) => consoleErrors.push(error.message));
 
 try {
   await authenticate(page);
-  const testName = `E2E Collections ${Date.now()}`;
+  const testName = `Équipe Élite ${Date.now()}`;
   await page.getByTestId("collection-create-trigger").click();
   let dialog = page.getByRole("dialog");
   await dialog.getByRole("button", { name: "Gigamax" }).click();
   await dialog.getByRole("button", { name: "Non variante" }).click();
-  await dialog.getByPlaceholder("ex. Shiny Shadow Kanto").fill(testName);
+  const nameInput = dialog.getByPlaceholder("ex. Shiny Shadow Kanto");
+  await nameInput.pressSequentially(testName, { delay: 2 });
+  assert.equal(await nameInput.inputValue(), testName);
+  assert.equal(await nameInput.evaluate((element) => element === document.activeElement), true);
   const create = dialog.getByRole("button", { name: /Créer la collection/ });
   assert.match(await create.innerText(), /25 Pokémon/);
   await create.click();
@@ -103,8 +106,11 @@ try {
   assert.equal(await page.locator(".collection-pokemon-card").count(), 1);
   await page.getByRole("button", { name: "Ouvrir la recherche" }).click();
   search = page.getByRole("dialog").getByRole("textbox", { name: "Rechercher dans la collection" });
-  await search.fill("");
-  await page.getByRole("dialog").getByRole("button", { name: /Afficher .* Pokémon/ }).click();
+  await search.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
+  await search.press("Backspace");
+  assert.equal(await search.inputValue(), "");
+  const resetSearch = page.getByRole("dialog").getByRole("button", { name: "Afficher 25 Pokémon" });
+  await resetSearch.click();
 
   const scrollBeforeSheet = await page.evaluate(() => window.scrollY);
   await page.getByRole("button", { name: "Changer de région" }).click();
@@ -129,6 +135,24 @@ try {
   for (const [label, expected] of expectedCounts) {
     assert.equal(await selectCollectionType(page, label), expected, label);
   }
+
+  assert.equal(await page.locator(".collection-pokemon-card").count(), 48);
+  const pageSelector = page.getByLabel("Choisir une page Collections");
+  assert.equal(await pageSelector.locator("option").count(), 20);
+  await pageSelector.selectOption("20");
+  assert.equal(await page.locator(".collection-pokemon-card").count(), 43);
+  await pageSelector.selectOption("1");
+
+  await page.getByRole("button", { name: "Actions de la collection" }).click();
+  dialog = page.getByRole("dialog");
+  await dialog.getByRole("button", { name: "Sélectionner tous les résultats", exact: true }).click();
+  await dialog.getByRole("button", { name: "Fermer" }).click();
+  assert.match(await page.locator('[data-testid="collections-sticky-bar"]').innerText(), /955\/955/);
+  await page.getByRole("button", { name: "Actions de la collection" }).click();
+  dialog = page.getByRole("dialog");
+  await dialog.getByRole("button", { name: "Désélectionner tous les résultats", exact: true }).click();
+  await dialog.getByRole("button", { name: "Fermer" }).click();
+  assert.match(await page.locator('[data-testid="collections-sticky-bar"]').innerText(), /0\/955/);
 
   await page.getByRole("button", { name: /filtres/i }).first().click();
   dialog = page.getByRole("dialog");

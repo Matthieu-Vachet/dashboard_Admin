@@ -3,7 +3,7 @@ id: DOC-007
 titre: Versionnage
 version: 2.0.0
 statut: Actif
-derniere_mise_a_jour: 2026-08-13
+derniere_mise_a_jour: 2026-08-15
 auteur: Matthieu Vachet
 categorie: Fondation
 tome: 1
@@ -69,9 +69,9 @@ Concerne :
 
 | Projet | Package | Autre marqueur observé |
 |--------|---------|-------------------------|
-| Dashboard Admin | `1.44.0` | badge dérivé du package, historique `V1.44.0` |
-| PokemonGo-API- | `1.21.0` | OpenAPI `1.21.0`, chemin REST public `/api/v1` |
-| PokemonGo-Data | `1.22.0` | `version.json` : Data `2026.08.13.1`, schéma `1.0.0` |
+| Dashboard Admin | `1.47.0` | badge dérivé du package, historique `V1.47.0` |
+| PokemonGo-API- | `1.23.0` | OpenAPI dérivé du package, chemin REST public `/api/v1` |
+| PokemonGo-Data | `1.26.0` | `version.json` : Data `2026.08.15.1`, schéma `1.1.0` |
 | Landing-Page-PogoApi | `1.0.0` | aucun changelog trouvé |
 | PokemonGo-Assets-API | Sans package | `version.json` : `1.0.0`, Assets `2026.08.13.1` |
 
@@ -83,10 +83,10 @@ PokemonGo-Data expose un contrat global dans `version.json` :
 
 ```json
 {
-  "appVersion": "1.22.0",
-  "dataVersion": "2026.08.13.1",
-  "schemaVersion": "1.0.0",
-  "generatedAt": "2026-08-13T13:45:48.000Z"
+  "appVersion": "1.26.0",
+  "dataVersion": "2026.08.15.1",
+  "schemaVersion": "1.1.0",
+  "generatedAt": "2026-08-15T00:19:25.758Z"
 }
 ```
 

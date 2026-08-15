@@ -160,17 +160,27 @@ function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
   const kind = moveKind(move);
   const color = typeColors[type] || "#64748b";
   const linkedPokemon = Array.isArray(move.pokemon) ? move.pokemon : [];
+  const pvp = move.pvp || {};
+  const availability = move.availability || {};
+  const eliteLabel = availability.eliteRequirement === "required"
+    ? "Elite requise"
+    : availability.eliteRequirement === "conditional"
+      ? "Normale + Elite selon le Pokémon"
+      : "Disponibilité normale";
   const rows = [
     ["Puissance arène/raid", move.power ?? "-"],
     ["Énergie arène/raid", move.energy ?? "-"],
     ["Durée", move.durationMs ? `${move.durationMs} ms` : "-"],
-    ["Puissance PvP", move.combat?.power ?? "-"],
-    ["Énergie PvP", move.combat?.energy ?? "-"],
-    ["Tours PvP", move.combat?.turns ?? "-"],
-    ["Catégorie", move.category || move.kind || move.moveType || "-"],
-    ["Slug", move.slug || "-"],
+    ["Puissance PvP", pvp.power ?? "-"],
+    [kind === "fast" ? "Énergie PvP" : "Coût énergie PvP", kind === "fast" ? (pvp.energy ?? "-") : (pvp.energyCost ?? "-")],
+    ["Tours PvP", pvp.turns ?? "-"],
+    ["Dégâts / tour", pvp.damagePerTurn ?? "-"],
+    ["Énergie / tour", pvp.energyPerTurn ?? "-"],
+    ["Dégâts / énergie", pvp.damagePerEnergy ?? "-"],
+    ["Disponibilité", eliteLabel],
+    ["Catalogues", (availability.folders || []).join(", ") || "-"],
   ];
-  const buffs = move.combat?.buffs;
+  const buffs = pvp.buffs;
   const buffRows = buffs
     ? [
         ["Chance", buffs.activationChance !== undefined ? `${buffs.activationChance}%` : "-"],

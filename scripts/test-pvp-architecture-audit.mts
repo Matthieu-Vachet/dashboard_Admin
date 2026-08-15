@@ -10,7 +10,7 @@ const {
 } = require("../src/server/pokemon-go/apps/checklist/server/pvp-architecture-audit");
 
 test("l'Engine couvre l'architecture PvP dédiée et son snapshot mensuel", () => {
-  const audit = buildPvpArchitectureAudit({ now: "2026-08-08T18:30:00.000Z" });
+  const audit = buildPvpArchitectureAudit({ now: "2026-08-15T00:10:00.000Z" });
   const forbiddenIntegrityCodes = new Set([
     "pvp_ref_missing",
     "pvp_ref_invalid",
@@ -34,7 +34,7 @@ test("l'Engine couvre l'architecture PvP dédiée et son snapshot mensuel", () =
     "ENTITY_CLASSIFICATION_AMBIGUOUS",
   ]);
 
-  assert.equal(audit.summary.records, 1_611);
+  assert.equal(audit.summary.records, 1_614);
   assert.equal(audit.summary.valid, true);
   assert.equal(audit.summary.errors, 0);
   assert.equal(audit.summary.warnings, 0);
@@ -47,7 +47,7 @@ test("l'Engine couvre l'architecture PvP dédiée et son snapshot mensuel", () =
     galar: 20,
     hisui: 17,
     paldea: 4,
-    forms: 313,
+    forms: 316,
     mega: 56,
     primal: 2,
     dynamax: 127,
@@ -56,11 +56,11 @@ test("l'Engine couvre l'architecture PvP dédiée et son snapshot mensuel", () =
   assert.equal(audit.summary.monthlyFresh, true);
   assert.equal(audit.summary.freshnessDays, 0);
   assert.equal(audit.summary.mappingWarnings, 0);
-  assert.equal(audit.summary.providerPokemonMappings, 1_736);
+  assert.equal(audit.summary.providerPokemonMappings, 1_740);
   assert.equal(audit.summary.providerMoveMappings, 347);
   assert.equal(
     audit.summary.sourceCommit,
-    "ea8f7691cdee95cb33a485b8e89ff39819d41ba4",
+    "f754cd6fc819ad065f1f00df1036ade36c57c022",
   );
   assert.equal(
     audit.issues.filter((diagnostic: { issue: string }) =>

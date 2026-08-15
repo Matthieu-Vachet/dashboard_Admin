@@ -96,6 +96,10 @@ function eventIdentityId(variant) {
 function readableVariantLabel(value) {
   const raw = token(value);
   if (!raw || ["normal", "base"].includes(lower(raw))) return "Forme standard";
+  const knownLabels = {
+    JAN_2020_NOEVOLVE: "Chapeau de fête",
+  };
+  if (knownLabels[raw.toUpperCase()]) return knownLabels[raw.toUpperCase()];
   const replacements = [
     [/\bGOFEST\b/g, "GO Fest"],
     [/\bCOPY\b/g, "Clone"],
@@ -235,7 +239,15 @@ function makeEntry(source, options, { variant = null, category = null, gender = 
     label,
     primaryType: source.primaryType || null,
     secondaryType: source.secondaryType || null,
-    tone: type === "lucky" ? "lucky" : type === "shadow" ? "shadow" : type === "purified" ? "purified" : resolvedCategory,
+    tone: type === "lucky"
+      ? "lucky"
+      : type === "shadow"
+        ? "shadow"
+        : type === "purified"
+          ? "purified"
+          : ["dynamax", "gigantamax"].includes(resolvedCategory)
+            ? "max"
+            : resolvedCategory,
     searchText: [
       ...searchNames,
       source.dexId,

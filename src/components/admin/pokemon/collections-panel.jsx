@@ -9,7 +9,6 @@ import {
   ChevronDown,
   Filter,
   Image as ImageIcon,
-  Info,
   LayoutDashboard,
   MoreHorizontal,
   Search,
@@ -34,18 +33,17 @@ const panelClass = "rounded-surface border border-line bg-surface-subtle p-3 sha
 const fieldClass = "min-h-11 w-full rounded-control border border-line bg-surface-inset-strong px-4 text-sm font-bold text-domain-foreground outline-none transition placeholder:text-disabled focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-400/10";
 const primaryButtonClass = "inline-flex min-h-11 items-center justify-center gap-2 rounded-control bg-gradient-to-r from-sky-500 to-cyan-400 px-4 py-2 text-sm font-black text-on-accent shadow-raised transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/30";
 const secondaryButtonClass = "inline-flex min-h-11 items-center justify-center gap-2 rounded-control border border-line bg-surface-control px-3 py-2 text-sm font-black text-domain-foreground transition hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/20";
-const initialCollectionLimit = 72;
-const collectionLimitStep = 72;
+const collectionPageSize = 48;
 
 const collectionTypes = [
   ["normal", "Normal", uiAssets.icons.pokeball || "/assets/ui/icons/general/pokeball.webp"],
   ["event", "Événement", "/assets/ui/icons/general/pokeball.webp"],
   ["lucky", "Chanceux", uiAssets.icons.shiny || "/assets/ui/icons/general/ic_shiny_white.webp"],
-  ["shadow", "Obscur", uiAssets.icons.shadow || "/assets/ui/icons/general/shadow.png"],
-  ["purified", "Purifié", uiAssets.icons.purified || "/assets/ui/icons/general/purified.png"],
-  ["mega", "Méga", uiAssets.icons.mega || "/assets/ui/icons/general/mega.png"],
-  ["dynamax", "Dynamax", uiAssets.icons.maxCp || "/assets/ui/icons/general/max_pc.webp"],
-  ["gigantamax", "Gigamax", uiAssets.icons.maxCp || "/assets/ui/icons/general/max_pc.webp"],
+  ["shadow", "Obscur", uiAssets.icons.collectionShadow],
+  ["purified", "Purifié", uiAssets.icons.collectionPurified],
+  ["mega", "Méga", uiAssets.icons.collectionMega],
+  ["dynamax", "Dynamax", uiAssets.icons.collectionMax],
+  ["gigantamax", "Gigamax", uiAssets.icons.collectionMax],
 ];
 
 const collectionVariantModes = [
@@ -88,6 +86,11 @@ function statusLabel(status) {
 function Sheet({ open, title, description, onClose, children, footer, size = "lg" }) {
   const dialogRef = useRef(null);
   const previousFocusRef = useRef(null);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -98,7 +101,7 @@ function Sheet({ open, title, description, onClose, children, footer, size = "lg
     function onKeyDown(event) {
       if (event.key === "Escape") {
         event.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (event.key !== "Tab" || !dialog) return;
@@ -122,17 +125,17 @@ function Sheet({ open, title, description, onClose, children, footer, size = "lg
       document.body.style.overflow = "";
       previousFocusRef.current?.focus?.();
     };
-  }, [onClose, open]);
+  }, [open]);
 
   if (!open || typeof document === "undefined") return null;
   return createPortal(
     <div
-      className="fixed inset-0 z-[1100] overflow-y-auto flex items-end justify-center bg-overlay p-0 backdrop-blur-md md:items-center md:p-6"
-      onMouseDown={(event) => event.target === event.currentTarget && onClose()}
+      className="fixed inset-0 z-[1100] flex items-start justify-center overflow-y-auto bg-overlay p-2 pt-[max(.5rem,env(safe-area-inset-top))] backdrop-blur-md md:items-center md:p-6"
+      onMouseDown={(event) => event.target === event.currentTarget && onCloseRef.current()}
     >
       <section
         ref={dialogRef}
-        className={`flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-overlay border border-line bg-panel-strong shadow-overlay ${size === "sm" ? "md:max-w-xl" : "md:max-w-3xl"}`}
+        className={`flex max-h-[calc(100dvh-max(1rem,env(safe-area-inset-top))-max(1rem,env(safe-area-inset-bottom)))] min-h-[76dvh] w-full flex-col overflow-hidden rounded-overlay border border-line bg-panel-strong shadow-overlay md:min-h-0 ${size === "sm" ? "md:max-w-xl" : "md:max-w-3xl"}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="collections-editor-title"
@@ -214,8 +217,19 @@ function StatusTabs({ value, onChange, compact = false }) {
   );
 }
 
-function PokemonCollectionCard({ entry, selected, onToggle, onOpen }) {
+function collectionCategoryIcon(entry) {
+  if (["dynamax", "gigantamax"].includes(entry.category)) return uiAssets.icons.collectionMax;
+  if (["mega", "primal"].includes(entry.category)) return uiAssets.icons.collectionMega;
+  if (entry.tone === "shadow") return uiAssets.icons.collectionShadow;
+  if (entry.tone === "purified") return uiAssets.icons.collectionPurified;
+  if (entry.shiny) return uiAssets.icons.collectionShiny;
+  return null;
+}
+
+function PokemonCollectionCard({ entry, selected, onToggle }) {
   const descriptor = [entry.label, entry.gender === "female" ? "♀" : entry.gender === "male" ? "♂" : null, entry.shiny ? "Shiny" : null, entry.hundo ? "Hundo" : null].filter(Boolean).join(" · ");
+  const categoryIcon = collectionCategoryIcon(entry);
+  const secondaryShiny = entry.shiny && categoryIcon !== uiAssets.icons.collectionShiny;
   return (
     <article className="collection-pokemon-card group relative min-w-0 overflow-hidden rounded-surface border border-line bg-surface-inset shadow-surface transition hover:-translate-y-0.5" data-tone={entry.tone} data-selected={selected ? "true" : "false"}>
       <button
@@ -227,13 +241,21 @@ function PokemonCollectionCard({ entry, selected, onToggle, onOpen }) {
       >
         <span className="sr-only">{selected ? "Obtenu" : "Manquant"}</span>
       </button>
-      <span className={`pointer-events-none absolute right-2.5 top-2.5 z-20 grid h-10 w-10 place-items-center rounded-full border ${selected ? "border-emerald-200/70 bg-emerald-400 text-slate-950" : "border-line-strong bg-panel/80 text-transparent"}`} aria-hidden="true">
-        <Check size={20} strokeWidth={3} />
+      {categoryIcon ? (
+        <span className="pointer-events-none absolute left-2 top-2 z-20 grid h-7 w-7 place-items-center rounded-lg border border-line bg-panel/90 p-1 shadow-surface" aria-hidden="true">
+          <Image src={categoryIcon} alt="" width={22} height={22} className="h-full w-full object-contain" unoptimized />
+          {secondaryShiny ? <Image src={uiAssets.icons.collectionShiny} alt="" width={12} height={12} className="absolute -bottom-1 -right-1 h-3.5 w-3.5 object-contain drop-shadow" unoptimized /> : null}
+        </span>
+      ) : null}
+      <span className="pointer-events-none absolute right-0 top-0 z-20 grid h-11 w-11 place-items-center" aria-hidden="true">
+        <span className={`grid h-[22px] w-[22px] place-items-center rounded-full border ${selected ? "border-emerald-100/80 bg-emerald-400 text-slate-950" : "border-line-strong bg-panel/85 text-transparent"}`}>
+          <Check size={13} strokeWidth={3.5} />
+        </span>
       </span>
-      <div className="pointer-events-none relative grid min-h-[8.5rem] place-items-center px-3 pb-1 pt-4 sm:min-h-[10rem]">
+      <div className="pointer-events-none relative grid min-h-[6.25rem] place-items-center px-2 pb-0.5 pt-3 sm:min-h-[7.25rem]">
         {entry.asset ? (
           <Image
-            className="h-[7.5rem] w-[7.5rem] object-contain drop-shadow-[0_18px_30px_rgba(0,0,0,.38)] transition duration-motion-normal group-hover:scale-105 sm:h-[9rem] sm:w-[9rem]"
+            className="h-[5.25rem] w-[5.25rem] object-contain drop-shadow-[0_12px_22px_rgba(0,0,0,.34)] transition duration-motion-normal group-hover:scale-105 sm:h-[6.25rem] sm:w-[6.25rem]"
             src={entry.asset}
             alt={entry.name}
             width={180}
@@ -243,28 +265,23 @@ function PokemonCollectionCard({ entry, selected, onToggle, onOpen }) {
           />
         ) : <ImageIcon className="text-muted" size={36} />}
       </div>
-      <div className="pointer-events-none relative min-h-[5.8rem] border-t border-line bg-surface-control p-3 pr-10">
-        <strong className="block truncate text-sm font-black text-domain-foreground sm:text-base">{entry.name}</strong>
-        <span className="mt-0.5 block font-mono text-xs font-bold text-foreground-secondary">#{entry.dexId}</span>
-        <span className="mt-1.5 block truncate text-[11px] font-bold text-muted sm:text-xs">{descriptor}</span>
+      <div className="pointer-events-none relative min-h-[4.25rem] border-t border-line bg-surface-control p-2">
+        <strong className="block truncate text-xs font-black leading-4 text-domain-foreground sm:text-sm">{entry.name}</strong>
+        <span className="block font-mono text-[10px] font-bold leading-4 text-foreground-secondary">#{entry.dexId}</span>
+        <span className="block truncate text-[10px] font-bold leading-4 text-muted" title={entry.costume || entry.form || undefined}>{descriptor}</span>
       </div>
-      {onOpen ? (
-        <button className="absolute bottom-2.5 right-2.5 z-20 grid h-9 w-9 place-items-center rounded-full border border-line bg-panel/90 text-muted transition hover:text-domain-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/50" type="button" onClick={() => onOpen(entry)} aria-label={`Ouvrir la fiche de ${entry.name}`}>
-          <Info size={16} />
-        </button>
-      ) : null}
     </article>
   );
 }
 
-export function CollectionsPanel({ entries = [], collections = [], onSave, onOpen, globalSearch = "" }) {
+export function CollectionsPanel({ entries = [], collections = [], onSave, globalSearch = "" }) {
   const [sheet, setSheet] = useState(null);
   const [activeId, setActiveId] = useState(collections[0]?.id || "");
   const [region, setRegion] = useState("all");
   const [status, setStatus] = useState("all");
   const [query, setQuery] = useState("");
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
-  const [collectionView, setCollectionView] = useState({ key: "", limit: initialCollectionLimit });
+  const [pagination, setPagination] = useState({ filterKey: "", page: 1 });
   const [draft, setDraft] = useState({ name: "", type: "normal", variantMode: "multi", shiny: false, hundo: false });
 
   const activeCollection = collections.find((collection) => collection.id === activeId) || collections[0] || null;
@@ -280,9 +297,11 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
     if (status === "need") return !activeItems[entry.key];
     return true;
   }), [activeItems, allMatching, status]);
-  const collectionFilterKey = [activeCollection?.id || "", region, status, combinedSearch].join("|");
-  const collectionLimit = collectionView.key === collectionFilterKey ? collectionView.limit : initialCollectionLimit;
-  const visibleCollectionEntries = collectionEntries.slice(0, collectionLimit);
+  const collectionFilterKey = [activeCollection?.id || "", activeCollection?.type || "", activeCollection?.variantMode || "", activeCollection?.shiny || false, activeCollection?.hundo || false, region, status, combinedSearch].join("|");
+  const totalPages = Math.max(1, Math.ceil(collectionEntries.length / collectionPageSize));
+  const requestedPage = pagination.filterKey === collectionFilterKey ? pagination.page : 1;
+  const currentPage = Math.min(requestedPage, totalPages);
+  const visibleCollectionEntries = collectionEntries.slice((currentPage - 1) * collectionPageSize, currentPage * collectionPageSize);
   const generationGroups = useMemo(() => {
     const groups = new Map();
     for (const entry of visibleCollectionEntries) {
@@ -318,6 +337,16 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
   function closeSheet() {
     setSheet(null);
     setDeleteConfirmation(false);
+  }
+
+  function setPage(nextPage) {
+    setPagination((current) => {
+      const currentPageForFilter = current.filterKey === collectionFilterKey ? current.page : 1;
+      return {
+        filterKey: collectionFilterKey,
+        page: typeof nextPage === "function" ? nextPage(currentPageForFilter) : nextPage,
+      };
+    });
   }
 
   function createCollection() {
@@ -366,6 +395,14 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
     for (const entry of entriesToSelect) nextItems[entry.key] = true;
     updateActive({ items: nextItems });
     toast.success(`${entriesToSelect.length} Pokémon sélectionné(s).`);
+  }
+
+  function deselectEntries(entriesToDeselect) {
+    if (!activeCollection || !entriesToDeselect.length) return;
+    const nextItems = { ...activeItems };
+    for (const entry of entriesToDeselect) delete nextItems[entry.key];
+    updateActive({ items: nextItems });
+    toast.success(`${entriesToDeselect.length} Pokémon désélectionné(s).`);
   }
 
   function deleteActive() {
@@ -434,9 +471,10 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
               <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-disabled" size={17} />
               <input aria-label="Rechercher dans la collection..." className={`${fieldClass} pl-10`} placeholder="Rechercher nom, dex, forme…" value={query} onChange={(event) => setQuery(event.target.value)} />
             </label>
-            <div className="mt-3 hidden grid-cols-[minmax(0,1fr)_auto_auto] gap-3 md:grid">
-              <StatusTabs value={status} onChange={setStatus} />
-              <button className={secondaryButtonClass} type="button" onClick={() => selectEntries(allMatching)}>Tout sélectionner</button>
+            <div className="mt-3 hidden grid-cols-3 gap-3 md:grid xl:grid-cols-[minmax(0,1fr)_auto_auto_auto]">
+              <div className="col-span-3 xl:col-span-1"><StatusTabs value={status} onChange={setStatus} /></div>
+              <button className={secondaryButtonClass} type="button" onClick={() => selectEntries(collectionEntries)}>Sélectionner tous les résultats</button>
+              <button className={secondaryButtonClass} type="button" onClick={() => deselectEntries(collectionEntries)}>Désélectionner tous les résultats</button>
               <button className={secondaryButtonClass} type="button" onClick={() => setSheet("filters")}><Filter size={17} /> Filtres · {activeFilterCount}</button>
             </div>
           </div>
@@ -470,24 +508,31 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
                     <h3 className="text-lg font-black text-domain-foreground sm:type-title-section">{generationLabels[groupId] || `Gen. ${groupId}`}</h3>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button className="hidden rounded-full border border-cyan-200/25 bg-cyan-400/10 px-3 py-1.5 type-label text-accent-text sm:inline-flex" type="button" onClick={() => selectEntries(groupEntries)}>Sélectionner tous</button>
-                    <span className="rounded-full border border-cyan-200/25 bg-cyan-400/10 px-3 py-1.5 font-mono text-xs font-black text-accent-text">{groupEntries.filter((entry) => activeItems[entry.key]).length}/{groupEntries.length}</span>
+                    <button className="hidden rounded-full border border-cyan-200/25 bg-cyan-400/10 px-3 py-1.5 type-label text-accent-text sm:inline-flex" type="button" onClick={() => selectEntries(collectionEntries.filter((entry) => (entry.region || "unknown") === groupId))}>Sélectionner la région</button>
+                    <span className="rounded-full border border-cyan-200/25 bg-cyan-400/10 px-3 py-1.5 font-mono text-xs font-black text-accent-text">{collectionEntries.filter((entry) => (entry.region || "unknown") === groupId && activeItems[entry.key]).length}/{collectionEntries.filter((entry) => (entry.region || "unknown") === groupId).length}</span>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-8 2xl:grid-cols-10">
                   {groupEntries.map((entry) => (
-                    <PokemonCollectionCard key={entry.key} entry={entry} selected={Boolean(activeItems[entry.key])} onToggle={() => toggleEntry(entry)} onOpen={onOpen ? () => onOpen({ ...entry, key: entry.sourceEntityId }) : null} />
+                    <PokemonCollectionCard key={entry.key} entry={entry} selected={Boolean(activeItems[entry.key])} onToggle={() => toggleEntry(entry)} />
                   ))}
                 </div>
               </section>
             ))}
           </div>
 
-          {visibleCollectionEntries.length < collectionEntries.length ? (
-            <div className="mt-5 flex justify-center">
-              <button className={secondaryButtonClass} type="button" onClick={() => setCollectionView({ key: collectionFilterKey, limit: collectionLimit + collectionLimitStep })}>
-                Afficher plus · {formatCount(collectionEntries.length - visibleCollectionEntries.length)} restant(s)
-              </button>
+          {collectionEntries.length ? (
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2 rounded-surface border border-line bg-surface-inset p-3" aria-label="Pagination Collections">
+              <button className={secondaryButtonClass} type="button" disabled={currentPage <= 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>Précédent</button>
+              <label className="inline-flex min-h-11 items-center gap-2 rounded-control border border-line bg-surface-control px-3 text-sm font-black text-domain-foreground">
+                <span>Page</span>
+                <select className="bg-transparent font-mono outline-none" aria-label="Choisir une page Collections" value={currentPage} onChange={(event) => setPage(Number(event.target.value))}>
+                  {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => <option value={pageNumber} key={pageNumber}>{pageNumber}</option>)}
+                </select>
+                <span>/ {totalPages}</span>
+              </label>
+              <span className="font-mono text-xs font-bold text-muted">{(currentPage - 1) * collectionPageSize + 1}–{Math.min(currentPage * collectionPageSize, collectionEntries.length)} / {formatCount(collectionEntries.length)}</span>
+              <button className={secondaryButtonClass} type="button" disabled={currentPage >= totalPages} onClick={() => setPage((value) => Math.min(totalPages, value + 1))}>Suivant</button>
             </div>
           ) : null}
 
@@ -560,30 +605,43 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
         onClose={closeSheet}
         footer={<button className={`${primaryButtonClass} w-full`} type="button" onClick={closeSheet}>Afficher {formatCount(allMatching.length)} Pokémon</button>}
       >
-        {activeCollection ? <div className="space-y-5">
+        {activeCollection ? <div className="space-y-6">
           <div>
-            <h4 className="mb-2 type-overline text-muted">Type de collection</h4>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <h4 className="mb-3 type-overline text-muted">Type de collection</h4>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {collectionTypes.map(([id, label, icon]) => (
-                <button className={`min-h-20 rounded-control border p-3 text-center ${activeCollection.type === id ? "border-cyan-200/55 bg-cyan-400/18" : "border-line bg-surface-flat"}`} key={id} type="button" onClick={() => updateActive({ type: id })} aria-pressed={activeCollection.type === id}>
+                <button className={`min-h-20 rounded-control border p-4 text-center ${activeCollection.type === id ? "border-cyan-200/55 bg-cyan-400/18" : "border-line bg-surface-flat"}`} key={id} type="button" onClick={() => updateActive({ type: id })} aria-pressed={activeCollection.type === id}>
                   <Image className="mx-auto mb-1 h-8 w-8 object-contain" src={icon} alt="" width={32} height={32} unoptimized /><strong className="text-sm text-domain-foreground">{label}</strong>
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <h4 className="mb-2 type-overline text-muted">Mode Pokédex</h4>
-            <div className="grid grid-cols-2 gap-2">
+            <h4 className="mb-3 type-overline text-muted">Mode Pokédex</h4>
+            <div className="grid grid-cols-2 gap-3">
               {collectionVariantModes.map(([id, label]) => <button className={`min-h-12 rounded-control border px-3 font-black ${activeCollection.variantMode === id ? "border-cyan-200/55 bg-cyan-400/18 text-domain-foreground" : "border-line bg-surface-flat text-muted"}`} key={id} type="button" onClick={() => updateActive({ variantMode: id })}>{label}</button>)}
             </div>
           </div>
-          <div className="grid gap-2">
+          <div>
+            <h4 className="mb-3 type-overline text-muted">Caractéristiques</h4>
+            <div className="grid gap-3">
             {[["shiny", "Chromatique", "Remplace la checklist par les seules entrées shiny sorties."], ["hundo", "Hundo 100 %", "Caractéristique orthogonale, sans modifier l’asset."]].map(([id, label, detail]) => (
               <label className="flex items-center justify-between gap-4 rounded-control border border-line bg-surface-flat p-4" key={id}>
                 <span><strong className="block text-domain-foreground">{label}</strong><small className="mt-1 block font-semibold text-muted">{detail}</small></span>
                 <Checkbox checked={Boolean(activeCollection[id])} onChange={(event) => updateActive({ [id]: event.target.checked })} />
               </label>
             ))}
+            </div>
+          </div>
+          <div>
+            <h4 className="mb-3 type-overline text-muted">Région / génération</h4>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {collectionRegionFilters.map(([id, label, icon]) => (
+                <button className={`min-h-16 rounded-control border p-3 text-left ${region === id ? "border-cyan-200/55 bg-cyan-400/18" : "border-line bg-surface-flat"}`} key={id} type="button" onClick={() => setRegion(id)} aria-pressed={region === id}>
+                  <span className="flex items-center justify-between gap-2"><strong className="text-sm text-domain-foreground">{label}</strong>{icon ? <Image src={icon} alt="" width={32} height={32} className="h-8 w-8 object-contain opacity-70" unoptimized /> : <LayoutDashboard size={20} className="text-muted" />}</span>
+                </button>
+              ))}
+            </div>
           </div>
           <button className={secondaryButtonClass} type="button" onClick={() => { updateActive({ type: "normal", variantMode: "single", shiny: false, hundo: false }); resetViewFilters(); }}>Réinitialiser</button>
         </div> : null}
@@ -593,7 +651,8 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, onOpe
         {activeCollection ? <div className="space-y-4">
           <label className="block"><span className="mb-2 block type-overline text-muted">Renommer</span><input className={fieldClass} value={activeCollection.name} onChange={(event) => updateActive({ name: event.target.value })} /></label>
           <div className="grid gap-2 sm:grid-cols-2">
-            <button className={secondaryButtonClass} type="button" onClick={() => selectEntries(catalog)}>Tout sélectionner</button>
+            <button className={secondaryButtonClass} type="button" onClick={() => selectEntries(collectionEntries)}>Sélectionner tous les résultats</button>
+            <button className={secondaryButtonClass} type="button" onClick={() => deselectEntries(collectionEntries)}>Désélectionner tous les résultats</button>
             <button className={`${secondaryButtonClass} border-rose-300/30 text-danger`} type="button" onClick={deleteActive}><Trash2 size={17} /> {deleteConfirmation ? "Confirmer la suppression" : "Supprimer"}</button>
           </div>
           {deleteConfirmation ? <p className="rounded-control border border-rose-300/25 bg-rose-400/10 p-3 text-sm font-bold text-danger">Cette action supprime uniquement cette collection après confirmation. Les autres collections restent intactes.</p> : null}

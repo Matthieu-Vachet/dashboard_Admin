@@ -130,17 +130,20 @@ function legacyPvpFromRecord(record) {
   return Object.fromEntries(Object.entries(keys).map(([leagueId, legacyKey]) => {
     const league = record.leagues[leagueId];
     if (!league) return [legacyKey, null];
-    if (league.status !== "RANKED") return [legacyKey, null];
     const primary = league.variants?.find((variant) => variant.variant === "normal") || league.variants?.[0] || null;
     return [legacyKey, {
       tierRank: league.tier ?? null,
       rank1: league.rank1 ?? null,
+      rank: primary?.rank ?? null,
+      score: primary?.score ?? null,
+      rating: primary?.rating ?? null,
       bestMovesets: primary ? {
         fast: primary.bestMoveset?.fast?.moveId || null,
         charged: (primary.bestMoveset?.charged || []).map((move) => move.moveId).filter(Boolean),
       } : league.legacyBestMovesets ?? null,
       status: league.status,
       source: record.source,
+      requirements: primary?.requirements || league.requirements || null,
       variants: league.variants || [],
     }];
   }));

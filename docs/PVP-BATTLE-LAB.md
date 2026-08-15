@@ -18,7 +18,7 @@ Le moteur est natif au Dashboard et versionné indépendamment :
 Admin Pokémon / Simulateur PvP
   -> BFF privé /api/admin/pvp-simulator
     -> server-data.ts
-      -> .data/PokemonGo-Data (Pokémon, formes, moves, types, calendrier GBL)
+      -> runtime-data/PokemonGo-Data (Pokémon, formes, PvP dédié, moves, types, calendrier GBL)
     -> pokemon-go-pvp-engine
       -> validation -> statistiques -> moteur de tours -> résultat/timeline
     -> Dashboard Store MongoDB (historique explicite uniquement)
@@ -26,7 +26,7 @@ Admin Pokémon / Simulateur PvP
 
 Les identités utilisent le `canonicalId` de l’Identity Manager. L’interface réemploie `PokemonArtwork` et les icônes de types existantes ; elle n’introduit pas de seconde autorité d’assets.
 
-`PokemonGo-API` fournit les coéquipiers suggérés avec leur identité et leur asset canonique complets. `PokemonGo-Data` fournit le contrat de combat (`stats`, `quickMoves`, `cinematicMoves`, `combat.*`, types, formes, disponibilités Shadow, classes et calendrier GBL) ainsi que les Rank 1 générés. Les trois dépôts restent des autorités distinctes et le Dashboard ne fabrique aucune URL d’asset.
+`PokemonGo-API` fournit les coéquipiers suggérés avec leur identité et leur asset canonique complets. `PokemonGo-Data` fournit le contrat de combat (`stats`, `quickMoves`, `cinematicMoves`, `combat.*`, types, formes, disponibilités Shadow, classes et calendrier GBL) ainsi que les Rank 1 générés. `server-data.ts` résout aussi le checkout serverless sous `runtime-data/PokemonGo-Data` : cette racine est packagée par le prebuild et doit rester un candidat runtime explicite. Les recommandations de ligue sont lues via `pvpRef` dans `data/pvp/pokemon/<catégorie>/*.pvp.json`, jamais depuis un ancien bloc PvP embarqué. Les trois dépôts restent des autorités distinctes et le Dashboard ne fabrique aucune URL d’asset.
 
 ## Expérience V2, Checklist et deep-links
 
@@ -40,7 +40,7 @@ Le Single est organisé en trois zones : grande Battle Arena symétrique, Build 
 
 L’UI réutilise le registre `uiAssets`, les icônes de types et `PokemonArtwork` : fond Battle League, combat, attaque, bouclier, Shadow, Fast/Charged Move, buff et résultat. Les images restent en `object-contain`/`object-cover` selon leur fonction et ne sont ni copiées ni étirées.
 
-Les icônes de timeline restent les assets historiques : `attackMove`, `swords`, `shieldAlt`, `up` et `battle`. Les SVG sont colorés par masque `currentColor` pour rester visibles sur fond sombre. Le sélecteur de shields affiche un tiret pour zéro et répète le shield historique pour un ou deux.
+Les icônes de timeline utilisent `TodayView_Icon_AttackMove.webp` pour Fast et Charged via les clés centrales `attackMove`, `fastAttack` et `chargedAttack`, puis `swords`, `shieldAlt`, `up` et `battle` pour les autres événements. Les SVG sont colorés par masque `currentColor` pour rester visibles sur fond sombre. Le sélecteur de shields affiche un tiret pour zéro et répète le shield historique pour un ou deux.
 
 PvP Rankings lit le coût de seconde attaque dans `secondChargeMoveCost`, la distance de copain dans `buddyDistance` et le Bonbon XL dans `assets.candy.xlImage`. Les partenaires suggérés franchissent une normalisation stricte avant affichage; aucun objet brut ne peut devenir `[object Object]`.
 
@@ -115,6 +115,8 @@ Le catalogue est mémorisé dans le processus serveur. Multi accepte jusqu’à 
 
 - `npm run test:pvp-engine` vérifie les constantes, Rank 1, dégâts, stages, déterminisme, Shield Matrix, buffs et formes.
 - `npm run test:pvp-parity` compare les 20 fixtures officielles et exécute la campagne d’invariants de 720 scénarios.
+- `npm run test:pvp-dedicated` vérifie la résolution de `pvpRef`, la préférence du moveset dédié et la présence du checkout `runtime-data` dans le resolver serveur.
+- `npm run test:pvp-architecture` valide les 1 614 fiches, le manifeste, le commit PvPoke, les mappings et les statuts de ligue.
 - `node scripts/capture-pvpoke-parity.mjs` recapture manuellement les références publiques ; cette commande nécessite un accès réseau et Playwright.
 - Toute nouvelle mécanique de forme doit être ajoutée au registre central et accompagnée d’un test ciblé.
 - Une modification de `combat.*`, des types ou du calendrier GBL dans `PokemonGo-Data` est reprise au prochain `prebuild` et apparaît dans `versions.data`.

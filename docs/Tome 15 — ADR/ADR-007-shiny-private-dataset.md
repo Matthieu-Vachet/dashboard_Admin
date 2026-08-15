@@ -2,7 +2,7 @@
 id: ADR-007
 title: Shiny Private Dataset
 status: Accepted
-version: 1.0.0
+version: 1.1.0
 date: 2026-07-14
 author: Matthieu Vachet
 decision_makers:
@@ -67,6 +67,8 @@ Toutes les données spécifiques au Shiny Tracker sont regroupées dans un **dat
 Ce dataset peut contenir des informations nécessaires au fonctionnement interne du Dashboard, mais il ne doit jamais être publié directement.
 
 Les éventuelles données publiques sont produites séparément à partir des traitements internes lorsque cela est nécessaire.
+
+Une réponse fournisseur HTTP 200 n’est pas forcément un snapshot valide. Si Snacknap fournit `Total` et `Rares` mais annonce son panneau `Today` vide, le générateur émet `SOURCE_TEMPORARILY_UNAVAILABLE` avec la structure reçue. L’API termine l’exécution en `partial`, conserve intégralement le document MongoDB courant et expose `mongoUpdated: false`. Elle ne désactive pas la validation, ne fabrique pas de classement et ne perd aucun historique. Si aucun snapshot valide n’existe encore, l’exécution reste `failed`.
 
 ---
 
@@ -162,3 +164,7 @@ En cas de non-respect :
 ## 1.0.0 — 2026-07-14
 
 Création de l'ADR définissant le Shiny Tracker comme consommateur d'un dataset privé dédié.
+
+## 1.1.0 — 2026-08-15
+
+Conservation atomique du snapshot courant et statut partiel lors d’un panneau `Today` temporairement vide.

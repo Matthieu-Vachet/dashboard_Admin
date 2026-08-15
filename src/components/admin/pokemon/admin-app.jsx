@@ -755,6 +755,9 @@ function downloadJsonPayload(value, baseName) {
 }
 
 function regenerationMessage(report) {
+  if (report?.run?.status === "partial" && report?.report?.preserved) {
+    return "Source temporairement indisponible — dernier snapshot MongoDB valide conservé.";
+  }
   const diff = report?.diff || report?.current?.diagnostics?.diff;
   if (!diff?.changed) {
     return "Données récupérées avec succès — aucun changement détecté.";
@@ -2449,7 +2452,8 @@ export function AdminApp() {
         if (notification?.kind === "warning") toast.warning(notification.message);
         else toast.success(notification?.message || regenerationMessage(report));
       } else {
-        toast.success(regenerationMessage(report));
+        if (report?.run?.status === "partial") toast.warning(regenerationMessage(report));
+        else toast.success(regenerationMessage(report));
       }
     } catch (error) {
       const message = errorMessage(error, `Régénération ${label} impossible.`);

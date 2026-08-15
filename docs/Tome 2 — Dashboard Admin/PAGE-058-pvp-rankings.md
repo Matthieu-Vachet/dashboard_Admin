@@ -1,9 +1,9 @@
 ---
 id: PAGE-058
 title: PvP Rankings
-version: 1.0.0
+version: 1.1.0
 status: Active
-last_update: 2026-07-31
+last_update: 2026-08-15
 author: Matthieu Vachet
 affected_projects: [Dashboard Admin, PokemonGo-Data, PokemonGo-API-]
 references: [DATASET-018, RULE-048, PAGE-064]
@@ -17,4 +17,8 @@ La fiche détaillée affiche les IV Rank 1, le niveau, les attaques, les matchup
 
 Les coéquipiers sont normalisés avant rendu. Un champ objet ne peut donc jamais être interpolé en `[object Object]`; les cartes affichent identité, forme, types et ordre lorsqu'ils existent.
 
-Tests : `test:pvp-local-data`, `test:candy-assets`, `test:ranked-datasets` et vérification navigateur desktop/mobile.
+Les fiches Pokémon utilisent la même ressource dédiée que Rankings : `pvpRef → data/pvp/pokemon/<catégorie>/*.pvp.json`. La section affiche `status`, rang, score, rating, Rank 1/IV, moveset, provider, commit et `syncedAt`. `NOT_RANKED`, `UNSUPPORTED_FORM`, `FORMAT_EXCLUDED` et les autres états non classés restent visibles avec une explication, sans fallback vers un ancien bloc embarqué.
+
+Le bouton « Relancer » suit l’exécution API persistante jusqu’à un statut terminal et conserve les distinctions `success`, `partial`, `unchanged` et `failed`. Le snapshot PvPoke courant est le commit `f754cd6fc819ad065f1f00df1036ade36c57c022`, 1 614 fiches dédiées et zéro avertissement Engine.
+
+Tests : `test:pvp-local-data`, `test:pvp-dedicated`, `test:pvp-architecture`, `test:pvp-regeneration`, `test:candy-assets`, `test:ranked-datasets` et vérification navigateur desktop/mobile.

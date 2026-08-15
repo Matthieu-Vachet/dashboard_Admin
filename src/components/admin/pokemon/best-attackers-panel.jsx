@@ -74,9 +74,9 @@ function TypeFilter({ availableTypes, value, onChange }) {
   return (
     <fieldset className="min-w-0 sm:col-span-2 xl:col-span-4">
       <legend className="mb-2 type-overline-compact text-disabled">
-        Type d’attaque
+        Type du Pokémon
       </legend>
-      <div className="flex snap-x gap-2 overflow-x-auto pb-2 lg:grid lg:grid-cols-[repeat(10,minmax(2.75rem,1fr))] lg:overflow-visible xl:grid-cols-[repeat(19,minmax(2.75rem,1fr))]" role="radiogroup" aria-label="Type d’attaque">
+      <div className="flex snap-x gap-2 overflow-x-auto pb-2 lg:grid lg:grid-cols-[repeat(10,minmax(2.75rem,1fr))] lg:overflow-visible xl:grid-cols-[repeat(19,minmax(2.75rem,1fr))]" role="radiogroup" aria-label="Type du Pokémon">
         {typeOrder.filter((type) => availableTypes.includes(type)).map((type) => {
           const selected = value === type;
           const icon = type === "ANY" ? null : typeIcon(type);

@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import { createRequire } from "node:module";
+import path from "node:path";
 import test from "node:test";
 
 const require = createRequire(import.meta.url);
@@ -182,4 +184,58 @@ test("la fusion Mongo et locale ne supprime aucune collection ni sélection HAVE
   assert.deepEqual(merged[0].items, { serverHave: true, localHave: true });
   assert.equal(merged[0].schemaVersion, 2);
   assert.equal(merged[1].id, "local");
+});
+
+test("les Collections compactes gardent les couleurs, libellés, icônes et actions canoniques", () => {
+  const fixture = [{
+    key: "pokemon:fixture",
+    kind: "pokemon",
+    form: "normal",
+    formId: "FIXTURE",
+    id: "FIXTURE",
+    dexId: "9999",
+    name: "Fixture",
+    generation: 1,
+    availability: { released: true, shinyReleased: true },
+    goImage: "/fixture.png",
+    goShinyImage: "/fixture-shiny.png",
+    collectionVariants: [{
+      kind: "costume",
+      form: "JAN_2020_NOEVOLVE",
+      costume: "JAN_2020_NOEVOLVE",
+      image: "/fixture-party.png",
+      shinyImage: "/fixture-party-shiny.png",
+    }],
+  }, {
+    key: "dynamax:fixture",
+    kind: "dynamax",
+    form: "dynamax",
+    formId: "FIXTURE_DYNAMAX",
+    id: "FIXTURE_DYNAMAX",
+    dexId: "9999",
+    name: "Fixture Dynamax",
+    generation: 1,
+    availability: { released: true },
+    goImage: "/fixture-dynamax.png",
+    collectionVariants: [],
+  }];
+  const event = buildCollectionCatalog(fixture, { type: "event", variantMode: "single" });
+  const dynamax = buildCollectionCatalog(fixture, { type: "dynamax", variantMode: "single" });
+  assert.equal(event[0].label, "Chapeau de fête");
+  assert.equal(dynamax[0].tone, "max");
+
+  const root = process.cwd();
+  const panel = fs.readFileSync(path.join(root, "src/components/admin/pokemon/collections-panel.jsx"), "utf8");
+  const assets = fs.readFileSync(path.join(root, "src/components/site/ui-assets.js"), "utf8");
+  const styles = fs.readFileSync(path.join(root, "src/app/globals.css"), "utf8");
+  assert.match(panel, /const collectionPageSize = 48/);
+  assert.match(panel, /Sélectionner tous les résultats/);
+  assert.match(panel, /Désélectionner tous les résultats/);
+  assert.match(panel, /aria-label="Pagination Collections"/);
+  assert.match(panel, /grid-cols-2[^\n]+2xl:grid-cols-10/);
+  assert.doesNotMatch(panel, /Afficher plus|onOpen|<Info/);
+  assert.match(assets, /collectionMax: "\/assets\/ui\/categories\/max-battles\/max-battles\.webp"/);
+  assert.match(assets, /collectionShiny: "\/assets\/ui\/categories\/max-battles\/ic_shiny\.png"/);
+  assert.match(styles, /\.collection-pokemon-card\[data-tone="max"\]/);
+  assert.doesNotMatch(styles, /data-tone="mega"[^\n]+data-tone="max"/);
 });

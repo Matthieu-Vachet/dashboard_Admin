@@ -11,6 +11,16 @@ La page Collections repose désormais sur un moteur métier pur, partagé par l'
 
 Les huit familles sont couvertes : Normal, Événement, Chanceux, Obscur, Purifié, Méga/Primo, Dynamax et Gigamax. Les filtres ALL/HAVE/NEED, recherche et région s'appliquent uniquement après construction du catalogue et ne modifient donc ni son identité ni les sélections sauvegardées.
 
+## Addendum V1.47.0 — compactage et pagination
+
+La V1.47.0 remplace le chargement progressif par une pagination de 48 résultats. Page, précédent, suivant et plage visible sont dérivés du filtre courant ; tout changement de collection, type, mode, shiny, Hundo, région, statut ou recherche revient à la page 1. Les compteurs HAVE restent globaux et aucune sélection n’est stockée par index de page.
+
+Les actions deviennent « Sélectionner tous les résultats » et « Désélectionner tous les résultats ». Elles modifient toute la population filtrée, y compris les pages non visibles. Les cartes passent à une zone image de 100/116 px et un artwork de 84/100 px sur mobile/desktop, contre 136/160 px et 120/144 px auparavant. Le footer passe de 92 à 68 px ; l’indicateur visible mesure 22 px dans une hitbox de 44 px ; la grille conserve deux colonnes mobiles et monte jusqu’à dix colonnes desktop.
+
+Le bouton d’ouverture de fiche est supprimé. La carte entière est l’unique commande cocher/décocher. Les catégories emploient les constantes `collectionMega`, `collectionShadow`, `collectionPurified`, `collectionShiny` et `collectionMax`; une catégorie principale peut porter un badge Shiny secondaire. Les tones Lucky, Shadow et Purifié sont conservés, tandis que Dynamax/Gigamax partagent le token rouge `max` sans contaminer Méga/Primo.
+
+La sheet mémorise son callback de fermeture et n’installe/restaure son cycle de focus que lors d’un changement de l’état `open`. L’input de création ne remonte donc plus après chaque caractère. Sur mobile, la surface commence sous la safe-area haute, occupe au moins 76 dVH et sépare explicitement type, mode Pokédex, caractéristiques et région.
+
 ## Sauvegarde et restauration
 
 L'archive préalable se trouve dans `archives/collections-refactor-before-2026-08-14-16-28-53/`. Elle contient 6 336 fichiers ciblés, un manifeste SHA-256, un guide de restauration et l'état de persistance disponible avant refactor. Toutes les empreintes ont été relues et une restauration complète vers un répertoire temporaire a retourné `PASS`.
@@ -76,7 +86,7 @@ Changer de collection conserve recherche et région. ALL/HAVE/NEED est un état 
 
 La collection active, la sélection de collection et les contrôles essentiels précèdent la grille. Les statistiques riches restent visibles sur desktop et passent dans un bloc replié après les cartes sur mobile. Collection, recherche, filtres, région et actions secondaires utilisent des bottom sheets avec Escape, focus initial, focus trap, restitution du focus et verrouillage du scroll.
 
-La barre mobile sticky contient ALL/HAVE/NEED, recherche, filtres, région et progression. Les cartes sont affichées sur deux colonnes avec asset exact, nom, numéro, variante lisible, état visuel et bouton d'information séparé.
+La barre mobile sticky contient ALL/HAVE/NEED, recherche, filtres, région et progression. Les cartes sont affichées sur deux colonnes avec asset exact, nom, numéro, variante lisible et état visuel ; aucun bouton d'information ou lien vers la fiche Pokémon n'est conservé.
 
 Mesures Playwright sans overflow horizontal :
 

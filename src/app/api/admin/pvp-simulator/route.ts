@@ -230,6 +230,16 @@ function errorResponse(error: unknown) {
   );
 }
 
+function logRouteError(method: "GET" | "POST" | "DELETE", error: unknown) {
+  const source = error instanceof Error ? error : new Error(String(error));
+  console.error("[pvp-simulator] Request failed", {
+    method,
+    code: source.message.split(":")[0] || source.name,
+    message: source.message,
+    stack: source.stack,
+  });
+}
+
 async function context(leagueId: string) {
   const catalog = await readPvpCatalog();
   const league = catalog.leagues.find((item) => item.id === leagueId);
@@ -341,6 +351,7 @@ export async function GET(request: NextRequest) {
     const catalog = await readPvpCatalog();
     return json({ success: true, data: publicCatalog(catalog) });
   } catch (error) {
+    logRouteError("GET", error);
     return errorResponse(error);
   }
 }
@@ -469,6 +480,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
+    logRouteError("POST", error);
     return errorResponse(error);
   }
 }
@@ -519,6 +531,7 @@ export async function DELETE(request: NextRequest) {
     );
     return json({ success: true, data: { id } });
   } catch (error) {
+    logRouteError("DELETE", error);
     return errorResponse(error);
   }
 }
