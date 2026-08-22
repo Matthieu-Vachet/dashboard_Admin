@@ -9,3 +9,14 @@
 - Restauration : `PASS`.
 
 La restauration bit à bit a vérifié une page Pokémon, une page JavaScript, Button partagé, une route API, le README et `next.config.ts`. Les bundles, snapshots Zstandard, manifests, références, tags, inventaires d’environnement sans valeurs et instructions RESTORE sont conservés hors Git avec permissions restrictives.
+
+## Sauvegarde MongoDB avant libération du quota Atlas
+
+- Base concernée : `sample_mflix`, base d'exemple MongoDB sans référence dans les applications du workspace.
+- Archive : `/Users/matthieuvachet/Desktop/Workflow/archives/mongo-sample-mflix-before-quota-cleanup-2026-08-22-16-50-28`.
+- Contenu : 6 collections, 67 661 documents, environ 44 Mo compressés.
+- Validation : manifeste de hashes, comptages par collection, export Extended JSON Lines compressé et script de restauration contrôlés ; statut `PASS`.
+- Restauration : procédure `RESTORE.md` et script `restore-sample-mflix.mjs` fournis dans l'archive.
+- Suppression : effectuée après accord utilisateur explicite ; contrôle Atlas post-opération confirmant l'absence de `sample_mflix` et la présence intacte de `pokemon-go-api` et `matweb-dashboard-admin`.
+
+Cette suppression a libéré le quota nécessaire aux écritures de preview. Les régénérations Community Days, Shiny, la réindexation Game Master et la synchronisation GitHub Data, auparavant refusées par Atlas, ont ensuite toutes terminé en HTTP 200.
