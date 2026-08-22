@@ -73,7 +73,7 @@ dans le rapport de livraison de la mission.
 
 - PokemonGo-Data : 230/230 tests, manifest Assets 4 648 fichiers sans collision ni
   différence structurelle, 1 617/1 617 records PvP et deuxième génération idempotente.
-- PokemonGo-API- : 174/174 tests, dry-run MongoDB 1 617 Pokémon / 1 617 Core /
+- PokemonGo-API- : 177/177 tests, dry-run MongoDB 1 617 Pokémon / 1 617 Core /
   3 030 familles d’assets, build Next.js et 11 générateurs embarqués.
 - Dashboard Admin : toutes les suites `test:*` unitaires/contractuelles vertes, lint sans
   erreur, TypeScript et build Next.js verts, 17 actions de registre / 15 actions globales.
@@ -85,3 +85,49 @@ dans le rapport de livraison de la mission.
 - Responsive Pokémon : 242 pages, 11 largeurs et 2 thèmes.
 - JSON : 1 646 fichiers Data modifiés, 3 Dashboard et 2 API parsés sans erreur ;
   `git diff --check` est propre sur les trois dépôts.
+
+## Livraison Git et compatibilité Vercel
+
+Les branches `main` ont été poussées sans divergence sur les trois dépôts :
+
+| Dépôt | Commit fonctionnel poussé |
+| --- | --- |
+| PokemonGo-Data | `2869aba4d19e9313db2055a13cf69dc9d0c3c3a5` |
+| PokemonGo-API- | `952107b8cf262b212f7f3059be64218e395eb965` |
+| Dashboard Admin | `d29b05e3c1a0208f3c0f6c1b85f8715b4be0b26c` |
+
+Le déploiement API a aussi révélé puis couvert deux contraintes absentes du runtime local :
+le snapshot Data doit être tracé explicitement par Next.js et les liens symboliques de
+build ne doivent jamais rester pendants. Le Dashboard n’embarque plus le legacy `.data`
+en double dans la fonction PvP : son manifeste serveur passe de 17 648 fichiers et environ
+456 Mio à 8 918 fichiers et 179,79 Mio, sous la limite Vercel.
+
+La candidate API `dpl_29f2BnG7gkEdzABjZ9wfgMGqZuK1` est `READY` et servie par
+`https://pokemon-go-api.vercel.app`. La candidate Dashboard
+`dpl_E6EcFANLoEHFE3kRMydhSgkBaw5G` est `READY` et servie par
+`https://dashboard-admin-pi-ebon.vercel.app`.
+
+## Validation réelle en production
+
+Les actions ci-dessous ont été déclenchées depuis la session Dashboard authentifiée, et
+non simulées par un test local :
+
+| Action | Résultat production | Traçabilité |
+| --- | --- | --- |
+| Rescraper Events | 36 événements, 528 Pokémon matchés, 161 diagnostics non bloquants, 635 images récupérées, statut `partial`, aucune erreur de détail | `events-scrape-38ede565-6c89-48d1-8899-47a75ec8d276`, 31 973 ms |
+| Synchroniser Community Days | 80 événements, 0 ajout, 0 modification, 3 non résolus explicites, statut `warning` | `community-days-sync-ce91d030-9bdd-4514-b71a-d919c87d097f`, 14 414 ms |
+| Recalculer catalogue | 1 928 identités locales, 1 935 MongoDB avant, 5 créations, 1 923 mises à jour, 12 orphelins conservés, 0 conflit | `pokemon-admin-read-fef5a7a5-7661-4fc0-ba0c-ef48f01b17d6` |
+| Appliquer catalogue | 1 940 identités MongoDB, 1 928 actives, 0 conflit, Mewtwo Armored présent, 1 825 alias préservés | `pokemon-admin-write-405f9296-99fe-4b32-b7b6-a5dec5cbf068`, 17 774 ms |
+| Recalcul post-apply | 0 création, 0 mise à jour, 1 928 inchangées, 12 orphelins conservés, 0 conflit : idempotence confirmée | `pokemon-admin-read-0919dab2-b5a7-41f0-ab71-630b803b7cd1` |
+
+Le Dashboard production affiche `VALID_WITH_DIAGNOSTICS`, 1 617/1 617 fiches PvP,
+0 Error, 0 Warning, 8 120 Info, 0 erreur Architecture et 0 migration incomplète.
+Méga-Blindépique, Méga-Goupelin et Méga-Amphinobi affichent chacun les quatre ligues
+`UNRELEASED` sans métrique fabriquée. Les Collections n’exposent aucun contrôle de
+pagination ; une carte Shadow + Shiny contient deux badges adjacents, sans intersection
+avec le sélecteur. La Défense utilise bien `/assets/ui/icons/general/shield-alt.svg`.
+
+La navigation ne contient plus Images Dynamax et l’ancienne route API répond par un 404
+structuré. Les consoles navigateur des parcours Accueil, Identity Manager, Contrôles,
+Collections et Fiches sont sans erreur ni avertissement ; les logs Vercel de niveau
+`error` sont vides après les actions, et aucun toast `[object Object]` n’est apparu.
