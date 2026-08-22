@@ -29,4 +29,4 @@
 - Parcours navigateur local Pokémon : 32 routes plates, redirection historique, auth, MongoDB, thèmes, console et navigation mobile : PASS.
 - Parcours navigateur local JavaScript : 15 routes, auth, MongoDB, thèmes, console et navigation mobile : PASS.
 
-Les actions réelles sont consignées après création de la preview, sans utiliser la production `main`. En local, les trois lectures privées dépendantes de `POKEMON_API_ADMIN_SECRET` sont identifiées comme indisponibles lorsque ce secret n’est volontairement pas installé ; la preview doit les valider sans cette tolérance.
+Les actions réelles sont consignées après création de la preview avec `npm run smoke:regenerations -- --base-url=<preview> --all`, sans utiliser la production `main`. Le script accepte un bypass Vercel d’automation uniquement via `VERCEL_AUTOMATION_BYPASS_SECRET`. En local, les trois lectures privées dépendantes de `POKEMON_API_ADMIN_SECRET` sont identifiées comme indisponibles lorsque ce secret n’est volontairement pas installé ; la preview doit les valider sans cette tolérance.
