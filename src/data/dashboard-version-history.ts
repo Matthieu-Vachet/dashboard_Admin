@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.49.0",
+    date: "2026-08-22",
+    title: "Dashboard Pokémon GO autonome",
+    changes: [
+      "Recentre le produit sur Pokémon GO et transforme l’ancien accueil Admin Pokémon en accueil principal.",
+      "Remonte les sections Pokémon dans la navigation globale avec des routes plates et une redirection compatible depuis /pokemon-admin.",
+      "Déplace les modules JavaScript et d’organisation dans dashboard-javascript sans toucher aux données MongoDB ni aux contrats Data/API.",
+      "Conserve le Generator Registry, l’Engine, les régénérations, le responsive et les thèmes clair/sombre.",
+    ],
+  },
+  {
     version: "V1.48.0",
     date: "2026-08-22",
     title: "Synchronisations durables et Engine canonique réparé",

@@ -862,7 +862,7 @@ export function IdentityManagerPanel() {
           <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="primary" icon={<PackageCheck size={15} />} loading={syncLoading} loadingText="Vérification…" onClick={() => void openSyncPreview()}>Synchroniser le catalogue</Button>
             <Button size="sm" variant="ghost" icon={<History size={15} />} onClick={() => void openGlobalHistory()}>Historique global</Button>
-            <Button size="sm" variant="secondary" icon={<Download size={15} />} asChild><a href="/api/pokemon-admin?action=identity-manager-export">JSON</a></Button>
+            <Button size="sm" variant="secondary" icon={<Download size={15} />} onClick={() => { window.location.href = "/api/pokemon-admin?action=identity-manager-export"; }}>JSON</Button>
             <Button size="sm" variant="secondary" icon={<FileUp size={15} />} onClick={() => setImportModal(true)}>Importer</Button>
             <Button size="sm" variant="primary" icon={<Plus size={15} />} onClick={() => openCreate()}>Nouvelle identité</Button>
           </div>

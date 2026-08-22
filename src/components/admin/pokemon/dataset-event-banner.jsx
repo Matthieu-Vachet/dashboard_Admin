@@ -2,6 +2,7 @@
 
 import { CalendarDays, Clock3, ExternalLink, Layers3, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { eventsApiPath } from "@/services/admin/events-api";
 import { PokemonArtwork } from "./pokemon-artwork";
 
@@ -108,9 +109,9 @@ export function DatasetEventBanner({ event, relatedEvent = null }) {
             </div>
           ) : <Sparkles className="text-violet-100/70" size={26} />}
           <div className="flex flex-wrap gap-2">
-            <a className="inline-flex items-center gap-2 rounded-xl border border-white/14 bg-white/[0.08] px-3 py-2 type-label text-domain-foreground hover:bg-white/[0.13]" href="/pokemon-admin?section=events">
+            <Link className="inline-flex items-center gap-2 rounded-xl border border-white/14 bg-white/[0.08] px-3 py-2 type-label text-domain-foreground hover:bg-white/[0.13]" href="/events">
               <CalendarDays size={15} /> Calendrier Events
-            </a>
+            </Link>
             {calendarEvent?.sourceUrl ? (
               <a className="inline-flex items-center gap-2 rounded-xl border border-cyan-200/20 bg-cyan-300/10 px-3 py-2 type-label text-cyan-50" href={calendarEvent.sourceUrl} target="_blank" rel="noreferrer">
                 Source event <ExternalLink size={14} />

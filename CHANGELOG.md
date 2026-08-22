@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+## 1.49.0 - 2026-08-22
+
+### Added
+
+- Ajoute des routes Pokémon plates et documentées pour toutes les sections historiques : données, combat, événements, qualité, supervision et maintenance.
+- Ajoute une matrice de séparation, des tests de frontière produit et une redirection permanente depuis `/pokemon-admin?section=...`.
+
+### Changed
+
+- Recentre le Dashboard exclusivement sur Pokémon GO et transforme l’ancien accueil Admin Pokémon en route principale `/`.
+- Remonte toutes les sections Pokémon dans la sidebar principale, avec les icônes historiques, le drawer mobile et les états actifs conservés.
+- Passe la version produit à `1.49.0` : évolution mineure car les contrats Data/API et les actions publiques restent compatibles.
+
+### Fixed
+
+- Préserve la recherche globale lors des changements de route et des redirections depuis les anciennes URLs Admin Pokémon.
+- Conserve sans modification les collections Mongo Pokémon, le Generator Registry, les resolvers et le packaging Vercel des régénérations.
+
+### Removed
+
+- Retire du repository Pokémon les pages, composants, hooks et API JavaScript/organisation désormais autonomes dans `dashboard-javascript`.
+- Supprime le wrapper et la navigation interne « Admin Pokémon » devenus redondants.
+
 ## 1.48.0 - 2026-08-22
 
 ### Added

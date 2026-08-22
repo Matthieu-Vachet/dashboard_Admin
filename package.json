@@ -1,11 +1,10 @@
 {
   "name": "dashboard-admin",
-  "version": "1.48.0",
+  "version": "1.49.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "validate:learning": "node --no-warnings --experimental-strip-types scripts/validate-learning.mjs",
-    "prebuild": "npm run validate:learning && node scripts/data/ensure-data.js && node --import tsx scripts/verify-regeneration-runtime.mts",
+    "prebuild": "node scripts/data/ensure-data.js && node --import tsx scripts/verify-regeneration-runtime.mts",
     "build": "next build",
     "postbuild": "node scripts/verify-regeneration-bundle.mjs",
     "verify:regenerations": "node scripts/data/ensure-data.js && node --import tsx scripts/verify-regeneration-runtime.mts && npm run test:data-repository && npm run test:regeneration-matrix && npm run typecheck && npm run build",
@@ -16,7 +15,8 @@
     "test:admin-pokemon": "node --test scripts/test-admin-pokemon-refactor.mjs",
     "test:pokemon-variants": "node --no-warnings --experimental-strip-types --test scripts/test-pokemon-variant-resolver.mjs",
     "test:pokemon-presentation": "node --test scripts/test-pokemon-presentation-entries.mjs",
-    "test:learning-flow": "node scripts/test-learning-flow.mjs",
+    "test:split": "node --test scripts/test-dashboard-split.mjs",
+    "test:browser": "node scripts/test-dashboard-browser.mjs",
     "test:event-references": "tsx --test scripts/test-persistent-event-references.mts",
     "test:version": "node scripts/test-dashboard-version.mjs",
     "verify:release-change": "node scripts/verify-release-change.mjs",
@@ -48,7 +48,7 @@
     "test:xl-candy-audit": "node --test scripts/test-xl-candy-audit.mjs",
     "test:docs": "node scripts/validate-documentation.mjs",
     "audit:docs:foundation": "node scripts/audit-foundation-documentation.mjs",
-    "test:design-system": "node --test scripts/test-design-system-*.mjs scripts/test-form-accessibility.mjs",
+    "test:design-system": "node --test scripts/test-design-system-governance.mjs scripts/test-design-system-color-system.mjs scripts/test-design-system-field-family.mjs scripts/test-design-system-motion.mjs scripts/test-design-system-state-system.mjs scripts/test-design-system-typography.mjs",
     "test:design-system-state-system": "node --test scripts/test-design-system-state-system.mjs",
     "check": "npm run lint && npm run build"
   },

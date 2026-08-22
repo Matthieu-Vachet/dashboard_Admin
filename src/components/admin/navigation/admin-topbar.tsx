@@ -55,20 +55,20 @@ export function AdminTopbar({
             {activeLabel}
           </p>
           <h1 className="truncate text-base font-black sm:text-lg">
-            Centre de commande personnel
+            Centre de commande Pokémon GO
           </h1>
         </div>
 
         <div className="hidden min-h-10 w-full max-w-sm items-center gap-2 rounded-lg border border-line bg-surface-subtle px-3 text-sm font-bold text-muted md:flex">
           <Search size={16} />
-          <span>Rechercher une note, tâche ou projet</span>
+          <span>Rechercher une fiche, source ou dataset</span>
         </div>
 
         <button
           className="dashboard-accent-glow inline-flex min-h-10 shrink-0 items-center rounded-lg border border-brand-2/25 bg-brand-2/10 px-2 text-[11px] font-black text-brand-2 transition hover:border-brand-2/55 hover:bg-brand-2/15 sm:px-3 sm:text-xs"
           type="button"
           onClick={onOpenVersionHistory}
-          aria-label="Ouvrir l'historique des versions du Dashboard"
+          aria-label="Ouvrir l'historique des versions du Dashboard Pokémon"
         >
           {DASHBOARD_VERSION}
         </button>

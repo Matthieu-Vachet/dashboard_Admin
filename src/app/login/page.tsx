@@ -18,15 +18,15 @@ export default async function LoginPage({
       <div className="studio-grid pointer-events-none absolute inset-0 opacity-70" />
       <section className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-6 lg:grid-cols-[1.05fr_.95fr]">
         <div className="max-w-2xl">
-          <Badge tone="violet">Accès admin personnel</Badge>
+          <Badge tone="violet">Accès Dashboard Pokémon</Badge>
           <h1 className="mt-5 text-4xl font-black leading-tight sm:text-6xl">
-            MatWeb Dashboard, ton poste de contrôle.
+            Dashboard Pokémon GO, ton centre de contrôle.
           </h1>
           <p className="mt-5 max-w-xl text-base font-semibold leading-8 text-muted">
-            Connexion obligatoire pour accéder aux notes, au kanban, aux projets, au calendrier, aux todos, aux outils et aux statistiques API.
+            Connexion obligatoire pour accéder aux datasets, synchronisations, contrôles qualité, événements et outils Pokémon GO.
           </p>
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
-            {["Design system", "Outils quotidiens", "Projet cockpit"].map((item) => (
+            {["Datasets", "Synchronisations", "Qualité"].map((item) => (
               <div key={item} className="rounded-lg border border-line bg-surface-subtle p-3">
                 <Sparkles size={16} className="text-brand-2" />
                 <p className="mt-3 text-sm font-black">{item}</p>
@@ -75,7 +75,7 @@ export default async function LoginPage({
               />
             </Field>
             <Button className="w-full" variant="primary" type="submit">
-              Entrer dans le dashboard
+              Entrer dans le Dashboard Pokémon
             </Button>
           </form>
 

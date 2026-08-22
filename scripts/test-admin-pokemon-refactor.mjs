@@ -9,24 +9,20 @@ const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 const require = createRequire(import.meta.url);
 const { buildMoveCatalog } = require("../src/server/pokemon-go/apps/checklist/server/workshop");
 
-test("la navigation Admin Pokémon est compacte sur desktop et devient une sheet sur mobile", () => {
-  const source = read("src/components/admin/pokemon/admin-section-navigation.jsx");
-  assert.match(source, /Rechercher une section Admin Pokémon/);
+test("les sections Pokémon sont remontées dans la navigation principale responsive", () => {
+  const navigation = read("src/data/dashboard.ts");
+  const frame = read("src/components/admin/layout/admin-app-frame.tsx");
+  const app = read("src/components/admin/pokemon/admin-app.jsx");
   for (const group of ["Données Pokémon", "Combat", "Événements", "Maintenance", "Qualité & supervision"]) {
-    assert.match(source, new RegExp(group));
+    assert.match(navigation, new RegExp(group));
   }
-  assert.match(source, /alt=""/);
-  assert.match(source, /aria-expanded=/);
-  assert.match(source, /hidden rounded-2xl[^\n]+lg:block/);
-  assert.match(source, /fixed inset-0 z-\[90\]/);
-  assert.match(source, /role="dialog" aria-modal="true"/);
-  assert.match(source, /document\.body\.style\.overflow = "hidden"/);
-  assert.match(source, /mobileCloseRef\.current\?\.focus\(\)/);
-  assert.match(source, /ref=\{mobileCloseRef\}/);
-  assert.doesNotMatch(source, /mobileSearchRef|ref=\{mobileSearchRef\}/);
-  assert.match(source, /createPortal/);
-  assert.match(source, /document\.body\)/);
-  assert.doesNotMatch(source, /2xl:grid-cols-5/);
+  for (const route of ["/pokedex", "/pvp-rankings", "/events", "/identity-manager", "/logs"]) {
+    assert.match(navigation, new RegExp(route.replaceAll("/", "\\/")));
+  }
+  assert.match(frame, /renderSidebar\(false, true\)/);
+  assert.match(frame, /aria-label="Navigation principale"/);
+  assert.equal(fs.existsSync(path.join(root, "src/components/admin/pokemon/admin-section-navigation.jsx")), false);
+  assert.doesNotMatch(app, /AdminSectionNavigation/);
 });
 
 test("le module de vérification Pokémon et ses quatre anciennes entrées sont absents", () => {

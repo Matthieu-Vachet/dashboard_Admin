@@ -16,6 +16,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { EmptyState, ErrorState, FetchLoadingState } from "@/components/admin/shared/state-system";
@@ -156,7 +157,7 @@ function DiagnosticCard({ entry, provider, onCopy }) {
         </details>
       ) : null}
       <Button asChild className="mt-3" size="sm" variant="secondary">
-        <a href="/pokemon-admin?section=identity-manager">Ouvrir l’Identity Manager</a>
+        <Link href="/identity-manager">Ouvrir l’Identity Manager</Link>
       </Button>
     </article>
   );
