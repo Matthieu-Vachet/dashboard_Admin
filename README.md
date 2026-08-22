@@ -55,7 +55,7 @@ Les tests spécialisés couvrent également Engine, PvP, assets, variants, colle
 
 ## Version et déploiement
 
-La séparation publie `1.49.1` sur `develop`. `1.49.0` recentre le produit sans rompre les contrats Data/API ; `1.49.1` corrige le routage du runtime local et Preview vers une API Pokémon active. `dashboard-javascript` commence une histoire indépendante en `1.0.0`.
+La branche `develop` publie `1.50.0`. `1.49.0` recentre le produit sans rompre les contrats Data/API ; `1.49.1` corrige le routage du runtime local et Preview ; `1.50.0` sécurise la nouvelle source automatisable Best Defenders. `dashboard-javascript` conserve une histoire indépendante en `1.0.0`.
 
 Les previews Vercel doivent provenir de `develop`. Aucun merge, tag final ou remplacement de production `main` n’est autorisé avant validation explicite.
 

@@ -121,7 +121,7 @@ export function BestDefendersPanel({ onOpenPokemon, globalSearch = "", onSearchC
           </section>
         ) : null}
         <p className="mt-4 rounded-2xl border border-cyan-200/15 bg-cyan-300/[0.07] p-4 type-body-strong text-foreground-secondary">Les tiers et scores proviennent de Pokémon GO Hub. Les noms, formes, types et images affichés passent par l’Identity Manager puis par le résolveur d’asset canonique ; l’image source n’est jamais utilisée comme fallback.</p>
-        <a className="mt-3 inline-flex items-center gap-2 text-sm font-black text-cyan-100 hover:text-white" href="https://db.pokemongohub.net/fr/best/gym-defenders" target="_blank" rel="noreferrer">Voir la source Pokémon GO Hub <ExternalLink size={14} /></a>
+        <a className="mt-3 inline-flex items-center gap-2 text-sm font-black text-cyan-100 hover:text-white" href="https://db.pokemongohub.net/best/gym-defenders" target="_blank" rel="noreferrer">Voir la source Pokémon GO Hub <ExternalLink size={14} /></a>
       </Panel>
       <DatasetFilterBar query={globalSearch} onQueryChange={(value) => { setOptions((current) => ({ ...current, page: 1 })); onSearchChange?.(value); }} placeholder="Nom, forme ou numéro Pokédex…" resultCount={entries.length} totalCount={meta.total || entries.length} />
       <div className="grid min-w-0 gap-3 sm:grid-cols-2">

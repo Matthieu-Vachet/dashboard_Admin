@@ -7,6 +7,16 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.50.0",
+    date: "2026-08-22",
+    title: "Best Defenders automatisable et sécurisé",
+    changes: [
+      "Bascule Best Defenders vers le provider canonique Pokémon GO Hub et sa page anglaise rendue côté serveur.",
+      "Expose les statuts d'indisponibilité, de changement de schéma et de validation sans masquer le dernier snapshot MongoDB valide.",
+      "Conserve l'UX existante, la provenance, la dernière synchronisation et le contrat des cartes, filtres et régénérations.",
+    ],
+  },
+  {
     version: "V1.49.1",
     date: "2026-08-22",
     title: "Runtime Preview et développement rétabli",

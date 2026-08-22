@@ -1,7 +1,33 @@
 const sourceAvailabilityCodes = new Set([
   "SOURCE_PROTECTED",
   "SOURCE_TEMPORARILY_UNAVAILABLE",
+  "SOURCE_UNAVAILABLE",
+  "SOURCE_SCHEMA_CHANGED",
+  "VALIDATION_FAILED",
 ]);
+
+const issueCopy = {
+  SOURCE_PROTECTED: {
+    title: "Source protégée par le fournisseur",
+    message: "Pokémon GO Hub exige actuellement un challenge Cloudflare.",
+  },
+  SOURCE_TEMPORARILY_UNAVAILABLE: {
+    title: "Source temporairement indisponible",
+    message: "Pokémon GO Hub ne fournit pas actuellement une page exploitable.",
+  },
+  SOURCE_UNAVAILABLE: {
+    title: "Source indisponible",
+    message: "Pokémon GO Hub ne répond pas actuellement.",
+  },
+  SOURCE_SCHEMA_CHANGED: {
+    title: "Structure de la source modifiée",
+    message: "La page Pokémon GO Hub ne respecte plus le contrat analysé.",
+  },
+  VALIDATION_FAILED: {
+    title: "Capture fournisseur rejetée",
+    message: "La nouvelle capture n'a pas passé les contrôles qualité.",
+  },
+};
 
 function isRecord(value) {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -31,15 +57,11 @@ export function bestDefendersSourceIssue(value) {
   ));
   if (!issue) return null;
   const code = String(issue.code).trim().toUpperCase();
-  const protectedSource = code === "SOURCE_PROTECTED";
+  const copy = issueCopy[code];
   return {
     code,
-    title: protectedSource
-      ? "Source protégée par le fournisseur"
-      : "Source temporairement indisponible",
-    message: String(issue.message || (protectedSource
-      ? "Pokémon GO Hub exige actuellement un challenge Cloudflare."
-      : "Pokémon GO Hub ne fournit pas actuellement une page exploitable.")),
+    title: copy.title,
+    message: String(issue.message || copy.message),
     preservation: String(issue.preservation || issue.details?.preservation || "La dernière version MongoDB validée reste active."),
     retryable: Boolean(issue.retryable ?? issue.details?.retryable),
   };

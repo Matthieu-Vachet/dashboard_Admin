@@ -62,8 +62,15 @@ test("le diagnostic MongoDB persistant expose SOURCE_TEMPORARILY_UNAVAILABLE", (
   assert.equal(issue.preservation, "Le dernier snapshot reste actif.");
 });
 
-test("une erreur générique n'est pas présentée comme une protection fournisseur", () => {
-  assert.equal(bestDefendersSourceIssue({ errors: [{ code: "VALIDATION_FAILED" }] }), null);
+test("les erreurs de schéma et de validation conservent le snapshot", () => {
+  const schema = bestDefendersSourceIssue({ errors: [{ code: "SOURCE_SCHEMA_CHANGED" }] });
+  const validation = bestDefendersSourceIssue({ errors: [{ code: "VALIDATION_FAILED" }] });
+  assert.equal(schema?.title, "Structure de la source modifiée");
+  assert.equal(validation?.title, "Capture fournisseur rejetée");
+});
+
+test("une erreur étrangère au provider n'est pas présentée comme une disponibilité source", () => {
+  assert.equal(bestDefendersSourceIssue({ errors: [{ code: "MONGO_WRITE_FAILED" }] }), null);
 });
 
 test("le panneau conserve le dataset et rend un warning de disponibilité explicite", () => {
@@ -72,4 +79,5 @@ test("le panneau conserve le dataset et rend un warning de disponibilité explic
   assert.match(panel, /La dernière version MongoDB validée reste affichée/);
   assert.match(panel, /setDataset\(payload\.data\)/);
   assert.match(panel, /bestDefendersSourceIssue\(caught\) \|\| await load\(\)/);
+  assert.match(panel, /https:\/\/db\.pokemongohub\.net\/best\/gym-defenders/);
 });

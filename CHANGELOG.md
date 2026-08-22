@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## 1.50.0 - 2026-08-22
+
+### Changed
+
+- Pointe Best Defenders vers la page anglaise SSR de Pokémon GO Hub et le provider central `pokemon-go-hub-best-defenders`.
+- Étend l'état de provenance aux statuts `SOURCE_UNAVAILABLE`, `SOURCE_SCHEMA_CHANGED` et `VALIDATION_FAILED`.
+- Passe la version Dashboard à `1.50.0` sans modifier les contrats de page, d'API, de cartes ou de filtres.
+
+### Fixed
+
+- Conserve explicitement le dernier snapshot MongoDB valide quand une capture fournisseur échoue aux contrôles de disponibilité, de schéma ou de qualité.
+
 ## 1.49.1 - 2026-08-22
 
 ### Added
