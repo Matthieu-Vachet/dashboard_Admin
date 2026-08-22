@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
+import path from "node:path";
 import test from "node:test";
 
+process.env.POKEMON_GO_DATA_DIR = path.resolve(process.cwd(), "../PokemonGo-Data");
 const require = createRequire(import.meta.url);
 const {
   LEAGUE_STATUSES,
@@ -34,7 +36,7 @@ test("l'Engine couvre l'architecture PvP dédiée et son snapshot mensuel", () =
     "ENTITY_CLASSIFICATION_AMBIGUOUS",
   ]);
 
-  assert.equal(audit.summary.records, 1_614);
+  assert.equal(audit.summary.records, 1_617);
   assert.equal(audit.summary.valid, true);
   assert.equal(audit.summary.errors, 0);
   assert.equal(audit.summary.warnings, 0);
@@ -48,7 +50,7 @@ test("l'Engine couvre l'architecture PvP dédiée et son snapshot mensuel", () =
     hisui: 17,
     paldea: 4,
     forms: 316,
-    mega: 56,
+    mega: 59,
     primal: 2,
     dynamax: 127,
     gigantamax: 29,
@@ -56,11 +58,11 @@ test("l'Engine couvre l'architecture PvP dédiée et son snapshot mensuel", () =
   assert.equal(audit.summary.monthlyFresh, true);
   assert.equal(audit.summary.freshnessDays, 0);
   assert.equal(audit.summary.mappingWarnings, 0);
-  assert.equal(audit.summary.providerPokemonMappings, 1_740);
-  assert.equal(audit.summary.providerMoveMappings, 347);
+  assert.equal(audit.summary.providerPokemonMappings, 1_742);
+  assert.equal(audit.summary.providerMoveMappings, 349);
   assert.equal(
     audit.summary.sourceCommit,
-    "f754cd6fc819ad065f1f00df1036ade36c57c022",
+    "78c64048aebeb9265e1a090137c5463880fb6fa2",
   );
   assert.equal(
     audit.issues.filter((diagnostic: { issue: string }) =>
@@ -68,8 +70,8 @@ test("l'Engine couvre l'architecture PvP dédiée et son snapshot mensuel", () =
     ).length,
     0,
   );
-  assert.equal(audit.summary.movesetAudit.auditedOccurrences, 140);
-  assert.equal(audit.summary.movesetAudit.classifications.PURIFIED_ONLY, 18);
+  assert.equal(audit.summary.movesetAudit.auditedOccurrences, 143);
+  assert.equal(audit.summary.movesetAudit.classifications.PURIFIED_ONLY, 22);
   assert.equal(audit.summary.movesetAudit.openOccurrences, 0);
   assert.equal(
     audit.issues.filter((diagnostic: { issue: string }) => diagnostic.issue === "pvp_moveset_outside_local_movepool").length,

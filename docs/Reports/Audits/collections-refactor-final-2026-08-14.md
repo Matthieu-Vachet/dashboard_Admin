@@ -21,6 +21,19 @@ Le bouton d’ouverture de fiche est supprimé. La carte entière est l’unique
 
 La sheet mémorise son callback de fermeture et n’installe/restaure son cycle de focus que lors d’un changement de l’état `open`. L’input de création ne remonte donc plus après chaque caractère. Sur mobile, la surface commence sous la safe-area haute, occupe au moins 76 dVH et sépare explicitement type, mode Pokédex, caractéristiques et région.
 
+## Addendum V1.48.0 — liste continue sans pagination
+
+La pagination V1.47.0 est entièrement retirée : aucun état de page, découpage, bouton
+Précédent/Suivant, sélecteur Page, Load More ou « Afficher plus » ne subsiste. Les 955
+entrées Normal standard de la fixture de production appartiennent à une liste unique et
+une seule scrollbar. `content-visibility: auto` et `contain-intrinsic-size` différèrent
+le coût de peinture des groupes hors viewport sans introduire de page utilisateur.
+
+Recherche, ALL/HAVE/NEED, sélection et désélection parcourent l’intégralité de la
+population filtrée, indépendamment des cartes peintes. Les badges utilisent un conteneur
+flex avec slots adjacents ; les combinaisons Shiny, Méga, Shadow, Purifié, Dynamax,
+Gigamax et Lucky ne partagent plus la même position absolue.
+
 ## Sauvegarde et restauration
 
 L'archive préalable se trouve dans `archives/collections-refactor-before-2026-08-14-16-28-53/`. Elle contient 6 336 fichiers ciblés, un manifeste SHA-256, un guide de restauration et l'état de persistance disponible avant refactor. Toutes les empreintes ont été relues et une restauration complète vers un répertoire temporaire a retourné `PASS`.

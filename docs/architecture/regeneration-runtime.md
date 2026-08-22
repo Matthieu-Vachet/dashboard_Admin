@@ -8,7 +8,14 @@ L’API résout les fichiers par `getPokemonGoDataRuntimeRoot`, `resolvePokemonG
 
 Les modules de génération ne sont jamais chargés par `require()` dynamique. `src/lib/generator-registry.js` contient des imports littéraux des 11 modules actifs. Next peut ainsi embarquer leur code et toutes leurs dépendances transitives. Chaque appel reçoit explicitement `rootDir`, donc aucun générateur ne dépend de son `__dirname` une fois bundlé.
 
-Le Dashboard utilise `src/lib/admin-regeneration-registry.ts` pour les actions, routes API, providers, sorties, permissions et timeouts. Les 15 étapes globales et le proxy `/api/pokemon-admin` dérivent de ce registre.
+Le Dashboard utilise `src/lib/admin-regeneration-registry.ts` pour les actions, routes API, providers, sorties, permissions et timeouts. Les 17 actions actives, dont 15 étapes globales, et le proxy `/api/pokemon-admin` dérivent de ce registre.
+
+Toutes les actions pilotées par l’Admin passent par le contrat commun
+`normalizeActionError` / `executeAdminAction`. Une erreur conserve `code`, `message`,
+`details`, `status` et `cause`; un objet inconnu ne peut jamais être transmis tel quel à
+un toast. Chaque exécution reçoit un `operationId` stable et traverse les états `idle`,
+`running`, `success`, `partial`, `warning` ou `failed`. Les routes journalisent en une
+ligne l’action, le provider, les dates, la durée, le statut et le code d’erreur associés.
 
 ## Packaging Vercel
 
@@ -40,3 +47,8 @@ Ne pas ajouter un fallback ou une copie manuelle. Vérifier dans cet ordre : val
 > Toute nouvelle fonctionnalité de régénération doit être enregistrée dans le Generator Registry et couverte par `verify:regenerations`. Aucun module de génération ne doit être référencé par chemin absolu ou hardcodé directement depuis une page/action.
 
 Les costumes et événements sont désormais maintenus manuellement dans les données canoniques. Aucun audit externe automatique Costumes / Event n'est exécuté. L'Engine et l'Identity Manager continuent toutefois de valider les formes, costumes, aliases et assets locaux.
+
+La galerie privée Images Dynamax, son scan et son export ZIP ont été retirés en V1.48.0.
+Ils n’appartiennent plus au registre, au proxy, aux routes Dashboard/API ni au packaging.
+Les datasets Pokémon `DYNAMAX`, Max Battles, leurs assets canoniques et les générateurs
+partagés restent des domaines distincts et sont toujours validés.

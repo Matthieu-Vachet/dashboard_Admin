@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SortableWidgetGrid, type SortableWidgetItem } from "@/components/admin/shared/sortable-widget-grid";
 import { EmptyState, ErrorState } from "@/components/admin/shared/state-system";
+import { actionError } from "@/lib/admin-action-errors";
 
 type DatabaseStatsPayload = {
   configured: boolean;
@@ -69,7 +70,7 @@ export function DatabaseStats() {
     try {
       const response = await fetch("/api/database-stats", { cache: "no-store" });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Stats MongoDB indisponibles.");
+      if (!response.ok) throw actionError(payload.error, "Stats MongoDB indisponibles.");
       setStats(payload.data || fallbackStats);
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Stats MongoDB indisponibles.");

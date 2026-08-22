@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { Select } from "@/components/ui/select";
 import { fieldClass, Panel } from "./admin-ui";
+import { actionError, normalizeActionError } from "@/lib/admin-action-errors";
 
 export function EventsHistoryPanel() {
   const [resource, setResource] = useState({ items: [], meta: {} });
@@ -21,10 +22,10 @@ export function EventsHistoryPanel() {
       const params = new URLSearchParams({ limit: "100", ...Object.fromEntries(Object.entries(filters).filter(([, value]) => value)) });
       const response = await fetch(`/api/admin/events/archive?${params}`, { cache: "no-store" });
       const payload = await response.json();
-      if (!response.ok || payload.success === false) throw new Error(payload.error || "Archive Events indisponible.");
+      if (!response.ok || payload.success === false) throw actionError(payload.error, "Archive Events indisponible.");
       setResource(payload.data);
       if (notify) toast.success("Archive Events actualisée.");
-    } catch (error) { toast.error(error.message || "Archive Events indisponible."); }
+    } catch (error) { toast.error(normalizeActionError(error, "Archive Events indisponible.").message); }
     finally { setLoading(false); }
   }, [filters]);
   useEffect(() => { const timer = setTimeout(() => load(false), 180); return () => clearTimeout(timer); }, [load]);
@@ -35,9 +36,9 @@ export function EventsHistoryPanel() {
     try {
       const response = await fetch(`/api/admin/events/archive/${encodeURIComponent(item.id)}`, { cache: "no-store" });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Détail indisponible.");
+      if (!response.ok) throw actionError(payload.error, "Détail indisponible.");
       setSelected(payload.data);
-    } catch (error) { toast.error(error.message || "Détail indisponible."); }
+    } catch (error) { toast.error(normalizeActionError(error, "Détail indisponible.").message); }
   }
 
   return <section className="space-y-5"><Panel title="Historique des événements" eyebrow="Archive permanente MongoDB" action={<Button type="button" icon={<RefreshCcw size={17} />} loading={loading} loadingText="Actualisation…" onClick={() => load(true)}>Actualiser</Button>}>

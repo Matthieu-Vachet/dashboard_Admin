@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { EmptyState, ErrorState, FetchLoadingState } from "@/components/admin/shared/state-system";
 import { pvpRankingRegenerationMessage } from "@/lib/pvp-ranking-regeneration-state.mjs";
+import { actionError, normalizeActionError } from "@/lib/admin-action-errors";
 
 function firstDefined(...values) {
   return values.find((value) => value !== undefined && value !== null && value !== "");
@@ -203,11 +204,12 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
     diagnostics.details?.dynamicShellDetected,
   ));
   const error = refreshError || meta.refreshError || "";
+  const normalizedError = normalizeActionError(error, "La nouvelle récupération a échoué.").message;
   const hasDiff = typeof diff.changed === "boolean";
   const changed = diff.changed === true;
-  const errorMessage = error && String(error).startsWith("Affichage de la dernière version MongoDB connue")
-    ? String(error)
-    : `Affichage de la dernière version MongoDB connue — la nouvelle récupération a échoué. ${error}`;
+  const errorMessage = normalizedError.startsWith("Affichage de la dernière version MongoDB connue")
+    ? normalizedError
+    : `Affichage de la dernière version MongoDB connue — la nouvelle récupération a échoué. ${normalizedError}`;
   const storageKey = useMemo(
     () => `matweb.pokemon.dataset-source.${String(meta.domain || provider).toLowerCase().replace(/[^a-z0-9_-]+/g, "-")}`,
     [meta.domain, provider],
@@ -267,7 +269,7 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
     try {
       const response = await fetch(`${resolvedHistoryUrl}${resolvedHistoryUrl.includes("?") ? "&" : "?"}page=1&limit=50`, { cache: "no-store" });
       const payload = await response.json();
-      if (!response.ok || payload.success === false) throw new Error(payload.error || "Historique indisponible.");
+      if (!response.ok || payload.success === false) throw actionError(payload.error, "Historique indisponible.");
       const resource = payload.data?.data ?? payload.data;
       const runs = resource?.runs || resource || [];
       setHistoryRuns(Array.isArray(runs) ? runs : []);

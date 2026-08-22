@@ -2,7 +2,7 @@
 
 ## Source et projection
 
-Le catalogue Admin lit les sept familles `data/moves/fast`, `fast-elite`, `charged`, `charged-elite`, `charged-plus`, `max` et `gmax`. `buildMoveCatalog()` groupe les fichiers par `id` canonique : le snapshot courant contient 502 fichiers mais 371 attaques uniques. Les doublons normal/Elite ne deviennent jamais deux lignes.
+Le catalogue Admin lit les sept familles `data/moves/fast`, `fast-elite`, `charged`, `charged-elite`, `charged-plus`, `max` et `gmax`. `buildMoveCatalog()` groupe les fichiers par `id` canonique : le snapshot courant contient 503 fichiers mais 372 attaques uniques. Les doublons normal/Elite ne deviennent jamais deux lignes.
 
 Chaque ligne expose un view-model unique `pvp` :
 
@@ -19,4 +19,4 @@ Chaque ligne expose un view-model unique `pvp` :
 - Un move Elite partagé garde le fichier normal comme base et signale une disponibilité conditionnelle.
 - Les familles Charged Plus, Max et G-Max restent présentes dans le catalogue sans inventer de métriques PvP.
 
-La non-régression `npm run test:admin-pokemon` vérifie 371 IDs uniques, 502 sources, un Fast normal+Elite, un Charged normal+Elite et la couverture Charged Plus/Max/G-Max.
+La non-régression `npm run test:admin-pokemon` vérifie 372 IDs uniques, 503 sources, un Fast normal+Elite, un Charged normal+Elite et la couverture Charged Plus/Max/G-Max.

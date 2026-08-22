@@ -1,0 +1,492 @@
+{
+  "schemaVersion": 1,
+  "reportId": "ENGINE-CANONICAL-ARCHITECTURE-001",
+  "generatedAt": "2026-08-22T00:48:35.187Z",
+  "status": "VALID_WITH_DIAGNOSTICS",
+  "architecture": {
+    "resolver": "family + entityCategory + canonicalFilename",
+    "categories": [
+      "NORMAL",
+      "ALOLA",
+      "GALAR",
+      "HISUI",
+      "PALDEA",
+      "FORM",
+      "MEGA",
+      "PRIMAL",
+      "DYNAMAX",
+      "GIGANTAMAX"
+    ],
+    "assets": {
+      "valid": true,
+      "sources": 1617,
+      "core": 1617,
+      "familyRecords": 3030,
+      "references": 3030,
+      "manifestRecords": 4647,
+      "counts": {
+        "core": 1617,
+        "home": 1092,
+        "shuffle": 1512,
+        "variants": 211,
+        "location-cards": 215
+      },
+      "categoryCounts": {
+        "core": {
+          "normal": 1025,
+          "alola": 18,
+          "galar": 20,
+          "hisui": 17,
+          "paldea": 4,
+          "forms": 316,
+          "mega": 59,
+          "primal": 2,
+          "dynamax": 127,
+          "gigantamax": 29
+        },
+        "home": {
+          "normal": 1025,
+          "alola": 5,
+          "galar": 0,
+          "hisui": 3,
+          "paldea": 0,
+          "forms": 43,
+          "mega": 12,
+          "primal": 0,
+          "dynamax": 0,
+          "gigantamax": 4
+        },
+        "shuffle": {
+          "normal": 1024,
+          "alola": 18,
+          "galar": 20,
+          "hisui": 15,
+          "paldea": 4,
+          "forms": 223,
+          "mega": 51,
+          "primal": 2,
+          "dynamax": 126,
+          "gigantamax": 29
+        },
+        "variants": {
+          "normal": 199,
+          "alola": 0,
+          "galar": 3,
+          "hisui": 1,
+          "paldea": 0,
+          "forms": 8,
+          "mega": 0,
+          "primal": 0,
+          "dynamax": 0,
+          "gigantamax": 0
+        },
+        "location-cards": {
+          "normal": 194,
+          "alola": 0,
+          "galar": 0,
+          "hisui": 0,
+          "paldea": 0,
+          "forms": 19,
+          "mega": 2,
+          "primal": 0,
+          "dynamax": 0,
+          "gigantamax": 0
+        }
+      },
+      "legitimateAbsences": {
+        "home": 525,
+        "shuffle": 105,
+        "variants": 1406,
+        "location-cards": 1402
+      },
+      "urls": 20345,
+      "uniqueUrls": 16621,
+      "temporaryLegacyRefs": 0,
+      "legacyMonoliths": 0,
+      "legacyEmbeddedFields": {
+        "home": 0,
+        "shuffle": 0,
+        "assetForms": 0,
+        "locationCards": 0
+      },
+      "errors": 0,
+      "warnings": 0,
+      "aggregateSha256": "74ff093c5685df83ce4c8c50e601047f979bcc05738729d455a93c28cdc8fa98",
+      "archiveTag": "archive/assets-monolithic-before-separated-records-2026-08-08"
+    },
+    "pvp": {
+      "valid": true,
+      "records": 1617,
+      "references": 1617,
+      "manifestRecords": 1617,
+      "categoryCounts": {
+        "normal": 1025,
+        "alola": 18,
+        "galar": 20,
+        "hisui": 17,
+        "paldea": 4,
+        "forms": 316,
+        "mega": 59,
+        "primal": 2,
+        "dynamax": 127,
+        "gigantamax": 29
+      },
+      "mappedRecords": 1252,
+      "mappingWarnings": 0,
+      "providerPokemonMappings": 1742,
+      "providerMoveMappings": 349,
+      "errors": 0,
+      "warnings": 0,
+      "infos": 1,
+      "freshnessDays": 0,
+      "monthlyFresh": true,
+      "movesetAudit": {
+        "auditedPairs": 62,
+        "auditedOccurrences": 143,
+        "classifications": {
+          "PURIFIED_ONLY": 22,
+          "STANDARD_SOURCE": 115,
+          "SHADOW_ONLY": 2,
+          "LEGACY_SOURCE": 3,
+          "SOURCE_SNAPSHOT_MISMATCH": 1
+        },
+        "statuses": {
+          "EXPECTED": 24,
+          "RESOLVED": 118,
+          "SOURCE_MISMATCH": 1
+        },
+        "openOccurrences": 0
+      },
+      "sourceCommit": "78c64048aebeb9265e1a090137c5463880fb6fa2",
+      "sourceHash": "9879faa5930f9100b0f731b510392ab92846e69b7d508a729166cd2f3d4721df",
+      "syncedAt": "2026-08-22T00:11:42.328Z",
+      "leagueStatusCounts": {
+        "RANKED": 1787,
+        "NOT_RANKED": 2525,
+        "NOT_ELIGIBLE": 0,
+        "UNRELEASED": 628,
+        "MAPPING_MISSING": 0,
+        "SOURCE_MISSING": 0,
+        "FORMAT_EXCLUDED": 224,
+        "UNSUPPORTED_FORM": 1304
+      },
+      "legacyEmbeddedBlocks": 0
+    },
+    "collectionCatalog": {
+      "schemaVersion": 2,
+      "valid": true,
+      "counts": {
+        "normal.single.standard": 955,
+        "normal.single.shiny": 876,
+        "normal.multi.standard": 1352,
+        "normal.multi.shiny": 1245,
+        "event.single.standard": 311,
+        "event.single.shiny": 308,
+        "event.multi.standard": 429,
+        "event.multi.shiny": 425,
+        "lucky.single.standard": 955,
+        "lucky.single.shiny": 876,
+        "lucky.multi.standard": 1352,
+        "lucky.multi.shiny": 1245,
+        "shadow.single.standard": 458,
+        "shadow.single.shiny": 307,
+        "shadow.multi.standard": 548,
+        "shadow.multi.shiny": 366,
+        "purified.single.standard": 458,
+        "purified.single.shiny": 307,
+        "purified.multi.standard": 548,
+        "purified.multi.shiny": 366,
+        "mega.single.standard": 58,
+        "mega.single.shiny": 58,
+        "mega.multi.standard": 58,
+        "mega.multi.shiny": 58,
+        "dynamax.single.standard": 127,
+        "dynamax.single.shiny": 121,
+        "dynamax.multi.standard": 127,
+        "dynamax.multi.shiny": 121,
+        "gigantamax.single.standard": 17,
+        "gigantamax.single.shiny": 17,
+        "gigantamax.multi.standard": 17,
+        "gigantamax.multi.shiny": 17
+      },
+      "diagnostics": 0
+    },
+    "legacyRequirements": {
+      "pokemonPvpEmbedded": false,
+      "assetsHomeEmbedded": false,
+      "assetsShuffleEmbedded": false,
+      "assetsAssetFormsEmbedded": false,
+      "assetsLocationCardsEmbedded": false,
+      "monolithicAssetFiles": false
+    }
+  },
+  "coverage": {
+    "pokemonAndForms": 1617,
+    "moves": 503,
+    "types": 19,
+    "weather": 8,
+    "generations": 10,
+    "stickers": 1,
+    "assetCore": 1617,
+    "assetFamilies": 3030,
+    "pvpRecords": 1617,
+    "customRuleCatalogEntries": 2230,
+    "collectionCatalogContracts": 32
+  },
+  "diagnosticTaxonomy": {
+    "LEGITIMATE_ABSENCE": {
+      "count": 3438,
+      "blocking": false,
+      "category": "architecture",
+      "severity": "info"
+    },
+    "OPTIONAL": {
+      "count": 0,
+      "blocking": false,
+      "category": "schema",
+      "severity": "info"
+    },
+    "UNSUPPORTED_FORM": {
+      "count": 1304,
+      "blocking": false,
+      "category": "architecture",
+      "severity": "info"
+    },
+    "NOT_RANKED": {
+      "count": 2525,
+      "blocking": false,
+      "category": "architecture",
+      "severity": "info"
+    },
+    "UNRELEASED": {
+      "count": 628,
+      "blocking": false,
+      "category": "release-metadata",
+      "severity": "info"
+    },
+    "FORMAT_EXCLUDED": {
+      "count": 224,
+      "blocking": false,
+      "category": "architecture",
+      "severity": "info"
+    },
+    "MAPPING_MISSING": {
+      "count": 0,
+      "blocking": false,
+      "category": "pokemon-pvpoke-mapping",
+      "severity": "warning"
+    },
+    "MOVE_MAPPING_MISSING": {
+      "count": 0,
+      "blocking": false,
+      "category": "move-mapping",
+      "severity": "warning"
+    },
+    "SOURCE_MISMATCH": {
+      "count": 1,
+      "blocking": false,
+      "category": "source",
+      "severity": "info"
+    },
+    "BROKEN_REFERENCE": {
+      "count": 0,
+      "blocking": true,
+      "category": "reference",
+      "severity": "error"
+    },
+    "ORPHAN": {
+      "count": 0,
+      "blocking": true,
+      "category": "reference",
+      "severity": "error"
+    },
+    "MIGRATION_INCOMPLETE": {
+      "count": 0,
+      "blocking": true,
+      "category": "architecture",
+      "severity": "error"
+    },
+    "VARIANT_DUPLICATES_CANONICAL_ENTITY": {
+      "count": 0,
+      "blocking": true,
+      "category": "architecture",
+      "severity": "error"
+    },
+    "VARIANT_CANONICAL_CATEGORY_FORBIDDEN": {
+      "count": 0,
+      "blocking": true,
+      "category": "architecture",
+      "severity": "error"
+    },
+    "VARIANT_KIND_MISSING": {
+      "count": 0,
+      "blocking": true,
+      "category": "schema",
+      "severity": "error"
+    },
+    "VARIANT_KIND_INVALID": {
+      "count": 0,
+      "blocking": true,
+      "category": "schema",
+      "severity": "error"
+    },
+    "VARIANT_AMBIGUOUS": {
+      "count": 0,
+      "blocking": true,
+      "category": "architecture",
+      "severity": "error"
+    },
+    "ERROR": {
+      "count": 0,
+      "blocking": true,
+      "category": "architecture",
+      "severity": "error"
+    },
+    "COLLECTION_UNRELEASED_ENTRY": {
+      "count": 0,
+      "blocking": true,
+      "category": "release-metadata",
+      "severity": "error"
+    },
+    "COLLECTION_DUPLICATE_ENTRY": {
+      "count": 0,
+      "blocking": true,
+      "category": "architecture",
+      "severity": "error"
+    },
+    "COLLECTION_WRONG_ASSET_VARIANT": {
+      "count": 0,
+      "blocking": true,
+      "category": "assets",
+      "severity": "error"
+    },
+    "COLLECTION_INVALID_EVENT_KIND": {
+      "count": 0,
+      "blocking": true,
+      "category": "architecture",
+      "severity": "error"
+    },
+    "COLLECTION_INVALID_GENDER_VARIANT": {
+      "count": 0,
+      "blocking": true,
+      "category": "architecture",
+      "severity": "error"
+    },
+    "COLLECTION_INVALID_CATEGORY": {
+      "count": 0,
+      "blocking": true,
+      "category": "architecture",
+      "severity": "error"
+    },
+    "COLLECTION_SHINY_NOT_RELEASED": {
+      "count": 0,
+      "blocking": true,
+      "category": "release-metadata",
+      "severity": "error"
+    },
+    "COLLECTION_MISSING_ASSET": {
+      "count": 0,
+      "blocking": true,
+      "category": "assets",
+      "severity": "error"
+    }
+  },
+  "diagnostics": {
+    "architectureByCode": {
+      "pvp_provider_source_movepool_mismatch": 1
+    },
+    "checklistByCode": {
+      "pvp_provider_source_movepool_mismatch": 1
+    },
+    "customRulesByCode": {},
+    "architectureErrors": 0,
+    "architectureWarnings": 0,
+    "dataQualityFindings": 1,
+    "customRuleFindings": 0,
+    "collectionCatalogByCode": {},
+    "severityCounts": {
+      "error": 0,
+      "warning": 0,
+      "info": 8120
+    },
+    "categories": {
+      "schema": {
+        "error": 0,
+        "warning": 0,
+        "info": 0,
+        "total": 0
+      },
+      "pokemon-pvpoke-mapping": {
+        "error": 0,
+        "warning": 0,
+        "info": 0,
+        "total": 0
+      },
+      "move-mapping": {
+        "error": 0,
+        "warning": 0,
+        "info": 0,
+        "total": 0
+      },
+      "movepool": {
+        "error": 0,
+        "warning": 0,
+        "info": 0,
+        "total": 0
+      },
+      "source": {
+        "error": 0,
+        "warning": 0,
+        "info": 1,
+        "total": 1
+      },
+      "release-metadata": {
+        "error": 0,
+        "warning": 0,
+        "info": 628,
+        "total": 628
+      },
+      "type": {
+        "error": 0,
+        "warning": 0,
+        "info": 0,
+        "total": 0
+      },
+      "reference": {
+        "error": 0,
+        "warning": 0,
+        "info": 0,
+        "total": 0
+      },
+      "architecture": {
+        "error": 0,
+        "warning": 0,
+        "info": 7491,
+        "total": 7491
+      }
+    }
+  },
+  "indexes": {
+    "strategy": "Map/Set indexes built once per audit",
+    "pokemonByFormId": 1617,
+    "assetReferences": 3030,
+    "pvpReferences": 1617,
+    "moveCatalog": 503
+  },
+  "performance": {
+    "durationMs": 1860.05,
+    "memoryBefore": {
+      "rssBytes": 54378496,
+      "heapTotalBytes": 9060352,
+      "heapUsedBytes": 5167272,
+      "externalBytes": 2144655
+    },
+    "memoryAfter": {
+      "rssBytes": 240549888,
+      "heapTotalBytes": 140836864,
+      "heapUsedBytes": 85453128,
+      "externalBytes": 2074112
+    },
+    "heapDeltaBytes": 80285856
+  }
+}

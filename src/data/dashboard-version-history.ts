@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.48.0",
+    date: "2026-08-22",
+    title: "Synchronisations durables et Engine canonique réparé",
+    changes: [
+      "Centralise les erreurs et états des actions Admin, ajoute un operationId traçable et restaure les synchronisations Events, Community Days et catalogue canonique.",
+      "Aligne l’Engine sur 1 617 fiches Core, Assets et PvP valides, avec manifests régénérés et fiches status-only sans classement inventé.",
+      "Supprime toute pagination visible des Collections, espace leurs badges combinés et réutilise le bouclier Défense exact du simulateur de combat.",
+      "Retire complètement Images Dynamax et ses routes exclusives sans toucher aux données Dynamax, Max Battles ni générateurs partagés.",
+    ],
+  },
+  {
     version: "V1.47.0",
     date: "2026-08-15",
     title: "Collections compactes et outils de combat stabilisés",

@@ -20,6 +20,7 @@ import { pokemonAdminApiPath } from "@/services/admin/pokemon-admin-api";
 import { CandyAssetImage } from "./candy-asset-image";
 import { xlCandyRequirement } from "@/lib/pokemon-candy-assets.mjs";
 import { enrichPvpRankingWithLocalData, normalizeSuggestedTeammate, pvpTeammatesErrorMessage } from "@/lib/pvp-ranking-local-data.mjs";
+import { actionError } from "@/lib/admin-action-errors";
 
 const fallbackRoles = [
   ["overall", "Classement total"], ["lead", "Ouverture"], ["closer", "Fermeur"], ["switch", "Changement"],
@@ -161,7 +162,7 @@ function PvpChecklist({ league, sourceHash, onOpenPokemon }) {
     Promise.all([
       fetch(`${pokemonAdminApiPath}?${params}`, { cache: "no-store" }).then(async (response) => {
         const payload = await response.json();
-        if (!response.ok) throw new Error(payload.error || "Catalogue PvP indisponible.");
+        if (!response.ok) throw actionError(payload.error, "Catalogue PvP indisponible.");
         return payload.data?.data?.rankings || [];
       }),
       readDashboardStoreValue(checklistStoreKey),

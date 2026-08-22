@@ -81,22 +81,22 @@ try {
   assert.equal(await nameInput.inputValue(), testName);
   assert.equal(await nameInput.evaluate((element) => element === document.activeElement), true);
   const create = dialog.getByRole("button", { name: /Créer la collection/ });
-  assert.match(await create.innerText(), /25 Pokémon/);
+  assert.match(await create.innerText(), /17 Pokémon/);
   await create.click();
   await page.waitForSelector(".collection-pokemon-card");
 
   await page.evaluate(() => window.scrollTo(0, 0));
   const firstCardTop = await page.locator(".collection-pokemon-card").first().evaluate((element) => element.getBoundingClientRect().top);
   assert.ok(firstCardTop <= 844, `première carte à ${firstCardTop}px`);
-  assert.equal(await page.locator(".collection-pokemon-card").count(), 25);
+  assert.equal(await page.locator(".collection-pokemon-card").count(), 17);
   assert.equal(await page.locator('[data-testid="collections-sticky-bar"]').count(), 1);
 
   await page.locator(".collection-pokemon-card button").first().click();
-  assert.match(await page.locator('[data-testid="collections-sticky-bar"]').innerText(), /1\/25/);
+  assert.match(await page.locator('[data-testid="collections-sticky-bar"]').innerText(), /1\/17/);
   await page.getByRole("button", { name: "HAVE" }).first().click();
   assert.equal(await page.locator(".collection-pokemon-card").count(), 1);
   await page.getByRole("button", { name: "NEED" }).first().click();
-  assert.equal(await page.locator(".collection-pokemon-card").count(), 24);
+  assert.equal(await page.locator(".collection-pokemon-card").count(), 16);
   await page.getByRole("button", { name: "ALL" }).first().click();
 
   await page.getByRole("button", { name: "Ouvrir la recherche" }).click();
@@ -109,39 +109,35 @@ try {
   await search.press(process.platform === "darwin" ? "Meta+A" : "Control+A");
   await search.press("Backspace");
   assert.equal(await search.inputValue(), "");
-  const resetSearch = page.getByRole("dialog").getByRole("button", { name: "Afficher 25 Pokémon" });
+  const resetSearch = page.getByRole("dialog").getByRole("button", { name: "Afficher 17 Pokémon" });
   await resetSearch.click();
 
   const scrollBeforeSheet = await page.evaluate(() => window.scrollY);
   await page.getByRole("button", { name: "Changer de région" }).click();
   dialog = page.getByRole("dialog");
   await dialog.getByRole("button", { name: "Kanto", exact: true }).click();
-  assert.equal(await page.locator(".collection-pokemon-card").count(), 12);
+  assert.equal(await page.locator(".collection-pokemon-card").count(), 11);
   await page.getByRole("button", { name: "Changer de région" }).click();
   dialog = page.getByRole("dialog");
   await dialog.getByRole("button", { name: "Toutes", exact: true }).click();
   assert.ok(Math.abs((await page.evaluate(() => window.scrollY)) - scrollBeforeSheet) < 4);
 
   const expectedCounts = new Map([
-    ["Événement", 315],
+    ["Événement", 311],
     ["Chanceux", 955],
     ["Obscur", 458],
     ["Purifié", 458],
-    ["Méga", 53],
+    ["Méga", 58],
     ["Dynamax", 127],
-    ["Gigamax", 25],
+    ["Gigamax", 17],
     ["Normal", 955],
   ]);
   for (const [label, expected] of expectedCounts) {
     assert.equal(await selectCollectionType(page, label), expected, label);
   }
 
-  assert.equal(await page.locator(".collection-pokemon-card").count(), 48);
-  const pageSelector = page.getByLabel("Choisir une page Collections");
-  assert.equal(await pageSelector.locator("option").count(), 20);
-  await pageSelector.selectOption("20");
-  assert.equal(await page.locator(".collection-pokemon-card").count(), 43);
-  await pageSelector.selectOption("1");
+  assert.equal(await page.locator(".collection-pokemon-card").count(), 955);
+  assert.equal(await page.getByLabel("Choisir une page Collections").count(), 0);
 
   await page.getByRole("button", { name: "Actions de la collection" }).click();
   dialog = page.getByRole("dialog");

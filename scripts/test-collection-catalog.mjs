@@ -31,10 +31,10 @@ test("la table de vérité canonique garde les compteurs calculés depuis les JS
     "normal.single.shiny": 876,
     "normal.multi.standard": 1352,
     "normal.multi.shiny": 1245,
-    "event.single.standard": 315,
-    "event.single.shiny": 312,
-    "event.multi.standard": 427,
-    "event.multi.shiny": 423,
+    "event.single.standard": 311,
+    "event.single.shiny": 308,
+    "event.multi.standard": 429,
+    "event.multi.shiny": 425,
     "lucky.single.standard": 955,
     "lucky.single.shiny": 876,
     "lucky.multi.standard": 1352,
@@ -47,25 +47,25 @@ test("la table de vérité canonique garde les compteurs calculés depuis les JS
     "purified.single.shiny": 307,
     "purified.multi.standard": 548,
     "purified.multi.shiny": 366,
-    "mega.single.standard": 53,
-    "mega.single.shiny": 53,
-    "mega.multi.standard": 53,
-    "mega.multi.shiny": 53,
+    "mega.single.standard": 58,
+    "mega.single.shiny": 58,
+    "mega.multi.standard": 58,
+    "mega.multi.shiny": 58,
     "dynamax.single.standard": 127,
     "dynamax.single.shiny": 121,
     "dynamax.multi.standard": 127,
     "dynamax.multi.shiny": 121,
-    "gigantamax.single.standard": 25,
-    "gigantamax.single.shiny": 22,
-    "gigantamax.multi.standard": 25,
-    "gigantamax.multi.shiny": 22,
+    "gigantamax.single.standard": 17,
+    "gigantamax.single.shiny": 17,
+    "gigantamax.multi.standard": 17,
+    "gigantamax.multi.shiny": 17,
   });
 });
 
 test("l'Engine publie le contrôle Collection Catalog et ses huit diagnostics bloquants", () => {
   const { report } = buildCanonicalEngineReport();
   assert.equal(report.architecture.collectionCatalog.valid, true);
-  assert.equal(report.architecture.collectionCatalog.counts["gigantamax.single.standard"], 25);
+  assert.equal(report.architecture.collectionCatalog.counts["gigantamax.single.standard"], 17);
   for (const code of [
     "COLLECTION_UNRELEASED_ENTRY",
     "COLLECTION_DUPLICATE_ENTRY",
@@ -96,9 +96,9 @@ test("aucune checklist ne contient une fiche non sortie, un asset absent ou une 
 });
 
 test("Non variante garde les catégories spécialisées et corrige le catalogue Gigamax vide", () => {
-  assert.equal(catalog("mega").length, 53);
+  assert.equal(catalog("mega").length, 58);
   assert.equal(catalog("dynamax").length, 127);
-  assert.equal(catalog("gigantamax").length, 25);
+  assert.equal(catalog("gigantamax").length, 17);
   assert.ok(catalog("gigantamax").every((entry) => entry.category === "gigantamax"));
   assert.ok(catalog("dynamax").every((entry) => entry.category === "dynamax"));
   assert.ok(catalog("normal").every((entry) => entry.category === "normal"));
@@ -111,8 +111,8 @@ test("Event repose exclusivement sur kind costume/event et sépare principal de 
   assert.ok(multi.every((entry) => ["costume", "event"].includes(entry.kind)));
   assert.ok(single.every((entry) => entry.gender !== "female"));
   assert.equal(multi.filter((entry) => entry.gender === "female").length, 118);
-  assert.equal(single.length, 315);
-  assert.equal(multi.length, 427);
+  assert.equal(single.length, 311);
+  assert.equal(multi.length, 429);
 });
 
 test("Multi variante ajoute les différences de genre sans réintroduire Event ou Max dans Normal", () => {
@@ -228,10 +228,11 @@ test("les Collections compactes gardent les couleurs, libellés, icônes et acti
   const panel = fs.readFileSync(path.join(root, "src/components/admin/pokemon/collections-panel.jsx"), "utf8");
   const assets = fs.readFileSync(path.join(root, "src/components/site/ui-assets.js"), "utf8");
   const styles = fs.readFileSync(path.join(root, "src/app/globals.css"), "utf8");
-  assert.match(panel, /const collectionPageSize = 48/);
+  assert.doesNotMatch(panel, /collectionPageSize|Pagination Collections|Choisir une page Collections/);
   assert.match(panel, /Sélectionner tous les résultats/);
   assert.match(panel, /Désélectionner tous les résultats/);
-  assert.match(panel, /aria-label="Pagination Collections"/);
+  assert.match(panel, /content-visibility:auto/);
+  assert.match(panel, /liste complète/);
   assert.match(panel, /grid-cols-2[^\n]+2xl:grid-cols-10/);
   assert.match(panel, /dialog\.contains\(document\.activeElement\)/);
   assert.doesNotMatch(panel, /Afficher plus|onOpen|<Info/);
@@ -239,4 +240,12 @@ test("les Collections compactes gardent les couleurs, libellés, icônes et acti
   assert.match(assets, /collectionShiny: "\/assets\/ui\/categories\/max-battles\/ic_shiny\.png"/);
   assert.match(styles, /\.collection-pokemon-card\[data-tone="max"\]/);
   assert.doesNotMatch(styles, /data-tone="mega"[^\n]+data-tone="max"/);
+});
+
+test("le panneau attend les familles d’assets avant d’autoriser une collection", () => {
+  const source = fs.readFileSync(new URL("../src/components/admin/pokemon/admin-app.jsx", import.meta.url), "utf8");
+  assert.match(source, /collectionAssetFamiliesReady = \["home", "shuffle", "variants"\]\.every/);
+  assert.match(source, /active === "collections" && !collectionAssetFamiliesReady/);
+  assert.match(source, /Préparation des Collections…/);
+  assert.match(source, /active === "collections" && collectionAssetFamiliesReady/);
 });

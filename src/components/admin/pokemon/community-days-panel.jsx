@@ -3,6 +3,8 @@
 import { FileJson, History, RefreshCcw, Search, Sparkles, Unlink } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { executeAdminAction, fetchAdminAction } from "@/lib/admin-action-executor";
+import { actionError, normalizeActionError } from "@/lib/admin-action-errors";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
@@ -197,11 +199,11 @@ export function CommunityDaysPanel() {
       if (effectiveQuery) params.set("search", effectiveQuery);
       const response = await fetch(`/api/admin/community-days?${params}`, { cache: "no-store" });
       const payload = await response.json();
-      if (!response.ok || payload.success === false) throw new Error(payload.error || "Community Days indisponibles.");
+      if (!response.ok || payload.success === false) throw actionError(payload.error, "Community Days indisponibles.");
       setResource(payload.data);
       if (notify) toast.success("Community Days actualisés.");
     } catch (error) {
-      toast.error(error.message || "Community Days indisponibles.");
+      toast.error(normalizeActionError(error, "Community Days indisponibles.").message);
     } finally { if (trackBusy) setBusy(""); }
   }, [status, year, month, effectiveQuery]);
 
@@ -210,12 +212,20 @@ export function CommunityDaysPanel() {
   async function sync() {
     setBusy("sync");
     try {
-      const response = await fetch("/api/admin/community-days/sync", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
-      const payload = await response.json();
-      if (!response.ok || payload.success === false) throw new Error(payload.error || "Synchronisation impossible.");
+      const execution = await executeAdminAction({
+        action: "community-days-sync",
+        fallbackError: "Synchronisation Community Days impossible.",
+        operation: (context) => fetchAdminAction(
+          "/api/admin/community-days/sync",
+          context,
+          { method: "POST", headers: { "content-type": "application/json" }, body: "{}" },
+          "Synchronisation Community Days impossible.",
+        ),
+      });
+      const payload = execution.data;
       toast.success(`${payload.data.total} Community Day(s) conservé(s), ${payload.data.added} ajouté(s), ${payload.data.modified} modifié(s).`);
       await load(false, false);
-    } catch (error) { toast.error(error.message || "Synchronisation impossible."); }
+    } catch (error) { toast.error(normalizeActionError(error, "Synchronisation impossible.").message); }
     finally { setBusy(""); }
   }
 

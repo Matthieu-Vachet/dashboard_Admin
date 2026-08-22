@@ -17,7 +17,6 @@ import {
   FileJson,
   Fingerprint,
   History,
-  Image as ImageIcon,
   ListTodo,
   Radar,
   RefreshCcw,
@@ -70,7 +69,6 @@ import * as collectionCatalogEngine from "@/lib/collections/collection-catalog";
 import { EggsPanel } from "./eggs-panel";
 import { EventsCalendarPanel } from "./events-calendar-panel";
 import { CommunityDaysPanel } from "./community-days-panel";
-import { DynamaxImagesPanel } from "./dynamax-images-panel";
 import { EventsHistoryPanel } from "./events-history-panel";
 import { LoginCard } from "./login-card";
 import { MaxBattlesPanel } from "./max-battles-panel";
@@ -111,6 +109,7 @@ import {
 } from "@/utils/admin/pokemon-presentation-entries.mjs";
 import { persistSourceSignatures } from "@/utils/admin/source-watch";
 import { executePokemonAdminRegeneration } from "@/lib/admin-pokemon-global-regeneration";
+import { actionError, normalizeActionError } from "@/lib/admin-action-errors";
 import {
   createPvpRankingRegenerationState,
   normalizePvpRankingRegeneration,
@@ -186,12 +185,6 @@ const navItems = [
     id: "assets",
     label: "Assets",
     icon: `${filtersAssetBase}/TodayView_Icon_Photobomb.png`,
-    group: "data",
-  },
-  {
-    id: "dynamax-images",
-    label: "Images Dynamax",
-    icon: ImageIcon,
     group: "data",
   },
   { id: "catalogs", label: "Catalogues", icon: Archive, group: "data" },
@@ -687,7 +680,7 @@ async function copyToClipboard(value, label = "Copié dans le presse-papier") {
 }
 
 function errorMessage(error, fallback) {
-  return error instanceof Error && error.message ? error.message : fallback;
+  return normalizeActionError(error, fallback).message;
 }
 
 function markCurrentDatasetFailure(resource, message) {
@@ -1881,7 +1874,7 @@ export function AdminApp() {
         redeployResponse.json(),
       ]);
       if (!checklistResponse.ok)
-        throw new Error(checklistPayload.error || "Erreur de chargement.");
+        throw actionError(checklistPayload.error, "Erreur de chargement.");
       setBootstrap({
         loading: false,
         payload: checklistPayload.data,
@@ -1907,7 +1900,7 @@ export function AdminApp() {
     } catch (error) {
       setBootstrap((current) => ({ loading: false, payload: current.payload, error: error.message }));
       if (notify)
-        toast.error(error.message || "Erreur de chargement du dashboard.");
+        toast.error(errorMessage(error, "Erreur de chargement du dashboard."));
     }
   }
 
@@ -1919,7 +1912,7 @@ export function AdminApp() {
       .then(async (response) => {
         const payload = await response.json();
         if (!response.ok)
-          throw new Error(payload.error || "Audit des assets indisponible.");
+          throw actionError(payload.error, "Audit des assets indisponible.");
         setAssetAudit(payload.data || null);
         return payload.data || null;
       })
@@ -1950,7 +1943,7 @@ export function AdminApp() {
       .then(async (response) => {
         const payload = await response.json();
         if (!response.ok)
-          throw new Error(payload.error || "Familles assets indisponibles.");
+          throw actionError(payload.error, "Familles assets indisponibles.");
         const entries = Array.isArray(payload.data?.entries)
           ? payload.data.entries
           : [];
@@ -2095,6 +2088,9 @@ export function AdminApp() {
           : entry;
       }),
     [bootstrap.payload, assetFamilyData.patches],
+  );
+  const collectionAssetFamiliesReady = ["home", "shuffle", "variants"].every((family) =>
+    assetFamilyData.loaded.includes(family),
   );
   const customRuleEntries = useMemo(
     () => bootstrap.payload?.customRuleEntries || [],
@@ -2350,8 +2346,9 @@ export function AdminApp() {
     const payload = await response.json();
     if (!response.ok) {
       setSession({ loading: false, authenticated: false });
-      setAuthError(payload.error || "Connexion refusée.");
-      toast.error(payload.error || "Connexion refusée.");
+      const message = errorMessage(payload.error, "Connexion refusée.");
+      setAuthError(message);
+      toast.error(message);
       return;
     }
     setSession({ loading: false, authenticated: true });
@@ -2368,7 +2365,7 @@ export function AdminApp() {
   function assertSuccessfulAdminAction(payload, fallbackMessage) {
     const report = unwrapAdminActionReport(payload);
     if (report?.success === false) {
-      throw new Error(report.error || fallbackMessage);
+      throw actionError(report.error, fallbackMessage);
     }
     return report;
   }
@@ -2381,7 +2378,7 @@ export function AdminApp() {
       });
       const payload = await response.json();
       if (!response.ok)
-        throw new Error(payload.error || "Impossible de charger les raids.");
+        throw actionError(payload.error, "Impossible de charger les raids.");
       setRaids(payload.data || null);
       if (notify) toast.success("Raids actualisés.");
     } catch (error) {
@@ -2417,7 +2414,7 @@ export function AdminApp() {
       });
       const payload = await response.json();
       if (!response.ok)
-        throw new Error(payload.error || `Impossible de charger ${label}.`);
+        throw actionError(payload.error, `Impossible de charger ${label}.`);
       setData(payload.data || null);
       if (notify) toast.success(`${label} actualisé.`);
     } catch (error) {
@@ -2480,7 +2477,7 @@ export function AdminApp() {
       );
       const payload = await response.json();
       if (!response.ok || !payload.data?.data)
-        throw new Error(payload.error || `Export ${label} impossible.`);
+        throw actionError(payload.error, `Export ${label} impossible.`);
       downloadJsonPayload(payload.data, baseName);
       toast.success(`${label} exporté sans modifier MongoDB.`);
     } catch (error) {
@@ -2575,7 +2572,7 @@ export function AdminApp() {
       });
       const payload = await response.json();
       if (!response.ok)
-        throw new Error(payload.error || "Action raids impossible.");
+        throw actionError(payload.error, "Action raids impossible.");
       const report = assertSuccessfulAdminAction(
         payload,
         "Action raids impossible.",
@@ -2601,7 +2598,7 @@ export function AdminApp() {
       });
       const payload = await response.json();
       if (!response.ok)
-        throw new Error(payload.error || "Impossible de charger les oeufs.");
+        throw actionError(payload.error, "Impossible de charger les oeufs.");
       setEggs(payload.data || null);
       if (notify) toast.success("Oeufs actualisés.");
     } catch (error) {
@@ -2627,7 +2624,7 @@ export function AdminApp() {
       });
       const payload = await response.json();
       if (!response.ok)
-        throw new Error(payload.error || "Action oeufs impossible.");
+        throw actionError(payload.error, "Action oeufs impossible.");
       const report = assertSuccessfulAdminAction(
         payload,
         "Action oeufs impossible.",
@@ -2653,8 +2650,9 @@ export function AdminApp() {
       });
       const payload = await response.json();
       if (!response.ok)
-        throw new Error(
-          payload.error || "Impossible de charger les Max Battles.",
+        throw actionError(
+          payload.error,
+          "Impossible de charger les Max Battles.",
         );
       setMaxBattles(payload.data || null);
       if (notify) toast.success("Max Battles actualisées.");
@@ -2684,7 +2682,7 @@ export function AdminApp() {
       });
       const payload = await response.json();
       if (!response.ok)
-        throw new Error(payload.error || "Action Max Battles impossible.");
+        throw actionError(payload.error, "Action Max Battles impossible.");
       const report = assertSuccessfulAdminAction(
         payload,
         "Action Max Battles impossible.",
@@ -2714,10 +2712,11 @@ export function AdminApp() {
         textsResponse.json(),
       ]);
       if (!response.ok)
-        throw new Error(payload.error || "Impossible de charger Rocket.");
+        throw actionError(payload.error, "Impossible de charger Rocket.");
       if (!textsResponse.ok)
-        throw new Error(
-          textsPayload.error || "Impossible de charger les textes Rocket.",
+        throw actionError(
+          textsPayload.error,
+          "Impossible de charger les textes Rocket.",
         );
       setRocket(payload.data || null);
       setRocketTexts(textsPayload.data || null);
@@ -2745,7 +2744,7 @@ export function AdminApp() {
       });
       const payload = await response.json();
       if (!response.ok)
-        throw new Error(payload.error || "Action Rocket impossible.");
+        throw actionError(payload.error, "Action Rocket impossible.");
       const report = assertSuccessfulAdminAction(
         payload,
         "Action Rocket impossible.",
@@ -2776,10 +2775,11 @@ export function AdminApp() {
         itemsResponse.json(),
       ]);
       if (!response.ok)
-        throw new Error(payload.error || "Impossible de charger Research.");
+        throw actionError(payload.error, "Impossible de charger Research.");
       if (!itemsResponse.ok)
-        throw new Error(
-          itemsPayload.error || "Impossible de charger les items.",
+        throw actionError(
+          itemsPayload.error,
+          "Impossible de charger les items.",
         );
       setResearch(payload.data || null);
       setItemsReference(itemsPayload.data || null);
@@ -2808,7 +2808,7 @@ export function AdminApp() {
       });
       const payload = await response.json();
       if (!response.ok)
-        throw new Error(payload.error || "Action Research impossible.");
+        throw actionError(payload.error, "Action Research impossible.");
       const report = assertSuccessfulAdminAction(
         payload,
         "Action Research impossible.",
@@ -2933,7 +2933,7 @@ export function AdminApp() {
       const response = await fetch(`${adminApiPath}?action=source-watch`);
       const payload = await response.json();
       if (!response.ok)
-        throw new Error(payload.error || "Veille indisponible.");
+        throw actionError(payload.error, "Veille indisponible.");
       const watchState = persistSourceSignatures(
         payload.data,
         sourceWatchSignatureKey,
@@ -2966,9 +2966,9 @@ export function AdminApp() {
           { id: toastId },
         );
     } catch (error) {
-      setSourceWatch({ error: error.message });
+      setSourceWatch({ error: errorMessage(error, "Veille indisponible.") });
       if (!automatic)
-        toast.error(error.message || "Veille indisponible.", { id: toastId });
+        toast.error(errorMessage(error, "Veille indisponible."), { id: toastId });
     }
   }
 
@@ -2977,13 +2977,14 @@ export function AdminApp() {
       const response = await fetch(`${adminApiPath}?action=source-history`);
       const payload = await response.json();
       if (!response.ok)
-        throw new Error(
-          payload.error || "Historique des sources indisponible.",
+        throw actionError(
+          payload.error,
+          "Historique des sources indisponible.",
         );
       setSourceHistory(Array.isArray(payload.data) ? payload.data : []);
       setSourceHistoryOpen(true);
     } catch (error) {
-      toast.error(error.message || "Historique des sources indisponible.");
+      toast.error(errorMessage(error, "Historique des sources indisponible."));
     }
   }
 
@@ -2992,13 +2993,13 @@ export function AdminApp() {
       const response = await fetch(redeployApiPath);
       const payload = await response.json();
       if (!response.ok)
-        throw new Error(payload.error || "Historique data indisponible.");
+        throw actionError(payload.error, "Historique data indisponible.");
       setDeployHistory(
         Array.isArray(payload.data?.history) ? payload.data.history : [],
       );
       setDeployHistoryOpen(true);
     } catch (error) {
-      toast.error(error.message || "Historique data indisponible.");
+      toast.error(errorMessage(error, "Historique data indisponible."));
     }
   }
 
@@ -3012,8 +3013,9 @@ export function AdminApp() {
     const payload = await response.json();
     if (!response.ok) {
       setRulePreview(null);
-      setRuleMessage(payload.error || "Règle invalide.");
-      toast.error(payload.error || "Règle invalide.");
+      const message = errorMessage(payload.error, "Règle invalide.");
+      setRuleMessage(message);
+      toast.error(message);
       return;
     }
     setRulePreview(payload.data);
@@ -3030,8 +3032,9 @@ export function AdminApp() {
     });
     const payload = await response.json();
     if (!response.ok) {
-      setRuleMessage(payload.error || "Impossible de sauvegarder la règle.");
-      toast.error(payload.error || "Impossible de sauvegarder la règle.");
+      const message = errorMessage(payload.error, "Impossible de sauvegarder la règle.");
+      setRuleMessage(message);
+      toast.error(message);
       return;
     }
     setRuleForm({ ...defaultRuleForm });
@@ -3055,7 +3058,7 @@ export function AdminApp() {
       });
       const payload = await response.json();
       if (!response.ok)
-        throw new Error(payload.error || "Synchronisation impossible.");
+        throw actionError(payload.error, "Synchronisation impossible.");
       setBootstrap({
         loading: false,
         payload: payload.data?.bootstrap,
@@ -3068,7 +3071,7 @@ export function AdminApp() {
       toast.success("Snapshot GitHub synchronisé.", { id: toastId });
     } catch (error) {
       setRuleMessage(error.message || "Synchronisation impossible.");
-      toast.error(error.message || "Synchronisation impossible.", {
+      toast.error(errorMessage(error, "Synchronisation impossible."), {
         id: toastId,
       });
     } finally {
@@ -3089,7 +3092,7 @@ export function AdminApp() {
       });
       const payload = await response.json();
       if (!response.ok)
-        throw new Error(payload.error || "Redéploiement impossible.");
+        throw actionError(payload.error, "Redéploiement impossible.");
       const history = Array.isArray(payload.data?.history)
         ? payload.data.history
         : [];
@@ -3102,7 +3105,7 @@ export function AdminApp() {
         { id: toastId },
       );
     } catch (error) {
-      toast.error(error.message || "Redéploiement impossible.", {
+      toast.error(errorMessage(error, "Redéploiement impossible."), {
         id: toastId,
       });
     } finally {
@@ -3391,7 +3394,30 @@ export function AdminApp() {
                 />
               ) : null}
 
-              {active === "collections" ? (
+              {active === "collections" && !collectionAssetFamiliesReady ? (
+                assetFamilyData.error ? (
+                  <ErrorState
+                    title="Collections indisponibles"
+                    message={assetFamilyData.error}
+                    action={(
+                      <button
+                        className={secondaryButtonClass}
+                        type="button"
+                        onClick={() => void loadAssetFamilies(["home", "shuffle", "variants"])}
+                      >
+                        Réessayer
+                      </button>
+                    )}
+                  />
+                ) : (
+                  <FetchLoadingState
+                    title="Préparation des Collections…"
+                    detail="Chargement des formes, variantes et assets canoniques."
+                  />
+                )
+              ) : null}
+
+              {active === "collections" && collectionAssetFamiliesReady ? (
                 <CollectionsPanel
                   entries={entries}
                   collections={collections}
@@ -3611,8 +3637,6 @@ export function AdminApp() {
               {active === "community-days" ? <CommunityDaysPanel /> : null}
 
               {active === "events-history" ? <EventsHistoryPanel /> : null}
-
-              {active === "dynamax-images" ? <DynamaxImagesPanel /> : null}
 
               {active === "assets" ? (
                 <section className="grid items-start gap-5 xl:grid-cols-[1.4fr_.9fr]">

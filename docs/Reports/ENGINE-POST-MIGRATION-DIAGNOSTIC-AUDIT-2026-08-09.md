@@ -3,11 +3,18 @@
 ## Clôture de stabilisation
 
 Les tableaux ci-dessous expliquent des findings historiques observés avant correction ;
-ils ne décrivent plus le contrat courant. Le run final couvre 1 611 Pokémon/formes,
-1 611 Core, 3 147 familles secondaires et 1 611 fiches PvP. Son statut est
-`VALID_WITH_DIAGNOSTICS`, avec 0 erreur, 0 warning, zéro `MAPPING_MISSING`, zéro
+ils ne décrivent plus le contrat courant. Le run final couvre 1 617 Pokémon/formes,
+1 617 Core, 3 030 familles secondaires et 1 617 fiches PvP. Son statut est
+`VALID`, avec 0 erreur, 0 warning, zéro `MAPPING_MISSING`, zéro
 `MOVE_MAPPING_MISSING`, zéro `BROKEN_REFERENCE`, zéro `ORPHAN` et zéro
 `MIGRATION_INCOMPLETE`.
+
+Le run du 22 août 2026 remplace ce compteur historique : 1 617 Pokémon/formes, 1 617
+Core et 1 617 fiches/références PvP. Les 25 erreurs de la baseline du 21 août sont
+résolues dans les données et manifests, sans retrait de règle : mauvais nom Chesnaught,
+chemins/catégorie Greninja, six entrées de manifest et trois `pvpRef` absentes. Le
+manifest est recalculé depuis le filesystem et les trois nouvelles Méga utilisent des
+records status-only `UNRELEASED` conformes au schéma.
 
 L’unique diagnostic PvP résiduel est l’information fournisseur
 `SKIDDO`/`ROCK_SLIDE` (`SOURCE_MISMATCH`). Elle n’est pas actionnable dans une fiche et

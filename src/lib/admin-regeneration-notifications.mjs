@@ -1,3 +1,6 @@
+import { executeAdminAction } from "./admin-action-executor.ts";
+import { normalizeActionError } from "./admin-action-errors.ts";
+
 const inFlightNotifications = new Map();
 
 export class RegenerationTimeoutError extends Error {
@@ -50,10 +53,6 @@ export function assertCompleteRegeneration(value, fallback = "La régénération
   return value;
 }
 
-function errorText(error, fallback) {
-  return error instanceof Error && error.message ? error.message : fallback;
-}
-
 export function runRegenerationWithToast({
   key,
   operation,
@@ -63,38 +62,37 @@ export function runRegenerationWithToast({
   successMessage = "Régénération terminée.",
   errorMessage = "Régénération impossible.",
   timeoutMs = 8 * 60_000,
+  onState,
 }) {
   const normalizedKey = String(key || "").trim();
   if (!normalizedKey) throw new Error("Une clé de régénération est requise.");
   const existing = inFlightNotifications.get(normalizedKey);
   if (existing) return existing;
 
-  const controller = new AbortController();
   const toastId = notifier.loading(pendingMessage);
-  let timeoutId;
-  const timeout = new Promise((_, reject) => {
-    timeoutId = globalThis.setTimeout(() => {
-      controller.abort();
-      reject(new RegenerationTimeoutError(`${errorMessage} Délai d’attente dépassé.`));
-    }, timeoutMs);
-  });
 
   const request = (async () => {
     try {
-      const value = await Promise.race([
-        Promise.resolve().then(() => operation(controller.signal)),
-        timeout,
-      ]);
-      assertCompleteRegeneration(value, errorMessage);
-      if (invalidate) await invalidate(value);
+      const execution = await executeAdminAction({
+        action: normalizedKey,
+        timeoutMs,
+        onState,
+        fallbackError: errorMessage,
+        operation: async ({ signal, operationId }) => {
+          const value = await operation(signal, operationId);
+          assertCompleteRegeneration(value, errorMessage);
+          if (invalidate) await invalidate(value);
+          return value;
+        },
+      });
+      const value = execution.data;
       const message = typeof successMessage === "function" ? successMessage(value) : successMessage;
       notifier.success(message, { id: toastId });
       return value;
     } catch (error) {
-      notifier.error(errorText(error, errorMessage), { id: toastId });
+      notifier.error(normalizeActionError(error, errorMessage).message, { id: toastId });
       throw error;
     } finally {
-      globalThis.clearTimeout(timeoutId);
       if (inFlightNotifications.get(normalizedKey) === request) {
         inFlightNotifications.delete(normalizedKey);
       }

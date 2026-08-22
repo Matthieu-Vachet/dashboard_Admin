@@ -14,6 +14,7 @@ import { TypeIcons } from "./asset-icons";
 import { buttonClass, fieldClass, Panel } from "./admin-ui";
 import { executePokemonAdminRegeneration } from "@/lib/admin-pokemon-global-regeneration";
 import { bestDefendersSourceIssue } from "@/lib/best-defenders-source-state.mjs";
+import { actionError } from "@/lib/admin-action-errors";
 
 const tiers = ["", "S", "A+", "A", "B", "C", "D"];
 
@@ -55,7 +56,7 @@ export function BestDefendersPanel({ onOpenPokemon, globalSearch = "", onSearchC
       for (const key of ["search", "tier", "type"]) if (requestOptions[key]) query.set(key, requestOptions[key]);
       const response = await fetch(`/api/pokemon-admin?${query}`, { cache: "no-store" });
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+      if (!response.ok) throw actionError(payload.error, `HTTP ${response.status}`);
       const issue = bestDefendersSourceIssue(payload.data);
       if (requestSequence.current === sequence) {
         setDataset(payload.data);

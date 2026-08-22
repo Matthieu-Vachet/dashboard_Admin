@@ -207,13 +207,11 @@ test("une collision ambiguë de sourceId est conservée sous deux clés et diagn
   assert.equal(db.archive.documents.length, 2);
 });
 
-test("les routes de synchronisation restent privées et aucune consultation ne lance un scrape", () => {
+test("les routes de synchronisation restent privées et l’archive ne supprime rien", () => {
   const root = path.resolve(import.meta.dirname, "..");
   const communityRoute = fs.readFileSync(path.join(root, "src/app/api/admin/community-days/sync/route.ts"), "utf8");
-  const dynamaxReadRoute = fs.readFileSync(path.join(root, "src/app/api/admin/dynamax-images/route.ts"), "utf8");
   const archiveSource = fs.readFileSync(path.join(root, "src/lib/events-archive-store.ts"), "utf8");
   assert.match(communityRoute, /getSession\(\)/);
   assert.match(communityRoute, /assertSameOrigin/);
-  assert.doesNotMatch(dynamaxReadRoute.match(/export async function GET[\s\S]*?export async function DELETE/)?.[0] || "", /scan|scrape/i);
   assert.doesNotMatch(archiveSource, /deleteOne|deleteMany/);
 });

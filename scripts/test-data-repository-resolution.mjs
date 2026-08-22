@@ -106,3 +106,10 @@ test("les Functions qui lisent PokemonGo-Data embarquent la racine runtime et de
   assert.match(config, /data\/pvp\/rankings\/\*\*\/\*/);
   assert.doesNotMatch(config, /\.data\/PokemonGo-Data/);
 });
+
+test("next start respecte le dépôt explicite tandis que Vercel impose le snapshot embarqué", () => {
+  const route = fs.readFileSync(new URL("../src/app/api/pokemon-admin/route.ts", import.meta.url), "utf8");
+  assert.match(route, /process\.env\.NODE_ENV === "production" && process\.env\.VERCEL !== "1"/);
+  assert.match(route, /const explicitDataDir = String\(process\.env\.POKEMON_GO_DATA_DIR \|\| ""\)\.trim\(\)/);
+  assert.match(route, /if \(process\.env\.VERCEL === "1" \|\| process\.env\.NODE_ENV === "production"\)/);
+});

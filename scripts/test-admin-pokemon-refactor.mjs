@@ -86,9 +86,9 @@ test("Best Attackers utilise un sélecteur de types visuel et des cartes mobiles
 
 test("Moves fusionne les doublons normal/élite et expose le modèle PvP canonique", () => {
   const moves = buildMoveCatalog();
-  assert.equal(moves.length, 371);
+  assert.equal(moves.length, 372);
   assert.equal(new Set(moves.map((move) => move.id)).size, moves.length);
-  assert.equal(moves.reduce((count, move) => count + move.sourceFiles.length, 0), 502);
+  assert.equal(moves.reduce((count, move) => count + move.sourceFiles.length, 0), 503);
 
   const bite = moves.find((move) => move.id === "BITE_FAST");
   assert.deepEqual(bite.availability, {

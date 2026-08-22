@@ -13,6 +13,8 @@ import {
 import { scrapeLeekDuckEvents } from "@/lib/leekduck-events-scraper";
 import { synchronizeEventsArchive } from "@/lib/events-archive-store";
 import { assertSameOrigin, rateLimit } from "@/lib/security";
+import { adminActionErrorPayload } from "@/lib/admin-action-errors";
+import { adminOperationId, logAdminOperation } from "@/lib/admin-action-observability";
 
 export const dynamic = "force-dynamic";
 
@@ -22,14 +24,9 @@ function json(data: unknown, init?: ResponseInit) {
   return response;
 }
 
-function serverError(error: unknown) {
-  const message = error instanceof Error ? error.message : "Scrape LeekDuck events indisponible.";
-  const status =
-    error && typeof error === "object" && "status" in error
-      ? Number((error as { status?: unknown }).status) || 500
-      : 500;
-
-  return json({ success: false, error: message }, { status });
+function serverError(error: unknown, operationId: string) {
+  const normalized = adminActionErrorPayload(error, operationId, "Scrape LeekDuck events indisponible.");
+  return json(normalized.body, { status: normalized.status });
 }
 
 function normalizeDiagnosticText(value: unknown) {
@@ -70,13 +67,15 @@ function unmatchedContext(sourceName: string, events: Array<Record<string, unkno
 }
 
 export async function POST(request: NextRequest) {
+  const operationId = adminOperationId(request, "events-scrape");
   let run: DashboardDatasetRunDocument | null = null;
   const startedAt = Date.now();
+  logAdminOperation({ operationId, action: "events-scrape", provider: "leekduck-events", phase: "start", startedAt });
   try {
     rateLimit(request, "pokemon-events-scrape", 12, 60_000);
     assertSameOrigin(request);
     const session = await getSession();
-    if (!session) return json({ success: false, error: "Accès dashboard requis." }, { status: 401 });
+    if (!session) throw Object.assign(new Error("Accès dashboard requis."), { status: 401, code: "DASHBOARD_AUTH_REQUIRED" });
 
     await recordDashboardApiCall(session.email, "/api/admin/events/scrape", "POST");
     const previous = await listPokemonEvents({ includeArchived: true });
@@ -130,8 +129,18 @@ export async function POST(request: NextRequest) {
       errors: [],
       diffUnavailableReason: null,
     });
+    logAdminOperation({
+      operationId,
+      action: "events-scrape",
+      provider: "leekduck-events",
+      phase: sourceRun?.status === "partial" ? "partial" : sourceRun?.status === "unchanged" ? "warning" : "success",
+      startedAt,
+      durationMs: Date.now() - startedAt,
+      diagnostics: { total: imported.total, matched: scraped.report.pokemonMatched, unmatched: unmatchedEntries.length, warnings: warnings.length },
+    });
     return json({
       success: true,
+      operationId,
       data: {
         ...scraped.report,
         mongoUpdated: true,
@@ -149,6 +158,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     if (run?._id) await failDatasetRun(run._id, error).catch(() => undefined);
-    return serverError(error);
+    logAdminOperation({ operationId, action: "events-scrape", provider: "leekduck-events", phase: "failed", startedAt, durationMs: Date.now() - startedAt, error });
+    return serverError(error, operationId);
   }
 }

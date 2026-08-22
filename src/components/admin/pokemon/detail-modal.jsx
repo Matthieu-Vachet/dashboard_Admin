@@ -1937,7 +1937,7 @@ export function DetailModal({
                       {
                         label: "Défense",
                         value: valueOrDash(stats.defense),
-                        icon: uiAssets.icons.shield0,
+                        icon: uiAssets.icons.shieldAlt,
                       },
                       {
                         label: "Endurance",

@@ -67,6 +67,7 @@ import { DatasetSourceHeader } from "@/components/admin/pokemon/dataset-source-h
 import { PokemonArtwork } from "@/components/admin/pokemon/pokemon-artwork";
 import { resolvePokemonVariant } from "@/lib/pokemon-variant-resolver";
 import { runRegenerationWithToast } from "@/lib/admin-regeneration-notifications.mjs";
+import { actionError, normalizeActionError, readAdminActionResponse } from "@/lib/admin-action-errors";
 
 const monthFormat = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" });
 const dateTimeFormat = new Intl.DateTimeFormat("fr-FR", {
@@ -422,7 +423,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
     try {
       const response = await fetch(`${eventsApiPath}?includeArchived=1`, { cache: "no-store" });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Impossible de charger les events.");
+      if (!response.ok) throw actionError(payload.error, "Impossible de charger les events.");
       setEvents(Array.isArray(payload.data?.events) ? payload.data.events : []);
       setMeta({
         configured: Boolean(payload.data?.configured),
@@ -432,7 +433,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
       });
       if (notify) toast.success("Calendrier events actualisé.");
     } catch (error) {
-      toast.error(error.message || "Erreur de chargement events.");
+      toast.error(normalizeActionError(error, "Erreur de chargement events.").message);
     } finally {
       setLoading(false);
     }
@@ -509,7 +510,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
         },
       );
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Impossible d'enregistrer l'event.");
+      if (!response.ok) throw actionError(result.error, "Impossible d'enregistrer l'event.");
       const nextEvent = result.data?.event;
       if (nextEvent) {
         setEvents((current) => {
@@ -521,7 +522,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
       setEditorOpen(false);
       toast.success(editing ? "Event modifié." : "Event ajouté.");
     } catch (error) {
-      toast.error(error.message || "Impossible d'enregistrer l'event.");
+      toast.error(normalizeActionError(error, "Impossible d'enregistrer l'event.").message);
     } finally {
       setBusy("");
     }
@@ -536,7 +537,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
         body: JSON.stringify({ ...event, ...patch }),
       });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Action event impossible.");
+      if (!response.ok) throw actionError(payload.error, "Action event impossible.");
       const updated = payload.data?.event;
       if (updated) {
         setEvents((current) => current.map((item) => (item.id === event.id ? updated : item)));
@@ -544,7 +545,7 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
       }
       toast.success(label);
     } catch (error) {
-      toast.error(error.message || "Action event impossible.");
+      toast.error(normalizeActionError(error, "Action event impossible.").message);
     } finally {
       setBusy("");
     }
@@ -558,12 +559,12 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
         method: "DELETE",
       });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Suppression impossible.");
+      if (!response.ok) throw actionError(payload.error, "Suppression impossible.");
       setEvents((current) => current.filter((item) => item.id !== event.id));
       setSelectedEvent(null);
       toast.success("Event supprimé.");
     } catch (error) {
-      toast.error(error.message || "Suppression impossible.");
+      toast.error(normalizeActionError(error, "Suppression impossible.").message);
     } finally {
       setBusy("");
     }
@@ -588,13 +589,13 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
         body: JSON.stringify(Array.isArray(parsed) ? { events: parsed } : parsed),
       });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Import impossible.");
+      if (!response.ok) throw actionError(payload.error, "Import impossible.");
       if (Array.isArray(payload.data?.events)) setEvents(payload.data.events);
       setImportOpen(false);
       setImportText("");
       toast.success(`Import terminé: ${payload.data?.total || 0} event(s).`);
     } catch (error) {
-      toast.error(error.message || "JSON invalide ou import impossible.");
+      toast.error(normalizeActionError(error, "JSON invalide ou import impossible.").message);
     } finally {
       setBusy("");
     }
@@ -609,12 +610,12 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
         body: JSON.stringify({ events }),
       });
       const payload = await response.json();
-      if (!response.ok || payload.success === false) throw new Error(payload.error || "Import MongoDB impossible.");
+      if (!response.ok || payload.success === false) throw actionError(payload.error, "Import MongoDB impossible.");
       if (Array.isArray(payload.data?.events)) setEvents(payload.data.events);
       setMeta((current) => ({ ...current, configured: true, seeded: false }));
       toast.success(`MongoDB mis à jour: ${payload.data?.total || events.length} event(s).`);
     } catch (error) {
-      toast.error(error.message || "Import MongoDB impossible.");
+      toast.error(normalizeActionError(error, "Import MongoDB impossible.").message);
     } finally {
       setBusy("");
     }
@@ -625,16 +626,14 @@ export function EventsCalendarPanel({ globalSearch = "", onOpenPokemon, onOpenHi
     try {
       await runRegenerationWithToast({
         key: "events-scrape",
-        operation: async (signal) => {
+        operation: async (signal, operationId) => {
           const response = await fetch(adminEventsScrapePath, {
             method: "POST",
-            headers: { "content-type": "application/json" },
+            headers: { "content-type": "application/json", "x-operation-id": operationId },
             body: "{}",
             signal,
           });
-          const payload = await response.json().catch(() => ({}));
-          if (!response.ok) throw new Error(payload.error || `Scrape LeekDuck impossible (HTTP ${response.status}).`);
-          return payload;
+          return readAdminActionResponse(response, "Scrape LeekDuck impossible.");
         },
         invalidate: (payload) => {
           const nextEvents = Array.isArray(payload.data?.events) ? payload.data.events : [];

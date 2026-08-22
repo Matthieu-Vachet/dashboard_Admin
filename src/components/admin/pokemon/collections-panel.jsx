@@ -33,7 +33,6 @@ const panelClass = "rounded-surface border border-line bg-surface-subtle p-3 sha
 const fieldClass = "min-h-11 w-full rounded-control border border-line bg-surface-inset-strong px-4 text-sm font-bold text-domain-foreground outline-none transition placeholder:text-disabled focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-400/10";
 const primaryButtonClass = "inline-flex min-h-11 items-center justify-center gap-2 rounded-control bg-gradient-to-r from-sky-500 to-cyan-400 px-4 py-2 text-sm font-black text-on-accent shadow-raised transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/30";
 const secondaryButtonClass = "inline-flex min-h-11 items-center justify-center gap-2 rounded-control border border-line bg-surface-control px-3 py-2 text-sm font-black text-domain-foreground transition hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/20";
-const collectionPageSize = 48;
 
 const collectionTypes = [
   ["normal", "Normal", uiAssets.icons.pokeball || "/assets/ui/icons/general/pokeball.webp"],
@@ -134,7 +133,7 @@ function Sheet({ open, title, description, onClose, children, footer, size = "lg
   if (!open || typeof document === "undefined") return null;
   return createPortal(
     <div
-      className="fixed inset-0 z-[1100] flex items-start justify-center overflow-y-auto bg-overlay p-2 pt-[max(.5rem,env(safe-area-inset-top))] backdrop-blur-md md:items-center md:p-6"
+      className="fixed inset-0 z-[1100] overflow-y-auto flex items-start justify-center bg-overlay p-2 backdrop-blur-md md:items-center md:p-6"
       onMouseDown={(event) => event.target === event.currentTarget && onCloseRef.current()}
     >
       <section
@@ -246,9 +245,15 @@ function PokemonCollectionCard({ entry, selected, onToggle }) {
         <span className="sr-only">{selected ? "Obtenu" : "Manquant"}</span>
       </button>
       {categoryIcon ? (
-        <span className="pointer-events-none absolute left-2 top-2 z-20 grid h-7 w-7 place-items-center rounded-lg border border-line bg-panel/90 p-1 shadow-surface" aria-hidden="true">
-          <Image src={categoryIcon} alt="" width={22} height={22} className="h-full w-full object-contain" unoptimized />
-          {secondaryShiny ? <Image src={uiAssets.icons.collectionShiny} alt="" width={12} height={12} className="absolute -bottom-1 -right-1 h-3.5 w-3.5 object-contain drop-shadow" unoptimized /> : null}
+        <span className="pointer-events-none absolute left-2 top-2 z-20 flex items-center gap-1" aria-hidden="true">
+          <span className="grid h-7 w-7 place-items-center rounded-lg border border-line bg-panel/90 p-1 shadow-surface">
+            <Image src={categoryIcon} alt="" width={22} height={22} className="h-full w-full object-contain" unoptimized />
+          </span>
+          {secondaryShiny ? (
+            <span className="grid h-7 w-7 place-items-center rounded-lg border border-line bg-panel/90 p-1 shadow-surface">
+              <Image src={uiAssets.icons.collectionShiny} alt="" width={22} height={22} className="h-full w-full object-contain" unoptimized />
+            </span>
+          ) : null}
         </span>
       ) : null}
       <span className="pointer-events-none absolute right-0 top-0 z-20 grid h-11 w-11 place-items-center" aria-hidden="true">
@@ -270,7 +275,7 @@ function PokemonCollectionCard({ entry, selected, onToggle }) {
         ) : <ImageIcon className="text-muted" size={36} />}
       </div>
       <div className="pointer-events-none relative min-h-[4.25rem] border-t border-line bg-surface-control p-2">
-        <strong className="block truncate text-xs font-black leading-4 text-domain-foreground sm:text-sm">{entry.name}</strong>
+        <strong className="block truncate type-caption-strong text-xs font-black leading-4 text-domain-foreground sm:text-sm">{entry.name}</strong>
         <span className="block font-mono text-[10px] font-bold leading-4 text-foreground-secondary">#{entry.dexId}</span>
         <span className="block truncate text-[10px] font-bold leading-4 text-muted" title={entry.costume || entry.form || undefined}>{descriptor}</span>
       </div>
@@ -285,7 +290,6 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
   const [status, setStatus] = useState("all");
   const [query, setQuery] = useState("");
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
-  const [pagination, setPagination] = useState({ filterKey: "", page: 1 });
   const [draft, setDraft] = useState({ name: "", type: "normal", variantMode: "multi", shiny: false, hundo: false });
 
   const activeCollection = collections.find((collection) => collection.id === activeId) || collections[0] || null;
@@ -301,21 +305,16 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
     if (status === "need") return !activeItems[entry.key];
     return true;
   }), [activeItems, allMatching, status]);
-  const collectionFilterKey = [activeCollection?.id || "", activeCollection?.type || "", activeCollection?.variantMode || "", activeCollection?.shiny || false, activeCollection?.hundo || false, region, status, combinedSearch].join("|");
-  const totalPages = Math.max(1, Math.ceil(collectionEntries.length / collectionPageSize));
-  const requestedPage = pagination.filterKey === collectionFilterKey ? pagination.page : 1;
-  const currentPage = Math.min(requestedPage, totalPages);
-  const visibleCollectionEntries = collectionEntries.slice((currentPage - 1) * collectionPageSize, currentPage * collectionPageSize);
   const generationGroups = useMemo(() => {
     const groups = new Map();
-    for (const entry of visibleCollectionEntries) {
+    for (const entry of collectionEntries) {
       const key = entry.region || "unknown";
       const current = groups.get(key) || [];
       current.push(entry);
       groups.set(key, current);
     }
     return [...groups.entries()];
-  }, [visibleCollectionEntries]);
+  }, [collectionEntries]);
   const haveCount = catalog.filter((entry) => activeItems[entry.key]).length;
   const activeFilterCount = Number(activeCollection?.shiny) + Number(activeCollection?.hundo) + Number(activeCollection?.variantMode === "multi") + Number(region !== "all");
   const draftCount = useMemo(() => buildCollectionCatalog(entries, draft).length, [draft, entries]);
@@ -341,16 +340,6 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
   function closeSheet() {
     setSheet(null);
     setDeleteConfirmation(false);
-  }
-
-  function setPage(nextPage) {
-    setPagination((current) => {
-      const currentPageForFilter = current.filterKey === collectionFilterKey ? current.page : 1;
-      return {
-        filterKey: collectionFilterKey,
-        page: typeof nextPage === "function" ? nextPage(currentPageForFilter) : nextPage,
-      };
-    });
   }
 
   function createCollection() {
@@ -505,7 +494,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
 
           <div className="space-y-5" data-testid="collection-pokemon-list">
             {generationGroups.map(([groupId, groupEntries]) => (
-              <section key={groupId}>
+              <section className="[content-visibility:auto] [contain-intrinsic-size:auto_42rem]" key={groupId}>
                 <div className="mb-2 flex items-end justify-between gap-3 sm:mb-3">
                   <div>
                     <p className="type-overline-compact text-cyan-100/65">Région / génération</p>
@@ -526,18 +515,9 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
           </div>
 
           {collectionEntries.length ? (
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-2 rounded-surface border border-line bg-surface-inset p-3" aria-label="Pagination Collections">
-              <button className={secondaryButtonClass} type="button" disabled={currentPage <= 1} onClick={() => setPage((value) => Math.max(1, value - 1))}>Précédent</button>
-              <label className="inline-flex min-h-11 items-center gap-2 rounded-control border border-line bg-surface-control px-3 text-sm font-black text-domain-foreground">
-                <span>Page</span>
-                <select className="bg-transparent font-mono outline-none" aria-label="Choisir une page Collections" value={currentPage} onChange={(event) => setPage(Number(event.target.value))}>
-                  {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => <option value={pageNumber} key={pageNumber}>{pageNumber}</option>)}
-                </select>
-                <span>/ {totalPages}</span>
-              </label>
-              <span className="font-mono text-xs font-bold text-muted">{(currentPage - 1) * collectionPageSize + 1}–{Math.min(currentPage * collectionPageSize, collectionEntries.length)} / {formatCount(collectionEntries.length)}</span>
-              <button className={secondaryButtonClass} type="button" disabled={currentPage >= totalPages} onClick={() => setPage((value) => Math.min(totalPages, value + 1))}>Suivant</button>
-            </div>
+            <p className="mt-5 rounded-surface border border-line bg-surface-inset p-3 text-center font-mono text-xs font-bold text-muted" aria-live="polite">
+              {formatCount(collectionEntries.length)} résultat(s) affiché(s) dans la liste complète
+            </p>
           ) : null}
 
           {!collectionEntries.length ? (

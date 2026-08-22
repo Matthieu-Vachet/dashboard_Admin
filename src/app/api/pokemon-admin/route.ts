@@ -10,6 +10,8 @@ import {
 } from "@/lib/dashboard-store";
 import { assertJsonPayloadSize, assertSameOrigin, rateLimit } from "@/lib/security";
 import { pokemonAdminProxyRegeneration } from "@/lib/admin-regeneration-registry";
+import { adminActionErrorPayload } from "@/lib/admin-action-errors";
+import { adminOperationId, logAdminOperation } from "@/lib/admin-action-observability";
 
 export const maxDuration = 300;
 
@@ -36,6 +38,11 @@ const pokemonApiBaseUrl =
   process.env.POKEMON_API_PUBLIC_URL
   || (process.env.VERCEL === "1" ? undefined : process.env.POKEMON_API_URL)
   || defaultPokemonApiPublicUrl;
+
+function providerForAdminAction(action: string) {
+  if (action.startsWith("identity-manager")) return "PokemonGo-Data";
+  return pokemonAdminProxyRegeneration(action)?.provider || "dashboard";
+}
 
 function json(data: unknown, init?: ResponseInit) {
   const response = NextResponse.json(data, init);
@@ -411,6 +418,7 @@ async function requestPokemonApiAdmin(
     body?: unknown;
     user?: string;
     timeoutMs?: number;
+    operationId?: string;
   } = {},
 ) {
   const secret = process.env.POKEMON_API_ADMIN_SECRET || process.env.API_ADMIN_SECRET;
@@ -418,7 +426,7 @@ async function requestPokemonApiAdmin(
     throw requestError("POKEMON_API_ADMIN_SECRET doit être défini côté serveur pour gérer les données Pokémon privées.", 500);
   }
 
-  const { method = "GET", body, user, timeoutMs = method === "GET" ? 30_000 : pokemonAdminMutationTimeoutMs } = options;
+  const { method = "GET", body, user, timeoutMs = method === "GET" ? 30_000 : pokemonAdminMutationTimeoutMs, operationId } = options;
   const target = new URL(path, pokemonApiBaseUrl);
   const response = await fetch(target, {
     method,
@@ -428,6 +436,7 @@ async function requestPokemonApiAdmin(
       accept: "application/json",
       "x-api-admin-secret": secret,
       ...(user ? { "x-admin-user": user } : {}),
+      ...(operationId ? { "x-operation-id": operationId, "x-request-id": operationId } : {}),
       ...(body ? { "content-type": "application/json" } : {}),
     },
     body: body ? JSON.stringify(body) : undefined,
@@ -464,12 +473,12 @@ async function runPokemonApiContinuation(path: string, timeoutSeconds: number) {
   throw requestError("PokemonGo-API a dépassé le nombre maximal d'étapes de reprise.", 504);
 }
 
-async function callPokemonApiAdmin(path: string, body?: unknown, user?: string) {
-  return requestPokemonApiAdmin(path, { method: "POST", body, user });
+async function callPokemonApiAdmin(path: string, body?: unknown, user?: string, operationId?: string) {
+  return requestPokemonApiAdmin(path, { method: "POST", body, user, operationId });
 }
 
-async function readPokemonApiAdmin(path: string, user?: string) {
-  return requestPokemonApiAdmin(path, { method: "GET", user });
+async function readPokemonApiAdmin(path: string, user?: string, operationId?: string) {
+  return requestPokemonApiAdmin(path, { method: "GET", user, operationId });
 }
 
 function identityManagerQuery(request: NextRequest) {
@@ -543,6 +552,13 @@ function clearPokemonModuleCache() {
 }
 
 async function refreshLatestGithubDataSnapshot() {
+  if (process.env.NODE_ENV === "production" && process.env.VERCEL !== "1") {
+    const explicitDataDir = String(process.env.POKEMON_GO_DATA_DIR || "").trim();
+    if (explicitDataDir) {
+      clearPokemonModuleCache();
+      return explicitDataDir;
+    }
+  }
   if (process.env.VERCEL === "1" || process.env.NODE_ENV === "production") {
     const repository = require("@/server/pokemon-go/src/lib/data-repository");
     const dataDir = repository.getPokemonGoDataRuntimeRoot();
@@ -758,22 +774,21 @@ async function bootstrapResponse(owner: string, customRules: unknown = null) {
   };
 }
 
-function handleServerError(error: unknown) {
-  const message = error instanceof Error ? error.message : "Erreur inconnue.";
-  const status =
-    error && typeof error === "object" && "status" in error
-      ? Number((error as { status?: unknown }).status) || 500
-      : 500;
-
-  return json({ error: message }, { status });
+function handleServerError(error: unknown, operationId: string) {
+  const normalized = adminActionErrorPayload(error, operationId, "Action Pokemon Admin indisponible.");
+  return json(normalized.body, { status: normalized.status });
 }
 
 export async function GET(request: NextRequest) {
+  const operationId = adminOperationId(request, "pokemon-admin-read");
+  const startedAt = Date.now();
+  let observedAction = "pokemon-admin-read";
   try {
     rateLimit(request, "pokemon-admin-read", 180, 60_000);
     const session = await requireDashboardSession();
     const authenticated = Boolean(session);
     const action = getAction(request);
+    observedAction = action;
 
     if (action === "session") {
       return json({ data: { authenticated } });
@@ -896,7 +911,10 @@ export async function GET(request: NextRequest) {
     }
 
     if (action === "identity-manager-sync-preview") {
-      return json({ data: await readPokemonApiAdmin("/api/v1/admin/pokemon-identities/sync/preview", session!.email) });
+      logAdminOperation({ operationId, action, provider: providerForAdminAction(action), phase: "start", startedAt });
+      const data = await readPokemonApiAdmin("/api/v1/admin/pokemon-identities/sync/preview", session!.email, operationId);
+      logAdminOperation({ operationId, action, provider: providerForAdminAction(action), phase: "success", startedAt, durationMs: Date.now() - startedAt });
+      return json({ operationId, data });
     }
 
     if (action === "identity-manager-conflicts") {
@@ -979,11 +997,15 @@ export async function GET(request: NextRequest) {
 
     return json({ error: "Action inconnue." }, { status: 404 });
   } catch (error) {
-    return handleServerError(error);
+    logAdminOperation({ operationId, action: observedAction, provider: providerForAdminAction(observedAction), phase: "failed", startedAt, durationMs: Date.now() - startedAt, error });
+    return handleServerError(error, operationId);
   }
 }
 
 export async function POST(request: NextRequest) {
+  const operationId = adminOperationId(request, "pokemon-admin-write");
+  const startedAt = Date.now();
+  let observedAction = "pokemon-admin-write";
   try {
     rateLimit(request, "pokemon-admin-write", 80, 60_000);
     assertSameOrigin(request);
@@ -992,6 +1014,7 @@ export async function POST(request: NextRequest) {
     const session = await requireDashboardSession();
     const authenticated = Boolean(session);
     const action = getAction(request, body);
+    observedAction = action;
 
     if (!authenticated) {
       return json({ error: "Accès dashboard requis." }, { status: 401 });
@@ -1066,7 +1089,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === "identity-manager-sync-apply") {
-      return json({ data: await callPokemonApiAdmin("/api/v1/admin/pokemon-identities/sync/apply", undefined, session!.email) });
+      logAdminOperation({ operationId, action, provider: providerForAdminAction(action), phase: "start", startedAt });
+      const data = await callPokemonApiAdmin("/api/v1/admin/pokemon-identities/sync/apply", undefined, session!.email, operationId);
+      logAdminOperation({ operationId, action, provider: providerForAdminAction(action), phase: "success", startedAt, durationMs: Date.now() - startedAt });
+      return json({ operationId, data });
     }
 
     if (action === "identity-manager-update") {
@@ -1134,13 +1160,17 @@ export async function POST(request: NextRequest) {
 
     const regeneration = pokemonAdminProxyRegeneration(action);
     if (regeneration?.apiPath) {
+      logAdminOperation({ operationId, action, provider: regeneration.provider, phase: "start", startedAt });
       if (regeneration.id === "game-master-reindex") {
         return json({ data: await runPokemonApiContinuation(regeneration.apiPath, regeneration.timeoutSeconds) });
       }
-      return json({ data: await requestPokemonApiAdmin(regeneration.apiPath, {
+      const data = await requestPokemonApiAdmin(regeneration.apiPath, {
         method: "POST",
         timeoutMs: (regeneration.timeoutSeconds + 5) * 1_000,
-      }) });
+        operationId,
+      });
+      logAdminOperation({ operationId, action, provider: regeneration.provider, phase: "success", startedAt, durationMs: Date.now() - startedAt });
+      return json({ operationId, data });
     }
 
     if (action === "open-file") {
@@ -1149,6 +1179,7 @@ export async function POST(request: NextRequest) {
 
     return json({ error: "Action inconnue." }, { status: 404 });
   } catch (error) {
-    return handleServerError(error);
+    logAdminOperation({ operationId, action: observedAction, provider: providerForAdminAction(observedAction), phase: "failed", startedAt, durationMs: Date.now() - startedAt, error });
+    return handleServerError(error, operationId);
   }
 }

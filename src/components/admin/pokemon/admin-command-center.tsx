@@ -27,6 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { actionError } from "@/lib/admin-action-errors";
 import {
   executeGlobalRegenerationStep,
   globalRegenerationDefinitions,
@@ -130,7 +131,7 @@ function numberLabel(value: number | null) {
 async function readJson(url: string) {
   const response = await fetch(url, { cache: "no-store" });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok || payload.success === false) throw new Error(payload.error || `HTTP ${response.status}`);
+  if (!response.ok || payload.success === false) throw actionError(payload.error, `HTTP ${response.status}`);
   return payload.data;
 }
 

@@ -57,11 +57,12 @@ export async function resolveCanonicalPokemonAssets(
       },
       body: JSON.stringify({ requests: chunk }),
     });
-    const payload = await response.json().catch(() => null) as { data?: CanonicalAssetResolution[]; error?: string } | null;
+    const payload = await response.json().catch(() => null) as { data?: CanonicalAssetResolution[]; error?: unknown; message?: unknown } | null;
     if (!response.ok) {
-      const error = new Error(payload?.error || `Résolution canonique indisponible (HTTP ${response.status}).`);
-      (error as Error & { status?: number }).status = response.status;
-      throw error;
+      throw actionError(
+        { error: payload?.error ?? payload?.message, status: response.status },
+        `Résolution canonique indisponible (HTTP ${response.status}).`,
+      );
     }
     if (!Array.isArray(payload?.data) || payload.data.length !== chunk.length) {
       throw new Error("La réponse de résolution canonique est incomplète.");
@@ -74,3 +75,4 @@ export async function resolveCanonicalPokemonAssets(
   }
   return resolved;
 }
+import { actionError } from "./admin-action-errors";

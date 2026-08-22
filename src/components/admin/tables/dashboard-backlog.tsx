@@ -20,6 +20,7 @@ import { Input, Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/cn";
+import { actionError } from "@/lib/admin-action-errors";
 
 type BacklogType = "bug" | "feature" | "refactor" | "ui" | "data";
 type BacklogStatus = "todo" | "in_progress" | "blocked" | "done" | "archived" | "ignored";
@@ -322,7 +323,7 @@ export function DashboardBacklog() {
         data?: { configured?: boolean; tickets?: BacklogTicket[] };
         error?: string;
       };
-      if (!response.ok) throw new Error(payload.error || "Backlog indisponible.");
+      if (!response.ok) throw actionError(payload.error, "Backlog indisponible.");
       setConfigured(Boolean(payload.data?.configured));
       setTickets(payload.data?.tickets || []);
     } catch (loadError) {
@@ -340,7 +341,7 @@ export function DashboardBacklog() {
           data?: { configured?: boolean; tickets?: BacklogTicket[] };
           error?: string;
         };
-        if (!response.ok) throw new Error(payload.error || "Backlog indisponible.");
+        if (!response.ok) throw actionError(payload.error, "Backlog indisponible.");
         if (!active) return;
         setConfigured(Boolean(payload.data?.configured));
         setTickets(payload.data?.tickets || []);
@@ -389,7 +390,7 @@ export function DashboardBacklog() {
         },
       );
       const payload = (await response.json()) as { data?: { ticket?: BacklogTicket }; error?: string };
-      if (!response.ok || !payload.data?.ticket) throw new Error(payload.error || "Sauvegarde impossible.");
+      if (!response.ok || !payload.data?.ticket) throw actionError(payload.error, "Sauvegarde impossible.");
       setTickets((current) => {
         if (!editingId) return [payload.data!.ticket!, ...current];
         return current.map((ticket) => (ticket.id === editingId ? payload.data!.ticket! : ticket));
@@ -410,7 +411,7 @@ export function DashboardBacklog() {
       body: JSON.stringify(patch),
     });
     const payload = (await response.json()) as { data?: { ticket?: BacklogTicket }; error?: string };
-    if (!response.ok || !payload.data?.ticket) throw new Error(payload.error || "Mise à jour impossible.");
+    if (!response.ok || !payload.data?.ticket) throw actionError(payload.error, "Mise à jour impossible.");
     setTickets((current) => current.map((item) => (item.id === ticket.id ? payload.data!.ticket! : item)));
   }
 
@@ -425,7 +426,7 @@ export function DashboardBacklog() {
     try {
       const response = await fetch(`/api/dashboard-backlog/${editingId}`, { method: "DELETE" });
       const payload = (await response.json()) as { error?: string };
-      if (!response.ok) throw new Error(payload.error || "Suppression impossible.");
+      if (!response.ok) throw actionError(payload.error, "Suppression impossible.");
       setTickets((current) => current.filter((ticket) => ticket.id !== editingId));
       setModalOpen(false);
       setEditingId(null);

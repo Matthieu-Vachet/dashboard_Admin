@@ -72,19 +72,10 @@ gameMasterEndpoints.push(
   { id: `POST-${gameMasterBase}/reindex`, method: "POST", path: `${gameMasterBase}/reindex`, testPath: `${gameMasterBase}/reindex`, label: "Game Master · réindexer", group: "Mutations Game Master", description: "Reconstruit l’index depuis le snapshot courant.", bodyExample: {}, dangerous: true },
 );
 
-const dynamaxBase = "/api/v1/admin/dynamax-images";
-const dynamaxEndpoints: PokemonApiPrivateEndpoint[] = [
-  { id: `GET-${dynamaxBase}`, method: "GET", path: dynamaxBase, testPath: dynamaxBase, label: "Images Dynamax · état", group: "Assets privés", description: "Lit le dernier scan." },
-  { id: `GET-${dynamaxBase}/export.zip`, method: "GET", path: `${dynamaxBase}/export.zip`, testPath: `${dynamaxBase}/export.zip`, label: "Images Dynamax · export ZIP", group: "Assets privés", description: "Télécharge l’export du scan." },
-  { id: `POST-${dynamaxBase}/scan`, method: "POST", path: `${dynamaxBase}/scan`, testPath: `${dynamaxBase}/scan`, label: "Images Dynamax · scanner", group: "Mutations assets", description: "Lance un scan externe contrôlé.", bodyExample: {}, dangerous: true },
-  { id: `DELETE-${dynamaxBase}/cache`, method: "DELETE", path: `${dynamaxBase}/cache`, testPath: `${dynamaxBase}/cache`, label: "Images Dynamax · vider le cache", group: "Mutations assets", description: "Invalide le cache temporaire.", bodyExample: {}, dangerous: true },
-];
-
 export const pokemonApiPrivateRegistry: PokemonApiPrivateEndpoint[] = [
   ...datasetEndpoints,
   ...identityEndpoints,
   ...gameMasterEndpoints,
-  ...dynamaxEndpoints,
 ];
 
 export function pokemonApiPathPattern(path: string) {

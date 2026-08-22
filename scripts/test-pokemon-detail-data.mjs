@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import test from "node:test";
 
 import {
@@ -84,4 +86,12 @@ test("une modale fermée accepte une entrée nulle sans erreur", () => {
     shinyAvailability: null,
     shadowShinyAvailability: null,
   });
+});
+
+test("la statistique Défense réutilise le bouclier exact du simulateur de combat", () => {
+  const root = process.cwd();
+  const detail = fs.readFileSync(path.join(root, "src/components/admin/pokemon/detail-modal.jsx"), "utf8");
+  const simulator = fs.readFileSync(path.join(root, "src/components/admin/pokemon/pvp-battle-lab.tsx"), "utf8");
+  assert.match(detail, /label: "Défense",[\s\S]{0,160}icon: uiAssets\.icons\.shieldAlt/);
+  assert.match(simulator, /src=\{uiAssets\.icons\.shieldAlt\}/);
 });

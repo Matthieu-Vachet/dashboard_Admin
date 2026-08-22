@@ -26,6 +26,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import { toast } from "sonner";
+import { actionError, normalizeActionError } from "@/lib/admin-action-errors";
 import { typeColors, typeLabels } from "@/components/site/pokemon-style";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -381,7 +382,7 @@ async function apiGet(action: string, params: Record<string, string | number | b
   });
   const response = await fetch(`/api/pokemon-admin?${query}`, { cache: "no-store" });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.error || `Erreur HTTP ${response.status}`);
+  if (!response.ok) throw actionError(payload.error, `Erreur HTTP ${response.status}`);
   return payload.data;
 }
 
@@ -392,7 +393,7 @@ async function apiPost(action: string, body: Record<string, unknown> = {}) {
     body: JSON.stringify({ action, ...body }),
   });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(payload.error || `Erreur HTTP ${response.status}`);
+  if (!response.ok) throw actionError(payload.error, `Erreur HTTP ${response.status}`);
   return payload.data;
 }
 
@@ -672,7 +673,7 @@ export function IdentityManagerPanel() {
       setIdentityModal({ open: false });
       if (view === "diagnostics") await loadDiagnostics(); else await loadIdentities();
     } catch (caught) {
-      toast.error(caught instanceof Error ? caught.message : "Impossible d’enregistrer l’identité.");
+      toast.error(normalizeActionError(caught, "Impossible d’enregistrer l’identité.").message);
     } finally {
       setBusyAction("");
     }
@@ -691,7 +692,7 @@ export function IdentityManagerPanel() {
       setAliasModal({ open: false });
       await loadIdentities();
     } catch (caught) {
-      toast.error(caught instanceof Error ? caught.message : "Impossible d’enregistrer l’alias.");
+      toast.error(normalizeActionError(caught, "Impossible d’enregistrer l’alias.").message);
     } finally {
       setBusyAction("");
     }
@@ -704,7 +705,7 @@ export function IdentityManagerPanel() {
       toast.success(`${identity.canonicalId} restaurée.`);
       await loadIdentities();
     } catch (caught) {
-      toast.error(caught instanceof Error ? caught.message : "Changement de statut impossible.");
+      toast.error(normalizeActionError(caught, "Changement de statut impossible.").message);
     } finally {
       setBusyAction("");
     }
@@ -719,7 +720,7 @@ export function IdentityManagerPanel() {
       setDeprecateModal({ open: false, reason: "" });
       await loadIdentities();
     } catch (caught) {
-      toast.error(caught instanceof Error ? caught.message : "Dépréciation impossible.");
+      toast.error(normalizeActionError(caught, "Dépréciation impossible.").message);
     } finally {
       setBusyAction("");
     }
@@ -731,7 +732,7 @@ export function IdentityManagerPanel() {
       const upstream = await apiGet("identity-manager-history", { identityId: identityId(identity), page: 1, limit: 100 });
       setHistoryModal({ open: true, identity, items: upstream?.data || [] });
     } catch (caught) {
-      toast.error(caught instanceof Error ? caught.message : "Historique indisponible.");
+      toast.error(normalizeActionError(caught, "Historique indisponible.").message);
     }
   }
 
@@ -741,7 +742,7 @@ export function IdentityManagerPanel() {
       const upstream = await apiGet("identity-manager-history", { page: 1, limit: 100 });
       setHistoryModal({ open: true, items: upstream?.data || [] });
     } catch (caught) {
-      toast.error(caught instanceof Error ? caught.message : "Historique indisponible.");
+      toast.error(normalizeActionError(caught, "Historique indisponible.").message);
     }
   }
 
@@ -754,7 +755,7 @@ export function IdentityManagerPanel() {
       setMergeModal({ open: false, targetId: "", reason: "" });
       await loadIdentities();
     } catch (caught) {
-      toast.error(caught instanceof Error ? caught.message : "Fusion impossible.");
+      toast.error(normalizeActionError(caught, "Fusion impossible.").message);
     } finally {
       setBusyAction("");
     }
@@ -771,7 +772,7 @@ export function IdentityManagerPanel() {
       setImportReport(upstream?.data || null);
     } catch (caught) {
       setImportReport(null);
-      toast.error(caught instanceof Error ? caught.message : "Import invalide.");
+      toast.error(normalizeActionError(caught, "Import invalide.").message);
     }
   }
 
@@ -784,7 +785,7 @@ export function IdentityManagerPanel() {
       toast.success("Import contrôlé appliqué.");
       await loadIdentities();
     } catch (caught) {
-      toast.error(caught instanceof Error ? caught.message : "Import impossible.");
+      toast.error(normalizeActionError(caught, "Import impossible.").message);
     } finally {
       setBusyAction("");
     }
@@ -797,7 +798,7 @@ export function IdentityManagerPanel() {
       toast.success(status === "ignored" ? "Alias ignoré avec traçabilité." : "Diagnostic marqué comme faux positif.");
       await loadDiagnostics();
     } catch (caught) {
-      toast.error(caught instanceof Error ? caught.message : "Diagnostic non modifié.");
+      toast.error(normalizeActionError(caught, "Diagnostic non modifié.").message);
     } finally {
       setBusyAction("");
     }
@@ -812,7 +813,7 @@ export function IdentityManagerPanel() {
       setAssociateModal({ open: false });
       await loadDiagnostics();
     } catch (caught) {
-      toast.error(caught instanceof Error ? caught.message : "Association impossible.");
+      toast.error(normalizeActionError(caught, "Association impossible.").message);
     } finally {
       setBusyAction("");
     }
@@ -833,7 +834,7 @@ export function IdentityManagerPanel() {
       toast.success(`Synchronisation appliquée : ${report.create} création(s), ${report.update} mise(s) à jour.`);
       await Promise.all([loadIdentities(), loadSyncPreview()]);
     } catch (caught) {
-      toast.error(caught instanceof Error ? caught.message : "Synchronisation locale impossible.");
+      toast.error(normalizeActionError(caught, "Synchronisation locale impossible.").message);
     } finally {
       setBusyAction("");
     }

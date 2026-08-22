@@ -45,9 +45,9 @@ test("le détail charge à la demande les quatre familles séparées sans perte"
   })));
 });
 
-test("l’endpoint paresseux construit 1 614 patches et conserve Location Cards et costumes", () => {
+test("l’endpoint paresseux construit 1 617 patches et conserve Location Cards et costumes", () => {
   const patches = engine.buildAssetFamilyPatches(["home", "shuffle", "variants", "location-cards"]);
-  assert.equal(patches.length, 1614);
+  assert.equal(patches.length, 1617);
   const bulbasaur = patches.find((entry) => entry.key === "pokemon:data/pokemon/normal/0001-bulbasaur.json");
   assert.ok(bulbasaur.homeImage);
   assert.ok(bulbasaur.shuffleImage);

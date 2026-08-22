@@ -1,6 +1,6 @@
 {
   "name": "dashboard-admin",
-  "version": "1.47.0",
+  "version": "1.48.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -26,7 +26,8 @@
     "test:pvp-engine": "tsx --test scripts/test-pvp-battle-engine.mts",
     "test:pvp-parity": "node --conditions=react-server --import tsx --test scripts/test-pvp-parity.mts",
     "test:candy-assets": "node --test scripts/test-pokemon-candy-assets.mjs",
-    "test:regeneration-notifications": "node --test scripts/test-regeneration-notifications.mjs",
+    "test:regeneration-notifications": "node --import tsx --test scripts/test-regeneration-notifications.mjs",
+    "test:admin-actions": "node --import tsx --test scripts/test-admin-action-contract.mts",
     "test:regeneration-matrix": "node --import tsx --test scripts/test-regeneration-pipeline-matrix.mts",
     "test:data-repository": "node --test scripts/test-data-repository-resolution.mjs",
     "test:source-watch": "node --no-warnings --experimental-strip-types --test scripts/test-source-watch-presentation.mts",

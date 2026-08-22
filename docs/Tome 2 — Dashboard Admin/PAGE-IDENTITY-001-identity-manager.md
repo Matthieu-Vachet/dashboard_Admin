@@ -2,8 +2,8 @@
 id: PAGE-IDENTITY-001
 title: Identity Manager Pokémon
 status: active
-version: 2.1.0
-updated: 2026-08-15
+version: 2.2.0
+updated: 2026-08-22
 author: Matthieu Vachet
 affected_projects: [Dashboard Admin, PokemonGo-API-, PokemonGo-Data]
 references: []
@@ -27,6 +27,12 @@ Le workflow de synchronisation est toujours :
 4. bloquer l’application en présence d’un conflit ;
 5. appliquer en lot en conservant alias et historique ;
 6. recalculer l’aperçu afin de vérifier l’idempotence.
+
+Preview et apply emploient la même racine runtime, le même inventaire Core/Assets et le
+même normaliseur d’erreur que les autres actions Admin. Un échec retourne un code et un
+message sûrs, avec `operationId`, sans stack navigateur. L’application reste non
+destructive : aliases et historiques sont conservés, et aucun orphelin MongoDB n’est
+supprimé silencieusement.
 
 ## PAGE-IDENTITY-001 — interface
 

@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+## 1.48.0 - 2026-08-22
+
+### Added
+
+- Ajoute le contrat commun `normalizeActionError` / `executeAdminAction`, les états `idle`, `running`, `success`, `partial`, `warning`, `failed` et un `operationId` partagé entre UI, routes et logs.
+- Ajoute les garde-fous bloquant les objets bruts dans les toasts, les références Assets/PvP cassées, les manifests obsolètes, la pagination Collections et la suppression accidentelle d’un générateur partagé.
+- Affiche les trois nouvelles fiches PvP générées automatiquement en statut `UNRELEASED`, sans rang, score ni moveset artificiel.
+
+### Changed
+
+- Remplace la pagination Collections par une liste continue à rendu CSS différé ; recherche, HAVE, NEED, sélection et désélection portent sur tout le filtre courant.
+- Place les badges Collections dans un conteneur flex déterministe et réutilise `shieldAlt` comme icône Défense, exactement comme le simulateur de combat.
+- Structure les erreurs Events, Community Days, Identity Manager et actions de régénération avec code, message, détails, statut et cause sûrs pour le navigateur.
+
+### Fixed
+
+- Corrige les 25 erreurs du rapport Engine de départ : identités et chemins Assets, références cassées, orphelin, catégories et manifest complet.
+- Restaure les références PvP de Méga-Blindépique, Méga-Goupelin et Méga-Amphinobi et porte les fiches/références PvP de 1 614 à 1 617.
+- Préserve le vrai diagnostic des synchronisations Events, Community Days et catalogue canonique, sans `[object Object]` ni message serveur générique.
+
+### Removed
+
+- Supprime Images Dynamax : navigation, panneau, routes Dashboard/API, service, cache, export ZIP, tests, documentation et dépendance exclusive `adm-zip`.
+
 ## 1.47.0 - 2026-08-15
 
 ### Added

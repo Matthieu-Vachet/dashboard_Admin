@@ -38,9 +38,7 @@ Réponses au diagnostic packaging :
 | Shiny | `regenerate-shiny` | Registry API | Snacknap | audit + snapshots MongoDB |
 | Réindexation GM | `reindex-game-master` | API statique | PokemonGo-Data | index MongoDB |
 | Snapshot GitHub | `sync-github-data` | Dashboard | GitHub au build / racine packagée en production | snapshot runtime |
-| Images Dynamax | `/api/admin/dynamax-images/scan` | PokemonGo-API REST | Pokémon GO Hub + Chromium tracé | inventaire/cache MongoDB |
-
-Le registre Dashboard contient 18 actions, dont 15 participent au flux « Tout régénérer ». Le registre API contient 11 générateurs Data.
+Le registre Dashboard contient 17 actions, dont 15 participent au flux « Tout régénérer ». Le registre API contient 11 générateurs Data.
 
 ## Validation production finale
 
@@ -50,7 +48,6 @@ Le registre Dashboard contient 18 actions, dont 15 participent au flux « Tout r
 - Best Defenders : `SOURCE_PROTECTED` HTTP 403 classé en avertissement, dernier snapshot MongoDB conservé.
 - Réindexation Game Master : HTTP 200 en 238 405 ms via lots idempotents repris sous la limite de 60 secondes.
 - Snapshot GitHub Data : HTTP 200 en 5 819 ms depuis la racine packagée.
-- Scan Dynamax : HTTP 202 puis nouvel état MongoDB persistant en 26 330 ms.
 - Trace post-build : 12 générateurs API, Chromium présent, 7 170 fichiers Calendar Events et 270 fichiers Dashboard Redeploy.
 
-La matrice détaillée des 18 actions se trouve dans `regeneration-production-matrix.json`.
+La matrice détaillée des 17 actions se trouve dans `regeneration-production-matrix.json`.

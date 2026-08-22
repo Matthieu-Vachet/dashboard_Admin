@@ -5,7 +5,6 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   assertCompleteRegeneration,
-  RegenerationTimeoutError,
   resetRegenerationNotificationsForTests,
   runRegenerationWithToast,
 } from "../src/lib/admin-regeneration-notifications.mjs";
@@ -88,11 +87,11 @@ test("timeout: annule le signal et remplace le toast par une erreur explicite", 
       timeoutMs: 10,
       errorMessage: "Régénération Costume impossible.",
     }),
-    RegenerationTimeoutError,
+    (error) => error?.code === "ADMIN_ACTION_TIMEOUT" && /délai d’attente/i.test(error.message),
   );
   assert.equal(aborted, true);
   assert.equal(notifier.calls.success.length, 0);
-  assert.match(notifier.calls.error[0].message, /Délai d’attente dépassé/);
+  assert.match(notifier.calls.error[0].message, /délai d’attente/i);
 });
 
 test("une invalidation en erreur ne produit jamais de faux succès", async () => {

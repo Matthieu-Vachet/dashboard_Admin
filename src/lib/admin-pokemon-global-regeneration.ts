@@ -1,4 +1,7 @@
 import { globalAdminRegenerations } from "@/lib/admin-regeneration-registry";
+import { executeAdminAction } from "@/lib/admin-action-executor";
+import { readAdminActionResponse } from "@/lib/admin-action-errors";
+import { createAdminOperationId } from "@/lib/admin-action-observability";
 
 export type GlobalRegenerationStatus = "idle" | "running" | "success" | "partial" | "failed" | "cancelled";
 
@@ -34,12 +37,13 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
-async function requestJson(url: string, init?: RequestInit) {
-  const response = await fetch(url, { cache: "no-store", ...init });
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok || payload.success === false) {
-    throw new Error(payload.error || payload.message || `HTTP ${response.status}`);
-  }
+async function requestJson(url: string, init?: RequestInit, operationId = createAdminOperationId("admin-request")) {
+  const response = await fetch(url, {
+    cache: "no-store",
+    ...init,
+    headers: { ...(init?.headers || {}), "x-operation-id": operationId },
+  });
+  const payload = await readAdminActionResponse<Record<string, unknown>>(response);
   return payload.data ?? payload;
 }
 
@@ -87,7 +91,7 @@ export class AdminRegenerationRunError extends Error {
   }
 }
 
-async function waitForRegeneration(value: unknown) {
+async function waitForRegeneration(value: unknown, operationId: string, signal: AbortSignal) {
   const accepted = responseCandidates(value).find((candidate) => candidate.accepted === true);
   if (!accepted) return value;
 
@@ -98,7 +102,7 @@ async function waitForRegeneration(value: unknown) {
 
   const deadline = Date.now() + 8 * 60_000;
   while (Date.now() < deadline) {
-    const statusValue = await requestJson(`/api/pokemon-admin?action=regeneration-status&domain=${encodeURIComponent(domain)}&runId=${encodeURIComponent(runId)}`);
+    const statusValue = await requestJson(`/api/pokemon-admin?action=regeneration-status&domain=${encodeURIComponent(domain)}&runId=${encodeURIComponent(runId)}`, { signal }, operationId);
     const current = responseCandidates(statusValue).find((candidate) => candidate.id === runId && typeof candidate.status === "string");
     const status = current ? regenerationState(current) : "";
     if (!current || ["", "pending", "queued", "accepted", "running", "processing"].includes(status)) {
@@ -124,11 +128,18 @@ export async function executePokemonAdminRegeneration(action: string) {
   const existing = inFlightRegenerations.get(normalizedAction);
   if (existing) return existing;
 
-  const request = requestJson("/api/pokemon-admin", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ action: normalizedAction }),
-  }).then(waitForRegeneration);
+  const request = executeAdminAction({
+    action: normalizedAction,
+    operation: async ({ signal, operationId }) => {
+      const value = await requestJson("/api/pokemon-admin", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: normalizedAction }),
+        signal,
+      }, operationId);
+      return waitForRegeneration(value, operationId, signal);
+    },
+  }).then((execution) => execution.data);
 
   inFlightRegenerations.set(normalizedAction, request);
   try {
