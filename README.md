@@ -63,9 +63,9 @@ uniquement dans ses routes serveur pour envoyer le header `x-api-admin-secret`.
 
 ## Snapshot PokemonGo-Data
 
-En local, le Dashboard résout les données dans cet ordre : `POKEMON_GO_DATA_DIR` lorsqu’il est défini, le snapshot `.data/PokemonGo-Data` créé au build, puis le dépôt workspace voisin `../PokemonGo-Data`. Un chemin explicite invalide provoque une erreur ; il n’est jamais remplacé silencieusement par une autre copie.
+En local, le `prebuild` matérialise `POKEMON_GO_DATA_DIR` lorsqu’il est défini, ou une source de secours valide, dans `runtime-data/PokemonGo-Data`. Les Functions lisent uniquement ce snapshot interne au projet ; un chemin explicite invalide ne devient jamais silencieusement une autre source au runtime.
 
-Sur Vercel, ne configurez pas `POKEMON_GO_DATA_DIR` avec un chemin de machine. Le `prebuild` clone la révision demandée dans `.data/PokemonGo-Data`, puis Next.js embarque le marqueur du dépôt et les seules familles requises par chaque Function. Configurez plutôt `POKEMON_GO_DATA_REPO`, `POKEMON_GO_DATA_REF` et, pour le dépôt privé, `POKEMON_GO_DATA_TOKEN`.
+Sur Vercel, ne configurez pas `POKEMON_GO_DATA_DIR` avec un chemin de machine. Le `prebuild` clone la révision demandée dans `runtime-data/PokemonGo-Data`, puis Next.js embarque le marqueur du dépôt et les seules familles requises par chaque Function. Configurez plutôt `POKEMON_GO_DATA_REPO`, `POKEMON_GO_DATA_REF` et, pour le dépôt privé, `POKEMON_GO_DATA_TOKEN`.
 
 ## Régénération PvP
 

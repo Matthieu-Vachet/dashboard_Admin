@@ -12,13 +12,16 @@ function collect(directory) {
 }
 collect(serverRoot);
 
-function verifyRoute(label, manifestSuffix, markers) {
+function verifyRoute(label, manifestSuffix, markers, forbiddenMarkers = []) {
   const manifest = manifests.find((file) => file.replaceAll("\\", "/").includes(manifestSuffix));
   if (!manifest) throw new Error(`Manifest serverless ${label} introuvable.`);
   const files = JSON.parse(fs.readFileSync(manifest, "utf8")).files || [];
   const trace = files.join("\n");
   for (const marker of markers) {
     if (!trace.includes(marker)) throw new Error(`${label}: ressource serverless non tracee: ${marker}`);
+  }
+  for (const marker of forbiddenMarkers) {
+    if (trace.includes(marker)) throw new Error(`${label}: ressource serverless interdite tracee: ${marker}`);
   }
   return {
     route: label,
@@ -28,6 +31,12 @@ function verifyRoute(label, manifestSuffix, markers) {
 }
 
 const routes = [
+  verifyRoute("PvP Simulator", "app/api/admin/pvp-simulator/route.js.nft.json", [
+    "runtime-data/PokemonGo-Data/package.json",
+    "runtime-data/PokemonGo-Data/data/pokemon/",
+    "runtime-data/PokemonGo-Data/data/pvp/",
+    "runtime-data/PokemonGo-Data/data/moves/",
+  ], ["../../../../../../.data/PokemonGo-Data/"]),
   verifyRoute("Admin Pokémon", "app/api/pokemon-admin/route.js.nft.json", [
     "runtime-data/PokemonGo-Data/package.json",
     "runtime-data/PokemonGo-Data/data/reference/event-variant-classification.json",

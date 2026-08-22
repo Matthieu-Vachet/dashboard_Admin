@@ -38,4 +38,6 @@ test("le moteur de combat préfère les recommandations de la fiche PvP dédiée
 test("le resolver serveur inclut explicitement le répertoire runtime-data de production", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "src/lib/pokemon-go-pvp-engine/server-data.ts"), "utf8");
   assert.match(source, /path\.join\(process\.cwd\(\), "runtime-data", "PokemonGo-Data"\)/);
+  assert.doesNotMatch(source, /path\.join\(process\.cwd\(\), "\.data", "PokemonGo-Data"\)/);
+  assert.doesNotMatch(source, /path\.resolve\(process\.cwd\(\), "\.\.", "PokemonGo-Data"\)/);
 });

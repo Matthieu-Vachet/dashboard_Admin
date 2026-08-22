@@ -199,8 +199,6 @@ function dataRoot() {
   const candidates = [
     process.env.POKEMON_GO_DATA_DIR && path.resolve(process.env.POKEMON_GO_DATA_DIR),
     path.join(process.cwd(), "runtime-data", "PokemonGo-Data"),
-    path.join(process.cwd(), ".data", "PokemonGo-Data"),
-    path.resolve(process.cwd(), "..", "PokemonGo-Data"),
   ].filter((candidate): candidate is string => Boolean(candidate));
   const root = candidates.find((candidate) =>
     existsSync(path.join(candidate, "data", "pokemon"))

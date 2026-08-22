@@ -22,6 +22,7 @@ ligne l’action, le provider, les dates, la durée, le statut et le code d’er
 - Le prebuild matérialise un seul checkout sous `runtime-data/PokemonGo-Data`.
 - L’API utilise des imports statiques pour les modules et `outputFileTracingIncludes` pour les datasets lus par la Function REST commune.
 - Le Dashboard utilise des globs littéraux `/**/*` par route. Calendar Events ne reçoit que les catalogues nécessaires.
+- Le simulateur PvP ne résout que l’override explicite et `runtime-data`; le snapshot historique `.data` est exclu de son manifeste afin de ne jamais dupliquer le dépôt dans la Function.
 - `/api/dashboard-redeploy` ne reçoit que le marqueur de package et le snapshot de commit. Le resolver reconnaît la racine au `package.json`, puis chaque consommateur valide ses ressources exactes.
 - Le postbuild inspecte le JavaScript et les manifests `.nft.json`; il échoue si un export ou une ressource manque.
 - Aucun cache, archive ou fixture de test n’est ajouté au runtime.
