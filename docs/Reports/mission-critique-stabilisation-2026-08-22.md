@@ -103,9 +103,17 @@ en double dans la fonction PvP : son manifeste serveur passe de 17 648 fichiers 
 456 Mio à 8 918 fichiers et 179,79 Mio, sous la limite Vercel.
 
 La candidate API `dpl_29f2BnG7gkEdzABjZ9wfgMGqZuK1` est `READY` et servie par
-`https://pokemon-go-api.vercel.app`. La candidate Dashboard
-`dpl_E6EcFANLoEHFE3kRMydhSgkBaw5G` est `READY` et servie par
+`https://pokemon-go-api.vercel.app`. Le Dashboard final documenté
+`dpl_RdaTKZfoSLZdtE3y5LJe1BvbXQkC` est `READY` et servi par
 `https://dashboard-admin-pi-ebon.vercel.app`.
+
+La validation froide de ce dernier déploiement a révélé que le cluster Atlas venait de
+dépasser sa limite de 2 Mio. L’audit `collStats` a identifié
+`pokemon-go-api.game_master_diffs`, vide mais fragmentée à environ 10 Mio. Sa structure
+et ses cinq index ont été archivés dans le dossier d’archive de mission ; la collection
+à 0 document a été recréée avec les mêmes index et 0 Mio d’occupation. Aucune base hors
+périmètre — notamment `sample_mflix` — n’a été modifiée. Les écritures de métrique et le
+rapport Engine ont ensuite été rejoués avec succès, sans alerte de quota.
 
 ## Validation réelle en production
 
