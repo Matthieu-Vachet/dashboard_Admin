@@ -7,6 +7,16 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.49.1",
+    date: "2026-08-22",
+    title: "Runtime Preview et développement rétabli",
+    changes: [
+      "Supprime l'ancien hostname Vercel retiré des lectures et régénérations Pokémon locales.",
+      "Centralise les appels serveur sur POKEMON_API_PUBLIC_URL avec un domaine stable par défaut.",
+      "Ajoute une non-régression interdisant les URLs immuables de deployment dans le runtime et l'exemple d'environnement.",
+    ],
+  },
+  {
     version: "V1.49.0",
     date: "2026-08-22",
     title: "Dashboard Pokémon GO autonome",

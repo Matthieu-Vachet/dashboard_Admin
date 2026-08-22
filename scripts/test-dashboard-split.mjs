@@ -55,3 +55,17 @@ test("la navigation principale est exclusivement Pokémon et partagée sans dép
   }
   assert.doesNotMatch(navigation, /dashboard-javascript/);
 });
+
+test("les appels Pokémon n'utilisent aucun deployment Vercel immuable ou supprimé", () => {
+  const runtimeSources = [
+    "src/lib/pokemon.ts",
+    "src/app/api/pokemon-admin/route.ts",
+    "src/app/api/pokemon-api-proxy/route.ts",
+    ".env.example",
+  ].map(read).join("\n");
+
+  assert.doesNotMatch(runtimeSources, /pokemon-go-[a-z0-9]+-matthieu-vachets-projects\.vercel\.app/);
+  assert.doesNotMatch(runtimeSources, /POKEMON_API_URL/);
+  assert.match(runtimeSources, /POKEMON_API_PUBLIC_URL/);
+  assert.match(runtimeSources, /https:\/\/pokemon-go-api\.vercel\.app/);
+});

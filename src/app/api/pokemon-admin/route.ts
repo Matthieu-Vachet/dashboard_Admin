@@ -36,7 +36,6 @@ const pokemonAdminMutationTimeoutMs = 55_000;
 const asynchronousRegenerationDomains = new Set(["pvp-rankings"]);
 const pokemonApiBaseUrl =
   process.env.POKEMON_API_PUBLIC_URL
-  || (process.env.VERCEL === "1" ? undefined : process.env.POKEMON_API_URL)
   || defaultPokemonApiPublicUrl;
 
 function providerForAdminAction(action: string) {

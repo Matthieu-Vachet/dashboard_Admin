@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+## 1.49.1 - 2026-08-22
+
+### Added
+
+- Ajoute une non-régression interdisant les hostnames Vercel immuables dans le runtime Pokémon et l'exemple d'environnement.
+
+### Changed
+
+- Unifie les lectures et régénérations locales ou Preview sur `POKEMON_API_PUBLIC_URL`, avec le domaine stable de l'API comme fallback.
+
+### Fixed
+
+- Retire l'ancien deployment `pokemon-go-7r5q2j05a…`, désormais en HTTP 410, qui provoquait « The deployment has been removed » avec `npm run dev`.
+
 ## 1.49.0 - 2026-08-22
 
 ### Added

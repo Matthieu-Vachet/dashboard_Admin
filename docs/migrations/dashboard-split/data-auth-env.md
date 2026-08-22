@@ -6,4 +6,4 @@ La séparation n’a déplacé, renommé ou supprimé aucun document MongoDB. Le
 
 L’authentification reste inchangée : `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `SESSION_SECRET`, cookie signé HTTP-only et contrôles d’origine. Les variables Mongo communes sont `DASHBOARD_MONGODB_URI`, l’alias `MONGODB_URI` et `DASHBOARD_MONGODB_DB`.
 
-Les variables `POKEMON_API_URL`, `POKEMON_API_PUBLIC_URL`, `POKEMON_API_ADMIN_SECRET`, `POKEMON_GO_DATA_DIR`, `POKEMON_GO_DATA_REPO`, `POKEMON_GO_DATA_REF`, `POKEMON_GO_DATA_TOKEN` et les variables Discord restent exclusivement Pokémon.
+Les variables `POKEMON_API_PUBLIC_URL`, `POKEMON_API_ADMIN_SECRET`, `POKEMON_GO_DATA_DIR`, `POKEMON_GO_DATA_REPO`, `POKEMON_GO_DATA_REF`, `POKEMON_GO_DATA_TOKEN` et les variables Discord restent exclusivement Pokémon. `POKEMON_API_PUBLIC_URL` doit viser un domaine stable ou un alias Preview actif ; les URLs immuables de deployment et l'ancienne variable `POKEMON_API_URL` sont interdites.
