@@ -116,13 +116,81 @@ type IdentityDiagnostic = {
   form?: string | null;
   costume?: string | null;
   reason: string;
+  code?: string;
+  severity?: "info" | "warning" | "error";
+  reasonDetails?: string;
   confidence: number;
   candidates?: Array<Record<string, unknown>>;
   proposedAction?: string;
+  action?: {
+    kind: string;
+    required: boolean;
+    label: string;
+    identity?: {
+      identityId?: string;
+      canonicalId?: string;
+      pokemonId?: number;
+      form?: string | null;
+      costume?: string | null;
+      sourceFile?: string | null;
+      identityKey?: string | null;
+    } | null;
+  };
   firstDetectedAt?: string;
   lastDetectedAt?: string;
   occurrences?: number;
   status: "open" | "resolved" | "ignored" | "false-positive";
+};
+
+type DiagnosticCodeSummary = {
+  code: string;
+  severity: "info" | "warning" | "error";
+  reason: string;
+  total: number;
+  open: number;
+  resolved: number;
+  occurrences: number;
+};
+
+type DiagnosticProviderSummary = {
+  id: string;
+  label: string;
+  activeAliases: number;
+  activeAliasesWithLocalPath: number;
+  totalDiagnostics: number;
+  open: number;
+  resolved: number;
+  ignored: number;
+  falsePositive: number;
+  actionable: number;
+  alreadyAssociated: number;
+  sourceIdsPresent: number;
+  withCandidates: number;
+  occurrences: number;
+  codes: DiagnosticCodeSummary[];
+};
+
+type DiagnosticSummary = {
+  totals: {
+    totalDiagnostics: number;
+    open: number;
+    resolved: number;
+    ignored: number;
+    falsePositive: number;
+    actionable: number;
+    alreadyAssociated: number;
+    activeAliases: number;
+    activeAliasesWithLocalPath: number;
+    occurrences: number;
+  };
+  providers: DiagnosticProviderSummary[];
+  integrity: {
+    resolvedIdentityReferences: number;
+    invalidResolvedIdentityReferences: number;
+    activeAliases: number;
+    activeAliasesWithLocalPath: number;
+    activeAliasesWithoutLocalPath: number;
+  };
 };
 
 type ListMeta = {
@@ -282,6 +350,10 @@ const diagnosticReasonOptions = [
   "ignored-alias",
   "incomplete-source",
   "missing-local-match",
+  "ambiguous",
+  "multiple-local-identities",
+  "multiple-canonical-identities",
+  "CANONICAL_ASSET_MISSING",
 ] as const;
 
 const emptyAliasForm: AliasForm = {
@@ -334,6 +406,17 @@ function statusTone(status: string): "green" | "amber" | "red" | "violet" | "neu
   if (status === "conflict" || status === "false-positive") return "red";
   if (status === "deprecated") return "violet";
   return "neutral";
+}
+
+function severityTone(severity?: string): "green" | "amber" | "red" | "violet" | "neutral" {
+  if (severity === "error") return "red";
+  if (severity === "warning") return "amber";
+  if (severity === "info") return "violet";
+  return "neutral";
+}
+
+function candidateLabel(candidate: Record<string, unknown>) {
+  return String(candidate.canonicalId || candidate.identityKey || candidate.value || candidate.alias || candidate.id || "Candidat sans identifiant");
 }
 
 function localPreviewAsset(identity: PokemonIdentity) {
@@ -499,6 +582,7 @@ export function IdentityManagerPanel() {
   const [meta, setMeta] = useState<ListMeta>({ page: 1, limit: 24, total: 0, pages: 1 });
   const [diagnostics, setDiagnostics] = useState<IdentityDiagnostic[]>([]);
   const [diagnosticMeta, setDiagnosticMeta] = useState<ListMeta>({ page: 1, limit: 24, total: 0, pages: 1 });
+  const [diagnosticSummary, setDiagnosticSummary] = useState<DiagnosticSummary | null>(null);
   const [conflicts, setConflicts] = useState<{ aliasConflicts?: unknown[]; explicitConflicts?: number; incomplete?: number }>({});
   const [managedProviders, setManagedProviders] = useState<ManagedProvider[]>([]);
   const [loading, setLoading] = useState(true);
@@ -506,7 +590,7 @@ export function IdentityManagerPanel() {
   const busy = Boolean(busyAction);
   const [error, setError] = useState("");
   const [filters, setFilters] = useState({ search: "", provider: "", status: "", syncStatus: "", pokemonId: "", form: "", costume: "", conflict: false, withoutGameMaster: false, stale: false, sort: "updatedAt", order: "desc", page: 1 });
-  const [diagnosticFilters, setDiagnosticFilters] = useState({ provider: "", reason: "", status: "open", pokemonId: "", form: "", costume: "", confidence: "", page: 1 });
+  const [diagnosticFilters, setDiagnosticFilters] = useState({ provider: "", reason: "", code: "", severity: "", status: "open", pokemonId: "", form: "", costume: "", confidence: "", page: 1 });
   const [identityModal, setIdentityModal] = useState<{ open: boolean; identity?: PokemonIdentity; diagnostic?: IdentityDiagnostic }>({ open: false });
   const [identityForm, setIdentityForm] = useState<IdentityForm>(emptyIdentityForm);
   const [aliasModal, setAliasModal] = useState<{ open: boolean; identity?: PokemonIdentity; alias?: ProviderAlias }>({ open: false });
@@ -591,10 +675,14 @@ export function IdentityManagerPanel() {
     setLoading(true);
     setError("");
     try {
-      const upstream = await apiGet("identity-manager-diagnostics", { ...diagnosticFilters, limit: 24 });
+      const [upstream, summaryUpstream] = await Promise.all([
+        apiGet("identity-manager-diagnostics", { ...diagnosticFilters, limit: 24 }),
+        apiGet("identity-manager-diagnostics-summary"),
+      ]);
       const result = unwrapList<IdentityDiagnostic>(upstream);
       setDiagnostics(result.items);
       setDiagnosticMeta(result.meta);
+      setDiagnosticSummary(summaryUpstream?.data || null);
       if (notify) toast.success("Diagnostics actualisés.");
     } catch (caught) {
       const message = caught instanceof Error ? caught.message : "Diagnostics indisponibles.";
@@ -818,6 +906,20 @@ export function IdentityManagerPanel() {
     }
   }
 
+  async function reconcileDiagnostics() {
+    setBusyAction("reconcile-diagnostics");
+    try {
+      const upstream = await apiPost("identity-manager-diagnostics-reconcile");
+      const report = upstream?.data || {};
+      toast.success(`${Number(report.modified || 0).toLocaleString("fr-FR")} diagnostic(s) réconcilié(s) avec les alias actifs.`);
+      await Promise.all([loadDiagnostics(), loadIdentities()]);
+    } catch (caught) {
+      toast.error(normalizeActionError(caught, "Réconciliation des diagnostics impossible.").message);
+    } finally {
+      setBusyAction("");
+    }
+  }
+
   async function associate(identity: PokemonIdentity) {
     if (!associateModal.diagnostic) return;
     setBusyAction(`associate:${identityId(identity)}`);
@@ -910,7 +1012,7 @@ export function IdentityManagerPanel() {
 
       <div className="flex flex-wrap items-center gap-2 rounded-xl border border-line bg-panel/55 p-2">
         <Button size="sm" variant={view === "identities" ? "primary" : "ghost"} icon={<Fingerprint size={15} />} onClick={() => setView("identities")}>Identités</Button>
-        <Button size="sm" variant={view === "diagnostics" ? "primary" : "ghost"} icon={<ShieldAlert size={15} />} onClick={() => setView("diagnostics")}>Diagnostics détaillés <Badge tone={diagnosticMeta.total ? "amber" : "neutral"}>{diagnosticMeta.total}</Badge></Button>
+        <Button size="sm" variant={view === "diagnostics" ? "primary" : "ghost"} icon={<ShieldAlert size={15} />} onClick={() => setView("diagnostics")}>Diagnostics détaillés <Badge tone={(diagnosticSummary?.totals.open || managedProviders.reduce((total, provider) => total + provider.openDiagnostics, 0)) ? "amber" : "neutral"}>{diagnosticSummary?.totals.open ?? managedProviders.reduce((total, provider) => total + provider.openDiagnostics, 0)}</Badge></Button>
         <Button className="ml-auto" size="sm" variant="ghost" icon={<RefreshCcw size={15} />} loading={loading} loadingText="Actualisation…" onClick={() => view === "identities" ? void loadIdentities(true) : void loadDiagnostics(true)}>Actualiser</Button>
       </div>
 
@@ -1002,11 +1104,55 @@ export function IdentityManagerPanel() {
         </>
       ) : (
         <>
+          {diagnosticSummary ? (
+            <section className="space-y-4 rounded-xl border border-brand-2/25 bg-panel/65 p-4" aria-labelledby="diagnostic-summary-title">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <p className="type-overline text-cyan-200/75">Audit par fournisseur, code, sévérité et cause</p>
+                  <h3 id="diagnostic-summary-title" className="mt-1 text-xl font-black text-foreground">Synthèse des diagnostics</h3>
+                  <p className="mt-1 text-sm font-semibold text-muted">Les associations validées restent actives ; seules les alertes encore réellement actionnables demeurent ouvertes.</p>
+                </div>
+                <Button variant="primary" icon={<UserRoundCheck size={16} />} loading={busyAction === "reconcile-diagnostics"} loadingText="Réconciliation…" disabled={busy || !diagnosticSummary.totals.alreadyAssociated} onClick={() => void reconcileDiagnostics()}>
+                  Réconcilier les alias validés ({diagnosticSummary.totals.alreadyAssociated})
+                </Button>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                <Stat label="Ouverts" value={diagnosticSummary.totals.open} tone="amber" />
+                <Stat label="Actionnables" value={diagnosticSummary.totals.actionable} tone="red" />
+                <Stat label="Déjà associés" value={diagnosticSummary.totals.alreadyAssociated} tone="green" />
+                <Stat label="Résolus" value={diagnosticSummary.totals.resolved} tone="green" />
+                <Stat label="Alias actifs" value={diagnosticSummary.totals.activeAliases} tone="cyan" />
+              </div>
+              <div className="grid min-w-0 gap-3 lg:grid-cols-2 2xl:grid-cols-3">
+                {diagnosticSummary.providers.filter((provider) => provider.totalDiagnostics || provider.activeAliases).map((provider) => (
+                  <article key={provider.id} className="min-w-0 rounded-xl border border-line bg-surface-inset p-3">
+                    <div className="flex min-w-0 items-start justify-between gap-3">
+                      <div className="min-w-0"><p className="truncate font-black text-foreground">{provider.label}</p><code className="block truncate text-xs text-cyan-200/70">{provider.id}</code></div>
+                      <Badge tone={provider.open ? "amber" : "green"}>{provider.open} ouvert(s)</Badge>
+                    </div>
+                    <p className="mt-2 text-xs font-semibold text-muted">{provider.activeAliases} alias actifs · {provider.activeAliasesWithLocalPath} chemin(s) local(aux) vérifié(s) · {provider.resolved} résolu(s)</p>
+                    <p className="mt-1 text-xs font-semibold text-muted">{provider.actionable} actionnable(s) · {provider.alreadyAssociated} déjà associé(s) · {provider.occurrences} occurrence(s)</p>
+                    {provider.codes.length ? <div className="mt-3 space-y-1.5">{provider.codes.slice(0, 4).map((entry) => (
+                      <button key={`${provider.id}-${entry.code}`} type="button" className="flex w-full min-w-0 items-center gap-2 rounded-lg border border-line bg-surface-faint px-2.5 py-2 text-left" onClick={() => { updateDiagnosticFilter("provider", provider.id); updateDiagnosticFilter("code", entry.code); }}>
+                        <Badge tone={severityTone(entry.severity)}>{entry.severity}</Badge><code className="min-w-0 flex-1 truncate text-xs font-bold text-foreground">{entry.code}</code><strong>{entry.open}</strong>
+                      </button>
+                    ))}</div> : null}
+                  </article>
+                ))}
+              </div>
+              <p className={cn("rounded-lg border p-3 text-xs font-bold", diagnosticSummary.integrity.invalidResolvedIdentityReferences || diagnosticSummary.integrity.activeAliasesWithoutLocalPath ? "border-danger/30 bg-danger/10 text-rose-100" : "border-brand-3/30 bg-brand-3/10 text-emerald-100")}>Intégrité MongoDB : {diagnosticSummary.integrity.resolvedIdentityReferences} référence(s) résolue(s), {diagnosticSummary.integrity.invalidResolvedIdentityReferences} référence(s) invalide(s) · {diagnosticSummary.integrity.activeAliasesWithLocalPath}/{diagnosticSummary.integrity.activeAliases} alias actifs reliés à un chemin canonique.</p>
+            </section>
+          ) : null}
           <div className="grid gap-3 rounded-xl border border-line bg-panel/55 p-4 md:grid-cols-2 xl:grid-cols-4">
             <Select aria-label="Cause" value={diagnosticFilters.reason} onChange={(event) => updateDiagnosticFilter("reason", event.target.value)}>
               <option value="">Toutes les causes</option>
               {diagnosticReasonOptions.map((reason) => <option key={reason}>{reason}</option>)}
             </Select>
+            <Select aria-label="Code diagnostic" value={diagnosticFilters.code} onChange={(event) => updateDiagnosticFilter("code", event.target.value)}>
+              <option value="">Tous les codes</option>
+              {[...new Set(diagnosticSummary?.providers.flatMap((provider) => provider.codes.map((entry) => entry.code)) || [])].sort().map((code) => <option key={code}>{code}</option>)}
+            </Select>
+            <Select aria-label="Sévérité" value={diagnosticFilters.severity} onChange={(event) => updateDiagnosticFilter("severity", event.target.value)}><option value="">Toutes les sévérités</option><option value="error">Erreur</option><option value="warning">Avertissement</option><option value="info">Information</option></Select>
             <Input aria-label="Filtrer les diagnostics par provider" placeholder="Provider" value={diagnosticFilters.provider} onChange={(event) => updateDiagnosticFilter("provider", event.target.value)} />
             <Select aria-label="Statut de traitement" value={diagnosticFilters.status} onChange={(event) => updateDiagnosticFilter("status", event.target.value)}><option value="">Tous les statuts</option><option value="open">Ouvert</option><option value="resolved">Résolu</option><option value="ignored">Ignoré</option><option value="false-positive">Faux positif</option></Select>
             <Input aria-label="Filtrer par confiance minimum" inputMode="decimal" placeholder="Confiance minimum (0-1)" value={diagnosticFilters.confidence} onChange={(event) => updateDiagnosticFilter("confidence", event.target.value)} />
@@ -1022,17 +1168,21 @@ export function IdentityManagerPanel() {
               <article key={diagnosticId(diagnostic)} className={cn(cardClass, diagnostic.status === "open" && "border-warning/30")}>
                 <div className="grid gap-4 xl:grid-cols-[minmax(0,1.5fr)_minmax(18rem,.7fr)]">
                   <div>
-                    <div className="flex flex-wrap items-center gap-2"><Badge tone="violet">{diagnostic.provider}</Badge><Badge tone={statusTone(diagnostic.status)}>{diagnostic.status}</Badge><Badge tone="red">{diagnostic.reason}</Badge><Badge tone={diagnostic.confidence >= .8 ? "green" : diagnostic.confidence >= .5 ? "amber" : "red"}>{Math.round(diagnostic.confidence * 100)}% confiance</Badge></div>
+                    <div className="flex flex-wrap items-center gap-2"><Badge tone="violet">{diagnostic.provider}</Badge><Badge tone={severityTone(diagnostic.severity)}>{diagnostic.severity || "warning"}</Badge><Badge tone={statusTone(diagnostic.status)}>{diagnostic.status}</Badge><Badge tone="neutral">{diagnostic.code || diagnostic.reason}</Badge><Badge tone={diagnostic.confidence >= .8 ? "green" : diagnostic.confidence >= .5 ? "amber" : "red"}>{Math.round(diagnostic.confidence * 100)}% confiance</Badge></div>
                     <h3 className="mt-3 break-all font-mono text-lg font-black text-cyan-100">{diagnostic.rawAlias}</h3>
-                    <p className="mt-1 break-all text-sm font-semibold text-muted">Normalisé : <code>{diagnostic.normalizedAlias}</code> · Source : {diagnostic.sourceId || "non fournie"}</p>
+                    <p className="mt-1 break-all text-sm font-semibold text-muted">Alias normalisé : <code>{diagnostic.normalizedAlias}</code></p>
+                    <p className="mt-1 break-all text-sm font-semibold text-muted">ID source : <code className={diagnostic.sourceId ? "text-foreground" : "text-amber-100"}>{diagnostic.sourceId || "non fourni"}</code></p>
+                    <div className="mt-3 rounded-lg border border-warning/25 bg-warning/[0.07] p-3 text-sm"><p className="font-black text-amber-100">Pourquoi ce diagnostic ?</p><p className="mt-1 font-semibold text-muted">{diagnostic.reasonDetails || diagnostic.reason}</p></div>
                     <div className="mt-3 grid gap-2 text-sm sm:grid-cols-3"><p><span className="text-muted">Pokémon</span><br /><strong>{diagnostic.pokemon || "Inconnu"} {diagnostic.pokemonId ? `#${diagnostic.pokemonId}` : ""}</strong></p><p><span className="text-muted">Forme</span><br /><strong>{diagnostic.form || "—"}</strong></p><p><span className="text-muted">Costume</span><br /><strong>{diagnostic.costume || "—"}</strong></p></div>
-                    {diagnostic.candidates?.length ? <details className="mt-3 rounded-lg border border-line bg-surface-faint p-3"><summary className="cursor-pointer font-bold">Voir les {diagnostic.candidates.length} candidat(s)</summary><pre className="mt-3 max-h-52 overflow-auto whitespace-pre-wrap text-xs text-muted">{JSON.stringify(diagnostic.candidates, null, 2)}</pre></details> : null}
+                    {diagnostic.action?.identity ? <div className="mt-3 rounded-lg border border-brand-3/30 bg-brand-3/10 p-3 text-sm"><p className="font-black text-emerald-100">Association active retrouvée</p><p className="mt-1 break-all font-mono text-foreground">{diagnostic.action.identity.canonicalId || diagnostic.action.identity.identityId}</p><p className="mt-1 break-all text-xs text-muted">Clé : {diagnostic.action.identity.identityKey || "—"} · Source locale : {diagnostic.action.identity.sourceFile || "—"}</p></div> : null}
+                    {diagnostic.candidates?.length ? <details className="mt-3 rounded-lg border border-line bg-surface-faint p-3"><summary className="cursor-pointer font-bold">Examiner les {diagnostic.candidates.length} candidat(s)</summary><div className="mt-3 space-y-2">{diagnostic.candidates.map((candidate, index) => <div key={`${candidateLabel(candidate)}-${index}`} className="rounded-lg border border-line bg-surface-inset p-2"><p className="break-all font-mono text-xs font-black text-foreground">{candidateLabel(candidate)}</p><pre className="mt-1 max-h-32 overflow-auto whitespace-pre-wrap text-[10px] text-muted">{JSON.stringify(candidate, null, 2)}</pre></div>)}</div></details> : null}
                   </div>
                   <div className="rounded-lg border border-line bg-white/[0.025] p-3 text-sm">
                     <p><span className="text-muted">Première détection</span><br /><strong>{formatDate(diagnostic.firstDetectedAt)}</strong></p>
                     <p className="mt-2"><span className="text-muted">Dernière détection</span><br /><strong>{formatDate(diagnostic.lastDetectedAt)}</strong></p>
                     <p className="mt-2"><span className="text-muted">Occurrences</span><br /><strong>{diagnostic.occurrences || 1}</strong></p>
-                    <p className="mt-2"><span className="text-muted">Action proposée</span><br /><strong>{diagnostic.proposedAction || "Associer"}</strong></p>
+                    <p className="mt-2"><span className="text-muted">Action attendue</span><br /><strong className={diagnostic.action?.required ? "text-amber-100" : "text-emerald-100"}>{diagnostic.action?.label || diagnostic.proposedAction || "Examiner et associer"}</strong></p>
+                    <Badge className="mt-3" tone={diagnostic.action?.required ? "amber" : "green"}>{diagnostic.action?.required ? "Action nécessaire" : "Déjà traité"}</Badge>
                   </div>
                 </div>
                 {diagnostic.status === "open" ? <div className="mt-4 flex flex-wrap gap-2"><Button size="sm" variant="primary" icon={<Link2 size={14} />} onClick={() => { setAssociateSearch(diagnostic.pokemon || diagnostic.rawAlias); setAssociateModal({ open: true, diagnostic }); }}>Associer</Button><Button size="sm" variant="secondary" icon={<Plus size={14} />} onClick={() => openCreate(diagnostic)}>Créer une identité</Button><Button size="sm" variant="ghost" icon={<XCircle size={14} />} loading={busyAction === `diagnostic:ignored:${diagnosticId(diagnostic)}`} loadingText="Mise à jour…" disabled={busy} onClick={() => void updateDiagnostic(diagnostic, "ignored")}>Ignorer</Button><Button size="sm" variant="ghost" icon={<ShieldAlert size={14} />} loading={busyAction === `diagnostic:false-positive:${diagnosticId(diagnostic)}`} loadingText="Mise à jour…" disabled={busy} onClick={() => void updateDiagnostic(diagnostic, "false-positive")}>Faux positif</Button></div> : null}

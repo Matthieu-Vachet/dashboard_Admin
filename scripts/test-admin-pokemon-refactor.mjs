@@ -522,6 +522,9 @@ test("Identity Manager reste privé et expose un CRUD traçable sans secret navi
   assert.match(proxy, /identity-manager-inventory/);
   assert.match(proxy, /identity-manager-sync-preview/);
   assert.match(proxy, /identity-manager-sync-apply/);
+  assert.match(proxy, /identity-manager-diagnostics-summary/);
+  assert.match(proxy, /identity-manager-diagnostics-reconcile/);
+  assert.match(proxy, /"reason", "code", "severity", "confidence"/);
   assert.match(panel, /Nouvelle identité/);
   assert.match(panel, /identity-manager-alias-create/);
   assert.match(panel, /identity-manager-merge/);
@@ -543,6 +546,13 @@ test("Identity Manager reste privé et expose un CRUD traçable sans secret navi
   assert.match(panel, /Seules les sources enregistrées et actives/);
   assert.match(panel, /identity-manager-sync-preview/);
   assert.match(panel, /identity-manager-sync-apply/);
+  assert.match(panel, /identity-manager-diagnostics-summary/);
+  assert.match(panel, /identity-manager-diagnostics-reconcile/);
+  assert.match(panel, /Réconcilier les alias validés/);
+  assert.match(panel, /Synthèse des diagnostics/);
+  assert.match(panel, /Pourquoi ce diagnostic/);
+  assert.match(panel, /Action nécessaire/);
+  assert.match(panel, /Association active retrouvée/);
   assert.match(panel, /syncStatus/);
   assert.match(panel, /synchronization\?\.state/);
   assert.match(panel, /orphanUpdate/);
@@ -649,10 +659,10 @@ test("la Home orchestre une régénération globale séquentielle et tolérante 
 
 test("les aliases inconnus disposent d’un workflow de résolution détaillé", () => {
   const panel = read("src/components/admin/pokemon/identity-manager-panel.tsx");
-  for (const label of ["Associer", "Créer une identité", "Ignorer", "Faux positif", "Voir les", "Exporter le diagnostic"]) {
+  for (const label of ["Associer", "Créer une identité", "Ignorer", "Faux positif", "Examiner les", "Exporter le diagnostic"]) {
     assert.match(panel, new RegExp(label));
   }
-  for (const field of ["Première détection", "Dernière détection", "Occurrences", "Action proposée", "Normalisé", "confiance"]) {
+  for (const field of ["Première détection", "Dernière détection", "Occurrences", "Action attendue", "normalisé", "confiance", "ID source", "Sévérité", "Code diagnostic"]) {
     assert.match(panel, new RegExp(field, "i"));
   }
   assert.match(panel, /identity-manager-diagnostic-update/);

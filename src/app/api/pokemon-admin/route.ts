@@ -491,7 +491,7 @@ async function readPokemonApiAdmin(path: string, user?: string, operationId?: st
 function identityManagerQuery(request: NextRequest) {
   return forwardedRankedQuery(request, [
     "search", "provider", "status", "syncStatus", "pokemonId", "form", "costume", "category", "conflict",
-    "withoutGameMaster", "stale", "sort", "order", "reason", "confidence",
+    "withoutGameMaster", "stale", "sort", "order", "reason", "code", "severity", "confidence",
     "identityId", "canonicalId", "action", "page", "limit",
   ]);
 }
@@ -938,6 +938,10 @@ export async function GET(request: NextRequest) {
       return json({ data: await readPokemonApiAdmin(`/api/v1/admin/pokemon-identities/diagnostics${query ? `?${query}` : ""}`, session!.email) });
     }
 
+    if (action === "identity-manager-diagnostics-summary") {
+      return json({ data: await readPokemonApiAdmin("/api/v1/admin/pokemon-identities/diagnostics/summary", session!.email) });
+    }
+
     if (action === "identity-manager-providers") {
       return json({ data: await readPokemonApiAdmin("/api/v1/admin/pokemon-identities/providers", session!.email) });
     }
@@ -1163,6 +1167,10 @@ export async function POST(request: NextRequest) {
         body: body.payload,
         user: session!.email,
       }) });
+    }
+
+    if (action === "identity-manager-diagnostics-reconcile") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/pokemon-identities/diagnostics/reconcile", undefined, session!.email) });
     }
 
     const regeneration = pokemonAdminProxyRegeneration(action);
