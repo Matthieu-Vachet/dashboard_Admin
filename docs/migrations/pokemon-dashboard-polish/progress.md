@@ -199,3 +199,25 @@ PREVIEW: `https://dashboard-admin-n79otdszb-matthieu-vachets-projects.vercel.app
 REMARQUES: le statut reste `PARTIAL` car `RANK1_INELIGIBLE_AT_SOURCE_LEVEL_FLOOR` a un impact réel mais non bloquant sur les champs Rank 1 de Volcarona. `MOVE_UNMATCHED:none` est désormais explicitement informatif et ne dégrade pas seul un résultat en `PARTIAL`. Chaque avertissement expose code, entité, raison, impact et action dans Détails et `Voir le rapport`. Le quota de l'API d'arbre GitHub a empêché un nouveau run distant en lecture seule; l'audit croisé du snapshot MongoDB courant, des entrées détaillées, des données CDN PvPoke et du générateur synchronisé a fourni les preuves exactes. `origin/main` reste inchangée.
 
 NEXT: LOT 09 — rendre les attaques héritage immédiatement identifiables dans les détails PvP.
+
+## LOT 09
+
+STATUS: DONE
+
+CAUSE RACINE: `MoveBadge` recevait déjà le booléen canonique `move.legacy`, mais ne l'utilisait que pour un micro-badge. La card conservait exactement la même surface et la même élévation qu'une attaque ordinaire, ce qui rendait le statut difficile à repérer dans les listes d'attaques.
+
+FICHIERS MODIFIÉS: `src/components/admin/pokemon/pvp-rankings-panel.jsx`, `src/app/globals.css`, `scripts/test-pvp-legacy-move-highlight.mjs`, `package.json` et journal.
+
+TESTS: lueur Legacy (2/2), Admin Pokémon (45/45), TypeScript, ESLint (0 erreur, 71 avertissements historiques), documentation (171 valides, 0 avertissement), build et postbuild (49 pages), registre de régénération (17 actions, 15 globales), `git diff --check`: OK. Navigateur sur Coudlangue: 7 cards Legacy détectées, lueur calculée depuis `--warning` dans les thèmes sombre et clair, texte inchangé, aucun overflow à 390 px, console et erreurs runtime vides, axe 0 violation et 1 contrôle de contraste incomplet car le fond en dégradé ne pouvait pas être déterminé. La suite Design System globale reste rouge sur sa baseline historique (8 patterns typographiques génériques et couleurs legacy hors lot); la règle ajoutée dispose de son contrôle ciblé et ne contient aucun littéral couleur.
+
+VERSION: Dashboard `1.50.0` et Data runtime `1.28.0` au commit `2869aba4d19e9313db2055a13cf69dc9d0c3c3a5`, inchangées.
+
+COMMIT: `158480940031d4083c7e27bfce1b81926d09cbab` — `style(pvp-ranking): highlight legacy moves`
+
+PUSH: `origin/develop` au commit fonctionnel; checkpoint documenté dans le commit suivant.
+
+PREVIEW: `https://dashboard-admin-8jvx3rwc0-matthieu-vachets-projects.vercel.app` (`READY`, HTTP 200, commit `1584809`).
+
+REMARQUES: une seule règle `.pvp-legacy-move` produit outline, halo externe et lueur interne à partir du token adaptatif `--warning`; aucune couleur jaune n'est dupliquée dans le composant. La bordure gauche par type et tout le contenu de la card restent inchangés. `origin/main` reste inchangée.
+
+NEXT: LOT 10 — auditer et clarifier la signification réelle du badge `LEGACY`.
