@@ -155,3 +155,25 @@ PREVIEW: `https://dashboard-admin-bf07is3mj-matthieu-vachets-projects.vercel.app
 REMARQUES: la taille fixe de neuf familles produit trois rangées sur les écrans à trois colonnes. Les contrôles haut et bas exposent page, nombre de pages, plage et total; les bornes désactivent les actions. Le changement de recherche ou du jeu d'entrées revient à la page 1 sans effet React en cascade, et la pagination ne partage aucun état avec Collections.
 
 NEXT: LOT 07 — repositionner le sélecteur de collection dans la card de collection active.
+
+## LOT 07
+
+STATUS: DONE
+
+CAUSE RACINE: le déclencheur `collectionSelector` était rendu dans une rangée dédiée, séparée de la card active et du menu d'actions, avec deux wrappers responsive distincts.
+
+FICHIERS MODIFIÉS: `src/components/admin/pokemon/collections-panel.jsx`, `scripts/test-collection-catalog.mjs`, `scripts/test-collections-e2e.mjs`, documentation `collection-selector-header.md` et journal.
+
+TESTS: Collections (12/12), TypeScript, ESLint (0 erreur, 71 avertissements), documentation (171 valides), build et postbuild: OK. E2E Collections: une collection, deux collections, sélection, nom très long, sheet mobile, 7 viewports de 320 à 1 440 px, 2 thèmes, aucun overflow et aucune erreur console.
+
+VERSION: Dashboard `1.50.0` et Data runtime `1.28.0` inchangées.
+
+COMMIT: `c7c75069262caa7b188cc47ddf4e6e46edf79a6a` — `refactor(collections): integrate collection selector into active card`
+
+PUSH: `origin/develop` au commit fonctionnel; checkpoint documenté dans le commit suivant.
+
+PREVIEW: `https://dashboard-admin-szjgqebbq-matthieu-vachets-projects.vercel.app` (`READY`, commit `c7c7506`).
+
+REMARQUES: le nom actif est maintenant le déclencheur dans l'en-tête de la card, à gauche du menu `…`. Progression et nombre de collections restent dans la card. À 320 px, le nom long est tronqué avec son libellé complet accessible et le sheet existant reste contenu dans le viewport.
+
+NEXT: LOT 08 — expliquer clairement le statut `PARTIAL` des classements PvP.
