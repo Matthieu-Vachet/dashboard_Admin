@@ -177,3 +177,25 @@ PREVIEW: `https://dashboard-admin-szjgqebbq-matthieu-vachets-projects.vercel.app
 REMARQUES: le nom actif est maintenant le déclencheur dans l'en-tête de la card, à gauche du menu `…`. Progression et nombre de collections restent dans la card. À 320 px, le nom long est tronqué avec son libellé complet accessible et le sheet existant reste contenu dans le viewport.
 
 NEXT: LOT 08 — expliquer clairement le statut `PARTIAL` des classements PvP.
+
+## LOT 08
+
+STATUS: DONE
+
+CAUSE RACINE: l'état de régénération ne conservait qu'un compteur et des chaînes d'avertissement non structurées. Les deux avertissements du snapshot PvP restaient donc sans code, entité, impact ni action: Volcarona ne peut pas produire de Rank 1 légal en Ligue Bayou à cause de son niveau plancher 20, et la sentinelle PvPoke `none` d'Unown était traitée comme une attaque non reconnue alors qu'elle signifie seulement l'absence de seconde attaque chargée.
+
+FICHIERS MODIFIÉS: `src/lib/pvp-ranking-regeneration-state.mjs`, `src/components/admin/pokemon/current-dataset-diagnostics.jsx`, `scripts/test-pvp-ranking-regeneration-state.mjs`, documentation `pvp-partial-warnings.md`, `docs/Reports/RANKED-DATASETS.md`, `docs/ADMIN-ARCHITECTURE.md` et journal.
+
+TESTS: état de régénération PvP (10/10), Admin Pokémon (45/45), notifications (7/7), actions Admin (7/7), matrice de régénération (6/6), PvP dédié (3/3), TypeScript, ESLint (0 erreur, 71 avertissements historiques), documentation (171 valides, 0 avertissement), build et postbuild, registre de régénération (17 actions, 15 globales): OK. Navigateur: détail et rapport avec les deux avertissements expliqués, desktop et 390 px, thèmes sombre et clair, aucun overflow horizontal, aucune erreur runtime; axe: 0 violation et 1 contrôle de contraste incomplet car le fond en dégradé ne pouvait pas être déterminé.
+
+VERSION: Dashboard `1.50.0` et Data runtime `1.28.0` au commit `2869aba4d19e9313db2055a13cf69dc9d0c3c3a5`, inchangées.
+
+COMMIT: `8ae517af710437ae335b236fd2d73d435b9a6773` — `fix(pvp-ranking): expose partial generation warnings`
+
+PUSH: `origin/develop` au commit fonctionnel; checkpoint documenté dans le commit suivant.
+
+PREVIEW: `https://dashboard-admin-n79otdszb-matthieu-vachets-projects.vercel.app` (`READY`, HTTP 200, commit `8ae517a`).
+
+REMARQUES: le statut reste `PARTIAL` car `RANK1_INELIGIBLE_AT_SOURCE_LEVEL_FLOOR` a un impact réel mais non bloquant sur les champs Rank 1 de Volcarona. `MOVE_UNMATCHED:none` est désormais explicitement informatif et ne dégrade pas seul un résultat en `PARTIAL`. Chaque avertissement expose code, entité, raison, impact et action dans Détails et `Voir le rapport`. Le quota de l'API d'arbre GitHub a empêché un nouveau run distant en lecture seule; l'audit croisé du snapshot MongoDB courant, des entrées détaillées, des données CDN PvPoke et du générateur synchronisé a fourni les preuves exactes. `origin/main` reste inchangée.
+
+NEXT: LOT 09 — rendre les attaques héritage immédiatement identifiables dans les détails PvP.
