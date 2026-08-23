@@ -1705,6 +1705,10 @@ function buildChecklist(customRulesOverride = null, options = {}) {
       shinyAvailability: displayData.shinyAvailability || null,
       shadowShinyAvailability: displayData.shadowShinyAvailability || null,
       weatherBoost: displayData.weatherBoost || [],
+      eliteQuickMoves: displayData.eliteQuickMoves || [],
+      eliteCinematicMoves: displayData.eliteCinematicMoves || [],
+      legacyQuickMoves: displayData.legacyQuickMoves || [],
+      legacyCinematicMoves: displayData.legacyCinematicMoves || [],
       pvpLeagues:
         displayData.pvp && typeof displayData.pvp === "object"
           ? Object.entries(displayData.pvp)

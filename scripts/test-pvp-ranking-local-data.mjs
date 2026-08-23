@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import test from "node:test";
-import { enrichPvpRankingWithLocalData, normalizeSuggestedTeammate, pvpTeammatesErrorMessage } from "../src/lib/pvp-ranking-local-data.mjs";
+import { enrichPvpRankingWithLocalData, normalizeSuggestedTeammate, pvpMoveRestriction, pvpTeammatesErrorMessage } from "../src/lib/pvp-ranking-local-data.mjs";
 
 const require = createRequire(import.meta.url);
 const { buildChecklist } = require("../src/server/pokemon-go/apps/checklist/server/engine.js");
@@ -35,4 +35,22 @@ test("le bootstrap réel transmet le coût imbriqué de Mimiqui à PvP Rankings"
   assert.deepEqual(mimikyu?.secondChargeMoveCost, { candy: 50, stardust: 50000 });
   const ranking = enrichPvpRankingWithLocalData({ pokemonRef: "MIMIKYU", pokemon: {}, pvp: {} }, [mimikyu]);
   assert.deepEqual(ranking.pvp.secondChargedMoveCost, { candy: 50, stardust: 50000 });
+});
+
+test("Plaquage est Héritage uniquement pour le movepool de Coudlangue", () => {
+  const lickilicky = buildChecklist().find((entry) => entry.formId === "LICKILICKY" && entry.kind === "pokemon");
+  const ranking = enrichPvpRankingWithLocalData({ pokemonRef: "LICKILICKY", pokemon: {}, pvp: {} }, [lickilicky]);
+  assert.deepEqual(ranking.pvp.restrictedMoves.elite.charged, ["BODY_SLAM"]);
+  assert.deepEqual(ranking.pvp.restrictedMoves.historical.charged, []);
+  assert.equal(pvpMoveRestriction(ranking, { id: "BODY_SLAM" }, false)?.label, "Héritage");
+  assert.equal(pvpMoveRestriction(ranking, { id: "EARTHQUAKE" }, false), null);
+});
+
+test("les attaques retirées restent distinctes des attaques Elite", () => {
+  const muk = buildChecklist().find((entry) => entry.formId === "MUK" && entry.kind === "pokemon");
+  const ranking = enrichPvpRankingWithLocalData({ pokemonRef: "MUK", pokemon: {}, pvp: {} }, [muk]);
+  const restriction = pvpMoveRestriction(ranking, { id: "ACID_FAST" }, true);
+  assert.equal(restriction?.kind, "historical");
+  assert.equal(restriction?.label, "Retirée");
+  assert.match(restriction?.description || "", /retirée du movepool/);
 });

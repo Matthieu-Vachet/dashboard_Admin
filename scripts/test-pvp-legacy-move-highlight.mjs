@@ -6,8 +6,17 @@ const panel = fs.readFileSync("src/components/admin/pokemon/pvp-rankings-panel.j
 const styles = fs.readFileSync("src/app/globals.css", "utf8");
 
 test("les cards Legacy utilisent une seule règle visuelle partagée", () => {
-  assert.match(panel, /move\?\.legacy \? "pvp-legacy-move" : ""/);
+  assert.match(panel, /restriction \? "pvp-legacy-move" : ""/);
   assert.equal((styles.match(/\.pvp-legacy-move\s*\{/g) || []).length, 1);
+});
+
+test("le badge n'emploie plus le booléen global ambigu du fichier move", () => {
+  assert.match(panel, /pvpMoveRestriction\(entry, move, fastMove\)/);
+  assert.match(panel, /\{restriction\.label\}/);
+  assert.match(panel, /title=\{restriction\.description\}/);
+  assert.doesNotMatch(panel, /aria-label=\{`\$\{restriction\.label\}/);
+  assert.doesNotMatch(panel, /move\?\.legacy/);
+  assert.doesNotMatch(panel, />LEGACY</);
 });
 
 test("la lueur Legacy dérive du token d’avertissement adaptatif", () => {
