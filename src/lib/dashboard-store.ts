@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { MongoClient, ObjectId, type Collection, type Filter } from "mongodb";
+import { createUnmatchedEntriesReport } from "./unmatched-entries-report.mjs";
 import {
   defaultPokemonEvents,
   POKEMON_EVENT_STATUSES,
@@ -288,7 +289,16 @@ export async function startDatasetRun(input: Pick<DashboardDatasetRunDocument, "
 export async function completeDatasetRun(id: ObjectId, update: Partial<DashboardDatasetRunDocument>) {
   const collection = await getDatasetRunsCollection();
   const completedAt = update.completedAt || new Date();
-  await collection.updateOne({ _id: id }, { $set: { ...update, completedAt, updatedAt: completedAt } });
+  let normalizedUpdate = update;
+  if (Array.isArray(update.unmatchedEntries)) {
+    const current = await collection.findOne({ _id: id }, { projection: { provider: 1 } });
+    const unmatchedReport = createUnmatchedEntriesReport(update.unmatchedEntries, {
+      provider: current?.provider || "dashboard",
+      expectedCount: update.unmatchedCount,
+    });
+    normalizedUpdate = { ...update, unmatchedEntries: unmatchedReport.entries };
+  }
+  await collection.updateOne({ _id: id }, { $set: { ...normalizedUpdate, completedAt, updatedAt: completedAt } });
   return serializeDatasetRun(await collection.findOne({ _id: id }));
 }
 

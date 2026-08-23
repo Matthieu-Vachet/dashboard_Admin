@@ -4,20 +4,18 @@ import {
   AlertTriangle,
   CheckCircle2,
   ChevronDown,
-  Copy,
   Database,
   ExternalLink,
   GitCompare,
   History,
   LoaderCircle,
-  Search,
   XCircle,
 } from "lucide-react";
-import { useId, useMemo, useState } from "react";
-import Link from "next/link";
+import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
-import { EmptyState, ErrorState, FetchLoadingState } from "@/components/admin/shared/state-system";
+import { ErrorState, FetchLoadingState } from "@/components/admin/shared/state-system";
+import { UnmatchedEntriesReport } from "./unmatched-entries-report";
 import {
   normalizePvpRankingWarnings,
   pvpRankingRegenerationMessage,
@@ -171,61 +169,14 @@ function mergePvpWarnings(stateWarnings, datasetWarnings) {
     });
 }
 
-function DiagnosticCard({ entry, provider, onCopy }) {
-  const rawAlias = firstDefined(entry.rawAlias, entry.sourceAlias, entry.sourceId, entry.sourceName, "—");
-  const normalizedAlias = firstDefined(entry.normalizedAlias, entry.normalizedSourceId, "—");
-  const pokemon = firstDefined(entry.pokemon, entry.sourceName, entry.pokemonName, "Non détecté");
-  const form = firstDefined(entry.form, entry.sourceForm, "—");
-  const costume = firstDefined(entry.costume, entry.sourceCostume, "—");
-  const candidates = Array.isArray(entry.candidates) ? entry.candidates : [];
-
-  return (
-    <article className="rounded-xl border border-amber-200/15 bg-amber-300/[.055] p-3">
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <strong className="block break-words text-sm text-domain-foreground">{entry.sourceName || entry.sourceId || "Entrée source inconnue"}</strong>
-          <p className="mt-1 break-words font-mono text-[10px] text-amber-100">{entry.reason || "alias-inconnu"}</p>
-        </div>
-        <Button size="icon" variant="ghost" type="button" onClick={() => onCopy(entry)} aria-label="Copier le diagnostic">
-          <Copy size={13} />
-        </Button>
-      </div>
-      <dl className="mt-3 grid gap-2 text-xs sm:grid-cols-2 xl:grid-cols-3">
-        <Metric label="Provider" value={entry.provider || provider} mono />
-        <Metric label="Alias brut" value={rawAlias} mono />
-        <Metric label="Alias normalisé" value={normalizedAlias} mono />
-        <Metric label="Pokémon détecté" value={pokemon} />
-        <Metric label="Pokédex" value={entry.pokemonId || entry.dexNr || "—"} mono />
-        <Metric label="Forme" value={form} mono />
-        <Metric label="Costume" value={costume} mono />
-        <Metric label="Confiance" value={entry.confidence ?? 0} mono />
-        <Metric label="Occurrences" value={entry.occurrences ?? 1} mono />
-        <Metric label="Première détection" value={formatDate(entry.firstDetectedAt)} />
-        <Metric label="Dernière détection" value={formatDate(entry.lastDetectedAt)} />
-        <Metric label="Action proposée" value={entry.proposedAction || "Associer dans Identity Manager"} />
-        {entry.localFile ? <Metric label="Fichier local possible" value={entry.localFile} mono /> : null}
-      </dl>
-      {candidates.length ? (
-        <details className="mt-3 rounded-lg border border-line bg-surface-inset-subtle text-xs">
-          <summary className="cursor-pointer px-3 py-2 font-black text-cyan-100">Voir les {candidates.length} candidat(s)</summary>
-          <pre className="max-h-52 overflow-auto border-t border-line p-3 text-[10px] text-foreground-secondary">{JSON.stringify(candidates, null, 2)}</pre>
-        </details>
-      ) : null}
-      <Button asChild className="mt-3" size="sm" variant="secondary">
-        <Link href="/identity-manager">Ouvrir l’Identity Manager</Link>
-      </Button>
-    </article>
-  );
-}
-
 export function RegenerationControl({ dataset, total = 0, refreshError = "", historyUrl = "", regeneration = null, onRetry = null }) {
   const detailsId = useId();
   const [expanded, setExpanded] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [unmatchedOpen, setUnmatchedOpen] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyRuns, setHistoryRuns] = useState([]);
   const [selectedRun, setSelectedRun] = useState(null);
-  const [diagnosticQuery, setDiagnosticQuery] = useState("");
   const meta = dataset?.meta || {};
   const resolvedHistoryUrl = historyUrl || (meta.domain ? `/api/pokemon-admin?action=dataset-history&domain=${encodeURIComponent(meta.domain)}` : "");
   const current = dataset?.current || {};
@@ -233,9 +184,16 @@ export function RegenerationControl({ dataset, total = 0, refreshError = "", his
   const diagnostics = meta.diagnostics || current.diagnostics || {};
   const diff = diagnostics.diff || {};
   const warnings = Array.isArray(diagnostics.warnings) ? diagnostics.warnings : [];
-  const unmatchedEntries = useMemo(
-    () => (Array.isArray(diagnostics.unmatchedEntries) ? diagnostics.unmatchedEntries : []),
-    [diagnostics.unmatchedEntries],
+  const unmatchedEntries = Array.isArray(diagnostics.unmatchedReport?.entries)
+    ? diagnostics.unmatchedReport.entries
+    : Array.isArray(diagnostics.unmatchedEntries)
+      ? diagnostics.unmatchedEntries
+      : [];
+  const unmatchedCount = Math.max(
+    Number(diagnostics.unmatchedReport?.total) || 0,
+    Number(diagnostics.unmatchedCount) || 0,
+    Number(regeneration?.unmatchedCount) || 0,
+    unmatchedEntries.length,
   );
   const warningCount = Math.max(
     Array.isArray(diagnostics.warnings) ? diagnostics.warnings.length : Number(diagnostics.warnings) || 0,
@@ -282,12 +240,6 @@ export function RegenerationControl({ dataset, total = 0, refreshError = "", his
     ["Operation ID", firstDefined(regeneration?.operationId, diagnostics.operationId, current.operationId, "Indisponible"), true],
     ["Matchés / non matchés", `${Number(diagnostics.matchedCount) || 0} / ${Number(diagnostics.unmatchedCount) || 0}`, true],
   ];
-  const visibleUnmatched = useMemo(() => {
-    const entries = selectedRun?.unmatchedEntries || unmatchedEntries;
-    const needle = diagnosticQuery.trim().toLowerCase();
-    if (!needle) return entries;
-    return entries.filter((entry) => JSON.stringify(entry).toLowerCase().includes(needle));
-  }, [diagnosticQuery, selectedRun, unmatchedEntries]);
   const isPvpRankings = meta.domain === "pvp-rankings";
   const currentPvpWarnings = isPvpRankings
     ? mergePvpWarnings(regeneration?.warningDetails, warnings)
@@ -306,7 +258,6 @@ export function RegenerationControl({ dataset, total = 0, refreshError = "", his
 
   async function openHistory(preferCurrent = false) {
     setHistoryOpen(true);
-    setDiagnosticQuery("");
     if (preferCurrent) {
       setSelectedRun({
         status,
@@ -343,8 +294,9 @@ export function RegenerationControl({ dataset, total = 0, refreshError = "", his
     }
   }
 
-  async function copyDiagnostic(value) {
-    await navigator.clipboard.writeText(typeof value === "string" ? value : JSON.stringify(value, null, 2));
+  function openRegenerationReport() {
+    if (unmatchedCount) setUnmatchedOpen(true);
+    else openHistory(true);
   }
 
   return (
@@ -356,6 +308,11 @@ export function RegenerationControl({ dataset, total = 0, refreshError = "", his
           <strong className="min-w-0 truncate" title={formatDate(lastSyncAt)}>{formatDate(lastSyncAt)}</strong>
         </div>
         <DatasetStatusBadge status={compactStatus} />
+        {unmatchedCount ? (
+          <Button className="min-h-9 whitespace-nowrap" size="sm" variant="secondary" type="button" onClick={() => setUnmatchedOpen(true)}>
+            Voir les {unmatchedCount.toLocaleString("fr-FR")} non-matchés
+          </Button>
+        ) : null}
         <div className="flex shrink-0 items-center gap-2">
           <Button className="min-h-9" size="sm" variant="ghost" type="button" onClick={toggleExpanded} aria-expanded={expanded} aria-controls={detailsId}>
             Détails
@@ -377,9 +334,9 @@ export function RegenerationControl({ dataset, total = 0, refreshError = "", his
               {visibility === "private" ? "Privé · Admin" : "Public · API"}
             </span>
             {warningCount ? <span className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-warning/25 bg-warning/12 px-2 py-0.5 text-[9px] font-black leading-4 text-warning-foreground sm:py-1 sm:text-[10px]">{warningCount} avertissement(s)</span> : null}
-            {unmatchedEntries.length ? (
-              <button className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-warning/25 bg-warning/12 px-2 py-0.5 text-[9px] font-black leading-4 text-warning-foreground underline-offset-2 hover:underline sm:py-1 sm:text-[10px]" type="button" onClick={() => openHistory(true)}>
-                {unmatchedEntries.length} non matchée(s)
+            {unmatchedCount ? (
+              <button className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-warning/25 bg-warning/12 px-2 py-0.5 text-[9px] font-black leading-4 text-warning-foreground underline-offset-2 hover:underline sm:py-1 sm:text-[10px]" type="button" onClick={() => setUnmatchedOpen(true)}>
+                {unmatchedCount.toLocaleString("fr-FR")} non matchée(s)
               </button>
             ) : null}
             <span className="ml-auto"><DatasetDiffBadge changed={changed} hasDiff={hasDiff} /></span>
@@ -387,7 +344,7 @@ export function RegenerationControl({ dataset, total = 0, refreshError = "", his
 
           <DatasetRegenerationStatus
             state={regeneration}
-            onReport={() => openHistory(true)}
+            onReport={openRegenerationReport}
             onRetry={onRetry}
           />
 
@@ -476,17 +433,16 @@ export function RegenerationControl({ dataset, total = 0, refreshError = "", his
                 {selectedPvpWarnings.map((warning, index) => <PvpWarningCard warning={warning} key={`${warning.code}-${warning.entity}-${index}`} />)}
               </section>
             ) : null}
-            <label className="relative mt-4 block">
-              <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-disabled" size={16} />
-              <input className="min-h-11 w-full rounded-xl border border-line bg-surface-inset-strong pl-10 pr-3 text-sm text-domain-foreground outline-none focus:border-cyan-200/40" value={diagnosticQuery} onChange={(event) => setDiagnosticQuery(event.target.value)} placeholder="Identifiant, alias, forme, costume, raison…" />
-            </label>
-            <div className="mt-3 max-h-[54dvh] space-y-2 overflow-y-auto pr-1">
-              {visibleUnmatched.map((entry, index) => <DiagnosticCard entry={entry} provider={provider} onCopy={copyDiagnostic} key={`${entry.sourceId}-${entry.sourceName}-${index}`} />)}
-              {!visibleUnmatched.length ? <EmptyState title="Aucune entrée non matchée pour cette exécution" /> : null}
+            <div className="mt-4">
+              <UnmatchedEntriesReport entries={selectedRun?.unmatchedEntries || unmatchedEntries} total={selectedRun?.unmatchedCount ?? unmatchedCount} provider={selectedRun?.provider || provider} />
             </div>
             {selectedRun?.errors?.length ? <pre className="mt-4 whitespace-pre-wrap rounded-xl border border-red-200/20 bg-red-300/[.07] p-3 text-xs text-red-100">{JSON.stringify(selectedRun.errors, null, 2)}</pre> : null}
           </div>
         </div>
+      </Modal>
+
+      <Modal open={unmatchedOpen} onClose={() => setUnmatchedOpen(false)} title="Entrées non matchées" description={`${provider} · contrat UnmatchedEntriesReport`} className="max-w-6xl">
+        <UnmatchedEntriesReport entries={unmatchedEntries} total={unmatchedCount} provider={provider} />
       </Modal>
     </section>
   );

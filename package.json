@@ -23,6 +23,7 @@
     "test:discord-bot": "tsx --test scripts/test-discord-bot-control-center.mts",
     "test:pokemon-responsive": "node scripts/verify-pokemon-responsive.mjs",
     "test:rocket-weaknesses": "node --test scripts/test-rocket-weakness-assets.mjs",
+    "test:unmatched-report": "node --test scripts/test-unmatched-entries-report.mjs",
     "test:pvp-gbl": "node --test scripts/test-pvp-gbl-display.mjs",
     "test:pvp-engine": "tsx --test scripts/test-pvp-battle-engine.mts",
     "test:pvp-parity": "node --conditions=react-server --import tsx --test scripts/test-pvp-parity.mts",

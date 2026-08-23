@@ -227,16 +227,20 @@ test("Game Master Explorer reste privé, paginé et ne charge le JSON brut qu’
 
 test("les datasets affichent l'historique centralisé et les diagnostics non matchés", () => {
   const diagnostics = read("src/components/admin/pokemon/current-dataset-diagnostics.jsx");
+  const unmatchedReport = read("src/components/admin/pokemon/unmatched-entries-report.jsx");
   const proxy = read("src/app/api/pokemon-admin/route.ts");
   const eventRoute = read("src/app/api/admin/events/scrape/route.ts");
   const eventHistory = read("src/app/api/admin/events/history/route.ts");
   const events = read("src/components/admin/events/events-calendar-panel.jsx");
   assert.match(diagnostics, /Historique des exécutions/);
-  assert.match(diagnostics, /\{unmatchedEntries\.length\} non matchée\(s\)/);
-  assert.match(diagnostics, /Alias brut/);
-  assert.match(diagnostics, /Alias normalisé/);
-  assert.match(diagnostics, /Action proposée/);
-  assert.match(diagnostics, /Ouvrir l’Identity Manager/);
+  assert.match(diagnostics, /Voir les \{unmatchedCount\.toLocaleString\("fr-FR"\)\} non-matchés/);
+  assert.match(diagnostics, /<UnmatchedEntriesReport/);
+  for (const label of ["Provider", "Source ID", "Nom", "Valeur source", "Raison", "Confiance", "Destination éventuelle", "Candidats"] ) {
+    assert.match(unmatchedReport, new RegExp(label));
+  }
+  assert.match(unmatchedReport, /Filtrer par raison/);
+  assert.match(unmatchedReport, /Filtrer par provider/);
+  assert.match(unmatchedReport, /Filtrer par statut/);
   assert.match(diagnostics, /diffUnavailableReason/);
   assert.match(proxy, /dataset-history/);
   assert.match(eventRoute, /startDatasetRun/);
@@ -373,6 +377,7 @@ test("les contrôles de régénération restent compacts et l'API Explorer reste
   assert.ok(diagnostics.indexOf("{expanded ? (") < diagnostics.indexOf("<DatasetRegenerationStatus"));
   assert.match(diagnostics, /whitespace-nowrap/);
   assert.match(diagnostics, /<Modal open=\{historyOpen\}/);
+  assert.match(diagnostics, /<Modal open=\{unmatchedOpen\}/);
   assert.doesNotMatch(diagnostics, /ModalPortal|fixed inset-0/);
   assert.match(explorer, /min-w-0 overflow-hidden/);
   assert.match(explorer, /xl:grid-cols-\[minmax\(16rem,23rem\)_minmax\(0,1fr\)_auto\]/);
