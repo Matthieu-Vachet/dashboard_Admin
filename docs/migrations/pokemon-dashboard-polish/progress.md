@@ -110,4 +110,26 @@ PREVIEW: `https://dashboard-admin-i6cdeuzu0-matthieu-vachets-projects.vercel.app
 
 REMARQUES: le viewer utilise exclusivement `canonicalJsonRecords`. Chaque payload est le JSON lu dans son fichier réel, dans l'ordre Pokémon, Assets Core, Home, Shuffle, Variants, Location Cards et PvP; une section absente du disque n'est pas créée. Les cinq familles de fixture couvrent normal, Alola, Mega, Dynamax et Gigantamax, dont un PvP `UNSUPPORTED_FORM`.
 
-NEXT: LOT 05 — auditer puis corriger la source du calendrier GBL.
+NEXT: LOT 05 — intégrer les Méga-évolutions à la vue Évolution des fiches Pokémon.
+
+## LOT 05
+
+STATUS: DONE
+
+CAUSE RACINE: les fiches de base publiaient seulement des références `megaEvolutions`, tandis que la vue Évolution ne consommait que le tableau d'évolutions classiques. Le coût et la disponibilité réels vivaient sur les fiches Méga cibles et n'étaient pas projetés dans le catalogue de navigation.
+
+FICHIERS MODIFIÉS: `src/lib/pokemon-detail-data.mjs`, `src/server/pokemon-go/apps/checklist/server/engine.js`, `src/components/admin/pokemon/detail-modal.jsx`, `scripts/test-pokemon-mega-evolutions.mjs`, `package.json`, documentation `mega-evolution-view.md` et journal.
+
+TESTS: Méga-évolutions (4/4), détail Pokémon (6/6), Admin Pokémon (45/45), catégories d'entités (2/2), TypeScript, ESLint (0 erreur, 71 avertissements), documentation (171 valides), build et postbuild: OK. Navigateur: Florizarre vers Méga-Florizarre, coût initial 200, statut disponible, navigation cible, desktop et 390 px sans overflow horizontal, 0 violation axe dans la modale.
+
+VERSION: Dashboard `1.50.0` et Data runtime `1.28.0` au commit `2869aba4d19e9313db2055a13cf69dc9d0c3c3a5`, inchangées.
+
+COMMIT: `1d5fe8dd3cbf9d485a7d8c90eed290004f0e992e` — `feat(pokemon-details): integrate mega evolutions into evolution view`
+
+PUSH: `origin/develop` au commit fonctionnel; checkpoint documenté dans le commit suivant.
+
+PREVIEW: `https://dashboard-admin-jz8mdubqc-matthieu-vachets-projects.vercel.app` (`READY`, commit `1d5fe8d`).
+
+REMARQUES: les évolutions classiques et Méga partagent la section `Évolutions`; Dracaufeu X et Y restent deux cibles distinctes. `megaEnergyCost` et `availability.released` sont lus sur la cible. Aucun coût suivant, niveau Méga ou cooldown n'étant publié par les fiches canoniques actuelles, aucune valeur n'est inventée.
+
+NEXT: LOT 06 — paginer les cartes de familles de bonbons dans Candies uniquement.
