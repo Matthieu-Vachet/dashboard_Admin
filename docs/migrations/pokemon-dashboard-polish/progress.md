@@ -267,3 +267,27 @@ PREVIEWS: Dashboard `https://dashboard-admin-8ad01czyh-matthieu-vachets-projects
 REMARQUES: le calcul `ranked-dataset-complement` utilise le snapshot PvPoke MongoDB déjà synchronisé: counters de la source, matchups, score, faiblesses communes et rang. Les vingt meilleurs candidats sont résolus en un seul lot par Identity Manager, puis dédupliqués par numéro Pokédex avant les cinq cartes. La clé de cache `v4` inclut hash, ligue et espèce. Un snapshot invalide reste une erreur explicite; seule l'absence réelle du classement devient un état vide. Le proxy Dashboard conserve le statut HTTP et extrait les erreurs structurées `error.message` sans les convertir en `[object Object]`.
 
 NEXT: LOT 12 — poursuivre l'audit fonctionnel et visuel selon la mission.
+
+## LOT 12
+
+STATUS: DONE
+
+CAUSE RACINE: le Dashboard déduisait l'état global de `create || update || orphan`. Les 12 documents MongoDB absents de l'inventaire local, déjà conservés en `draft/orphaned`, restaient donc assimilés à une modification. Côté API, chaque aperçu les replaçait dans le plan d'écriture et chaque application les réécrivait avec un nouvel `updatedAt` et une nouvelle entrée d'historique. L'opération n'était pas idempotente et aucun contrat backend ne distinguait un orphelin conservé d'un orphelin encore à marquer.
+
+FICHIERS MODIFIÉS: côté API, `src/services/pokemon-identity-sync-service.js`, tests de synchronisation locale et `docs/IDENTITY-MANAGER.md`; côté Dashboard, `identity-manager-panel.tsx`, orchestrateur de régénération globale et contrôles navigateur associés; journal.
+
+TESTS: API complète (183/183), build et postbuild; Dashboard Admin Pokémon (46/46), TypeScript, ESLint (0 erreur, 71 avertissements historiques), documentation (171 valides, 0 avertissement), build et postbuild, `git diff --check`: OK. Vercel réel: preview HTTP 200, deux applications HTTP 200, deux aperçus suivants HTTP 200, digest identique `76337df218c2185194780ce02717b2b506f1d6920dbb88ba7ac02e44f7feff9e`, historique inchangé. Chaque résultat expose `SYNCED`, `dirty:false`, 1 928 inchangées, 0 création, 0 mise à jour, 0 conflit, 12 orphelins conservés et 0 à marquer. Navigateur: badge et modale `Synchronisé`, bouton d'application désactivé, desktop et 390 px sans overflow horizontal ni erreur runtime.
+
+VERSION: Dashboard `1.50.0`, API `1.25.0` et Data runtime `1.28.0` au commit `2869aba4d19e9313db2055a13cf69dc9d0c3c3a5`, inchangées.
+
+COMMIT DASHBOARD: `515c18f9cb2fa8c35362e6ef9c22ab67fc405835` — `fix(identity): make synchronization state deterministic`
+
+COMMIT API: `0c926c90e88e3f5de10dafa8a3e65426ad195943` — `fix(identity): make synchronization state deterministic`
+
+PUSH: les deux dépôts sont alignés sur `origin/develop`; les branches `main` restent inchangées (`103a0f3b` Dashboard, `952107b8` API).
+
+PREVIEWS: Dashboard `https://dashboard-admin-akna0e0b0-matthieu-vachets-projects.vercel.app` (`READY`, commit `515c18f`); API `https://pokemon-go-ldsoun6xf-matthieu-vachets-projects.vercel.app` (`READY`, commit `0c926c9`). L'alias API `develop` consommé par le Dashboard a été réaligné sur ce déploiement.
+
+REMARQUES: l'API compare deux projections structurelles SHA-256 selon la même sérialisation JSON stable et le même ordre `pokemonId`, `canonicalId`, `identityKey`. `SYNCED` exige les empreintes égales et l'absence de création, mise à jour, conflit ou orphelin encore à marquer. `orphan` reste un compteur informatif; seul `orphanUpdate` déclenche une écriture et un historique. `lastSyncedAt` provient du dernier `localIdentity.lastValidatedAt` portant l'empreinte courante. Les logs Vercel confirment tous les appels BFF/API utiles en HTTP 200 et sans erreur applicative.
+
+NEXT: LOT 13 — classifier et résumer les diagnostics détaillés de l'Identity Manager sans suppression artificielle.
