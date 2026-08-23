@@ -25,6 +25,33 @@ test("les sections Pokémon sont remontées dans la navigation principale respon
   assert.doesNotMatch(app, /AdminSectionNavigation/);
 });
 
+test("les icônes métier du menu utilisent le registre local partagé", () => {
+  const navigation = read("src/data/dashboard.ts");
+  const sidebar = read("src/components/admin/navigation/admin-sidebar.tsx");
+  const mappings = {
+    collections: "pokeball.webp",
+    assets: "ic_evolvable.png",
+    catalogs: "pokedex-galar.webp",
+    docs: "search.png",
+    pvpRankings: "ic_battle.png",
+    pvpSimulator: "TodayView_Icon_Battle.webp",
+    gblCalendar: "ic_date.png",
+    bestAttackers: "ic_Legendary_small.png",
+    bestDefenders: "ic_route_medal_outline.png",
+    communityDays: "ic_event.png",
+    eventsHistory: "ep_point_icon.png",
+  };
+
+  assert.match(navigation, /export const pokemonNavigationIcons/);
+  for (const [key, file] of Object.entries(mappings)) {
+    assert.match(navigation, new RegExp(`${key}: .*${file.replaceAll(".", "\\.")}`));
+    assert.ok(fs.existsSync(path.join(root, "public/assets/ui/icons/general", file)), `${file} doit être versionné`);
+    assert.match(navigation, new RegExp(`icon: pokemonNavigationIcons\\.${key}`));
+  }
+  assert.match(sidebar, /aria-label=\{collapsed \? item\.label : undefined\}/);
+  assert.match(sidebar, /alt=""/);
+});
+
 test("le module de vérification Pokémon et ses quatre anciennes entrées sont absents", () => {
   const app = read("src/components/admin/pokemon/admin-app.jsx");
   const watch = read("src/components/admin/pokemon/source-watch-panel.tsx");

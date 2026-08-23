@@ -241,6 +241,7 @@ function AdminSidebarLink({
       href={item.href}
       onClick={onNavigate}
       title={collapsed ? item.label : undefined}
+      aria-label={collapsed ? item.label : undefined}
       aria-current={active ? "page" : undefined}
       className={cn(
         "dashboard-sidebar-link group relative flex min-h-10 items-center gap-2.5 overflow-hidden rounded-lg border px-3 text-sm font-black transition",
