@@ -500,6 +500,16 @@ test("le proxy Admin conserve une marge avant la limite Vercel", () => {
   assert.match(source, /AbortSignal\.timeout\(timeoutMs\)/);
 });
 
+test("le proxy Suggested Teammates conserve l'erreur structurée et l'état vide", () => {
+  const proxy = read("src/app/api/pokemon-admin/route.ts");
+  const panel = read("src/components/admin/pokemon/pvp-rankings-panel.jsx");
+  assert.match(proxy, /async function readPvpSuggestedTeammates/);
+  assert.match(proxy, /pokemonApiErrorMessage\(payload, "Suggested Teammates indisponibles\."\)/);
+  assert.match(proxy, /!Array\.isArray\(payload\?\.data\)/);
+  assert.match(panel, /Aucune suggestion disponible pour ce classement\./);
+  assert.doesNotMatch(panel, /Aucun partenaire exact retourné par la fiche PvPoke/);
+});
+
 test("Identity Manager reste privé et expose un CRUD traçable sans secret navigateur", () => {
   const app = read("src/components/admin/pokemon/admin-app.jsx");
   const panel = read("src/components/admin/pokemon/identity-manager-panel.tsx");

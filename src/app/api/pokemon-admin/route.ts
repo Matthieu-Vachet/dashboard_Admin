@@ -310,9 +310,17 @@ async function readPvpSuggestedTeammates(request: NextRequest) {
   }
   const target = new URL(`/api/v1/pvp-rankings/${encodeURIComponent(league)}/${encodeURIComponent(speciesId)}/teammates`, pokemonApiBaseUrl);
   const response = await fetch(target, { cache: "no-store", headers: { accept: "application/json" }, signal: AbortSignal.timeout(55_000) });
-  const payload = await response.json().catch(() => null) as { data?: unknown[]; meta?: Record<string, unknown>; error?: string; message?: string } | null;
+  const payload = await response.json().catch(() => null) as {
+    data?: unknown[];
+    meta?: Record<string, unknown>;
+    error?: string | { code?: string; message?: string };
+    message?: string;
+  } | null;
   if (!response.ok || !Array.isArray(payload?.data)) {
-    throw requestError(payload?.message || payload?.error || "Suggested Teammates indisponibles.", response.status || 502);
+    throw requestError(
+      pokemonApiErrorMessage(payload, "Suggested Teammates indisponibles."),
+      response.status || 502,
+    );
   }
   return payload;
 }
