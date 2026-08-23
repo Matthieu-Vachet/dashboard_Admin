@@ -315,3 +315,25 @@ PREVIEWS: Dashboard `https://dashboard-admin-65punpo5b-matthieu-vachets-projects
 REMARQUES: la taxonomie projette chaque cause historique vers un code et une sévérité sans réécrire ni supprimer le document source. La réconciliation est explicite, historisée dans le diagnostic par identité/utilisateur/date et limitée aux causes d'alias; elle exclut volontairement les alertes d'assets. Chaque entrée expose désormais provider, ID source, raison expliquée, candidats, action attendue et éventuel chemin canonique déjà associé. L'audit pré-écriture a vérifié individuellement les neuf correspondances et l'idempotence empêche toute clôture supplémentaire. `origin/main` reste inchangée.
 
 NEXT: LOT 14 — corriger les faiblesses Rocket avec les icônes de types disponibles.
+
+## LOT 14
+
+STATUS: DONE
+
+CAUSE RACINE: les données Rocket contenaient déjà deux listes fiables, `weaknesses.double` et `weaknesses.single`, mais `PokemonCard` les concaténait dans deux phrases en anglais sans icône ni multiplicateur. Le composant maintenait en plus une copie locale du registre d’assets de types alors qu’un résolveur partagé existait.
+
+FICHIERS MODIFIÉS: `src/components/admin/pokemon/rocket-panel.jsx`, `src/lib/rocket-weakness-presentation.mjs`, test `scripts/test-rocket-weakness-assets.mjs`, script npm, documentation `rocket-weakness-type-assets.md` et journal.
+
+TESTS: présentation Rocket (3/3), Admin Pokémon (46/46), TypeScript, ESLint (0 erreur, 71 avertissements historiques), documentation (171 valides, 0 avertissement), build et postbuild, `git diff --check`: OK. Le test charge le snapshot canonique et couvre Giovanni, Leaders, Grunts, mono-type, faiblesse simple, double faiblesse et absence de double faiblesse; chaque type réellement présent possède son fichier local. Navigateur réel: Persian affiche Combat ×1,6 sans groupe double; Rhinastoc affiche Eau et Plante ×2,56 puis Glace, Combat, Sol et Acier ×1,6; Dracaufeu chez Arlo affiche Roche ×2,56; Camérupt chez un Grunt Feu affiche Eau ×2,56. Toutes les icônes chargent, desktop et 390 px sans overflow horizontal, console et erreurs runtime Vercel vides.
+
+VERSION: Dashboard `1.50.0` et Data runtime `1.28.0` au commit `2869aba4d19e9313db2055a13cf69dc9d0c3c3a5`, inchangées.
+
+COMMIT: `888e31c0fea13edb36e60c5a4142c1b5f9356b31` — `feat(rocket): visualize weaknesses with pokemon type assets`
+
+PUSH: `origin/develop` au commit fonctionnel; `origin/main` reste inchangée à `103a0f3bd2f59298760f8b6cd0e01767b4d8159b`.
+
+PREVIEW: `https://dashboard-admin-2w4z5wwqd-matthieu-vachets-projects.vercel.app` (`READY`, commit `888e31c`).
+
+REMARQUES: les multiplicateurs suivent le contrat Pokémon GO déjà présent dans le référentiel des types: ×1,6 pour une faiblesse simple et ×2,56 pour deux efficacités superposées. Le Dashboard ne recalcule ni ne réécrit le snapshot. Les libellés français et les assets viennent désormais de `pokemon-style`; aucun logo n’a été recréé. Une entrée double est exclue du groupe simple si une source future la duplique.
+
+NEXT: LOT 15 — rendre toutes les entrées non matchées actionnables avec un rapport générique.
