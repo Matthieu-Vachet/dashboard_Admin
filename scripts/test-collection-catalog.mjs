@@ -234,6 +234,10 @@ test("les Collections compactes gardent les couleurs, libellés, icônes et acti
   assert.match(panel, /content-visibility:auto/);
   assert.match(panel, /liste complète/);
   assert.match(panel, /grid-cols-2[^\n]+2xl:grid-cols-10/);
+  assert.match(panel, /data-testid="active-collection-card"/);
+  assert.match(panel, /data-testid="collection-selector-trigger"/);
+  assert.match(panel, /Changer de collection, active/);
+  assert.doesNotMatch(panel, /const collectionSelector/);
   assert.match(panel, /dialog\.contains\(document\.activeElement\)/);
   assert.doesNotMatch(panel, /Afficher plus|onOpen|<Info/);
   assert.match(assets, /collectionMax: "\/assets\/ui\/categories\/max-battles\/max-battles\.webp"/);

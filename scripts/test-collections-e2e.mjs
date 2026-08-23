@@ -85,6 +85,59 @@ try {
   await create.click();
   await page.waitForSelector(".collection-pokemon-card");
 
+  const selector = page.getByTestId("collection-selector-trigger");
+  const activeCard = page.getByTestId("active-collection-card");
+  assert.equal(await selector.count(), 1);
+  assert.equal(await activeCard.getByTestId("collection-selector-trigger").count(), 1);
+  assert.match(await selector.innerText(), new RegExp(testName));
+  assert.match(await activeCard.innerText(), /1 collection\(s\)/);
+
+  const longName = `Collection chromatique événementielle au nom volontairement très long ${Date.now()}`;
+  await page.getByTestId("collection-create-trigger").click();
+  dialog = page.getByRole("dialog");
+  const longNameInput = dialog.getByPlaceholder("ex. Shiny Shadow Kanto");
+  await longNameInput.fill(longName);
+  await dialog.getByRole("button", { name: /Créer la collection/ }).click();
+  await page.waitForTimeout(100);
+  assert.equal(await selector.getAttribute("title"), longName);
+  assert.match(await activeCard.innerText(), /2 collection\(s\)/);
+
+  await page.setViewportSize({ width: 320, height: 568 });
+  const narrowHeader = await page.evaluate(() => {
+    const card = document.querySelector('[data-testid="active-collection-card"]');
+    const selectorButton = document.querySelector('[data-testid="collection-selector-trigger"]');
+    const selectorName = selectorButton?.querySelector("span");
+    const actions = document.querySelector('button[aria-label="Actions de la collection"]');
+    const cardRect = card?.getBoundingClientRect();
+    const selectorRect = selectorButton?.getBoundingClientRect();
+    const actionsRect = actions?.getBoundingClientRect();
+    return {
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      cardLeft: cardRect?.left,
+      cardRight: cardRect?.right,
+      selectorLeft: selectorRect?.left,
+      selectorRight: selectorRect?.right,
+      actionsLeft: actionsRect?.left,
+      actionsRight: actionsRect?.right,
+      nameIsTruncated: (selectorName?.scrollWidth || 0) > (selectorName?.clientWidth || 0),
+    };
+  });
+  assert.ok(narrowHeader.overflow <= 1, `sélecteur mobile: overflow ${narrowHeader.overflow}px`);
+  assert.ok(narrowHeader.selectorLeft >= narrowHeader.cardLeft);
+  assert.ok(narrowHeader.selectorRight < narrowHeader.actionsLeft);
+  assert.ok(narrowHeader.actionsRight <= narrowHeader.cardRight);
+  assert.equal(narrowHeader.nameIsTruncated, true);
+
+  await selector.click();
+  dialog = page.getByRole("dialog");
+  assert.equal(await dialog.getByTestId("collection-option").count(), 2);
+  const sheetRect = await dialog.evaluate((element) => element.getBoundingClientRect());
+  assert.ok(sheetRect.left >= 0 && sheetRect.right <= 320);
+  assert.ok(sheetRect.top >= 0 && sheetRect.bottom <= 568);
+  await dialog.getByTitle(testName, { exact: true }).click();
+  await page.setViewportSize({ width: 390, height: 844 });
+  assert.equal(await selector.getAttribute("title"), testName);
+
   await page.evaluate(() => window.scrollTo(0, 0));
   const firstCardTop = await page.locator(".collection-pokemon-card").first().evaluate((element) => element.getBoundingClientRect().top);
   assert.ok(firstCardTop <= 844, `première carte à ${firstCardTop}px`);
@@ -206,6 +259,11 @@ try {
   assert.equal(await page.locator("html").evaluate((element) => element.classList.contains("light")), true);
   await page.screenshot({ path: path.join(outputDirectory, "mobile-light.png"), fullPage: false });
   await page.getByRole("button", { name: "Changer le thème" }).click();
+  await page.getByRole("button", { name: "Actions de la collection" }).click();
+  dialog = page.getByRole("dialog");
+  await dialog.getByRole("button", { name: "Supprimer" }).click();
+  await dialog.getByRole("button", { name: "Confirmer la suppression" }).click();
+  assert.equal(store.get("matweb.pokemon.collections")?.length, 1);
   await page.getByRole("button", { name: "Actions de la collection" }).click();
   dialog = page.getByRole("dialog");
   await dialog.getByRole("button", { name: "Supprimer" }).click();

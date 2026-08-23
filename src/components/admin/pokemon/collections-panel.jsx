@@ -417,16 +417,6 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
     setQuery("");
   }
 
-  const collectionSelector = (
-    <button className={`${secondaryButtonClass} w-full justify-between text-left`} type="button" onClick={() => setSheet("collections")}>
-      <span className="min-w-0">
-        <small className="block type-overline-compact text-muted">Collection</small>
-        <strong className="block truncate">{activeCollection?.name || "Choisir une collection"}</strong>
-      </span>
-      <ChevronDown size={18} />
-    </button>
-  );
-
   return (
     <section className={panelClass} data-testid="collections-panel">
       <header className="mb-2 flex items-start justify-between gap-3 sm:mb-4">
@@ -441,20 +431,30 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
 
       <div className="mb-5 hidden xl:block"><CollectionStats stats={stats} /></div>
 
-      <div className="mb-2 md:hidden">{collectionSelector}</div>
-      <div className="mb-3 hidden items-center justify-between gap-3 md:flex">
-        <div className="w-full max-w-md">{collectionSelector}</div>
-        <span className="shrink-0 rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-2 type-label text-success-foreground">{collections.length} collection(s)</span>
-      </div>
-
       {activeCollection ? (
         <>
-          <div className="mb-2 rounded-surface border border-cyan-300/25 bg-gradient-to-br from-sky-500/12 via-cyan-400/8 to-emerald-400/10 p-3 shadow-surface sm:mb-3 sm:p-4">
+          <div className="mb-2 rounded-surface border border-cyan-300/25 bg-gradient-to-br from-sky-500/12 via-cyan-400/8 to-emerald-400/10 p-3 shadow-surface sm:mb-3 sm:p-4" data-testid="active-collection-card">
             <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="type-overline-compact text-cyan-100/70"><span className="md:hidden">Active · {typeLabel(activeCollection.type)}</span><span className="hidden md:inline">Collection active · {typeLabel(activeCollection.type)}</span></p>
-                <h3 className="mt-1 truncate text-xl font-black text-domain-foreground sm:type-title-section">{activeCollection.name}</h3>
-                <p className="mt-1 text-sm font-bold text-foreground-secondary">{haveCount} / {catalog.length} obtenus</p>
+                <h3 className="mt-1 min-w-0">
+                  <button
+                    className="flex min-h-11 w-full min-w-0 max-w-xl items-center justify-between gap-2 rounded-control border border-line bg-surface-control px-3 py-2 text-left text-xl font-black text-domain-foreground transition hover:border-cyan-200/50 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/20 sm:type-title-section"
+                    type="button"
+                    onClick={() => setSheet("collections")}
+                    aria-label={`Changer de collection, active : ${activeCollection.name}`}
+                    title={activeCollection.name}
+                    data-testid="collection-selector-trigger"
+                  >
+                    <span className="min-w-0 truncate">{activeCollection.name}</span>
+                    <ChevronDown className="shrink-0" size={18} />
+                  </button>
+                </h3>
+                <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-bold text-foreground-secondary">
+                  <span>{haveCount} / {catalog.length} obtenus</span>
+                  <span aria-hidden="true">·</span>
+                  <span>{collections.length} collection(s)</span>
+                </p>
               </div>
               <button className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-line bg-surface-control text-domain-foreground" type="button" onClick={() => setSheet("actions")} aria-label="Actions de la collection">
                 <MoreHorizontal size={20} />
@@ -549,7 +549,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
       <Sheet open={sheet === "collections"} title="Mes collections" description={`${collections.length} collection(s)`} onClose={closeSheet} size="sm">
         <div className="grid gap-2">
           {collections.map((collection) => (
-            <button className={`rounded-control border p-3 text-left transition ${activeCollection?.id === collection.id ? "border-cyan-200/55 bg-cyan-400/18" : "border-line bg-surface-flat hover:bg-surface-hover"}`} key={collection.id} type="button" onClick={() => { setActiveId(collection.id); closeSheet(); }}>
+            <button className={`rounded-control border p-3 text-left transition ${activeCollection?.id === collection.id ? "border-cyan-200/55 bg-cyan-400/18" : "border-line bg-surface-flat hover:bg-surface-hover"}`} key={collection.id} type="button" title={collection.name} data-testid="collection-option" onClick={() => { setActiveId(collection.id); closeSheet(); }}>
               <span className="flex items-center justify-between gap-3"><strong className="truncate text-domain-foreground">{collection.name}</strong><small className="rounded-full bg-surface-emphasis px-2 py-1 type-label text-foreground">{collection.shiny ? "SHINY" : "STANDARD"}</small></span>
               <small className="mt-1 block truncate font-bold text-muted">{typeLabel(collection.type)} · {variantModeLabel(collection.variantMode)}{collection.hundo ? " · Hundo" : ""}</small>
             </button>
