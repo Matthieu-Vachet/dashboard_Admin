@@ -40,8 +40,30 @@ COMMIT: `6dc5dec56d272ef97203e34654a3db0844acad1b` — `style(navigation): align
 
 PUSH: `origin/develop` après ce checkpoint documenté.
 
-PREVIEW: baseline `develop` en attente du déploiement automatique du lot.
+PREVIEW: `https://dashboard-admin-fommvimq2-matthieu-vachets-projects.vercel.app` (`READY`, checkpoint `64e052dfc492a68ae5817ec1717b96f4b1d96ea6`).
 
 REMARQUES: registre local unique partagé par desktop, mode réduit et drawer mobile; textes accessibles conservés (`aria-label` en mode réduit, images décoratives à `alt=""`); aucun asset dupliqué.
 
 NEXT: LOT 02 — compacter les contrôles de régénération sans modifier leurs workflows.
+
+## LOT 02
+
+STATUS: DONE
+
+CAUSE RACINE: le composant de diagnostic source persistait son état ouvert en session et exposait immédiatement provider, visibilité, diff, warnings, compteurs et rapport sur les douze pages consommatrices.
+
+FICHIERS MODIFIÉS: `src/components/admin/pokemon/current-dataset-diagnostics.jsx`, façade `dataset-source-header.jsx`, test de refactor Admin Pokémon, architecture, guide Ranked Datasets et documentation de migration.
+
+TESTS: `npm run test:admin-pokemon` (44/44), `npm run typecheck`, `npm run lint` (0 erreur, 70 avertissements historiques), `npm run verify:regenerations` (17 actions, 15 globales, matrice 6/6, build et postbuild), contrats notifications (7/7), actions Admin (7/7), PvP (6/6), Best Defenders (6/6), split (5/5), docs (171 valides), navigateur et responsive (220 pages, 11 largeurs, 2 thèmes): OK.
+
+VERSION: Dashboard `1.50.0` (version inchangée pendant le lot); Data runtime `1.28.0` au commit `2869aba4d19e9313db2055a13cf69dc9d0c3c3a5`.
+
+COMMIT: `4fc2b789328d8c942fee9bb2b37095d0bc846649` — `refactor(regeneration): compact dashboard regeneration controls`
+
+PUSH: `origin/develop` après ce checkpoint documenté.
+
+PREVIEW: déploiement automatique du checkpoint attendu après push; validation locale complète déjà verte.
+
+REMARQUES: `RegenerationControl` part fermé à chaque montage, emploie un identifiant ARIA unique et conserve les façades historiques. Les handlers, boutons, états, toasts, polling, endpoints, rapports, timestamps et le Generator Registry ne changent pas.
+
+NEXT: LOT 03 — auditer puis corriger le compteur Costume / Event dans Fiches.
