@@ -243,3 +243,27 @@ PREVIEW: `https://dashboard-admin-j78aogsp2-matthieu-vachets-projects.vercel.app
 REMARQUES: le badge `Héritage` s'appuie maintenant uniquement sur les movepools Elite du Pokémon et reprend l'aide demandée; les entrées strictement historiques restent une catégorie séparée `Retirée`. La documentation pointe le commit PvPoke exact du mapping courant et n'attribue plus la classification ambiguë à PvPoke. `origin/main` reste inchangée.
 
 NEXT: LOT 11 — restaurer les coéquipiers suggérés sans masquer les erreurs serveur.
+
+## LOT 11
+
+STATUS: DONE
+
+CAUSE RACINE: la route API lançait le Team Ranker client de PvPoke dans Chromium. Les logs Vercel ont d'abord montré le timeout du sélecteur `.partner-pokemon .list a`, puis un `FUNCTION_INVOCATION_TIMEOUT` à 60 secondes sur le preview corrigé: le démarrage du navigateur et les simulations dépassaient le budget CPU serverless. Un premier cache de migration avait en outre conservé une projection non hydratée, et l'alias Vercel historique consommé par le Dashboard n'était plus réaligné automatiquement sur le dernier preview `develop`.
+
+FICHIERS MODIFIÉS: côté API, service Suggested Teammates, route PvP Rankings, cache Mongo, configuration et dépendances Chromium, tests et `docs/RANKED-DATASETS.md`; côté Dashboard, proxy `pokemon-admin`, état vide de `pvp-rankings-panel.jsx`, test Admin et documentation `pvp-suggested-teammates.md`; journal.
+
+TESTS: API complète (182/182), build et postbuild; Dashboard données PvP locales (6/6), Admin Pokémon (46/46), PvP dédié (3/3), TypeScript, ESLint (0 erreur, 71 avertissements historiques), documentation (171 valides, 0 avertissement), build et postbuild, `git diff --check`: OK. Vercel réel: Great/Coudlangue, Ultra/Coudlangue, Master/Dracolosse et Great/Feunard d'Alola répondent tous HTTP 200 avec cinq numéros Pokédex uniques, cinq assets Identity Manager exacts et zéro diagnostic; le cas non classé répond HTTP 200, tableau vide et `RANKING_NOT_FOUND`. Navigateur Dashboard: proxy HTTP 200, cinq suggestions, écran mobile 390 px sans overflow et aucune erreur runtime.
+
+VERSION: Dashboard `1.50.0`, API `1.25.0` et Data runtime `1.28.0` au commit `2869aba4d19e9313db2055a13cf69dc9d0c3c3a5`, inchangées.
+
+COMMIT DASHBOARD: `a352afedc52917b68eb075e8ce52c03a2a673c8c` — `fix(pvp-ranking): restore suggested teammates`
+
+COMMIT API FINAL: `7ef530c1da8ca3f9c3ff00d790fc502d47f3ceee` — `fix(pvp-ranking): restore suggested teammates` (après les checkpoints correctifs `ca63f110`, `4f751b4f` et `231b692b`).
+
+PUSH: les deux dépôts sont alignés sur `origin/develop`; les branches `main` restent inchangées (`103a0f3b` Dashboard, `952107b8` API).
+
+PREVIEWS: Dashboard `https://dashboard-admin-8ad01czyh-matthieu-vachets-projects.vercel.app` (`READY`, commit `a352afe`); API `https://pokemon-go-ngk598kkb-matthieu-vachets-projects.vercel.app` (`READY`, commit `7ef530c`). L'alias `https://pokemon-go-api-develop-matthieu-vachets-projects.vercel.app` pointe sur ce preview API validé.
+
+REMARQUES: le calcul `ranked-dataset-complement` utilise le snapshot PvPoke MongoDB déjà synchronisé: counters de la source, matchups, score, faiblesses communes et rang. Les vingt meilleurs candidats sont résolus en un seul lot par Identity Manager, puis dédupliqués par numéro Pokédex avant les cinq cartes. La clé de cache `v4` inclut hash, ligue et espèce. Un snapshot invalide reste une erreur explicite; seule l'absence réelle du classement devient un état vide. Le proxy Dashboard conserve le statut HTTP et extrait les erreurs structurées `error.message` sans les convertir en `[object Object]`.
+
+NEXT: LOT 12 — poursuivre l'audit fonctionnel et visuel selon la mission.
