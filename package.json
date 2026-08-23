@@ -38,6 +38,7 @@
     "test:canonical-json-viewer": "node --test scripts/test-canonical-json-viewer.mjs",
     "test:pvp-local-data": "node --test scripts/test-pvp-ranking-local-data.mjs",
     "test:pvp-regeneration": "node --test scripts/test-pvp-ranking-regeneration-state.mjs",
+    "test:pvp-legacy-highlight": "node --test scripts/test-pvp-legacy-move-highlight.mjs",
     "test:best-defenders-source": "node --test scripts/test-best-defenders-source-state.mjs",
     "test:pvp-dedicated": "node --conditions=react-server --import tsx --test scripts/test-pvp-dedicated-data.mts",
     "test:pvp-architecture": "node --import tsx --test scripts/test-pvp-architecture-audit.mts",
