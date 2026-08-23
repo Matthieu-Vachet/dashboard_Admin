@@ -133,3 +133,25 @@ PREVIEW: `https://dashboard-admin-jz8mdubqc-matthieu-vachets-projects.vercel.app
 REMARQUES: les évolutions classiques et Méga partagent la section `Évolutions`; Dracaufeu X et Y restent deux cibles distinctes. `megaEnergyCost` et `availability.released` sont lus sur la cible. Aucun coût suivant, niveau Méga ou cooldown n'étant publié par les fiches canoniques actuelles, aucune valeur n'est inventée.
 
 NEXT: LOT 06 — paginer les cartes de familles de bonbons dans Candies uniquement.
+
+## LOT 06
+
+STATUS: DONE
+
+CAUSE RACINE: `CandyPanel` regroupait et filtrait correctement les familles, puis rendait les 542 cartes d'un seul bloc sans état de page, bornes ni résumé de plage.
+
+FICHIERS MODIFIÉS: `src/components/admin/pokemon/candy-panel.jsx`, `src/lib/candy-family-pagination.mjs`, `scripts/test-candy-family-pagination.mjs`, `package.json`, documentation `candy-family-pagination.md` et journal. Collections n'a pas été modifié.
+
+TESTS: pagination Candies (3/3), assets Candy (5/5), Admin Pokémon (45/45), TypeScript, ESLint (0 erreur, 71 avertissements), documentation (171 valides), build et postbuild: OK. Navigateur: 542 familles, 61 pages, 9 cartes par page, plages 1–9 puis 10–18, recherche conservée et reset page 1, thème clair, mobile 390 px sans overflow, console vide et 0 violation axe dans le composant.
+
+VERSION: Dashboard `1.50.0` et Data runtime `1.28.0` inchangées.
+
+COMMIT: `168f71790a0c8af4fbcd887e75ca3245b1559759` — `feat(candies): paginate candy family cards`
+
+PUSH: `origin/develop` au commit fonctionnel; checkpoint documenté dans le commit suivant.
+
+PREVIEW: `https://dashboard-admin-bf07is3mj-matthieu-vachets-projects.vercel.app` (`READY`, commit `168f717`).
+
+REMARQUES: la taille fixe de neuf familles produit trois rangées sur les écrans à trois colonnes. Les contrôles haut et bas exposent page, nombre de pages, plage et total; les bornes désactivent les actions. Le changement de recherche ou du jeu d'entrées revient à la page 1 sans effet React en cascade, et la pagination ne partage aucun état avec Collections.
+
+NEXT: LOT 07 — repositionner le sélecteur de collection dans la card de collection active.
