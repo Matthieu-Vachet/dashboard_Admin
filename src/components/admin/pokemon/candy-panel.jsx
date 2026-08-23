@@ -1,10 +1,15 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { formatCount, Panel } from "./admin-ui";
 import { pokemonVariantLabel, preferredPokemonImage } from "@/components/site/pokemon-style";
 import { EmptyState } from "@/components/admin/shared/state-system";
 import { CandyAssetImage } from "./candy-asset-image";
+import {
+  CANDY_FAMILY_PAGE_SIZE,
+  paginateCandyFamilies,
+} from "@/lib/candy-family-pagination.mjs";
 import {
   candyColorToCss,
   candyColorToHex,
@@ -21,7 +26,62 @@ function variantTone(entry) {
   return "border-emerald-300/35 bg-emerald-400/15 text-emerald-100";
 }
 
+function CandyPagination({ pagination, onPageChange, placement }) {
+  const {
+    currentPage,
+    rangeEnd,
+    rangeStart,
+    totalItems,
+    totalPages,
+  } = pagination;
+
+  if (!totalItems) return null;
+
+  return (
+    <nav
+      className="flex flex-col gap-3 rounded-2xl border border-line bg-surface-inset p-3 sm:flex-row sm:items-center sm:justify-between"
+      aria-label={`Pagination des familles de bonbons · ${placement}`}
+    >
+      <button
+        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-line bg-surface-control px-4 py-2 text-sm font-black text-domain-foreground transition enabled:hover:border-cyan-200/50 enabled:hover:bg-cyan-400/15 disabled:cursor-not-allowed disabled:opacity-45"
+        type="button"
+        disabled={currentPage === 1}
+        onClick={() => onPageChange(currentPage - 1)}
+      >
+        <ChevronLeft aria-hidden="true" size={17} />
+        Précédent
+      </button>
+      <div className="text-center">
+        <p
+          className="text-sm font-black text-domain-foreground"
+          aria-live={placement === "haut" ? "polite" : undefined}
+        >
+          Page {formatCount(currentPage)} sur {formatCount(totalPages)}
+        </p>
+        <p className="mt-1 text-xs font-bold text-muted">
+          {formatCount(rangeStart)}–{formatCount(rangeEnd)} sur {formatCount(totalItems)} famille(s)
+        </p>
+      </div>
+      <button
+        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-line bg-surface-control px-4 py-2 text-sm font-black text-domain-foreground transition enabled:hover:border-cyan-200/50 enabled:hover:bg-cyan-400/15 disabled:cursor-not-allowed disabled:opacity-45"
+        type="button"
+        disabled={currentPage === totalPages}
+        onClick={() => onPageChange(currentPage + 1)}
+      >
+        Suivant
+        <ChevronRight aria-hidden="true" size={17} />
+      </button>
+    </nav>
+  );
+}
+
 export function CandyPanel({ entries = [], search = "", onOpen }) {
+  const [pageState, setPageState] = useState({
+    entries,
+    page: 1,
+    search,
+  });
+  const pageStartRef = useRef(null);
   const groups = useMemo(() => {
     const byFamily = new Map();
     for (const entry of entries) {
@@ -60,6 +120,27 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
       .toLowerCase()
       .includes(needle);
   });
+  const requestedPage =
+    pageState.search === search && pageState.entries === entries
+      ? pageState.page
+      : 1;
+  const pagination = paginateCandyFamilies(
+    filteredGroups,
+    requestedPage,
+    CANDY_FAMILY_PAGE_SIZE,
+  );
+
+  function changePage(nextPage) {
+    const next = paginateCandyFamilies(
+      filteredGroups,
+      nextPage,
+      CANDY_FAMILY_PAGE_SIZE,
+    ).currentPage;
+    setPageState({ entries, page: next, search });
+    requestAnimationFrame(() => {
+      pageStartRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
 
   return (
     <Panel
@@ -75,8 +156,15 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
         Chaque carte utilise la donnée ajoutée dans les JSON Pokémon: image de candy, familyId,
         couleurs principales et toutes les fiches Pokémon/formes reliées à cette famille.
       </p>
+      <div className="mb-4 scroll-mt-24" ref={pageStartRef}>
+        <CandyPagination
+          pagination={pagination}
+          onPageChange={changePage}
+          placement="haut"
+        />
+      </div>
       <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-        {filteredGroups.map((group) => {
+        {pagination.items.map((group) => {
           const primary = candyColorToCss(group.primaryColor);
           const secondary = candyColorToCss(group.secondaryColor);
           const contrast = candyFamilyContrast(group.primaryColor, group.secondaryColor);
@@ -164,6 +252,15 @@ export function CandyPanel({ entries = [], search = "", onOpen }) {
           );
         })}
       </div>
+      {filteredGroups.length ? (
+        <div className="mt-4">
+          <CandyPagination
+            pagination={pagination}
+            onPageChange={changePage}
+            placement="bas"
+          />
+        </div>
+      ) : null}
       {!filteredGroups.length ? (
         <EmptyState title="Aucun candy ne correspond à la recherche actuelle" />
       ) : null}

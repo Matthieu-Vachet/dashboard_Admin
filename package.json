@@ -26,6 +26,7 @@
     "test:pvp-engine": "tsx --test scripts/test-pvp-battle-engine.mts",
     "test:pvp-parity": "node --conditions=react-server --import tsx --test scripts/test-pvp-parity.mts",
     "test:candy-assets": "node --test scripts/test-pokemon-candy-assets.mjs",
+    "test:candy-pagination": "node --test scripts/test-candy-family-pagination.mjs",
     "test:regeneration-notifications": "node --import tsx --test scripts/test-regeneration-notifications.mjs",
     "test:admin-actions": "node --import tsx --test scripts/test-admin-action-contract.mts",
     "test:regeneration-matrix": "node --import tsx --test scripts/test-regeneration-pipeline-matrix.mts",
