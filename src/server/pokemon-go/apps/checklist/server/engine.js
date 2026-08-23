@@ -1697,6 +1697,8 @@ function buildChecklist(customRulesOverride = null, options = {}) {
           : displayData.secondaryType?.type || null,
       stats: displayData.stats || null,
       maxCp: displayData.maxCp || null,
+      megaEnergyCost:
+        typeof data.megaEnergyCost === "number" ? data.megaEnergyCost : null,
       buddyDistance: displayData.buddyDistance ?? null,
       secondChargeMoveCost: displayData.secondChargeMoveCost || null,
       availability: displayData.availability || null,

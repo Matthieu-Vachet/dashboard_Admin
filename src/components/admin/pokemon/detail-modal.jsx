@@ -12,7 +12,10 @@ import {
   typeName,
 } from "@/components/site/pokemon-style";
 import { pokemonVariantBadges } from "@/lib/pokemon-variant-resolver";
-import { assemblePokemonDetail } from "@/lib/pokemon-detail-data.mjs";
+import {
+  assemblePokemonDetail,
+  resolveMegaEvolutionTargets,
+} from "@/lib/pokemon-detail-data.mjs";
 import { resolvePokemonShinyReleases } from "@/lib/pokemon-shiny-release.mjs";
 import { uiAssets } from "@/components/site/ui-assets";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -856,72 +859,145 @@ function getLocalizedEntityLabel(value, language = "French") {
 
 function EvolutionPanel({
   evolutions = [],
+  megaEvolutions = [],
   allEntries = [],
   onOpenRelated,
   candyIcon,
 }) {
+  const megaTargets = resolveMegaEvolutionTargets(megaEvolutions, allEntries);
+  const hasEvolution = evolutions.length > 0 || megaTargets.length > 0;
   return (
     <Section title="Évolutions" icon={uiAssets.icons.megaEnergy} tone="emerald">
-      {evolutions.length ? (
-        <div className="grid gap-3 md:grid-cols-2">
-          {evolutions.map((evolution, index) => {
-            const target = findEntryByFormId(
-              allEntries,
-              evolution.targetFormId,
-            );
-            const itemLabel =
-              getLocalizedEntityLabel(evolution.item) ||
-              getLocalizedEntityLabel(evolution.evolutionItem);
-            const suffix = [
-              evolution.candies !== undefined
-                ? `${evolution.candies} bonbons`
-                : null,
-              itemLabel ? `Item: ${itemLabel}` : null,
-              (evolution.quests || []).length
-                ? `${evolution.quests.length} quête(s)`
-                : null,
-            ]
-              .filter(Boolean)
-              .join(" · ");
-            return (
-              <div
-                className="space-y-2"
-                key={`${evolution.targetFormId || index}-${index}`}
-              >
-                <PokemonMiniCard
-                  item={
-                    target || {
-                      name: evolution.targetFormId,
-                      formId: evolution.targetFormId,
-                    }
-                  }
-                  onClick={target ? onOpenRelated : null}
-                  suffix={suffix || "Coût non renseigné"}
-                />
-                <div className="flex flex-wrap gap-2">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface-inset-strong px-3 py-1 type-label text-domain-foreground">
-                    {candyIcon ? (
-                      <img
-                        className="h-4 w-4 object-contain"
-                        src={candyIcon}
-                        alt=""
+      {hasEvolution ? (
+        <div className="space-y-5">
+          {evolutions.length ? (
+            <div className="space-y-3">
+              {megaTargets.length ? (
+                <p className="type-overline text-emerald-100/75">
+                  Évolutions classiques
+                </p>
+              ) : null}
+              <div className="grid gap-3 md:grid-cols-2">
+                {evolutions.map((evolution, index) => {
+                  const target = findEntryByFormId(
+                    allEntries,
+                    evolution.targetFormId,
+                  );
+                  const itemLabel =
+                    getLocalizedEntityLabel(evolution.item) ||
+                    getLocalizedEntityLabel(evolution.evolutionItem);
+                  const suffix = [
+                    evolution.candies !== undefined
+                      ? `${evolution.candies} bonbons`
+                      : null,
+                    itemLabel ? `Item: ${itemLabel}` : null,
+                    (evolution.quests || []).length
+                      ? `${evolution.quests.length} quête(s)`
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ");
+                  return (
+                    <div
+                      className="space-y-2"
+                      key={`${evolution.targetFormId || index}-${index}`}
+                    >
+                      <PokemonMiniCard
+                        item={
+                          target || {
+                            name: evolution.targetFormId,
+                            formId: evolution.targetFormId,
+                          }
+                        }
+                        onClick={target ? onOpenRelated : null}
+                        suffix={suffix || "Coût non renseigné"}
                       />
-                    ) : null}
-                    {valueOrDash(evolution.candies)} bonbons
-                  </span>
-                  {itemLabel ? (
-                    <span className="rounded-full border border-line bg-surface-inset-strong px-3 py-1 type-label text-domain-foreground">
-                      {itemLabel}
-                    </span>
-                  ) : null}
-                </div>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface-inset-strong px-3 py-1 type-label text-domain-foreground">
+                          {candyIcon ? (
+                            <img
+                              className="h-4 w-4 object-contain"
+                              src={candyIcon}
+                              alt=""
+                            />
+                          ) : null}
+                          {valueOrDash(evolution.candies)} bonbons
+                        </span>
+                        {itemLabel ? (
+                          <span className="rounded-full border border-line bg-surface-inset-strong px-3 py-1 type-label text-domain-foreground">
+                            {itemLabel}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
+            </div>
+          ) : null}
+
+          {megaTargets.length ? (
+            <div className="space-y-3">
+              <p className="type-overline text-violet-100/80">
+                Méga-évolutions
+              </p>
+              <div className="grid gap-3 md:grid-cols-2">
+                {megaTargets.map(
+                  ({ formId, target, initialEnergyCost, released }) => (
+                    <article
+                      className="space-y-2 rounded-2xl border border-violet-300/20 bg-violet-400/[0.08] p-3"
+                      key={formId}
+                    >
+                      <PokemonMiniCard
+                        item={
+                          target || {
+                            name: formId,
+                            formId,
+                            form: "mega",
+                          }
+                        }
+                        onClick={target ? onOpenRelated : null}
+                        suffix={formatForm(target?.form || "mega")}
+                      />
+                      <div className="flex flex-wrap gap-2">
+                        <span className="inline-flex items-center gap-2 rounded-full border border-violet-300/25 bg-violet-400/10 px-3 py-1 type-label text-violet-50">
+                          <img
+                            className="h-4 w-4 object-contain"
+                            src={uiAssets.icons.megaEnergy}
+                            alt=""
+                          />
+                          Coût initial : {valueOrDash(initialEnergyCost)}
+                        </span>
+                        <span
+                          className={`rounded-full border px-3 py-1 type-label ${
+                            released === true
+                              ? "border-emerald-300/30 bg-emerald-400/12 text-emerald-100"
+                              : released === false
+                                ? "border-amber-300/30 bg-amber-400/12 text-amber-100"
+                                : "border-line bg-surface-inset text-muted"
+                          }`}
+                        >
+                          {released === true
+                            ? "Disponible"
+                            : released === false
+                              ? "Non disponible"
+                              : "Statut non renseigné"}
+                        </span>
+                      </div>
+                    </article>
+                  ),
+                )}
+              </div>
+              <p className="text-xs font-bold leading-5 text-muted">
+                Aucun coût suivant, niveau Méga ou cooldown n’est publié dans
+                les fiches canoniques actuelles.
+              </p>
+            </div>
+          ) : null}
         </div>
       ) : (
         <EmptyInline>
-          Aucune évolution sortante renseignée pour cette forme.
+          Aucune évolution classique ou Méga renseignée pour cette forme.
         </EmptyInline>
       )}
     </Section>
@@ -2037,6 +2113,7 @@ export function DetailModal({
                 />
                 <EvolutionPanel
                   evolutions={payload.evolutions || []}
+                  megaEvolutions={payload.megaEvolutions || []}
                   allEntries={allEntries}
                   onOpenRelated={onOpenRelated}
                   candyIcon={candyIcon}
