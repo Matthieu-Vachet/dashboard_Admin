@@ -52,6 +52,14 @@ test("les icônes métier du menu utilisent le registre local partagé", () => {
   assert.match(sidebar, /alt=""/);
 });
 
+test("le compteur Fiches costume reflète les identités affichées et non les fiches porteuses", () => {
+  const app = read("src/components/admin/pokemon/admin-app.jsx");
+  assert.match(app, /"Costumes \/ événements"/);
+  assert.match(app, /"identités individuelles · sexes regroupés"/);
+  assert.match(app, /pokemonPresentationEntries\(entries, id\)\.filter/);
+  assert.doesNotMatch(app, /id === "costume" \? entries/);
+});
+
 test("le module de vérification Pokémon et ses quatre anciennes entrées sont absents", () => {
   const app = read("src/components/admin/pokemon/admin-app.jsx");
   const watch = read("src/components/admin/pokemon/source-watch-panel.tsx");

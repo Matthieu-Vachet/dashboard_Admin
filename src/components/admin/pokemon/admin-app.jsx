@@ -647,9 +647,9 @@ const ficheFilterOptions = [
   ],
   [
     "costume",
-    "Costume / Event",
+    "Costumes / événements",
     "/assets/ui/illustrations/banners/costume.png",
-    "assetForms événementiels",
+    "identités individuelles · sexes regroupés",
   ],
   ["mega", "Méga", "/assets/ui/illustrations/banners/mega.png", "kind/form méga ou primo"],
   [
@@ -2137,7 +2137,7 @@ export function AdminApp({ initialSection = "overview" }) {
       Object.fromEntries(
         ficheFilterOptions.map(([id]) => [
           id,
-          (id === "costume" ? entries : pokemonPresentationEntries(entries, id)).filter((entry) =>
+          pokemonPresentationEntries(entries, id).filter((entry) =>
             entryMatchesFicheFilter(entry, id),
           ).length,
         ]),
