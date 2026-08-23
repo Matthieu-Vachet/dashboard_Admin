@@ -18,7 +18,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { EmptyState, ErrorState, FetchLoadingState } from "@/components/admin/shared/state-system";
-import { pvpRankingRegenerationMessage } from "@/lib/pvp-ranking-regeneration-state.mjs";
+import {
+  normalizePvpRankingWarnings,
+  pvpRankingRegenerationMessage,
+} from "@/lib/pvp-ranking-regeneration-state.mjs";
 import { actionError, normalizeActionError } from "@/lib/admin-action-errors";
 
 function firstDefined(...values) {
@@ -133,6 +136,41 @@ function DatasetRegenerationStatus({ state, onReport, onRetry }) {
   );
 }
 
+function PvpWarningCard({ warning }) {
+  return (
+    <article className={`rounded-xl border p-3 ${warning.informational ? "border-cyan-200/20 bg-cyan-300/[.07]" : "border-warning/25 bg-warning/10"}`} data-warning-code={warning.code}>
+      <header className="flex min-w-0 flex-wrap items-center gap-2">
+        <code className="break-all rounded-md border border-white/10 bg-slate-950/30 px-2 py-1 text-[10px] font-black text-domain-foreground">{warning.code}</code>
+        <strong className="min-w-0 break-words text-sm text-domain-foreground">{warning.entity}</strong>
+        {warning.informational ? <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-2 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-cyan-100">Informatif</span> : null}
+      </header>
+      <dl className="mt-3 grid gap-2 lg:grid-cols-3">
+        {[
+          ["Raison", warning.reason],
+          ["Impact", warning.impact],
+          ["Action", warning.action],
+        ].map(([label, value]) => (
+          <div className="rounded-lg border border-white/[.07] bg-slate-950/20 p-2.5" key={label}>
+            <dt className="text-[9px] font-black uppercase tracking-[0.14em] text-disabled">{label}</dt>
+            <dd className="mt-1 text-xs font-bold leading-relaxed text-foreground-secondary">{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </article>
+  );
+}
+
+function mergePvpWarnings(stateWarnings, datasetWarnings) {
+  const seen = new Set();
+  return [...(Array.isArray(stateWarnings) ? stateWarnings : []), ...normalizePvpRankingWarnings(datasetWarnings)]
+    .filter((warning) => {
+      const key = `${warning.code}:${warning.entity}:${warning.reason}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
+
 function DiagnosticCard({ entry, provider, onCopy }) {
   const rawAlias = firstDefined(entry.rawAlias, entry.sourceAlias, entry.sourceId, entry.sourceName, "—");
   const normalizedAlias = firstDefined(entry.normalizedAlias, entry.normalizedSourceId, "—");
@@ -199,9 +237,11 @@ export function RegenerationControl({ dataset, total = 0, refreshError = "", his
     () => (Array.isArray(diagnostics.unmatchedEntries) ? diagnostics.unmatchedEntries : []),
     [diagnostics.unmatchedEntries],
   );
-  const warningCount = Array.isArray(diagnostics.warnings)
-    ? diagnostics.warnings.length
-    : Number(diagnostics.warnings) || 0;
+  const warningCount = Math.max(
+    Array.isArray(diagnostics.warnings) ? diagnostics.warnings.length : Number(diagnostics.warnings) || 0,
+    Number(diagnostics.warningsCount) || 0,
+    Number(regeneration?.warningCount) || 0,
+  );
   const source = firstDefined(meta.source, current.source?.storage);
   const sourceLabel = source === "mongodb" || source === "MongoDB" ? "MongoDB" : "Source indisponible";
   const provider = firstDefined(meta.provider, sourceDetails.provider, "Indisponible");
@@ -248,6 +288,17 @@ export function RegenerationControl({ dataset, total = 0, refreshError = "", his
     if (!needle) return entries;
     return entries.filter((entry) => JSON.stringify(entry).toLowerCase().includes(needle));
   }, [diagnosticQuery, selectedRun, unmatchedEntries]);
+  const isPvpRankings = meta.domain === "pvp-rankings";
+  const currentPvpWarnings = isPvpRankings
+    ? mergePvpWarnings(regeneration?.warningDetails, warnings)
+    : [];
+  const selectedPvpWarnings = !isPvpRankings
+    ? []
+    : !selectedRun
+      ? currentPvpWarnings
+      : Array.isArray(selectedRun.warningDetails)
+        ? selectedRun.warningDetails
+        : normalizePvpRankingWarnings(selectedRun.warnings);
 
   function toggleExpanded() {
     setExpanded((currentExpanded) => !currentExpanded);
@@ -261,6 +312,7 @@ export function RegenerationControl({ dataset, total = 0, refreshError = "", his
         status,
         unmatchedEntries,
         warnings,
+        warningDetails: currentPvpWarnings,
         errors: [],
         added: diff.added,
         removed: diff.removed,
@@ -339,6 +391,21 @@ export function RegenerationControl({ dataset, total = 0, refreshError = "", his
             onRetry={onRetry}
           />
 
+          {currentPvpWarnings.length ? (
+            <section className="space-y-2 rounded-xl border border-warning/20 bg-amber-300/[.045] p-3" aria-labelledby={`${detailsId}-pvp-warnings`}>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h3 className="text-sm font-black text-domain-foreground" id={`${detailsId}-pvp-warnings`}>
+                    {regeneration?.status === "partial" ? "Pourquoi ce statut PARTIAL ?" : "Avertissements du dernier snapshot PvP"}
+                  </h3>
+                  <p className="mt-1 type-caption-strong text-muted">Chaque avertissement expose son code, l’entité, sa cause, son impact et l’action attendue.</p>
+                </div>
+                <span className="rounded-full border border-warning/25 bg-warning/10 px-2.5 py-1 text-[10px] font-black text-warning-foreground">{warningCount} avertissement(s)</span>
+              </div>
+              {currentPvpWarnings.map((warning, index) => <PvpWarningCard warning={warning} key={`${warning.code}-${warning.entity}-${index}`} />)}
+            </section>
+          ) : null}
+
           <dl className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
             {metrics.map(([label, value, mono]) => <Metric key={label} label={label} value={value} mono={mono} />)}
           </dl>
@@ -368,7 +435,7 @@ export function RegenerationControl({ dataset, total = 0, refreshError = "", his
             </div>
           ) : null}
 
-          {warnings.length ? (
+          {warnings.length && !isPvpRankings ? (
             <details className="group rounded-xl border border-amber-200/20 bg-amber-300/10 type-caption-strong text-amber-50">
               <summary className="cursor-pointer list-none px-3 py-2.5">Afficher les {warnings.length} diagnostic(s)</summary>
               <ul className="space-y-1 border-t border-amber-100/10 p-3">
@@ -400,6 +467,15 @@ export function RegenerationControl({ dataset, total = 0, refreshError = "", his
               <Metric label="Ignorés" value={selectedRun?.ignoredCount ?? diagnostics.ignoredCount ?? 0} mono />
               <Metric label="WARNING" value={selectedRun?.warningsCount ?? diagnostics.warningsCount ?? warnings.length} mono />
             </dl>
+            {selectedPvpWarnings.length ? (
+              <section className="mt-4 space-y-2" aria-label="Avertissements de génération PvP">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <strong className="text-sm text-domain-foreground">Avertissements expliqués</strong>
+                  <span className="type-caption-strong text-muted">{selectedPvpWarnings.length} détail(s)</span>
+                </div>
+                {selectedPvpWarnings.map((warning, index) => <PvpWarningCard warning={warning} key={`${warning.code}-${warning.entity}-${index}`} />)}
+              </section>
+            ) : null}
             <label className="relative mt-4 block">
               <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-disabled" size={16} />
               <input className="min-h-11 w-full rounded-xl border border-line bg-surface-inset-strong pl-10 pr-3 text-sm text-domain-foreground outline-none focus:border-cyan-200/40" value={diagnosticQuery} onChange={(event) => setDiagnosticQuery(event.target.value)} placeholder="Identifiant, alias, forme, costume, raison…" />

@@ -1,11 +1,17 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import {
   createPvpRankingRegenerationState,
   normalizePvpRankingRegeneration,
+  normalizePvpRankingWarnings,
   pvpRankingRegenerationMessage,
   pvpRankingRegenerationToast,
 } from "../src/lib/pvp-ranking-regeneration-state.mjs";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 test("idle et running sont des états explicites", () => {
   assert.equal(createPvpRankingRegenerationState().status, "idle");
@@ -45,6 +51,84 @@ test("partial reste un succès métier explicite avec son rapport", () => {
   );
   assert.match(pvpRankingRegenerationMessage(state), /148 MAPPING_MISSING, 150 WARNING/);
   assert.equal(pvpRankingRegenerationToast(state)?.kind, "warning");
+});
+
+test("les deux warnings PvP courants exposent code, entité, raison, impact et action", () => {
+  const warnings = normalizePvpRankingWarnings([
+    "bayou-1500: volcarona sans Rank 1 calculable.",
+    "1 entrees avec attaque non matchee: none (1).",
+  ]);
+
+  assert.deepEqual(
+    warnings.map(({ code, entity, informational }) => ({ code, entity, informational })),
+    [
+      {
+        code: "RANK1_INELIGIBLE_AT_SOURCE_LEVEL_FLOOR",
+        entity: "Volcarona · bayou-1500",
+        informational: false,
+      },
+      {
+        code: "MOVE_UNMATCHED:none",
+        entity: "Unown · great (Ligue Super · 1 500 PC)",
+        informational: true,
+      },
+    ],
+  );
+  for (const warning of warnings) {
+    assert.ok(warning.reason);
+    assert.ok(warning.impact);
+    assert.ok(warning.action);
+  }
+  assert.match(warnings[0].reason, /niveau source minimal à 20/);
+  assert.match(warnings[0].reason, /1 822 PC/);
+  assert.match(warnings[1].reason, /sentinelle « none »/);
+  assert.match(warnings[1].impact, /Aucun impact métier/);
+});
+
+test("une sentinelle provider seule ne dégrade plus un succès en PARTIAL", () => {
+  const state = normalizePvpRankingRegeneration({
+    status: "partial",
+    totalAfter: 1_145,
+    mappingMissingCount: 0,
+    warnings: ["1 entrees avec attaque non matchee: none (1)."],
+  });
+  assert.equal(state.status, "success");
+  assert.equal(state.warningCount, 1);
+  assert.equal(state.actionableWarningCount, 0);
+  assert.equal(state.warningDetails[0].informational, true);
+});
+
+test("Volcarona maintient PARTIAL et le résumé distingue l'information provider", () => {
+  const state = normalizePvpRankingRegeneration({
+    status: "partial",
+    totalAfter: 20_442,
+    ignoredCount: 0,
+    mappingMissingCount: 0,
+    warningsCount: 2,
+    diagnostics: {
+      warnings: [
+        "bayou-1500: volcarona sans Rank 1 calculable.",
+        "1 entrees avec attaque non matchee: none (1).",
+      ],
+    },
+  });
+  assert.equal(state.status, "partial");
+  assert.equal(state.warningCount, 2);
+  assert.equal(state.actionableWarningCount, 1);
+  assert.equal(state.warningDetails.length, 2);
+  assert.match(pvpRankingRegenerationMessage(state), /2 WARNING \(1 avec impact, 1 informatif\)/);
+});
+
+test("Détails et Voir le rapport rendent les avertissements structurés", () => {
+  const component = fs.readFileSync(
+    path.join(root, "src/components/admin/pokemon/current-dataset-diagnostics.jsx"),
+    "utf8",
+  );
+  assert.match(component, /Pourquoi ce statut PARTIAL/);
+  assert.match(component, /Avertissements expliqués/);
+  assert.match(component, /data-warning-code/);
+  for (const label of ["Raison", "Impact", "Action"]) assert.match(component, new RegExp(`\"${label}\"`));
+  assert.match(component, /warningDetails: currentPvpWarnings/);
 });
 
 test("un état unchanged avec mappings manquants reste partiel", () => {

@@ -34,7 +34,11 @@ Le Dashboard Admin est organisé autour du dossier canonique `src/components/adm
 - Le PvP répond `202 Accepted` avec un identifiant d’exécution ; le Dashboard interroge ensuite le statut privé jusqu’à l’état terminal.
 - Le contrat PvP distingue `idle`, `running`, `success`, `partial`, `failed` et
   `cancelled`. `partial` reste un résultat persistant ; le centre global le traduit en
-  `warning` avec ses compteurs, jamais en erreur générique.
+  `warning` avec ses compteurs, jamais en erreur générique. Les warnings PvP sont
+  normalisés en `{ code, entity, reason, impact, action, informational }` pour les
+  panneaux **Détails** et **Voir le rapport**. Une sentinelle provider explicitement
+  informative ne dégrade pas seule le statut ; tout warning inconnu reste avec impact
+  par défaut.
 - L’agrégateur parcourt aussi `data`, `run`, `sourceRun`, `current` et `diagnostics` afin
   que les warnings Events ou provider imbriqués ne soient pas perdus.
 - Les actions longues utilisent la primitive `Button`, son état `loading`, `aria-busy` et le respect de `prefers-reduced-motion`.
