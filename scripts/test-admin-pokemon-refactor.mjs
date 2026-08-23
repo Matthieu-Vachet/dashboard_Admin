@@ -343,21 +343,26 @@ test("Events déduplique les assets identiques", () => {
   assert.match(eventsSource, /uniqueBy\(\(event\.featuredPokemon \|\| \[\]\)[\s\S]*?\(pokemon\) => pokemon\.src\)/);
 });
 
-test("les diagnostics source restent repliés et l'API Explorer reste contenu sur mobile", () => {
+test("les contrôles de régénération restent compacts et l'API Explorer reste contenu sur mobile", () => {
   const diagnostics = read("src/components/admin/pokemon/current-dataset-diagnostics.jsx");
+  const facade = read("src/components/admin/pokemon/dataset-source-header.jsx");
   const explorer = read("src/components/admin/pokemon/pokemon-api-explorer.tsx");
+  assert.match(diagnostics, /export function RegenerationControl/);
+  assert.match(facade, /RegenerationControl/);
   assert.match(diagnostics, /const \[expanded, setExpanded\] = useState\(false\)/);
-  assert.match(diagnostics, /sessionStorage\.getItem\(storageKey\)/);
-  assert.match(diagnostics, /sessionStorage\.setItem\(storageKey/);
+  assert.doesNotMatch(diagnostics, /sessionStorage/);
+  assert.match(diagnostics, /Dernière synchro :/);
+  assert.match(diagnostics, /const compactStatus = regeneration\?\.status/);
+  assert.match(diagnostics, /<DatasetStatusBadge status=\{compactStatus\}/);
   assert.match(diagnostics, /aria-expanded=\{expanded\}/);
+  assert.match(diagnostics, /const detailsId = useId\(\)/);
+  assert.match(diagnostics, /aria-controls=\{detailsId\}/);
   assert.match(diagnostics, /motion-reduce:transition-none/);
-  assert.match(diagnostics, /Replier les détails de la source/);
-  assert.match(diagnostics, /Déplier les détails de la source/);
-  assert.match(diagnostics, /grid-cols-\[minmax\(0,1fr\)_auto\]/);
-  assert.match(diagnostics, /col-span-2 flex min-w-0 flex-wrap/);
+  assert.match(diagnostics, />\s*Détails\s*<ChevronDown/);
+  assert.match(diagnostics, /id=\{detailsId\}/);
   assert.match(diagnostics, /function DatasetDiffBadge/);
-  assert.match(diagnostics, /<span className="sm:hidden">\s*<DatasetDiffBadge/);
-  assert.match(diagnostics, /<span className="hidden sm:block">\s*<DatasetDiffBadge/);
+  assert.match(diagnostics, /<DatasetRegenerationStatus/);
+  assert.ok(diagnostics.indexOf("{expanded ? (") < diagnostics.indexOf("<DatasetRegenerationStatus"));
   assert.match(diagnostics, /whitespace-nowrap/);
   assert.match(diagnostics, /<Modal open=\{historyOpen\}/);
   assert.doesNotMatch(diagnostics, /ModalPortal|fixed inset-0/);

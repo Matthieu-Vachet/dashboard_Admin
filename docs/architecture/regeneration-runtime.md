@@ -10,6 +10,8 @@ Les modules de génération ne sont jamais chargés par `require()` dynamique. `
 
 Le Dashboard utilise `src/lib/admin-regeneration-registry.ts` pour les actions, routes API, providers, sorties, permissions et timeouts. Les 17 actions actives, dont 15 étapes globales, et le proxy `/api/pokemon-admin` dérivent de ce registre.
 
+L’interface mutualise la présentation des datasets dans `RegenerationControl` (`current-dataset-diagnostics.jsx`). La ligne initiale ne montre que la dernière synchronisation et le statut ; le bouton principal reste fourni par le panneau métier. Le provider, la visibilité, le hash, les compteurs, warnings, identifiant d’opération, diff, historique et rapport sont repliés derrière **Détails** à chaque ouverture de page. `DatasetSourceHeader` et `CurrentDatasetDiagnostics` restent des façades de compatibilité vers ce composant unique : aucun workflow, endpoint, toast ou état du Generator Registry n’est dupliqué dans les pages.
+
 Toutes les actions pilotées par l’Admin passent par le contrat commun
 `normalizeActionError` / `executeAdminAction`. Une erreur conserve `code`, `message`,
 `details`, `status` et `cause`; un objet inconnu ne peut jamais être transmis tel quel à

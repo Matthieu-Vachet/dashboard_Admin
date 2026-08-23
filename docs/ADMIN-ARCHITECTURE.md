@@ -28,7 +28,7 @@ Le Dashboard Admin est organisé autour du dossier canonique `src/components/adm
 ## Navigation, données et régénérations
 
 - `AdminSectionNavigation` porte la recherche, l’état actif et les icônes Pokémon GO. Sur desktop, elle affiche le groupe choisi dans une barre compacte ; sur mobile, elle ouvre une sheet plein écran, verrouille le scroll et se ferme avec Échap. La section active est reflétée dans `?section=`.
-- `DatasetSourceHeader` expose provenance, visibilité, statut et diagnostics dans une structure stable.
+- `RegenerationControl` expose une ligne compacte dernière synchronisation/statut et replie provenance, visibilité, hash, compteurs, operation ID, warnings, rapport et diagnostics derrière **Détails**. Les noms `DatasetSourceHeader` et `CurrentDatasetDiagnostics` restent des façades de compatibilité.
 - La confidentialité est contrôlée côté serveur. Le navigateur n’obtient jamais le secret de PokemonGo-API.
 - Le centre de commande exécute les domaines séquentiellement et conserve pour chaque étape un état `pending`, `running`, `success`, `warning` ou `error`.
 - Le PvP répond `202 Accepted` avec un identifiant d’exécution ; le Dashboard interroge ensuite le statut privé jusqu’à l’état terminal.

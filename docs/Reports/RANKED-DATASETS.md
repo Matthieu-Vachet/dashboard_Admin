@@ -1,6 +1,6 @@
 # Écrans Shiny Tracker, PvP Rankings et Best Attackers
 
-Les deux écrans sont des panneaux de l'Admin Pokémon et utilisent les composants partagés : `Panel`, `DatasetFilterBar` et `DatasetSourceHeader`. Ce dernier affiche la provenance, l'état, le hash, la visibilité et les diagnostics sans dupliquer cette logique dans chaque écran.
+Les deux écrans sont des panneaux de l'Admin Pokémon et utilisent les composants partagés : `Panel`, `DatasetFilterBar` et `RegenerationControl` (façade historique `DatasetSourceHeader`). Sa ligne compacte affiche la dernière synchronisation et l'état ; la provenance, le hash, la visibilité, les compteurs, warnings et diagnostics restent accessibles avec **Détails**, sans dupliquer cette logique dans chaque écran.
 
 Le navigateur ne contacte jamais Snacknap ou GitHub directement. Toutes les lectures passent par la route Admin authentifiée, puis par PokemonGo-API/MongoDB.
 

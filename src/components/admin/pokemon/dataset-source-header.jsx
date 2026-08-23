@@ -1,1 +1,1 @@
-export { DatasetSourceHeader } from "./current-dataset-diagnostics";
+export { DatasetSourceHeader, RegenerationControl } from "./current-dataset-diagnostics";

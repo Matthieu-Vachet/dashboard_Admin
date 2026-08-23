@@ -1,7 +1,5 @@
 "use client";
 
-/* eslint-disable react-hooks/set-state-in-effect */
-
 import {
   AlertTriangle,
   CheckCircle2,
@@ -15,7 +13,7 @@ import {
   Search,
   XCircle,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
@@ -72,6 +70,25 @@ function DatasetDiffBadge({ changed, hasDiff }) {
     <span className={`inline-flex min-h-6 shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-[9px] font-black uppercase leading-4 tracking-[0.08em] sm:px-2.5 sm:py-1 sm:text-[10px] sm:tracking-[0.12em] ${changed ? "border-warning/25 bg-warning/14 text-warning-foreground" : "border-success/25 bg-success/14 text-success-foreground"}`}>
       {changed ? <GitCompare size={12} aria-hidden="true" /> : <CheckCircle2 size={12} aria-hidden="true" />}
       {hasDiff ? (changed ? "Contenu modifié" : "Contenu inchangé") : "Diff indisponible"}
+    </span>
+  );
+}
+
+function DatasetStatusBadge({ status }) {
+  const normalizedStatus = String(status || "inconnu").toLowerCase();
+  const tone = ["success", "ready", "completed"].includes(normalizedStatus)
+    ? "border-success/25 bg-success/14 text-success-foreground"
+    : ["partial", "warning", "cancelled"].includes(normalizedStatus)
+      ? "border-warning/25 bg-warning/14 text-warning-foreground"
+      : ["failed", "error"].includes(normalizedStatus)
+        ? "border-danger/25 bg-danger/14 text-danger-foreground"
+        : normalizedStatus === "running"
+          ? "border-cyan-300/25 bg-cyan-300/12 text-cyan-100"
+          : "border-line bg-white/[0.07] text-muted";
+
+  return (
+    <span className={`inline-flex min-h-6 items-center whitespace-nowrap rounded-full border px-2.5 py-1 text-[10px] font-black uppercase leading-4 tracking-[0.12em] ${tone}`} role="status" aria-live="polite" data-regeneration-status={normalizedStatus}>
+      {normalizedStatus}
     </span>
   );
 }
@@ -163,7 +180,8 @@ function DiagnosticCard({ entry, provider, onCopy }) {
   );
 }
 
-export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", historyUrl = "", regeneration = null, onRetry = null }) {
+export function RegenerationControl({ dataset, total = 0, refreshError = "", historyUrl = "", regeneration = null, onRetry = null }) {
+  const detailsId = useId();
   const [expanded, setExpanded] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -196,6 +214,8 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
   const sourceHash = firstDefined(meta.sourceHash, current.sourceHash, "Indisponible");
   const shortHash = sourceHash === "Indisponible" ? sourceHash : String(sourceHash).slice(0, 12);
   const status = firstDefined(meta.status, current.status, "inconnu");
+  const compactStatus = regeneration?.status && regeneration.status !== "idle" ? regeneration.status : status;
+  const lastSyncAt = firstDefined(savedAt, fetchedAt);
   const visibility = firstDefined(meta.visibility, current.visibility, dataset?.data?.meta?.visibility, "public");
   const timezone = firstDefined(meta.timezone, sourceDetails.timezone, diagnostics.details?.timezone);
   const selection = firstDefined(meta.selection, sourceDetails.selection, diagnostics.details?.selectedRaids);
@@ -211,10 +231,6 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
   const errorMessage = normalizedError.startsWith("Affichage de la dernière version MongoDB connue")
     ? normalizedError
     : `Affichage de la dernière version MongoDB connue — la nouvelle récupération a échoué. ${normalizedError}`;
-  const storageKey = useMemo(
-    () => `matweb.pokemon.dataset-source.${String(meta.domain || provider).toLowerCase().replace(/[^a-z0-9_-]+/g, "-")}`,
-    [meta.domain, provider],
-  );
   const metrics = [
     ["Provider", provider, false],
     ["Mode", mode, false],
@@ -223,6 +239,7 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
     ["Récupéré le", formatDate(fetchedAt), false],
     ["Enregistré le", formatDate(savedAt), false],
     ["Hash", shortHash, true],
+    ["Operation ID", firstDefined(regeneration?.operationId, diagnostics.operationId, current.operationId, "Indisponible"), true],
     ["Matchés / non matchés", `${Number(diagnostics.matchedCount) || 0} / ${Number(diagnostics.unmatchedCount) || 0}`, true],
   ];
   const visibleUnmatched = useMemo(() => {
@@ -232,16 +249,8 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
     return entries.filter((entry) => JSON.stringify(entry).toLowerCase().includes(needle));
   }, [diagnosticQuery, selectedRun, unmatchedEntries]);
 
-  useEffect(() => {
-    setExpanded(window.sessionStorage.getItem(storageKey) === "open");
-  }, [storageKey]);
-
   function toggleExpanded() {
-    setExpanded((currentExpanded) => {
-      const nextExpanded = !currentExpanded;
-      window.sessionStorage.setItem(storageKey, nextExpanded ? "open" : "closed");
-      return nextExpanded;
-    });
+    setExpanded((currentExpanded) => !currentExpanded);
   }
 
   async function openHistory(preferCurrent = false) {
@@ -287,47 +296,49 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
   }
 
   return (
-    <section className="mt-4 min-w-0 rounded-2xl border border-cyan-300/15 bg-cyan-400/[0.075] p-3 sm:p-4" aria-label="État de la source de données">
-      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-2 sm:flex sm:flex-wrap sm:gap-3">
-        <div className="flex min-w-0 items-center gap-2 text-sm font-black text-foreground sm:shrink-0">
+    <section className="mt-4 min-w-0 rounded-xl border border-cyan-300/15 bg-cyan-400/[0.055] p-3" aria-label="Contrôle de régénération">
+      <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-2 text-sm text-foreground">
           <Database className="shrink-0" size={18} aria-hidden="true" />
-          <span className="min-w-0 truncate" title={`Source active : ${sourceLabel}`}>Source active : {sourceLabel}</span>
+          <span className="text-muted">Dernière synchro :</span>
+          <strong className="min-w-0 truncate" title={formatDate(lastSyncAt)}>{formatDate(lastSyncAt)}</strong>
         </div>
-        <div className="order-3 col-span-2 flex min-w-0 flex-wrap items-center gap-1.5 sm:order-none sm:flex-1 sm:gap-2">
-          <span className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-line bg-white/[0.07] px-2 py-0.5 text-[9px] font-black uppercase leading-4 tracking-[0.08em] text-muted sm:py-1 sm:text-[10px] sm:tracking-[0.12em]">{status}</span>
-          <span className={`inline-flex min-h-6 items-center whitespace-nowrap rounded-full border px-2 py-0.5 text-[9px] font-black uppercase leading-4 tracking-[0.08em] sm:py-1 sm:text-[10px] sm:tracking-[0.12em] ${visibility === "private" ? "border-brand/25 bg-brand/14 text-foreground" : "border-success/25 bg-success/14 text-success-foreground"}`}>
-            {visibility === "private" ? "Privé · Admin" : "Public · API"}
-          </span>
-          {warningCount ? <span className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-warning/25 bg-warning/12 px-2 py-0.5 text-[9px] font-black leading-4 text-warning-foreground sm:py-1 sm:text-[10px]">{warningCount} avertissement(s)</span> : null}
-          {unmatchedEntries.length ? (
-            <button className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-warning/25 bg-warning/12 px-2 py-0.5 text-[9px] font-black leading-4 text-warning-foreground underline-offset-2 hover:underline sm:py-1 sm:text-[10px]" type="button" onClick={() => openHistory(true)}>
-              {unmatchedEntries.length} non matchée(s)
-            </button>
-          ) : null}
-          <span className="sm:hidden">
-            <DatasetDiffBadge changed={changed} hasDiff={hasDiff} />
-          </span>
-        </div>
-        <div className="col-start-2 row-start-1 flex shrink-0 items-center gap-2 sm:order-none sm:ml-auto">
-          <span className="hidden sm:block">
-            <DatasetDiffBadge changed={changed} hasDiff={hasDiff} />
-          </span>
-          <Button className="h-9 w-9 sm:h-10 sm:w-10" size="icon" variant="ghost" type="button" onClick={toggleExpanded} aria-expanded={expanded} aria-label={expanded ? "Replier les détails de la source" : "Déplier les détails de la source"}>
-            <ChevronDown className={`transition-transform duration-motion-normal motion-reduce:transition-none ${expanded ? "rotate-180" : ""}`} size={18} />
+        <DatasetStatusBadge status={compactStatus} />
+        <div className="flex shrink-0 items-center gap-2">
+          <Button className="min-h-9" size="sm" variant="ghost" type="button" onClick={toggleExpanded} aria-expanded={expanded} aria-controls={detailsId}>
+            Détails
+            <ChevronDown className={`ml-1 transition-transform duration-motion-normal motion-reduce:transition-none ${expanded ? "rotate-180" : ""}`} size={16} aria-hidden="true" />
           </Button>
         </div>
       </div>
 
-      <DatasetRegenerationStatus
-        state={regeneration}
-        onReport={() => openHistory(true)}
-        onRetry={onRetry}
-      />
-
       {error ? <ErrorState className="mt-3" title="Diagnostic indisponible" message={errorMessage} /> : null}
 
       {expanded ? (
-        <div className="mt-3 space-y-3">
+        <div className="mt-3 space-y-3 border-t border-line pt-3" id={detailsId}>
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <strong className="inline-flex min-w-0 items-center gap-2 text-sm text-foreground">
+              <Database className="shrink-0" size={16} aria-hidden="true" />
+              <span className="truncate" title={`Source active : ${sourceLabel}`}>Source active : {sourceLabel}</span>
+            </strong>
+            <span className={`inline-flex min-h-6 items-center whitespace-nowrap rounded-full border px-2 py-0.5 text-[9px] font-black uppercase leading-4 tracking-[0.08em] sm:py-1 sm:text-[10px] sm:tracking-[0.12em] ${visibility === "private" ? "border-brand/25 bg-brand/14 text-foreground" : "border-success/25 bg-success/14 text-success-foreground"}`}>
+              {visibility === "private" ? "Privé · Admin" : "Public · API"}
+            </span>
+            {warningCount ? <span className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-warning/25 bg-warning/12 px-2 py-0.5 text-[9px] font-black leading-4 text-warning-foreground sm:py-1 sm:text-[10px]">{warningCount} avertissement(s)</span> : null}
+            {unmatchedEntries.length ? (
+              <button className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-warning/25 bg-warning/12 px-2 py-0.5 text-[9px] font-black leading-4 text-warning-foreground underline-offset-2 hover:underline sm:py-1 sm:text-[10px]" type="button" onClick={() => openHistory(true)}>
+                {unmatchedEntries.length} non matchée(s)
+              </button>
+            ) : null}
+            <span className="ml-auto"><DatasetDiffBadge changed={changed} hasDiff={hasDiff} /></span>
+          </div>
+
+          <DatasetRegenerationStatus
+            state={regeneration}
+            onReport={() => openHistory(true)}
+            onRetry={onRetry}
+          />
+
           <dl className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
             {metrics.map(([label, value, mono]) => <Metric key={label} label={label} value={value} mono={mono} />)}
           </dl>
@@ -405,5 +416,6 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
   );
 }
 
-// Façade de compatibilité pour les panels existants.
-export const CurrentDatasetDiagnostics = DatasetSourceHeader;
+// Façades de compatibilité pour les panels existants.
+export const DatasetSourceHeader = RegenerationControl;
+export const CurrentDatasetDiagnostics = RegenerationControl;
