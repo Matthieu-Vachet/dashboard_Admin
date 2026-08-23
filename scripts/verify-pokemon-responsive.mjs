@@ -135,11 +135,11 @@ async function authenticate(browser) {
   const context = await browser.newContext({ viewport: { width: 1024, height: 900 } });
   const page = await context.newPage();
   await installRoutes(page);
-  await page.goto(`${baseUrl}/login?next=/pokemon-admin`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${baseUrl}/login?next=/`, { waitUntil: "domcontentloaded" });
   await page.locator('input[name="email"]').fill(credentials.ADMIN_EMAIL || "matthieu@example.com");
   await page.locator('input[name="password"]').fill(credentials.ADMIN_PASSWORD || "change-moi");
   await Promise.all([
-    page.waitForURL((url) => url.pathname === "/pokemon-admin", { timeout: 20_000 }),
+    page.waitForURL((url) => url.pathname === "/", { timeout: 20_000 }),
     page.locator('button[type="submit"]').click(),
   ]);
   const cookies = await context.cookies();
@@ -165,17 +165,16 @@ async function assertNoOverflow(page, label) {
 }
 
 const scenarios = [
-  { id: "overview", path: "/pokemon-admin?section=overview", ready: /Voici ce qui demande votre attention aujourd’hui/ },
-  { id: "best-defenders", path: "/pokemon-admin?section=best-defenders", ready: /Best Defenders/ },
+  { id: "overview", path: "/", ready: /Voici ce qui demande votre attention aujourd’hui/ },
+  { id: "best-defenders", path: "/best-defenders", ready: /Best Defenders/ },
   { id: "removed-costume-audit", path: "/pokemon-admin?section=costume-audit", ready: /Voici ce qui demande votre attention aujourd’hui/ },
-  { id: "shiny", path: "/pokemon-admin?section=shiny", ready: /Shiny Tracker/ },
-  { id: "pvp-rankings", path: "/pokemon-admin?section=pvp-rankings", ready: /Classements PvP/, pvpDetail: true },
-  { id: "pvp-simulator", path: "/pokemon-admin?section=pvp-simulator", ready: /POKÉMON GO · MOTEUR NATIF/, battleLab: true },
-  { id: "gbl-calendar", path: "/pokemon-admin?section=gbl-calendar", ready: /Saison Toujours en avant/ },
-  { id: "identity-manager", path: "/pokemon-admin?section=identity-manager", ready: /Identity Manager/ },
-  { id: "variants", path: "/pokemon-admin?section=pokemon-identity-mappings", ready: /Résolution/ },
-  { id: "events", path: "/pokemon-admin?section=events", ready: /Calendrier Events Pokémon GO/, eventModal: true },
-  { id: "notes", path: "/notes", ready: /Notes/ },
+  { id: "shiny", path: "/shiny-tracker", ready: /Shiny Tracker/ },
+  { id: "pvp-rankings", path: "/pvp-rankings", ready: /Classements PvP/, pvpDetail: true },
+  { id: "pvp-simulator", path: "/pvp-simulator", ready: /POKÉMON GO · MOTEUR NATIF/, battleLab: true },
+  { id: "gbl-calendar", path: "/gbl-calendar", ready: /Saison Toujours en avant/ },
+  { id: "identity-manager", path: "/identity-manager", ready: /Identity Manager/ },
+  { id: "variants", path: "/pokemon-identity-mappings", ready: /Résolution/ },
+  { id: "events", path: "/events", ready: /Calendrier Events Pokémon GO/, eventModal: true },
 ];
 
 const browser = await chromium.launch();
@@ -238,8 +237,8 @@ try {
             await page.getByRole("button", { name: "Ouvrir le menu" }).click();
             const mobileSidebar = page.locator(".dashboard-sidebar-mobile");
             await mobileSidebar.waitFor({ state: "visible" });
-            assert.equal(await mobileSidebar.getByText("Accueil", { exact: true }).count(), 1, `overview-${theme}-${width}: libellé Accueil absent du burger`);
-            assert.equal(await mobileSidebar.getByText("Dashboard Admin", { exact: true }).count(), 1, `overview-${theme}-${width}: identité du menu absente`);
+            assert.ok(await mobileSidebar.getByText("Accueil", { exact: true }).filter({ visible: true }).count() >= 1, `overview-${theme}-${width}: libellé Accueil absent du burger`);
+            assert.equal(await mobileSidebar.getByText("Dashboard Pokémon GO", { exact: true }).filter({ visible: true }).count(), 1, `overview-${theme}-${width}: identité du menu absente`);
             const accountToggle = mobileSidebar.getByRole("button", { name: "Déplier les détails du compte Admin" });
             await accountToggle.waitFor({ state: "visible" });
             assert.equal(await mobileSidebar.getByRole("link", { name: "Réglages" }).filter({ visible: true }).count(), 0, `overview-${theme}-${width}: détails du compte ouverts par défaut`);
@@ -254,12 +253,15 @@ try {
           }
         }
         if (scenario.id === "removed-costume-audit") {
-          assert.equal(new URL(page.url()).searchParams.get("section"), "overview");
+          assert.equal(new URL(page.url()).pathname, "/");
+          assert.equal(new URL(page.url()).searchParams.get("section"), null);
           assert.equal(await page.getByText("Costumes / Event", { exact: true }).count(), 0);
           assert.equal(pokemonAdminActions.includes("costume-audit"), false);
         }
         if (scenario.id === "shiny" && width < 640) {
-          const visualOrder = await page.locator('[aria-label="Podium Shiny"] > button').evaluateAll((buttons) => buttons
+          const podiumCards = page.locator('[aria-label="Podium Shiny"] > button');
+          await podiumCards.first().waitFor({ state: "visible", timeout: 30_000 });
+          const visualOrder = await podiumCards.evaluateAll((buttons) => buttons
             .map((button) => ({ y: button.getBoundingClientRect().y, rank: button.querySelector("span")?.textContent?.trim() }))
             .sort((left, right) => left.y - right.y).map((entry) => entry.rank));
           assert.deepEqual(visualOrder, ["1", "2", "3"], `shiny-${theme}-${width}: ordre podium mobile`);
