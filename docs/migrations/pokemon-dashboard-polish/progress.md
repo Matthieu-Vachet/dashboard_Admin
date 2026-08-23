@@ -14,9 +14,9 @@ TESTS: TypeScript PASS; ESLint PASS (0 erreur, 70 warnings historiques); suites 
 
 VERSION: Dashboard `1.50.0`, Data runtime `1.28.0`, API déclarée `1.0.1`.
 
-COMMIT: PENDING
+COMMIT: `7847a311cbee634f3cfe3c950b71e985ef0135c1`
 
-PUSH: PENDING
+PUSH: `origin/develop` (checkpoint documenté dans le commit suivant)
 
 PREVIEW: `https://dashboard-admin-8cmgkqi6x-matthieu-vachets-projects.vercel.app` (`READY`, baseline `186adb2`).
 
