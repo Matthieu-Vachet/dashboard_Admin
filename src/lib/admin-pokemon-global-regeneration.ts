@@ -255,21 +255,24 @@ async function executeIdentitySync(): Promise<Omit<GlobalRegenerationStep, "id" 
   const create = Number(report.create || 0);
   const update = Number(report.update || 0);
   const orphan = Number(report.orphan || 0);
+  const orphanUpdate = Number(report.orphanUpdate || 0);
   const conflict = Number(report.conflict || 0);
+  const synchronization = isRecord(report.synchronization) ? report.synchronization : {};
+  const state = String(synchronization.state || (conflict ? "CONFLICT" : create + update + orphanUpdate ? "CHANGES_REQUIRED" : "SYNCED"));
 
-  if (conflict > 0) {
+  if (state === "CONFLICT" || conflict > 0) {
     return {
       status: "partial",
       summary: `Synchronisation non appliquée · ${conflict} conflit(s) à résoudre`,
-      diagnostics: { mode: "dry-run", create, update, orphan, conflict },
+      diagnostics: { mode: "dry-run", state, create, update, orphan, orphanUpdate, conflict },
     };
   }
 
-  if (create + update + orphan === 0) {
+  if (state === "SYNCED") {
     return {
       status: "success",
       summary: "Catalogue déjà synchronisé",
-      diagnostics: { mode: "dry-run", create, update, orphan, conflict },
+      diagnostics: { mode: "dry-run", state, create, update, orphan, orphanUpdate, conflict },
     };
   }
 
@@ -278,7 +281,7 @@ async function executeIdentitySync(): Promise<Omit<GlobalRegenerationStep, "id" 
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ action: "identity-manager-sync-apply" }),
   });
-  return successResult(applied, `Synchronisé · ${create} création(s), ${update} mise(s) à jour, ${orphan} orphelin(s)`);
+  return successResult(applied, `Synchronisé · ${create} création(s), ${update} mise(s) à jour, ${orphanUpdate} orphelin(s) marqué(s), ${orphan} conservé(s)`);
 }
 
 export async function executeGlobalRegenerationStep(definition: GlobalRegenerationDefinition) {

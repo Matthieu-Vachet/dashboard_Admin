@@ -167,8 +167,20 @@ type IdentitySyncReport = {
   update: number;
   unchanged: number;
   orphan: number;
+  orphanUpdate: number;
   conflict: number;
   aliasesPreserved: number;
+  synchronization: {
+    state: "SYNCED" | "CHANGES_REQUIRED" | "CONFLICT";
+    dirty: boolean;
+    localHash: string;
+    mongoHash: string;
+    hashesMatch: boolean;
+    lastSyncedAt: string | null;
+    algorithm: "sha256";
+    serialization: "stable-json-v1";
+    ordering: string;
+  };
   conflicts: IdentitySyncConflict[];
   mewtwoArmored: "present" | "missing";
 };
@@ -529,7 +541,9 @@ export function IdentityManagerPanel() {
   const activeCount = Number(meta.stats?.statuses?.active || 0);
   const conflictCount = Number(conflicts.explicitConflicts || 0) + Number(conflicts.aliasConflicts?.length || 0);
   const localFieldsLocked = Boolean(identityModal.identity?.localIdentity && identityModal.identity.syncStatus === "synchronized");
-  const syncHasChanges = Boolean(syncReport && (syncReport.create || syncReport.update || syncReport.orphan));
+  const syncState = syncReport?.synchronization?.state
+    || (syncReport?.conflict ? "CONFLICT" : syncReport?.create || syncReport?.update ? "CHANGES_REQUIRED" : "SYNCED");
+  const syncHasChanges = syncState === "CHANGES_REQUIRED";
   const associateAlias = associateModal.diagnostic ? diagnosticAliasValue(associateModal.diagnostic) : "";
 
   const loadSyncPreview = useCallback(async (notify = false) => {
@@ -825,13 +839,13 @@ export function IdentityManagerPanel() {
   }
 
   async function applyLocalSync() {
-    if (!syncReport || syncReport.conflict > 0) return;
+    if (!syncReport || syncState === "CONFLICT" || !syncHasChanges) return;
     setBusyAction("sync");
     try {
       const upstream = await apiPost("identity-manager-sync-apply");
       const report = upstream?.data as IdentitySyncReport;
       setSyncReport(report);
-      toast.success(`Synchronisation appliquée : ${report.create} création(s), ${report.update} mise(s) à jour.`);
+      toast.success(`Synchronisation appliquée : ${report.create} création(s), ${report.update} mise(s) à jour, ${report.orphanUpdate || 0} orphelin(s) marqué(s).`);
       await Promise.all([loadIdentities(), loadSyncPreview()]);
     } catch (caught) {
       toast.error(normalizeActionError(caught, "Synchronisation locale impossible.").message);
@@ -885,10 +899,10 @@ export function IdentityManagerPanel() {
           </div>
         ) : null}
         {syncReport ? (
-          <button type="button" className={cn("mt-3 flex w-full flex-wrap items-center gap-2 rounded-xl border p-3 text-left text-sm font-bold transition hover:brightness-110", syncReport.conflict ? "border-danger/35 bg-danger/10 text-rose-100" : syncReport.create || syncReport.update || syncReport.orphan ? "border-warning/35 bg-warning/10 text-amber-100" : "border-brand-3/30 bg-brand-3/10 text-emerald-100")} onClick={() => setSyncModalOpen(true)}>
+          <button type="button" className={cn("mt-3 flex w-full flex-wrap items-center gap-2 rounded-xl border p-3 text-left text-sm font-bold transition hover:brightness-110", syncState === "CONFLICT" ? "border-danger/35 bg-danger/10 text-rose-100" : syncState === "CHANGES_REQUIRED" ? "border-warning/35 bg-warning/10 text-amber-100" : "border-brand-3/30 bg-brand-3/10 text-emerald-100")} onClick={() => setSyncModalOpen(true)}>
             <Database size={17} />
             <span>{syncReport.inventory.total.toLocaleString("fr-FR")} identités locales</span>
-            <Badge tone={syncReport.conflict ? "red" : syncReport.create || syncReport.update || syncReport.orphan ? "amber" : "green"}>{syncReport.conflict ? `${syncReport.conflict} conflit(s)` : syncReport.create || syncReport.update || syncReport.orphan ? "Synchronisation requise" : "MongoDB synchronisé"}</Badge>
+            <Badge tone={syncState === "CONFLICT" ? "red" : syncState === "CHANGES_REQUIRED" ? "amber" : "green"}>{syncState === "CONFLICT" ? `${syncReport.conflict} conflit(s)` : syncState === "CHANGES_REQUIRED" ? "Synchronisation requise" : "Synchronisé"}</Badge>
             <span className="ml-auto text-xs opacity-80">Empreinte {syncReport.inventory.fingerprint.slice(0, 12)} · Mewtwo Armored {syncReport.mewtwoArmored === "present" ? "présent" : "absent"}</span>
           </button>
         ) : null}
@@ -1030,14 +1044,17 @@ export function IdentityManagerPanel() {
         </>
       )}
 
-      <Modal open={syncModalOpen} onClose={() => setSyncModalOpen(false)} title="Synchroniser le catalogue canonique" description="PokemonGo-Data reste la vérité absolue. Cet aperçu compare l’inventaire local à MongoDB sans modifier les alias fournisseurs." className="max-w-4xl" footer={<div className="flex flex-wrap justify-end gap-2"><Button variant="secondary" icon={<RefreshCcw size={15} />} loading={syncLoading} loadingText="Recalcul…" disabled={busy} onClick={() => void loadSyncPreview(true)}>Recalculer l’aperçu</Button><Button variant="primary" icon={<Database size={15} />} loading={busyAction === "sync"} loadingText="Synchronisation…" disabled={busy || syncLoading || !syncReport || syncReport.conflict > 0 || !syncHasChanges} onClick={() => void applyLocalSync()}>{syncHasChanges ? "Appliquer la synchronisation" : "Catalogue déjà synchronisé"}</Button></div>}>
+      <Modal open={syncModalOpen} onClose={() => setSyncModalOpen(false)} title="Synchroniser le catalogue canonique" description="PokemonGo-Data reste la vérité absolue. Cet aperçu compare l’inventaire local à MongoDB sans modifier les alias fournisseurs." className="max-w-4xl" footer={<div className="flex flex-wrap justify-end gap-2"><Button variant="secondary" icon={<RefreshCcw size={15} />} loading={syncLoading} loadingText="Recalcul…" disabled={busy} onClick={() => void loadSyncPreview(true)}>Recalculer l’aperçu</Button><Button variant="primary" icon={<Database size={15} />} loading={busyAction === "sync"} loadingText="Synchronisation…" disabled={busy || syncLoading || !syncReport || syncState === "CONFLICT" || !syncHasChanges} onClick={() => void applyLocalSync()}>{syncHasChanges ? "Appliquer la synchronisation" : "Catalogue déjà synchronisé"}</Button></div>}>
         {syncLoading && !syncReport ? <FetchLoadingState layout="inline" title="Comparaison du catalogue local et de MongoDB…" /> : null}
         {syncReport ? <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-3"><Stat label="Inventaire local" value={syncReport.inventory.total} tone="cyan" /><Stat label="MongoDB avant" value={syncReport.before.identities} tone="violet" /><Stat label="MongoDB après" value={syncReport.after.identities} tone="green" /></div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Stat label="À créer" value={syncReport.create} tone="green" /><Stat label="À mettre à jour" value={syncReport.update} tone="cyan" /><Stat label="Orphelins conservés" value={syncReport.orphan} tone="amber" /><Stat label="Conflits bloquants" value={syncReport.conflict} tone="red" /></div>
           <div className="rounded-xl border border-line bg-surface-faint p-4 text-sm font-semibold text-muted">
             <p><strong className="text-foreground">{syncReport.unchanged.toLocaleString("fr-FR")}</strong> identité(s) inchangée(s) · <strong className="text-foreground">{syncReport.aliasesPreserved.toLocaleString("fr-FR")}</strong> alias préservé(s) · <strong className="text-foreground">{syncReport.inventory.issues}</strong> alerte(s) d’inventaire.</p>
-            <p className="mt-2 break-all font-mono text-xs">Empreinte : {syncReport.inventory.fingerprint}</p>
+            <p className="mt-2"><strong className={syncState === "SYNCED" ? "text-emerald-200" : syncState === "CONFLICT" ? "text-rose-200" : "text-amber-200"}>État : {syncState === "SYNCED" ? "Synchronisé" : syncState === "CONFLICT" ? "Conflit" : "Synchronisation requise"}</strong>{syncReport.orphan ? ` · ${syncReport.orphan.toLocaleString("fr-FR")} orphelin(s) conservé(s), ${(syncReport.orphanUpdate || 0).toLocaleString("fr-FR")} à marquer` : ""}</p>
+            <p className="mt-2 break-all font-mono text-xs">Empreinte locale : {syncReport.synchronization?.localHash || syncReport.inventory.fingerprint}</p>
+            <p className="mt-1 break-all font-mono text-xs">Empreinte MongoDB : {syncReport.synchronization?.mongoHash || "indisponible"}</p>
+            <p className="mt-1 text-xs">Dernière synchronisation : {syncReport.synchronization?.lastSyncedAt ? formatDate(syncReport.synchronization.lastSyncedAt) : "aucune empreinte courante validée"} · SHA-256 / JSON stable / ordre canonique</p>
             <p className={cn("mt-2 font-black", syncReport.mewtwoArmored === "present" ? "text-emerald-200" : "text-rose-200")}>Régression Mewtwo Armored : {syncReport.mewtwoArmored === "present" ? "identité présente" : "identité absente"}</p>
           </div>
           {syncReport.conflicts.length ? <div className="space-y-3"><p className="rounded-xl border border-danger/35 bg-danger/10 p-4 font-black text-rose-100">La synchronisation est bloquée. Chaque conflit doit être résolu explicitement.</p>{syncReport.conflicts.map((conflict, index) => <IdentitySyncConflictCard key={`${conflict.code || "conflict"}-${conflict.canonicalId || index}-${index}`} conflict={conflict} index={index} />)}</div> : null}

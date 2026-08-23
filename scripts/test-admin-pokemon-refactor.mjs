@@ -544,6 +544,8 @@ test("Identity Manager reste privé et expose un CRUD traçable sans secret navi
   assert.match(panel, /identity-manager-sync-preview/);
   assert.match(panel, /identity-manager-sync-apply/);
   assert.match(panel, /syncStatus/);
+  assert.match(panel, /synchronization\?\.state/);
+  assert.match(panel, /orphanUpdate/);
   assert.match(panel, /Régression Mewtwo Armored/);
   assert.match(panel, /Une création manuelle commence en brouillon/);
   assert.match(panel, /CANONICAL_ID_NOT_SYNCHRONIZED/);

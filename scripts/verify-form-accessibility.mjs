@@ -378,7 +378,7 @@ async function writerScenario(page, key) {
 
 async function learningScenario(page, key) {
   await goto(page, "/js-progress", "JS Progress V2");
-  await page.getByText(/^(Mode local sécurisé|MongoDB synchronisé)$/).waitFor({ state: "visible" });
+  await page.getByText(/^(Mode local sécurisé|Synchronisé)$/).waitFor({ state: "visible" });
   await page.getByRole("button", { name: "Importer un JSON", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Importer un JSON pédagogique" });
   const file = dialog.locator('input[type="file"]');

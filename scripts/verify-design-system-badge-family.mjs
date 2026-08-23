@@ -184,7 +184,7 @@ async function waitForStableScenario(page, scenario) {
   }
   if (scenario.kind === "kanban") await page.getByText("Sauvegarde active", { exact: true }).waitFor({ state: "visible", timeout: 15_000 });
   if (scenario.kind === "projects") await page.getByText(/^\d+ actifs$/).first().waitFor({ state: "visible", timeout: 15_000 });
-  if (scenario.name === "js-progress") await page.getByText(/MongoDB synchronisé|Mode local sécurisé/).first().waitFor({ state: "visible", timeout: 15_000 });
+  if (scenario.name === "js-progress") await page.getByText(/Synchronisé|Mode local sécurisé/).first().waitFor({ state: "visible", timeout: 15_000 });
 }
 
 async function openScenarioState(page, scenario, theme, viewport) {
