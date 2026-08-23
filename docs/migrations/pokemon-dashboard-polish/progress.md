@@ -291,3 +291,27 @@ PREVIEWS: Dashboard `https://dashboard-admin-akna0e0b0-matthieu-vachets-projects
 REMARQUES: l'API compare deux projections structurelles SHA-256 selon la même sérialisation JSON stable et le même ordre `pokemonId`, `canonicalId`, `identityKey`. `SYNCED` exige les empreintes égales et l'absence de création, mise à jour, conflit ou orphelin encore à marquer. `orphan` reste un compteur informatif; seul `orphanUpdate` déclenche une écriture et un historique. `lastSyncedAt` provient du dernier `localIdentity.lastValidatedAt` portant l'empreinte courante. Les logs Vercel confirment tous les appels BFF/API utiles en HTTP 200 et sans erreur applicative.
 
 NEXT: LOT 13 — classifier et résumer les diagnostics détaillés de l'Identity Manager sans suppression artificielle.
+
+## LOT 13
+
+STATUS: DONE
+
+CAUSE RACINE: les 1 163 diagnostics historiques étaient affichés comme une liste uniforme avec leur cause brute. Les 905 ouverts mélangeaient ainsi 881 anomalies Snacknap, 20 assets PvPoke manquants et quatre cas d'autres fournisseurs, sans code stable, sévérité, synthèse par provider ni distinction entre une entrée réellement actionnable et un alias déjà validé. Neuf diagnostics Snacknap restaient ouverts alors que leurs alias actifs pointaient déjà exactement vers trois formes Oricorio et six costumes Pikachu canoniques.
+
+FICHIERS MODIFIÉS: côté API, modèle, routes et service Identity Manager, tests et `docs/IDENTITY-MANAGER.md`; côté Dashboard, proxy `pokemon-admin`, `identity-manager-panel.tsx`, test Admin Pokémon et journal.
+
+TESTS: API complète (186/186), build et postbuild; Dashboard Admin Pokémon (46/46), TypeScript, ESLint (0 erreur, 71 avertissements historiques), documentation (171 valides, 0 avertissement), build et postbuild, `git diff --check`: OK. Vercel réel: synthèse initiale HTTP 200, 905 ouverts dont 9 déjà associés; réconciliation HTTP 200 avec 885 diagnostics d'alias examinés, 9 trouvés et 9 modifiés; second passage HTTP 200 avec 876 examinés, 0 trouvé et 0 modifié. Après traitement: 896 ouverts/actionnables, 267 résolus, 0 ignoré, 0 faux positif, 0 référence résolue invalide et 1 825/1 825 alias actifs reliés à un chemin local. Les 20 `CANONICAL_ASSET_MISSING` PvPoke restent ouverts. Les filtres réels retournent 30 erreurs, 860 `FORM_UNKNOWN` et 20 assets canoniques manquants. Navigateur: 66 identités Snacknap conservent leurs 78 alias actifs et leurs chemins locaux; synthèse et cartes actionnables lisibles, desktop et 390 px sans overflow horizontal, console et erreurs runtime Vercel vides.
+
+VERSION: Dashboard `1.50.0`, API `1.25.0` et Data runtime `1.28.0` au commit `2869aba4d19e9313db2055a13cf69dc9d0c3c3a5`, inchangées.
+
+COMMIT DASHBOARD: `5704458a7fa75112d35576c51a2cc41e620cde1a` — `fix(identity): reconcile provider diagnostics and aliases`
+
+COMMIT API: `e4a18987192b6daf89e59c4d3a836c5a39f27088` — `fix(identity): reconcile provider diagnostics and aliases`
+
+PUSH: les deux dépôts sont alignés sur `origin/develop`; les branches `main` restent inchangées (`103a0f3b` Dashboard, `952107b8` API).
+
+PREVIEWS: Dashboard `https://dashboard-admin-65punpo5b-matthieu-vachets-projects.vercel.app` (`READY`, commit `5704458`); API `https://pokemon-go-a0qcsxer6-matthieu-vachets-projects.vercel.app` (`READY`, commit `e4a1898`). L'alias API `develop` consommé par le Dashboard a été réaligné sur ce déploiement.
+
+REMARQUES: la taxonomie projette chaque cause historique vers un code et une sévérité sans réécrire ni supprimer le document source. La réconciliation est explicite, historisée dans le diagnostic par identité/utilisateur/date et limitée aux causes d'alias; elle exclut volontairement les alertes d'assets. Chaque entrée expose désormais provider, ID source, raison expliquée, candidats, action attendue et éventuel chemin canonique déjà associé. L'audit pré-écriture a vérifié individuellement les neuf correspondances et l'idempotence empêche toute clôture supplémentaire. `origin/main` reste inchangée.
+
+NEXT: LOT 14 — corriger les faiblesses Rocket avec les icônes de types disponibles.
