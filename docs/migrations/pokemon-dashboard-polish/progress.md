@@ -62,8 +62,30 @@ COMMIT: `4fc2b789328d8c942fee9bb2b37095d0bc846649` — `refactor(regeneration): 
 
 PUSH: `origin/develop` après ce checkpoint documenté.
 
-PREVIEW: déploiement automatique du checkpoint attendu après push; validation locale complète déjà verte.
+PREVIEW: `https://dashboard-admin-lvjsvx71n-matthieu-vachets-projects.vercel.app` (`READY`, checkpoint `25c04c70dd42fb717731f04ed26d28dfc205c963`).
 
 REMARQUES: `RegenerationControl` part fermé à chaque montage, emploie un identifiant ARIA unique et conserve les façades historiques. Les handlers, boutons, états, toasts, polling, endpoints, rapports, timestamps et le Generator Registry ne changent pas.
 
 NEXT: LOT 03 — auditer puis corriger le compteur Costume / Event dans Fiches.
+
+## LOT 03
+
+STATUS: DONE
+
+CAUSE RACINE: le badge Fiches mesurait 130 entrées canoniques porteuses d’au moins un `eventAssets`, alors que le filtre transformait déjà ces sources en 311 identités costume/événement principales. Le badge et la liste n’utilisaient pas la même unité.
+
+FICHIERS MODIFIÉS: `src/components/admin/pokemon/admin-app.jsx`, tests Admin et projection Pokémon, documentation `costume-event-semantics.md` et journal.
+
+TESTS: Admin Pokémon (45/45), présentation Pokémon (7/7), Collections (12/12), Engine canonique (6/6), TypeScript, ESLint (0 erreur, 70 avertissements historiques), documentation (171 valides), build et postbuild: OK. Cas couverts: Bulbizarre 3, Pikachu 96, Chrysacier 0, Évoli 7 identités principales / 14 multi dont 7 femelles.
+
+VERSION: Dashboard `1.50.0` et Data runtime `1.28.0` inchangées.
+
+COMMIT: `138f76485146e7603dfaeca7d02e65f3463bab67` — `fix(pokemon-data): align costume event filter semantics`
+
+PUSH: `origin/develop` après ce checkpoint documenté.
+
+PREVIEW: déploiement automatique du checkpoint attendu après push; dernier preview du lot 02 READY.
+
+REMARQUES: la valeur 311 n’est jamais codée dans le composant. Elle est recalculée par `pokemonPresentationEntries`, selon la même sémantique que Collections `event.single.standard`: `kind` costume/event uniquement, sexes regroupés, aucune forme structurelle ni double comptage.
+
+NEXT: LOT 04 — afficher séparément chaque JSON Pokémon dans le viewer.
