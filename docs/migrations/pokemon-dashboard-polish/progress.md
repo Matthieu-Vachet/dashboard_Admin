@@ -221,3 +221,25 @@ PREVIEW: `https://dashboard-admin-8jvx3rwc0-matthieu-vachets-projects.vercel.app
 REMARQUES: une seule règle `.pvp-legacy-move` produit outline, halo externe et lueur interne à partir du token adaptatif `--warning`; aucune couleur jaune n'est dupliquée dans le composant. La bordure gauche par type et tout le contenu de la card restent inchangés. `origin/main` reste inchangée.
 
 NEXT: LOT 10 — auditer et clarifier la signification réelle du badge `LEGACY`.
+
+## LOT 10
+
+STATUS: DONE
+
+CAUSE RACINE: le générateur global déduisait `legacy` du chemin `-elite/` de chaque fichier d'attaque, puis l'écrasement par identifiant faisait apparaître toutes les attaques disposant d'une copie Elite comme héritage sur tous les Pokémon. PvPoke ne fournissait pas ce badge dans la ligne de classement; ses données Game Master distinguent au contraire, par Pokémon, `eliteMoves` et `legacyMoves`.
+
+FICHIERS MODIFIÉS: `src/lib/pvp-ranking-local-data.mjs`, `src/server/pokemon-go/apps/checklist/server/engine.js`, `src/components/admin/pokemon/pvp-rankings-panel.jsx`, tests PvP locaux et Legacy, documentation `pvp-legacy-move-classification.md` et journal.
+
+TESTS: données locales PvP (6/6), classification visuelle (3/3), PvP dédié (3/3), régénération PvP (10/10), catégories d'entités (2/2), Admin Pokémon (45/45), TypeScript, ESLint (0 erreur, 71 avertissements historiques), documentation (171 valides, 0 avertissement), build et postbuild (49 pages), `git diff --check`: OK. Navigateur sur Coudlangue: seule `Plaquage` est mise en évidence et étiquetée `Héritage`, tooltip exact, aucun libellé `LEGACY`, aucun overflow, console vide, axe 0 violation et 1 contrôle de contraste incomplet sur le dégradé. Le cas strict historique est couvert avec Acide de Grotadmorv sous le libellé `Retirée`.
+
+VERSION: Dashboard `1.50.0` et Data runtime `1.28.0` au commit `2869aba4d19e9313db2055a13cf69dc9d0c3c3a5`, inchangées.
+
+COMMIT: `ddbfe4927ee4edcb173208467839c84a19b50245` — `fix(pvp-ranking): clarify legacy move classification`
+
+PUSH: `origin/develop` au commit fonctionnel; checkpoint documenté dans le commit suivant.
+
+PREVIEW: `https://dashboard-admin-j78aogsp2-matthieu-vachets-projects.vercel.app` (`READY`, HTTP 200, commit `ddbfe49`, aperçu CLI car le webhook Git n'avait pas encore matérialisé le push).
+
+REMARQUES: le badge `Héritage` s'appuie maintenant uniquement sur les movepools Elite du Pokémon et reprend l'aide demandée; les entrées strictement historiques restent une catégorie séparée `Retirée`. La documentation pointe le commit PvPoke exact du mapping courant et n'attribue plus la classification ambiguë à PvPoke. `origin/main` reste inchangée.
+
+NEXT: LOT 11 — restaurer les coéquipiers suggérés sans masquer les erreurs serveur.
