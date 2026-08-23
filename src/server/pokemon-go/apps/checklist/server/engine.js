@@ -41,6 +41,12 @@ const languages = [
 ];
 const copySuffix = / \d+\.json$/;
 const assetFamilies = ["home", "shuffle", "variants", "location-cards"];
+const canonicalAssetLabels = {
+  home: "Assets Home",
+  shuffle: "Assets Shuffle",
+  variants: "Assets Variants",
+  "location-cards": "Location Cards",
+};
 
 function listJsonFiles(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -89,8 +95,7 @@ function readAssetRecord(data) {
   const coreRef = data?.assetsRef;
   if (!coreRef || coreRef !== canonicalCoreRef(data)) return null;
   const core = readSafeAssetFile(coreRef, "core", data?.formId);
-  if (core) return { ...core, assetsRef: coreRef };
-  return null;
+  return core || null;
 }
 
 function readAssetBundle(data, { families = assetFamilies } = {}) {
@@ -117,6 +122,54 @@ function readPvpRecord(data) {
   if (!isInsideData(file) || !file.startsWith(pvpDir) || !fs.existsSync(file)) return null;
   const record = readJson(file);
   return record?.identity?.canonicalId === data.formId ? record : null;
+}
+
+function buildCanonicalJsonRecords(
+  relativeFile,
+  sourceData,
+  assetBundle,
+  pvpSourceData,
+) {
+  const records = [
+    {
+      id: "pokemon",
+      label: "Pokémon",
+      path: relativeFile,
+      data: sourceData,
+    },
+  ];
+
+  if (assetBundle?.core && sourceData.assetsRef) {
+    records.push({
+      id: "assets-core",
+      label: "Assets Core",
+      path: sourceData.assetsRef,
+      data: assetBundle.core,
+    });
+  }
+
+  for (const family of assetFamilies) {
+    const data = assetBundle?.families?.[family];
+    const reference = assetBundle?.core?.assetRefs?.[family];
+    if (!data || !reference) continue;
+    records.push({
+      id: `assets-${family}`,
+      label: canonicalAssetLabels[family],
+      path: reference,
+      data,
+    });
+  }
+
+  if (pvpSourceData && sourceData.pvpRef) {
+    records.push({
+      id: "pvp",
+      label: "PvP",
+      path: sourceData.pvpRef,
+      data: pvpSourceData,
+    });
+  }
+
+  return records;
 }
 
 function legacyPvpFromRecord(record) {
@@ -1950,6 +2003,12 @@ function detailForKey(key) {
     ? { ...assetBundle.core, familyDocuments: assetBundle.families }
     : null;
   const pvpSourceData = readPvpRecord(sourceData);
+  const canonicalJsonRecords = buildCanonicalJsonRecords(
+    relativeFile,
+    sourceData,
+    assetBundle,
+    pvpSourceData,
+  );
   let data = hydrateSourceData(sourceData);
 
   if (classifyEntity(sourceData, { sourceFile: relativeFile }).category !== "NORMAL") {
@@ -1975,9 +2034,10 @@ function detailForKey(key) {
     ...data,
     sourceData,
     assetSourceData,
-    assetSourceFile: assetBundle?.core?.assetsRef || sourceData.assetsRef || null,
+    assetSourceFile: sourceData.assetsRef || null,
     pvpSourceData,
     pvpSourceFile: sourceData.pvpRef || null,
+    canonicalJsonRecords,
     moveDetails: {
       quickMoves: resolveMoves(data.quickMoves, moveCatalog),
       cinematicMoves: resolveMoves(data.cinematicMoves, moveCatalog),
@@ -1999,6 +2059,7 @@ module.exports = {
   buildAssetArchitectureAudit,
   buildCustomRuleCatalogChecklist,
   buildCanonicalEngineReport,
+  buildCanonicalJsonRecords,
   buildPvpArchitectureAudit,
   buildSuggestedPatch,
   buildChecklist,

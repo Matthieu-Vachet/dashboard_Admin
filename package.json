@@ -33,6 +33,7 @@
     "test:source-watch": "node --no-warnings --experimental-strip-types --test scripts/test-source-watch-presentation.mts",
     "test:shiny-release": "node --test scripts/test-pokemon-shiny-release.mjs",
     "test:pokemon-detail": "node --test scripts/test-pokemon-detail-data.mjs",
+    "test:canonical-json-viewer": "node --test scripts/test-canonical-json-viewer.mjs",
     "test:pvp-local-data": "node --test scripts/test-pvp-ranking-local-data.mjs",
     "test:pvp-regeneration": "node --test scripts/test-pvp-ranking-regeneration-state.mjs",
     "test:best-defenders-source": "node --test scripts/test-best-defenders-source-state.mjs",

@@ -1406,11 +1406,162 @@ function PvpPanel({ pvp, moveDetails }) {
   );
 }
 
-function JsonBlock({ payload }) {
+const jsonTokenPattern = /("(?:\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"(?:\s*:)?|\btrue\b|\bfalse\b|\bnull\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g;
+
+function jsonTokenClass(token) {
+  if (token.startsWith('"')) {
+    return token.trimEnd().endsWith(":")
+      ? "text-violet-300"
+      : "text-emerald-300";
+  }
+  if (token === "true" || token === "false") return "text-amber-300";
+  if (token === "null") return "text-rose-300";
+  return "text-cyan-300";
+}
+
+function JsonBlock({ payload, label = "Contenu JSON" }) {
+  const source = JSON.stringify(payload, null, 2);
   return (
-    <pre className="max-h-[62dvh] overflow-auto rounded-3xl border border-cyan-300/15 bg-slate-950 p-4 text-xs leading-6 text-cyan-50 shadow-inner sm:text-sm">
-      {JSON.stringify(payload, null, 2)}
+    <pre
+      aria-label={label}
+      className="max-h-[62dvh] overflow-auto rounded-3xl border border-cyan-300/15 bg-slate-950 p-4 text-xs leading-6 text-slate-300 shadow-inner focus:outline-none focus:ring-2 focus:ring-cyan-300/70 sm:text-sm"
+      role="region"
+      tabIndex={0}
+    >
+      {source.split(jsonTokenPattern).map((token, index) =>
+        index % 2 === 1 ? (
+          <span className={jsonTokenClass(token)} key={`${index}-${token}`}>
+            {token}
+          </span>
+        ) : (
+          token
+        ),
+      )}
     </pre>
+  );
+}
+
+async function copyText(text) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  textarea.remove();
+}
+
+function CanonicalJsonViewer({ records = [] }) {
+  const [activeId, setActiveId] = useState(records[0]?.id || "");
+  const [feedback, setFeedback] = useState("");
+  const activeRecord =
+    records.find((record) => record.id === activeId) || records[0] || null;
+
+  useEffect(() => {
+    if (!records.some((record) => record.id === activeId)) {
+      setActiveId(records[0]?.id || "");
+    }
+    setFeedback("");
+  }, [activeId, records]);
+
+  if (!activeRecord) {
+    return <EmptyInline>Aucun fichier JSON canonique trouvé.</EmptyInline>;
+  }
+
+  const jsonSource = JSON.stringify(activeRecord.data, null, 2);
+  const performCopy = async (value, successMessage) => {
+    try {
+      await copyText(value);
+      setFeedback(successMessage);
+    } catch {
+      setFeedback("Copie impossible dans ce navigateur.");
+    }
+  };
+  const download = () => {
+    const blob = new Blob([`${jsonSource}\n`], {
+      type: "application/json;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = activeRecord.path.split("/").at(-1) || "pokemon.json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setFeedback("Téléchargement préparé.");
+  };
+
+  return (
+    <div className="space-y-4">
+      <div
+        aria-label="Fichiers JSON canoniques"
+        className="flex gap-2 overflow-x-auto pb-1"
+        role="tablist"
+      >
+        {records.map((record) => {
+          const selected = record.id === activeRecord.id;
+          return (
+            <button
+              aria-selected={selected}
+              className={`min-h-11 shrink-0 rounded-2xl border px-4 py-2 text-sm font-black transition ${
+                selected
+                  ? "border-cyan-200/45 bg-cyan-400/20 text-cyan-50"
+                  : "border-line bg-surface-inset text-muted hover:border-cyan-200/35 hover:text-domain-foreground"
+              }`}
+              key={record.id}
+              role="tab"
+              type="button"
+              onClick={() => setActiveId(record.id)}
+            >
+              {record.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface-inset p-3 sm:flex-row sm:items-center sm:justify-between">
+        <code className="min-w-0 break-all text-xs font-bold text-cyan-100 sm:text-sm">
+          {activeRecord.path}
+        </code>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <button
+            className="rounded-xl border border-line bg-surface-emphasis px-3 py-2 text-xs font-black text-domain-foreground transition hover:border-cyan-200/45 hover:bg-cyan-400/15"
+            type="button"
+            onClick={() => performCopy(jsonSource, "JSON copié.")}
+          >
+            Copier le JSON
+          </button>
+          <button
+            className="rounded-xl border border-line bg-surface-emphasis px-3 py-2 text-xs font-black text-domain-foreground transition hover:border-cyan-200/45 hover:bg-cyan-400/15"
+            type="button"
+            onClick={() => performCopy(activeRecord.path, "Chemin copié.")}
+          >
+            Copier le chemin
+          </button>
+          <button
+            className="rounded-xl border border-cyan-200/35 bg-cyan-400/15 px-3 py-2 text-xs font-black text-cyan-50 transition hover:bg-cyan-400/25"
+            type="button"
+            onClick={download}
+          >
+            Télécharger
+          </button>
+        </div>
+      </div>
+
+      <p aria-live="polite" className="min-h-5 text-xs font-bold text-muted">
+        {feedback}
+      </p>
+      <JsonBlock
+        label={`Contenu JSON ${activeRecord.label}`}
+        payload={activeRecord.data}
+      />
+    </div>
   );
 }
 
@@ -2131,33 +2282,16 @@ export function DetailModal({
             ) : null}
             {activeTab === "checks" ? <IssuesPanel entry={entry} /> : null}
             {activeTab === "json" ? (
-              <div className="space-y-4">
-                <Section
-                  title="JSON principal"
-                  icon={uiAssets.icons.copy}
-                  tone="cyan"
-                  plain
-                >
-                  <JsonBlock payload={payload.sourceData || payload} />
-                </Section>
-                <Section
-                  title="JSON assets"
-                  icon={uiAssets.icons.result}
-                  tone="cyan"
-                  plain
-                >
-                  {payload.assetSourceData ? (
-                    <JsonBlock payload={payload.assetSourceData} />
-                  ) : (
-                    <EmptyInline>
-                      Aucun fichier asset séparé lié à cette fiche
-                      {payload.assetSourceFile
-                        ? ` (${payload.assetSourceFile}).`
-                        : "."}
-                    </EmptyInline>
-                  )}
-                </Section>
-              </div>
+              <Section
+                title="Fichiers JSON canoniques"
+                icon={uiAssets.icons.copy}
+                tone="cyan"
+                plain
+              >
+                <CanonicalJsonViewer
+                  records={payload.canonicalJsonRecords || []}
+                />
+              </Section>
             ) : null}
           </div>
         </div>
