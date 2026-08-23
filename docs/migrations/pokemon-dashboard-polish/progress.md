@@ -89,3 +89,25 @@ PREVIEW: déploiement automatique du checkpoint attendu après push; dernier pre
 REMARQUES: la valeur 311 n’est jamais codée dans le composant. Elle est recalculée par `pokemonPresentationEntries`, selon la même sémantique que Collections `event.single.standard`: `kind` costume/event uniquement, sexes regroupés, aucune forme structurelle ni double comptage.
 
 NEXT: LOT 04 — afficher séparément chaque JSON Pokémon dans le viewer.
+
+## LOT 04
+
+STATUS: DONE
+
+CAUSE RACINE: l'onglet JSON n'exposait que le fichier Pokémon et une agrégation `assetSourceData` reconstruite en mémoire. Cette seconde vue mélangeait Core et familles d'assets, masquait leurs chemins réels et n'exposait pas le document PvP canonique.
+
+FICHIERS MODIFIÉS: `src/server/pokemon-go/apps/checklist/server/engine.js`, `src/components/admin/pokemon/detail-modal.jsx`, `scripts/test-canonical-json-viewer.mjs`, `package.json`, documentation `canonical-json-viewer.md` et journal.
+
+TESTS: viewer canonique (3/3), Assets séparés (5/5), catégories d'entités (2/2), détail Pokémon (6/6), Admin Pokémon (45/45), TypeScript, ESLint (0 erreur, 70 avertissements historiques), documentation (171 valides), build et postbuild, registre de régénération (17 actions, 15 globales): OK. Navigateur: desktop et 390 px, copie du chemin, téléchargement identique au fichier disque, aucun overflow horizontal global, aucune erreur runtime et 0 violation axe dans la modale.
+
+VERSION: Dashboard `1.50.0` et Data runtime `1.28.0` inchangées.
+
+COMMIT: `006fd549ef7e3f50d080fc1b2e8176fa104fc7f7` — `feat(pokemon-details): expose all canonical pokemon json records`
+
+PUSH: `origin/develop` au commit fonctionnel; checkpoint documenté dans le commit suivant.
+
+PREVIEW: `https://dashboard-admin-i6cdeuzu0-matthieu-vachets-projects.vercel.app` (`READY`, HTTP 200, commit `006fd54`).
+
+REMARQUES: le viewer utilise exclusivement `canonicalJsonRecords`. Chaque payload est le JSON lu dans son fichier réel, dans l'ordre Pokémon, Assets Core, Home, Shuffle, Variants, Location Cards et PvP; une section absente du disque n'est pas créée. Les cinq familles de fixture couvrent normal, Alola, Mega, Dynamax et Gigantamax, dont un PvP `UNSUPPORTED_FORM`.
+
+NEXT: LOT 05 — auditer puis corriger la source du calendrier GBL.
