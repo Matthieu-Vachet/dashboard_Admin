@@ -337,3 +337,29 @@ PREVIEW: `https://dashboard-admin-2w4z5wwqd-matthieu-vachets-projects.vercel.app
 REMARQUES: les multiplicateurs suivent le contrat Pokémon GO déjà présent dans le référentiel des types: ×1,6 pour une faiblesse simple et ×2,56 pour deux efficacités superposées. Le Dashboard ne recalcule ni ne réécrit le snapshot. Les libellés français et les assets viennent désormais de `pokemon-style`; aucun logo n’a été recréé. Une entrée double est exclue du groupe simple si une source future la duplique.
 
 NEXT: LOT 15 — rendre toutes les entrées non matchées actionnables avec un rapport générique.
+
+## LOT 15
+
+STATUS: DONE
+
+CAUSE RACINE: le pipeline persistait le nombre agrégé de non-matchés et quelques tableaux hétérogènes sans contrat commun. Pour les mappings Game Master, le compteur incluait en plus 471 identités `local-only` de PokemonGo-Data alors que le générateur les excluait explicitement de `resolutionReport.details`; l’exécution réelle affichait donc 476 non-matchés mais seulement 5 détails. La première correction complète a aussi révélé que `pokemongo-data` n’était pas encore enregistré comme provider de diagnostics Identity Manager.
+
+FICHIERS MODIFIÉS: côté API, nouveau contrat `src/lib/unmatched-entries-report.js`, intégration au pipeline current, aux runs et au Game Master Explorer, registre provider, tests et `docs/UNMATCHED-ENTRIES-REPORT.md`; côté Data, générateur Game Master et test unitaire pour détailler toutes les entrées, y compris `local-only`; côté Dashboard, normaliseur partagé, composant générique de rapport, modale dans `current-dataset-diagnostics.jsx`, normalisation des exécutions Dashboard natives, tests et documentation `unmatched-entries-report.md`; journal.
+
+TESTS: API ciblée (31/31), suite API complète (188/188), build et postbuild (11 générateurs, 34 fichiers serveur, 12 manifestes): OK. Dashboard rapport générique (3/3), Admin Pokémon (46/46), matrice de régénération (6/6), notifications (7/7), TypeScript, ESLint (0 erreur, 71 avertissements historiques), documentation (171 valides), build et postbuild (49 pages), `git diff --check`: OK. Data ciblé Game Master (21/21) et `git diff --check`: OK; la suite Data globale passe 237/240, avec trois échecs de baseline déjà présents sur l’empreinte d’inventaire et le manifeste d’assets séparés modifiés par les commits Data antérieurs, sans rapport avec le générateur. Navigateur réel: régénération le 26/08/2026 à 14:36:59, 476/476 détails, recherche, filtres raison/provider/statut, pagination 10 pages, desktop, mobile 390 px, sombre/clair, aucun overflow, console vide. Logs Vercel post-correction: API et Dashboard uniquement HTTP 200 utiles, aucun 4xx/5xx ni erreur/fatal dans la fenêtre de validation.
+
+VERSION: Dashboard `1.50.0`, API `1.25.0`, Data `1.29.2` (`dataVersion 2026.08.23.2`, schéma `1.1.0`).
+
+COMMIT DASHBOARD: `48fe2f06adb451b6d90e4f57d63030b4fb06534a` — `feat(regeneration): expose unmatched source entries`
+
+COMMIT API FONCTIONNEL: `e23486650a2bd5d61c023ec98ea59cd761d2e157` — `feat(regeneration): expose unmatched source entries`; contrôles de complétude `8acb9f170decd91b0c6ffd3ed23aa78adefebd82`; enregistrement du provider local `2d2908bc0f85f19b56d5742137869eaaac1c40ca`.
+
+COMMIT DATA: `24a2bdca138db01ea472ea680caec34bdb905b2c` — `feat(regeneration): expose unmatched source entries`
+
+PUSH: les trois dépôts sont alignés sur `origin/develop`; les branches `main` restent inchangées (Dashboard `103a0f3b`, API `952107b8`, Data `2869aba4`).
+
+PREVIEWS: Dashboard `https://dashboard-admin-6x1hbefqk-matthieu-vachets-projects.vercel.app` (`READY`, commit fonctionnel `48fe2f0`); API `https://pokemon-go-iomx3lqck-matthieu-vachets-projects.vercel.app` (`READY`, commit `2d2908b`). L’alias stable `pokemon-go-api-develop` a été réaligné sur ce preview.
+
+REMARQUES: `UnmatchedEntriesReport@1` impose provider, source ID, nom, valeur source, raison taxonomique, candidats, confiance, destination et statut. Les sept codes demandés sont fermés et testés. Les anciens runs restent lisibles avec une alerte d’incomplétude; toute nouvelle régénération stocke le rapport complet dans le document current et le run. La cause des 471 entrées complémentaires est maintenant explicite: identités locales présentes dans PokemonGo-Data mais absentes du flux Game Master, classées `SOURCE_ID_UNKNOWN` sans créer de mapping approximatif.
+
+NEXT: LOT 16 — expliquer et réconcilier les 18 non-matchés du Shiny Tracker avec le rapport générique.
