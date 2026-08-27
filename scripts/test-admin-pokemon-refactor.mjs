@@ -613,6 +613,12 @@ test("la Home Admin Pokémon est un centre de commande quotidien sans perdre les
   assert.match(home, /events\/archive\?status=active/);
   assert.match(home, /events\/archive\?status=upcoming/);
   assert.match(home, /Promise\.allSettled/);
+  assert.match(home, /data-testid="home-attention-panel"/);
+  assert.match(home, /xl:grid-cols-\[minmax\(0,1\.08fr\)_minmax\(25rem,\.92fr\)\]/);
+  assert.match(home, /data-testid="home-attention-actions"/);
+  assert.match(home, /sm:grid-cols-2/);
+  assert.match(home, /xl:border-l xl:border-line xl:pl-6/);
+  assert.match(home, /w-full min-w-0 justify-start text-left sm:min-h-12/);
   assert.doesNotMatch(home, /window\.prompt|fixed inset-0/);
 });
 

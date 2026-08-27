@@ -317,10 +317,10 @@ export function AdminCommandCenter({
 
   return (
     <section className="space-y-4" aria-label="Centre de commande Admin Pokémon">
-      <Card tone="strong" className="relative overflow-hidden border border-brand-2/20 p-5 sm:p-6">
+      <Card tone="strong" className="relative overflow-hidden border border-brand-2/20 p-5 sm:p-6" data-testid="home-attention-panel">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_8%_0%,rgba(34,211,238,.17),transparent_34%),radial-gradient(circle_at_90%_10%,rgba(139,92,246,.14),transparent_30%)]" />
-        <div className="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,.75fr)] xl:items-end">
-          <div>
+        <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(25rem,.92fr)] xl:items-stretch">
+          <div className="flex min-w-0 flex-col" data-testid="home-attention-summary">
             <div className="flex flex-wrap items-center gap-2">
               <Badge tone={attentionCount ? "amber" : "green"}>{attentionCount ? "Attention requise" : "Tous les systèmes sont opérationnels"}</Badge>
               <Badge tone={providerErrors ? "red" : "cyan"}>{providerErrors ? `${providerErrors} service(s) indisponible(s)` : "Providers disponibles"}</Badge>
@@ -328,21 +328,21 @@ export function AdminCommandCenter({
             <p className="mt-5 type-overline text-brand-2">{greeting}, Admin Pokémon</p>
             <h2 className="mt-2 max-w-3xl type-title-section text-foreground">Voici ce qui demande votre attention aujourd’hui.</h2>
             <p className="mt-3 flex flex-wrap items-center gap-2 text-sm font-semibold text-muted"><Clock3 size={15} /> Dernière synchronisation : <strong className="text-foreground">{formatDate(lastSync)}</strong></p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              <Button variant="primary" icon={<RefreshCcw size={16} />} loading={refreshing || remote.loading} loadingText="Actualisation…" onClick={refreshAll}>Actualiser le centre</Button>
-              <Button variant="primary" icon={<Play size={16} />} loading={regenerationRunning} loadingText="Régénération en cours…" onClick={() => void regenerateAll()}>Tout régénérer</Button>
-              <Button variant="secondary" icon={<Fingerprint size={16} />} onClick={() => onNavigate("identity-manager")}>Ouvrir l’Identity Manager</Button>
-              <Button variant="secondary" icon={<ShieldAlert size={16} />} onClick={() => onNavigate("checks")}>Ouvrir les diagnostics</Button>
+            <div className="mt-5 grid gap-2 sm:grid-cols-2" data-testid="home-attention-actions">
+              <Button className="w-full min-w-0 justify-start text-left sm:min-h-12" variant="primary" icon={<RefreshCcw className="shrink-0" size={16} />} loading={refreshing || remote.loading} loadingText="Actualisation…" onClick={refreshAll}>Actualiser le centre</Button>
+              <Button className="w-full min-w-0 justify-start text-left sm:min-h-12" variant="primary" icon={<Play className="shrink-0" size={16} />} loading={regenerationRunning} loadingText="Régénération en cours…" onClick={() => void regenerateAll()}>Tout régénérer</Button>
+              <Button className="w-full min-w-0 justify-start text-left sm:min-h-12" variant="secondary" icon={<Fingerprint className="shrink-0" size={16} />} onClick={() => onNavigate("identity-manager")}>Ouvrir l’Identity Manager</Button>
+              <Button className="w-full min-w-0 justify-start text-left sm:min-h-12" variant="secondary" icon={<ShieldAlert className="shrink-0" size={16} />} onClick={() => onNavigate("checks")}>Ouvrir les diagnostics</Button>
             </div>
           </div>
-          <div>
+          <div className="flex min-w-0 flex-col justify-center xl:border-l xl:border-line xl:pl-6" data-testid="home-attention-tools">
             <label className="type-overline text-muted" htmlFor="pokemon-admin-command-search">Recherche Admin Pokémon</label>
             <span className="relative mt-2 block"><Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={17} /><Input id="pokemon-admin-command-search" className="pl-10" value={search} onChange={(event) => onSearchChange(event.target.value)} placeholder="Pokémon, forme, costume, diagnostic…" /></span>
             <div className="mt-3 grid grid-cols-2 gap-2">
-              <Button size="sm" variant="ghost" icon={<CalendarDays size={15} />} onClick={() => onNavigate("events")}>Événements</Button>
-              <Button size="sm" variant="ghost" icon={<ImageIcon size={15} />} onClick={() => onNavigate("assets")}>Vérifier les assets</Button>
-              <Button size="sm" variant="ghost" icon={<Radar size={15} />} onClick={() => onNavigate("pokemon-identity-mappings")}>Variantes</Button>
-              <Button size="sm" variant="ghost" icon={<History size={15} />} onClick={() => onNavigate("logs")}>Historique</Button>
+              <Button className="w-full min-w-0 justify-start" size="sm" variant="ghost" icon={<CalendarDays className="shrink-0" size={15} />} onClick={() => onNavigate("events")}>Événements</Button>
+              <Button className="w-full min-w-0 justify-start" size="sm" variant="ghost" icon={<ImageIcon className="shrink-0" size={15} />} onClick={() => onNavigate("assets")}>Vérifier les assets</Button>
+              <Button className="w-full min-w-0 justify-start" size="sm" variant="ghost" icon={<Radar className="shrink-0" size={15} />} onClick={() => onNavigate("pokemon-identity-mappings")}>Variantes</Button>
+              <Button className="w-full min-w-0 justify-start" size="sm" variant="ghost" icon={<History className="shrink-0" size={15} />} onClick={() => onNavigate("logs")}>Historique</Button>
             </div>
           </div>
         </div>

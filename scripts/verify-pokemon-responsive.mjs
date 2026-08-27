@@ -227,6 +227,37 @@ try {
         const overlayDetails = overlay ? await overlayLocator.allTextContents() : [];
         assert.equal(overlay, 0, `${scenario.id}-${theme}-${width}: overlay framework ${JSON.stringify(overlayDetails)}`);
         const overflow = await assertNoOverflow(page, `${scenario.id}-${theme}-${width}`);
+        if (scenario.id === "overview") {
+          const attentionGeometry = await page.evaluate(() => {
+            const rect = (selector) => {
+              const bounds = document.querySelector(selector)?.getBoundingClientRect();
+              return bounds ? { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height } : null;
+            };
+            const buttons = [...document.querySelectorAll('[data-testid="home-attention-actions"] > button')]
+              .map((button) => { const bounds = button.getBoundingClientRect(); return { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height }; });
+            return {
+              panel: rect('[data-testid="home-attention-panel"]'),
+              summary: rect('[data-testid="home-attention-summary"]'),
+              tools: rect('[data-testid="home-attention-tools"]'),
+              buttons,
+            };
+          });
+          assert.ok(attentionGeometry.panel && attentionGeometry.summary && attentionGeometry.tools, `overview-${theme}-${width}: structure attention absente`);
+          assert.equal(attentionGeometry.buttons.length, 4, `overview-${theme}-${width}: actions attention incomplètes`);
+          const buttonWidths = attentionGeometry.buttons.map((button) => Math.round(button.width));
+          assert.ok(Math.max(...buttonWidths) - Math.min(...buttonWidths) <= 1, `overview-${theme}-${width}: largeurs CTA déséquilibrées ${buttonWidths}`);
+          if (width >= 640) {
+            const rows = new Set(attentionGeometry.buttons.map((button) => Math.round(button.y)));
+            assert.equal(rows.size, 2, `overview-${theme}-${width}: les CTA doivent former deux rangées équilibrées`);
+          } else {
+            const columns = new Set(attentionGeometry.buttons.map((button) => Math.round(button.x)));
+            assert.equal(columns.size, 1, `overview-${theme}-${width}: les CTA mobiles doivent rester sur une colonne`);
+          }
+          if (width >= 1280) {
+            assert.ok(Math.abs(attentionGeometry.summary.height - attentionGeometry.tools.height) <= 1, `overview-${theme}-${width}: colonnes MacBook non alignées ${JSON.stringify(attentionGeometry)}`);
+            assert.ok(attentionGeometry.summary.x < attentionGeometry.tools.x, `overview-${theme}-${width}: hiérarchie MacBook inversée`);
+          }
+        }
         if (width >= 1024) {
           await page.getByRole("button", { name: "Déplier la navigation" }).waitFor({ state: "visible" });
           const sidebarWidth = await page.locator(".dashboard-sidebar").evaluate((element) => Math.round(element.getBoundingClientRect().width));
