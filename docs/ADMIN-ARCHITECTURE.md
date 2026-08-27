@@ -27,8 +27,10 @@ Le Dashboard Admin est organisé autour du dossier canonique `src/components/adm
 
 ## Navigation, données et régénérations
 
-- `AdminSectionNavigation` porte la recherche, l’état actif et les icônes Pokémon GO. Sur desktop, elle affiche le groupe choisi dans une barre compacte ; sur mobile, elle ouvre une sheet plein écran, verrouille le scroll et se ferme avec Échap. La section active est reflétée dans `?section=`.
+- `navGroups` dans `src/data/dashboard.ts` est l’unique registre de navigation. Sidebar desktop, mode réduit, drawer mobile, topbar et fil d’Ariane en dérivent. Les destinations Pokémon sont des routes plates; les anciennes URLs `/pokemon-admin?section=...` sont uniquement redirigées pour compatibilité.
+- `AdminSectionNavigation` reste utilisé à l’intérieur des surfaces qui possèdent de vraies sous-sections. Sur mobile, sa sheet verrouille le scroll, focalise la recherche et se ferme avec Échap.
 - `RegenerationControl` expose une ligne compacte dernière synchronisation/statut et replie provenance, visibilité, hash, compteurs, operation ID, warnings, rapport et diagnostics derrière **Détails**. Les noms `DatasetSourceHeader` et `CurrentDatasetDiagnostics` restent des façades de compatibilité.
+- Le Generator Registry expose 17 actions; 15 participent à **Tout régénérer**. Ces nombres sont vérifiés par contrat et ne doivent pas être recopiés dans un second registre runtime.
 - La confidentialité est contrôlée côté serveur. Le navigateur n’obtient jamais le secret de PokemonGo-API.
 - Le centre de commande exécute les domaines séquentiellement et conserve pour chaque étape un état `pending`, `running`, `success`, `warning` ou `error`.
 - Le PvP répond `202 Accepted` avec un identifiant d’exécution ; le Dashboard interroge ensuite le statut privé jusqu’à l’état terminal.
@@ -52,6 +54,10 @@ La topbar projette le groupe et la destination actifs dans un fil d’Ariane com
 La Veille reste l’autorité d’enregistrement des sources et les classe en six domaines. Elle expose uniquement leur santé de transport et leurs signatures ; les données canoniques restent validées par l’Engine.
 
 La chaîne Candy ne résout aucune URL dans le Dashboard. `PokemonGo-Data` publie `assets.candy.image` et `assets.candy.xlImage`; le BFF et les composants transmettent ces références ou rendent explicitement l’état absent.
+
+Le comportement fonctionnel courant des fiches, du viewer JSON, des évolutions, de
+Candies, Collections, PvP, Identity Manager, Rocket, Shiny Tracker et Source Watch est
+indexé dans `docs/migrations/pokemon-dashboard-polish/README.md`.
 
 ## Règle de maintenance
 

@@ -19,3 +19,7 @@ Le Dashboard utilise `pokemonNavigationIcons` dans `src/data/dashboard.ts` comme
 Les images sont décoratives (`alt=""`) car le libellé du lien porte le nom accessible. En mode sidebar réduite, `aria-label` conserve ce nom quand le texte visuel est masqué.
 
 Les sept PNG fournis localement ont été contrôlés par extension, casse et empreinte SHA-256. Aucun doublon de contenu n'a été trouvé dans `public/`.
+
+Les autres entrées continuent d’utiliser leurs assets canoniques existants ou une
+icône Lucide déclarée dans le même registre. Shiny Tracker est rangé sous **Données
+Pokémon**; sidebar, drawer mobile et fil d’Ariane dérivent tous de `navGroups`.

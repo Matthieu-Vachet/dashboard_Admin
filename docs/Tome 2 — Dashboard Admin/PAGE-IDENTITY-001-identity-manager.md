@@ -2,8 +2,8 @@
 id: PAGE-IDENTITY-001
 title: Identity Manager Pokémon
 status: active
-version: 2.2.0
-updated: 2026-08-22
+version: 2.3.0
+updated: 2026-08-27
 author: Matthieu Vachet
 affected_projects: [Dashboard Admin, PokemonGo-API-, PokemonGo-Data]
 references: []
@@ -38,6 +38,12 @@ supprimé silencieusement.
 
 Chaque fiche expose le `canonicalId`, le Pokémon local, le tuple forme/costume/transformation, `syncStatus`, la clé locale, le fichier source, l’asset bundle, les assets sexués, les alias et les actions historisées.
 
+Le résumé distingue le nombre d’identités MongoDB, les identités actives issues de
+l’inventaire local, les providers, les conflits et les identités sans Game Master. Le
+bandeau compare explicitement l’inventaire local à MongoDB et ouvre un aperçu
+non-destructif; un total MongoDB supérieur à l’inventaire n’est donc plus présenté
+comme un faux état « synchronisé ».
+
 Les champs dérivés de PokemonGo-Data sont verrouillés pour une identité synchronisée. Une identité créée manuellement commence en `draft` ; elle ne devient active qu’après existence et validation de la fiche locale.
 
 ## API
@@ -48,6 +54,7 @@ Les champs dérivés de PokemonGo-Data sont verrouillés pour une identité sync
 - `identity-manager` accepte `syncStatus` et le tri correspondant.
 - `identity-manager-providers` fournit uniquement le registre central actif utilisé par les filtres et la création d’alias ; une valeur « Autre… » ou une source inconnue n’est plus acceptée par l’API.
 - les diagnostics GO Hub et Margxt peuvent être associés à une identité, puis pris en compte lors de la régénération ou de la nouvelle résolution suivante.
+- les rapports `UnmatchedEntriesReport@1` conservent provider, identifiant et valeur source, raison, candidats, confiance, destination et statut; les actions Associer, Créer une identité, Ignorer et Faux positif restent historisées.
 
 ## Règles d’intégrité
 
@@ -89,3 +96,4 @@ Les variantes mâle et femelle d’un même costume restent une seule identité 
 - 2026-07-26 — catalogue central de providers, GO Hub et Margxt, avec diagnostics groupés réutilisables par Résolution des variantes.
 - 2026-07-31 — registre fermé, retrait de la source obsolète, migration réversible et rejet des providers inconnus.
 - 2026-08-15 — relink déterministe des anciens tuples Xerneas Neutral et Cramorant Gorging/Gulping vers leurs fiches et Assets de forme, avec alias préservés et couverture de non-régression.
+- 2026-08-27 — aperçu de synchronisation aligné sur l’inventaire local, compteurs explicites et diagnostics non matchés actionnables sans perte d’occurrence.

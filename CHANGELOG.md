@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### Added
+
+- Affiche séparément tous les fichiers JSON canoniques d’une fiche Pokémon, les Méga-évolutions dans la vue Évolution et une pagination de neuf familles dans Candies.
+- Expose un rapport générique et actionnable des entrées non matchées, y compris les occurrences Shiny, ainsi que les diagnostics structurés des résultats PvP partiels.
+- Ajoute les assets de types et multiplicateurs Pokémon GO aux faiblesses Rocket, les coéquipiers PvP déterministes et les preuves live/snapshot des sources PvPoke.
+
+### Changed
+
+- Aligne les icônes, routes, groupes desktop/mobile et le fil d’Ariane; Shiny Tracker appartient désormais à Données Pokémon.
+- Compacte les contrôles des 17 régénérations, intègre le sélecteur Collections dans l’en-tête et équilibre la carte d’attention de l’accueil de 320 à 1 920 px.
+- Classe les attaques PvP restreintes par couple Pokémon/attaque avec les libellés Héritage et Retirée, sans statut global ambigu.
+- Aligne l’Identity Manager sur l’inventaire local, la prévisualisation MongoDB, la conservation des alias et des diagnostics complets.
+
+### Fixed
+
+- Corrige le comptage du filtre Costumes / événements, les objets bruts dans les coéquipiers PvP, les faux HTTP 403 de la veille PvPoke et la perte des doublons légitimes dans les diagnostics Shiny.
+
 ## 1.50.0 - 2026-08-22
 
 ### Changed
