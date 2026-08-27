@@ -483,3 +483,29 @@ PREVIEW: non requise pour ce lot documentaire; la preview fonctionnelle du lot 1
 REMARQUES: l’index de polish relie navigation, fiches, JSON, évolutions, Candies, Collections, PvP, Identity Manager, Rocket, Shiny Tracker, Source Watch, régénérations et responsive. Les totaux et commits susceptibles d’évoluer sont désormais lus dans les métadonnées runtime au lieu d’être figés dans les documents actifs.
 
 NEXT: LOT 21 — appliquer les incréments SemVer cohérents et versionner la release des trois dépôts.
+
+## LOT 21
+
+STATUS: DONE
+
+CAUSE RACINE: la mission cumule des fonctions compatibles nouvelles dans les trois produits — surfaces et comportements Dashboard, rapport/pipeline API, mappings et audits Data — sans suppression ni changement de type du contrat canonique. L’historique publie ce niveau de changement en MINOR, alors que les correctifs isolés de contenu restent en PATCH.
+
+FICHIERS MODIFIÉS: Dashboard `package.json`, lockfile, `CHANGELOG.md` et `dashboard-version-history.ts`; API `package.json`, lockfile, `CHANGELOG.md` et `docs/API.md`; Data `package.json`, lockfile, `version.json` et `CHANGELOG.md` via l’assistant de release officiel.
+
+TESTS: version Dashboard alignée sur l’historique et le changelog; package/lock API alignés; tests Data version projet (2/2) et métadonnées de release (2/2); `git diff --check`: OK dans les trois dépôts.
+
+VERSION: Dashboard `1.50.0 → 1.51.0`; API `1.25.0 → 1.26.0`; Data `1.29.2 → 1.30.0`, `dataVersion 2026.08.23.2 → 2026.08.27.1`; `schemaVersion 1.1.0` inchangée car aucun contrat canonique incompatible ni nouveau champ structurel global n’est introduit.
+
+COMMIT DASHBOARD: `70fa5a3fbff0a3546a7ca1108e9aa981e6d4c9af` — `chore(release): publish dashboard 1.51.0`
+
+COMMIT API: `72a632da7d3a60c1bd5ab6f2d978fb1ecd654d22` — `chore(release): publish api 1.26.0`
+
+COMMIT DATA: `56af32d167c605d755f376051ca1505a39d2ca81` — `chore(release): publish data 1.30.0`
+
+PUSH: les trois commits de release sont sur `origin/develop`; les branches `main` restent inchangées (Dashboard `103a0f3b`, API `952107b8`, Data `2869aba4`).
+
+PREVIEW: les previews de release sont déclenchées par les pushes `develop` et seront validées globalement aux lots 22–23.
+
+REMARQUES: les changelogs ont été remplis avant les commits de version. La release Dashboard inclut les lots 0–20; l’API inclut les changements fonctionnels des lots 10, 15 et 16; Data inclut les changements des lots 15, 16 et 18, plus les corrections de baseline déterministes à venir avant la validation finale.
+
+NEXT: LOT 22 — réparer les deux baselines Data restantes puis exécuter la validation globale Dashboard/API/Data et les 17 régénérations.
