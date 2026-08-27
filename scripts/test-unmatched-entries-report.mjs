@@ -30,6 +30,11 @@ test("le rapport expose le contrat actionnable et signale les anciens rapports i
       sourceId: "PIKACHU_PARTY",
       sourceName: "Pikachu",
       rawAlias: "pikachu-party",
+      occurrenceId: "total:24:PIKACHU_PARTY:0",
+      shiny: true,
+      dexNr: 25,
+      bucket: "total",
+      rank: 24,
       reason: "ALIAS_UNKNOWN",
       candidates: [{ canonicalId: "pokemon:0025:normal:party_2020", confidence: 0.82 }],
       localFile: "pokemon/0025-pikachu.json",
@@ -41,12 +46,24 @@ test("le rapport expose le contrat actionnable et signale les anciens rapports i
   assert.equal(report.missingDetailCount, 17);
   assert.equal(report.complete, false);
   const entry = report.entries[0];
-  for (const field of ["provider", "sourceId", "name", "sourceValue", "reason", "candidates", "confidence", "destination", "status"]) {
+  for (const field of ["provider", "occurrenceId", "sourceId", "name", "sourceValue", "shiny", "dexNr", "bucket", "rank", "reason", "candidates", "confidence", "destination", "status"]) {
     assert.ok(Object.hasOwn(entry, field), `champ ${field} absent`);
   }
   assert.equal(entry.reason, "MISSING_ALIAS");
   assert.equal(entry.confidence, 0.82);
   assert.equal(entry.destination, "pokemon/0025-pikachu.json");
+  assert.equal(entry.shiny, true);
+  assert.equal(entry.dexNr, 25);
+});
+
+test("conserve séparément les occurrences Shiny dupliquées entre classements", () => {
+  const report = createUnmatchedEntriesReport([
+    { provider: "snacknap", occurrenceId: "total:24:39_c74_s:0", sourceId: "39_c74_s", sourceName: "Jigglypuff (Ribbon)", shiny: true, dexNr: 39, bucket: "total", rank: 24, reason: "missing-asset" },
+    { provider: "snacknap", occurrenceId: "total:304:39_c74_s:1", sourceId: "39_c74_s", sourceName: "Jigglypuff (Ribbon)", shiny: true, dexNr: 39, bucket: "total", rank: 304, reason: "missing-asset" },
+  ], { expectedCount: 2 });
+  assert.equal(report.complete, true);
+  assert.equal(report.detailedCount, 2);
+  assert.notEqual(report.entries[0].occurrenceId, report.entries[1].occurrenceId);
 });
 
 test("le panneau compact ouvre le rapport générique filtrable", () => {
@@ -60,4 +77,7 @@ test("le panneau compact ouvre le rapport générique filtrable", () => {
   assert.match(component, /Filtrer par raison/);
   assert.match(component, /Filtrer par provider/);
   assert.match(component, /Filtrer par statut/);
+  assert.match(component, /label="Shiny"/);
+  assert.match(component, /label="N° Pokédex"/);
+  assert.match(component, /label="Occurrence source"/);
 });

@@ -50,6 +50,9 @@ function UnmatchedEntryCard({ entry }) {
         <ReportField label="Source ID" value={entry.sourceId} mono />
         <ReportField label="Nom" value={entry.name} />
         <ReportField label="Valeur source" value={entry.sourceValue} mono />
+        <ReportField label="Shiny" value={entry.shiny ? "Oui" : "Non"} />
+        <ReportField label="N° Pokédex" value={entry.dexNr ? `#${String(entry.dexNr).padStart(4, "0")}` : null} mono />
+        <ReportField label="Occurrence source" value={entry.bucket ? `${entry.bucket}${entry.rank ? ` · rang ${entry.rank}` : ""}` : null} mono />
         <ReportField label="Raison" value={entry.reasonDetails} />
         <ReportField label="Confiance" value={`${Math.round(Number(entry.confidence || 0) * 100)} %`} mono />
         <ReportField label="Destination éventuelle" value={entry.destination} mono />
@@ -127,7 +130,7 @@ export function UnmatchedEntriesReport({ entries = [], total = 0, provider = "In
         </select>
       </div>
       <div className="mt-3 max-h-[54dvh] space-y-2 overflow-y-auto pr-1">
-        {visible.map((entry, index) => <UnmatchedEntryCard entry={entry} key={`${entry.provider}-${entry.sourceId}-${entry.sourceValue}-${index}`} />)}
+        {visible.map((entry, index) => <UnmatchedEntryCard entry={entry} key={entry.occurrenceId || `${entry.provider}-${entry.sourceId}-${entry.sourceValue}-${index}`} />)}
         {!visible.length ? <EmptyState title="Aucune entrée non matchée dans ces filtres" /> : null}
       </div>
       {pages > 1 ? (

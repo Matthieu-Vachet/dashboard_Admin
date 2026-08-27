@@ -58,6 +58,7 @@ export function normalizeUnmatchedEntry(entry = {}, options = {}) {
   return {
     ...entry,
     provider: firstDefined(entry.provider, options.provider, "Indisponible"),
+    occurrenceId: firstDefined(entry.occurrenceId, entry.entryId) ?? null,
     sourceId,
     name,
     sourceValue,
@@ -67,6 +68,11 @@ export function normalizeUnmatchedEntry(entry = {}, options = {}) {
     confidence: confidence(entry, candidates),
     destination: firstDefined(entry.destination, entry.eventualDestination, entry.canonicalId, entry.identityId, entry.localFile, null),
     status: terminalStatuses.has(rawStatus) ? rawStatus : "open",
+    shiny: Boolean(firstDefined(entry.shiny, entry.isShiny, false)),
+    shinyDetails: firstDefined(entry.shinyDetails) ?? null,
+    dexNr: firstDefined(entry.dexNr, entry.pokemonId) ?? null,
+    bucket: firstDefined(entry.bucket) ?? null,
+    rank: firstDefined(entry.rank) ?? null,
   };
 }
 
@@ -75,7 +81,7 @@ export function createUnmatchedEntriesReport(entries = [], options = {}) {
   const normalizedEntries = (Array.isArray(entries) ? entries : [])
     .map((entry) => normalizeUnmatchedEntry(entry, options))
     .filter((entry) => {
-      const key = JSON.stringify([entry.provider, entry.sourceId, entry.name, entry.sourceValue, entry.sourceForm, entry.sourceCostume, entry.reason]);
+      const key = JSON.stringify([entry.occurrenceId, entry.provider, entry.sourceId, entry.name, entry.sourceValue, entry.sourceForm, entry.sourceCostume, entry.reason]);
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
