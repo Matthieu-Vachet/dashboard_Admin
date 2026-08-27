@@ -411,3 +411,27 @@ PREVIEW: `https://dashboard-admin-d2dbukf3m-matthieu-vachets-projects.vercel.app
 REMARQUES: la route, le composant Shiny et le workflow de régénération ne changent pas. Desktop et mobile réutilisent le même `navGroups`, sans duplication. Le fil d’Ariane est dérivé du même registre et reste cohérent pour toutes les destinations.
 
 NEXT: LOT 18 — aligner les contrôles Source Watch PvPoke sur les sources réellement consommées.
+
+## LOT 18
+
+STATUS: DONE
+
+CAUSE RACINE: Source Watch sondait `pvpoke.com/data/gamemaster/pokemon.json` et l’interface `pvpoke.com/rankings/`, alors que le provider de régénération utilise l’arbre GitHub officiel pour découvrir les formats puis les JSON de `cdn.jsdelivr.net/gh/pvpoke/pvpoke@master`. Les HTTP 403 décrivaient donc des pages non consommées, pas la santé du pipeline.
+
+FICHIERS MODIFIÉS: côté Data, registre `operations/audits/sources/current.json`, test du registre et documentation Ranked Datasets; côté Dashboard, backend Source Watch, projection API/historique, présentation responsive, tests unitaires et Admin Pokémon, note `source-watch-pvpoke.md` et journal.
+
+TESTS: Data registre (4/4) et Ranked Datasets (32/32); Dashboard Source Watch (7/7), Admin Pokémon (47/47), TypeScript, ESLint (0 erreur), documentation (171 documents valides, 0 avertissement), build et postbuild (49 pages), contrôle réseau réel et `git diff --check`: OK. La suite Data globale confirme 238 tests verts et conserve les deux baselines d’inventaire/manifeste d’assets déjà documentées au lot 15; elles seront régénérées avant la validation globale du lot 22.
+
+VERSION: Dashboard `1.50.0` et Data `1.29.2` (`dataVersion 2026.08.23.2`, schéma `1.1.0`), inchangées dans ce lot.
+
+COMMIT DASHBOARD: `47225a4` — `fix(source-watch): align pvpoke health checks with canonical sources`
+
+COMMIT DATA: `8aed8f79` — `fix(source-watch): align pvpoke health checks with canonical sources`
+
+PUSH: les deux dépôts sont alignés sur `origin/develop`; `origin/main` reste inchangée (Dashboard `103a0f3b`, Data `2869aba4`).
+
+PREVIEW: `https://dashboard-admin-nrez5pqko-matthieu-vachets-projects.vercel.app` (`READY`, commit `47225a4`). Contrôle réel le 27/08/2026 à 05:58: 26/26 sources opérationnelles, 0 à surveiller, 0 indisponible. Game Master et Rankings exposent tous deux provider PvPoke, URL jsDelivr exacte, HTTP 200, commit distant `cb78be32371e`, SHA-256 du contenu, snapshot local `78c64048aebe`, dernière vérification; arbre GitHub Rankings HTTP 200. Aucun HTTP 403, overflow horizontal, erreur console applicative ou erreur runtime.
+
+REMARQUES: le token Data éventuel n’est envoyé qu’à `api.github.com`. Aucune page protégée PvPoke n’est contournée. Le hash du contenu live et celui du snapshot épinglé restent distincts et visibles afin qu’un retard de synchronisation ne soit jamais confondu avec une indisponibilité.
+
+NEXT: LOT 19 — équilibrer la carte d’attention de la Home aux viewports MacBook, desktop large et mobile.
