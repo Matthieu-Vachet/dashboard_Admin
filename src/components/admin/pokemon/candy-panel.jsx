@@ -58,7 +58,7 @@ function CandyPagination({ pagination, onPageChange, placement }) {
         >
           Page {formatCount(currentPage)} sur {formatCount(totalPages)}
         </p>
-        <p className="mt-1 text-xs font-bold text-muted">
+        <p className="mt-1 type-caption-strong text-muted">
           {formatCount(rangeStart)}–{formatCount(rangeEnd)} sur {formatCount(totalItems)} famille(s)
         </p>
       </div>

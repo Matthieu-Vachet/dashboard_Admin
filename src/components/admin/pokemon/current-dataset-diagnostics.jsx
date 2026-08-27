@@ -138,7 +138,7 @@ function PvpWarningCard({ warning }) {
   return (
     <article className={`rounded-xl border p-3 ${warning.informational ? "border-cyan-200/20 bg-cyan-300/[.07]" : "border-warning/25 bg-warning/10"}`} data-warning-code={warning.code}>
       <header className="flex min-w-0 flex-wrap items-center gap-2">
-        <code className="break-all rounded-md border border-white/10 bg-slate-950/30 px-2 py-1 text-[10px] font-black text-domain-foreground">{warning.code}</code>
+        <code className="break-all rounded-md border border-line bg-slate-950/30 px-2 py-1 text-[10px] font-black text-domain-foreground">{warning.code}</code>
         <strong className="min-w-0 break-words text-sm text-domain-foreground">{warning.entity}</strong>
         {warning.informational ? <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-2 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-cyan-100">Informatif</span> : null}
       </header>
@@ -150,7 +150,7 @@ function PvpWarningCard({ warning }) {
         ].map(([label, value]) => (
           <div className="rounded-lg border border-white/[.07] bg-slate-950/20 p-2.5" key={label}>
             <dt className="text-[9px] font-black uppercase tracking-[0.14em] text-disabled">{label}</dt>
-            <dd className="mt-1 text-xs font-bold leading-relaxed text-foreground-secondary">{value}</dd>
+            <dd className="mt-1 type-caption-strong leading-relaxed text-foreground-secondary">{value}</dd>
           </div>
         ))}
       </dl>

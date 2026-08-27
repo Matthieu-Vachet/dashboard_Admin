@@ -1109,7 +1109,7 @@ export function IdentityManagerPanel() {
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                   <p className="type-overline text-cyan-200/75">Audit par fournisseur, code, sévérité et cause</p>
-                  <h3 id="diagnostic-summary-title" className="mt-1 text-xl font-black text-foreground">Synthèse des diagnostics</h3>
+                  <h3 id="diagnostic-summary-title" className="mt-1 type-title-subsection text-foreground">Synthèse des diagnostics</h3>
                   <p className="mt-1 text-sm font-semibold text-muted">Les associations validées restent actives ; seules les alertes encore réellement actionnables demeurent ouvertes.</p>
                 </div>
                 <Button variant="primary" icon={<UserRoundCheck size={16} />} loading={busyAction === "reconcile-diagnostics"} loadingText="Réconciliation…" disabled={busy || !diagnosticSummary.totals.alreadyAssociated} onClick={() => void reconcileDiagnostics()}>
@@ -1130,17 +1130,17 @@ export function IdentityManagerPanel() {
                       <div className="min-w-0"><p className="truncate font-black text-foreground">{provider.label}</p><code className="block truncate text-xs text-cyan-200/70">{provider.id}</code></div>
                       <Badge tone={provider.open ? "amber" : "green"}>{provider.open} ouvert(s)</Badge>
                     </div>
-                    <p className="mt-2 text-xs font-semibold text-muted">{provider.activeAliases} alias actifs · {provider.activeAliasesWithLocalPath} chemin(s) local(aux) vérifié(s) · {provider.resolved} résolu(s)</p>
-                    <p className="mt-1 text-xs font-semibold text-muted">{provider.actionable} actionnable(s) · {provider.alreadyAssociated} déjà associé(s) · {provider.occurrences} occurrence(s)</p>
+                    <p className="mt-2 type-caption-strong text-muted">{provider.activeAliases} alias actifs · {provider.activeAliasesWithLocalPath} chemin(s) local(aux) vérifié(s) · {provider.resolved} résolu(s)</p>
+                    <p className="mt-1 type-caption-strong text-muted">{provider.actionable} actionnable(s) · {provider.alreadyAssociated} déjà associé(s) · {provider.occurrences} occurrence(s)</p>
                     {provider.codes.length ? <div className="mt-3 space-y-1.5">{provider.codes.slice(0, 4).map((entry) => (
                       <button key={`${provider.id}-${entry.code}`} type="button" className="flex w-full min-w-0 items-center gap-2 rounded-lg border border-line bg-surface-faint px-2.5 py-2 text-left" onClick={() => { updateDiagnosticFilter("provider", provider.id); updateDiagnosticFilter("code", entry.code); }}>
-                        <Badge tone={severityTone(entry.severity)}>{entry.severity}</Badge><code className="min-w-0 flex-1 truncate text-xs font-bold text-foreground">{entry.code}</code><strong>{entry.open}</strong>
+                        <Badge tone={severityTone(entry.severity)}>{entry.severity}</Badge><code className="min-w-0 flex-1 truncate type-caption-strong text-foreground">{entry.code}</code><strong>{entry.open}</strong>
                       </button>
                     ))}</div> : null}
                   </article>
                 ))}
               </div>
-              <p className={cn("rounded-lg border p-3 text-xs font-bold", diagnosticSummary.integrity.invalidResolvedIdentityReferences || diagnosticSummary.integrity.activeAliasesWithoutLocalPath ? "border-danger/30 bg-danger/10 text-rose-100" : "border-brand-3/30 bg-brand-3/10 text-emerald-100")}>Intégrité MongoDB : {diagnosticSummary.integrity.resolvedIdentityReferences} référence(s) résolue(s), {diagnosticSummary.integrity.invalidResolvedIdentityReferences} référence(s) invalide(s) · {diagnosticSummary.integrity.activeAliasesWithLocalPath}/{diagnosticSummary.integrity.activeAliases} alias actifs reliés à un chemin canonique.</p>
+              <p className={cn("rounded-lg border p-3 type-caption-strong", diagnosticSummary.integrity.invalidResolvedIdentityReferences || diagnosticSummary.integrity.activeAliasesWithoutLocalPath ? "border-danger/30 bg-danger/10 text-rose-100" : "border-brand-3/30 bg-brand-3/10 text-emerald-100")}>Intégrité MongoDB : {diagnosticSummary.integrity.resolvedIdentityReferences} référence(s) résolue(s), {diagnosticSummary.integrity.invalidResolvedIdentityReferences} référence(s) invalide(s) · {diagnosticSummary.integrity.activeAliasesWithLocalPath}/{diagnosticSummary.integrity.activeAliases} alias actifs reliés à un chemin canonique.</p>
             </section>
           ) : null}
           <div className="grid gap-3 rounded-xl border border-line bg-panel/55 p-4 md:grid-cols-2 xl:grid-cols-4">

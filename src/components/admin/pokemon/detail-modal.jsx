@@ -988,7 +988,7 @@ function EvolutionPanel({
                   ),
                 )}
               </div>
-              <p className="text-xs font-bold leading-5 text-muted">
+              <p className="type-caption-strong leading-5 text-muted">
                 Aucun coût suivant, niveau Méga ou cooldown n’est publié dans
                 les fiches canoniques actuelles.
               </p>
@@ -1500,7 +1500,7 @@ function JsonBlock({ payload, label = "Contenu JSON" }) {
   return (
     <pre
       aria-label={label}
-      className="max-h-[62dvh] overflow-auto rounded-3xl border border-cyan-300/15 bg-slate-950 p-4 text-xs leading-6 text-slate-300 shadow-inner focus:outline-none focus:ring-2 focus:ring-cyan-300/70 sm:text-sm"
+      className="max-h-[62dvh] overflow-auto rounded-3xl border border-cyan-300/15 bg-slate-950 p-4 text-xs leading-6 text-foreground-secondary shadow-inner focus:outline-none focus:ring-2 focus:ring-cyan-300/70 sm:text-sm"
       role="region"
       tabIndex={0}
     >
@@ -1602,26 +1602,26 @@ function CanonicalJsonViewer({ records = [] }) {
       </div>
 
       <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface-inset p-3 sm:flex-row sm:items-center sm:justify-between">
-        <code className="min-w-0 break-all text-xs font-bold text-cyan-100 sm:text-sm">
+        <code className="min-w-0 break-all type-caption-strong text-cyan-100 sm:type-body-strong">
           {activeRecord.path}
         </code>
         <div className="flex shrink-0 flex-wrap gap-2">
           <button
-            className="rounded-xl border border-line bg-surface-emphasis px-3 py-2 text-xs font-black text-domain-foreground transition hover:border-cyan-200/45 hover:bg-cyan-400/15"
+            className="rounded-xl border border-line bg-surface-emphasis px-3 py-2 type-control-strong text-domain-foreground transition hover:border-cyan-200/45 hover:bg-cyan-400/15"
             type="button"
             onClick={() => performCopy(jsonSource, "JSON copié.")}
           >
             Copier le JSON
           </button>
           <button
-            className="rounded-xl border border-line bg-surface-emphasis px-3 py-2 text-xs font-black text-domain-foreground transition hover:border-cyan-200/45 hover:bg-cyan-400/15"
+            className="rounded-xl border border-line bg-surface-emphasis px-3 py-2 type-control-strong text-domain-foreground transition hover:border-cyan-200/45 hover:bg-cyan-400/15"
             type="button"
             onClick={() => performCopy(activeRecord.path, "Chemin copié.")}
           >
             Copier le chemin
           </button>
           <button
-            className="rounded-xl border border-cyan-200/35 bg-cyan-400/15 px-3 py-2 text-xs font-black text-cyan-50 transition hover:bg-cyan-400/25"
+            className="rounded-xl border border-cyan-200/35 bg-cyan-400/15 px-3 py-2 type-control-strong text-cyan-50 transition hover:bg-cyan-400/25"
             type="button"
             onClick={download}
           >
@@ -1630,7 +1630,7 @@ function CanonicalJsonViewer({ records = [] }) {
         </div>
       </div>
 
-      <p aria-live="polite" className="min-h-5 text-xs font-bold text-muted">
+      <p aria-live="polite" className="min-h-5 type-caption-strong text-muted">
         {feedback}
       </p>
       <JsonBlock

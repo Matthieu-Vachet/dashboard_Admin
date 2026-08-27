@@ -3,6 +3,8 @@
 import { AlertTriangle, Copy, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { EmptyState } from "@/components/admin/shared/state-system";
 import {
   createUnmatchedEntriesReport,
@@ -10,8 +12,6 @@ import {
 } from "@/lib/unmatched-entries-report.mjs";
 
 const PAGE_SIZE = 50;
-const fieldClass = "min-h-11 w-full rounded-xl border border-line bg-surface-inset-strong px-3 text-sm font-bold text-domain-foreground outline-none focus:border-cyan-200/40";
-
 function printable(value) {
   if (value === undefined || value === null || value === "") return "—";
   if (typeof value === "object") return JSON.stringify(value);
@@ -22,7 +22,7 @@ function ReportField({ label, value, mono = false }) {
   return (
     <div className="min-w-0 rounded-lg border border-line bg-surface-inset-subtle p-2.5">
       <dt className="text-[9px] font-black uppercase tracking-[0.14em] text-disabled">{label}</dt>
-      <dd className={`mt-1 break-words text-xs font-bold text-foreground-secondary ${mono ? "font-mono" : ""}`}>{printable(value)}</dd>
+      <dd className={`mt-1 break-words type-caption-strong text-foreground-secondary ${mono ? "font-mono" : ""}`}>{printable(value)}</dd>
     </div>
   );
 }
@@ -114,20 +114,20 @@ export function UnmatchedEntriesReport({ entries = [], total = 0, provider = "In
       <div className="mt-4 grid gap-2 lg:grid-cols-[minmax(15rem,1fr)_15rem_15rem_12rem]">
         <label className="relative block">
           <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-disabled" size={16} />
-          <input className={`${fieldClass} pl-10`} value={query} onChange={(event) => changeFilter(setQuery, event.target.value)} placeholder="ID, nom, valeur source, candidat…" aria-label="Rechercher dans les non-matchés" />
+          <Input className="bg-surface-inset-strong pl-10 text-domain-foreground" value={query} onChange={(event) => changeFilter(setQuery, event.target.value)} placeholder="ID, nom, valeur source, candidat…" aria-label="Rechercher dans les non-matchés" />
         </label>
-        <select className={fieldClass} value={reason} onChange={(event) => changeFilter(setReason, event.target.value)} aria-label="Filtrer par raison">
+        <Select className="bg-surface-inset-strong text-domain-foreground" value={reason} onChange={(event) => changeFilter(setReason, event.target.value)} aria-label="Filtrer par raison">
           <option value="all">Toutes les raisons</option>
           {reasons.map((value) => <option value={value} key={value}>{value}</option>)}
-        </select>
-        <select className={fieldClass} value={selectedProvider} onChange={(event) => changeFilter(setSelectedProvider, event.target.value)} aria-label="Filtrer par provider">
+        </Select>
+        <Select className="bg-surface-inset-strong text-domain-foreground" value={selectedProvider} onChange={(event) => changeFilter(setSelectedProvider, event.target.value)} aria-label="Filtrer par provider">
           <option value="all">Tous les providers</option>
           {providers.map((value) => <option value={value} key={value}>{value}</option>)}
-        </select>
-        <select className={fieldClass} value={status} onChange={(event) => changeFilter(setStatus, event.target.value)} aria-label="Filtrer par statut">
+        </Select>
+        <Select className="bg-surface-inset-strong text-domain-foreground" value={status} onChange={(event) => changeFilter(setStatus, event.target.value)} aria-label="Filtrer par statut">
           <option value="all">Tous les statuts</option>
           {statuses.map((value) => <option value={value} key={value}>{value}</option>)}
-        </select>
+        </Select>
       </div>
       <div className="mt-3 max-h-[54dvh] space-y-2 overflow-y-auto pr-1">
         {visible.map((entry, index) => <UnmatchedEntryCard entry={entry} key={entry.occurrenceId || `${entry.provider}-${entry.sourceId}-${entry.sourceValue}-${index}`} />)}
