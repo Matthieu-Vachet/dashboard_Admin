@@ -389,3 +389,25 @@ PREVIEWS: Dashboard `https://dashboard-admin-q9gywgqah-matthieu-vachets-projects
 REMARQUES: les 18 occurrences sont archivées une par une avec nom externe, source ID, shiny, dex, candidats, raison, rang et classification. Quinze mappings confirmés suffisent à résoudre les doublons sans mapping approximatif. Le contrat `UnmatchedEntriesReport@1` reste rétrocompatible; `occurrenceId` empêche seulement la perte des doublons légitimes. La preview consomme explicitement `PokemonGo-Data/develop` via la variable limitée à la branche preview.
 
 NEXT: LOT 17 — déplacer uniquement l’entrée Shiny Tracker vers Données Pokémon.
+
+## LOT 17
+
+STATUS: DONE
+
+CAUSE RACINE: l’entrée `/shiny-tracker` était déclarée dans le groupe **Qualité & supervision** alors qu’elle constitue une surface de données Pokémon. La topbar n’exposait que le nom de page et ne permettait pas de vérifier le groupe actif comme fil d’Ariane.
+
+FICHIERS MODIFIÉS: registre `src/data/dashboard.ts`, projection du contexte actif dans `admin-app-frame.tsx`, fil d’Ariane compact de `admin-topbar.tsx`, test Admin Pokémon, `docs/ADMIN-ARCHITECTURE.md`, note de migration `shiny-tracker-navigation.md` et journal.
+
+TESTS: Admin Pokémon (47/47), TypeScript, ESLint ciblé, documentation (171 documents valides, 0 avertissement), build et postbuild (49 pages), `git diff --check`: OK. Preview réelle: une seule entrée Shiny Tracker, placée sous Données Pokémon sur sidebar desktop et drawer mobile 390 px; fil d’Ariane `DONNÉES POKÉMON · SHINY TRACKER`, aucun overflow horizontal ni erreur runtime.
+
+VERSION: Dashboard `1.50.0`, inchangée dans ce lot.
+
+COMMIT: `b80677a591859f354d38f2dbc62b4b9ae3ed6c6c` — `refactor(navigation): move shiny tracker to pokemon data`
+
+PUSH: `origin/develop` aligné au commit fonctionnel; `origin/main` reste inchangée à `103a0f3bd2f59298760f8b6cd0e01767b4d8159b`.
+
+PREVIEW: `https://dashboard-admin-d2dbukf3m-matthieu-vachets-projects.vercel.app` (`READY`, commit `b80677a`).
+
+REMARQUES: la route, le composant Shiny et le workflow de régénération ne changent pas. Desktop et mobile réutilisent le même `navGroups`, sans duplication. Le fil d’Ariane est dérivé du même registre et reste cohérent pour toutes les destinations.
+
+NEXT: LOT 18 — aligner les contrôles Source Watch PvPoke sur les sources réellement consommées.
