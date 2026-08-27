@@ -419,7 +419,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
 
   return (
     <section className={panelClass} data-testid="collections-panel">
-      <header className="mb-2 flex items-start justify-between gap-3 sm:mb-4">
+      <header className="mb-1 flex items-start justify-between gap-3 sm:mb-4">
         <div>
           <p className="type-overline text-cyan-200/70">Checklist canonique</p>
           <h2 className="text-lg font-black leading-tight text-domain-foreground sm:type-title-subsection">Collections Pokémon GO</h2>
@@ -433,7 +433,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
 
       {activeCollection ? (
         <>
-          <div className="mb-2 rounded-surface border border-cyan-300/25 bg-gradient-to-br from-sky-500/12 via-cyan-400/8 to-emerald-400/10 p-3 shadow-surface sm:mb-3 sm:p-4" data-testid="active-collection-card">
+          <div className="mb-2 rounded-surface border border-cyan-300/25 bg-gradient-to-br from-sky-500/12 via-cyan-400/8 to-emerald-400/10 p-2 shadow-surface sm:mb-3 sm:p-4" data-testid="active-collection-card">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
                 <p className="type-overline-compact text-cyan-100/70"><span className="md:hidden">Active · {typeLabel(activeCollection.type)}</span><span className="hidden md:inline">Collection active · {typeLabel(activeCollection.type)}</span></p>
@@ -472,7 +472,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
             </div>
           </div>
 
-          <div className="sticky top-2 z-30 mb-2 rounded-surface border border-line bg-panel-strong/95 p-2 shadow-floating backdrop-blur-xl md:hidden" data-testid="collections-sticky-bar">
+          <div className="sticky top-2 z-30 mb-2 rounded-surface border border-line bg-panel-strong/95 p-1.5 shadow-floating backdrop-blur-xl md:hidden" data-testid="collections-sticky-bar">
             <div className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto_auto] items-center gap-1.5">
               <StatusTabs value={status} onChange={setStatus} compact />
               <button className="grid h-10 w-10 place-items-center rounded-control border border-line bg-surface-control text-domain-foreground" type="button" onClick={() => setSheet("search")} aria-label="Ouvrir la recherche"><Search size={17} /></button>
@@ -495,7 +495,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
           <div className="space-y-5" data-testid="collection-pokemon-list">
             {generationGroups.map(([groupId, groupEntries]) => (
               <section className="[content-visibility:auto] [contain-intrinsic-size:auto_42rem]" key={groupId}>
-                <div className="mb-2 flex items-end justify-between gap-3 sm:mb-3">
+                <div className="mb-1 flex items-end justify-between gap-3 sm:mb-3">
                   <div>
                     <p className="type-overline-compact text-cyan-100/65">Région / génération</p>
                     <h3 className="text-lg font-black text-domain-foreground sm:type-title-section">{generationLabels[groupId] || `Gen. ${groupId}`}</h3>
