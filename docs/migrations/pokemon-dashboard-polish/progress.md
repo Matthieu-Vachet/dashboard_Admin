@@ -457,3 +457,29 @@ PREVIEW: `https://dashboard-admin-44nh2hiy3-matthieu-vachets-projects.vercel.app
 REMARQUES: à partir de 1 280 px, la zone d’outils possède une séparation verticale et deux rangées stables; de 640 à 1 279 px, les CTA restent en deux colonnes; sous 640 px, ils passent en une colonne pleine largeur. Les libellés, icônes et destinations fonctionnelles sont inchangés.
 
 NEXT: LOT 20 — réaligner la documentation active et les changelogs des trois dépôts.
+
+## LOT 20
+
+STATUS: DONE
+
+CAUSE RACINE: les notes de migration décrivaient chaque correctif, mais plusieurs documents actifs conservaient des instantanés devenus obsolètes: 1 614 fiches PvP figées, une concurrence annoncée à 16 au lieu de 64, les coéquipiers encore attribués au Team Ranker navigateur et une navigation principale encore décrite par `?section=`. Les trois changelogs ne résumaient pas encore la mission.
+
+FICHIERS MODIFIÉS: Dashboard `CHANGELOG.md`, architecture Admin, PvP Battle Lab, pages PvP/Candies/Identity Manager, composants JSON/navigation, datasets PvP/Source Watch, index fonctionnel `docs/migrations/pokemon-dashboard-polish/README.md` et note d’icônes; API `CHANGELOG.md`, Identity Manager, Ranked Datasets et Unmatched Entries Report; Data `CHANGELOG.md` et Ranked Datasets.
+
+TESTS: scan transversal par mots-clés sur les trois dépôts, suppression des contradictions actives, validation documentaire Dashboard (171 documents, 171 identifiants, 17 tomes, 0 avertissement) et `git diff --check` dans les trois dépôts: OK. Les nombres historiques restent uniquement dans les changelogs, rapports datés et entrées d’historique qui constituent des preuves immuables.
+
+VERSION: Dashboard `1.50.0`, API `1.25.0`, Data `1.29.2`; versions encore inchangées, changelogs préparés avant le lot de release.
+
+COMMIT DASHBOARD: `63e69157a2cac86dddff3fa5820d60cf8512c2ea` — `docs(pokemon): align dashboard polish documentation`
+
+COMMIT API: `eb08daa410c91a144bdb684d77dcf4f5d8b87c13` — `docs(pokemon): align dashboard polish documentation`
+
+COMMIT DATA: `bcaf7d9ecfab1658da89aa8f09492392fd5b9e63` — `docs(pokemon): align dashboard polish documentation`
+
+PUSH: les trois dépôts sont alignés sur `origin/develop`; les branches `main` restent inchangées (Dashboard `103a0f3b`, API `952107b8`, Data `2869aba4`).
+
+PREVIEW: non requise pour ce lot documentaire; la preview fonctionnelle du lot 19 reste `https://dashboard-admin-44nh2hiy3-matthieu-vachets-projects.vercel.app`.
+
+REMARQUES: l’index de polish relie navigation, fiches, JSON, évolutions, Candies, Collections, PvP, Identity Manager, Rocket, Shiny Tracker, Source Watch, régénérations et responsive. Les totaux et commits susceptibles d’évoluer sont désormais lus dans les métadonnées runtime au lieu d’être figés dans les documents actifs.
+
+NEXT: LOT 21 — appliquer les incréments SemVer cohérents et versionner la release des trois dépôts.
