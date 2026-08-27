@@ -292,11 +292,15 @@ test("Veille expose une supervision filtrable, alignée et responsive", () => {
   assert.match(source, /Rechercher une source/);
   assert.match(source, /Filtrer les sources par catégorie/);
   assert.match(source, /Filtrer les sources par statut/);
-  assert.match(source, /État et cause/);
+  assert.match(source, /État et HTTP/);
+  assert.match(source, /URL contrôlée/);
+  assert.match(source, /Provider :/);
+  assert.match(source, /HTTP \{source\.httpStatus\}/);
+  assert.match(source, /Commit et hash/);
   assert.match(source, /Copier l’empreinte/);
   assert.match(source, /document\.execCommand\("copy"\)/);
   assert.match(source, /Margxt, LeekDuck, PvPoke/);
-  assert.match(source, /lg:grid-cols-\[minmax\(14rem,1\.45fr\)/);
+  assert.match(source, /lg:grid-cols-\[minmax\(13rem,1\.1fr\)/);
   assert.match(source, /break-words/);
   assert.doesNotMatch(source, /block truncate font-black text-domain-foreground/);
 });

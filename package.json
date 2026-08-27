@@ -33,7 +33,7 @@
     "test:admin-actions": "node --import tsx --test scripts/test-admin-action-contract.mts",
     "test:regeneration-matrix": "node --import tsx --test scripts/test-regeneration-pipeline-matrix.mts",
     "test:data-repository": "node --test scripts/test-data-repository-resolution.mjs",
-    "test:source-watch": "node --no-warnings --experimental-strip-types --test scripts/test-source-watch-presentation.mts",
+    "test:source-watch": "node --no-warnings --experimental-strip-types --test scripts/test-source-watch-presentation.mts scripts/test-source-watch-canonical.mjs",
     "test:shiny-release": "node --test scripts/test-pokemon-shiny-release.mjs",
     "test:pokemon-detail": "node --test scripts/test-pokemon-detail-data.mjs",
     "test:pokemon-mega-evolutions": "node --test scripts/test-pokemon-mega-evolutions.mjs",
