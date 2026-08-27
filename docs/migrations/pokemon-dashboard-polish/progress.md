@@ -435,3 +435,25 @@ PREVIEW: `https://dashboard-admin-nrez5pqko-matthieu-vachets-projects.vercel.app
 REMARQUES: le token Data éventuel n’est envoyé qu’à `api.github.com`. Aucune page protégée PvPoke n’est contournée. Le hash du contenu live et celui du snapshot épinglé restent distincts et visibles afin qu’un retard de synchronisation ne soit jamais confondu avec une indisponibilité.
 
 NEXT: LOT 19 — équilibrer la carte d’attention de la Home aux viewports MacBook, desktop large et mobile.
+
+## LOT 19
+
+STATUS: DONE
+
+CAUSE RACINE: la carte d’attention utilisait une distribution flexible implicite qui laissait varier la largeur du résumé, de la zone d’outils et des quatre actions selon le contenu. Sur grand écran, les CTA n’avaient donc pas une grille stable; sur mobile, leur largeur et leur ordre dépendaient encore du wrapping du conteneur.
+
+FICHIERS MODIFIÉS: `src/components/admin/pokemon/admin-command-center.tsx`, garde statique `scripts/test-admin-pokemon-refactor.mjs`, vérification géométrique `scripts/verify-pokemon-responsive.mjs`, note `home-attention-responsive.md` et journal.
+
+TESTS: Admin Pokémon (47/47), TypeScript, ESLint ciblé (0 erreur), documentation (171 documents valides, 0 avertissement), build et postbuild (49 pages), matrice responsive complète (220 pages, 11 largeurs de 320 à 1 920 px, deux thèmes), `git diff --check`: OK. Preview réelle: à 1 440 px, résumé et outils forment deux colonnes alignées de 666 px et 568 px avec quatre CTA égaux de 329 × 48 px en grille 2 × 2; à 390 px, les quatre CTA occupent chacun 316 px sur une colonne. Aucun overflow horizontal ni erreur console/runtime.
+
+VERSION: Dashboard `1.50.0`, inchangée dans ce lot.
+
+COMMIT: `8362ec5a1872190a67f7988a0e7185842e582ac6` — `fix(home): refine attention panel responsive layout`
+
+PUSH: `origin/develop` aligné au commit fonctionnel; `origin/main` reste inchangée à `103a0f3bd2f59298760f8b6cd0e01767b4d8159b`.
+
+PREVIEW: `https://dashboard-admin-44nh2hiy3-matthieu-vachets-projects.vercel.app` (`READY`, commit `8362ec5`).
+
+REMARQUES: à partir de 1 280 px, la zone d’outils possède une séparation verticale et deux rangées stables; de 640 à 1 279 px, les CTA restent en deux colonnes; sous 640 px, ils passent en une colonne pleine largeur. Les libellés, icônes et destinations fonctionnelles sont inchangés.
+
+NEXT: LOT 20 — réaligner la documentation active et les changelogs des trois dépôts.
