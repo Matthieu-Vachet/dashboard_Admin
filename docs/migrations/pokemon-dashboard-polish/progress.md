@@ -363,3 +363,29 @@ PREVIEWS: Dashboard `https://dashboard-admin-6x1hbefqk-matthieu-vachets-projects
 REMARQUES: `UnmatchedEntriesReport@1` impose provider, source ID, nom, valeur source, raison taxonomique, candidats, confiance, destination et statut. Les sept codes demandés sont fermés et testés. Les anciens runs restent lisibles avec une alerte d’incomplétude; toute nouvelle régénération stocke le rapport complet dans le document current et le run. La cause des 471 entrées complémentaires est maintenant explicite: identités locales présentes dans PokemonGo-Data mais absentes du flux Game Master, classées `SOURCE_ID_UNKNOWN` sans créer de mapping approximatif.
 
 NEXT: LOT 16 — expliquer et réconcilier les 18 non-matchés du Shiny Tracker avec le rapport générique.
+
+## LOT 16
+
+STATUS: DONE
+
+CAUSE RACINE: le rapport Shiny dédupliquait les occurrences partageant le même nom ou sprite et n’exposait pas explicitement `shiny`, le numéro de Pokédex, le bucket ni le rang source. Les 18 occurrences représentaient 15 identités uniques : seize occurrences de codes costume Snacknap exacts (`c11`, `c74`, `c78`) et deux sprites sans suffixe de forme (`716_s`, `999_s`) que le résolveur laissait en concurrence avec leurs formes alternatives.
+
+FICHIERS MODIFIÉS: côté Data, générateur Shiny, mappings versionnés, tests et audit `operations/audits/shiny/unmatched-reconciliation-2026-08-26.json`; côté API, normalisation et persistance du rapport complet avec identifiant d’occurrence; côté Dashboard, contrat partagé, cards détaillées et tests du rapport générique; journal.
+
+TESTS: Data résolution et datasets classés (65/65); API pipeline current (18/18); Dashboard rapport générique (4/4), TypeScript, ESLint ciblé, build et postbuild (49 pages); API build et postbuild (11 générateurs, 34 fichiers serveur, 12 manifestes); `git diff --check`: OK. Preview réelle: le rapport historique reste consultable, la nouvelle régénération Shiny du 27/08/2026 à 05:34:20 termine `SUCCESS`, 1 958 matchés, 0 non-matché, 0 avertissement, aucun overflow horizontal ni erreur console/runtime.
+
+VERSION: Dashboard `1.50.0`, API `1.25.0`, Data `1.29.2` (`dataVersion 2026.08.23.2`, schéma `1.1.0`), inchangées dans ce lot.
+
+COMMIT DASHBOARD: `f6e4929227ba9e6386fb82c9225b42216d8dbe0c` — `fix(shiny-tracker): expose and reconcile unmatched entries`
+
+COMMIT API: `48e989fbaa376cab75c47f640e4c41b525748238` — `fix(shiny-tracker): expose and reconcile unmatched entries`
+
+COMMIT DATA: `6ec4ef7e36dd5940f166f26e7b03472cfe0c98a3` — `fix(shiny-tracker): expose and reconcile unmatched entries`
+
+PUSH: les trois dépôts sont alignés sur `origin/develop`; les branches `main` restent inchangées (Dashboard `103a0f3b`, API `952107b8`, Data `2869aba4`).
+
+PREVIEWS: Dashboard `https://dashboard-admin-q9gywgqah-matthieu-vachets-projects.vercel.app` (`READY`, commit `f6e4929`); API `https://pokemon-go-jy5sm0sqe-matthieu-vachets-projects.vercel.app` (`READY`, commit `48e989f`). L’alias API `develop` a été réaligné sur ce preview.
+
+REMARQUES: les 18 occurrences sont archivées une par une avec nom externe, source ID, shiny, dex, candidats, raison, rang et classification. Quinze mappings confirmés suffisent à résoudre les doublons sans mapping approximatif. Le contrat `UnmatchedEntriesReport@1` reste rétrocompatible; `occurrenceId` empêche seulement la perte des doublons légitimes. La preview consomme explicitement `PokemonGo-Data/develop` via la variable limitée à la branche preview.
+
+NEXT: LOT 17 — déplacer uniquement l’entrée Shiny Tracker vers Données Pokémon.
