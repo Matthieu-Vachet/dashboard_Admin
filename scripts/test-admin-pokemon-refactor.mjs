@@ -25,6 +25,22 @@ test("les sections Pokémon sont remontées dans la navigation principale respon
   assert.doesNotMatch(app, /AdminSectionNavigation/);
 });
 
+test("Shiny Tracker appartient uniquement au groupe Données Pokémon sur desktop, mobile et dans le fil d’Ariane", () => {
+  const navigation = read("src/data/dashboard.ts");
+  const frame = read("src/components/admin/layout/admin-app-frame.tsx");
+  const topbar = read("src/components/admin/navigation/admin-topbar.tsx");
+  const pokemonData = navigation.slice(navigation.indexOf('id: "pokemon-data"'), navigation.indexOf('id: "combat"'));
+  const quality = navigation.slice(navigation.indexOf('id: "quality"'), navigation.indexOf('id: "maintenance"'));
+
+  assert.match(pokemonData, /href: "\/shiny-tracker"/);
+  assert.doesNotMatch(quality, /href: "\/shiny-tracker"/);
+  assert.equal((navigation.match(/href: "\/shiny-tracker"/g) || []).length, 1);
+  assert.match(frame, /groupLabel: group\?\.label/);
+  assert.match(frame, /activeGroupLabel=\{activeNavigation\.groupLabel\}/);
+  assert.match(topbar, /aria-label="Fil d’Ariane"/);
+  assert.match(frame, /renderSidebar\(false, true\)/);
+});
+
 test("les icônes métier du menu utilisent le registre local partagé", () => {
   const navigation = read("src/data/dashboard.ts");
   const sidebar = read("src/components/admin/navigation/admin-sidebar.tsx");

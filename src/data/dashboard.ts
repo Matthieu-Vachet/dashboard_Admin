@@ -66,6 +66,7 @@ export const navGroups: NavGroup[] = [
       { href: "/assets", label: "Assets", icon: pokemonNavigationIcons.assets, sectionId: "assets" },
       { href: "/catalogues", label: "Catalogues", icon: pokemonNavigationIcons.catalogs, sectionId: "catalogs" },
       { href: "/pokemon-docs", label: "Docs JSON", icon: pokemonNavigationIcons.docs },
+      { href: "/shiny-tracker", label: "Shiny Tracker", icon: `${filtersAssetBase}/ic_shiny_white.png`, sectionId: "shiny" },
     ],
   },
   {
@@ -101,7 +102,6 @@ export const navGroups: NavGroup[] = [
       { href: "/pokemon-identity-mappings", label: "Résolution variantes", icon: Radar, sectionId: "pokemon-identity-mappings" },
       { href: "/game-master-explorer", label: "Game Master Explorer", icon: Database, sectionId: "game-master-explorer" },
       { href: "/checks", label: "Contrôles", icon: AlertTriangle, sectionId: "checks" },
-      { href: "/shiny-tracker", label: "Shiny Tracker", icon: `${filtersAssetBase}/ic_shiny_white.png`, sectionId: "shiny" },
       { href: "/source-watch", label: "Veille", icon: Radar, sectionId: "sources" },
       { href: "/compare", label: "Comparaison", icon: FileDiff, sectionId: "compare" },
     ],

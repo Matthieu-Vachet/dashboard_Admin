@@ -45,7 +45,9 @@ Le Dashboard Admin est organisé autour du dossier canonique `src/components/adm
 
 ## Qualité et supervision
 
-Le groupe **Qualité & supervision** conserve l’Engine de contrôle JSON, Identity Manager, Shiny Tracker, Résolution variantes, Game Master Explorer, Contrôles et Veille. Le Dashboard ne maintient aucun écran parallèle de comparaison des disponibilités.
+Le groupe **Données Pokémon** contient les surfaces de consultation et de suivi du référentiel, dont **Shiny Tracker**. Le groupe **Qualité & supervision** conserve l’Engine de contrôle JSON, Identity Manager, Résolution variantes, Game Master Explorer, Contrôles et Veille. Le Dashboard ne maintient aucun écran parallèle de comparaison des disponibilités.
+
+La topbar projette le groupe et la destination actifs dans un fil d’Ariane compact. Desktop et drawer mobile consomment le même tableau `navGroups`; une entrée ne doit donc jamais être dupliquée pour changer de catégorie.
 
 La Veille reste l’autorité d’enregistrement des sources et les classe en six domaines. Elle expose uniquement leur santé de transport et leurs signatures ; les données canoniques restent validées par l’Engine.
 

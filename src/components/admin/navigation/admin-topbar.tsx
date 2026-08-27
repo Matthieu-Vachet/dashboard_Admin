@@ -14,6 +14,7 @@ import { DASHBOARD_VERSION } from "@/data/app-version";
 import { AdminPaletteSelector } from "@/components/admin/navigation/admin-palette-selector";
 
 type AdminTopbarProps = {
+  activeGroupLabel: string;
   activeLabel: string;
   collapsed: boolean;
   onOpenSidebar: () => void;
@@ -22,6 +23,7 @@ type AdminTopbarProps = {
 };
 
 export function AdminTopbar({
+  activeGroupLabel,
   activeLabel,
   collapsed,
   onOpenSidebar,
@@ -51,8 +53,10 @@ export function AdminTopbar({
         </button>
 
         <div className="min-w-0 flex-1">
-          <p className="type-overline text-brand-2">
-            {activeLabel}
+          <p className="type-overline text-brand-2" aria-label="Fil d’Ariane">
+            <span>{activeGroupLabel}</span>
+            {activeGroupLabel !== activeLabel ? <span aria-hidden="true"> · </span> : null}
+            {activeGroupLabel !== activeLabel ? <span>{activeLabel}</span> : null}
           </p>
           <h1 className="truncate text-base font-black sm:text-lg">
             Centre de commande Pokémon GO
