@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.51.0 - 2026-08-27
+
 ### Added
 
 - Affiche séparément tous les fichiers JSON canoniques d’une fiche Pokémon, les Méga-évolutions dans la vue Évolution et une pagination de neuf familles dans Candies.

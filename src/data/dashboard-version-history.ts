@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.51.0",
+    date: "2026-08-27",
+    title: "Polish fonctionnel du centre Pokémon",
+    changes: [
+      "Aligne navigation, fiches, JSON canoniques, évolutions Méga, Candies et Collections sur leurs contrats de données actuels.",
+      "Clarifie les résultats PvP partiels, les attaques Héritage/Retirée, les coéquipiers suggérés et les rapports non matchés actionnables.",
+      "Réaligne Identity Manager, Rocket, Shiny Tracker et Source Watch, puis valide les thèmes et le responsive de 320 à 1 920 px.",
+      "Compacte les 17 contrôles de régénération sans modifier les 15 actions incluses dans Tout régénérer.",
+    ],
+  },
+  {
     version: "V1.50.0",
     date: "2026-08-22",
     title: "Best Defenders automatisable et sécurisé",
