@@ -509,3 +509,31 @@ PREVIEW: les previews de release sont déclenchées par les pushes `develop` et 
 REMARQUES: les changelogs ont été remplis avant les commits de version. La release Dashboard inclut les lots 0–20; l’API inclut les changements fonctionnels des lots 10, 15 et 16; Data inclut les changements des lots 15, 16 et 18, plus les corrections de baseline déterministes à venir avant la validation finale.
 
 NEXT: LOT 22 — réparer les deux baselines Data restantes puis exécuter la validation globale Dashboard/API/Data et les 17 régénérations.
+
+## LOT 22
+
+STATUS: DONE
+
+CAUSE RACINE: les deux dernières baselines globales ne signalaient pas une régression métier: l’inventaire et le manifest d’assets Data étaient devenus obsolètes après les réparations canoniques, tandis que trois surfaces Dashboard utilisaient encore des couleurs ou familles de champs non sémantiques. La matrice responsive a aussi détecté un panneau Collections vingt pixels trop haut sur iPhone SE. Ces écarts empêchaient une validation honnête de la release bien que les contrats runtime soient corrects.
+
+FICHIERS MODIFIÉS: Data, inventaire généré, manifest d’assets, métadonnées de version et changelog; Dashboard, attendu d’unicité des assets, panneaux Identity Manager/non-matchés, primitives typographiques et champs, compaction Collections, package/lockfile, changelog et historique de version. Aucun code API n’a nécessité de correction dans ce lot.
+
+TESTS DATA: suite complète `npm test`, 244/244 tests; inventaire canonique 4 648 fichiers; manifest valide; métadonnées de version alignées. TESTS API: suite complète `npm test`, 189/189 tests; build Next.js 15 réussi. TESTS DASHBOARD: quatre groupes statiques entièrement verts couvrant Admin, variantes, présentation, événements, Discord, Rocket, non-matchés, PvP/GBL, Engine, parité, régénérations, sources, assets, collections, XL, documentation, design system et version; design system 37/37; TypeScript; ESLint sans erreur avec 71 avertissements historiques; documentation 171 documents, 0 avertissement; build et postbuild 49 pages; test navigateur local 32 routes; scénario Collections 15/15 sur sept viewports et deux thèmes; matrice responsive 220 pages sur onze largeurs de 320 à 1 920 px et deux thèmes.
+
+RÉGÉNÉRATIONS PREVIEW: les 17 actions ont répondu HTTP 200 et `success: true`: Game Master, synchronisation Identity Manager, Variant Resolution, Raids, Max Battles, Rocket, PvP Rankings, Calendrier GBL, Best Attackers, Best Defenders, Eggs, Research, Events, Community Days, Shiny, Game Master Reindex et GitHub Data Sync. PvP publie 20 442 entrées, 0 ignorée, 0 `MAPPING_MISSING`, 0 non-matchée et deux avertissements explicites, avec statut final `success`.
+
+ÉTAT MONGODB APRÈS ACTIONS: synchronisation `SYNCED`, hashes identiques, inventaire local 1 928, 1 940 identités avant/après, 0 création, 0 mise à jour, 1 928 inchangées, 12 orphelines conservées, 0 conflit, 1 826 alias préservés et régression Mewtwo Armored présente. Identity Manager expose 1 940 identités, dont 1 928 actives et 12 brouillons; 1 825 alias actifs possèdent tous un chemin local. Diagnostics: 1 635 au total, 1 368 ouverts/actionnables, 267 résolus, 0 référence résolue invalide et 0 alias actif sans chemin.
+
+VERSION: Data `1.30.0 → 1.30.1`, `dataVersion 2026.08.27.1 → 2026.08.27.2`; Dashboard `1.51.0 → 1.51.1`; API `1.26.0` inchangée. `schemaVersion 1.1.0` reste inchangée.
+
+COMMIT DATA: `9041f5f4767c3357563c71da8fb88412a0076264` — `fix(data): refresh canonical inventory and asset manifest`
+
+COMMITS DASHBOARD: `801aa0524dc3913d3a6f2b469011d8aa328b0021` — `fix(ui): align polish surfaces with design system`; `49f556ae1a2dcaa55dd153d018cedfaf81b08617` — `fix(collections): keep first cards visible on compact screens`; `7b5a86a188557fb6060393c55d8532d2b03bb26f` — `chore(release): publish dashboard 1.51.1`.
+
+PUSH: Data et Dashboard sont alignés sur `origin/develop`; API était déjà alignée et reste sans modification fonctionnelle dans ce lot. Les branches `main` restent inchangées (Dashboard `103a0f3b`, API `952107b8`, Data `2869aba4`).
+
+PREVIEW: `https://dashboard-admin-pk3saersf-matthieu-vachets-projects.vercel.app` (`READY`, commit `7b5a86a`). Parcours authentifié réel: 18/18 scénarios, neuf pages en desktop sombre 1 440 × 1 000 et mobile clair 390 × 844, tous HTTP 200, aucun overflow horizontal, erreur console applicative, HTTP 5xx ni dialogue Next.js. Les JSON canoniques/évolutions de Fiches et les coéquipiers PvP ont été ouverts et contrôlés. Seuls la CSP de la barre Vercel et des préchargements Next.js volontairement annulés apparaissent comme bruit plateforme isolé.
+
+REMARQUES: la correction des tests d’assets suit exactement six substitutions d’URL canoniques produites par Data et conserve l’assertion d’unicité. Le statut PvP n’est plus confondu avec un échec: les deux avertissements sont conservés et actionnables, mais aucune donnée n’est ignorée ou non matchée.
+
+NEXT: LOT 23 — recontrôler le déploiement Preview de `develop`, l’état distant des trois dépôts et l’absence de mutation de `main`.
