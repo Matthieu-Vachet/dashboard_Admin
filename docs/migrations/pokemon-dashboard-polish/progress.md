@@ -537,3 +537,25 @@ PREVIEW: `https://dashboard-admin-pk3saersf-matthieu-vachets-projects.vercel.app
 REMARQUES: la correction des tests d’assets suit exactement six substitutions d’URL canoniques produites par Data et conserve l’assertion d’unicité. Le statut PvP n’est plus confondu avec un échec: les deux avertissements sont conservés et actionnables, mais aucune donnée n’est ignorée ou non matchée.
 
 NEXT: LOT 23 — recontrôler le déploiement Preview de `develop`, l’état distant des trois dépôts et l’absence de mutation de `main`.
+
+## LOT 23
+
+STATUS: DONE
+
+CAUSE RACINE: la clôture exige une preuve prise sur le déploiement associé à la tête effective de `develop`, après le commit de journal du lot 22, ainsi qu’une comparaison distante indépendante des branches locales. Une simple réussite de build ou une Preview antérieure ne suffit pas à établir cet état final.
+
+FICHIERS MODIFIÉS: journal uniquement.
+
+TESTS: `git fetch origin --prune` dans les trois dépôts; worktrees propres; égalité exacte `HEAD = origin/develop`; comparaison exacte de `origin/main` avec les baselines de départ. Preview Dashboard associée au commit `8ff2d91`: statut Vercel `READY`, alias `develop` attribué, 18/18 parcours authentifiés HTTP 200 sur neuf pages, desktop sombre et mobile clair, aucune erreur applicative, aucun HTTP 5xx, aucun overflow horizontal. Fiches attend explicitement la fin du chargement asynchrone avant de valider son onglet JSON canonique; PvP ouvre les coéquipiers suggérés.
+
+VERSION: Dashboard `1.51.1`; API `1.26.0`; Data `1.30.1`, `dataVersion 2026.08.27.2`, `schemaVersion 1.1.0`.
+
+ÉTAT DISTANT: Dashboard `HEAD = origin/develop = 8ff2d912e8a09585d41790c455ee3a24aa33ad23`; API `HEAD = origin/develop = 72a632da7d3a60c1bd5ab6f2d978fb1ecd654d22`; Data `HEAD = origin/develop = 9041f5f4767c3357563c71da8fb88412a0076264`.
+
+MAIN INCHANGÉE: Dashboard `origin/main = 103a0f3bd2f59298760f8b6cd0e01767b4d8159b`; API `origin/main = 952107b8cf262b212f7f3059be64218e395eb965`; Data `origin/main = 2869aba4d19e9313db2055a13cf69dc9d0c3c3a5`.
+
+PREVIEW: `https://dashboard-admin-hhx7vrbgx-matthieu-vachets-projects.vercel.app` (`READY`, commit `8ff2d91`), alias `https://dashboard-admin-git-develop-matthieu-vachets-projects.vercel.app`.
+
+REMARQUES: les seules traces non applicatives restent la CSP de la barre Vercel Preview et les préchargements RSC Next.js annulés lors des navigations; elles sont isolées du verdict et aucun signal produit n’est masqué.
+
+NEXT: LOT 24 — produire le rapport final, relancer les garde-fous documentaires/version et fermer la mission sur `develop`.
