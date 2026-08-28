@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## 1.51.1 - 2026-08-28
+
+### Changed
+
+- Aligne les derniers panneaux de polish sur les primitives sémantiques du design system et conserve les cartes de Collections au-dessus de la ligne de flottaison sur les écrans compacts.
+
+### Fixed
+
+- Réactualise l’attendu des URLs d’assets canoniques après la réparation du manifest PokemonGo-Data, sans relâcher la vérification d’unicité.
+- Corrige les trois écarts de sémantique visuelle détectés par la validation globale et le débordement vertical résiduel de Collections sur iPhone SE.
+
 ## 1.51.0 - 2026-08-27
 
 ### Added

@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.51.1",
+    date: "2026-08-28",
+    title: "Validation globale et écrans compacts",
+    changes: [
+      "Aligne les derniers panneaux de polish sur les primitives sémantiques du design system.",
+      "Conserve les premières cartes de Collections visibles sur les petits écrans, y compris l’iPhone SE.",
+      "Réaligne le contrôle d’unicité des assets sur le manifest canonique PokemonGo-Data réparé.",
+      "Confirme les parcours Preview réels en thèmes sombre et clair, sur desktop et mobile.",
+    ],
+  },
+  {
     version: "V1.51.0",
     date: "2026-08-27",
     title: "Polish fonctionnel du centre Pokémon",
