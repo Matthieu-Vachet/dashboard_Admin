@@ -559,3 +559,25 @@ PREVIEW: `https://dashboard-admin-hhx7vrbgx-matthieu-vachets-projects.vercel.app
 REMARQUES: les seules traces non applicatives restent la CSP de la barre Vercel Preview et les préchargements RSC Next.js annulés lors des navigations; elles sont isolées du verdict et aucun signal produit n’est masqué.
 
 NEXT: LOT 24 — produire le rapport final, relancer les garde-fous documentaires/version et fermer la mission sur `develop`.
+
+## LOT 24
+
+STATUS: DONE
+
+CAUSE RACINE: la mission imposait un livrable autonome regroupant tous les lots, SHA, versions, fichiers, preuves de tests, captures, régénérations, avertissements, Preview et état des branches. Le journal détaillé seul ne constituait pas un résumé de clôture suffisamment direct pour la validation utilisateur.
+
+FICHIERS MODIFIÉS: `docs/migrations/pokemon-dashboard-polish/final-report.md` et présent journal.
+
+TESTS: présence des 25 lots 00–24 dans le rapport; validation documentaire Dashboard (171 documents catalogués, 0 avertissement); version Dashboard alignée sur `V1.51.1`; `git diff --check`; relecture des versions API/Data, des 17 régénérations, de l’intégrité MongoDB, des captures et de la Preview du lot 23.
+
+VERSION: Dashboard `1.51.1`; API `1.26.0`; Data `1.30.1`, `dataVersion 2026.08.27.2`, `schemaVersion 1.1.0`.
+
+COMMIT RAPPORT: `9492328fd519261bcd5d7a689e3520addc131bab` — `docs(pokemon): publish final polish report`
+
+PUSH: rapport poussé sur `origin/develop`; checkpoint de clôture poussé immédiatement après cette entrée. Aucun push ni merge vers `main`.
+
+PREVIEW: `https://dashboard-admin-hhx7vrbgx-matthieu-vachets-projects.vercel.app` (`READY`, Preview fonctionnelle du lot 23); alias `https://dashboard-admin-git-develop-matthieu-vachets-projects.vercel.app`.
+
+REMARQUES: le rapport final référence les cinq captures locales ignorées par Git et sépare explicitement les avertissements historiques/plateforme des erreurs applicatives. Aucun travail fonctionnel ne reste ouvert.
+
+NEXT: aucun lot — mission prête pour validation utilisateur.

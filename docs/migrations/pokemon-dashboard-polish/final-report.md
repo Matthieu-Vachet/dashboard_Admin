@@ -45,7 +45,7 @@ Les trois produits publient les versions suivantes:
 | 21 | Releases MINOR publiées | Dashboard `70fa5a3fbff0a3546a7ca1108e9aa981e6d4c9af`; API `72a632da7d3a60c1bd5ab6f2d978fb1ecd654d22`; Data `56af32d167c605d755f376051ca1505a39d2ca81` |
 | 22 | Validation globale, baselines Data réparées, design system et compact mobile finalisés | Data `9041f5f4767c3357563c71da8fb88412a0076264`; Dashboard `801aa0524dc3913d3a6f2b469011d8aa328b0021`, `49f556ae1a2dcaa55dd153d018cedfaf81b08617`, `7b5a86a188557fb6060393c55d8532d2b03bb26f`; journal `8ff2d912e8a09585d41790c455ee3a24aa33ad23` |
 | 23 | Preview `develop`, branches distantes et `main` revalidées | Dashboard `09a8f1469bbcbc20a9fbc7726b0a1919b71c9422` |
-| 24 | Rapport final, garde-fous documentaires/version et clôture | Dashboard `LOT24_REPORT_COMMIT` |
+| 24 | Rapport final, garde-fous documentaires/version et clôture | Dashboard `9492328fd519261bcd5d7a689e3520addc131bab` |
 
 Les checkpoints intermédiaires du lot 11 (`ca63f110`, `4f751b4f`, `231b692b`) et du lot 15 (`8acb9f170decd91b0c6ffd3ed23aa78adefebd82`, `2d2908bc0f85f19b56d5742137869eaaac1c40ca`) restent conservés dans l’historique. Le journal contient les commits de documentation et de checkpoint de chaque lot.
 
