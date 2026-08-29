@@ -76,6 +76,11 @@ try {
   let dialog = page.getByRole("dialog");
   await dialog.getByRole("button", { name: "Gigamax" }).click();
   await dialog.getByRole("button", { name: "Non variante" }).click();
+  assert.equal(await dialog.getByLabel("Sexe").isChecked(), false);
+  assert.match(await dialog.innerText(), /Inclure les différences visuelles mâle \/ femelle lorsqu'elles existent\./);
+  await dialog.getByLabel("Sexe").check();
+  assert.match(await dialog.getByRole("button", { name: /Créer la collection/ }).innerText(), /17 Pokémon/);
+  await dialog.getByLabel("Sexe").uncheck();
   const nameInput = dialog.getByPlaceholder("ex. Shiny Shadow Kanto");
   await nameInput.pressSequentially(testName, { delay: 2 });
   assert.equal(await nameInput.inputValue(), testName);
@@ -207,6 +212,8 @@ try {
   dialog = page.getByRole("dialog");
   await dialog.getByLabel("Chromatique").check();
   assert.match(await dialog.getByRole("button", { name: /Afficher .* Pokémon/ }).innerText(), /876 Pokémon/);
+  await dialog.getByLabel("Sexe").check();
+  assert.match(await dialog.getByRole("button", { name: /Afficher .* Pokémon/ }).innerText(), /975 Pokémon/);
   await dialog.getByRole("button", { name: /Afficher .* Pokémon/ }).click();
   await page.locator('[data-sonner-toast]').waitFor({ state: "hidden", timeout: 6_000 }).catch(() => {});
 
@@ -273,7 +280,7 @@ try {
   const overlay = await page.locator('[data-nextjs-dialog], .vite-error-overlay, #webpack-dev-server-client-overlay').count();
   assert.equal(overlay, 0);
   assert.deepEqual(consoleErrors, []);
-  console.log(JSON.stringify({ status: "PASS", firstCardTop, responsiveFirstCardTop, viewports: 7, themes: 2, scenarios: 15, consoleErrors: 0 }));
+  console.log(JSON.stringify({ status: "PASS", firstCardTop, responsiveFirstCardTop, viewports: 7, themes: 2, scenarios: 17, consoleErrors: 0 }));
 } finally {
   await browser.close();
 }

@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+## 1.52.0 - 2026-08-29
+
+### Added
+
+- Ajoute la caractéristique indépendante « Sexe » aux formulaires Collections desktop/mobile et étend l’Engine à 64 contrats testés.
+
+### Changed
+
+- Porte la persistance Collections au schéma 3 : Multi-variante ne sélectionne plus les femelles, tandis que `includeGenderVariants` utilise les assets GO ou HOME explicitement féminins.
+
+### Fixed
+
+- Préserve les sélections HAVE/NEED v1/v2 pendant la migration, y compris les anciennes clés mâles/femelles, et interdit tout fallback mâle pour une femelle chromatique.
+
 ## 1.51.1 - 2026-08-28
 
 ### Changed

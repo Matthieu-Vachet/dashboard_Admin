@@ -5,6 +5,12 @@ Version Dashboard : V1.46.0
 Snapshot Data de production validé : `e615642f`
 Schéma Collections : 2
 
+> Addendum V1.52.0 : la sémantique historique décrite ci-dessous reste la preuve de la
+> reconstruction v2. Elle est remplacée pour le comportement courant par
+> [`docs/collections/collection-schema-v3-gender.md`](../../collections/collection-schema-v3-gender.md) :
+> Multi-variante n’ajoute plus les femelles, l’option indépendante Sexe le fait à partir
+> d’un asset exact, et la migration v3 préserve les sélections v1/v2.
+
 ## Résultat
 
 La page Collections repose désormais sur un moteur métier pur, partagé par l'interface et l'Engine. Une `CollectionEntry` correspond à une seule case de checklist, possède une clé stable, référence un asset exact et ne peut être produite que depuis une fiche dont `availability.released === true`.

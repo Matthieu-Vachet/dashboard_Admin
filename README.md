@@ -35,6 +35,8 @@ Le Dashboard préserve les chemins historiques vers `PokemonGo-Data`, les routes
 
 Les collections Pokémon incluent notamment `events`, `events_archive`, `community_days`, `community_days_archive` et `dataset_runs`. Aucune donnée MongoDB n’est déplacée ou supprimée pendant la séparation.
 
+Le modèle Collections v3 sépare désormais `variantMode` de `includeGenderVariants` : Multi-variante ajoute les formes compatibles, tandis que « Sexe » ajoute uniquement une différence femelle disposant de son propre asset. La migration v1/v2 conserve toutes les sélections HAVE/NEED. Le contrat, les compteurs et les règles shiny/Event sont documentés dans [docs/collections/collection-schema-v3-gender.md](./docs/collections/collection-schema-v3-gender.md).
+
 ## Tests
 
 Contrôles essentiels :
@@ -55,7 +57,7 @@ Les tests spécialisés couvrent également Engine, PvP, assets, variants, colle
 
 ## Version et déploiement
 
-La branche `develop` publie `1.50.0`. `1.49.0` recentre le produit sans rompre les contrats Data/API ; `1.49.1` corrige le routage du runtime local et Preview ; `1.50.0` sécurise la nouvelle source automatisable Best Defenders. `dashboard-javascript` conserve une histoire indépendante en `1.0.0`.
+La branche `develop` publie `1.52.0`. Cette version sépare Multi-variante et Sexe dans Collections, migre la persistance vers le schéma 3 et conserve les sélections historiques. `dashboard-javascript` conserve une histoire indépendante en `1.0.0`.
 
 Les previews Vercel doivent provenir de `develop`. Aucun merge, tag final ou remplacement de production `main` n’est autorisé avant validation explicite.
 

@@ -1471,7 +1471,7 @@ function assetPresentation(data, { includeLocationCards = false } = {}) {
   const shuffleShinyVariant = shuffleVariants.find(
     (asset) => asset?.shiny && (asset?.image || asset?.shinyImage),
   );
-  const collectionVariants = Array.isArray(data.assetForms)
+  const goCollectionVariants = Array.isArray(data.assetForms)
     ? data.assetForms
         .filter((asset) => asset?.image || asset?.shinyImage)
         .map((asset) => ({
@@ -1484,6 +1484,23 @@ function assetPresentation(data, { includeLocationCards = false } = {}) {
           isFemale: Boolean(asset.isFemale),
         }))
     : [];
+  const homeGenderVariant = homeVariants.find((asset) =>
+    (asset?.gender === "female-difference" || asset?.genderCode === "fd")
+    && asset?.view !== "back"
+    && asset?.gigantamax !== true
+    && (asset?.image || asset?.shinyImage));
+  const collectionVariants = goCollectionVariants.some((asset) => asset.kind === "gender" && asset.isFemale)
+    || !homeGenderVariant
+    ? goCollectionVariants
+    : [...goCollectionVariants, {
+        kind: "gender",
+        gender: "female",
+        form: null,
+        costume: null,
+        image: homeGenderVariant.image || null,
+        shinyImage: homeGenderVariant.shinyImage || null,
+        isFemale: true,
+      }];
   const eventAssets = collectionVariants.filter(eventAssetIsCostumeOrEvent);
   const summary = assetSummary(data);
   return {
@@ -1586,12 +1603,12 @@ function buildChecklist(customRulesOverride = null, options = {}) {
       file,
       kind: "pokemon",
       sourceData,
-      data: hydrateSourceData(sourceData, { families: ["variants"] }),
+      data: hydrateSourceData(sourceData, { families: ["home", "variants"] }),
     });
   }
   for (const file of listFormJsonFiles().sort()) {
     const sourceData = readJson(file);
-    const data = hydrateSourceData(sourceData, { families: ["variants"] });
+    const data = hydrateSourceData(sourceData, { families: ["home", "variants"] });
     const form = String(data.form || "");
     sources.push({
       file,

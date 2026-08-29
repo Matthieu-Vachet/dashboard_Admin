@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.52.0",
+    date: "2026-08-29",
+    title: "Collections : Sexe indépendant",
+    changes: [
+      "Sépare Multi-variante des différences visuelles mâle/femelle dans tous les catalogues, y compris Event.",
+      "Ajoute l’option Sexe à la création et aux filtres desktop/mobile, avec asset femelle exact en standard comme en shiny.",
+      "Migre les collections vers le schéma 3 sans perdre les sélections HAVE/NEED ni les clés historiques conservées.",
+      "Étend l’Engine à 64 contrats et couvre Rattata, Pikachu HOME, costumes, formes, régions et persistance Mongo/localStorage.",
+    ],
+  },
+  {
     version: "V1.51.1",
     date: "2026-08-28",
     title: "Validation globale et écrans compacts",

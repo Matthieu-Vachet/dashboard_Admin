@@ -1,4 +1,4 @@
-const COLLECTION_SCHEMA_VERSION = 2;
+const COLLECTION_SCHEMA_VERSION = 3;
 
 const COLLECTION_TYPES = Object.freeze([
   "normal",
@@ -78,6 +78,10 @@ function isEventVariant(variant) {
 
 function isGenderVariant(variant) {
   return variantKind(variant) === "gender" && variantGender(variant) === "female";
+}
+
+function isFemaleVariant(variant) {
+  return variantGender(variant) === "female";
 }
 
 function stableVariantId(variant) {
@@ -267,15 +271,6 @@ function makeEntry(source, options, { variant = null, category = null, gender = 
 
 function buildEventEntries(source, options) {
   const variants = sourceVariants(source).filter(isEventVariant);
-  if (normalizeVariantMode(options.variantMode) === "multi") {
-    return variants
-      .filter((variant) => !options.shiny || shinyIsReleased(source, options.type, variant))
-      .map((variant) => makeEntry(source, options, {
-        variant,
-        category: variantKind(variant) === "costume" ? "costume" : "event",
-      }));
-  }
-
   const groups = new Map();
   for (const variant of variants) {
     const identity = eventIdentityId(variant);
@@ -286,12 +281,42 @@ function buildEventEntries(source, options) {
   return [...groups.entries()].flatMap(([identity, group]) => {
     const principal = group.find((variant) => variantGender(variant) !== "female") || group[0];
     if (!principal || (options.shiny && !shinyIsReleased(source, options.type, principal))) return [];
-    return [makeEntry(source, options, {
+    const category = variantKind(principal) === "costume" ? "costume" : "event";
+    const principalEntry = makeEntry(source, options, {
       variant: principal,
-      category: variantKind(principal) === "costume" ? "costume" : "event",
+      category,
       gender: null,
       variantId: identity,
-    })];
+    });
+    principalEntry.legacyAliases.push(entryKey({
+      type: options.type,
+      canonicalId: sourceCanonicalId(source),
+      category,
+      sourceVariantId: stableVariantId(principal),
+      gender: variantGender(principal),
+      shiny: options.shiny,
+    }));
+    if (!options.includeGenderVariants) return [principalEntry];
+
+    const femaleEntries = group.filter(isFemaleVariant).flatMap((variant) => {
+      if (variant === principal || (options.shiny && !shinyIsReleased(source, options.type, variant))) return [];
+      const entry = makeEntry(source, options, {
+        variant,
+        category: variantKind(variant) === "costume" ? "costume" : "event",
+        gender: "female",
+        variantId: identity,
+      });
+      entry.legacyAliases.push(entryKey({
+        type: options.type,
+        canonicalId: sourceCanonicalId(source),
+        category: entry.category,
+        sourceVariantId: stableVariantId(variant),
+        gender: "female",
+        shiny: options.shiny,
+      }));
+      return [entry];
+    });
+    return [principalEntry, ...femaleEntries];
   });
 }
 
@@ -302,11 +327,19 @@ function buildSourceEntries(source, options) {
 
   const variants = sourceVariants(source);
   const hasFemale = variants.some(isGenderVariant);
-  const base = makeEntry(source, options, {
-    gender: normalizeVariantMode(options.variantMode) === "multi" && hasFemale ? "male" : null,
-  });
+  const base = makeEntry(source, options, { gender: null });
+  if (hasFemale) {
+    base.legacyAliases.push(entryKey({
+      type,
+      canonicalId: sourceCanonicalId(source),
+      category: sourceCategory(source),
+      sourceVariantId: null,
+      gender: "male",
+      shiny: options.shiny,
+    }));
+  }
   const entries = [base];
-  if (normalizeVariantMode(options.variantMode) !== "multi" || !["normal", "lucky", "shadow", "purified"].includes(type)) {
+  if (!options.includeGenderVariants || !["normal", "lucky", "shadow", "purified"].includes(type)) {
     return entries;
   }
   for (const variant of variants.filter(isGenderVariant)) {
@@ -334,6 +367,7 @@ function buildCollectionCatalog(sourceEntries = [], rawOptions = {}) {
   const options = {
     type: normalizeType(rawOptions.type),
     variantMode: normalizeVariantMode(rawOptions.variantMode),
+    includeGenderVariants: Boolean(rawOptions.includeGenderVariants),
     shiny: Boolean(rawOptions.shiny),
     hundo: Boolean(rawOptions.hundo),
     generation: token(rawOptions.generation || "all"),
@@ -384,12 +418,16 @@ function buildCollectionContractReport(sourceEntries = []) {
   const diagnostics = [];
   for (const type of COLLECTION_TYPES) {
     for (const variantMode of ["single", "multi"]) {
-      for (const shiny of [false, true]) {
-        const options = { type, variantMode, shiny };
-        const catalog = buildCollectionCatalog(sourceEntries, options);
-        const id = `${type}.${variantMode}.${shiny ? "shiny" : "standard"}`;
-        counts[id] = catalog.length;
-        diagnostics.push(...validateCollectionCatalog(catalog, options).map((item) => ({ ...item, contract: id })));
+      for (const includeGenderVariants of [false, true]) {
+        for (const shiny of [false, true]) {
+          const options = { type, variantMode, includeGenderVariants, shiny };
+          const catalog = buildCollectionCatalog(sourceEntries, options);
+          const id = includeGenderVariants
+            ? `${type}.${variantMode}.gender.${shiny ? "shiny" : "standard"}`
+            : `${type}.${variantMode}.${shiny ? "shiny" : "standard"}`;
+          counts[id] = catalog.length;
+          diagnostics.push(...validateCollectionCatalog(catalog, options).map((item) => ({ ...item, contract: id })));
+        }
       }
     }
   }
@@ -446,6 +484,7 @@ function migrateCollectionSelections(collection, catalog = []) {
   return {
     ...collection,
     schemaVersion: COLLECTION_SCHEMA_VERSION,
+    includeGenderVariants: false,
     items,
     legacyItems,
     migration: {

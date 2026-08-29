@@ -290,7 +290,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
   const [status, setStatus] = useState("all");
   const [query, setQuery] = useState("");
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
-  const [draft, setDraft] = useState({ name: "", type: "normal", variantMode: "multi", shiny: false, hundo: false });
+  const [draft, setDraft] = useState({ name: "", type: "normal", variantMode: "multi", includeGenderVariants: false, shiny: false, hundo: false });
 
   const activeCollection = collections.find((collection) => collection.id === activeId) || collections[0] || null;
   const activeItems = useMemo(() => activeCollection?.items || {}, [activeCollection]);
@@ -316,7 +316,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
     return [...groups.entries()];
   }, [collectionEntries]);
   const haveCount = catalog.filter((entry) => activeItems[entry.key]).length;
-  const activeFilterCount = Number(activeCollection?.shiny) + Number(activeCollection?.hundo) + Number(activeCollection?.variantMode === "multi") + Number(region !== "all");
+  const activeFilterCount = Number(activeCollection?.shiny) + Number(activeCollection?.hundo) + Number(activeCollection?.includeGenderVariants) + Number(activeCollection?.variantMode === "multi") + Number(region !== "all");
   const draftCount = useMemo(() => buildCollectionCatalog(entries, draft).length, [draft, entries]);
 
   useEffect(() => {
@@ -326,7 +326,10 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
     let ambiguous = 0;
     const migrated = collections.map((collection) => {
       if (Number(collection.schemaVersion || 1) >= COLLECTION_SCHEMA_VERSION) return collection;
-      const collectionCatalog = buildCollectionCatalog(entries, collection);
+      const collectionCatalog = buildCollectionCatalog(entries, {
+        ...collection,
+        includeGenderVariants: collection.variantMode !== "single",
+      });
       const next = migrateCollectionSelections(collection, collectionCatalog);
       mapped += next.migration.mapped;
       unmapped += next.migration.unmapped;
@@ -354,6 +357,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
       name,
       type: draft.type,
       variantMode: draft.variantMode,
+      includeGenderVariants: draft.includeGenderVariants,
       shiny: draft.shiny,
       hundo: draft.hundo,
       items: {},
@@ -362,7 +366,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
     };
     onSave([nextCollection, ...collections]);
     setActiveId(nextCollection.id);
-    setDraft({ name: "", type: "normal", variantMode: "multi", shiny: false, hundo: false });
+    setDraft({ name: "", type: "normal", variantMode: "multi", includeGenderVariants: false, shiny: false, hundo: false });
     closeSheet();
     toast.success("Collection créée.");
   }
@@ -551,7 +555,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
           {collections.map((collection) => (
             <button className={`rounded-control border p-3 text-left transition ${activeCollection?.id === collection.id ? "border-cyan-200/55 bg-cyan-400/18" : "border-line bg-surface-flat hover:bg-surface-hover"}`} key={collection.id} type="button" title={collection.name} data-testid="collection-option" onClick={() => { setActiveId(collection.id); closeSheet(); }}>
               <span className="flex items-center justify-between gap-3"><strong className="truncate text-domain-foreground">{collection.name}</strong><small className="rounded-full bg-surface-emphasis px-2 py-1 type-label text-foreground">{collection.shiny ? "SHINY" : "STANDARD"}</small></span>
-              <small className="mt-1 block truncate font-bold text-muted">{typeLabel(collection.type)} · {variantModeLabel(collection.variantMode)}{collection.hundo ? " · Hundo" : ""}</small>
+              <small className="mt-1 block truncate font-bold text-muted">{typeLabel(collection.type)} · {variantModeLabel(collection.variantMode)}{collection.includeGenderVariants ? " · Sexe" : ""}{collection.hundo ? " · Hundo" : ""}</small>
             </button>
           ))}
           {!collections.length ? <EmptyState title="Aucune collection" /> : null}
@@ -609,7 +613,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
           <div>
             <h4 className="mb-3 type-overline text-muted">Caractéristiques</h4>
             <div className="grid gap-3">
-            {[["shiny", "Chromatique", "Remplace la checklist par les seules entrées shiny sorties."], ["hundo", "Hundo 100 %", "Caractéristique orthogonale, sans modifier l’asset."]].map(([id, label, detail]) => (
+            {[["shiny", "Chromatique", "Remplace la checklist par les seules entrées shiny sorties."], ["includeGenderVariants", "Sexe", "Inclure les différences visuelles mâle / femelle lorsqu'elles existent."], ["hundo", "Hundo 100 %", "Caractéristique orthogonale, sans modifier l’asset."]].map(([id, label, detail]) => (
               <label className="flex items-center justify-between gap-4 rounded-control border border-line bg-surface-flat p-4" key={id}>
                 <span><strong className="block text-domain-foreground">{label}</strong><small className="mt-1 block font-semibold text-muted">{detail}</small></span>
                 <Checkbox checked={Boolean(activeCollection[id])} onChange={(event) => updateActive({ [id]: event.target.checked })} />
@@ -627,7 +631,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
               ))}
             </div>
           </div>
-          <button className={secondaryButtonClass} type="button" onClick={() => { updateActive({ type: "normal", variantMode: "single", shiny: false, hundo: false }); resetViewFilters(); }}>Réinitialiser</button>
+          <button className={secondaryButtonClass} type="button" onClick={() => { updateActive({ type: "normal", variantMode: "single", includeGenderVariants: false, shiny: false, hundo: false }); resetViewFilters(); }}>Réinitialiser</button>
         </div> : null}
       </Sheet>
 
@@ -667,7 +671,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
             <div className="grid grid-cols-2 gap-2">{collectionVariantModes.map(([id, label]) => <button className={`min-h-12 rounded-control border px-3 font-black ${draft.variantMode === id ? "border-cyan-200/55 bg-cyan-400/18 text-domain-foreground" : "border-line bg-surface-flat text-muted"}`} key={id} type="button" onClick={() => setDraft((current) => ({ ...current, variantMode: id }))}>{label}</button>)}</div>
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
-            {[["shiny", "Chromatique"], ["hundo", "Hundo 100 %"]].map(([id, label]) => <label className="flex items-center justify-between gap-4 rounded-control border border-line bg-surface-flat p-4 font-black text-domain-foreground" key={id}>{label}<Checkbox checked={Boolean(draft[id])} onChange={(event) => setDraft((current) => ({ ...current, [id]: event.target.checked }))} /></label>)}
+            {[["shiny", "Chromatique", "Afficher uniquement les entrées chromatiques sorties."], ["includeGenderVariants", "Sexe", "Inclure les différences visuelles mâle / femelle lorsqu'elles existent."], ["hundo", "Hundo 100 %", "Suivre la caractéristique 100 % sans changer l’asset."]].map(([id, label, detail]) => <label className="flex items-center justify-between gap-4 rounded-control border border-line bg-surface-flat p-4 text-domain-foreground" key={id}><span><strong className="block">{label}</strong><small className="mt-1 block font-semibold text-muted">{detail}</small></span><Checkbox checked={Boolean(draft[id])} onChange={(event) => setDraft((current) => ({ ...current, [id]: event.target.checked }))} /></label>)}
           </div>
           <label className="block"><span className="mb-2 block type-overline text-muted">Nom de la collection</span><input className={fieldClass} value={draft.name} placeholder="ex. Shiny Shadow Kanto" onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} /></label>
         </div>
