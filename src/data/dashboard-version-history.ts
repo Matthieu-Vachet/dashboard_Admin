@@ -7,6 +7,16 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.53.1",
+    date: "2026-08-30",
+    title: "JSON Builder et CI de release stabilisés",
+    changes: [
+      "Aligne les contrôles du JSON Builder sur les primitives Select et Checkbox du Design System.",
+      "Conserve la couverture canonique des tests Data dans le runtime CI autorisé et isole les contrôles autonomes.",
+      "Valide les invariants Design System sans changer le contrat transactionnel ni les JSON générés.",
+    ],
+  },
+  {
     version: "V1.53.0",
     date: "2026-08-30",
     title: "JSON Builder canonique et transactionnel",
