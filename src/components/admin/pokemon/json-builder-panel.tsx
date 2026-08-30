@@ -19,6 +19,8 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select } from "@/components/ui/select";
 import { EmptyState, ErrorState, FetchLoadingState } from "@/components/admin/shared/state-system";
 import { fieldClass, panelClass } from "./admin-ui";
 import {
@@ -211,20 +213,20 @@ function FieldEditor({
     <div className="min-w-0 rounded-2xl border border-line bg-surface-inset-subtle p-3">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <label className="type-label text-domain-foreground" htmlFor={id}>{displayLabel(path)}</label>
-        <select
+        <Select
           aria-label={`État de ${displayLabel(path)}`}
-          className="rounded-xl border border-line bg-surface-control px-2 py-1 text-xs font-bold text-foreground-secondary"
+          className="min-h-8 w-auto rounded-xl px-2 py-1 text-foreground-secondary"
           value={state}
           onChange={(event) => onState(event.target.value)}
         >
           {valueStates.map((option) => <option key={option} value={option}>{stateLabels[option] || option}</option>)}
-        </select>
+        </Select>
       </div>
       {typeof value === "boolean" ? (
-        <select id={id} className={fieldClass} disabled={disabled} value={String(value)} onChange={(event) => onValue(event.target.value === "true")}>
+        <Select id={id} className={fieldClass} disabled={disabled} value={String(value)} onChange={(event) => onValue(event.target.value === "true")}>
           <option value="true">Oui</option>
           <option value="false">Non</option>
-        </select>
+        </Select>
       ) : isLong ? (
         <textarea id={id} className={`${fieldClass} min-h-32 font-mono text-xs`} disabled={disabled} defaultValue={valueForInput(value)} onBlur={(event) => apply(event.target.value)} />
       ) : (
@@ -437,7 +439,7 @@ export function JsonBuilderPanel() {
                 const checked = draft.options.assetFamilies.includes(family);
                 return (
                   <label key={family} className="flex cursor-pointer items-center gap-3 rounded-2xl border border-line bg-surface-inset-subtle p-4 text-sm font-black text-domain-foreground">
-                    <input type="checkbox" checked={checked} onChange={() => {
+                    <Checkbox checked={checked} onChange={() => {
                       const families = checked ? draft.options.assetFamilies.filter((item) => item !== family) : [...draft.options.assetFamilies, family];
                       updateDraft({ options: { assetFamilies: families }, assets: checked ? draft.assets : { ...draft.assets, [family]: clone(data.assetTemplates[family]) } });
                     }} />
@@ -500,7 +502,7 @@ export function JsonBuilderPanel() {
                 {dryRun.issues.length ? <ul className="space-y-2 rounded-2xl border border-amber-300/25 bg-amber-300/10 p-4">{dryRun.issues.map((issue, index) => <li key={`${issue.code}-${index}`} className="text-sm text-amber-50"><strong>{issue.code}</strong> · {issue.path} · {issue.message}</li>)}</ul> : null}
                 <div className="grid gap-4 xl:grid-cols-[340px_minmax(0,1fr)]">
                   <div className="space-y-2">
-                    {dryRun.files.map((file, index) => <button key={file.relativePath} type="button" onClick={() => setSelectedFile(index)} className={`w-full rounded-xl border p-3 text-left ${selectedFile === index ? "border-cyan-300/50 bg-cyan-300/15" : "border-line bg-surface-inset-subtle"}`}><span className="block text-xs font-black text-domain-foreground">{file.kind}</span><span className="mt-1 block break-all font-mono text-[10px] text-muted">{file.relativePath}</span></button>)}
+                    {dryRun.files.map((file, index) => <button key={file.relativePath} type="button" onClick={() => setSelectedFile(index)} className={`w-full rounded-xl border p-3 text-left ${selectedFile === index ? "border-cyan-300/50 bg-cyan-300/15" : "border-line bg-surface-inset-subtle"}`}><span className="block type-caption-strong text-domain-foreground">{file.kind}</span><span className="mt-1 block break-all font-mono text-[10px] text-muted">{file.relativePath}</span></button>)}
                   </div>
                   {selected ? <div className="min-w-0 overflow-hidden rounded-2xl border border-line bg-[#050814]">
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line p-3">
@@ -517,8 +519,8 @@ export function JsonBuilderPanel() {
                   <CheckLine ok={dryRun.checks.unrelatedJsonModified === 0}>JSON non concernés modifiés : 0</CheckLine>
                 </ul>
                 <div className="rounded-2xl border border-violet-300/25 bg-violet-300/10 p-4">
-                  <label className="flex items-start gap-3 text-sm font-bold text-domain-foreground"><input className="mt-1" type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} />Je confirme les chemins, le diff et la création transactionnelle sur PokémonGo-Data develop.</label>
-                  <label className="mt-3 flex items-start gap-3 text-sm text-muted"><input className="mt-1" type="checkbox" checked={push} onChange={(event) => setPush(event.target.checked)} />Pousser ensuite le commit sur `origin/develop`.</label>
+                  <label className="flex items-start gap-3 text-sm font-bold text-domain-foreground"><Checkbox className="mt-1" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} />Je confirme les chemins, le diff et la création transactionnelle sur PokémonGo-Data develop.</label>
+                  <label className="mt-3 flex items-start gap-3 text-sm text-muted"><Checkbox className="mt-1" checked={push} onChange={(event) => setPush(event.target.checked)} />Pousser ensuite le commit sur `origin/develop`.</label>
                   <Button className="mt-4" variant="primary" icon={<GitCommitHorizontal />} disabled={!confirmed || !dryRun.completeness.canCommit || !data.writeMode.enabled} loading={committing} loadingText="Transaction en cours…" onClick={create}>Créer et committer</Button>
                 </div>
               </>
