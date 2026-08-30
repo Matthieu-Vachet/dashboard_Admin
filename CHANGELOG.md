@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+## 1.53.0 - 2026-08-30
+
+### Added
+
+- Ajoute le JSON Builder sous Données Pokémon : wizard en dix étapes, champs génériques issus des templates, brouillons, preview exacte, copie JSON, diff et historique.
+- Ajoute une route admin spécialisée avec contrat distant `develop`, états inconnue/non publiée, PvP status-only, collisions Identity, empreinte signée et expiration du dry-run.
+- Ajoute 22 tests couvrant forme normale, régionale, spéciale, Méga, Primo, Dynamax, Gigamax, futur, Assets, manifests, inventaire Identity, chemins, overwrite, état périmé, transaction et rollback.
+
+### Changed
+
+- Étend le packaging du Dashboard aux templates, schémas et générateur d’inventaire Identity canoniques requis par le JSON Builder, sans créer de schéma parallèle.
+- Passe le Dashboard à `1.53.0`; PokémonGo-Data et PokémonGo-API restent inchangés.
+
+### Fixed
+
+- Préserve l’ordre récursif des clés des templates et les octets hors tableau lors du patch parent, sans reformater, réordonner ou toucher les JSON non concernés.
+- Refuse toute écriture hors du dépôt, tout lien symbolique sortant, toute branche autre que `develop` et toute base modifiée depuis le dry-run.
+
 ## 1.52.0 - 2026-08-29
 
 ### Added

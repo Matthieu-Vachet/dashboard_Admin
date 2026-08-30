@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.53.0",
+    date: "2026-08-30",
+    title: "JSON Builder canonique et transactionnel",
+    changes: [
+      "Ajoute un assistant en dix étapes qui consomme directement les templates et schémas de PokémonGo-Data develop.",
+      "Produit les fiches Pokémon, Assets et PvP status-only avec ordre récursif des clés, manifests et inventaire Identity synchronisés.",
+      "Signe chaque dry-run, bloque les collisions et les aperçus périmés, puis protège l’écriture par backup et rollback transactionnel.",
+      "Conserve les JSON existants hors patch parent à l’octet près et limite les commits au checkout Data local sur develop.",
+    ],
+  },
+  {
     version: "V1.52.0",
     date: "2026-08-29",
     title: "Collections : Sexe indépendant",
