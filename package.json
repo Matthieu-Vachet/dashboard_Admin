@@ -1,6 +1,6 @@
 {
   "name": "dashboard-admin",
-  "version": "1.52.0",
+  "version": "1.53.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -38,6 +38,8 @@
     "test:pokemon-detail": "node --test scripts/test-pokemon-detail-data.mjs",
     "test:pokemon-mega-evolutions": "node --test scripts/test-pokemon-mega-evolutions.mjs",
     "test:canonical-json-viewer": "node --test scripts/test-canonical-json-viewer.mjs",
+    "test:json-builder": "node --test scripts/test-json-builder.mjs",
+    "test:json-builder:browser": "node scripts/verify-json-builder-browser.mjs",
     "test:pvp-local-data": "node --test scripts/test-pvp-ranking-local-data.mjs",
     "test:pvp-regeneration": "node --test scripts/test-pvp-ranking-regeneration-state.mjs",
     "test:pvp-legacy-highlight": "node --test scripts/test-pvp-legacy-move-highlight.mjs",

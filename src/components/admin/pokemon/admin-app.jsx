@@ -140,6 +140,17 @@ const GameMasterExplorerPanel = dynamic(
 );
 
 const BestDefendersPanel = dynamic(() => import("./best-defenders-panel").then((module) => module.BestDefendersPanel));
+const JsonBuilderPanel = dynamic(
+  () => import("./json-builder-panel").then((module) => module.JsonBuilderPanel),
+  {
+    loading: () => (
+      <div
+        className={`${panelClass} min-h-96 animate-pulse motion-reduce:animate-none`}
+        aria-label="Chargement du JSON Builder"
+      />
+    ),
+  },
+);
 const PvpBattleLab = dynamic(
   () => import("./pvp-battle-lab").then((module) => module.PvpBattleLab),
   {
@@ -188,6 +199,7 @@ const navItems = [
     icon: `${filtersAssetBase}/TodayView_Icon_Photobomb.png`,
     group: "data",
   },
+  { id: "json-builder", label: "JSON Builder", icon: FileJson, group: "data" },
   { id: "catalogs", label: "Catalogues", icon: Archive, group: "data" },
   {
     id: "raids",
@@ -3612,6 +3624,8 @@ export function AdminApp({ initialSection = "overview" }) {
               ) : null}
 
               {active === "identity-manager" ? <IdentityManagerPanel /> : null}
+
+              {active === "json-builder" ? <JsonBuilderPanel /> : null}
 
               {active === "game-master-explorer" ? (
                 <GameMasterExplorerPanel />

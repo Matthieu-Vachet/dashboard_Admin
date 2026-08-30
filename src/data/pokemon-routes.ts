@@ -5,6 +5,7 @@ export type PokemonSectionId =
   | "backgrounds"
   | "collections"
   | "assets"
+  | "json-builder"
   | "catalogs"
   | "raids"
   | "max-battles"
@@ -47,6 +48,7 @@ export const pokemonSectionRoutes: PokemonSectionRoute[] = [
   { id: "backgrounds", slug: "backgrounds", path: "/backgrounds", label: "Backgrounds", description: "Location Cards et liaisons visuelles." },
   { id: "collections", slug: "collections", path: "/collections", label: "Collections", description: "Checklists et collections Pokémon." },
   { id: "assets", slug: "assets", path: "/assets", label: "Assets", description: "Audit des assets Pokémon." },
+  { id: "json-builder", slug: "json-builder", path: "/json-builder", label: "JSON Builder", description: "Création transactionnelle de fiches depuis les templates canoniques." },
   { id: "catalogs", slug: "catalogues", path: "/catalogues", label: "Catalogues", description: "Types, moves et catalogues de référence." },
   { id: "raids", slug: "raids", path: "/raids", label: "Raids", description: "Rotation des boss de raids." },
   { id: "max-battles", slug: "max-battles", path: "/max-battles", label: "Max Battles", description: "Rotation des combats Dynamax et Gigamax." },
