@@ -31,7 +31,7 @@
 - [x] Wizard, brouillons, historique et navigation
 - [x] Contrôles Engine / Identity et rapports
 - [x] Tests de sécurité, non-régression, build et validation navigateur
-- [ ] Version, commits `develop`, push et preview
+- [x] Version, commits `develop`, push et preview
 
 ## Lot moteur et interface
 
@@ -54,5 +54,15 @@
 - ESLint : 0 erreur ; 71 avertissements préexistants hors JSON Builder.
 - Navigateur Playwright : contrat `develop`, wizard, preview à six fichiers, diff, écriture distante désactivée et responsive mobile validés.
 - Matrice responsive globale : 220 pages, 11 largeurs, 2 thèmes.
+
+## Validation Preview
+
+- Cible : Preview Vercel de la branche `develop` ; aucune promotion production.
+- URL de branche : `https://dashboard-admin-git-develop-matthieu-vachets-projects.vercel.app`.
+- Déploiement validé : `https://dashboard-admin-8xvc15n8g-matthieu-vachets-projects.vercel.app` (`READY`).
+- Bootstrap authentifié : contrat `develop`, mode `dry-run-only`, 1 617 identités, 10 templates Pokémon et 5 templates Assets.
+- Dry-run authentifié : Pokémon, Assets Core, PvP, manifests Assets/PvP et inventaire Identity ; 0 bloquant, 0 JSON existant reformaté, 0 JSON non concerné modifié.
+- Commits fonctionnel et release poussés sur `origin/develop` : `a189086` et `a5b73bb`.
+- `origin/main` Dashboard est resté inchangé sur `103a0f3bd2f59298760f8b6cd0e01767b4d8159b`.
 
 Ce fichier est mis à jour après chaque lot important afin de permettre une reprise sans ambiguïté.
