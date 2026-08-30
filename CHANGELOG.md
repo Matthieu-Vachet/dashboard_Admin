@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## 1.53.1 - 2026-08-30
+
+### Changed
+
+- Aligne les listes et cases à cocher du JSON Builder sur les primitives `Select` et `Checkbox` du Design System, avec la typographie sémantique attendue.
+
+### Fixed
+
+- Sépare dans la CI les tests autonomes des contrôles qui nécessitent le dépôt privé PokémonGo-Data, sans réduire la couverture quand le token inter-dépôt est disponible.
+- Restaure les invariants Design System du JSON Builder sans modifier son contrat transactionnel, ses fichiers générés ni ses garanties de préservation JSON.
+
 ## 1.53.0 - 2026-08-30
 
 ### Added
