@@ -26,14 +26,16 @@ jobs:
       - run: npm run test:version
       - name: Vérifier le runtime complet avec PokemonGo-Data privé
         if: ${{ env.POKEMON_GO_DATA_TOKEN != '' }}
-        run: npm run verify:regenerations && npm run test:source-watch
+        run: >-
+          npm run verify:regenerations &&
+          npm run test:source-watch &&
+          npm run test:pokemon-presentation
       - name: Vérifier le Dashboard sans accès inter-dépôt
         if: ${{ env.POKEMON_GO_DATA_TOKEN == '' }}
         run: >-
           npm run test:regeneration-notifications &&
           npm run test:regeneration-matrix &&
           node --no-warnings --experimental-strip-types --test scripts/test-source-watch-presentation.mts &&
-          npm run test:pokemon-presentation &&
           npm run test:design-system &&
           npm run test:docs &&
           npm run typecheck &&
