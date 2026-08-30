@@ -36,7 +36,6 @@ const pokemonAdminMutationTimeoutMs = 55_000;
 const asynchronousRegenerationDomains = new Set(["pvp-rankings"]);
 const pokemonApiBaseUrl =
   process.env.POKEMON_API_PUBLIC_URL
-  || (process.env.VERCEL === "1" ? undefined : process.env.POKEMON_API_URL)
   || defaultPokemonApiPublicUrl;
 
 function providerForAdminAction(action: string) {
@@ -311,9 +310,17 @@ async function readPvpSuggestedTeammates(request: NextRequest) {
   }
   const target = new URL(`/api/v1/pvp-rankings/${encodeURIComponent(league)}/${encodeURIComponent(speciesId)}/teammates`, pokemonApiBaseUrl);
   const response = await fetch(target, { cache: "no-store", headers: { accept: "application/json" }, signal: AbortSignal.timeout(55_000) });
-  const payload = await response.json().catch(() => null) as { data?: unknown[]; meta?: Record<string, unknown>; error?: string; message?: string } | null;
+  const payload = await response.json().catch(() => null) as {
+    data?: unknown[];
+    meta?: Record<string, unknown>;
+    error?: string | { code?: string; message?: string };
+    message?: string;
+  } | null;
   if (!response.ok || !Array.isArray(payload?.data)) {
-    throw requestError(payload?.message || payload?.error || "Suggested Teammates indisponibles.", response.status || 502);
+    throw requestError(
+      pokemonApiErrorMessage(payload, "Suggested Teammates indisponibles."),
+      response.status || 502,
+    );
   }
   return payload;
 }
@@ -484,7 +491,7 @@ async function readPokemonApiAdmin(path: string, user?: string, operationId?: st
 function identityManagerQuery(request: NextRequest) {
   return forwardedRankedQuery(request, [
     "search", "provider", "status", "syncStatus", "pokemonId", "form", "costume", "category", "conflict",
-    "withoutGameMaster", "stale", "sort", "order", "reason", "confidence",
+    "withoutGameMaster", "stale", "sort", "order", "reason", "code", "severity", "confidence",
     "identityId", "canonicalId", "action", "page", "limit",
   ]);
 }
@@ -651,7 +658,14 @@ async function recordSourceWatchHistory(
       name: source.name || source.repo || source.url || id,
       category: source.category || source.type || null,
       status: source.status || null,
+      provider: source.provider || null,
       version: source.version || null,
+      commit: source.commit || null,
+      contentHash: source.contentHash || null,
+      snapshotCommit: source.snapshotCommit || null,
+      snapshotHash: source.snapshotHash || null,
+      checkedUrl: source.checkedUrl || source.url || null,
+      httpStatus: source.httpStatus || null,
       signature,
       previousSignature: previous?.signature || null,
       previousVersion: previous?.version || null,
@@ -931,6 +945,10 @@ export async function GET(request: NextRequest) {
       return json({ data: await readPokemonApiAdmin(`/api/v1/admin/pokemon-identities/diagnostics${query ? `?${query}` : ""}`, session!.email) });
     }
 
+    if (action === "identity-manager-diagnostics-summary") {
+      return json({ data: await readPokemonApiAdmin("/api/v1/admin/pokemon-identities/diagnostics/summary", session!.email) });
+    }
+
     if (action === "identity-manager-providers") {
       return json({ data: await readPokemonApiAdmin("/api/v1/admin/pokemon-identities/providers", session!.email) });
     }
@@ -1156,6 +1174,10 @@ export async function POST(request: NextRequest) {
         body: body.payload,
         user: session!.email,
       }) });
+    }
+
+    if (action === "identity-manager-diagnostics-reconcile") {
+      return json({ data: await callPokemonApiAdmin("/api/v1/admin/pokemon-identities/diagnostics/reconcile", undefined, session!.email) });
     }
 
     const regeneration = pokemonAdminProxyRegeneration(action);

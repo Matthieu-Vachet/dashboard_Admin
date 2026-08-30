@@ -4,6 +4,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
   Archive,
@@ -89,7 +90,7 @@ import { UpdateLogPanel } from "./update-log-panel";
 import { AdminTodoPanel } from "./admin-todo-panel";
 import { AdminCommandCenter } from "./admin-command-center";
 import { AdminPokemonSearchProvider } from "./admin-pokemon-search-context";
-import { AdminSectionNavigation } from "./admin-section-navigation";
+import { pokemonSectionPath } from "@/data/pokemon-routes";
 import {
   readDashboardStoreValue,
   readLocalJson,
@@ -139,6 +140,17 @@ const GameMasterExplorerPanel = dynamic(
 );
 
 const BestDefendersPanel = dynamic(() => import("./best-defenders-panel").then((module) => module.BestDefendersPanel));
+const JsonBuilderPanel = dynamic(
+  () => import("./json-builder-panel").then((module) => module.JsonBuilderPanel),
+  {
+    loading: () => (
+      <div
+        className={`${panelClass} min-h-96 animate-pulse motion-reduce:animate-none`}
+        aria-label="Chargement du JSON Builder"
+      />
+    ),
+  },
+);
 const PvpBattleLab = dynamic(
   () => import("./pvp-battle-lab").then((module) => module.PvpBattleLab),
   {
@@ -176,7 +188,7 @@ const navItems = [
   },
   {
     id: "backgrounds",
-    label: "Background",
+    label: "Backgrounds",
     icon: `${filtersAssetBase}/TodayView_Icon_PostCard.png`,
     group: "data",
   },
@@ -187,6 +199,7 @@ const navItems = [
     icon: `${filtersAssetBase}/TodayView_Icon_Photobomb.png`,
     group: "data",
   },
+  { id: "json-builder", label: "JSON Builder", icon: FileJson, group: "data" },
   { id: "catalogs", label: "Catalogues", icon: Archive, group: "data" },
   {
     id: "raids",
@@ -283,7 +296,7 @@ const navItems = [
   { id: "checks", label: "Contrôles", icon: AlertTriangle, group: "quality" },
   { id: "sources", label: "Veille", icon: Radar, group: "quality" },
   { id: "compare", label: "Comparaison", icon: FileDiff, group: "quality" },
-  { id: "todo", label: "Todo-list", icon: ListTodo, group: "quality" },
+  { id: "todo", label: "Todo Pokémon", icon: ListTodo, group: "quality" },
   { id: "logs", label: "Logs & MAJ", icon: History, group: "maintenance" },
   { id: "rules", label: "Règles JSON", icon: Sparkles, group: "maintenance" },
   {
@@ -646,9 +659,9 @@ const ficheFilterOptions = [
   ],
   [
     "costume",
-    "Costume / Event",
+    "Costumes / événements",
     "/assets/ui/illustrations/banners/costume.png",
-    "assetForms événementiels",
+    "identités individuelles · sexes regroupés",
   ],
   ["mega", "Méga", "/assets/ui/illustrations/banners/mega.png", "kind/form méga ou primo"],
   [
@@ -1610,14 +1623,15 @@ function AssetArchitectureControlPanel({ audit }) {
   );
 }
 
-export function AdminApp() {
+export function AdminApp({ initialSection = "overview" }) {
+  const router = useRouter();
   const [session, setSession] = useState({
     loading: true,
     authenticated: false,
   });
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
-  const [active, setActive] = useState("overview");
+  const [active, setActive] = useState(initialSection);
   const [bootstrap, setBootstrap] = useState({
     loading: false,
     payload: null,
@@ -1712,10 +1726,11 @@ export function AdminApp() {
 
   function selectSection(sectionId) {
     setActive(sectionId);
-    const url = new URL(window.location.href);
-    url.searchParams.set("section", sectionId);
-    url.searchParams.delete("audit");
-    window.history.replaceState({}, "", url);
+    const currentUrl = new URL(window.location.href);
+    const targetUrl = new URL(pokemonSectionPath(sectionId), window.location.origin);
+    const search = currentUrl.searchParams.get("q");
+    if (search) targetUrl.searchParams.set("q", search);
+    router.push(`${targetUrl.pathname}${targetUrl.search}`);
   }
 
   const updateGlobalSearch = useCallback((value) => {
@@ -1750,17 +1765,13 @@ export function AdminApp() {
     setAssetChecks(readLocalJson(legacyAssetChecksKey, {}));
     setCollections(readLocalJson(collectionsKey, []));
     const requestedParams = new URLSearchParams(window.location.search);
-    const requestedSection = requestedParams.get("section");
     const requestedSearch = requestedParams.get("q") || "";
-    if (requestedSection && navItems.some((item) => item.id === requestedSection)) {
-      setActive(requestedSection);
-    } else if (requestedSection) {
-      requestedParams.set("section", "overview");
-      requestedParams.delete("audit");
-      window.history.replaceState({}, "", `${window.location.pathname}?${requestedParams}${window.location.hash}`);
-    }
     if (requestedSearch) updateGlobalSearch(requestedSearch);
   }, [updateGlobalSearch]);
+
+  useEffect(() => {
+    setActive(initialSection);
+  }, [initialSection]);
 
   useEffect(() => {
     if (!session.authenticated) return;
@@ -2138,7 +2149,7 @@ export function AdminApp() {
       Object.fromEntries(
         ficheFilterOptions.map(([id]) => [
           id,
-          (id === "costume" ? entries : pokemonPresentationEntries(entries, id)).filter((entry) =>
+          pokemonPresentationEntries(entries, id).filter((entry) =>
             entryMatchesFicheFilter(entry, id),
           ).length,
         ]),
@@ -2353,7 +2364,7 @@ export function AdminApp() {
     }
     setSession({ loading: false, authenticated: true });
     setPassword("");
-    setActive("overview");
+    selectSection("overview");
     toast.success("Session admin ouverte.");
     await loadAdminData();
   }
@@ -3188,7 +3199,7 @@ export function AdminApp() {
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                   <div>
                     <p className="mb-1 type-overline text-cyan-200/70">
-                      Dashboard sécurisé
+                      Dashboard Pokémon GO
                     </p>
                     <h1 className={active === "collections" ? "text-2xl font-black sm:type-title-page" : "type-title-page"}>
                       {navItems.find((item) => item.id === active)?.label}
@@ -3230,14 +3241,6 @@ export function AdminApp() {
                       Redéployer
                     </Button>
                   </div>
-                </div>
-                <div className={active === "collections" ? "hidden md:block" : "block"}>
-                  <AdminSectionNavigation
-                    key={active}
-                    items={navItems}
-                    active={active}
-                    onSelect={selectSection}
-                  />
                 </div>
               </div>
             </header>
@@ -3621,6 +3624,8 @@ export function AdminApp() {
               ) : null}
 
               {active === "identity-manager" ? <IdentityManagerPanel /> : null}
+
+              {active === "json-builder" ? <JsonBuilderPanel /> : null}
 
               {active === "game-master-explorer" ? (
                 <GameMasterExplorerPanel />

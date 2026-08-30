@@ -1,8 +1,12 @@
 import { adminRegenerationRegistry } from "../src/lib/admin-regeneration-registry";
 
-const target = String(process.env.DASHBOARD_SMOKE_TARGET || "https://dashboard-admin-pi-ebon.vercel.app").replace(/\/$/, "");
+const cliArgs = process.argv.slice(2);
+const baseUrlArgument = cliArgs.find((value) => value.startsWith("--base-url="))?.slice("--base-url=".length)
+  || (cliArgs.includes("--base-url") ? cliArgs[cliArgs.indexOf("--base-url") + 1] : "");
+const target = String(baseUrlArgument || process.env.DASHBOARD_SMOKE_TARGET || "https://dashboard-admin-pi-ebon.vercel.app").replace(/\/$/, "");
+const protectionBypass = String(process.env.VERCEL_AUTOMATION_BYPASS_SECRET || "").trim();
 let cookie = String(process.env.DASHBOARD_SESSION_COOKIE || "").trim();
-const requestedIds = new Set(String(process.env.REGENERATION_SMOKE_IDS || "")
+const requestedIds = new Set(String(cliArgs.includes("--all") ? "" : process.env.REGENERATION_SMOKE_IDS || "")
   .split(",")
   .map((value) => value.trim())
   .filter(Boolean));
@@ -27,6 +31,7 @@ async function authenticate() {
     headers: {
       "content-type": "application/x-www-form-urlencoded",
       origin: target,
+      ...(protectionBypass ? { "x-vercel-protection-bypass": protectionBypass } : {}),
     },
     body: new URLSearchParams({ email, password, next: "/pokemon-admin" }),
     signal: AbortSignal.timeout(30_000),
@@ -65,6 +70,7 @@ async function request(pathname: string, init: RequestInit = {}) {
       accept: "application/json",
       cookie: await authenticate(),
       origin: target,
+      ...(protectionBypass ? { "x-vercel-protection-bypass": protectionBypass } : {}),
       ...(init.headers || {}),
     },
   });

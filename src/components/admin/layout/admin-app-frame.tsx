@@ -32,8 +32,12 @@ export function AdminAppFrame({
   const versionHistory = useDashboardVersionHistory();
   const brandLogo = "/assets/ui/branding/zygardDexLogo.png";
 
-  const activeLabel = useMemo(
-    () => navItems.find((item) => item.href === pathname)?.label || "Accueil",
+  const activeNavigation = useMemo(
+    () => {
+      const group = navGroups.find((candidate) => candidate.items.some((item) => item.href === pathname));
+      const item = navItems.find((candidate) => candidate.href === pathname);
+      return { groupLabel: group?.label || "Accueil", itemLabel: item?.label || "Accueil" };
+    },
     [pathname],
   );
 
@@ -165,7 +169,8 @@ export function AdminAppFrame({
         )}
       >
         <AdminTopbar
-          activeLabel={activeLabel}
+          activeGroupLabel={activeNavigation.groupLabel}
+          activeLabel={activeNavigation.itemLabel}
           collapsed={collapsed}
           onOpenSidebar={openMobileSidebar}
           onToggleCollapsed={() => setCollapsed((value) => !value)}

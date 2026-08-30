@@ -7,10 +7,8 @@ const publicPaths = ["/login", "/api/session", "/api/logout", "/api/events"];
 const protectedApiPaths = [
   "/api/dashboard-store",
   "/api/pokemon-admin",
-  "/api/dashboard-backlog",
   "/api/admin/events",
   "/api/admin/community-days",
-  "/api/learning",
 ];
 
 export function proxy(request: NextRequest) {

@@ -1,9 +1,9 @@
 ---
 id: DATASET-019
 title: Source Watch
-version: 2.1.0
+version: 2.2.0
 status: Private
-last_update: 2026-08-09
+last_update: 2026-08-27
 author: Matthieu Vachet
 affected_projects: [PokemonGo-Data, Dashboard Admin]
 references: [PAGE-063, PROVIDER-021]
@@ -20,3 +20,10 @@ régénérable déclare `regenerationDataset`; un identifiant historique ne peut
 que dans `aliases`. `leekduck-eggs`, `leekduck-research` et `leekduck-rocket` gardent
 leur provenance distincte mais utilisent tous `identityProvider: leekduck`. Retirer une
 source encore consommée ou créer un doublon est bloqué par le test de registre Data.
+
+Les deux contrôles PvPoke reflètent le pipeline réel: Game Master et classement Great
+League sont lus sur jsDelivr, tandis que l’arbre GitHub officiel sert à découvrir les
+formats. Les pages `pvpoke.com` susceptibles de répondre 403 ne sont pas des sources
+de régénération et ne sont plus sondées. Chaque contrôle expose HTTP, metadata HTTP,
+commit distant, SHA-256 live, snapshot local et date. Un token éventuel n’est envoyé
+qu’à `api.github.com`.

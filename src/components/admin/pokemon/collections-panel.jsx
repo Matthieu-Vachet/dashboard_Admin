@@ -290,7 +290,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
   const [status, setStatus] = useState("all");
   const [query, setQuery] = useState("");
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
-  const [draft, setDraft] = useState({ name: "", type: "normal", variantMode: "multi", shiny: false, hundo: false });
+  const [draft, setDraft] = useState({ name: "", type: "normal", variantMode: "multi", includeGenderVariants: false, shiny: false, hundo: false });
 
   const activeCollection = collections.find((collection) => collection.id === activeId) || collections[0] || null;
   const activeItems = useMemo(() => activeCollection?.items || {}, [activeCollection]);
@@ -316,7 +316,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
     return [...groups.entries()];
   }, [collectionEntries]);
   const haveCount = catalog.filter((entry) => activeItems[entry.key]).length;
-  const activeFilterCount = Number(activeCollection?.shiny) + Number(activeCollection?.hundo) + Number(activeCollection?.variantMode === "multi") + Number(region !== "all");
+  const activeFilterCount = Number(activeCollection?.shiny) + Number(activeCollection?.hundo) + Number(activeCollection?.includeGenderVariants) + Number(activeCollection?.variantMode === "multi") + Number(region !== "all");
   const draftCount = useMemo(() => buildCollectionCatalog(entries, draft).length, [draft, entries]);
 
   useEffect(() => {
@@ -326,7 +326,10 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
     let ambiguous = 0;
     const migrated = collections.map((collection) => {
       if (Number(collection.schemaVersion || 1) >= COLLECTION_SCHEMA_VERSION) return collection;
-      const collectionCatalog = buildCollectionCatalog(entries, collection);
+      const collectionCatalog = buildCollectionCatalog(entries, {
+        ...collection,
+        includeGenderVariants: collection.variantMode !== "single",
+      });
       const next = migrateCollectionSelections(collection, collectionCatalog);
       mapped += next.migration.mapped;
       unmapped += next.migration.unmapped;
@@ -354,6 +357,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
       name,
       type: draft.type,
       variantMode: draft.variantMode,
+      includeGenderVariants: draft.includeGenderVariants,
       shiny: draft.shiny,
       hundo: draft.hundo,
       items: {},
@@ -362,7 +366,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
     };
     onSave([nextCollection, ...collections]);
     setActiveId(nextCollection.id);
-    setDraft({ name: "", type: "normal", variantMode: "multi", shiny: false, hundo: false });
+    setDraft({ name: "", type: "normal", variantMode: "multi", includeGenderVariants: false, shiny: false, hundo: false });
     closeSheet();
     toast.success("Collection créée.");
   }
@@ -417,19 +421,9 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
     setQuery("");
   }
 
-  const collectionSelector = (
-    <button className={`${secondaryButtonClass} w-full justify-between text-left`} type="button" onClick={() => setSheet("collections")}>
-      <span className="min-w-0">
-        <small className="block type-overline-compact text-muted">Collection</small>
-        <strong className="block truncate">{activeCollection?.name || "Choisir une collection"}</strong>
-      </span>
-      <ChevronDown size={18} />
-    </button>
-  );
-
   return (
     <section className={panelClass} data-testid="collections-panel">
-      <header className="mb-2 flex items-start justify-between gap-3 sm:mb-4">
+      <header className="mb-1 flex items-start justify-between gap-3 sm:mb-4">
         <div>
           <p className="type-overline text-cyan-200/70">Checklist canonique</p>
           <h2 className="text-lg font-black leading-tight text-domain-foreground sm:type-title-subsection">Collections Pokémon GO</h2>
@@ -441,20 +435,30 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
 
       <div className="mb-5 hidden xl:block"><CollectionStats stats={stats} /></div>
 
-      <div className="mb-2 md:hidden">{collectionSelector}</div>
-      <div className="mb-3 hidden items-center justify-between gap-3 md:flex">
-        <div className="w-full max-w-md">{collectionSelector}</div>
-        <span className="shrink-0 rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-2 type-label text-success-foreground">{collections.length} collection(s)</span>
-      </div>
-
       {activeCollection ? (
         <>
-          <div className="mb-2 rounded-surface border border-cyan-300/25 bg-gradient-to-br from-sky-500/12 via-cyan-400/8 to-emerald-400/10 p-3 shadow-surface sm:mb-3 sm:p-4">
+          <div className="mb-2 rounded-surface border border-cyan-300/25 bg-gradient-to-br from-sky-500/12 via-cyan-400/8 to-emerald-400/10 p-2 shadow-surface sm:mb-3 sm:p-4" data-testid="active-collection-card">
             <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="type-overline-compact text-cyan-100/70"><span className="md:hidden">Active · {typeLabel(activeCollection.type)}</span><span className="hidden md:inline">Collection active · {typeLabel(activeCollection.type)}</span></p>
-                <h3 className="mt-1 truncate text-xl font-black text-domain-foreground sm:type-title-section">{activeCollection.name}</h3>
-                <p className="mt-1 text-sm font-bold text-foreground-secondary">{haveCount} / {catalog.length} obtenus</p>
+                <h3 className="mt-1 min-w-0">
+                  <button
+                    className="flex min-h-11 w-full min-w-0 max-w-xl items-center justify-between gap-2 rounded-control border border-line bg-surface-control px-3 py-2 text-left text-xl font-black text-domain-foreground transition hover:border-cyan-200/50 hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/20 sm:type-title-section"
+                    type="button"
+                    onClick={() => setSheet("collections")}
+                    aria-label={`Changer de collection, active : ${activeCollection.name}`}
+                    title={activeCollection.name}
+                    data-testid="collection-selector-trigger"
+                  >
+                    <span className="min-w-0 truncate">{activeCollection.name}</span>
+                    <ChevronDown className="shrink-0" size={18} />
+                  </button>
+                </h3>
+                <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-bold text-foreground-secondary">
+                  <span>{haveCount} / {catalog.length} obtenus</span>
+                  <span aria-hidden="true">·</span>
+                  <span>{collections.length} collection(s)</span>
+                </p>
               </div>
               <button className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-line bg-surface-control text-domain-foreground" type="button" onClick={() => setSheet("actions")} aria-label="Actions de la collection">
                 <MoreHorizontal size={20} />
@@ -472,7 +476,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
             </div>
           </div>
 
-          <div className="sticky top-2 z-30 mb-2 rounded-surface border border-line bg-panel-strong/95 p-2 shadow-floating backdrop-blur-xl md:hidden" data-testid="collections-sticky-bar">
+          <div className="sticky top-2 z-30 mb-2 rounded-surface border border-line bg-panel-strong/95 p-1.5 shadow-floating backdrop-blur-xl md:hidden" data-testid="collections-sticky-bar">
             <div className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto_auto] items-center gap-1.5">
               <StatusTabs value={status} onChange={setStatus} compact />
               <button className="grid h-10 w-10 place-items-center rounded-control border border-line bg-surface-control text-domain-foreground" type="button" onClick={() => setSheet("search")} aria-label="Ouvrir la recherche"><Search size={17} /></button>
@@ -495,7 +499,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
           <div className="space-y-5" data-testid="collection-pokemon-list">
             {generationGroups.map(([groupId, groupEntries]) => (
               <section className="[content-visibility:auto] [contain-intrinsic-size:auto_42rem]" key={groupId}>
-                <div className="mb-2 flex items-end justify-between gap-3 sm:mb-3">
+                <div className="mb-1 flex items-end justify-between gap-3 sm:mb-3">
                   <div>
                     <p className="type-overline-compact text-cyan-100/65">Région / génération</p>
                     <h3 className="text-lg font-black text-domain-foreground sm:type-title-section">{generationLabels[groupId] || `Gen. ${groupId}`}</h3>
@@ -549,9 +553,9 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
       <Sheet open={sheet === "collections"} title="Mes collections" description={`${collections.length} collection(s)`} onClose={closeSheet} size="sm">
         <div className="grid gap-2">
           {collections.map((collection) => (
-            <button className={`rounded-control border p-3 text-left transition ${activeCollection?.id === collection.id ? "border-cyan-200/55 bg-cyan-400/18" : "border-line bg-surface-flat hover:bg-surface-hover"}`} key={collection.id} type="button" onClick={() => { setActiveId(collection.id); closeSheet(); }}>
+            <button className={`rounded-control border p-3 text-left transition ${activeCollection?.id === collection.id ? "border-cyan-200/55 bg-cyan-400/18" : "border-line bg-surface-flat hover:bg-surface-hover"}`} key={collection.id} type="button" title={collection.name} data-testid="collection-option" onClick={() => { setActiveId(collection.id); closeSheet(); }}>
               <span className="flex items-center justify-between gap-3"><strong className="truncate text-domain-foreground">{collection.name}</strong><small className="rounded-full bg-surface-emphasis px-2 py-1 type-label text-foreground">{collection.shiny ? "SHINY" : "STANDARD"}</small></span>
-              <small className="mt-1 block truncate font-bold text-muted">{typeLabel(collection.type)} · {variantModeLabel(collection.variantMode)}{collection.hundo ? " · Hundo" : ""}</small>
+              <small className="mt-1 block truncate font-bold text-muted">{typeLabel(collection.type)} · {variantModeLabel(collection.variantMode)}{collection.includeGenderVariants ? " · Sexe" : ""}{collection.hundo ? " · Hundo" : ""}</small>
             </button>
           ))}
           {!collections.length ? <EmptyState title="Aucune collection" /> : null}
@@ -609,7 +613,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
           <div>
             <h4 className="mb-3 type-overline text-muted">Caractéristiques</h4>
             <div className="grid gap-3">
-            {[["shiny", "Chromatique", "Remplace la checklist par les seules entrées shiny sorties."], ["hundo", "Hundo 100 %", "Caractéristique orthogonale, sans modifier l’asset."]].map(([id, label, detail]) => (
+            {[["shiny", "Chromatique", "Remplace la checklist par les seules entrées shiny sorties."], ["includeGenderVariants", "Sexe", "Inclure les différences visuelles mâle / femelle lorsqu'elles existent."], ["hundo", "Hundo 100 %", "Caractéristique orthogonale, sans modifier l’asset."]].map(([id, label, detail]) => (
               <label className="flex items-center justify-between gap-4 rounded-control border border-line bg-surface-flat p-4" key={id}>
                 <span><strong className="block text-domain-foreground">{label}</strong><small className="mt-1 block font-semibold text-muted">{detail}</small></span>
                 <Checkbox checked={Boolean(activeCollection[id])} onChange={(event) => updateActive({ [id]: event.target.checked })} />
@@ -627,7 +631,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
               ))}
             </div>
           </div>
-          <button className={secondaryButtonClass} type="button" onClick={() => { updateActive({ type: "normal", variantMode: "single", shiny: false, hundo: false }); resetViewFilters(); }}>Réinitialiser</button>
+          <button className={secondaryButtonClass} type="button" onClick={() => { updateActive({ type: "normal", variantMode: "single", includeGenderVariants: false, shiny: false, hundo: false }); resetViewFilters(); }}>Réinitialiser</button>
         </div> : null}
       </Sheet>
 
@@ -667,7 +671,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
             <div className="grid grid-cols-2 gap-2">{collectionVariantModes.map(([id, label]) => <button className={`min-h-12 rounded-control border px-3 font-black ${draft.variantMode === id ? "border-cyan-200/55 bg-cyan-400/18 text-domain-foreground" : "border-line bg-surface-flat text-muted"}`} key={id} type="button" onClick={() => setDraft((current) => ({ ...current, variantMode: id }))}>{label}</button>)}</div>
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
-            {[["shiny", "Chromatique"], ["hundo", "Hundo 100 %"]].map(([id, label]) => <label className="flex items-center justify-between gap-4 rounded-control border border-line bg-surface-flat p-4 font-black text-domain-foreground" key={id}>{label}<Checkbox checked={Boolean(draft[id])} onChange={(event) => setDraft((current) => ({ ...current, [id]: event.target.checked }))} /></label>)}
+            {[["shiny", "Chromatique", "Afficher uniquement les entrées chromatiques sorties."], ["includeGenderVariants", "Sexe", "Inclure les différences visuelles mâle / femelle lorsqu'elles existent."], ["hundo", "Hundo 100 %", "Suivre la caractéristique 100 % sans changer l’asset."]].map(([id, label, detail]) => <label className="flex items-center justify-between gap-4 rounded-control border border-line bg-surface-flat p-4 text-domain-foreground" key={id}><span><strong className="block">{label}</strong><small className="mt-1 block font-semibold text-muted">{detail}</small></span><Checkbox checked={Boolean(draft[id])} onChange={(event) => setDraft((current) => ({ ...current, [id]: event.target.checked }))} /></label>)}
           </div>
           <label className="block"><span className="mb-2 block type-overline text-muted">Nom de la collection</span><input className={fieldClass} value={draft.name} placeholder="ex. Shiny Shadow Kanto" onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} /></label>
         </div>

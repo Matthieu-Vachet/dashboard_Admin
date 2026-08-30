@@ -1,5 +1,5 @@
 export type BestDefendersSourceIssue = {
-  code: "SOURCE_PROTECTED" | "SOURCE_TEMPORARILY_UNAVAILABLE";
+  code: "SOURCE_PROTECTED" | "SOURCE_TEMPORARILY_UNAVAILABLE" | "SOURCE_UNAVAILABLE" | "SOURCE_SCHEMA_CHANGED" | "VALIDATION_FAILED";
   title: string;
   message: string;
   preservation: string;

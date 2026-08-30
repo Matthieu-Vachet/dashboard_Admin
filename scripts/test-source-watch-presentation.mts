@@ -47,6 +47,20 @@ test("la recherche accepte accents, URL, catégorie, hash et libellés longs", (
   assert.equal(sourceMatchesQuery(source, "PvPoke"), false);
 });
 
+test("la recherche couvre les preuves techniques du contrôle canonique", () => {
+  const source = {
+    name: "PvPoke Rankings",
+    provider: "PvPoke",
+    checkedUrl: "https://cdn.jsdelivr.net/gh/pvpoke/pvpoke@master/src/data/rankings/all/overall/rankings-1500.json",
+    commit: "cb78be32371e6f4789680a83c89d085e3fb37954",
+    contentHash: "645a6725597bfe68e13d9c87199bd2c08890dfcb860505d080d85fb63b32c60f",
+    snapshotCommit: "78c64048aebeb9265e1a090137c5463880fb6fa2",
+  };
+  for (const query of ["PvPoke", "jsdelivr", "cb78be32371e", "645a6725597b", "78c64048aebe"]) {
+    assert.equal(sourceMatchesQuery(source, query), true);
+  }
+});
+
 test("les filtres de statut regroupent les états inconnus avec les erreurs", () => {
   assert.equal(sourceMatchesStatus({ status: "ok" }, "ok"), true);
   assert.equal(sourceMatchesStatus({ status: "warning" }, "warning"), true);

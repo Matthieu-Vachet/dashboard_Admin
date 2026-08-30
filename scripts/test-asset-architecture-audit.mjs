@@ -52,7 +52,7 @@ test("l'Engine valide toute l'architecture Assets séparée", () => {
     "location-cards": 1_402,
   });
   assert.equal(audit.summary.urls, 20_345);
-  assert.equal(audit.summary.uniqueUrls, 16_621);
+  assert.equal(audit.summary.uniqueUrls, 16_609);
   assert.equal(audit.summary.temporaryLegacyRefs, 0);
   assert.equal(audit.summary.legacyMonoliths, 0);
   assert.equal(audit.summary.warnings, 0);

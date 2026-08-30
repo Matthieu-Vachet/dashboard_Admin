@@ -6,8 +6,11 @@ import "./globals.css";
 import { Providers } from "@/components/admin/layout/admin-providers";
 
 export const metadata: Metadata = {
-  title: "MatWeb Innovation Dashboard",
-  description: "Dashboard personnel pour piloter notes, projets, API, outils quotidiens et design system.",
+  title: {
+    default: "Dashboard Pokémon GO",
+    template: "%s | Dashboard Pokémon GO",
+  },
+  description: "Centre de commande privé pour les données, synchronisations et outils Pokémon GO.",
   robots: {
     index: false,
     follow: false,

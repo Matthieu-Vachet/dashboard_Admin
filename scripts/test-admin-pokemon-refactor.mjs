@@ -9,24 +9,71 @@ const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 const require = createRequire(import.meta.url);
 const { buildMoveCatalog } = require("../src/server/pokemon-go/apps/checklist/server/workshop");
 
-test("la navigation Admin Pokémon est compacte sur desktop et devient une sheet sur mobile", () => {
-  const source = read("src/components/admin/pokemon/admin-section-navigation.jsx");
-  assert.match(source, /Rechercher une section Admin Pokémon/);
+test("les sections Pokémon sont remontées dans la navigation principale responsive", () => {
+  const navigation = read("src/data/dashboard.ts");
+  const frame = read("src/components/admin/layout/admin-app-frame.tsx");
+  const app = read("src/components/admin/pokemon/admin-app.jsx");
   for (const group of ["Données Pokémon", "Combat", "Événements", "Maintenance", "Qualité & supervision"]) {
-    assert.match(source, new RegExp(group));
+    assert.match(navigation, new RegExp(group));
   }
-  assert.match(source, /alt=""/);
-  assert.match(source, /aria-expanded=/);
-  assert.match(source, /hidden rounded-2xl[^\n]+lg:block/);
-  assert.match(source, /fixed inset-0 z-\[90\]/);
-  assert.match(source, /role="dialog" aria-modal="true"/);
-  assert.match(source, /document\.body\.style\.overflow = "hidden"/);
-  assert.match(source, /mobileCloseRef\.current\?\.focus\(\)/);
-  assert.match(source, /ref=\{mobileCloseRef\}/);
-  assert.doesNotMatch(source, /mobileSearchRef|ref=\{mobileSearchRef\}/);
-  assert.match(source, /createPortal/);
-  assert.match(source, /document\.body\)/);
-  assert.doesNotMatch(source, /2xl:grid-cols-5/);
+  for (const route of ["/pokedex", "/pvp-rankings", "/events", "/identity-manager", "/logs"]) {
+    assert.match(navigation, new RegExp(route.replaceAll("/", "\\/")));
+  }
+  assert.match(frame, /renderSidebar\(false, true\)/);
+  assert.match(frame, /aria-label="Navigation principale"/);
+  assert.equal(fs.existsSync(path.join(root, "src/components/admin/pokemon/admin-section-navigation.jsx")), false);
+  assert.doesNotMatch(app, /AdminSectionNavigation/);
+});
+
+test("Shiny Tracker appartient uniquement au groupe Données Pokémon sur desktop, mobile et dans le fil d’Ariane", () => {
+  const navigation = read("src/data/dashboard.ts");
+  const frame = read("src/components/admin/layout/admin-app-frame.tsx");
+  const topbar = read("src/components/admin/navigation/admin-topbar.tsx");
+  const pokemonData = navigation.slice(navigation.indexOf('id: "pokemon-data"'), navigation.indexOf('id: "combat"'));
+  const quality = navigation.slice(navigation.indexOf('id: "quality"'), navigation.indexOf('id: "maintenance"'));
+
+  assert.match(pokemonData, /href: "\/shiny-tracker"/);
+  assert.doesNotMatch(quality, /href: "\/shiny-tracker"/);
+  assert.equal((navigation.match(/href: "\/shiny-tracker"/g) || []).length, 1);
+  assert.match(frame, /groupLabel: group\?\.label/);
+  assert.match(frame, /activeGroupLabel=\{activeNavigation\.groupLabel\}/);
+  assert.match(topbar, /aria-label="Fil d’Ariane"/);
+  assert.match(frame, /renderSidebar\(false, true\)/);
+});
+
+test("les icônes métier du menu utilisent le registre local partagé", () => {
+  const navigation = read("src/data/dashboard.ts");
+  const sidebar = read("src/components/admin/navigation/admin-sidebar.tsx");
+  const mappings = {
+    collections: "pokeball.webp",
+    assets: "ic_evolvable.png",
+    catalogs: "pokedex-galar.webp",
+    docs: "search.png",
+    pvpRankings: "ic_battle.png",
+    pvpSimulator: "TodayView_Icon_Battle.webp",
+    gblCalendar: "ic_date.png",
+    bestAttackers: "ic_Legendary_small.png",
+    bestDefenders: "ic_route_medal_outline.png",
+    communityDays: "ic_event.png",
+    eventsHistory: "ep_point_icon.png",
+  };
+
+  assert.match(navigation, /export const pokemonNavigationIcons/);
+  for (const [key, file] of Object.entries(mappings)) {
+    assert.match(navigation, new RegExp(`${key}: .*${file.replaceAll(".", "\\.")}`));
+    assert.ok(fs.existsSync(path.join(root, "public/assets/ui/icons/general", file)), `${file} doit être versionné`);
+    assert.match(navigation, new RegExp(`icon: pokemonNavigationIcons\\.${key}`));
+  }
+  assert.match(sidebar, /aria-label=\{collapsed \? item\.label : undefined\}/);
+  assert.match(sidebar, /alt=""/);
+});
+
+test("le compteur Fiches costume reflète les identités affichées et non les fiches porteuses", () => {
+  const app = read("src/components/admin/pokemon/admin-app.jsx");
+  assert.match(app, /"Costumes \/ événements"/);
+  assert.match(app, /"identités individuelles · sexes regroupés"/);
+  assert.match(app, /pokemonPresentationEntries\(entries, id\)\.filter/);
+  assert.doesNotMatch(app, /id === "costume" \? entries/);
 });
 
 test("le module de vérification Pokémon et ses quatre anciennes entrées sont absents", () => {
@@ -196,16 +243,20 @@ test("Game Master Explorer reste privé, paginé et ne charge le JSON brut qu’
 
 test("les datasets affichent l'historique centralisé et les diagnostics non matchés", () => {
   const diagnostics = read("src/components/admin/pokemon/current-dataset-diagnostics.jsx");
+  const unmatchedReport = read("src/components/admin/pokemon/unmatched-entries-report.jsx");
   const proxy = read("src/app/api/pokemon-admin/route.ts");
   const eventRoute = read("src/app/api/admin/events/scrape/route.ts");
   const eventHistory = read("src/app/api/admin/events/history/route.ts");
   const events = read("src/components/admin/events/events-calendar-panel.jsx");
   assert.match(diagnostics, /Historique des exécutions/);
-  assert.match(diagnostics, /\{unmatchedEntries\.length\} non matchée\(s\)/);
-  assert.match(diagnostics, /Alias brut/);
-  assert.match(diagnostics, /Alias normalisé/);
-  assert.match(diagnostics, /Action proposée/);
-  assert.match(diagnostics, /Ouvrir l’Identity Manager/);
+  assert.match(diagnostics, /Voir les \{unmatchedCount\.toLocaleString\("fr-FR"\)\} non-matchés/);
+  assert.match(diagnostics, /<UnmatchedEntriesReport/);
+  for (const label of ["Provider", "Source ID", "Nom", "Valeur source", "Raison", "Confiance", "Destination éventuelle", "Candidats"] ) {
+    assert.match(unmatchedReport, new RegExp(label));
+  }
+  assert.match(unmatchedReport, /Filtrer par raison/);
+  assert.match(unmatchedReport, /Filtrer par provider/);
+  assert.match(unmatchedReport, /Filtrer par statut/);
   assert.match(diagnostics, /diffUnavailableReason/);
   assert.match(proxy, /dataset-history/);
   assert.match(eventRoute, /startDatasetRun/);
@@ -241,11 +292,15 @@ test("Veille expose une supervision filtrable, alignée et responsive", () => {
   assert.match(source, /Rechercher une source/);
   assert.match(source, /Filtrer les sources par catégorie/);
   assert.match(source, /Filtrer les sources par statut/);
-  assert.match(source, /État et cause/);
+  assert.match(source, /État et HTTP/);
+  assert.match(source, /URL contrôlée/);
+  assert.match(source, /Provider :/);
+  assert.match(source, /HTTP \{source\.httpStatus\}/);
+  assert.match(source, /Commit et hash/);
   assert.match(source, /Copier l’empreinte/);
   assert.match(source, /document\.execCommand\("copy"\)/);
   assert.match(source, /Margxt, LeekDuck, PvPoke/);
-  assert.match(source, /lg:grid-cols-\[minmax\(14rem,1\.45fr\)/);
+  assert.match(source, /lg:grid-cols-\[minmax\(13rem,1\.1fr\)/);
   assert.match(source, /break-words/);
   assert.doesNotMatch(source, /block truncate font-black text-domain-foreground/);
 });
@@ -320,23 +375,29 @@ test("Events déduplique les assets identiques", () => {
   assert.match(eventsSource, /uniqueBy\(\(event\.featuredPokemon \|\| \[\]\)[\s\S]*?\(pokemon\) => pokemon\.src\)/);
 });
 
-test("les diagnostics source restent repliés et l'API Explorer reste contenu sur mobile", () => {
+test("les contrôles de régénération restent compacts et l'API Explorer reste contenu sur mobile", () => {
   const diagnostics = read("src/components/admin/pokemon/current-dataset-diagnostics.jsx");
+  const facade = read("src/components/admin/pokemon/dataset-source-header.jsx");
   const explorer = read("src/components/admin/pokemon/pokemon-api-explorer.tsx");
+  assert.match(diagnostics, /export function RegenerationControl/);
+  assert.match(facade, /RegenerationControl/);
   assert.match(diagnostics, /const \[expanded, setExpanded\] = useState\(false\)/);
-  assert.match(diagnostics, /sessionStorage\.getItem\(storageKey\)/);
-  assert.match(diagnostics, /sessionStorage\.setItem\(storageKey/);
+  assert.doesNotMatch(diagnostics, /sessionStorage/);
+  assert.match(diagnostics, /Dernière synchro :/);
+  assert.match(diagnostics, /const compactStatus = regeneration\?\.status/);
+  assert.match(diagnostics, /<DatasetStatusBadge status=\{compactStatus\}/);
   assert.match(diagnostics, /aria-expanded=\{expanded\}/);
+  assert.match(diagnostics, /const detailsId = useId\(\)/);
+  assert.match(diagnostics, /aria-controls=\{detailsId\}/);
   assert.match(diagnostics, /motion-reduce:transition-none/);
-  assert.match(diagnostics, /Replier les détails de la source/);
-  assert.match(diagnostics, /Déplier les détails de la source/);
-  assert.match(diagnostics, /grid-cols-\[minmax\(0,1fr\)_auto\]/);
-  assert.match(diagnostics, /col-span-2 flex min-w-0 flex-wrap/);
+  assert.match(diagnostics, />\s*Détails\s*<ChevronDown/);
+  assert.match(diagnostics, /id=\{detailsId\}/);
   assert.match(diagnostics, /function DatasetDiffBadge/);
-  assert.match(diagnostics, /<span className="sm:hidden">\s*<DatasetDiffBadge/);
-  assert.match(diagnostics, /<span className="hidden sm:block">\s*<DatasetDiffBadge/);
+  assert.match(diagnostics, /<DatasetRegenerationStatus/);
+  assert.ok(diagnostics.indexOf("{expanded ? (") < diagnostics.indexOf("<DatasetRegenerationStatus"));
   assert.match(diagnostics, /whitespace-nowrap/);
   assert.match(diagnostics, /<Modal open=\{historyOpen\}/);
+  assert.match(diagnostics, /<Modal open=\{unmatchedOpen\}/);
   assert.doesNotMatch(diagnostics, /ModalPortal|fixed inset-0/);
   assert.match(explorer, /min-w-0 overflow-hidden/);
   assert.match(explorer, /xl:grid-cols-\[minmax\(16rem,23rem\)_minmax\(0,1fr\)_auto\]/);
@@ -464,6 +525,16 @@ test("le proxy Admin conserve une marge avant la limite Vercel", () => {
   assert.match(source, /AbortSignal\.timeout\(timeoutMs\)/);
 });
 
+test("le proxy Suggested Teammates conserve l'erreur structurée et l'état vide", () => {
+  const proxy = read("src/app/api/pokemon-admin/route.ts");
+  const panel = read("src/components/admin/pokemon/pvp-rankings-panel.jsx");
+  assert.match(proxy, /async function readPvpSuggestedTeammates/);
+  assert.match(proxy, /pokemonApiErrorMessage\(payload, "Suggested Teammates indisponibles\."\)/);
+  assert.match(proxy, /!Array\.isArray\(payload\?\.data\)/);
+  assert.match(panel, /Aucune suggestion disponible pour ce classement\./);
+  assert.doesNotMatch(panel, /Aucun partenaire exact retourné par la fiche PvPoke/);
+});
+
 test("Identity Manager reste privé et expose un CRUD traçable sans secret navigateur", () => {
   const app = read("src/components/admin/pokemon/admin-app.jsx");
   const panel = read("src/components/admin/pokemon/identity-manager-panel.tsx");
@@ -476,6 +547,9 @@ test("Identity Manager reste privé et expose un CRUD traçable sans secret navi
   assert.match(proxy, /identity-manager-inventory/);
   assert.match(proxy, /identity-manager-sync-preview/);
   assert.match(proxy, /identity-manager-sync-apply/);
+  assert.match(proxy, /identity-manager-diagnostics-summary/);
+  assert.match(proxy, /identity-manager-diagnostics-reconcile/);
+  assert.match(proxy, /"reason", "code", "severity", "confidence"/);
   assert.match(panel, /Nouvelle identité/);
   assert.match(panel, /identity-manager-alias-create/);
   assert.match(panel, /identity-manager-merge/);
@@ -497,7 +571,16 @@ test("Identity Manager reste privé et expose un CRUD traçable sans secret navi
   assert.match(panel, /Seules les sources enregistrées et actives/);
   assert.match(panel, /identity-manager-sync-preview/);
   assert.match(panel, /identity-manager-sync-apply/);
+  assert.match(panel, /identity-manager-diagnostics-summary/);
+  assert.match(panel, /identity-manager-diagnostics-reconcile/);
+  assert.match(panel, /Réconcilier les alias validés/);
+  assert.match(panel, /Synthèse des diagnostics/);
+  assert.match(panel, /Pourquoi ce diagnostic/);
+  assert.match(panel, /Action nécessaire/);
+  assert.match(panel, /Association active retrouvée/);
   assert.match(panel, /syncStatus/);
+  assert.match(panel, /synchronization\?\.state/);
+  assert.match(panel, /orphanUpdate/);
   assert.match(panel, /Régression Mewtwo Armored/);
   assert.match(panel, /Une création manuelle commence en brouillon/);
   assert.match(panel, /CANONICAL_ID_NOT_SYNCHRONIZED/);
@@ -530,6 +613,12 @@ test("la Home Admin Pokémon est un centre de commande quotidien sans perdre les
   assert.match(home, /events\/archive\?status=active/);
   assert.match(home, /events\/archive\?status=upcoming/);
   assert.match(home, /Promise\.allSettled/);
+  assert.match(home, /data-testid="home-attention-panel"/);
+  assert.match(home, /xl:grid-cols-\[minmax\(0,1\.08fr\)_minmax\(25rem,\.92fr\)\]/);
+  assert.match(home, /data-testid="home-attention-actions"/);
+  assert.match(home, /sm:grid-cols-2/);
+  assert.match(home, /xl:border-l xl:border-line xl:pl-6/);
+  assert.match(home, /w-full min-w-0 justify-start text-left sm:min-h-12/);
   assert.doesNotMatch(home, /window\.prompt|fixed inset-0/);
 });
 
@@ -601,10 +690,10 @@ test("la Home orchestre une régénération globale séquentielle et tolérante 
 
 test("les aliases inconnus disposent d’un workflow de résolution détaillé", () => {
   const panel = read("src/components/admin/pokemon/identity-manager-panel.tsx");
-  for (const label of ["Associer", "Créer une identité", "Ignorer", "Faux positif", "Voir les", "Exporter le diagnostic"]) {
+  for (const label of ["Associer", "Créer une identité", "Ignorer", "Faux positif", "Examiner les", "Exporter le diagnostic"]) {
     assert.match(panel, new RegExp(label));
   }
-  for (const field of ["Première détection", "Dernière détection", "Occurrences", "Action proposée", "Normalisé", "confiance"]) {
+  for (const field of ["Première détection", "Dernière détection", "Occurrences", "Action attendue", "normalisé", "confiance", "ID source", "Sévérité", "Code diagnostic"]) {
     assert.match(panel, new RegExp(field, "i"));
   }
   assert.match(panel, /identity-manager-diagnostic-update/);

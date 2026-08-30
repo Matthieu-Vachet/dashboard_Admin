@@ -1,25 +1,25 @@
 "use client";
 
-/* eslint-disable react-hooks/set-state-in-effect */
-
 import {
   AlertTriangle,
   CheckCircle2,
   ChevronDown,
-  Copy,
   Database,
   ExternalLink,
   GitCompare,
   History,
   LoaderCircle,
-  Search,
   XCircle,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
-import { EmptyState, ErrorState, FetchLoadingState } from "@/components/admin/shared/state-system";
-import { pvpRankingRegenerationMessage } from "@/lib/pvp-ranking-regeneration-state.mjs";
+import { ErrorState, FetchLoadingState } from "@/components/admin/shared/state-system";
+import { UnmatchedEntriesReport } from "./unmatched-entries-report";
+import {
+  normalizePvpRankingWarnings,
+  pvpRankingRegenerationMessage,
+} from "@/lib/pvp-ranking-regeneration-state.mjs";
 import { actionError, normalizeActionError } from "@/lib/admin-action-errors";
 
 function firstDefined(...values) {
@@ -75,6 +75,25 @@ function DatasetDiffBadge({ changed, hasDiff }) {
   );
 }
 
+function DatasetStatusBadge({ status }) {
+  const normalizedStatus = String(status || "inconnu").toLowerCase();
+  const tone = ["success", "ready", "completed"].includes(normalizedStatus)
+    ? "border-success/25 bg-success/14 text-success-foreground"
+    : ["partial", "warning", "cancelled"].includes(normalizedStatus)
+      ? "border-warning/25 bg-warning/14 text-warning-foreground"
+      : ["failed", "error"].includes(normalizedStatus)
+        ? "border-danger/25 bg-danger/14 text-danger-foreground"
+        : normalizedStatus === "running"
+          ? "border-cyan-300/25 bg-cyan-300/12 text-cyan-100"
+          : "border-line bg-white/[0.07] text-muted";
+
+  return (
+    <span className={`inline-flex min-h-6 items-center whitespace-nowrap rounded-full border px-2.5 py-1 text-[10px] font-black uppercase leading-4 tracking-[0.12em] ${tone}`} role="status" aria-live="polite" data-regeneration-status={normalizedStatus}>
+      {normalizedStatus}
+    </span>
+  );
+}
+
 function DatasetRegenerationStatus({ state, onReport, onRetry }) {
   if (!state) return null;
   const status = state.status || "idle";
@@ -115,60 +134,49 @@ function DatasetRegenerationStatus({ state, onReport, onRetry }) {
   );
 }
 
-function DiagnosticCard({ entry, provider, onCopy }) {
-  const rawAlias = firstDefined(entry.rawAlias, entry.sourceAlias, entry.sourceId, entry.sourceName, "—");
-  const normalizedAlias = firstDefined(entry.normalizedAlias, entry.normalizedSourceId, "—");
-  const pokemon = firstDefined(entry.pokemon, entry.sourceName, entry.pokemonName, "Non détecté");
-  const form = firstDefined(entry.form, entry.sourceForm, "—");
-  const costume = firstDefined(entry.costume, entry.sourceCostume, "—");
-  const candidates = Array.isArray(entry.candidates) ? entry.candidates : [];
-
+function PvpWarningCard({ warning }) {
   return (
-    <article className="rounded-xl border border-amber-200/15 bg-amber-300/[.055] p-3">
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <strong className="block break-words text-sm text-domain-foreground">{entry.sourceName || entry.sourceId || "Entrée source inconnue"}</strong>
-          <p className="mt-1 break-words font-mono text-[10px] text-amber-100">{entry.reason || "alias-inconnu"}</p>
-        </div>
-        <Button size="icon" variant="ghost" type="button" onClick={() => onCopy(entry)} aria-label="Copier le diagnostic">
-          <Copy size={13} />
-        </Button>
-      </div>
-      <dl className="mt-3 grid gap-2 text-xs sm:grid-cols-2 xl:grid-cols-3">
-        <Metric label="Provider" value={entry.provider || provider} mono />
-        <Metric label="Alias brut" value={rawAlias} mono />
-        <Metric label="Alias normalisé" value={normalizedAlias} mono />
-        <Metric label="Pokémon détecté" value={pokemon} />
-        <Metric label="Pokédex" value={entry.pokemonId || entry.dexNr || "—"} mono />
-        <Metric label="Forme" value={form} mono />
-        <Metric label="Costume" value={costume} mono />
-        <Metric label="Confiance" value={entry.confidence ?? 0} mono />
-        <Metric label="Occurrences" value={entry.occurrences ?? 1} mono />
-        <Metric label="Première détection" value={formatDate(entry.firstDetectedAt)} />
-        <Metric label="Dernière détection" value={formatDate(entry.lastDetectedAt)} />
-        <Metric label="Action proposée" value={entry.proposedAction || "Associer dans Identity Manager"} />
-        {entry.localFile ? <Metric label="Fichier local possible" value={entry.localFile} mono /> : null}
+    <article className={`rounded-xl border p-3 ${warning.informational ? "border-cyan-200/20 bg-cyan-300/[.07]" : "border-warning/25 bg-warning/10"}`} data-warning-code={warning.code}>
+      <header className="flex min-w-0 flex-wrap items-center gap-2">
+        <code className="break-all rounded-md border border-line bg-slate-950/30 px-2 py-1 text-[10px] font-black text-domain-foreground">{warning.code}</code>
+        <strong className="min-w-0 break-words text-sm text-domain-foreground">{warning.entity}</strong>
+        {warning.informational ? <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-2 py-1 text-[9px] font-black uppercase tracking-[0.12em] text-cyan-100">Informatif</span> : null}
+      </header>
+      <dl className="mt-3 grid gap-2 lg:grid-cols-3">
+        {[
+          ["Raison", warning.reason],
+          ["Impact", warning.impact],
+          ["Action", warning.action],
+        ].map(([label, value]) => (
+          <div className="rounded-lg border border-white/[.07] bg-slate-950/20 p-2.5" key={label}>
+            <dt className="text-[9px] font-black uppercase tracking-[0.14em] text-disabled">{label}</dt>
+            <dd className="mt-1 type-caption-strong leading-relaxed text-foreground-secondary">{value}</dd>
+          </div>
+        ))}
       </dl>
-      {candidates.length ? (
-        <details className="mt-3 rounded-lg border border-line bg-surface-inset-subtle text-xs">
-          <summary className="cursor-pointer px-3 py-2 font-black text-cyan-100">Voir les {candidates.length} candidat(s)</summary>
-          <pre className="max-h-52 overflow-auto border-t border-line p-3 text-[10px] text-foreground-secondary">{JSON.stringify(candidates, null, 2)}</pre>
-        </details>
-      ) : null}
-      <Button asChild className="mt-3" size="sm" variant="secondary">
-        <a href="/pokemon-admin?section=identity-manager">Ouvrir l’Identity Manager</a>
-      </Button>
     </article>
   );
 }
 
-export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", historyUrl = "", regeneration = null, onRetry = null }) {
+function mergePvpWarnings(stateWarnings, datasetWarnings) {
+  const seen = new Set();
+  return [...(Array.isArray(stateWarnings) ? stateWarnings : []), ...normalizePvpRankingWarnings(datasetWarnings)]
+    .filter((warning) => {
+      const key = `${warning.code}:${warning.entity}:${warning.reason}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
+
+export function RegenerationControl({ dataset, total = 0, refreshError = "", historyUrl = "", regeneration = null, onRetry = null }) {
+  const detailsId = useId();
   const [expanded, setExpanded] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [unmatchedOpen, setUnmatchedOpen] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyRuns, setHistoryRuns] = useState([]);
   const [selectedRun, setSelectedRun] = useState(null);
-  const [diagnosticQuery, setDiagnosticQuery] = useState("");
   const meta = dataset?.meta || {};
   const resolvedHistoryUrl = historyUrl || (meta.domain ? `/api/pokemon-admin?action=dataset-history&domain=${encodeURIComponent(meta.domain)}` : "");
   const current = dataset?.current || {};
@@ -176,13 +184,22 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
   const diagnostics = meta.diagnostics || current.diagnostics || {};
   const diff = diagnostics.diff || {};
   const warnings = Array.isArray(diagnostics.warnings) ? diagnostics.warnings : [];
-  const unmatchedEntries = useMemo(
-    () => (Array.isArray(diagnostics.unmatchedEntries) ? diagnostics.unmatchedEntries : []),
-    [diagnostics.unmatchedEntries],
+  const unmatchedEntries = Array.isArray(diagnostics.unmatchedReport?.entries)
+    ? diagnostics.unmatchedReport.entries
+    : Array.isArray(diagnostics.unmatchedEntries)
+      ? diagnostics.unmatchedEntries
+      : [];
+  const unmatchedCount = Math.max(
+    Number(diagnostics.unmatchedReport?.total) || 0,
+    Number(diagnostics.unmatchedCount) || 0,
+    Number(regeneration?.unmatchedCount) || 0,
+    unmatchedEntries.length,
   );
-  const warningCount = Array.isArray(diagnostics.warnings)
-    ? diagnostics.warnings.length
-    : Number(diagnostics.warnings) || 0;
+  const warningCount = Math.max(
+    Array.isArray(diagnostics.warnings) ? diagnostics.warnings.length : Number(diagnostics.warnings) || 0,
+    Number(diagnostics.warningsCount) || 0,
+    Number(regeneration?.warningCount) || 0,
+  );
   const source = firstDefined(meta.source, current.source?.storage);
   const sourceLabel = source === "mongodb" || source === "MongoDB" ? "MongoDB" : "Source indisponible";
   const provider = firstDefined(meta.provider, sourceDetails.provider, "Indisponible");
@@ -195,6 +212,8 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
   const sourceHash = firstDefined(meta.sourceHash, current.sourceHash, "Indisponible");
   const shortHash = sourceHash === "Indisponible" ? sourceHash : String(sourceHash).slice(0, 12);
   const status = firstDefined(meta.status, current.status, "inconnu");
+  const compactStatus = regeneration?.status && regeneration.status !== "idle" ? regeneration.status : status;
+  const lastSyncAt = firstDefined(savedAt, fetchedAt);
   const visibility = firstDefined(meta.visibility, current.visibility, dataset?.data?.meta?.visibility, "public");
   const timezone = firstDefined(meta.timezone, sourceDetails.timezone, diagnostics.details?.timezone);
   const selection = firstDefined(meta.selection, sourceDetails.selection, diagnostics.details?.selectedRaids);
@@ -210,10 +229,6 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
   const errorMessage = normalizedError.startsWith("Affichage de la dernière version MongoDB connue")
     ? normalizedError
     : `Affichage de la dernière version MongoDB connue — la nouvelle récupération a échoué. ${normalizedError}`;
-  const storageKey = useMemo(
-    () => `matweb.pokemon.dataset-source.${String(meta.domain || provider).toLowerCase().replace(/[^a-z0-9_-]+/g, "-")}`,
-    [meta.domain, provider],
-  );
   const metrics = [
     ["Provider", provider, false],
     ["Mode", mode, false],
@@ -222,35 +237,33 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
     ["Récupéré le", formatDate(fetchedAt), false],
     ["Enregistré le", formatDate(savedAt), false],
     ["Hash", shortHash, true],
+    ["Operation ID", firstDefined(regeneration?.operationId, diagnostics.operationId, current.operationId, "Indisponible"), true],
     ["Matchés / non matchés", `${Number(diagnostics.matchedCount) || 0} / ${Number(diagnostics.unmatchedCount) || 0}`, true],
   ];
-  const visibleUnmatched = useMemo(() => {
-    const entries = selectedRun?.unmatchedEntries || unmatchedEntries;
-    const needle = diagnosticQuery.trim().toLowerCase();
-    if (!needle) return entries;
-    return entries.filter((entry) => JSON.stringify(entry).toLowerCase().includes(needle));
-  }, [diagnosticQuery, selectedRun, unmatchedEntries]);
-
-  useEffect(() => {
-    setExpanded(window.sessionStorage.getItem(storageKey) === "open");
-  }, [storageKey]);
+  const isPvpRankings = meta.domain === "pvp-rankings";
+  const currentPvpWarnings = isPvpRankings
+    ? mergePvpWarnings(regeneration?.warningDetails, warnings)
+    : [];
+  const selectedPvpWarnings = !isPvpRankings
+    ? []
+    : !selectedRun
+      ? currentPvpWarnings
+      : Array.isArray(selectedRun.warningDetails)
+        ? selectedRun.warningDetails
+        : normalizePvpRankingWarnings(selectedRun.warnings);
 
   function toggleExpanded() {
-    setExpanded((currentExpanded) => {
-      const nextExpanded = !currentExpanded;
-      window.sessionStorage.setItem(storageKey, nextExpanded ? "open" : "closed");
-      return nextExpanded;
-    });
+    setExpanded((currentExpanded) => !currentExpanded);
   }
 
   async function openHistory(preferCurrent = false) {
     setHistoryOpen(true);
-    setDiagnosticQuery("");
     if (preferCurrent) {
       setSelectedRun({
         status,
         unmatchedEntries,
         warnings,
+        warningDetails: currentPvpWarnings,
         errors: [],
         added: diff.added,
         removed: diff.removed,
@@ -281,52 +294,75 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
     }
   }
 
-  async function copyDiagnostic(value) {
-    await navigator.clipboard.writeText(typeof value === "string" ? value : JSON.stringify(value, null, 2));
+  function openRegenerationReport() {
+    if (unmatchedCount) setUnmatchedOpen(true);
+    else openHistory(true);
   }
 
   return (
-    <section className="mt-4 min-w-0 rounded-2xl border border-cyan-300/15 bg-cyan-400/[0.075] p-3 sm:p-4" aria-label="État de la source de données">
-      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-2 sm:flex sm:flex-wrap sm:gap-3">
-        <div className="flex min-w-0 items-center gap-2 text-sm font-black text-foreground sm:shrink-0">
+    <section className="mt-4 min-w-0 rounded-xl border border-cyan-300/15 bg-cyan-400/[0.055] p-3" aria-label="Contrôle de régénération">
+      <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-2 text-sm text-foreground">
           <Database className="shrink-0" size={18} aria-hidden="true" />
-          <span className="min-w-0 truncate" title={`Source active : ${sourceLabel}`}>Source active : {sourceLabel}</span>
+          <span className="text-muted">Dernière synchro :</span>
+          <strong className="min-w-0 truncate" title={formatDate(lastSyncAt)}>{formatDate(lastSyncAt)}</strong>
         </div>
-        <div className="order-3 col-span-2 flex min-w-0 flex-wrap items-center gap-1.5 sm:order-none sm:flex-1 sm:gap-2">
-          <span className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-line bg-white/[0.07] px-2 py-0.5 text-[9px] font-black uppercase leading-4 tracking-[0.08em] text-muted sm:py-1 sm:text-[10px] sm:tracking-[0.12em]">{status}</span>
-          <span className={`inline-flex min-h-6 items-center whitespace-nowrap rounded-full border px-2 py-0.5 text-[9px] font-black uppercase leading-4 tracking-[0.08em] sm:py-1 sm:text-[10px] sm:tracking-[0.12em] ${visibility === "private" ? "border-brand/25 bg-brand/14 text-foreground" : "border-success/25 bg-success/14 text-success-foreground"}`}>
-            {visibility === "private" ? "Privé · Admin" : "Public · API"}
-          </span>
-          {warningCount ? <span className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-warning/25 bg-warning/12 px-2 py-0.5 text-[9px] font-black leading-4 text-warning-foreground sm:py-1 sm:text-[10px]">{warningCount} avertissement(s)</span> : null}
-          {unmatchedEntries.length ? (
-            <button className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-warning/25 bg-warning/12 px-2 py-0.5 text-[9px] font-black leading-4 text-warning-foreground underline-offset-2 hover:underline sm:py-1 sm:text-[10px]" type="button" onClick={() => openHistory(true)}>
-              {unmatchedEntries.length} non matchée(s)
-            </button>
-          ) : null}
-          <span className="sm:hidden">
-            <DatasetDiffBadge changed={changed} hasDiff={hasDiff} />
-          </span>
-        </div>
-        <div className="col-start-2 row-start-1 flex shrink-0 items-center gap-2 sm:order-none sm:ml-auto">
-          <span className="hidden sm:block">
-            <DatasetDiffBadge changed={changed} hasDiff={hasDiff} />
-          </span>
-          <Button className="h-9 w-9 sm:h-10 sm:w-10" size="icon" variant="ghost" type="button" onClick={toggleExpanded} aria-expanded={expanded} aria-label={expanded ? "Replier les détails de la source" : "Déplier les détails de la source"}>
-            <ChevronDown className={`transition-transform duration-motion-normal motion-reduce:transition-none ${expanded ? "rotate-180" : ""}`} size={18} />
+        <DatasetStatusBadge status={compactStatus} />
+        {unmatchedCount ? (
+          <Button className="min-h-9 whitespace-nowrap" size="sm" variant="secondary" type="button" onClick={() => setUnmatchedOpen(true)}>
+            Voir les {unmatchedCount.toLocaleString("fr-FR")} non-matchés
+          </Button>
+        ) : null}
+        <div className="flex shrink-0 items-center gap-2">
+          <Button className="min-h-9" size="sm" variant="ghost" type="button" onClick={toggleExpanded} aria-expanded={expanded} aria-controls={detailsId}>
+            Détails
+            <ChevronDown className={`ml-1 transition-transform duration-motion-normal motion-reduce:transition-none ${expanded ? "rotate-180" : ""}`} size={16} aria-hidden="true" />
           </Button>
         </div>
       </div>
 
-      <DatasetRegenerationStatus
-        state={regeneration}
-        onReport={() => openHistory(true)}
-        onRetry={onRetry}
-      />
-
       {error ? <ErrorState className="mt-3" title="Diagnostic indisponible" message={errorMessage} /> : null}
 
       {expanded ? (
-        <div className="mt-3 space-y-3">
+        <div className="mt-3 space-y-3 border-t border-line pt-3" id={detailsId}>
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <strong className="inline-flex min-w-0 items-center gap-2 text-sm text-foreground">
+              <Database className="shrink-0" size={16} aria-hidden="true" />
+              <span className="truncate" title={`Source active : ${sourceLabel}`}>Source active : {sourceLabel}</span>
+            </strong>
+            <span className={`inline-flex min-h-6 items-center whitespace-nowrap rounded-full border px-2 py-0.5 text-[9px] font-black uppercase leading-4 tracking-[0.08em] sm:py-1 sm:text-[10px] sm:tracking-[0.12em] ${visibility === "private" ? "border-brand/25 bg-brand/14 text-foreground" : "border-success/25 bg-success/14 text-success-foreground"}`}>
+              {visibility === "private" ? "Privé · Admin" : "Public · API"}
+            </span>
+            {warningCount ? <span className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-warning/25 bg-warning/12 px-2 py-0.5 text-[9px] font-black leading-4 text-warning-foreground sm:py-1 sm:text-[10px]">{warningCount} avertissement(s)</span> : null}
+            {unmatchedCount ? (
+              <button className="inline-flex min-h-6 items-center whitespace-nowrap rounded-full border border-warning/25 bg-warning/12 px-2 py-0.5 text-[9px] font-black leading-4 text-warning-foreground underline-offset-2 hover:underline sm:py-1 sm:text-[10px]" type="button" onClick={() => setUnmatchedOpen(true)}>
+                {unmatchedCount.toLocaleString("fr-FR")} non matchée(s)
+              </button>
+            ) : null}
+            <span className="ml-auto"><DatasetDiffBadge changed={changed} hasDiff={hasDiff} /></span>
+          </div>
+
+          <DatasetRegenerationStatus
+            state={regeneration}
+            onReport={openRegenerationReport}
+            onRetry={onRetry}
+          />
+
+          {currentPvpWarnings.length ? (
+            <section className="space-y-2 rounded-xl border border-warning/20 bg-amber-300/[.045] p-3" aria-labelledby={`${detailsId}-pvp-warnings`}>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h3 className="text-sm font-black text-domain-foreground" id={`${detailsId}-pvp-warnings`}>
+                    {regeneration?.status === "partial" ? "Pourquoi ce statut PARTIAL ?" : "Avertissements du dernier snapshot PvP"}
+                  </h3>
+                  <p className="mt-1 type-caption-strong text-muted">Chaque avertissement expose son code, l’entité, sa cause, son impact et l’action attendue.</p>
+                </div>
+                <span className="rounded-full border border-warning/25 bg-warning/10 px-2.5 py-1 text-[10px] font-black text-warning-foreground">{warningCount} avertissement(s)</span>
+              </div>
+              {currentPvpWarnings.map((warning, index) => <PvpWarningCard warning={warning} key={`${warning.code}-${warning.entity}-${index}`} />)}
+            </section>
+          ) : null}
+
           <dl className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
             {metrics.map(([label, value, mono]) => <Metric key={label} label={label} value={value} mono={mono} />)}
           </dl>
@@ -356,7 +392,7 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
             </div>
           ) : null}
 
-          {warnings.length ? (
+          {warnings.length && !isPvpRankings ? (
             <details className="group rounded-xl border border-amber-200/20 bg-amber-300/10 type-caption-strong text-amber-50">
               <summary className="cursor-pointer list-none px-3 py-2.5">Afficher les {warnings.length} diagnostic(s)</summary>
               <ul className="space-y-1 border-t border-amber-100/10 p-3">
@@ -388,21 +424,30 @@ export function DatasetSourceHeader({ dataset, total = 0, refreshError = "", his
               <Metric label="Ignorés" value={selectedRun?.ignoredCount ?? diagnostics.ignoredCount ?? 0} mono />
               <Metric label="WARNING" value={selectedRun?.warningsCount ?? diagnostics.warningsCount ?? warnings.length} mono />
             </dl>
-            <label className="relative mt-4 block">
-              <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-disabled" size={16} />
-              <input className="min-h-11 w-full rounded-xl border border-line bg-surface-inset-strong pl-10 pr-3 text-sm text-domain-foreground outline-none focus:border-cyan-200/40" value={diagnosticQuery} onChange={(event) => setDiagnosticQuery(event.target.value)} placeholder="Identifiant, alias, forme, costume, raison…" />
-            </label>
-            <div className="mt-3 max-h-[54dvh] space-y-2 overflow-y-auto pr-1">
-              {visibleUnmatched.map((entry, index) => <DiagnosticCard entry={entry} provider={provider} onCopy={copyDiagnostic} key={`${entry.sourceId}-${entry.sourceName}-${index}`} />)}
-              {!visibleUnmatched.length ? <EmptyState title="Aucune entrée non matchée pour cette exécution" /> : null}
+            {selectedPvpWarnings.length ? (
+              <section className="mt-4 space-y-2" aria-label="Avertissements de génération PvP">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <strong className="text-sm text-domain-foreground">Avertissements expliqués</strong>
+                  <span className="type-caption-strong text-muted">{selectedPvpWarnings.length} détail(s)</span>
+                </div>
+                {selectedPvpWarnings.map((warning, index) => <PvpWarningCard warning={warning} key={`${warning.code}-${warning.entity}-${index}`} />)}
+              </section>
+            ) : null}
+            <div className="mt-4">
+              <UnmatchedEntriesReport entries={selectedRun?.unmatchedEntries || unmatchedEntries} total={selectedRun?.unmatchedCount ?? unmatchedCount} provider={selectedRun?.provider || provider} />
             </div>
             {selectedRun?.errors?.length ? <pre className="mt-4 whitespace-pre-wrap rounded-xl border border-red-200/20 bg-red-300/[.07] p-3 text-xs text-red-100">{JSON.stringify(selectedRun.errors, null, 2)}</pre> : null}
           </div>
         </div>
       </Modal>
+
+      <Modal open={unmatchedOpen} onClose={() => setUnmatchedOpen(false)} title="Entrées non matchées" description={`${provider} · contrat UnmatchedEntriesReport`} className="max-w-6xl">
+        <UnmatchedEntriesReport entries={unmatchedEntries} total={unmatchedCount} provider={provider} />
+      </Modal>
     </section>
   );
 }
 
-// Façade de compatibilité pour les panels existants.
-export const CurrentDatasetDiagnostics = DatasetSourceHeader;
+// Façades de compatibilité pour les panels existants.
+export const DatasetSourceHeader = RegenerationControl;
+export const CurrentDatasetDiagnostics = RegenerationControl;

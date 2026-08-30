@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { ChevronDown, Crown, Download, RefreshCcw, RotateCcw, Sparkles } from "lucide-react";
 import { AssetStatCard, Panel } from "./admin-ui";
 import { DatasetSourceHeader } from "./dataset-source-header";
@@ -9,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { PokemonArtwork } from "./pokemon-artwork";
 import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
 import { EmptyState, FetchLoadingState } from "@/components/admin/shared/state-system";
+import { typeIcon as typeIconAsset, typeLabels } from "@/components/site/pokemon-style";
+import { canonicalPokemonType, rocketWeaknessGroups } from "@/lib/rocket-weakness-presentation.mjs";
 
 const rocketTrainerAssets = {
   arlo: "/assets/ui/categories/rocket/leader-arlo.webp",
@@ -17,27 +20,6 @@ const rocketTrainerAssets = {
   sierra: "/assets/ui/categories/rocket/leader-sierra.webp",
   maleGrunt: "/assets/ui/categories/rocket/male-grunt.webp",
   femaleGrunt: "/assets/ui/categories/rocket/female-grunt.webp",
-};
-
-const typeIconMap = {
-  Normal: "/assets/pokemon/types/icons/ico_0_normal.png",
-  Fighting: "/assets/pokemon/types/icons/ico_1_fighting.png",
-  Flying: "/assets/pokemon/types/icons/ico_2_flying.png",
-  Poison: "/assets/pokemon/types/icons/ico_3_poison.png",
-  Ground: "/assets/pokemon/types/icons/ico_4_ground.png",
-  Rock: "/assets/pokemon/types/icons/ico_5_rock.png",
-  Bug: "/assets/pokemon/types/icons/ico_6_bug.png",
-  Ghost: "/assets/pokemon/types/icons/ico_7_ghost.png",
-  Steel: "/assets/pokemon/types/icons/ico_8_steel.png",
-  Fire: "/assets/pokemon/types/icons/ico_9_fire.png",
-  Water: "/assets/pokemon/types/icons/ico_10_water.png",
-  Grass: "/assets/pokemon/types/icons/ico_11_grass.png",
-  Electric: "/assets/pokemon/types/icons/ico_12_electric.png",
-  Psychic: "/assets/pokemon/types/icons/ico_13_psychic.png",
-  Ice: "/assets/pokemon/types/icons/ico_14_ice.png",
-  Dragon: "/assets/pokemon/types/icons/ico_15_dragon.png",
-  Dark: "/assets/pokemon/types/icons/ico_16_dark.png",
-  Fairy: "/assets/pokemon/types/icons/ico_17_fairy.png",
 };
 
 const fallbackAccents = {
@@ -152,11 +134,6 @@ function trainerImage(profile) {
   return rocketTrainerAssets.maleGrunt;
 }
 
-function typeIcon(type) {
-  const label = String(type || "");
-  return typeIconMap[label] || typeIconMap[label.charAt(0).toUpperCase() + label.slice(1).toLowerCase()];
-}
-
 function pokemonName(pokemon) {
   return pokemon.names?.French || pokemon.names?.English || pokemon.sourceName || pokemon.id || "Pokemon";
 }
@@ -167,7 +144,7 @@ function TypeIcons({ types }) {
   return (
     <span className="inline-flex flex-wrap items-center gap-1.5" aria-label="Types Pokémon">
       {list.map((type) => {
-        const icon = typeIcon(type);
+        const icon = typeIconAsset(type);
         return icon ? (
           <span key={type} className="grid h-8 w-8 place-items-center rounded-full border border-line bg-surface-inset p-1.5" title={type}>
             <img className="h-full w-full object-contain" src={icon} alt={type} loading="lazy" />
@@ -178,6 +155,33 @@ function TypeIcons({ types }) {
           </span>
         );
       })}
+    </span>
+  );
+}
+
+function Weaknesses({ weaknesses }) {
+  const groups = rocketWeaknessGroups(weaknesses);
+  if (!groups.length) return null;
+  return (
+    <span className="grid gap-2" aria-label="Faiblesses Pokémon GO">
+      {groups.map((group) => (
+        <span key={group.kind} className="grid min-w-0 gap-1.5">
+          <span className={`type-overline-compact ${group.kind === "double" ? "text-rose-200" : "text-amber-100"}`}>{group.label}</span>
+          <span className="flex min-w-0 flex-wrap gap-1.5">
+            {group.types.map((type) => {
+              const normalizedType = canonicalPokemonType(type);
+              const icon = typeIconAsset(type);
+              return (
+                <span key={`${group.kind}-${normalizedType}`} className={`inline-flex min-w-0 items-center gap-1.5 rounded-full border px-2 py-1 ${group.kind === "double" ? "border-danger/30 bg-danger/10 text-rose-50" : "border-warning/30 bg-warning/10 text-amber-50"}`}>
+                  {icon ? <Image className="h-4 w-4 shrink-0 object-contain" src={icon} alt="" width={16} height={16} /> : null}
+                  <strong className="text-[11px]">{typeLabels[normalizedType.toUpperCase()] || normalizedType}</strong>
+                  <span className="font-mono text-[10px] font-black" aria-label={`multiplicateur ${group.multiplier.toLocaleString("fr-FR")}`}>×{group.multiplier.toLocaleString("fr-FR")}</span>
+                </span>
+              );
+            })}
+          </span>
+        </span>
+      ))}
     </span>
   );
 }
@@ -203,8 +207,6 @@ function PokemonCard({ pokemon, onOpenPokemon, compact = false }) {
   const name = pokemonName(pokemon);
   const canOpen = Boolean(onOpenPokemon && !pokemon.unmatched);
   const sourceName = pokemon.sourceName && pokemon.sourceName !== name ? pokemon.sourceName : null;
-  const doubleWeaknesses = values(pokemon.weaknesses?.double);
-  const singleWeaknesses = values(pokemon.weaknesses?.single);
 
   return (
     <button
@@ -232,9 +234,8 @@ function PokemonCard({ pokemon, onOpenPokemon, compact = false }) {
         <span className="flex flex-wrap items-center gap-1.5 text-[10px] font-black text-muted">
           {pokemon.form ? <span className="rounded-full border border-cyan-200/20 bg-cyan-400/10 px-2 py-1 text-cyan-50">{pokemon.form}</span> : null}
           {pokemon.assets?.sourceImage ? <span className="rounded-full border border-emerald-200/20 bg-emerald-400/10 px-2 py-1 text-emerald-50">Asset source</span> : null}
-          {doubleWeaknesses.length ? <span>Double faiblesse : {doubleWeaknesses.join(" · ")}</span> : null}
-          {singleWeaknesses.length ? <span>Faiblesses : {singleWeaknesses.join(" · ")}</span> : null}
         </span>
+        <Weaknesses weaknesses={pokemon.weaknesses} />
       </span>
     </button>
   );

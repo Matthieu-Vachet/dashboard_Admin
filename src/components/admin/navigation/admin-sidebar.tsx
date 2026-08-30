@@ -98,10 +98,10 @@ export function AdminSidebar({
           {!collapsed ? (
             <span className="min-w-0 leading-tight">
               <span className="block max-w-[8.1rem] text-[0.8rem] font-black leading-tight 2xl:max-w-none 2xl:text-sm">
-                MatWeb Innovation
+                Dashboard Pokémon GO
               </span>
               <span className="block truncate text-[0.68rem] font-bold text-muted 2xl:text-xs">
-                Dashboard Admin
+                Data & supervision
               </span>
             </span>
           ) : null}
@@ -241,6 +241,7 @@ function AdminSidebarLink({
       href={item.href}
       onClick={onNavigate}
       title={collapsed ? item.label : undefined}
+      aria-label={collapsed ? item.label : undefined}
       aria-current={active ? "page" : undefined}
       className={cn(
         "dashboard-sidebar-link group relative flex min-h-10 items-center gap-2.5 overflow-hidden rounded-lg border px-3 text-sm font-black transition",

@@ -4,6 +4,56 @@ function finiteNumberOrNull(value) {
   return Number.isFinite(numeric) ? numeric : null;
 }
 
+function moveIds(values) {
+  return [...new Set((Array.isArray(values) ? values : [])
+    .map((value) => typeof value === "string" ? value : value?.id)
+    .filter(Boolean)
+    .map(String))];
+}
+
+function restrictedMovePools(local) {
+  const source = local?.sourceData || local || {};
+  const details = local?.moveDetails || {};
+  return {
+    elite: {
+      fast: moveIds(source.eliteQuickMoves ?? local?.eliteQuickMoves ?? details.eliteQuickMoves),
+      charged: moveIds(source.eliteCinematicMoves ?? local?.eliteCinematicMoves ?? details.eliteCinematicMoves),
+    },
+    historical: {
+      fast: moveIds(source.legacyQuickMoves ?? local?.legacyQuickMoves ?? details.legacyQuickMoves),
+      charged: moveIds(source.legacyCinematicMoves ?? local?.legacyCinematicMoves ?? details.legacyCinematicMoves),
+    },
+    provenance: {
+      elite: "pokemon.sourceData.eliteQuickMoves|eliteCinematicMoves",
+      historical: "pokemon.sourceData.legacyQuickMoves|legacyCinematicMoves",
+    },
+  };
+}
+
+export function pvpMoveRestriction(entry, move, fastMove) {
+  const moveId = typeof move === "string" ? move : move?.id;
+  if (!moveId) return null;
+  const category = fastMove ? "fast" : "charged";
+  const pools = entry?.pvp?.restrictedMoves || {};
+  if (pools.historical?.[category]?.includes(moveId)) {
+    return {
+      kind: "historical",
+      label: "Retirée",
+      description: "Attaque historique retirée du movepool de ce Pokémon et non indiquée comme disponible via une CT d’élite.",
+      source: pools.provenance?.historical || null,
+    };
+  }
+  if (pools.elite?.[category]?.includes(moveId)) {
+    return {
+      kind: "elite",
+      label: "Héritage",
+      description: "Attaque disponible historiquement et nécessitant généralement une CT d’élite ou un événement spécifique.",
+      source: pools.provenance?.elite || null,
+    };
+  }
+  return null;
+}
+
 export function findLocalPokemonForRanking(entry, localEntries = []) {
   const references = new Set([
     entry?.pokemonRef,
@@ -33,6 +83,7 @@ export function enrichPvpRankingWithLocalData(entry, localEntries = []) {
     },
     pvp: {
       ...(entry.pvp || {}),
+      restrictedMoves: restrictedMovePools(local),
       buddyDistanceKm: sourceBuddyDistance == null
         ? entry.pvp?.buddyDistanceKm ?? null
         : finiteNumberOrNull(sourceBuddyDistance),

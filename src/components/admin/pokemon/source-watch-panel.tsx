@@ -21,12 +21,21 @@ import {
 type SourceItem = {
   id?: string;
   name?: string;
+  provider?: string | null;
   repo?: string;
   url?: string;
   remoteUrl?: string;
+  checkedUrl?: string | null;
   status?: string;
+  httpStatus?: number | null;
+  metadataHttpStatus?: number | null;
   signature?: string;
   version?: string;
+  commit?: string | null;
+  contentHash?: string | null;
+  snapshotCommit?: string | null;
+  snapshotHash?: string | null;
+  checkedAt?: string | null;
   updatedAt?: string | null;
   message?: string | null;
   description?: string;
@@ -510,7 +519,7 @@ export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
         <div className="space-y-4">
           {groupedSources.map((group) => <section className="min-w-0 overflow-hidden rounded-3xl border border-line bg-surface-inset-subtle" key={group.id} aria-labelledby={`source-group-${group.id}`}>
             <header className="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-surface-control px-4 py-3"><div><h3 id={`source-group-${group.id}`} className="font-black text-domain-foreground">{group.label}</h3><p className="type-caption-strong text-muted">{group.sources.length} source(s) affichée(s)</p></div><span className="rounded-full border border-line bg-surface-subtle px-3 py-1 font-mono text-sm font-black text-domain-foreground">{group.sources.length}</span></header>
-            <div className="hidden border-b border-line bg-surface-faint px-4 py-2 type-overline-compact text-muted lg:grid lg:grid-cols-[minmax(14rem,1.45fr)_9rem_minmax(14rem,1.15fr)_11rem_minmax(10rem,.8fr)_3rem] lg:gap-3"><span>Source</span><span>Catégorie</span><span>État et cause</span><span>Dernière donnée</span><span>Empreinte</span><span className="sr-only">Lien</span></div>
+            <div className="hidden border-b border-line bg-surface-faint px-4 py-2 type-overline-compact text-muted lg:grid lg:grid-cols-[minmax(13rem,1.1fr)_minmax(16rem,1.35fr)_minmax(11rem,.9fr)_11rem_minmax(12rem,1fr)_3rem] lg:gap-3"><span>Source et provider</span><span>URL contrôlée</span><span>État et HTTP</span><span>Dernière vérification</span><span>Commit et hash</span><span className="sr-only">Lien</span></div>
           {group.sources.map((source) => {
             const statusKind = sourceStatusKind(source.status);
             const tone = sourceTone(statusKind);
@@ -525,14 +534,24 @@ export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
               >
                 <div className="min-w-0">
                   <strong className="block break-words font-black text-domain-foreground">{sourceName}</strong>
-                  <small className="mt-1 block break-words type-caption-strong text-muted">{source.description || source.url || "Description indisponible"}</small>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <span className="inline-flex w-fit rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2.5 py-1 type-overline-compact text-cyan-800 dark:text-cyan-100">
+                      Provider : {source.provider || source.repo || "source publique"}
+                    </span>
+                    <span className="inline-flex w-fit rounded-full border border-line bg-surface-subtle px-2.5 py-1 type-overline-compact text-foreground-secondary">
+                      {issueLabel(source.category)}
+                    </span>
+                  </div>
+                  <small className="mt-2 block break-words type-caption-strong text-muted">{source.description || "Description indisponible"}</small>
                 </div>
-                <span className="inline-flex w-fit self-start rounded-full border border-line bg-surface-subtle px-2.5 py-1 type-overline text-foreground-secondary lg:self-auto">
-                  {issueLabel(source.category)}
-                </span>
-                <div className="min-w-0"><span className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black ${tone.badge}`}><StatusIcon aria-hidden="true" size={14} />{sourceStatusLabel(source.status)}</span>{source.changedSinceLastCheck ? <span className="ml-2 inline-flex rounded-full border border-sky-300/30 bg-sky-400/10 px-2.5 py-1 type-label text-sky-900 dark:text-sky-100">Modifiée</span> : null}<p className="mt-2 break-words text-sm font-medium text-foreground-secondary">{sourceCause(source)}</p></div>
-                <div className="min-w-0 text-sm"><span className="type-overline-compact text-muted lg:hidden">Dernière donnée</span><time className="mt-1 block break-words font-bold text-domain-foreground" dateTime={source.updatedAt || undefined}>{source.updatedAt ? formatSourceDate(source.updatedAt) : "Non communiquée"}</time></div>
-                <div className="min-w-0"><span className="type-overline-compact text-muted lg:hidden">Empreinte</span>{signature ? <div className="mt-1 flex min-w-0 items-center gap-2"><code className="min-w-0 flex-1 truncate rounded-lg border border-line bg-surface-inset px-2 py-1.5 text-xs text-domain-foreground" title={signature}>{signature}</code><button className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-line bg-surface-control text-foreground-secondary transition hover:text-domain-foreground" type="button" onClick={() => void copySourceSignature(source)} aria-label={`Copier l’empreinte de ${sourceName}`} title="Copier l’empreinte"><Copy aria-hidden="true" size={14} /></button></div> : <span className="mt-1 block text-sm font-semibold text-muted">Aucune empreinte</span>}</div>
+                <div className="min-w-0">
+                  <span className="type-overline-compact text-muted lg:hidden">URL contrôlée</span>
+                  <a className="mt-1 block break-all text-sm font-bold text-cyan-800 hover:text-cyan-600 dark:text-cyan-100 dark:hover:text-cyan-50" href={source.checkedUrl || source.url} rel="noreferrer" target="_blank">{source.checkedUrl || source.url || "URL inconnue"}</a>
+                  {source.metadataHttpStatus ? <span className="mt-2 block type-caption-strong text-muted">Métadonnées GitHub : HTTP {source.metadataHttpStatus}</span> : null}
+                </div>
+                <div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><span className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black ${tone.badge}`}><StatusIcon aria-hidden="true" size={14} />{sourceStatusLabel(source.status)}</span>{source.httpStatus ? <span className="inline-flex rounded-full border border-line bg-surface-control px-2.5 py-1 font-mono text-xs font-black text-domain-foreground">HTTP {source.httpStatus}</span> : null}{source.changedSinceLastCheck ? <span className="inline-flex rounded-full border border-sky-300/30 bg-sky-400/10 px-2.5 py-1 type-label text-sky-900 dark:text-sky-100">Modifiée</span> : null}</div><p className="mt-2 break-words text-sm font-medium text-foreground-secondary">{sourceCause(source)}</p></div>
+                <div className="min-w-0 text-sm"><span className="type-overline-compact text-muted lg:hidden">Dernière vérification</span><time className="mt-1 block break-words font-bold text-domain-foreground" dateTime={source.checkedAt || sourceWatch?.checkedAt || undefined}>{formatSourceDate(source.checkedAt || sourceWatch?.checkedAt)}</time>{source.updatedAt ? <span className="mt-2 block type-caption-strong text-muted">Commit publié : {formatSourceDate(source.updatedAt)}</span> : null}</div>
+                <div className="min-w-0"><span className="type-overline-compact text-muted lg:hidden">Commit et hash</span>{source.commit ? <p className="mt-1 type-caption-strong text-muted">Commit <code className="font-mono text-domain-foreground" title={source.commit}>{source.commit.slice(0, 12)}</code></p> : null}{source.contentHash ? <p className="mt-1 type-caption-strong text-muted">Hash <code className="font-mono text-domain-foreground" title={source.contentHash}>{source.contentHash.slice(0, 12)}</code></p> : null}{source.snapshotCommit ? <p className="mt-2 type-caption-strong text-muted">Snapshot local <code className="font-mono text-domain-foreground" title={source.snapshotCommit}>{source.snapshotCommit.slice(0, 12)}</code>{source.snapshotHash ? <> · <code className="font-mono text-domain-foreground" title={source.snapshotHash}>{source.snapshotHash.slice(0, 12)}</code></> : null}</p> : null}{signature ? <button className="mt-2 inline-flex h-9 items-center gap-2 rounded-lg border border-line bg-surface-control px-3 type-control-strong text-foreground-secondary transition hover:text-domain-foreground" type="button" onClick={() => void copySourceSignature(source)} aria-label={`Copier l’empreinte de ${sourceName}`} title={signature}><Copy aria-hidden="true" size={14} />Copier l’empreinte</button> : <span className="mt-1 block text-sm font-semibold text-muted">Aucune empreinte</span>}</div>
                 <a className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-line bg-surface-control text-cyan-800 transition hover:bg-surface-emphasis dark:text-cyan-100 lg:w-11" href={source.remoteUrl || source.url} rel="noreferrer" target="_blank" aria-label={`Ouvrir ${sourceName} dans un nouvel onglet`} title="Ouvrir la source"><span className="font-bold lg:sr-only">Ouvrir la source</span><ExternalLink aria-hidden="true" size={16} /></a>
               </article>
             );

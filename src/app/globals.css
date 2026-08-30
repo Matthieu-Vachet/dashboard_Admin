@@ -162,6 +162,12 @@
   outline-offset: -2px;
 }
 
+.pvp-legacy-move {
+  outline: 1px solid color-mix(in oklab, var(--warning) 78%, transparent);
+  outline-offset: -1px;
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--warning) 28%, transparent), 0 0 20px color-mix(in oklab, var(--warning) 34%, transparent), inset 0 0 24px color-mix(in oklab, var(--warning) 9%, transparent);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

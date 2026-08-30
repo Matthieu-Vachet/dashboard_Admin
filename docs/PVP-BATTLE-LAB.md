@@ -116,7 +116,7 @@ Le catalogue est mémorisé dans le processus serveur. Multi accepte jusqu’à 
 - `npm run test:pvp-engine` vérifie les constantes, Rank 1, dégâts, stages, déterminisme, Shield Matrix, buffs et formes.
 - `npm run test:pvp-parity` compare les 20 fixtures officielles et exécute la campagne d’invariants de 720 scénarios.
 - `npm run test:pvp-dedicated` vérifie la résolution de `pvpRef`, la préférence du moveset dédié et la présence du checkout `runtime-data` dans le resolver serveur.
-- `npm run test:pvp-architecture` valide les 1 614 fiches, le manifeste, le commit PvPoke, les mappings et les statuts de ligue.
+- `npm run test:pvp-architecture` valide toutes les fiches référencées par le manifeste courant, le commit PvPoke, les mappings et les statuts de ligue, sans dépendre d’un total figé.
 - `node scripts/capture-pvpoke-parity.mjs` recapture manuellement les références publiques ; cette commande nécessite un accès réseau et Playwright.
 - Toute nouvelle mécanique de forme doit être ajoutée au registre central et accompagnée d’un test ciblé.
 - Une modification de `combat.*`, des types ou du calendrier GBL dans `PokemonGo-Data` est reprise au prochain `prebuild` et apparaît dans `versions.data`.

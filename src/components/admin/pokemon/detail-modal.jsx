@@ -12,7 +12,10 @@ import {
   typeName,
 } from "@/components/site/pokemon-style";
 import { pokemonVariantBadges } from "@/lib/pokemon-variant-resolver";
-import { assemblePokemonDetail } from "@/lib/pokemon-detail-data.mjs";
+import {
+  assemblePokemonDetail,
+  resolveMegaEvolutionTargets,
+} from "@/lib/pokemon-detail-data.mjs";
 import { resolvePokemonShinyReleases } from "@/lib/pokemon-shiny-release.mjs";
 import { uiAssets } from "@/components/site/ui-assets";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -856,72 +859,145 @@ function getLocalizedEntityLabel(value, language = "French") {
 
 function EvolutionPanel({
   evolutions = [],
+  megaEvolutions = [],
   allEntries = [],
   onOpenRelated,
   candyIcon,
 }) {
+  const megaTargets = resolveMegaEvolutionTargets(megaEvolutions, allEntries);
+  const hasEvolution = evolutions.length > 0 || megaTargets.length > 0;
   return (
     <Section title="Évolutions" icon={uiAssets.icons.megaEnergy} tone="emerald">
-      {evolutions.length ? (
-        <div className="grid gap-3 md:grid-cols-2">
-          {evolutions.map((evolution, index) => {
-            const target = findEntryByFormId(
-              allEntries,
-              evolution.targetFormId,
-            );
-            const itemLabel =
-              getLocalizedEntityLabel(evolution.item) ||
-              getLocalizedEntityLabel(evolution.evolutionItem);
-            const suffix = [
-              evolution.candies !== undefined
-                ? `${evolution.candies} bonbons`
-                : null,
-              itemLabel ? `Item: ${itemLabel}` : null,
-              (evolution.quests || []).length
-                ? `${evolution.quests.length} quête(s)`
-                : null,
-            ]
-              .filter(Boolean)
-              .join(" · ");
-            return (
-              <div
-                className="space-y-2"
-                key={`${evolution.targetFormId || index}-${index}`}
-              >
-                <PokemonMiniCard
-                  item={
-                    target || {
-                      name: evolution.targetFormId,
-                      formId: evolution.targetFormId,
-                    }
-                  }
-                  onClick={target ? onOpenRelated : null}
-                  suffix={suffix || "Coût non renseigné"}
-                />
-                <div className="flex flex-wrap gap-2">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface-inset-strong px-3 py-1 type-label text-domain-foreground">
-                    {candyIcon ? (
-                      <img
-                        className="h-4 w-4 object-contain"
-                        src={candyIcon}
-                        alt=""
+      {hasEvolution ? (
+        <div className="space-y-5">
+          {evolutions.length ? (
+            <div className="space-y-3">
+              {megaTargets.length ? (
+                <p className="type-overline text-emerald-100/75">
+                  Évolutions classiques
+                </p>
+              ) : null}
+              <div className="grid gap-3 md:grid-cols-2">
+                {evolutions.map((evolution, index) => {
+                  const target = findEntryByFormId(
+                    allEntries,
+                    evolution.targetFormId,
+                  );
+                  const itemLabel =
+                    getLocalizedEntityLabel(evolution.item) ||
+                    getLocalizedEntityLabel(evolution.evolutionItem);
+                  const suffix = [
+                    evolution.candies !== undefined
+                      ? `${evolution.candies} bonbons`
+                      : null,
+                    itemLabel ? `Item: ${itemLabel}` : null,
+                    (evolution.quests || []).length
+                      ? `${evolution.quests.length} quête(s)`
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ");
+                  return (
+                    <div
+                      className="space-y-2"
+                      key={`${evolution.targetFormId || index}-${index}`}
+                    >
+                      <PokemonMiniCard
+                        item={
+                          target || {
+                            name: evolution.targetFormId,
+                            formId: evolution.targetFormId,
+                          }
+                        }
+                        onClick={target ? onOpenRelated : null}
+                        suffix={suffix || "Coût non renseigné"}
                       />
-                    ) : null}
-                    {valueOrDash(evolution.candies)} bonbons
-                  </span>
-                  {itemLabel ? (
-                    <span className="rounded-full border border-line bg-surface-inset-strong px-3 py-1 type-label text-domain-foreground">
-                      {itemLabel}
-                    </span>
-                  ) : null}
-                </div>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface-inset-strong px-3 py-1 type-label text-domain-foreground">
+                          {candyIcon ? (
+                            <img
+                              className="h-4 w-4 object-contain"
+                              src={candyIcon}
+                              alt=""
+                            />
+                          ) : null}
+                          {valueOrDash(evolution.candies)} bonbons
+                        </span>
+                        {itemLabel ? (
+                          <span className="rounded-full border border-line bg-surface-inset-strong px-3 py-1 type-label text-domain-foreground">
+                            {itemLabel}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
+            </div>
+          ) : null}
+
+          {megaTargets.length ? (
+            <div className="space-y-3">
+              <p className="type-overline text-violet-100/80">
+                Méga-évolutions
+              </p>
+              <div className="grid gap-3 md:grid-cols-2">
+                {megaTargets.map(
+                  ({ formId, target, initialEnergyCost, released }) => (
+                    <article
+                      className="space-y-2 rounded-2xl border border-violet-300/20 bg-violet-400/[0.08] p-3"
+                      key={formId}
+                    >
+                      <PokemonMiniCard
+                        item={
+                          target || {
+                            name: formId,
+                            formId,
+                            form: "mega",
+                          }
+                        }
+                        onClick={target ? onOpenRelated : null}
+                        suffix={formatForm(target?.form || "mega")}
+                      />
+                      <div className="flex flex-wrap gap-2">
+                        <span className="inline-flex items-center gap-2 rounded-full border border-violet-300/25 bg-violet-400/10 px-3 py-1 type-label text-violet-50">
+                          <img
+                            className="h-4 w-4 object-contain"
+                            src={uiAssets.icons.megaEnergy}
+                            alt=""
+                          />
+                          Coût initial : {valueOrDash(initialEnergyCost)}
+                        </span>
+                        <span
+                          className={`rounded-full border px-3 py-1 type-label ${
+                            released === true
+                              ? "border-emerald-300/30 bg-emerald-400/12 text-emerald-100"
+                              : released === false
+                                ? "border-amber-300/30 bg-amber-400/12 text-amber-100"
+                                : "border-line bg-surface-inset text-muted"
+                          }`}
+                        >
+                          {released === true
+                            ? "Disponible"
+                            : released === false
+                              ? "Non disponible"
+                              : "Statut non renseigné"}
+                        </span>
+                      </div>
+                    </article>
+                  ),
+                )}
+              </div>
+              <p className="type-caption-strong leading-5 text-muted">
+                Aucun coût suivant, niveau Méga ou cooldown n’est publié dans
+                les fiches canoniques actuelles.
+              </p>
+            </div>
+          ) : null}
         </div>
       ) : (
         <EmptyInline>
-          Aucune évolution sortante renseignée pour cette forme.
+          Aucune évolution classique ou Méga renseignée pour cette forme.
         </EmptyInline>
       )}
     </Section>
@@ -1406,11 +1482,162 @@ function PvpPanel({ pvp, moveDetails }) {
   );
 }
 
-function JsonBlock({ payload }) {
+const jsonTokenPattern = /("(?:\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"(?:\s*:)?|\btrue\b|\bfalse\b|\bnull\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g;
+
+function jsonTokenClass(token) {
+  if (token.startsWith('"')) {
+    return token.trimEnd().endsWith(":")
+      ? "text-violet-300"
+      : "text-emerald-300";
+  }
+  if (token === "true" || token === "false") return "text-amber-300";
+  if (token === "null") return "text-rose-300";
+  return "text-cyan-300";
+}
+
+function JsonBlock({ payload, label = "Contenu JSON" }) {
+  const source = JSON.stringify(payload, null, 2);
   return (
-    <pre className="max-h-[62dvh] overflow-auto rounded-3xl border border-cyan-300/15 bg-slate-950 p-4 text-xs leading-6 text-cyan-50 shadow-inner sm:text-sm">
-      {JSON.stringify(payload, null, 2)}
+    <pre
+      aria-label={label}
+      className="max-h-[62dvh] overflow-auto rounded-3xl border border-cyan-300/15 bg-slate-950 p-4 text-xs leading-6 text-foreground-secondary shadow-inner focus:outline-none focus:ring-2 focus:ring-cyan-300/70 sm:text-sm"
+      role="region"
+      tabIndex={0}
+    >
+      {source.split(jsonTokenPattern).map((token, index) =>
+        index % 2 === 1 ? (
+          <span className={jsonTokenClass(token)} key={`${index}-${token}`}>
+            {token}
+          </span>
+        ) : (
+          token
+        ),
+      )}
     </pre>
+  );
+}
+
+async function copyText(text) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  textarea.remove();
+}
+
+function CanonicalJsonViewer({ records = [] }) {
+  const [activeId, setActiveId] = useState(records[0]?.id || "");
+  const [feedback, setFeedback] = useState("");
+  const activeRecord =
+    records.find((record) => record.id === activeId) || records[0] || null;
+
+  useEffect(() => {
+    if (!records.some((record) => record.id === activeId)) {
+      setActiveId(records[0]?.id || "");
+    }
+    setFeedback("");
+  }, [activeId, records]);
+
+  if (!activeRecord) {
+    return <EmptyInline>Aucun fichier JSON canonique trouvé.</EmptyInline>;
+  }
+
+  const jsonSource = JSON.stringify(activeRecord.data, null, 2);
+  const performCopy = async (value, successMessage) => {
+    try {
+      await copyText(value);
+      setFeedback(successMessage);
+    } catch {
+      setFeedback("Copie impossible dans ce navigateur.");
+    }
+  };
+  const download = () => {
+    const blob = new Blob([`${jsonSource}\n`], {
+      type: "application/json;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = activeRecord.path.split("/").at(-1) || "pokemon.json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setFeedback("Téléchargement préparé.");
+  };
+
+  return (
+    <div className="space-y-4">
+      <div
+        aria-label="Fichiers JSON canoniques"
+        className="flex gap-2 overflow-x-auto pb-1"
+        role="tablist"
+      >
+        {records.map((record) => {
+          const selected = record.id === activeRecord.id;
+          return (
+            <button
+              aria-selected={selected}
+              className={`min-h-11 shrink-0 rounded-2xl border px-4 py-2 text-sm font-black transition ${
+                selected
+                  ? "border-cyan-200/45 bg-cyan-400/20 text-cyan-50"
+                  : "border-line bg-surface-inset text-muted hover:border-cyan-200/35 hover:text-domain-foreground"
+              }`}
+              key={record.id}
+              role="tab"
+              type="button"
+              onClick={() => setActiveId(record.id)}
+            >
+              {record.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface-inset p-3 sm:flex-row sm:items-center sm:justify-between">
+        <code className="min-w-0 break-all type-caption-strong text-cyan-100 sm:type-body-strong">
+          {activeRecord.path}
+        </code>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <button
+            className="rounded-xl border border-line bg-surface-emphasis px-3 py-2 type-control-strong text-domain-foreground transition hover:border-cyan-200/45 hover:bg-cyan-400/15"
+            type="button"
+            onClick={() => performCopy(jsonSource, "JSON copié.")}
+          >
+            Copier le JSON
+          </button>
+          <button
+            className="rounded-xl border border-line bg-surface-emphasis px-3 py-2 type-control-strong text-domain-foreground transition hover:border-cyan-200/45 hover:bg-cyan-400/15"
+            type="button"
+            onClick={() => performCopy(activeRecord.path, "Chemin copié.")}
+          >
+            Copier le chemin
+          </button>
+          <button
+            className="rounded-xl border border-cyan-200/35 bg-cyan-400/15 px-3 py-2 type-control-strong text-cyan-50 transition hover:bg-cyan-400/25"
+            type="button"
+            onClick={download}
+          >
+            Télécharger
+          </button>
+        </div>
+      </div>
+
+      <p aria-live="polite" className="min-h-5 type-caption-strong text-muted">
+        {feedback}
+      </p>
+      <JsonBlock
+        label={`Contenu JSON ${activeRecord.label}`}
+        payload={activeRecord.data}
+      />
+    </div>
   );
 }
 
@@ -1886,6 +2113,7 @@ export function DetailModal({
                 />
                 <EvolutionPanel
                   evolutions={payload.evolutions || []}
+                  megaEvolutions={payload.megaEvolutions || []}
                   allEntries={allEntries}
                   onOpenRelated={onOpenRelated}
                   candyIcon={candyIcon}
@@ -2131,33 +2359,16 @@ export function DetailModal({
             ) : null}
             {activeTab === "checks" ? <IssuesPanel entry={entry} /> : null}
             {activeTab === "json" ? (
-              <div className="space-y-4">
-                <Section
-                  title="JSON principal"
-                  icon={uiAssets.icons.copy}
-                  tone="cyan"
-                  plain
-                >
-                  <JsonBlock payload={payload.sourceData || payload} />
-                </Section>
-                <Section
-                  title="JSON assets"
-                  icon={uiAssets.icons.result}
-                  tone="cyan"
-                  plain
-                >
-                  {payload.assetSourceData ? (
-                    <JsonBlock payload={payload.assetSourceData} />
-                  ) : (
-                    <EmptyInline>
-                      Aucun fichier asset séparé lié à cette fiche
-                      {payload.assetSourceFile
-                        ? ` (${payload.assetSourceFile}).`
-                        : "."}
-                    </EmptyInline>
-                  )}
-                </Section>
-              </div>
+              <Section
+                title="Fichiers JSON canoniques"
+                icon={uiAssets.icons.copy}
+                tone="cyan"
+                plain
+              >
+                <CanonicalJsonViewer
+                  records={payload.canonicalJsonRecords || []}
+                />
+              </Section>
             ) : null}
           </div>
         </div>

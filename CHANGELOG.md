@@ -2,6 +2,117 @@
 
 ## Unreleased
 
+## 1.53.0 - 2026-08-30
+
+### Added
+
+- Ajoute le JSON Builder sous Données Pokémon : wizard en dix étapes, champs génériques issus des templates, brouillons, preview exacte, copie JSON, diff et historique.
+- Ajoute une route admin spécialisée avec contrat distant `develop`, états inconnue/non publiée, PvP status-only, collisions Identity, empreinte signée et expiration du dry-run.
+- Ajoute 22 tests couvrant forme normale, régionale, spéciale, Méga, Primo, Dynamax, Gigamax, futur, Assets, manifests, inventaire Identity, chemins, overwrite, état périmé, transaction et rollback.
+
+### Changed
+
+- Étend le packaging du Dashboard aux templates, schémas et générateur d’inventaire Identity canoniques requis par le JSON Builder, sans créer de schéma parallèle.
+- Passe le Dashboard à `1.53.0`; PokémonGo-Data et PokémonGo-API restent inchangés.
+
+### Fixed
+
+- Préserve l’ordre récursif des clés des templates et les octets hors tableau lors du patch parent, sans reformater, réordonner ou toucher les JSON non concernés.
+- Refuse toute écriture hors du dépôt, tout lien symbolique sortant, toute branche autre que `develop` et toute base modifiée depuis le dry-run.
+
+## 1.52.0 - 2026-08-29
+
+### Added
+
+- Ajoute la caractéristique indépendante « Sexe » aux formulaires Collections desktop/mobile et étend l’Engine à 64 contrats testés.
+
+### Changed
+
+- Porte la persistance Collections au schéma 3 : Multi-variante ne sélectionne plus les femelles, tandis que `includeGenderVariants` utilise les assets GO ou HOME explicitement féminins.
+
+### Fixed
+
+- Préserve les sélections HAVE/NEED v1/v2 pendant la migration, y compris les anciennes clés mâles/femelles, et interdit tout fallback mâle pour une femelle chromatique.
+
+## 1.51.1 - 2026-08-28
+
+### Changed
+
+- Aligne les derniers panneaux de polish sur les primitives sémantiques du design system et conserve les cartes de Collections au-dessus de la ligne de flottaison sur les écrans compacts.
+
+### Fixed
+
+- Réactualise l’attendu des URLs d’assets canoniques après la réparation du manifest PokemonGo-Data, sans relâcher la vérification d’unicité.
+- Corrige les trois écarts de sémantique visuelle détectés par la validation globale et le débordement vertical résiduel de Collections sur iPhone SE.
+
+## 1.51.0 - 2026-08-27
+
+### Added
+
+- Affiche séparément tous les fichiers JSON canoniques d’une fiche Pokémon, les Méga-évolutions dans la vue Évolution et une pagination de neuf familles dans Candies.
+- Expose un rapport générique et actionnable des entrées non matchées, y compris les occurrences Shiny, ainsi que les diagnostics structurés des résultats PvP partiels.
+- Ajoute les assets de types et multiplicateurs Pokémon GO aux faiblesses Rocket, les coéquipiers PvP déterministes et les preuves live/snapshot des sources PvPoke.
+
+### Changed
+
+- Aligne les icônes, routes, groupes desktop/mobile et le fil d’Ariane; Shiny Tracker appartient désormais à Données Pokémon.
+- Compacte les contrôles des 17 régénérations, intègre le sélecteur Collections dans l’en-tête et équilibre la carte d’attention de l’accueil de 320 à 1 920 px.
+- Classe les attaques PvP restreintes par couple Pokémon/attaque avec les libellés Héritage et Retirée, sans statut global ambigu.
+- Aligne l’Identity Manager sur l’inventaire local, la prévisualisation MongoDB, la conservation des alias et des diagnostics complets.
+
+### Fixed
+
+- Corrige le comptage du filtre Costumes / événements, les objets bruts dans les coéquipiers PvP, les faux HTTP 403 de la veille PvPoke et la perte des doublons légitimes dans les diagnostics Shiny.
+
+## 1.50.0 - 2026-08-22
+
+### Changed
+
+- Pointe Best Defenders vers la page anglaise SSR de Pokémon GO Hub et le provider central `pokemon-go-hub-best-defenders`.
+- Étend l'état de provenance aux statuts `SOURCE_UNAVAILABLE`, `SOURCE_SCHEMA_CHANGED` et `VALIDATION_FAILED`.
+- Passe la version Dashboard à `1.50.0` sans modifier les contrats de page, d'API, de cartes ou de filtres.
+
+### Fixed
+
+- Conserve explicitement le dernier snapshot MongoDB valide quand une capture fournisseur échoue aux contrôles de disponibilité, de schéma ou de qualité.
+
+## 1.49.1 - 2026-08-22
+
+### Added
+
+- Ajoute une non-régression interdisant les hostnames Vercel immuables dans le runtime Pokémon et l'exemple d'environnement.
+
+### Changed
+
+- Unifie les lectures et régénérations locales ou Preview sur `POKEMON_API_PUBLIC_URL`, avec le domaine stable de l'API comme fallback.
+
+### Fixed
+
+- Retire l'ancien deployment `pokemon-go-7r5q2j05a…`, désormais en HTTP 410, qui provoquait « The deployment has been removed » avec `npm run dev`.
+
+## 1.49.0 - 2026-08-22
+
+### Added
+
+- Ajoute des routes Pokémon plates et documentées pour toutes les sections historiques : données, combat, événements, qualité, supervision et maintenance.
+- Ajoute une matrice de séparation, des tests de frontière produit et une redirection permanente depuis `/pokemon-admin?section=...`.
+
+### Changed
+
+- Recentre le Dashboard exclusivement sur Pokémon GO et transforme l’ancien accueil Admin Pokémon en route principale `/`.
+- Remonte toutes les sections Pokémon dans la sidebar principale, avec les icônes historiques, le drawer mobile et les états actifs conservés.
+- Passe la version produit à `1.49.0` : évolution mineure car les contrats Data/API et les actions publiques restent compatibles.
+
+### Fixed
+
+- Préserve la recherche globale lors des changements de route et des redirections depuis les anciennes URLs Admin Pokémon.
+- Conserve sans modification les collections Mongo Pokémon, le Generator Registry, les resolvers et le packaging Vercel des régénérations.
+
+### Removed
+
+- Retire du repository Pokémon les pages, composants, hooks et API JavaScript/organisation désormais autonomes dans `dashboard-javascript`.
+- Supprime le wrapper et la navigation interne « Admin Pokémon » devenus redondants.
+
 ## 1.48.0 - 2026-08-22
 
 ### Added

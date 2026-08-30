@@ -7,6 +7,81 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.53.0",
+    date: "2026-08-30",
+    title: "JSON Builder canonique et transactionnel",
+    changes: [
+      "Ajoute un assistant en dix étapes qui consomme directement les templates et schémas de PokémonGo-Data develop.",
+      "Produit les fiches Pokémon, Assets et PvP status-only avec ordre récursif des clés, manifests et inventaire Identity synchronisés.",
+      "Signe chaque dry-run, bloque les collisions et les aperçus périmés, puis protège l’écriture par backup et rollback transactionnel.",
+      "Conserve les JSON existants hors patch parent à l’octet près et limite les commits au checkout Data local sur develop.",
+    ],
+  },
+  {
+    version: "V1.52.0",
+    date: "2026-08-29",
+    title: "Collections : Sexe indépendant",
+    changes: [
+      "Sépare Multi-variante des différences visuelles mâle/femelle dans tous les catalogues, y compris Event.",
+      "Ajoute l’option Sexe à la création et aux filtres desktop/mobile, avec asset femelle exact en standard comme en shiny.",
+      "Migre les collections vers le schéma 3 sans perdre les sélections HAVE/NEED ni les clés historiques conservées.",
+      "Étend l’Engine à 64 contrats et couvre Rattata, Pikachu HOME, costumes, formes, régions et persistance Mongo/localStorage.",
+    ],
+  },
+  {
+    version: "V1.51.1",
+    date: "2026-08-28",
+    title: "Validation globale et écrans compacts",
+    changes: [
+      "Aligne les derniers panneaux de polish sur les primitives sémantiques du design system.",
+      "Conserve les premières cartes de Collections visibles sur les petits écrans, y compris l’iPhone SE.",
+      "Réaligne le contrôle d’unicité des assets sur le manifest canonique PokemonGo-Data réparé.",
+      "Confirme les parcours Preview réels en thèmes sombre et clair, sur desktop et mobile.",
+    ],
+  },
+  {
+    version: "V1.51.0",
+    date: "2026-08-27",
+    title: "Polish fonctionnel du centre Pokémon",
+    changes: [
+      "Aligne navigation, fiches, JSON canoniques, évolutions Méga, Candies et Collections sur leurs contrats de données actuels.",
+      "Clarifie les résultats PvP partiels, les attaques Héritage/Retirée, les coéquipiers suggérés et les rapports non matchés actionnables.",
+      "Réaligne Identity Manager, Rocket, Shiny Tracker et Source Watch, puis valide les thèmes et le responsive de 320 à 1 920 px.",
+      "Compacte les 17 contrôles de régénération sans modifier les 15 actions incluses dans Tout régénérer.",
+    ],
+  },
+  {
+    version: "V1.50.0",
+    date: "2026-08-22",
+    title: "Best Defenders automatisable et sécurisé",
+    changes: [
+      "Bascule Best Defenders vers le provider canonique Pokémon GO Hub et sa page anglaise rendue côté serveur.",
+      "Expose les statuts d'indisponibilité, de changement de schéma et de validation sans masquer le dernier snapshot MongoDB valide.",
+      "Conserve l'UX existante, la provenance, la dernière synchronisation et le contrat des cartes, filtres et régénérations.",
+    ],
+  },
+  {
+    version: "V1.49.1",
+    date: "2026-08-22",
+    title: "Runtime Preview et développement rétabli",
+    changes: [
+      "Supprime l'ancien hostname Vercel retiré des lectures et régénérations Pokémon locales.",
+      "Centralise les appels serveur sur POKEMON_API_PUBLIC_URL avec un domaine stable par défaut.",
+      "Ajoute une non-régression interdisant les URLs immuables de deployment dans le runtime et l'exemple d'environnement.",
+    ],
+  },
+  {
+    version: "V1.49.0",
+    date: "2026-08-22",
+    title: "Dashboard Pokémon GO autonome",
+    changes: [
+      "Recentre le produit sur Pokémon GO et transforme l’ancien accueil Admin Pokémon en accueil principal.",
+      "Remonte les sections Pokémon dans la navigation globale avec des routes plates et une redirection compatible depuis /pokemon-admin.",
+      "Déplace les modules JavaScript et d’organisation dans dashboard-javascript sans toucher aux données MongoDB ni aux contrats Data/API.",
+      "Conserve le Generator Registry, l’Engine, les régénérations, le responsive et les thèmes clair/sombre.",
+    ],
+  },
+  {
     version: "V1.48.0",
     date: "2026-08-22",
     title: "Synchronisations durables et Engine canonique réparé",

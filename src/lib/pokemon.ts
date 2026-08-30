@@ -111,9 +111,10 @@ export async function fetchPokemonMetrics(): Promise<PokemonMetrics> {
   const localMetrics = readLocalPokemonMetrics();
   if (localMetrics) return localMetrics;
 
-  const endpoint =
-    process.env.POKEMON_API_URL ||
-    "https://pokemon-go-7r5q2j05a-matthieu-vachets-projects.vercel.app/api/checklist-v3";
+  const endpoint = new URL(
+    "/api/checklist-v3",
+    process.env.POKEMON_API_PUBLIC_URL || "https://pokemon-go-api.vercel.app",
+  ).toString();
 
   try {
     const url = new URL(endpoint);

@@ -1,11 +1,20 @@
 export type SourceWatchPresentationItem = {
   name?: string;
+  provider?: string | null;
   repo?: string;
   url?: string;
   remoteUrl?: string;
+  checkedUrl?: string | null;
   status?: string;
+  httpStatus?: number | null;
+  metadataHttpStatus?: number | null;
   signature?: string | null;
   version?: string | null;
+  commit?: string | null;
+  contentHash?: string | null;
+  snapshotCommit?: string | null;
+  snapshotHash?: string | null;
+  checkedAt?: string | null;
   message?: string | null;
   description?: string | null;
   category?: string;
@@ -53,15 +62,21 @@ export function sourceMatchesQuery(source: SourceWatchPresentationItem, query: s
   if (!needle) return true;
   return [
     source.name,
+    source.provider,
     source.repo,
     source.url,
     source.remoteUrl,
+    source.checkedUrl,
     source.message,
     source.description,
     source.category,
     source.type,
     source.signature,
     source.version,
+    source.commit,
+    source.contentHash,
+    source.snapshotCommit,
+    source.snapshotHash,
   ].some((value) => searchable(value).includes(needle));
 }
 

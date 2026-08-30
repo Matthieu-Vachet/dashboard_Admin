@@ -15,6 +15,36 @@ export function pokemonDetailKey(entry = {}) {
   return entry.baseKey || entry.key || "";
 }
 
+export function resolveMegaEvolutionTargets(
+  megaEvolutions = [],
+  entries = [],
+) {
+  const targets = new Map();
+  for (const entry of entries || []) {
+    for (const value of [entry?.formId, entry?.id]) {
+      if (value) targets.set(String(value).toUpperCase(), entry);
+    }
+  }
+
+  return (megaEvolutions || [])
+    .filter((formId) => typeof formId === "string" && formId.trim())
+    .map((formId) => {
+      const target = targets.get(formId.toUpperCase()) || null;
+      return {
+        formId,
+        target,
+        initialEnergyCost:
+          typeof target?.megaEnergyCost === "number"
+            ? target.megaEnergyCost
+            : null,
+        released:
+          typeof target?.availability?.released === "boolean"
+            ? target.availability.released
+            : null,
+      };
+    });
+}
+
 export function assemblePokemonDetail(entry = {}, value = {}) {
   const summary = entry && typeof entry === "object" ? entry : {};
   const remote = detailPayload(value);

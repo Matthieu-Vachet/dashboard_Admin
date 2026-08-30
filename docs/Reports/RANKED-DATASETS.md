@@ -1,6 +1,6 @@
 # Écrans Shiny Tracker, PvP Rankings et Best Attackers
 
-Les deux écrans sont des panneaux de l'Admin Pokémon et utilisent les composants partagés : `Panel`, `DatasetFilterBar` et `DatasetSourceHeader`. Ce dernier affiche la provenance, l'état, le hash, la visibilité et les diagnostics sans dupliquer cette logique dans chaque écran.
+Les deux écrans sont des panneaux de l'Admin Pokémon et utilisent les composants partagés : `Panel`, `DatasetFilterBar` et `RegenerationControl` (façade historique `DatasetSourceHeader`). Sa ligne compacte affiche la dernière synchronisation et l'état ; la provenance, le hash, la visibilité, les compteurs, warnings et diagnostics restent accessibles avec **Détails**, sans dupliquer cette logique dans chaque écran.
 
 Le navigateur ne contacte jamais Snacknap ou GitHub directement. Toutes les lectures passent par la route Admin authentifiée, puis par PokemonGo-API/MongoDB.
 
@@ -14,9 +14,13 @@ Les boutons de régénération appellent les routes Admin non documentées avec 
 
 Le polling accepte explicitement `success`, `partial`, `unchanged` et `failed` comme
 états API terminaux. `partial` affiche les données persistées, les nombres générés,
-ignorés, `MAPPING_MISSING` et `WARNING`, le rapport et l’action de relance. La validation
-du 9 août 2026 a relu 20 436 lignes, zéro mapping ou entrée non appariée et un warning
-Volcarona Bayou ; elle ne doit pas être confondue avec l’information Engine
-`SKIDDO`/`ROCK_SLIDE`.
+ignorés, `MAPPING_MISSING` et `WARNING`, le rapport et l’action de relance. Le snapshot
+du 22 août 2026 contient 20 442 lignes, zéro mapping manquant et deux messages : la
+contrainte réelle `RANK1_INELIGIBLE_AT_SOURCE_LEVEL_FLOOR` de Volcarona en Coupe Bayou,
+puis la sentinelle informative `MOVE_UNMATCHED:none` d'Unown en Ligue Super. **Détails**
+et **Voir le rapport** exposent pour chacun code, entité, raison, impact et action. Une
+sentinelle informative isolée ne dégrade plus le statut ; Volcarona suffit à maintenir
+le résultat courant en `partial`. Ces warnings ne doivent pas être confondus avec
+l’information Engine `SKIDDO`/`ROCK_SLIDE`.
 
 L'explorateur API charge OpenAPI à l'exécution et présente toutes les routes publiques sans liste manuelle. Les actions privées de régénération sont ajoutées séparément, marquées privées et exécutées uniquement par le proxy serveur.
