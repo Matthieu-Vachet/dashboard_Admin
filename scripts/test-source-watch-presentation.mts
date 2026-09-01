@@ -3,7 +3,10 @@ import test from "node:test";
 import {
   sourceCause,
   sourceMatchesQuery,
+  sourceMatchesMonitoring,
   sourceMatchesStatus,
+  sourceMonitoringKind,
+  sourceMonitoringLabel,
   sourceSignature,
   sourceStatusKind,
   sourceStatusLabel,
@@ -67,4 +70,14 @@ test("les filtres de statut regroupent les états inconnus avec les erreurs", ()
   assert.equal(sourceMatchesStatus({ status: "unsupported" }, "error"), true);
   assert.equal(sourceMatchesStatus({ status: "warning" }, "error"), false);
   assert.equal(sourceMatchesStatus({ status: "warning" }, "all"), true);
+});
+
+test("les états de veille affichent les quatre libellés fonctionnels", () => {
+  assert.equal(sourceMonitoringLabel({ monitoringState: "up-to-date" }), "À jour");
+  assert.equal(sourceMonitoringLabel({ monitoringState: "changed" }), "Changement détecté");
+  assert.equal(sourceMonitoringLabel({ monitoringState: "error" }), "Erreur");
+  assert.equal(sourceMonitoringLabel({ monitoringState: "never-checked" }), "Jamais vérifiée");
+  assert.equal(sourceMonitoringKind({ status: "warning" }), "error");
+  assert.equal(sourceMatchesMonitoring({ monitoringState: "changed" }, "changed"), true);
+  assert.equal(sourceMatchesMonitoring({ monitoringState: "changed" }, "error"), false);
 });

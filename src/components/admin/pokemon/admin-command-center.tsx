@@ -48,6 +48,9 @@ type SourceItem = {
   status?: string;
   message?: string | null;
   updatedAt?: string | null;
+  lastChangedAt?: string | null;
+  changeType?: string | null;
+  unreadChange?: boolean;
 };
 
 type SourceWatch = {
@@ -146,7 +149,7 @@ function countConflicts(resource: Record<string, unknown> | null) {
 }
 
 function providerHasError(source: SourceItem) {
-  return ["failed", "error", "unavailable", "blocked"].includes(String(source.status || "").toLowerCase());
+  return ["warning", "failed", "error", "unavailable", "blocked"].includes(String(source.status || "").toLowerCase());
 }
 
 function StatCard({ icon: Icon, label, value, detail, tone, onClick }: {
@@ -271,7 +274,7 @@ export function AdminCommandCenter({
   const quality = Math.round((complete / Math.max(1, total)) * 100);
   const hour = Number(new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", hour12: false, timeZone: "Europe/Paris" }).format(new Date()));
   const greeting = hour < 12 ? "Bonjour" : hour < 18 ? "Bon après-midi" : "Bonsoir";
-  const attentionCount = Number(summary.issues || 0) + Number(remote.aliasesUnresolved || 0) + Number(remote.conflicts || 0) + providerErrors;
+  const attentionCount = Number(summary.issues || 0) + Number(remote.aliasesUnresolved || 0) + Number(remote.conflicts || 0) + providerErrors + changedSources.length;
   const lastSync = freshness?.data?.iso || freshness?.data?.date || history[0]?.iso || history[0]?.date;
   const recentHistory = history.slice(0, 3);
   const regenerationRunning = regenerationSteps.some((step) => step.status === "running");
@@ -347,6 +350,27 @@ export function AdminCommandCenter({
           </div>
         </div>
       </Card>
+
+      {changedSources.length ? (
+        <Card
+          className="border border-amber-300/35 bg-amber-400/[.09] p-4 shadow-[0_16px_48px_rgba(251,191,36,.1)] sm:p-5"
+          role="status"
+          aria-live="polite"
+          data-testid="home-source-watch-alert"
+        >
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex min-w-0 items-start gap-3">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-amber-300/35 bg-amber-400/15 text-amber-800 dark:text-amber-100"><DatabaseZap aria-hidden="true" size={20} /></span>
+              <div className="min-w-0">
+                <p className="type-overline text-amber-800 dark:text-amber-100">Veille des sources</p>
+                <h3 className="mt-1 type-title-card text-domain-foreground">{changedSources.length} changement{changedSources.length > 1 ? "s" : ""} non acquitté{changedSources.length > 1 ? "s" : ""}</h3>
+                <p className="mt-2 type-body-strong text-foreground-secondary">{changedSources.slice(0, 3).map((source) => source.name || source.repo || "Source").join(" · ")}{changedSources.length > 3 ? ` · +${changedSources.length - 3}` : ""}</p>
+              </div>
+            </div>
+            <Button className="shrink-0" variant="primary" icon={<Radar aria-hidden="true" size={16} />} onClick={() => onNavigate("sources")}>Examiner dans Veille</Button>
+          </div>
+        </Card>
+      ) : null}
 
       {regenerationStarted ? (
         <Card className="border border-cyan-300/20 p-4 sm:p-5" aria-live="polite">
@@ -429,7 +453,7 @@ export function AdminCommandCenter({
           {changedSources.slice(0, 3).map((source, index) => (
             <div className="flex min-w-0 items-start gap-3 rounded-lg border border-amber-300/20 bg-amber-400/[.07] p-3" key={source.id || source.name || index}>
               <DatabaseZap className="mt-0.5 shrink-0 text-amber-200" size={17} />
-              <div className="min-w-0 flex-1"><strong className="block break-words text-sm">{source.name || source.repo || "Source modifiée"}</strong><small className="mt-1 block break-words text-xs text-muted [overflow-wrap:anywhere]">{source.message || source.status || "Nouvelles données détectées"}</small></div>
+              <div className="min-w-0 flex-1"><strong className="block break-words text-sm">{source.name || source.repo || "Source modifiée"}</strong><small className="mt-1 block break-words text-xs text-muted [overflow-wrap:anywhere]">{source.changeType || "Nouvelles données détectées"}{source.lastChangedAt ? ` · ${formatDate(source.lastChangedAt)}` : ""}</small></div>
             </div>
           ))}
           {recentHistory.map((item, index) => (

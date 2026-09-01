@@ -19,9 +19,13 @@ export type SourceWatchPresentationItem = {
   description?: string | null;
   category?: string;
   type?: string;
+  monitoringState?: string;
+  unreadChange?: boolean;
+  lastChangedAt?: string | null;
 };
 
 export type SourceStatusFilter = "all" | "ok" | "warning" | "error";
+export type SourceMonitoringFilter = "all" | "up-to-date" | "changed" | "error" | "never-checked";
 
 function searchable(value: unknown) {
   return String(value || "")
@@ -82,4 +86,28 @@ export function sourceMatchesQuery(source: SourceWatchPresentationItem, query: s
 
 export function sourceMatchesStatus(source: SourceWatchPresentationItem, status: SourceStatusFilter) {
   return status === "all" || sourceStatusKind(source.status) === status;
+}
+
+export function sourceMonitoringKind(source: SourceWatchPresentationItem): Exclude<SourceMonitoringFilter, "all"> {
+  if (source.monitoringState === "error") return "error";
+  if (source.monitoringState === "never-checked") return "never-checked";
+  if (source.monitoringState === "changed" || source.unreadChange) return "changed";
+  if (source.monitoringState === "up-to-date") return "up-to-date";
+  if (source.status === "ok") return "up-to-date";
+  if (source.status) return "error";
+  return "never-checked";
+}
+
+export function sourceMonitoringLabel(source: SourceWatchPresentationItem) {
+  const kind = sourceMonitoringKind(source);
+  if (kind === "changed") return "Changement détecté";
+  if (kind === "error") return "Erreur";
+  if (kind === "never-checked") return "Jamais vérifiée";
+  return "À jour";
+}
+
+export function sourceMatchesMonitoring(source: SourceWatchPresentationItem, status: SourceMonitoringFilter) {
+  if (status === "all") return true;
+  if (status === "changed") return source.unreadChange === true || sourceMonitoringKind(source) === "changed";
+  return sourceMonitoringKind(source) === status;
 }

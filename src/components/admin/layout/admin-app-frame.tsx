@@ -23,6 +23,7 @@ export function AdminAppFrame({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [versionHistoryOpen, setVersionHistoryOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
+  const [sourceWatchUnreadCount, setSourceWatchUnreadCount] = useState(0);
   const mobileSidebarRef = useRef<HTMLElement>(null);
   const mobileSidebarTriggerRef = useRef<HTMLElement | null>(null);
   const [openNavGroups, setOpenNavGroups] = usePersistentState(
@@ -31,6 +32,27 @@ export function AdminAppFrame({
   );
   const versionHistory = useDashboardVersionHistory();
   const brandLogo = "/assets/ui/branding/zygardDexLogo.png";
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetch("/api/pokemon-admin?action=source-watch-alerts", { cache: "no-store" })
+      .then(async (response) => response.ok ? response.json() : null)
+      .then((payload) => {
+        if (!cancelled) setSourceWatchUnreadCount(Math.max(0, Number(payload?.data?.unreadCount || 0)));
+      })
+      .catch(() => undefined);
+
+    function handleSourceWatchUpdate(event: Event) {
+      const detail = (event as CustomEvent<{ unreadCount?: number }>).detail;
+      setSourceWatchUnreadCount(Math.max(0, Number(detail?.unreadCount || 0)));
+    }
+
+    window.addEventListener("source-watch-alerts-updated", handleSourceWatchUpdate);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("source-watch-alerts-updated", handleSourceWatchUpdate);
+    };
+  }, []);
 
   const activeNavigation = useMemo(
     () => {
@@ -105,6 +127,7 @@ export function AdminAppFrame({
       navItems={navItems}
       openNavGroups={openNavGroups}
       pathname={pathname}
+      sourceWatchUnreadCount={sourceWatchUnreadCount}
       userEmail={userEmail}
       mobile={mobile}
       onCloseMobile={() => setSidebarOpen(false)}

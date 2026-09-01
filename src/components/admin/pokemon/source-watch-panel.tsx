@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, CheckCircle2, Copy, ExternalLink, Search, XCircle } from "lucide-react";
+import { BellRing, CheckCheck, CheckCircle2, CircleDashed, Copy, ExternalLink, History, Search, XCircle } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
@@ -8,14 +8,19 @@ import { toast } from "sonner";
 import { EmptyState, ErrorState, FetchLoadingState } from "@/components/admin/shared/state-system";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   sourceCause,
+  sourceMatchesMonitoring,
   sourceMatchesQuery,
-  sourceMatchesStatus,
+  sourceMonitoringKind,
+  sourceMonitoringLabel,
   sourceSignature,
   sourceStatusKind,
   sourceStatusLabel,
-  type SourceStatusFilter,
+  type SourceMonitoringFilter,
 } from "@/lib/source-watch-presentation";
 
 type SourceItem = {
@@ -42,6 +47,15 @@ type SourceItem = {
   category?: string;
   type?: string;
   changedSinceLastCheck?: boolean;
+  currentSignature?: string | null;
+  previousSignature?: string | null;
+  currentVersion?: string | null;
+  previousVersion?: string | null;
+  lastChangedAt?: string | null;
+  lastAcknowledgedAt?: string | null;
+  monitoringState?: string;
+  changeType?: string | null;
+  unreadChange?: boolean;
 };
 
 const sourceTaxonomy = [
@@ -62,6 +76,13 @@ type SourceWatchState = {
   error?: string;
   sources?: SourceItem[];
   checkedAt?: string;
+  changedSources?: SourceItem[];
+  summary?: {
+    unreadCount?: number;
+    errorCount?: number;
+    sourceCount?: number;
+    lastCheckedAt?: string | null;
+  };
 } | null;
 
 const emptySourceItems: SourceItem[] = [];
@@ -92,6 +113,7 @@ type SourceHistoryItem = SourceItem & {
   sourceId?: string;
   previousSignature?: string | null;
   previousVersion?: string | null;
+  changeType?: string | null;
 };
 
 type DataDeployHistoryItem = {
@@ -192,7 +214,7 @@ export function SourceHistoryModal({
             <p className="type-overline text-cyan-200/75">Mongo source history</p>
             <h3 id="source-history-title" className="mt-2 type-title-section text-domain-foreground">Historique des sources</h3>
             <p id="source-history-description" className="mt-2 max-w-3xl type-body-strong text-muted">
-              Chaque changement de commit, tag, ETag, Last-Modified ou statut HTTP est conservé dans Mongo via
+              Chaque changement réel de commit, contenu, tag, ETag ou Last-Modified est conservé dans Mongo via
               <span className="font-mono text-cyan-100"> matweb.pokemon.sourceHistory</span>.
             </p>
           </div>
@@ -226,6 +248,7 @@ export function SourceHistoryModal({
                       <strong className="mt-3 block break-words type-title-card text-domain-foreground">
                         {item.name || item.sourceId}
                       </strong>
+                      {item.changeType ? <Badge className="mt-2" tone="amber">{item.changeType}</Badge> : null}
                       <small className="mt-1 block type-caption-strong text-muted">{formatSourceDate(item.checkedAt)}</small>
                       {item.message ? (
                         <p className="mt-3 type-body-strong text-foreground-secondary">{item.message}</p>
@@ -415,14 +438,26 @@ export function DataDeployHistoryModal({
   );
 }
 
-export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
+export function SourceRows({
+  sourceWatch,
+  acknowledging = false,
+  onAcknowledgeAll,
+  onAcknowledgeSource,
+  onOpenHistory,
+}: {
+  sourceWatch: SourceWatchState;
+  acknowledging?: boolean;
+  onAcknowledgeAll?: () => void;
+  onAcknowledgeSource?: (sourceId: string) => void;
+  onOpenHistory?: () => void;
+}) {
   const [query, setQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState<SourceStatusFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<SourceMonitoringFilter>("all");
   const sources = sourceWatch?.sources || emptySourceItems;
   const filteredSources = useMemo(() => sources.filter((source) => (
     sourceMatchesQuery(source, query)
-    && sourceMatchesStatus(source, statusFilter)
+    && sourceMatchesMonitoring(source, statusFilter)
     && (categoryFilter === "all" || sourceTaxonomyGroup(source).id === categoryFilter)
   )), [categoryFilter, query, sources, statusFilter]);
   const groupedSources = useMemo(() => sourceTaxonomy
@@ -437,12 +472,12 @@ export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
     return <ErrorState title="Sources indisponibles" message={sourceWatch.error} />;
   }
 
-  const okCount = sources.filter((source) => source.status === "ok").length;
-  const warningCount = sources.filter((source) => source.status === "warning").length;
-  const errorCount = sources.filter((source) => source.status && !["ok", "warning"].includes(source.status)).length;
-  const changedSources = sources.filter((source) => source.changedSinceLastCheck);
-  const attentionSources = sources.filter((source) => source.status && source.status !== "ok");
-  const lastCheck = sourceWatch?.checkedAt || sources.map((source) => source.updatedAt).filter(Boolean).sort().at(-1);
+  const okCount = sources.filter((source) => sourceMonitoringKind(source) === "up-to-date").length;
+  const changedSources = sources.filter((source) => source.unreadChange || sourceMonitoringKind(source) === "changed");
+  const errorCount = sources.filter((source) => sourceMonitoringKind(source) === "error").length;
+  const neverCheckedCount = sources.filter((source) => sourceMonitoringKind(source) === "never-checked").length;
+  const attentionSources = sources.filter((source) => sourceMonitoringKind(source) === "error");
+  const lastCheck = sourceWatch?.summary?.lastCheckedAt || sourceWatch?.checkedAt || sources.map((source) => source.checkedAt).filter(Boolean).sort().at(-1);
 
   async function copySourceSignature(source: SourceItem) {
     const value = sourceSignature(source);
@@ -457,13 +492,62 @@ export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
 
   return (
     <div className="min-w-0 space-y-4">
-      <div className="grid grid-cols-2 gap-2 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
         <SourceStat label="Sources suivies" value={sources.length} tone="sky" />
-        <SourceStat label="Sources OK" value={okCount} tone="emerald" />
-        <SourceStat label="À surveiller" value={warningCount} tone="amber" />
-        <SourceStat label="Indisponibles" value={errorCount} tone="red" />
-        <SourceStat className="col-span-2 lg:col-span-1" label="Dernière vérification" value={formatSourceDate(lastCheck)} tone="cyan" compact />
+        <SourceStat label="À jour" value={okCount} tone="emerald" />
+        <SourceStat label="Changements détectés" value={changedSources.length} tone="amber" />
+        <SourceStat label="Erreurs" value={errorCount} tone="red" />
+        <SourceStat label="Jamais vérifiées" value={neverCheckedCount} tone="cyan" />
+        <SourceStat className="col-span-2 md:col-span-1" label="Dernière vérification" value={formatSourceDate(lastCheck)} tone="cyan" compact />
       </div>
+
+      <Card
+        className={changedSources.length
+          ? "border border-amber-300/40 bg-amber-400/10 p-4 shadow-[0_18px_54px_rgba(251,191,36,.12)] sm:p-5"
+          : "border border-emerald-300/25 bg-emerald-400/[.07] p-4 sm:p-5"}
+        role="status"
+        aria-live="polite"
+        data-testid="source-watch-global-banner"
+      >
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <div className="flex items-start gap-3">
+              <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl border ${changedSources.length ? "border-amber-300/35 bg-amber-400/15 text-amber-800 dark:text-amber-100" : "border-emerald-300/30 bg-emerald-400/12 text-emerald-700 dark:text-emerald-100"}`}>
+                {changedSources.length ? <BellRing aria-hidden="true" size={20} /> : <CheckCircle2 aria-hidden="true" size={20} />}
+              </span>
+              <div className="min-w-0">
+                <p className={`type-overline ${changedSources.length ? "text-amber-800 dark:text-amber-100" : "text-emerald-700 dark:text-emerald-100"}`}>
+                  {changedSources.length ? "Action requise" : "Veille à jour"}
+                </p>
+                <h3 className="mt-1 type-title-card text-domain-foreground">
+                  {changedSources.length
+                    ? `${changedSources.length} changement${changedSources.length > 1 ? "s" : ""} de source non acquitté${changedSources.length > 1 ? "s" : ""}`
+                    : "Aucun changement de source en attente"}
+                </h3>
+                <p className="mt-2 type-body-strong text-foreground-secondary">
+                  {changedSources.length
+                    ? "Ces alertes persistent après actualisation et restent visibles jusqu’à leur acquittement explicite."
+                    : "La dernière vérification n’a révélé aucune nouvelle empreinte distante."}
+                </p>
+              </div>
+            </div>
+            {changedSources.length ? (
+              <ul className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                {changedSources.map((source) => (
+                  <li className="rounded-xl border border-amber-300/25 bg-surface-faint p-3" key={source.id || source.name || source.url}>
+                    <strong className="block break-words text-sm text-domain-foreground">{source.name || source.repo || source.url}</strong>
+                    <span className="mt-1 block type-caption-strong text-foreground-secondary">{source.changeType || "Empreinte distante"} · {formatSourceDate(source.lastChangedAt)}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            {onOpenHistory ? <Button variant="secondary" icon={<History aria-hidden="true" size={16} />} onClick={onOpenHistory}>Voir l’historique</Button> : null}
+            {changedSources.length && onAcknowledgeAll ? <Button variant="primary" icon={<CheckCheck aria-hidden="true" size={16} />} loading={acknowledging} loadingText="Acquittement…" onClick={onAcknowledgeAll}>Tout acquitter</Button> : null}
+          </div>
+        </div>
+      </Card>
 
       <section className="rounded-3xl border border-line bg-surface-inset-subtle p-3 sm:p-4" aria-labelledby="source-watch-filters-title">
         <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
@@ -483,54 +567,46 @@ export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
             <option value="all">Toutes les catégories</option>
             {sourceTaxonomy.map((group) => <option key={group.id} value={group.id}>{group.label}</option>)}
           </Select>
-          <Select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as SourceStatusFilter)} aria-label="Filtrer les sources par statut">
+          <Select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as SourceMonitoringFilter)} aria-label="Filtrer les sources par statut">
             <option value="all">Tous les statuts</option>
-            <option value="ok">Opérationnelles</option>
-            <option value="warning">À surveiller</option>
-            <option value="error">Indisponibles</option>
+            <option value="up-to-date">À jour</option>
+            <option value="changed">Changement détecté</option>
+            <option value="error">Erreur</option>
+            <option value="never-checked">Jamais vérifiée</option>
           </Select>
         </div>
       </section>
 
       <div className="rounded-2xl border border-cyan-300/20 bg-cyan-400/10 p-4 type-body-strong text-cyan-950 dark:text-cyan-50">
-        La veille croise Game Master, assets dataminés, annonces officielles, Margxt, LeekDuck, PvPoke et les sources d’événements et de combat. Les commits, tags, ETag, Last-Modified et statuts HTTP sont comparés à chaque contrôle.
+        La veille croise Game Master, assets dataminés, annonces officielles, Margxt, LeekDuck, PvPoke et les sources d’événements et de combat. Les commits, tags, ETag et Last-Modified alimentent les changements. Les erreurs HTTP restent distinctes et n’incrémentent jamais le compteur d’alertes.
       </div>
 
-      {attentionSources.length ? <section className="rounded-2xl border border-amber-300/30 bg-amber-400/10 p-4" aria-labelledby="source-watch-attention-title"><p id="source-watch-attention-title" className="type-overline text-amber-900 dark:text-amber-100">Signaux à examiner</p><ul className="mt-3 grid gap-2 text-sm font-bold text-amber-950 dark:text-amber-50">{attentionSources.map((source) => <li className="rounded-xl border border-amber-300/20 bg-surface-faint p-3" key={source.id || source.name}><span className="block text-domain-foreground">{source.name || source.url}</span><span className="mt-1 block font-medium text-foreground-secondary">{sourceCause(source)}</span></li>)}</ul></section> : null}
-
-      {changedSources.length ? (
-        <div className="rounded-2xl border border-sky-300/25 bg-sky-400/10 p-4">
-          <p className="type-overline text-sky-100/75">
-            Sources modifiees depuis ton dernier passage
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {changedSources.map((source) => (
-              <span
-                className="rounded-full border border-sky-200/25 bg-sky-300/15 px-3 py-1.5 type-label text-sky-50"
-                key={source.id || source.name || source.url}
-              >
-                {source.name || source.repo || source.url}
-              </span>
-            ))}
-          </div>
-        </div>
-      ) : null}
+      {attentionSources.length ? <section className="rounded-2xl border border-rose-300/30 bg-rose-400/[.08] p-4" aria-labelledby="source-watch-attention-title"><p id="source-watch-attention-title" className="type-overline text-rose-800 dark:text-rose-100">Erreurs de contrôle distinctes des changements</p><ul className="mt-3 grid gap-2 text-sm font-bold text-rose-950 dark:text-rose-50 sm:grid-cols-2">{attentionSources.map((source) => <li className="rounded-xl border border-rose-300/20 bg-surface-faint p-3" key={source.id || source.name}><span className="block text-domain-foreground">{source.name || source.url}</span><span className="mt-1 block font-medium text-foreground-secondary">{sourceCause(source)}</span></li>)}</ul></section> : null}
       {sources.length ? (
         <div className="space-y-4">
           {groupedSources.map((group) => <section className="min-w-0 overflow-hidden rounded-3xl border border-line bg-surface-inset-subtle" key={group.id} aria-labelledby={`source-group-${group.id}`}>
             <header className="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-surface-control px-4 py-3"><div><h3 id={`source-group-${group.id}`} className="font-black text-domain-foreground">{group.label}</h3><p className="type-caption-strong text-muted">{group.sources.length} source(s) affichée(s)</p></div><span className="rounded-full border border-line bg-surface-subtle px-3 py-1 font-mono text-sm font-black text-domain-foreground">{group.sources.length}</span></header>
-            <div className="hidden border-b border-line bg-surface-faint px-4 py-2 type-overline-compact text-muted lg:grid lg:grid-cols-[minmax(13rem,1.1fr)_minmax(16rem,1.35fr)_minmax(11rem,.9fr)_11rem_minmax(12rem,1fr)_3rem] lg:gap-3"><span>Source et provider</span><span>URL contrôlée</span><span>État et HTTP</span><span>Dernière vérification</span><span>Commit et hash</span><span className="sr-only">Lien</span></div>
+            <div className="hidden border-b border-line bg-surface-faint px-4 py-2 type-overline-compact text-muted lg:grid lg:grid-cols-[minmax(13rem,1.1fr)_minmax(16rem,1.35fr)_minmax(12rem,1fr)_12rem_minmax(13rem,1fr)_3rem] lg:gap-3"><span>Source et provider</span><span>URL contrôlée</span><span>État de veille</span><span>Vérifiée / changée</span><span>Empreinte avant / après</span><span className="sr-only">Lien</span></div>
           {group.sources.map((source) => {
-            const statusKind = sourceStatusKind(source.status);
-            const tone = sourceTone(statusKind);
-            const StatusIcon = statusKind === "ok" ? CheckCircle2 : statusKind === "warning" ? AlertTriangle : XCircle;
-            const signature = sourceSignature(source);
+            const monitoringKind = sourceMonitoringKind(source);
+            const tone = sourceMonitoringTone(monitoringKind);
+            const StatusIcon = monitoringKind === "up-to-date"
+              ? CheckCircle2
+              : monitoringKind === "changed"
+                ? BellRing
+                : monitoringKind === "never-checked"
+                  ? CircleDashed
+                  : XCircle;
+            const signature = source.currentSignature || sourceSignature(source);
             const sourceName = source.name || source.repo || source.url || "Source sans nom";
+            const id = String(source.id || source.name || source.repo || source.url || "");
+            const hasRealComparison = Boolean(source.previousSignature && source.currentSignature);
 
             return (
               <article
-                className={`grid min-w-0 gap-3 border-b border-line p-4 transition last:border-b-0 lg:grid-cols-[minmax(14rem,1.45fr)_9rem_minmax(14rem,1.15fr)_11rem_minmax(10rem,.8fr)_3rem] lg:items-center ${tone.card}`}
+                className={`grid min-w-0 gap-3 border-b border-line p-4 transition last:border-b-0 lg:grid-cols-[minmax(14rem,1.35fr)_minmax(10rem,.9fr)_minmax(13rem,1fr)_12rem_minmax(13rem,1fr)_3rem] lg:items-center ${tone.card}`}
                 key={source.id || source.name}
+                data-monitoring-state={monitoringKind}
               >
                 <div className="min-w-0">
                   <strong className="block break-words font-black text-domain-foreground">{sourceName}</strong>
@@ -549,9 +625,38 @@ export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
                   <a className="mt-1 block break-all text-sm font-bold text-cyan-800 hover:text-cyan-600 dark:text-cyan-100 dark:hover:text-cyan-50" href={source.checkedUrl || source.url} rel="noreferrer" target="_blank">{source.checkedUrl || source.url || "URL inconnue"}</a>
                   {source.metadataHttpStatus ? <span className="mt-2 block type-caption-strong text-muted">Métadonnées GitHub : HTTP {source.metadataHttpStatus}</span> : null}
                 </div>
-                <div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><span className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black ${tone.badge}`}><StatusIcon aria-hidden="true" size={14} />{sourceStatusLabel(source.status)}</span>{source.httpStatus ? <span className="inline-flex rounded-full border border-line bg-surface-control px-2.5 py-1 font-mono text-xs font-black text-domain-foreground">HTTP {source.httpStatus}</span> : null}{source.changedSinceLastCheck ? <span className="inline-flex rounded-full border border-sky-300/30 bg-sky-400/10 px-2.5 py-1 type-label text-sky-900 dark:text-sky-100">Modifiée</span> : null}</div><p className="mt-2 break-words text-sm font-medium text-foreground-secondary">{sourceCause(source)}</p></div>
-                <div className="min-w-0 text-sm"><span className="type-overline-compact text-muted lg:hidden">Dernière vérification</span><time className="mt-1 block break-words font-bold text-domain-foreground" dateTime={source.checkedAt || sourceWatch?.checkedAt || undefined}>{formatSourceDate(source.checkedAt || sourceWatch?.checkedAt)}</time>{source.updatedAt ? <span className="mt-2 block type-caption-strong text-muted">Commit publié : {formatSourceDate(source.updatedAt)}</span> : null}</div>
-                <div className="min-w-0"><span className="type-overline-compact text-muted lg:hidden">Commit et hash</span>{source.commit ? <p className="mt-1 type-caption-strong text-muted">Commit <code className="font-mono text-domain-foreground" title={source.commit}>{source.commit.slice(0, 12)}</code></p> : null}{source.contentHash ? <p className="mt-1 type-caption-strong text-muted">Hash <code className="font-mono text-domain-foreground" title={source.contentHash}>{source.contentHash.slice(0, 12)}</code></p> : null}{source.snapshotCommit ? <p className="mt-2 type-caption-strong text-muted">Snapshot local <code className="font-mono text-domain-foreground" title={source.snapshotCommit}>{source.snapshotCommit.slice(0, 12)}</code>{source.snapshotHash ? <> · <code className="font-mono text-domain-foreground" title={source.snapshotHash}>{source.snapshotHash.slice(0, 12)}</code></> : null}</p> : null}{signature ? <button className="mt-2 inline-flex h-9 items-center gap-2 rounded-lg border border-line bg-surface-control px-3 type-control-strong text-foreground-secondary transition hover:text-domain-foreground" type="button" onClick={() => void copySourceSignature(source)} aria-label={`Copier l’empreinte de ${sourceName}`} title={signature}><Copy aria-hidden="true" size={14} />Copier l’empreinte</button> : <span className="mt-1 block text-sm font-semibold text-muted">Aucune empreinte</span>}</div>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-black ${tone.badge}`}><StatusIcon aria-hidden="true" size={14} />{sourceMonitoringLabel(source)}</span>
+                    {source.unreadChange && monitoringKind !== "changed" ? <Badge tone="amber">Changement non acquitté</Badge> : null}
+                    <Badge tone={sourceStatusKind(source.status) === "ok" ? "green" : "red"} className="min-h-7">Provider : {sourceStatusLabel(source.status)}</Badge>
+                    {source.httpStatus ? <span className="inline-flex rounded-full border border-line bg-surface-control px-2.5 py-1 font-mono text-xs font-black text-domain-foreground">HTTP {source.httpStatus}</span> : null}
+                  </div>
+                  <p className="mt-2 break-words text-sm font-medium text-foreground-secondary">{monitoringKind === "changed" ? `${source.changeType || "Empreinte distante"} détectée.` : sourceCause(source)}</p>
+                  {monitoringKind === "changed" && onAcknowledgeSource ? <Button className="mt-3" size="sm" variant="secondary" icon={<CheckCheck aria-hidden="true" size={14} />} loading={acknowledging} loadingText="Acquittement…" onClick={() => onAcknowledgeSource(id)}>Acquitter</Button> : null}
+                </div>
+                <div className="min-w-0 text-sm">
+                  <span className="type-overline-compact text-muted">Dernière vérification</span>
+                  <time className="mt-1 block break-words font-bold text-domain-foreground" dateTime={source.checkedAt || sourceWatch?.checkedAt || undefined}>{formatSourceDate(source.checkedAt || sourceWatch?.checkedAt)}</time>
+                  <span className="mt-3 block type-overline-compact text-muted">Dernier changement</span>
+                  {source.lastChangedAt ? <time className="mt-1 block break-words font-bold text-domain-foreground" dateTime={source.lastChangedAt}>{formatSourceDate(source.lastChangedAt)}</time> : <span className="mt-1 block type-caption-strong text-muted">Aucun changement enregistré</span>}
+                </div>
+                <div className="min-w-0">
+                  <span className="type-overline-compact text-muted lg:hidden">Empreinte avant / après</span>
+                  {hasRealComparison ? (
+                    <div className="grid gap-2">
+                      <div className="rounded-lg border border-line bg-surface-inset p-2"><span className="type-overline-compact text-muted">Avant</span><code className="mt-1 block break-all text-[11px] font-bold text-foreground-secondary" title={source.previousSignature || undefined}>{source.previousSignature}</code></div>
+                      <div className="rounded-lg border border-amber-300/25 bg-amber-400/[.08] p-2"><span className="type-overline-compact text-amber-800 dark:text-amber-100">Après</span><code className="mt-1 block break-all text-[11px] font-bold text-domain-foreground" title={source.currentSignature || undefined}>{source.currentSignature}</code></div>
+                    </div>
+                  ) : (
+                    <>
+                      {source.commit ? <p className="mt-1 type-caption-strong text-muted">Commit <code className="font-mono text-domain-foreground" title={source.commit}>{source.commit.slice(0, 12)}</code></p> : null}
+                      {source.contentHash ? <p className="mt-1 type-caption-strong text-muted">Hash <code className="font-mono text-domain-foreground" title={source.contentHash}>{source.contentHash.slice(0, 12)}</code></p> : null}
+                      {source.snapshotCommit ? <p className="mt-2 type-caption-strong text-muted">Snapshot local <code className="font-mono text-domain-foreground" title={source.snapshotCommit}>{source.snapshotCommit.slice(0, 12)}</code>{source.snapshotHash ? <> · <code className="font-mono text-domain-foreground" title={source.snapshotHash}>{source.snapshotHash.slice(0, 12)}</code></> : null}</p> : null}
+                    </>
+                  )}
+                  {signature ? <button className="mt-2 inline-flex h-9 items-center gap-2 rounded-lg border border-line bg-surface-control px-3 type-control-strong text-foreground-secondary transition hover:text-domain-foreground" type="button" onClick={() => void copySourceSignature(source)} aria-label={`Copier l’empreinte de ${sourceName}`} title={signature}><Copy aria-hidden="true" size={14} />Copier l’empreinte</button> : <span className="mt-1 block text-sm font-semibold text-muted">Aucune empreinte</span>}
+                </div>
                 <a className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-line bg-surface-control text-cyan-800 transition hover:bg-surface-emphasis dark:text-cyan-100 lg:w-11" href={source.remoteUrl || source.url} rel="noreferrer" target="_blank" aria-label={`Ouvrir ${sourceName} dans un nouvel onglet`} title="Ouvrir la source"><span className="font-bold lg:sr-only">Ouvrir la source</span><ExternalLink aria-hidden="true" size={16} /></a>
               </article>
             );
@@ -563,10 +668,11 @@ export function SourceRows({ sourceWatch }: { sourceWatch: SourceWatchState }) {
   );
 }
 
-function sourceTone(status: "ok" | "warning" | "error") {
-  if (status === "ok") return { card: "bg-emerald-400/[0.035] hover:bg-emerald-400/[0.07]", badge: "bg-emerald-400/15 text-emerald-900 dark:text-emerald-100" };
-  if (status === "warning") return { card: "bg-amber-400/[0.045] hover:bg-amber-400/[0.08]", badge: "bg-amber-400/15 text-amber-950 dark:text-amber-100" };
-  return { card: "bg-red-500/[0.045] hover:bg-red-500/[0.08]", badge: "bg-red-500/15 text-red-950 dark:text-red-100" };
+function sourceMonitoringTone(status: "up-to-date" | "changed" | "error" | "never-checked") {
+  if (status === "up-to-date") return { card: "bg-emerald-400/[0.035] hover:bg-emerald-400/[0.07]", badge: "border-emerald-300/30 bg-emerald-400/15 text-emerald-900 dark:text-emerald-100" };
+  if (status === "changed") return { card: "bg-amber-400/[0.08] shadow-[inset_4px_0_0_rgba(251,191,36,.7)] hover:bg-amber-400/[0.12]", badge: "border-amber-300/40 bg-amber-400/15 text-amber-950 dark:text-amber-100" };
+  if (status === "never-checked") return { card: "bg-slate-400/[0.035] hover:bg-slate-400/[0.07]", badge: "border-line bg-surface-control text-foreground-secondary" };
+  return { card: "bg-red-500/[0.045] hover:bg-red-500/[0.08]", badge: "border-red-300/35 bg-red-500/15 text-red-950 dark:text-red-100" };
 }
 
 function SourceStat({ label, value, tone, compact = false, className = "" }: { label: string; value: ReactNode; tone: "cyan" | "emerald" | "amber" | "red" | "sky"; compact?: boolean; className?: string }) {

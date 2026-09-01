@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+## 1.53.2 - 2026-09-01
+
+### Added
+
+- Ajoute un compteur persistant de changements non acquittés dans la sidebar, une bannière globale dans Veille et un signal dédié sur la Home.
+- Ajoute l’acquittement unitaire ou global sans supprimer l’historique des changements MongoDB.
+- Ajoute les états explicites « À jour », « Changement détecté », « Erreur » et « Jamais vérifiée », avec dates de vérification et de changement séparées.
+
+### Changed
+
+- Migre l’état de lecture des alertes depuis le `localStorage` éphémère vers `matweb.pokemon.sourceWatchState` dans MongoDB.
+- Affiche les empreintes avant/après uniquement lorsqu’une vraie différence de contenu a été observée.
+
+### Fixed
+
+- Empêche un rechargement ou un nouveau polling d’effacer une alerte non acquittée.
+- Sépare les erreurs de contrôle fournisseur des changements de contenu afin qu’un HTTP 403, 429, 5xx ou timeout n’incrémente jamais le badge de changements.
+- Préserve les URLs canoniques et les preuves commit/hash du pipeline de veille existant.
+
 ## 1.53.1 - 2026-08-30
 
 ### Changed
