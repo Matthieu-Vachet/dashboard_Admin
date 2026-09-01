@@ -40,6 +40,7 @@ type AdminSidebarProps = {
   navItems: NavItem[];
   openNavGroups: string[];
   pathname: string;
+  sourceWatchUnreadCount: number;
   userEmail: string;
   mobile?: boolean;
   onCloseMobile: () => void;
@@ -53,6 +54,7 @@ export function AdminSidebar({
   navItems,
   openNavGroups,
   pathname,
+  sourceWatchUnreadCount,
   userEmail,
   onCloseMobile,
   onToggleNavGroup,
@@ -151,6 +153,7 @@ export function AdminSidebar({
                       item={item}
                       navItems={navItems}
                       pathname={pathname}
+                      unreadCount={item.sectionId === "sources" ? sourceWatchUnreadCount : 0}
                       onNavigate={onCloseMobile}
                     />
                   ))}
@@ -223,12 +226,14 @@ function AdminSidebarLink({
   item,
   navItems,
   pathname,
+  unreadCount,
   onNavigate,
 }: {
   collapsed: boolean;
   item: NavItem;
   navItems: NavItem[];
   pathname: string;
+  unreadCount: number;
   onNavigate: () => void;
 }) {
   const active = pathname === item.href;
@@ -275,6 +280,19 @@ function AdminSidebarLink({
         />
       )}
       {!collapsed ? <span className="truncate">{item.label}</span> : null}
+      {unreadCount > 0 ? (
+        <Badge
+          tone="amber"
+          className={cn(
+            "relative z-10 ml-auto min-h-6 min-w-6 justify-center px-1.5 text-[0.65rem] tabular-nums",
+            collapsed && "absolute right-0.5 top-0.5 ml-0 h-5 min-h-5 min-w-5 rounded-full px-1",
+          )}
+          aria-label={`${unreadCount} changement${unreadCount > 1 ? "s" : ""} de source non acquitté${unreadCount > 1 ? "s" : ""}`}
+          title={`${unreadCount} changement${unreadCount > 1 ? "s" : ""} de source non acquitté${unreadCount > 1 ? "s" : ""}`}
+        >
+          {unreadCount > 99 ? "99+" : unreadCount}
+        </Badge>
+      ) : null}
       {active ? (
         <motion.span
           layoutId="active-nav"

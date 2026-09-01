@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.53.2",
+    date: "2026-09-01",
+    title: "Alertes de veille persistantes et visibles",
+    changes: [
+      "Persiste les changements de sources non acquittés dans MongoDB et les conserve après refresh ou nouveau polling.",
+      "Ajoute le badge Veille dans la sidebar, la bannière globale, le signal Home et les acquittements unitaires ou globaux.",
+      "Distingue les erreurs provider des changements de contenu et conserve l’historique avec les empreintes avant/après réelles.",
+      "Expose les états À jour, Changement détecté, Erreur et Jamais vérifiée en responsive light/dark.",
+    ],
+  },
+  {
     version: "V1.53.1",
     date: "2026-08-30",
     title: "JSON Builder et CI de release stabilisés",

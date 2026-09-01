@@ -108,7 +108,6 @@ import {
   pokemonPresentationEntries,
   pokemonPresentationSearchText,
 } from "@/utils/admin/pokemon-presentation-entries.mjs";
-import { persistSourceSignatures } from "@/utils/admin/source-watch";
 import { executePokemonAdminRegeneration } from "@/lib/admin-pokemon-global-regeneration";
 import { actionError, normalizeActionError } from "@/lib/admin-action-errors";
 import {
@@ -119,7 +118,6 @@ import {
 
 const legacyAssetChecksKey = "pokedex-v4-asset-checks";
 const assetChecksStoreKey = "matweb.pokemon.assetChecks";
-const sourceWatchSignatureKey = "pokedex-v4-source-watch-signatures";
 const collectionsKey = "pokedex-v4-admin-collections";
 const collectionsStoreKey = "matweb.pokemon.collections";
 const { mergeCollectionSnapshots } = collectionCatalogEngine;
@@ -1650,6 +1648,7 @@ export function AdminApp({ initialSection = "overview" }) {
   });
   const assetFamilyRequestRef = useRef(null);
   const [sourceWatch, setSourceWatch] = useState(null);
+  const [sourceWatchAckPending, setSourceWatchAckPending] = useState(false);
   const [sourceHistory, setSourceHistory] = useState([]);
   const [sourceHistoryOpen, setSourceHistoryOpen] = useState(false);
   const [deployHistory, setDeployHistory] = useState([]);
@@ -2939,36 +2938,41 @@ export function AdminApp({ initialSection = "overview" }) {
     const toastId = automatic
       ? null
       : toast.loading("Vérification des sources Pokémon GO...");
-    setSourceWatch({ loading: true, sources: [] });
+    setSourceWatch((current) => ({
+      ...(current || {}),
+      loading: true,
+      error: "",
+    }));
     try {
       const response = await fetch(`${adminApiPath}?action=source-watch`);
       const payload = await response.json();
       if (!response.ok)
         throw actionError(payload.error, "Veille indisponible.");
-      const watchState = persistSourceSignatures(
-        payload.data,
-        sourceWatchSignatureKey,
-      );
       setSourceWatch({
         ...(payload.data || {}),
-        sources: watchState?.sources || payload.data?.sources || [],
-        changedSources: watchState?.changed || [],
+        loading: false,
+        sources: payload.data?.sources || [],
+        changedSources: payload.data?.changedSources || [],
       });
+      window.dispatchEvent(new CustomEvent("source-watch-alerts-updated", {
+        detail: payload.data?.summary || { unreadCount: 0 },
+      }));
       if (Array.isArray(payload.data?.history))
         setSourceHistory(payload.data.history);
-      if (watchState?.changed?.length) {
-        const names = watchState.changed
+      if (payload.data?.changedSources?.length) {
+        const names = payload.data.changedSources
           .map((source) => source.name || source.repo || source.url)
           .filter(Boolean)
           .slice(0, 4)
           .join(", ");
         toast.info(
-          `${watchState.changed.length} source(s) modifiée(s) : ${names}${watchState.changed.length > 4 ? "..." : ""}`,
+          `${payload.data.changedSources.length} changement(s) non acquitté(s) : ${names}${payload.data.changedSources.length > 4 ? "..." : ""}`,
         );
       }
-      if (watchState?.blocked?.length && !automatic) {
+      const blockedSources = (payload.data?.sources || []).filter((source) => source.status && source.status !== "ok");
+      if (blockedSources.length && !automatic) {
         toast.warning(
-          `${watchState.blocked.length} source(s) bloquent le contrôle serveur, mais restent surveillées.`,
+          `${blockedSources.length} source(s) bloquent le contrôle serveur, mais restent surveillées.`,
         );
       }
       if (!automatic)
@@ -2980,6 +2984,52 @@ export function AdminApp({ initialSection = "overview" }) {
       setSourceWatch({ error: errorMessage(error, "Veille indisponible.") });
       if (!automatic)
         toast.error(errorMessage(error, "Veille indisponible."), { id: toastId });
+    }
+  }
+
+  async function acknowledgeSourceChanges(sourceIds) {
+    setSourceWatchAckPending(true);
+    try {
+      const response = await fetch(adminApiPath, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "source-watch-ack", sourceIds }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw actionError(payload.error, "Acquittement indisponible.");
+      const acknowledgedIds = new Set(payload.data?.acknowledgedSourceIds || []);
+      setSourceWatch((current) => {
+        if (!current) return current;
+        const sources = (current.sources || []).map((source) => {
+          const id = String(source.id || source.name || source.repo || source.url || "");
+          if (!acknowledgedIds.has(id)) return source;
+          return {
+            ...source,
+            changedSinceLastCheck: false,
+            unreadChange: false,
+            lastAcknowledgedAt: source.lastChangedAt || new Date().toISOString(),
+            monitoringState: source.status === "ok" ? "up-to-date" : "error",
+          };
+        });
+        return {
+          ...current,
+          sources,
+          changedSources: sources.filter((source) => source.unreadChange),
+          summary: payload.data?.summary || current.summary,
+        };
+      });
+      window.dispatchEvent(new CustomEvent("source-watch-alerts-updated", {
+        detail: payload.data?.summary || { unreadCount: 0 },
+      }));
+      toast.success(
+        acknowledgedIds.size === 1
+          ? "Changement acquitté. L’historique reste disponible."
+          : `${acknowledgedIds.size} changement(s) acquitté(s). L’historique reste disponible.`,
+      );
+    } catch (error) {
+      toast.error(errorMessage(error, "Acquittement indisponible."));
+    } finally {
+      setSourceWatchAckPending(false);
     }
   }
 
@@ -3915,7 +3965,13 @@ export function AdminApp({ initialSection = "overview" }) {
                     </div>
                   }
                 >
-                  <SourceRows sourceWatch={sourceWatch} />
+                  <SourceRows
+                    sourceWatch={sourceWatch}
+                    acknowledging={sourceWatchAckPending}
+                    onAcknowledgeAll={() => void acknowledgeSourceChanges()}
+                    onAcknowledgeSource={(sourceId) => void acknowledgeSourceChanges([sourceId])}
+                    onOpenHistory={loadSourceHistory}
+                  />
                 </Panel>
               ) : null}
 

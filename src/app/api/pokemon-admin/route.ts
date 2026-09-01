@@ -12,6 +12,13 @@ import { assertJsonPayloadSize, assertSameOrigin, rateLimit } from "@/lib/securi
 import { pokemonAdminProxyRegeneration } from "@/lib/admin-regeneration-registry";
 import { adminActionErrorPayload } from "@/lib/admin-action-errors";
 import { adminOperationId, logAdminOperation } from "@/lib/admin-action-observability";
+import {
+  acknowledgeSourceWatchChanges,
+  applySourceWatchCheck,
+  emptySourceWatchState,
+  normalizeSourceWatchState,
+  sourceWatchSummary,
+} from "@/lib/source-watch-alerts";
 
 export const maxDuration = 300;
 
@@ -30,6 +37,7 @@ type RuleRecord = Record<string, unknown> & {
 
 const customRulesStoreKey = "matweb.pokemon.customRules";
 const sourceHistoryStoreKey = "matweb.pokemon.sourceHistory";
+const sourceWatchStateStoreKey = "matweb.pokemon.sourceWatchState";
 const pokemonModulePattern = `${process.cwd()}/src/server/pokemon-go/`;
 const defaultPokemonApiPublicUrl = "https://pokemon-go-api.vercel.app";
 const pokemonAdminMutationTimeoutMs = 55_000;
@@ -604,80 +612,44 @@ async function writeCustomRules(owner: string, rules: RuleRecord[]) {
   await writeDashboardStoreValue(owner, customRulesStoreKey, rules);
 }
 
-function sourceId(source: Record<string, unknown>) {
-  return String(source.id || source.name || source.repo || source.url || "").trim();
-}
-
-function sourceSignature(source: Record<string, unknown>) {
-  return [
-    source.signature,
-    source.version,
-    source.updatedAt,
-    source.status,
-    source.message,
-  ]
-    .filter(Boolean)
-    .map(String)
-    .join("|");
-}
-
 async function readSourceHistory(owner: string) {
   if (!dashboardStoreConfigured()) return [];
   const document = await readDashboardStoreValue(owner, sourceHistoryStoreKey);
   return Array.isArray(document?.value) ? document.value : [];
 }
 
-async function recordSourceWatchHistory(
+async function readSourceWatchState(owner: string) {
+  if (!dashboardStoreConfigured()) return emptySourceWatchState();
+  const document = await readDashboardStoreValue(owner, sourceWatchStateStoreKey);
+  return normalizeSourceWatchState(document?.value);
+}
+
+async function persistSourceWatchResult(
   owner: string,
   sourceWatchPayload: { checkedAt?: string; sources?: Record<string, unknown>[] },
 ) {
-  if (!dashboardStoreConfigured()) return [];
+  const [previousState, currentHistory] = await Promise.all([
+    readSourceWatchState(owner),
+    readSourceHistory(owner) as Promise<Record<string, unknown>[]>,
+  ]);
+  const result = applySourceWatchCheck(previousState, sourceWatchPayload);
+  const nextHistory = [...result.events, ...currentHistory].slice(0, 500);
 
-  const currentHistory = (await readSourceHistory(owner)) as Record<string, unknown>[];
-  const latestBySource = new Map<string, Record<string, unknown>>();
-  for (const item of currentHistory) {
-    const id = String(item.sourceId || "");
-    if (id && !latestBySource.has(id)) latestBySource.set(id, item);
+  if (dashboardStoreConfigured()) {
+    await Promise.all([
+      writeDashboardStoreValue(owner, sourceWatchStateStoreKey, result.state),
+      writeDashboardStoreValue(owner, sourceHistoryStoreKey, nextHistory),
+    ]);
   }
 
-  const checkedAt = sourceWatchPayload.checkedAt || new Date().toISOString();
-  const nextEvents: Record<string, unknown>[] = [];
-
-  for (const source of sourceWatchPayload.sources || []) {
-    const id = sourceId(source);
-    const signature = sourceSignature(source);
-    if (!id || !signature) continue;
-
-    const previous = latestBySource.get(id);
-    if (previous?.signature === signature) continue;
-
-    nextEvents.push({
-      id: `${id}-${Date.now()}-${nextEvents.length}`,
-      checkedAt,
-      sourceId: id,
-      name: source.name || source.repo || source.url || id,
-      category: source.category || source.type || null,
-      status: source.status || null,
-      provider: source.provider || null,
-      version: source.version || null,
-      commit: source.commit || null,
-      contentHash: source.contentHash || null,
-      snapshotCommit: source.snapshotCommit || null,
-      snapshotHash: source.snapshotHash || null,
-      checkedUrl: source.checkedUrl || source.url || null,
-      httpStatus: source.httpStatus || null,
-      signature,
-      previousSignature: previous?.signature || null,
-      previousVersion: previous?.version || null,
-      updatedAt: source.updatedAt || null,
-      message: source.message || null,
-      remoteUrl: source.remoteUrl || source.url || null,
-    });
-  }
-
-  const nextHistory = [...nextEvents, ...currentHistory].slice(0, 500);
-  await writeDashboardStoreValue(owner, sourceHistoryStoreKey, nextHistory);
-  return nextHistory;
+  return {
+    ...sourceWatchPayload,
+    sources: result.sources,
+    changedSources: result.changedSources,
+    summary: result.summary,
+    history: nextHistory,
+    persistence: dashboardStoreConfigured() ? "mongodb" : "unavailable",
+  };
 }
 
 async function saveCustomRule(owner: string, body: JsonValue, workshop: ReturnType<typeof loadAdminModules>["workshop"]) {
@@ -814,6 +786,10 @@ export async function GET(request: NextRequest) {
 
     await recordDashboardApiCall(session!.email, `/api/pokemon-admin:${action}`, "GET");
 
+    if (action === "source-watch-alerts") {
+      return json({ data: sourceWatchSummary(await readSourceWatchState(session!.email)) });
+    }
+
     const { buildAssetFamilyPatches, detailForKey, sourceWatch, workshop } = loadAdminModules();
 
     if (action === "bootstrap") {
@@ -850,12 +826,7 @@ export async function GET(request: NextRequest) {
 
     if (action === "source-watch") {
       const data = await sourceWatch();
-      return json({
-        data: {
-          ...data,
-          history: await recordSourceWatchHistory(session!.email, data),
-        },
-      });
+      return json({ data: await persistSourceWatchResult(session!.email, data) });
     }
 
     if (action === "source-history") {
@@ -1052,6 +1023,23 @@ export async function POST(request: NextRequest) {
 
     if (action === "logout") {
       return json({ data: { authenticated: false } });
+    }
+
+    if (action === "source-watch-ack") {
+      if (!dashboardStoreConfigured()) {
+        throw requestError("MongoDB dashboard non configuré : impossible d’acquitter durablement les alertes.", 503);
+      }
+      const result = acknowledgeSourceWatchChanges(
+        await readSourceWatchState(session!.email),
+        body.sourceIds,
+      );
+      await writeDashboardStoreValue(session!.email, sourceWatchStateStoreKey, result.state);
+      return json({
+        data: {
+          acknowledgedSourceIds: result.acknowledgedSourceIds,
+          summary: result.summary,
+        },
+      });
     }
 
     if (action === "validate") {
