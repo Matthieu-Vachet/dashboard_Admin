@@ -3,6 +3,7 @@ import fs from "node:fs";
 import test from "node:test";
 import {
   acknowledgeSourceWatchChanges,
+  adventureEffectSemanticDiff,
   applySourceWatchCheck,
   emptySourceWatchState,
   sourceMonitoringState,
@@ -111,6 +112,73 @@ test("une erreur provider est distincte d’un changement et conserve la derniè
 
 test("une source sans contrôle expose explicitement l’état jamais vérifiée", () => {
   assert.equal(sourceMonitoringState(undefined), "never-checked");
+});
+
+function adventureSnapshot(overrides: Record<string, unknown> = {}) {
+  return {
+    effects: {
+      ADVENTURE_EFFECT_BEHEMOTH_BLADE: {
+        label: "Gladius Maximus",
+        localization: { fr: { name: "Gladius Maximus", description: "Attaque renforcée" } },
+        pokemonRefs: ["ZACIAN_CROWNED_SWORD"],
+        cost: { candy: 5, stardust: 5000 },
+        duration: { durationSeconds: 360, extraDurationSeconds: 4 },
+        bonusEffects: { attackMultiplier: 1.1 },
+        assets: { banner: "blade.png", portrait: "zacian.png" },
+        ...overrides,
+      },
+    },
+  };
+}
+
+test("le diff sémantique Adventure Effects couvre ajout, retrait, traduction, coût, durée, bonus et asset", () => {
+  const baseline = adventureSnapshot();
+  assert.deepEqual(adventureEffectSemanticDiff(baseline, structuredClone(baseline)), []);
+
+  const modified = adventureSnapshot({
+    localization: { fr: { name: "Gladius Maximus", description: "Nouvelle traduction" } },
+    cost: { candy: 6, stardust: 5000 },
+    duration: { durationSeconds: 600, extraDurationSeconds: 4 },
+    bonusEffects: { attackMultiplier: 1.15 },
+    assets: { banner: "blade-v2.png", portrait: "zacian.png" },
+  });
+  const lines = adventureEffectSemanticDiff(baseline, modified);
+  for (const field of ["localization.fr.description", "cost.candy", "duration.durationSeconds", "bonusEffects.attackMultiplier", "assets.banner"]) {
+    assert.ok(lines.some((line) => line.includes(field)), field);
+  }
+  const added = structuredClone(modified);
+  added.effects.ADVENTURE_EFFECT_NEW = { label: "Nouvel effet", cost: { candy: 1 } };
+  assert.ok(adventureEffectSemanticDiff(modified, added).some((line) => line.includes("Nouvel effet")));
+  assert.ok(adventureEffectSemanticDiff(added, modified).some((line) => line.includes("Nouvel effet")));
+});
+
+test("une alerte Adventure Effects conserve son diff lisible jusqu’à acquittement", () => {
+  const first = applySourceWatchCheck(emptySourceWatchState(), {
+    checkedAt: checkedAt(0),
+    sources: [source("pokemon-go-hub-adventure-effects", "ae-1", {
+      category: "adventure-effects",
+      semanticSnapshot: adventureSnapshot(),
+    })],
+  });
+  const changed = applySourceWatchCheck(first.state, {
+    checkedAt: checkedAt(8),
+    sources: [source("pokemon-go-hub-adventure-effects", "ae-2", {
+      category: "adventure-effects",
+      semanticSnapshot: adventureSnapshot({ duration: { durationSeconds: 600, extraDurationSeconds: 4 } }),
+    })],
+  });
+  assert.equal(changed.sources[0].changeType, "Adventure Effects — changement détecté");
+  assert.ok(changed.sources[0].readableDiff.some((line: string) => line.includes("360 → 600")));
+  assert.equal(changed.summary.unreadCount, 1);
+  const refreshed = applySourceWatchCheck(changed.state, {
+    checkedAt: checkedAt(9),
+    sources: [source("pokemon-go-hub-adventure-effects", "ae-2", {
+      category: "adventure-effects",
+      semanticSnapshot: adventureSnapshot({ duration: { durationSeconds: 600, extraDurationSeconds: 4 } }),
+    })],
+  });
+  assert.equal(refreshed.sources[0].readableDiff.length, changed.sources[0].readableDiff.length);
+  assert.equal(refreshed.summary.unreadCount, 1);
 });
 
 test("la route, le client et la sidebar utilisent le contrat persistant MongoDB", () => {

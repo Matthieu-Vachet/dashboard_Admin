@@ -12,8 +12,8 @@ const require = createRequire(import.meta.url);
 const dataRepository = require("../src/server/pokemon-go/src/lib/data-repository.js");
 const root = path.resolve(import.meta.dirname, "..");
 
-assert.equal(adminRegenerationRegistry.length, 17, "Le registre doit couvrir les 17 actions de regeneration/synchronisation.");
-assert.equal(globalAdminRegenerations().length, 15, "Le flux Tout regenerer doit couvrir les 15 etapes actives.");
+assert.equal(adminRegenerationRegistry.length, 18, "Le registre doit couvrir les 18 actions de regeneration/synchronisation.");
+assert.equal(globalAdminRegenerations().length, 16, "Le flux Tout regenerer doit couvrir les 16 etapes actives.");
 assert.equal(new Set(adminRegenerationRegistry.map((entry) => entry.id)).size, adminRegenerationRegistry.length, "IDs de registre dupliques.");
 
 for (const registration of adminRegenerationRegistry) {

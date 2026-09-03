@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+## 1.54.0 - 2026-09-02
+
+### Added
+
+- Affiche les Adventure Effects sur les Cards et fiches Pokémon, les Moves et une vue dédiée du Catalogue, avec rendu riche des 11 familles, coût, durée, provenance et confiance.
+- Étend le JSON Builder avec un formulaire Adventure Effect, la sélection d’effets existants, une preview ordonnée et des patchs relationnels atomiques sans écrasement.
+- Surveille GO Hub dans six langues et Margxt par contenu, persiste les alertes et affiche des diffs sémantiques lisibles pour traductions, coûts, durées, bonus, relations et assets.
+- Ajoute « Synchroniser Adventure Effects » aux régénérations Admin avec rapport structuré.
+
+### Changed
+
+- Étend l’Engine canonique et les catalogues Dashboard avec les 11 effets, 11 relations Pokémon, 11 relations Move et neuf couples Banner/Portrait.
+
 ## 1.53.2 - 2026-09-01
 
 ### Added

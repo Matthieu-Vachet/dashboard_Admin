@@ -218,6 +218,15 @@ export function PokemonCard({
         </span>
       </div>
 
+      {entry.adventureEffects?.length ? (
+        <div className="mt-3 rounded-xl border border-violet-200/30 bg-violet-300/12 p-3">
+          <span className="type-overline text-violet-100">✨ Effet d’aventure</span>
+          <strong className="mt-1 block truncate text-sm text-domain-foreground">
+            {entry.adventureEffects.map((effect) => effect.localization?.fr?.name || effect.localization?.en?.name || effect.moveRef).join(", ")}
+          </strong>
+        </div>
+      ) : null}
+
       {missingKeys.length ? (
         <div className="mt-3 rounded-xl border border-amber-300/25 bg-surface-inset-strong p-3">
           <div className="flex items-center justify-between gap-3">

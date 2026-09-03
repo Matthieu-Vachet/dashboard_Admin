@@ -7,6 +7,7 @@ import { PokemonArtwork } from "./pokemon-artwork";
 import { typeBackground, typeColors, typeIcon, typeName } from "@/components/site/pokemon-style";
 import { useAdminPokemonSearch } from "./admin-pokemon-search-context";
 import { EmptyState } from "@/components/admin/shared/state-system";
+import { AdventureEffectCard } from "./adventure-effect-card";
 
 function moveTitle(move) {
   return move.names?.French || move.names?.English || move.name || move.id;
@@ -205,6 +206,7 @@ function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
         <span className="min-w-0">
           <strong className="block truncate text-base font-black text-domain-foreground">{moveTitle(move)}</strong>
           <small className="mt-1 block truncate font-mono text-xs font-bold text-muted">{move.id}</small>
+          {move.adventureEffect ? <span className="mt-2 block text-xs text-foreground-secondary"><span className="inline-flex rounded-full border border-line bg-violet-300/15 px-2 py-1 text-[10px] font-black">✨ Effet d’aventure</span><span className="mt-1 block">{move.adventureEffect.pokemonRefs.map((ref) => ref.formId).join(", ")} · {move.adventureEffect.cost.candy.amount} Bonbons · {move.adventureEffect.duration.durationSeconds / 60} min</span></span> : null}
         </span>
         <span
           className="inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 type-label text-domain-foreground"
@@ -243,6 +245,7 @@ function AdminMoveCard({ move, typeCatalog = [], onOpen }) {
               ))}
             </div>
           </div>
+          {move.adventureEffect ? <div className="mt-3"><AdventureEffectCard effect={move.adventureEffect} /></div> : null}
           <div className="mt-3 rounded-2xl border border-line bg-surface-inset p-3">
             <span className="block type-overline text-disabled">Buffs PvP</span>
             {buffRows.length ? (
@@ -304,6 +307,7 @@ export function CatalogPanel({ catalog = {}, onOpen }) {
   const data = catalog || {};
   const labels = {
     moves: "Attaques",
+    adventureEffects: "Effets d’aventure",
     types: "Types",
     weather: "Météo",
     stickers: "Stickers",
@@ -311,6 +315,8 @@ export function CatalogPanel({ catalog = {}, onOpen }) {
   const rawItems =
     tab === "moves"
       ? data.moves || []
+      : tab === "adventureEffects"
+        ? data.adventureEffects || []
       : tab === "stickers"
         ? data.stickers || []
         : tab === "weather"
@@ -331,7 +337,7 @@ export function CatalogPanel({ catalog = {}, onOpen }) {
             <button
               className={`shrink-0 rounded-full border px-4 py-2 text-sm font-black transition ${
                 tab === value
-                  ? "border-cyan-200/40 bg-cyan-400/20 text-cyan-50"
+                  ? "border-cyan-200/40 bg-cyan-400/20 text-domain-foreground"
                   : "border-line bg-surface-control text-foreground-secondary hover:bg-surface-emphasis"
               }`}
               key={value}
@@ -363,6 +369,10 @@ export function CatalogPanel({ catalog = {}, onOpen }) {
           {items.slice(0, 180).map((item, index) => (
             <AdminMoveCard move={item} onOpen={onOpen} typeCatalog={data.types || []} key={`${item.id || item.slug}-${index}`} />
           ))}
+        </div>
+      ) : tab === "adventureEffects" ? (
+        <div className="grid gap-4 xl:grid-cols-2" key="adventure-effects">
+          {items.map((item) => <AdventureEffectCard effect={item} key={item.id} />)}
         </div>
       ) : tab === "types" ? (
         <div className="grid gap-4 xl:grid-cols-2" key="types">

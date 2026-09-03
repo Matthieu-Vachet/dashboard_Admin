@@ -7,6 +7,17 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.54.0",
+    date: "2026-09-02",
+    title: "Adventure Effects canoniques de bout en bout",
+    changes: [
+      "Affiche les 11 effets sur les Cards, fiches Pokémon, Moves et le Catalogue avec renderers riches et fallbacks d’assets explicites.",
+      "Étend le JSON Builder avec formulaire dédié, preview ordonnée, relations minimales, manifeste et transaction atomique sur develop.",
+      "Surveille GO Hub multilingue et Margxt avec alertes persistantes et diffs lisibles des données structurées.",
+      "Ajoute la synchronisation Admin et valide Engine, assets, localisations et gestion sans invention de Méga-Mewtwo X/Y.",
+    ],
+  },
+  {
     version: "V1.53.2",
     date: "2026-09-01",
     title: "Alertes de veille persistantes et visibles",

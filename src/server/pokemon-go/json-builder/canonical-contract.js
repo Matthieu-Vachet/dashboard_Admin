@@ -27,6 +27,7 @@ const ENTITY_TYPES = Object.freeze({
   primal: { label: "Réversion Primo", template: "templates/pokemon/exemple-primal.json", category: "PRIMAL", form: "primal" },
   dynamax: { label: "Dynamax", template: "templates/pokemon/exemple-dynamax.json", category: "DYNAMAX", form: "dynamax" },
   gigantamax: { label: "Gigamax", template: "templates/pokemon/exemple-gigantamax.json", category: "GIGANTAMAX", form: "gigantamax" },
+  "adventure-effect": { label: "Effet d’aventure", template: "templates/adventure-effects/exemple.adventure-effect.json", category: "ADVENTURE_EFFECT", form: null },
 });
 
 const ASSET_TEMPLATES = Object.freeze({
@@ -45,6 +46,7 @@ const SCHEMA_PATHS = Object.freeze({
   variants: "schemas/assets/pokemon-assets-variants.schema.json",
   "location-cards": "schemas/assets/pokemon-assets-location-cards.schema.json",
   pvp: "schemas/pvp/pvp-pokemon.schema.json",
+  adventureEffect: "schemas/adventure-effects/adventure-effect.schema.json",
 });
 
 const PVP_TEMPLATE = "templates/pvp/exemple.pvp.json";
@@ -100,6 +102,7 @@ function mergeTemplate(template, input) {
   const source = input && typeof input === "object" && !Array.isArray(input) ? input : {};
   const result = {};
   for (const key of Object.keys(template)) result[key] = mergeTemplate(template[key], source[key]);
+  for (const key of Object.keys(source)) if (!Object.hasOwn(result, key)) result[key] = clone(source[key]);
   return result;
 }
 
@@ -108,7 +111,7 @@ function schemaAtPath(schema, dottedPath) {
   for (const segment of String(dottedPath || "").split(".").filter(Boolean)) {
     if (current?.$ref) return null;
     if (/^\d+$/.test(segment)) current = current?.items;
-    else current = current?.properties?.[segment];
+    else current = current?.properties?.[segment] || (typeof current?.additionalProperties === "object" ? current.additionalProperties : null);
     if (!current) return null;
   }
   return current;
@@ -197,7 +200,14 @@ function validateAgainstSchema(value, schema, pathLabel = "$", rootSchema = sche
     issues.push({ level: "blocking", code: "SCHEMA_REF_UNRESOLVED", path: pathLabel, message: `Référence de schéma introuvable : ${schema?.$ref || "inconnue"}.` });
     return issues;
   }
+  for (const condition of effective.allOf || []) {
+    if (!condition.if || validateAgainstSchema(value, condition.if, pathLabel, rootSchema, []).length === 0) validateAgainstSchema(value, condition.then || condition, pathLabel, rootSchema, issues);
+  }
   const allowedTypes = Array.isArray(effective.type) ? effective.type : effective.type ? [effective.type] : [];
+  if (Object.hasOwn(effective, "const") && value !== effective.const) issues.push({ level: "blocking", code: "SCHEMA_CONST", path: pathLabel, message: "Constante canonique invalide." });
+  if (effective.enum && !effective.enum.includes(value)) issues.push({ level: "blocking", code: "SCHEMA_ENUM", path: pathLabel, message: "Valeur hors de l’énumération canonique." });
+  if (typeof value === "number" && effective.minimum !== undefined && value < effective.minimum) issues.push({ level: "blocking", code: "SCHEMA_MINIMUM", path: pathLabel, message: `Valeur minimale : ${effective.minimum}.` });
+  if (Array.isArray(value) && effective.minItems !== undefined && value.length < effective.minItems) issues.push({ level: "blocking", code: "SCHEMA_MIN_ITEMS", path: pathLabel, message: `Au moins ${effective.minItems} entrée(s) requise(s).` });
   if (allowedTypes.length && !allowedTypes.some((type) => typeMatches(value, type))) {
     issues.push({ level: "blocking", code: "SCHEMA_TYPE", path: pathLabel, message: `Type attendu : ${allowedTypes.join(" | ")}.` });
     return issues;
@@ -219,6 +229,9 @@ function validateAgainstSchema(value, schema, pathLabel = "$", rootSchema = sche
     }
     for (const [key, childSchema] of Object.entries(effective.properties || {})) {
       if (Object.hasOwn(value, key)) validateAgainstSchema(value[key], childSchema, `${pathLabel}.${key}`, rootSchema, issues);
+    }
+    if (typeof effective.additionalProperties === "object") {
+      for (const key of Object.keys(value)) if (!Object.hasOwn(effective.properties || {}, key)) validateAgainstSchema(value[key], effective.additionalProperties, `${pathLabel}.${key}`, rootSchema, issues);
     }
   }
   return issues;
@@ -344,6 +357,30 @@ function buildPvpRecord(contract, pokemon) {
 function buildCanonicalFiles(contract, draft) {
   if (!draft || typeof draft !== "object" || Array.isArray(draft) || !draft.values || typeof draft.values !== "object" || Array.isArray(draft.values)) {
     throw builderError("Brouillon JSON Builder invalide.", "JSON_BUILDER_DRAFT_INVALID", 400);
+  }
+  if (draft.entityType === "adventure-effect") {
+    const effect = mergeTemplate(contract.pokemonTemplates["adventure-effect"], draft.values || {});
+    const baseName = effect.localization?.en?.name || effect.moveRef || effect.slug;
+    effect.slug = slugify(effect.slug || baseName);
+    if (!effect.id || TEMPLATE_PLACEHOLDER.test(effect.id)) effect.id = `ADVENTURE_EFFECT_${identityToken(effect.moveRef || baseName)}`;
+    const stateResult = applyValueStates(effect, contract.schemas.adventureEffect, draft.states);
+    const normalized = stateResult.value;
+    const effectPath = `data/adventure-effects/effects/${normalized.slug}.adventure-effect.json`;
+    const issues = [
+      ...stateResult.issues,
+      ...validateAgainstSchema(normalized, contract.schemas.adventureEffect),
+      ...findPlaceholderIssues(normalized),
+    ];
+    return {
+      category: "ADVENTURE_EFFECT",
+      pokemon: normalized,
+      pokemonPath: effectPath,
+      effect: normalized,
+      isAdventureEffect: true,
+      files: [{ kind: "adventure-effect", relativePath: effectPath, data: normalized, content: serializeOrdered(normalized), mode: "create" }],
+      issues,
+      completeness: { blocking: issues.filter((issue) => issue.level === "blocking").length, informative: issues.filter((issue) => issue.level !== "blocking").length },
+    };
   }
   const { pokemon: automated, config, identityIssues } = automatePokemonIdentity(contract, draft);
   const stateResult = applyValueStates(automated, contract.schemas.pokemon, draft.states);

@@ -21,11 +21,13 @@ import { uiAssets } from "@/components/site/ui-assets";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EmptyState } from "@/components/admin/shared/state-system";
 import { CandyAssetImage } from "./candy-asset-image";
+import { AdventureEffectCard } from "./adventure-effect-card";
 
 const tabLabels = {
   overview: "Aperçu",
   cp: "PC & stats",
   moves: "Attaques",
+  adventureEffects: "Effets d’aventure",
   pvp: "PvP",
   shadow: "Shadow",
   assets: "Assets",
@@ -37,6 +39,7 @@ const tabIcons = {
   overview: "/assets/ui/icons/general/tabs/ic_alola.png",
   cp: "/assets/ui/icons/general/tabs/today_evolve.png",
   moves: "/assets/ui/icons/general/TodayView_Icon_AttackMove.webp",
+  adventureEffects: "/assets/ui/icons/general/tabs/ic_mythical.png",
   pvp: "/assets/ui/icons/general/tabs/today_battle.png",
   shadow: "/assets/ui/icons/general/tabs/ic_shadow_filter.png",
   assets: "/assets/ui/icons/general/tabs/ic_mythical.png",
@@ -627,6 +630,9 @@ function MoveList({ title, moves, typeCatalog = [], icon, pokemonTypes = [] }) {
                     </small>
                   </span>
                   <span className="flex flex-wrap items-center justify-end gap-2">
+                    {move.adventureEffect ? (
+                      <span className="rounded-full border border-violet-200/35 bg-violet-300/15 px-3 py-1 type-label text-violet-50">✨ Effet d’aventure</span>
+                    ) : null}
                     {stab ? (
                       <span className="rounded-full border border-amber-200/40 bg-amber-300/18 px-3 py-1 type-label text-amber-50">
                         STAB
@@ -1727,6 +1733,7 @@ export function DetailModal({
         "overview",
         "cp",
         "moves",
+        payload.adventureEffects?.length ? "adventureEffects" : null,
         "pvp",
         payload.shadow || entry?.availability?.shadow ? "shadow" : null,
         "assets",
@@ -2302,6 +2309,14 @@ export function DetailModal({
 
             {activeTab === "pvp" ? (
               <PvpPanel pvp={pvp} moveDetails={moveDetails} />
+            ) : null}
+
+            {activeTab === "adventureEffects" ? (
+              <section className="grid gap-4">
+                {(payload.adventureEffects || []).map((effect) => (
+                  <AdventureEffectCard effect={effect} key={effect.id} />
+                ))}
+              </section>
             ) : null}
 
             {activeTab === "shadow" ? (

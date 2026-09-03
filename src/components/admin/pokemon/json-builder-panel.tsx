@@ -38,9 +38,10 @@ type BuilderData = {
   assetTemplates: Record<string, Record<string, unknown>>;
   schemas: Record<string, unknown>;
   catalog: {
-    identities: Array<{ formId?: string; dexId?: string; slug?: string; file?: string }>;
+    identities: Array<{ id?: string; formId?: string; dexId?: string; slug?: string; file?: string }>;
     moves: Array<{ id?: string; name?: string; category?: string; type?: string }>;
     types: string[];
+    adventureEffects: Array<Record<string, unknown> & { id?: string; localization?: { fr?: { name?: string }; en?: { name?: string } }; pokemonRefs?: Array<{ pokemonId?: string; formId?: string; pokemonRef?: string }> }>;
   };
   contractSource: { source: string; ref: string };
   repository: { branch?: string | null; head?: string | null };
@@ -73,16 +74,28 @@ type DryRun = {
   checks: Record<string, unknown>;
 };
 
-const steps = [
+const pokemonSteps = [
   { id: "type", label: "Type", keys: [] },
   { id: "identity", label: "Identité", keys: ["id", "formId", "baseFormId", "form", "slug", "dexNr", "dexId", "regionId"] },
   { id: "names", label: "Noms", keys: ["names"] },
   { id: "stats", label: "Types & statistiques", keys: ["primaryType", "secondaryType", "pokemonClass", "size", "stats", "maxCp", "weatherBoost", "buddyDistance", "catchRate", "fleeRate", "megaEnergyReward", "megaEnergyCost", "captureRewards", "secondChargeMoveCost"] },
   { id: "availability", label: "Disponibilité", keys: ["availability", "shinyAvailability", "shadowShinyAvailability", "shadow"] },
-  { id: "moves", label: "Attaques", keys: ["quickMoves", "cinematicMoves", "eliteQuickMoves", "eliteCinematicMoves", "maxBattle"] },
+  { id: "moves", label: "Attaques", keys: ["quickMoves", "cinematicMoves", "eliteQuickMoves", "eliteCinematicMoves", "maxBattle", "adventureEffectRefs"] },
   { id: "evolutions", label: "Évolutions", keys: ["regionForms", "evolutions", "hasMegaEvolution", "megaEvolutions", "dynamaxForms", "hasGigantamaxEvolution", "gigantamaxForms"] },
   { id: "assets", label: "Assets", keys: [] },
   { id: "pvp", label: "PvP & contrôles", keys: ["pvpRef", "assetsRef"] },
+  { id: "preview", label: "Preview & création", keys: [] },
+] as const;
+
+const adventureEffectSteps = [
+  { id: "type", label: "Type", keys: [] },
+  { id: "identity", label: "Identité & relations", keys: ["id", "slug", "moveRef", "pokemonRefs"] },
+  { id: "localization", label: "Localisations", keys: ["localization"] },
+  { id: "effect", label: "Type & bonus", keys: ["effectType", "effect"] },
+  { id: "cost", label: "Coût", keys: ["cost"] },
+  { id: "duration", label: "Durée", keys: ["duration"] },
+  { id: "bonus", label: "Raw & assets", keys: ["bonusEffects", "assets"] },
+  { id: "sources", label: "Sources & état", keys: ["sources", "metadata"] },
   { id: "preview", label: "Preview & création", keys: [] },
 ] as const;
 
@@ -121,12 +134,18 @@ function draftId() {
 }
 
 function newDraft(data: BuilderData, entityType = "normal"): BuilderDraft {
+  const values = clone(data.templates[entityType]);
+  if (entityType !== "adventure-effect" && !Array.isArray(values.adventureEffectRefs)) values.adventureEffectRefs = [];
+  if (entityType === "adventure-effect") {
+    const localization = values.localization as Record<string, unknown>;
+    for (const locale of ["en", "de", "es", "pt", "fr", "nl"]) if (!localization[locale]) localization[locale] = { name: "", description: null, bonusLabel: null, status: "NOT_AVAILABLE" };
+  }
   return {
     id: draftId(),
-    name: "Nouvelle fiche Pokémon",
+    name: entityType === "adventure-effect" ? "Nouvel Effet d’aventure" : "Nouvelle fiche Pokémon",
     updatedAt: new Date().toISOString(),
     entityType,
-    values: clone(data.templates[entityType]),
+    values,
     states: {
       id: "automatic",
       formId: "automatic",
@@ -134,6 +153,8 @@ function newDraft(data: BuilderData, entityType = "normal"): BuilderDraft {
       dexId: "automatic",
       pvpRef: "automatic",
       assetsRef: "automatic",
+      ...(entityType === "adventure-effect" ? { slug: "automatic", id: "automatic" } : {}),
+      ...(entityType === "adventure-effect" ? Object.fromEntries(entityLeafFields(values.effect, "effect", entityType).map((field) => [field.path, "unknown"])) : {}),
     },
     assets: { core: clone(data.assetTemplates.core) },
     assetStates: { core: {} },
@@ -145,8 +166,8 @@ function setAtPath(target: Record<string, unknown>, dottedPath: string, value: u
   const next = clone(target);
   const parts = dottedPath.split(".").filter(Boolean);
   let current: Record<string, unknown> = next;
-  for (const key of parts.slice(0, -1)) {
-    if (!current[key] || typeof current[key] !== "object" || Array.isArray(current[key])) current[key] = {};
+  for (const [index, key] of parts.slice(0, -1).entries()) {
+    if (!current[key] || typeof current[key] !== "object") current[key] = /^\d+$/.test(parts[index + 1]) ? [] : {};
     current = current[key] as Record<string, unknown>;
   }
   current[parts.at(-1)!] = value;
@@ -156,6 +177,16 @@ function setAtPath(target: Record<string, unknown>, dottedPath: string, value: u
 function leafFields(value: unknown, prefix: string): Array<{ path: string; value: unknown }> {
   if (value && typeof value === "object" && !Array.isArray(value)) {
     return Object.entries(value as Record<string, unknown>).flatMap(([key, child]) => leafFields(child, `${prefix}.${key}`));
+  }
+  return [{ path: prefix, value }];
+}
+
+function entityLeafFields(value: unknown, prefix: string, entityType: string): Array<{ path: string; value: unknown }> {
+  if (entityType === "adventure-effect" && Array.isArray(value) && value.length && value.every((item) => item && typeof item === "object")) {
+    return value.flatMap((item, index) => entityLeafFields(item, `${prefix}.${index}`, entityType));
+  }
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return Object.entries(value as Record<string, unknown>).flatMap(([key, child]) => entityLeafFields(child, `${prefix}.${key}`, entityType));
   }
   return [{ path: prefix, value }];
 }
@@ -170,7 +201,8 @@ function parseInput(value: string, previous: unknown) {
   if (typeof previous === "boolean") return value === "true";
   if (Array.isArray(previous)) {
     if (previous.some((item) => item && typeof item === "object")) return JSON.parse(value || "[]");
-    return value.split(",").map((item) => item.trim()).filter(Boolean);
+    const items = value.split(",").map((item) => item.trim()).filter(Boolean);
+    return previous.length && previous.every((item) => typeof item === "number") ? items.map(Number) : items;
   }
   if (previous === null) return value || null;
   return value;
@@ -182,6 +214,10 @@ function valueForInput(value: unknown) {
   return String(value);
 }
 
+function adventureEffectName(effect: BuilderData["catalog"]["adventureEffects"][number]) {
+  return effect.localization?.fr?.name || effect.localization?.en?.name || effect.id || "Effet sans nom";
+}
+
 function FieldEditor({
   path,
   value,
@@ -190,6 +226,7 @@ function FieldEditor({
   onValue,
   onState,
   datalist,
+  options,
 }: {
   path: string;
   value: unknown;
@@ -198,6 +235,7 @@ function FieldEditor({
   onValue: (value: unknown) => void;
   onState: (state: string) => void;
   datalist?: string[];
+  options?: string[];
 }) {
   const id = `json-builder-${path.replace(/[^a-z0-9]+/gi, "-")}`;
   const disabled = !["filled", "automatic"].includes(state);
@@ -222,7 +260,12 @@ function FieldEditor({
           {valueStates.map((option) => <option key={option} value={option}>{stateLabels[option] || option}</option>)}
         </Select>
       </div>
-      {typeof value === "boolean" ? (
+      {options ? (
+        <Select id={id} className={fieldClass} disabled={disabled} value={String(value ?? "")} onChange={(event) => onValue(event.target.value)}>
+          <option value="">Sélectionner…</option>
+          {options.map((option) => <option key={option} value={option}>{option}</option>)}
+        </Select>
+      ) : typeof value === "boolean" ? (
         <Select id={id} className={fieldClass} disabled={disabled} value={String(value)} onChange={(event) => onValue(event.target.value === "true")}>
           <option value="true">Oui</option>
           <option value="false">Non</option>
@@ -303,10 +346,11 @@ export function JsonBuilderPanel() {
     return () => window.clearTimeout(timer);
   }, [draft]);
 
-  const currentStep = steps[step];
+  const activeSteps = draft?.entityType === "adventure-effect" ? adventureEffectSteps : pokemonSteps;
+  const currentStep = activeSteps[step] || activeSteps[0];
   const fields = useMemo(() => {
     if (!draft || !currentStep.keys.length) return [];
-    return currentStep.keys.flatMap((key) => leafFields(draft.values[key], key));
+    return currentStep.keys.flatMap((key) => entityLeafFields(draft.values[key], key, draft.entityType));
   }, [draft, currentStep]);
 
   if (loading) return <FetchLoadingState title="Chargement du JSON Builder…" detail="Je charge les templates et schémas canoniques depuis PokémonGo-Data develop." />;
@@ -317,7 +361,19 @@ export function JsonBuilderPanel() {
     setDryRun(null);
     setConfirmed(false);
   };
-  const updateValue = (fieldPath: string, value: unknown) => updateDraft({ values: setAtPath(draft.values, fieldPath, value) });
+  const updateValue = (fieldPath: string, value: unknown) => {
+    if (fieldPath === "effect.visibleAppraisalTiers" && Array.isArray(value)) value = value.map(Number);
+    if (draft.entityType === "adventure-effect" && fieldPath === "effectType" && value !== draft.values.effectType) {
+      const example = data.catalog.adventureEffects.find((effect) => effect.effectType === value);
+      if (example) {
+        const emptyValues = (item: unknown): unknown => Array.isArray(item) ? (item.some((entry) => entry && typeof entry === "object") ? item.map(emptyValues) : []) : item && typeof item === "object" ? Object.fromEntries(Object.entries(item).map(([key, child]) => [key, emptyValues(child)])) : typeof item === "number" ? 0 : "";
+        const effect = emptyValues(example.effect);
+        updateDraft({ values: { ...draft.values, effectType: value, effect }, states: { ...Object.fromEntries(Object.entries(draft.states).filter(([key]) => !key.startsWith("effect."))), ...Object.fromEntries(entityLeafFields(effect, "effect", draft.entityType).map((field) => [field.path, "unknown"])) } });
+        return;
+      }
+    }
+    updateDraft({ values: setAtPath(draft.values, fieldPath, value) });
+  };
   const updateState = (fieldPath: string, state: string) => updateDraft({ states: { ...draft.states, [fieldPath]: state } });
   const switchType = (entityType: string) => {
     const next = newDraft(data, entityType);
@@ -325,6 +381,7 @@ export function JsonBuilderPanel() {
     next.name = draft.name;
     setDraft(next);
     setDryRun(null);
+    setStep(0);
   };
   const runDry = async () => {
     setRunning(true);
@@ -332,7 +389,7 @@ export function JsonBuilderPanel() {
       const result = await dryRunJsonBuilder(draft) as DryRun;
       setDryRun(result);
       setSelectedFile(0);
-      setStep(steps.length - 1);
+      setStep(activeSteps.length - 1);
       if (result.completeness.canCommit) toast.success("Dry-run valide : preview et diff prêts.");
       else toast.warning(`${result.completeness.blocking} contrôle(s) bloquant(s).`);
     } catch (reason) {
@@ -357,7 +414,7 @@ export function JsonBuilderPanel() {
     }
   };
   const selected = dryRun?.files[selectedFile];
-  const moveIds = data.catalog.moves.map((move) => move.id || "").filter(Boolean);
+  const moveIds = [...new Set(data.catalog.moves.map((move) => move.id || "").filter(Boolean))];
 
   return (
     <div className="space-y-5" data-json-builder>
@@ -366,7 +423,7 @@ export function JsonBuilderPanel() {
           <div>
             <p className="type-overline text-violet-200">templates canoniques PokémonGo-Data</p>
             <h2 className="mt-1 type-title-section">JSON Builder</h2>
-            <p className="mt-2 max-w-3xl type-body text-muted">Crée une fiche et ses fichiers liés sans dupliquer le schéma, sans reformater les JSON existants et sans écraser une identité.</p>
+            <p className="mt-2 max-w-3xl type-body text-muted">Crée une fiche Pokémon ou un Effet d’aventure et ses références liées sans dupliquer le schéma, sans reformater les JSON existants et sans écraser une identité.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Badge tone="green">Contrat {data.contractSource.ref}</Badge>
@@ -378,7 +435,7 @@ export function JsonBuilderPanel() {
       </section>
 
       <nav aria-label="Étapes JSON Builder" className="grid grid-cols-2 gap-2 sm:grid-cols-5 xl:grid-cols-10">
-        {steps.map((item, index) => (
+        {activeSteps.map((item, index) => (
           <button
             key={item.id}
             type="button"
@@ -394,7 +451,7 @@ export function JsonBuilderPanel() {
       <section className={panelClass}>
         <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="type-overline text-cyan-200">Étape {step + 1} / {steps.length}</p>
+            <p className="type-overline text-cyan-200">Étape {step + 1} / {activeSteps.length}</p>
             <h3 className="mt-1 type-title-subsection">{currentStep.label}</h3>
           </div>
           <label className="min-w-64">
@@ -404,6 +461,7 @@ export function JsonBuilderPanel() {
         </div>
 
         {currentStep.id === "type" ? (
+          <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
             {Object.entries(data.entityTypes).map(([id, config]) => (
               <button key={id} type="button" onClick={() => switchType(id)} className={`rounded-2xl border p-4 text-left transition ${draft.entityType === id ? "border-violet-300/60 bg-violet-400/20" : "border-line bg-surface-inset-subtle hover:border-violet-300/35"}`}>
@@ -413,23 +471,86 @@ export function JsonBuilderPanel() {
               </button>
             ))}
           </div>
+          {draft.entityType === "adventure-effect" && data.catalog.adventureEffects.length ? (
+            <label className="block max-w-xl rounded-2xl border border-violet-200/20 bg-violet-300/10 p-4">
+              <span className="mb-2 block type-overline text-violet-100">Sélectionner un effet existant</span>
+              <Select defaultValue="" onChange={(event) => {
+                const selectedEffect = data.catalog.adventureEffects.find((effect) => effect.id === event.target.value);
+                if (selectedEffect) updateDraft({ values: clone(selectedEffect), states: {}, name: `Copie de ${adventureEffectName(selectedEffect)}` });
+              }}>
+                <option value="">Créer un nouvel effet</option>
+                {data.catalog.adventureEffects.map((effect) => <option value={effect.id} key={effect.id}>{adventureEffectName(effect)}</option>)}
+              </Select>
+              <span className="mt-2 block text-xs text-muted">Le chargement d’une fiche existante sert de référence ou de base de duplication ; l’écrasement reste protégé.</span>
+            </label>
+          ) : null}
+          </div>
         ) : null}
 
         {fields.length ? (
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {fields.map((field) => (
+            {fields.map((field) => field.path === "adventureEffectRefs" ? (
+              <div className="min-w-0 rounded-2xl border border-line bg-surface-inset-subtle p-3" key={field.path}>
+                <label className="type-label text-domain-foreground" htmlFor="json-builder-adventure-effect-refs">Effets d’aventure existants</label>
+                <select id="json-builder-adventure-effect-refs" multiple className={`${fieldClass} mt-2 min-h-32`} value={Array.isArray(field.value) ? field.value.map(String) : []} onChange={(event) => updateValue(field.path, [...event.currentTarget.selectedOptions].map((option) => option.value))}>
+                  {data.catalog.adventureEffects.map((effect) => <option value={effect.id} key={effect.id}>{adventureEffectName(effect)}</option>)}
+                </select>
+              </div>
+            ) : draft.entityType === "adventure-effect" && /^pokemonRefs\.\d+\.formId$/.test(field.path) ? (
+              <label className="rounded-2xl border border-line p-3" key={field.path}>
+                <span className="type-label">Pokémon · forme exacte</span>
+                <select aria-label={field.path} className={`${fieldClass} mt-2`} value={String(field.value || "")} onChange={(event) => {
+                  const identity = data.catalog.identities.find((entry) => entry.formId === event.target.value);
+                  if (identity) updateValue(field.path.replace(/\.formId$/, ""), { pokemonId: identity.id, formId: identity.formId, pokemonRef: identity.file });
+                }}>
+                  <option value="">Sélectionner une forme</option>
+                  {data.catalog.identities.map((identity) => <option key={identity.file} value={identity.formId}>{identity.formId}</option>)}
+                </select>
+              </label>
+            ) : (
               <FieldEditor
                 key={field.path}
                 path={field.path}
                 value={field.value}
                 state={draft.states[field.path] || "filled"}
                 valueStates={data.valueStates}
+                options={draft.entityType === "adventure-effect" ? (() => {
+                  let schema = data.schemas.adventureEffect as { properties?: Record<string, unknown>; items?: unknown; additionalProperties?: unknown; enum?: string[] } | undefined;
+                  for (const part of field.path.split(".")) schema = (/^\d+$/.test(part) ? schema?.items : schema?.properties?.[part] || schema?.additionalProperties) as typeof schema;
+                  return schema?.enum;
+                })() : undefined}
                 onValue={(value) => updateValue(field.path, value)}
                 onState={(state) => updateState(field.path, state)}
-                datalist={field.path.endsWith("Type") ? data.catalog.types : field.path.toLowerCase().includes("moves") ? moveIds : undefined}
+                datalist={field.path === "moveRef" ? moveIds : field.path.endsWith("effectType") ? ["ATTACK_BONUS", "DEFENSE_BONUS", "MAX_MOVE_LEVEL", "CATCH_FREEZE", "CATCH_RING_SLOW", "DAY_INCENSE", "NIGHT_INCENSE", "ITEM_TIME_PAUSE", "ENCOUNTER_RANGE", "MEGA_RAID_DAMAGE", "APPRAISAL_VISIBILITY"] : field.path.match(/pokemonRefs\.\d+\.(?:pokemonId|formId)$/) ? data.catalog.identities.flatMap((identity) => [identity.formId || ""]).filter(Boolean) : field.path.match(/pokemonRefs\.\d+\.pokemonRef$/) ? data.catalog.identities.map((identity) => identity.file || "").filter(Boolean) : field.path.endsWith("Type") ? data.catalog.types : field.path.toLowerCase().includes("moves") ? moveIds : undefined}
               />
             ))}
           </div>
+        ) : null}
+
+        {draft.entityType === "adventure-effect" && currentStep.id === "cost" ? (
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Button onClick={() => {
+              const cost = clone(draft.values.cost) as Record<string, unknown>;
+              if (Object.hasOwn(cost, "stardust")) delete cost.stardust;
+              else cost.stardust = 0;
+              updateDraft({ values: { ...draft.values, cost } });
+            }}>Ajouter / retirer la poussière</Button>
+            <Button onClick={() => {
+              const cost = clone(draft.values.cost) as Record<string, unknown>;
+              if (cost.megaEnergy) delete cost.megaEnergy;
+              else cost.megaEnergy = { amount: 0, pokemonId: "", megaEnergyType: "X" };
+              updateDraft({ values: { ...draft.values, cost } });
+            }}>Ajouter / retirer la Méga-Énergie</Button>
+          </div>
+        ) : null}
+
+        {draft.entityType === "adventure-effect" && ["identity", "sources"].includes(currentStep.id) ? (
+          <Button className="mt-4" onClick={() => {
+            const key = currentStep.id === "identity" ? "pokemonRefs" : "sources";
+            const entries = (draft.values[key] || []) as Record<string, unknown>[];
+            const entry = key === "pokemonRefs" ? { pokemonId: "", formId: "", pokemonRef: "" } : { source: "", sourceUrl: "", retrievedAt: new Date().toISOString(), sourceType: "GO_HUB", confidence: "LOW", fields: [] };
+            updateValue(key, [...entries, entry]);
+          }}>Ajouter {currentStep.id === "identity" ? "une forme liée" : "une source"}</Button>
         ) : null}
 
         {currentStep.id === "assets" ? (
@@ -496,7 +617,7 @@ export function JsonBuilderPanel() {
                 <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                   <div className="rounded-2xl border border-line bg-surface-inset-subtle p-4"><span className="type-overline text-disabled">Fichiers</span><strong className="mt-1 block text-2xl text-domain-foreground">{dryRun.files.length}</strong></div>
                   <div className="rounded-2xl border border-line bg-surface-inset-subtle p-4"><span className="type-overline text-disabled">Bloquants</span><strong className={`mt-1 block text-2xl ${dryRun.completeness.blocking ? "text-rose-200" : "text-emerald-200"}`}>{dryRun.completeness.blocking}</strong></div>
-                  <div className="rounded-2xl border border-line bg-surface-inset-subtle p-4"><span className="type-overline text-disabled">Identité</span><strong className="mt-1 block truncate text-lg text-domain-foreground">{dryRun.identity.formId}</strong></div>
+                  <div className="rounded-2xl border border-line bg-surface-inset-subtle p-4"><span className="type-overline text-disabled">Identité</span><strong className="mt-1 block truncate text-lg text-domain-foreground">{dryRun.identity.formId || dryRun.identity.id}</strong></div>
                   <div className="rounded-2xl border border-line bg-surface-inset-subtle p-4"><span className="type-overline text-disabled">Empreinte</span><strong className="mt-1 block truncate font-mono text-xs text-cyan-100">{dryRun.fingerprint}</strong></div>
                 </div>
                 {dryRun.issues.length ? <ul className="space-y-2 rounded-2xl border border-amber-300/25 bg-amber-300/10 p-4">{dryRun.issues.map((issue, index) => <li key={`${issue.code}-${index}`} className="text-sm text-amber-50"><strong>{issue.code}</strong> · {issue.path} · {issue.message}</li>)}</ul> : null}
@@ -532,7 +653,7 @@ export function JsonBuilderPanel() {
           <Button icon={<ChevronLeft />} disabled={step === 0} onClick={() => setStep((value) => Math.max(0, value - 1))}>Précédent</Button>
           <div className="flex flex-wrap gap-2">
             <Button icon={<Save />} onClick={() => { void saveJsonBuilderDrafts([draft, ...savedDrafts.filter((item) => item.id !== draft.id)]); toast.success("Brouillon sauvegardé."); }}>Sauvegarder</Button>
-            {step < steps.length - 1 ? <Button variant="primary" icon={<ChevronRight />} onClick={() => setStep((value) => Math.min(steps.length - 1, value + 1))}>Suivant</Button> : <Button variant="primary" icon={running ? <LoaderCircle className="animate-spin" /> : <FileJson />} disabled={running} onClick={runDry}>Recalculer l’aperçu</Button>}
+            {step < activeSteps.length - 1 ? <Button variant="primary" icon={<ChevronRight />} onClick={() => setStep((value) => Math.min(activeSteps.length - 1, value + 1))}>Suivant</Button> : <Button variant="primary" icon={running ? <LoaderCircle className="animate-spin" /> : <FileJson />} disabled={running} onClick={runDry}>Recalculer l’aperçu</Button>}
           </div>
         </div>
       </section>

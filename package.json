@@ -1,6 +1,6 @@
 {
   "name": "dashboard-admin",
-  "version": "1.53.2",
+  "version": "1.54.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -39,6 +39,8 @@
     "test:pokemon-mega-evolutions": "node --test scripts/test-pokemon-mega-evolutions.mjs",
     "test:canonical-json-viewer": "node --test scripts/test-canonical-json-viewer.mjs",
     "test:json-builder": "node --test scripts/test-json-builder.mjs",
+    "test:adventure-effects": "node --test scripts/test-adventure-effects.mjs",
+    "test:adventure-effects:browser": "node scripts/verify-adventure-effects-browser.mjs",
     "test:json-builder:browser": "node scripts/verify-json-builder-browser.mjs",
     "test:pvp-local-data": "node --test scripts/test-pvp-ranking-local-data.mjs",
     "test:pvp-regeneration": "node --test scripts/test-pvp-ranking-regeneration-state.mjs",

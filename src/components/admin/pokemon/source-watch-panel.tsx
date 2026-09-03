@@ -56,11 +56,12 @@ type SourceItem = {
   monitoringState?: string;
   changeType?: string | null;
   unreadChange?: boolean;
+  readableDiff?: string[];
 };
 
 const sourceTaxonomy = [
   { id: "pokemon", label: "Disponibilité Pokémon", categories: ["pokemon-availability", "pokemon-shiny-availability", "pokemon-shadow-availability", "shiny"] },
-  { id: "combat", label: "Combat", categories: ["pvp", "pve", "best-defenders", "gbl-calendar", "raids", "max-battles", "team-go-rocket"] },
+  { id: "combat", label: "Combat", categories: ["pvp", "pve", "best-defenders", "gbl-calendar", "raids", "max-battles", "team-go-rocket", "adventure-effects", "adventure-effects-inventory"] },
   { id: "events", label: "Événements", categories: ["events", "events-reference", "eggs", "research-tasks", "news", "official"] },
   { id: "assets", label: "Assets", categories: ["assets", "shuffle"] },
   { id: "providers", label: "Fournisseurs et données", categories: ["gamemaster", "reference"] },
@@ -537,6 +538,7 @@ export function SourceRows({
                   <li className="rounded-xl border border-amber-300/25 bg-surface-faint p-3" key={source.id || source.name || source.url}>
                     <strong className="block break-words text-sm text-domain-foreground">{source.name || source.repo || source.url}</strong>
                     <span className="mt-1 block type-caption-strong text-foreground-secondary">{source.changeType || "Empreinte distante"} · {formatSourceDate(source.lastChangedAt)}</span>
+                    {source.readableDiff?.length ? <span className="mt-2 block text-xs font-semibold text-amber-950 dark:text-amber-50">{source.readableDiff[0]}</span> : null}
                   </li>
                 ))}
               </ul>
@@ -633,6 +635,7 @@ export function SourceRows({
                     {source.httpStatus ? <span className="inline-flex rounded-full border border-line bg-surface-control px-2.5 py-1 font-mono text-xs font-black text-domain-foreground">HTTP {source.httpStatus}</span> : null}
                   </div>
                   <p className="mt-2 break-words text-sm font-medium text-foreground-secondary">{monitoringKind === "changed" ? `${source.changeType || "Empreinte distante"} détectée.` : sourceCause(source)}</p>
+                  {monitoringKind === "changed" && source.readableDiff?.length ? <ul className="mt-3 space-y-1 rounded-xl border border-amber-300/25 bg-amber-400/[.08] p-3 text-xs font-semibold text-domain-foreground">{source.readableDiff.slice(0, 12).map((line) => <li className="break-words" key={line}>{line}</li>)}</ul> : null}
                   {monitoringKind === "changed" && onAcknowledgeSource ? <Button className="mt-3" size="sm" variant="secondary" icon={<CheckCheck aria-hidden="true" size={14} />} loading={acknowledging} loadingText="Acquittement…" onClick={() => onAcknowledgeSource(id)}>Acquitter</Button> : null}
                 </div>
                 <div className="min-w-0 text-sm">
