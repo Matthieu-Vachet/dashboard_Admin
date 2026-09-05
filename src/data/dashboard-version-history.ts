@@ -7,6 +7,16 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.54.1",
+    date: "2026-09-05",
+    title: "Preuve Production Adventure Effects",
+    changes: [
+      "Remplace l’attente de la matrice par la preuve réelle du déploiement Production.",
+      "Consigne la synchronisation idempotente 11/11, le hash stable et l’absence d’erreur console.",
+      "Conserve le domaine, les relations, les sources et les JSON Pokémon/Moves strictement inchangés.",
+    ],
+  },
+  {
     version: "V1.54.0",
     date: "2026-09-02",
     title: "Adventure Effects canoniques de bout en bout",
