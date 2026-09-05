@@ -6,13 +6,18 @@ import { chromium } from "playwright";
 
 nextEnv.loadEnvConfig(process.cwd());
 const origin = process.env.ADVENTURE_EFFECTS_BROWSER_ORIGIN || "http://localhost:3100";
-const output = path.join(process.cwd(), "test-results/adventure-effects");
+const bootstrapUrl = process.env.ADVENTURE_EFFECTS_BROWSER_BOOTSTRAP_URL || "";
+const output = path.resolve(process.cwd(), process.env.ADVENTURE_EFFECTS_BROWSER_OUTPUT || "test-results/adventure-effects");
 fs.mkdirSync(output, { recursive: true });
 assert.ok(process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD, "Identifiants de test requis");
 const browser = await chromium.launch();
 const results = [];
 try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  if (bootstrapUrl) {
+    const bootstrap = await context.request.get(bootstrapUrl, { maxRedirects: 10 });
+    assert.ok(bootstrap.status() < 400, `Accès Preview impossible (${bootstrap.status()})`);
+  }
   const login = await context.request.post(`${origin}/api/session`, { form: { email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD, next: "/catalogues" }, headers: { origin }, maxRedirects: 0 });
   assert.equal(login.status(), 303);
   // Never persist test drafts or trigger a commit, even when testing production.

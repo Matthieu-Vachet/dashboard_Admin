@@ -5,7 +5,9 @@ const baseUrlArgument = cliArgs.find((value) => value.startsWith("--base-url="))
   || (cliArgs.includes("--base-url") ? cliArgs[cliArgs.indexOf("--base-url") + 1] : "");
 const target = String(baseUrlArgument || process.env.DASHBOARD_SMOKE_TARGET || "https://dashboard-admin-pi-ebon.vercel.app").replace(/\/$/, "");
 const protectionBypass = String(process.env.VERCEL_AUTOMATION_BYPASS_SECRET || "").trim();
+const bootstrapUrl = String(process.env.DASHBOARD_BOOTSTRAP_URL || "").trim();
 let cookie = String(process.env.DASHBOARD_SESSION_COOKIE || "").trim();
+let protectionCookie = "";
 const requestedIds = new Set(String(cliArgs.includes("--all") ? "" : process.env.REGENERATION_SMOKE_IDS || "")
   .split(",")
   .map((value) => value.trim())
@@ -20,6 +22,14 @@ if (requestedIds.size > 0 && requestedIds.size !== registrations.length) {
 
 async function authenticate() {
   if (cookie) return cookie;
+  if (bootstrapUrl && !protectionCookie) {
+    const bootstrap = await fetch(bootstrapUrl, { redirect: "manual", signal: AbortSignal.timeout(30_000) });
+    const setCookies = typeof bootstrap.headers.getSetCookie === "function"
+      ? bootstrap.headers.getSetCookie()
+      : [bootstrap.headers.get("set-cookie") || ""];
+    protectionCookie = setCookies.map((value) => value.split(";", 1)[0]).filter(Boolean).join("; ");
+    if (!protectionCookie) throw new Error(`Accès Preview impossible (HTTP ${bootstrap.status}, cookie absent).`);
+  }
   const email = String(process.env.ADMIN_EMAIL || "").trim();
   const password = String(process.env.ADMIN_PASSWORD || "").trim();
   if (!email || !password) {
@@ -32,6 +42,7 @@ async function authenticate() {
       "content-type": "application/x-www-form-urlencoded",
       origin: target,
       ...(protectionBypass ? { "x-vercel-protection-bypass": protectionBypass } : {}),
+      ...(protectionCookie ? { cookie: protectionCookie } : {}),
     },
     body: new URLSearchParams({ email, password, next: "/pokemon-admin" }),
     signal: AbortSignal.timeout(30_000),
@@ -40,7 +51,7 @@ async function authenticate() {
   if (![302, 303].includes(response.status) || !sessionCookie.includes("matweb_dashboard_session=")) {
     throw new Error(`Authentification Dashboard impossible (HTTP ${response.status}).`);
   }
-  cookie = sessionCookie;
+  cookie = [protectionCookie, sessionCookie].filter(Boolean).join("; ");
   return cookie;
 }
 
