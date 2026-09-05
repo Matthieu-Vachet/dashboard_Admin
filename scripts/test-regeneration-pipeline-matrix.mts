@@ -43,6 +43,13 @@ test("les parcours critiques conservent leurs preuves de production", () => {
   assert.match(byId.eggs.preview, /76/);
   assert.match(byId.research.preview, /59/);
   assert.equal(byId.events.diagnostics.archivePreserved, true);
+  assert.equal(byId["adventure-effects"].result, "pass-unchanged");
+  assert.equal(byId["adventure-effects"].diagnostics.status, "SUCCESS");
+  assert.equal(byId["adventure-effects"].diagnostics.effectsMapped, 11);
+  assert.equal(byId["adventure-effects"].diagnostics.modified, 0);
+  assert.equal(byId["adventure-effects"].diagnostics.errors, 0);
+  assert.equal(byId["adventure-effects"].diagnostics.consoleErrors, 0);
+  assert.equal(byId["adventure-effects"].diagnostics.hash, "c90022e038a8a27919a0ac38811540a3d908cd115e6725c25b5a8b0b52006f4c");
 });
 
 test("un sourceRun Events partiel est reflété dans la matrice globale", async () => {
