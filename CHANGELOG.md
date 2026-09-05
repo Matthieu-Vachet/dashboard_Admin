@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+## 1.55.0 - 2026-09-05
+
+### Added
+
+- Enrichit la carte Adventure Effect partagée avec métriques homogènes, assets canoniques de Pokémon/Bonbon, poussière, durée, Max et exclusions illustrées.
+- Ajoute les preuves exactes Méga-Mewtwo X/Y, Mewtwo normal, Zacian couronné et Zacian normal dans l’Engine et l’API.
+
+### Changed
+
+- Retire complètement Source/Fiabilité des cartes et aligne l’Engine sur le contrat canonique sans `sources` ni `metadata`.
+- Classe les divergences de manifests comme métadonnées opérationnelles réparables et déplace JSON Builder dans Maintenance sans changer sa route.
+
+### Fixed
+
+- Corrige les sheets Collections sur petits écrans, y compris les noms longs et safe areas, et répartit ALL/HAVE/NEED et les trois actions mobiles sur deux lignes tactiles sans overflow.
+- Charge le contrat JSON Builder depuis le dataset canonique réellement embarqué, y compris lorsqu’il provient de `main`, afin d’éviter un faux contrat indisponible en Production.
+
 ## 1.54.2 - 2026-09-05
 
 ### Fixed

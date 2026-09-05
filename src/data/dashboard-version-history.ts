@@ -7,6 +7,18 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.55.0",
+    date: "2026-09-05",
+    title: "Adventure Effects exacts et maintenance sans manifests manuels",
+    changes: [
+      "Résout les Adventure Effects par forme, catégorie et référence exactes dans les fiches Pokémon et Méga.",
+      "Réorganise la carte partagée avec assets canoniques et retire toute provenance opérationnelle de l’interface.",
+      "Rend Collections robuste sur mobile et déplace JSON Builder dans Maintenance sans changer son URL.",
+      "Accompagne les manifests dérivés automatiques et distingue MANIFEST_STALE d’une donnée métier invalide.",
+      "Charge le schéma JSON Builder depuis le dataset canonique embarqué, quelle que soit l’étiquette Git du snapshot.",
+    ],
+  },
+  {
     version: "V1.54.2",
     date: "2026-09-05",
     title: "Conformité Design System Adventure Effects",

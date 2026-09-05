@@ -139,7 +139,7 @@ async function authenticate(browser) {
   await page.locator('input[name="email"]').fill(credentials.ADMIN_EMAIL || "matthieu@example.com");
   await page.locator('input[name="password"]').fill(credentials.ADMIN_PASSWORD || "change-moi");
   await Promise.all([
-    page.waitForURL((url) => url.pathname === "/", { timeout: 20_000 }),
+    page.waitForURL((url) => url.pathname === "/", { waitUntil: "domcontentloaded", timeout: 60_000 }),
     page.locator('button[type="submit"]').click(),
   ]);
   const cookies = await context.cookies();
@@ -175,6 +175,7 @@ const scenarios = [
   { id: "identity-manager", path: "/identity-manager", ready: /Identity Manager/ },
   { id: "variants", path: "/pokemon-identity-mappings", ready: /Résolution/ },
   { id: "events", path: "/events", ready: /Calendrier Events Pokémon GO/, eventModal: true },
+  { id: "collections", path: "/collections", ready: /Collections Pokémon GO/, collections: true },
 ];
 
 const browser = await chromium.launch();
@@ -186,7 +187,18 @@ try {
       const context = await browser.newContext({ viewport: { width, height: width < 768 ? 932 : 1000 }, colorScheme: theme, storageState: { cookies, origins: [] } });
       await context.addInitScript((selectedTheme) => {
         localStorage.setItem("matweb-theme", selectedTheme);
-        localStorage.setItem("pokedex-v4-admin-collections", "[]");
+        localStorage.setItem("pokedex-v4-admin-collections", JSON.stringify([{
+          id: "responsive-fixture",
+          schemaVersion: 3,
+          name: "CollectionMobileAvecUnNomVolontairementTresLongSansEspacesPourTesterLeViewport",
+          type: "normal",
+          variantMode: "multi",
+          includeGenderVariants: false,
+          shiny: false,
+          hundo: false,
+          items: {},
+          legacyItems: {},
+        }]));
       }, theme);
       for (const scenario of scenarios) {
         const page = await context.newPage();
@@ -296,6 +308,47 @@ try {
             .map((button) => ({ y: button.getBoundingClientRect().y, rank: button.querySelector("span")?.textContent?.trim() }))
             .sort((left, right) => left.y - right.y).map((entry) => entry.rank));
           assert.deepEqual(visualOrder, ["1", "2", "3"], `shiny-${theme}-${width}: ordre podium mobile`);
+        }
+        if (scenario.collections && width < 768) {
+          const sticky = page.getByTestId("collections-sticky-bar");
+          await sticky.waitFor({ state: "visible" });
+          const geometry = await sticky.evaluate((element) => {
+            const statusButtons = [...element.querySelectorAll('[aria-label="État de progression"] button')].map((button) => button.getBoundingClientRect());
+            const actions = [...element.querySelectorAll('[data-testid="collections-mobile-actions"] button')].map((button) => button.getBoundingClientRect());
+            const rect = element.getBoundingClientRect();
+            return {
+              left: rect.left,
+              right: rect.right,
+              viewport: document.documentElement.clientWidth,
+              statusWidths: statusButtons.map((button) => Math.round(button.width)),
+              actionWidths: actions.map((button) => Math.round(button.width)),
+              actionHeights: actions.map((button) => Math.round(button.height)),
+            };
+          });
+          assert.ok(geometry.left >= -1 && geometry.right <= geometry.viewport + 1, `collections-${theme}-${width}: barre sticky hors viewport ${JSON.stringify(geometry)}`);
+          assert.equal(geometry.statusWidths.length, 3, `collections-${theme}-${width}: statuts ALL/HAVE/NEED incomplets`);
+          assert.ok(Math.min(...geometry.statusWidths) >= 44, `collections-${theme}-${width}: statut comprimé ${geometry.statusWidths}`);
+          assert.ok(Math.max(...geometry.actionWidths) - Math.min(...geometry.actionWidths) <= 1, `collections-${theme}-${width}: actions mobiles déséquilibrées ${geometry.actionWidths}`);
+          assert.ok(Math.min(...geometry.actionHeights) >= 44, `collections-${theme}-${width}: cible tactile trop petite ${geometry.actionHeights}`);
+
+          await page.getByTestId("collection-selector-trigger").click();
+          const dialog = page.getByRole("dialog", { name: "Mes collections" });
+          await dialog.waitFor({ state: "visible" });
+          const dialogGeometry = await dialog.evaluate((element) => {
+            const rect = element.getBoundingClientRect();
+            return {
+              left: rect.left,
+              right: rect.right,
+              width: rect.width,
+              clientWidth: element.clientWidth,
+              scrollWidth: element.scrollWidth,
+              viewport: document.documentElement.clientWidth,
+            };
+          });
+          assert.ok(dialogGeometry.left >= -1 && dialogGeometry.right <= dialogGeometry.viewport + 1, `collections-sheet-${theme}-${width}: sheet hors viewport ${JSON.stringify(dialogGeometry)}`);
+          assert.ok(dialogGeometry.scrollWidth <= dialogGeometry.clientWidth + 1, `collections-sheet-${theme}-${width}: overflow horizontal ${JSON.stringify(dialogGeometry)}`);
+          await dialog.getByRole("button", { name: "Fermer" }).click();
+          await assertNoOverflow(page, `collections-sheet-closed-${theme}-${width}`);
         }
         if (scenario.pvpDetail) {
           await page.locator('section[aria-label="Classement PvP"] button').first().click();

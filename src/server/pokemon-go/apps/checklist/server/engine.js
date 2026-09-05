@@ -78,9 +78,61 @@ function readAdventureEffects() {
   return listJsonFiles(adventureEffectsDir).map(readJson).sort((left, right) => String(left.id).localeCompare(String(right.id)));
 }
 
-function adventureEffectsForPokemon(data, effects = readAdventureEffects()) {
+function exactAdventureEffectReference(reference, data, { sourceFile = null, requestedFormId = null } = {}) {
+  if (!reference || !data) return false;
+  const exactFormId = requestedFormId || data.formId;
+  if (reference.pokemonId !== data.id || reference.formId !== data.formId || reference.formId !== exactFormId) return false;
+  const category = classifyEntity(data, { sourceFile: sourceFile || reference.pokemonRef }).category;
+  if (categoryFromReference(reference.pokemonRef) !== category) return false;
+  return !sourceFile || reference.pokemonRef === sourceFile;
+}
+
+function adventureEffectsForPokemon(data, effects = readAdventureEffects(), context = {}) {
   const declared = new Set(Array.isArray(data?.adventureEffectRefs) ? data.adventureEffectRefs : []);
-  return effects.filter((effect) => declared.has(effect.id) || effect.pokemonRefs?.some((reference) => reference.pokemonId === data?.id && reference.formId === data?.formId));
+  if (!declared.size) return [];
+  return effects.filter((effect) => declared.has(effect.id)
+    && effect.pokemonRefs?.some((reference) => exactAdventureEffectReference(reference, data, context)));
+}
+
+function referencedPokemonPresentation(reference) {
+  const file = resolveDataFile(reference?.pokemonRef || "");
+  if (!isInsideData(file) || !fs.existsSync(file)) return null;
+  const data = readJson(file);
+  if (!exactAdventureEffectReference(reference, data, { sourceFile: reference.pokemonRef })) return null;
+  const assets = readAssetRecord(data)?.assets || {};
+  return {
+    pokemonId: data.id,
+    formId: data.formId,
+    name: data.names?.French || data.names?.English || data.formId,
+    image: assets.portrait || assets.image || null,
+    candy: assets.candy || null,
+  };
+}
+
+function excludedPokemonPresentation(effect) {
+  const excluded = new Set(effect.effect?.excludedPokedexIds || []);
+  if (!excluded.size) return [];
+  return listJsonFiles(pokemonRoot)
+    .map(readJson)
+    .filter((pokemon) => excluded.has(pokemon.id) && pokemon.formId === pokemon.id)
+    .map((pokemon) => {
+      const assets = readAssetRecord(pokemon)?.assets || {};
+      return {
+        pokemonId: pokemon.id,
+        formId: pokemon.formId,
+        name: pokemon.names?.French || pokemon.names?.English || pokemon.id,
+        image: assets.portrait || assets.image || null,
+      };
+    })
+    .sort((left, right) => left.pokemonId.localeCompare(right.pokemonId));
+}
+
+function adventureEffectPresentation(effect) {
+  return {
+    ...effect,
+    pokemon: (effect.pokemonRefs || []).map(referencedPokemonPresentation).filter(Boolean),
+    excludedPokemon: excludedPokemonPresentation(effect),
+  };
 }
 
 function adventureEffectArchitectureAudit() {
@@ -92,12 +144,13 @@ function adventureEffectArchitectureAudit() {
   const requiredLocales = ["en", "de", "es", "pt", "fr", "nl"];
   const schemaFile = dataPath("schemas", "adventure-effects", "adventure-effect.schema.json");
   const schema = fs.existsSync(schemaFile) ? readJson(schemaFile) : null;
-  const add = (effect, issue, pathName, expected, actual) => issues.push(enrichDiagnostic({
+  const add = (effect, issue, pathName, expected, actual, severity = "error", extra = {}) => issues.push(enrichDiagnostic({
     issue,
     path: `${effect?.id || "adventure-effects"}.${pathName}`,
     expected,
     actual,
-    severity: "error",
+    severity,
+    ...extra,
   }));
   for (const effect of effects) {
     const schemaIssues = schema ? validateAgainstSchema(effect, schema) : [{ path: "$", message: "Schéma Adventure Effect absent" }];
@@ -124,26 +177,35 @@ function adventureEffectArchitectureAudit() {
     if (!Number.isFinite(effect.duration?.durationSeconds) || effect.duration.durationSeconds <= 0) add(effect, "adventure_effect_duration_invalid", "duration.durationSeconds", "durée positive", effect.duration?.durationSeconds);
     if (effect.bonusEffects?.status === "NOT_AVAILABLE" && effect.bonusEffects.raw !== null) add(effect, "adventure_effect_raw_state_invalid", "bonusEffects.raw", "null", actualType(effect.bonusEffects.raw));
     if (effect.bonusEffects?.status === "AVAILABLE" && !effect.bonusEffects.raw) add(effect, "adventure_effect_raw_state_invalid", "bonusEffects.raw", "bloc publié", "absent");
-    if (!Array.isArray(effect.sources) || !effect.sources.length || effect.sources.some((source) => !source.sourceUrl || !source.sourceType || !source.confidence)) add(effect, "adventure_effect_source_invalid", "sources", "provenance complète", "incomplète");
     for (const [kind, assetPath] of [["banner", effect.assets?.bannerPath], ["portrait", effect.assets?.portraitPath]]) {
       if (assetPath && (!assetPath.startsWith("AdventureEffect/") || !effect.assets?.[kind]?.endsWith(assetPath))) add(effect, "adventure_effect_asset_ref_invalid", `assets.${kind}`, assetPath, effect.assets?.[kind] || "absent");
     }
   }
   const expectedHash = crypto.createHash("sha256").update(JSON.stringify(effects)).digest("hex");
   const manifest = fs.existsSync(adventureEffectsManifestFile) ? readJson(adventureEffectsManifestFile) : null;
-  if (!manifest || manifest.count !== effects.length || manifest.hash !== expectedHash) add(null, "adventure_effect_manifest_mismatch", "manifest", `${effects.length}/${expectedHash}`, manifest ? `${manifest.count}/${manifest.hash}` : "absent");
+  if (!manifest || manifest.count !== effects.length || manifest.hash !== expectedHash) add(
+    null,
+    "MANIFEST_STALE",
+    "manifest",
+    `${effects.length}/${expectedHash}`,
+    manifest ? `${manifest.count}/${manifest.hash}` : "absent",
+    "warning",
+    { classification: "OPERATIONAL_METADATA", fix: "npm run manifests:rebuild" },
+  );
+  const errorCount = issues.filter((issue) => issue.severity === "error").length;
   return {
-    effects,
+    effects: effects.map(adventureEffectPresentation),
     issues,
     summary: {
-      valid: issues.length === 0,
+      valid: errorCount === 0,
       effects: effects.length,
       pokemonLinks: effects.reduce((total, effect) => total + (effect.pokemonRefs?.length || 0), 0),
       moveLinks: new Set(effects.map((effect) => effect.moveRef)).size,
       languages: requiredLocales,
       banners: effects.filter((effect) => effect.assets?.banner).length,
       portraits: effects.filter((effect) => effect.assets?.portrait).length,
-      errors: issues.length,
+      errors: errorCount,
+      manifestStale: issues.some((issue) => issue.issue === "MANIFEST_STALE"),
     },
   };
 }
@@ -303,7 +365,7 @@ function eventAssetIsCostumeOrEvent(asset = {}) {
   return Boolean(asset.costume);
 }
 
-function hydrateSourceData(data, { families = assetFamilies } = {}) {
+function hydrateSourceData(data, { families = assetFamilies, sourceFile = null, requestedFormId = null } = {}) {
   const bundle = readAssetBundle(data, { families });
   const record = bundle?.core || null;
   const familyDocuments = bundle?.families || {};
@@ -334,12 +396,13 @@ function hydrateSourceData(data, { families = assetFamilies } = {}) {
       shuffle,
     },
     assetForms: normalizeAssetForms(variants),
-    adventureEffects: adventureEffectsForPokemon(data),
+    adventureEffects: adventureEffectsForPokemon(data, readAdventureEffects(), { sourceFile, requestedFormId })
+      .map(adventureEffectPresentation),
   };
 }
 
 function buildMoveCatalog() {
-  const effectByMove = new Map(readAdventureEffects().map((effect) => [effect.moveRef, effect]));
+  const effectByMove = new Map(readAdventureEffects().map((effect) => [effect.moveRef, adventureEffectPresentation(effect)]));
   return new Map(
     listJsonFiles(movesDir).map((file) => {
       const move = readJson(file);
@@ -2108,6 +2171,7 @@ function detailForKey(key) {
   const file = resolveDataFile(relativeFile);
   if (!isInsideData(file) || !fs.existsSync(file)) return null;
   const sourceData = readJson(file);
+  if (requestedFormId && requestedFormId !== sourceData.formId) return null;
   const assetBundle = readAssetBundle(sourceData);
   const assetSourceData = assetBundle
     ? { ...assetBundle.core, familyDocuments: assetBundle.families }
@@ -2119,7 +2183,7 @@ function detailForKey(key) {
     assetBundle,
     pvpSourceData,
   );
-  let data = hydrateSourceData(sourceData);
+  let data = hydrateSourceData(sourceData, { sourceFile: relativeFile, requestedFormId });
 
   if (classifyEntity(sourceData, { sourceFile: relativeFile }).category !== "NORMAL") {
     const parent = fs
@@ -2140,7 +2204,10 @@ function detailForKey(key) {
 
   data = resolveRegionReference(data);
   const moveCatalog = buildMoveCatalog();
-  const adventureEffects = adventureEffectsForPokemon(sourceData);
+  const adventureEffects = adventureEffectsForPokemon(sourceData, readAdventureEffects(), {
+    sourceFile: relativeFile,
+    requestedFormId,
+  }).map(adventureEffectPresentation);
   return {
     ...data,
     sourceData,
@@ -2164,8 +2231,10 @@ function detailForKey(key) {
 }
 
 module.exports = {
+  adventureEffectPresentation,
   adventureEffectArchitectureAudit,
   adventureEffectsForPokemon,
+  exactAdventureEffectReference,
   assetFamilies,
   assetPresentation,
   assetSummary,

@@ -197,7 +197,7 @@ const navItems = [
     icon: `${filtersAssetBase}/TodayView_Icon_Photobomb.png`,
     group: "data",
   },
-  { id: "json-builder", label: "JSON Builder", icon: FileJson, group: "data" },
+  { id: "json-builder", label: "JSON Builder", icon: FileJson, group: "maintenance" },
   { id: "catalogs", label: "Catalogues", icon: Archive, group: "data" },
   {
     id: "raids",
@@ -3235,7 +3235,7 @@ export function AdminApp({ initialSection = "overview" }) {
         <div className="w-full">
           <section className="min-w-0">
             <header
-              className={`relative overflow-hidden rounded-surface border border-line bg-surface-control shadow-raised backdrop-blur-2xl ${active === "collections" ? "p-3 sm:p-5" : "p-4 sm:p-5"}`}
+              className={`relative overflow-hidden rounded-surface border border-line bg-surface-control shadow-raised backdrop-blur-2xl ${active === "collections" ? "hidden p-3 md:block sm:p-5" : "p-4 sm:p-5"}`}
               style={{
                 backgroundImage:
                   'linear-gradient(135deg, rgba(15,23,42,.88), rgba(14,165,233,.18)), url("/assets/ui/backgrounds/library/catchCards/CatchCard_TypeBG_Water.png")',

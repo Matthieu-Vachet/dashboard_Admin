@@ -48,6 +48,21 @@ try {
     await card.screenshot({ path: path.join(output, `${id}.png`) });
     results.push({ id, rendered: true, imagesLoaded: true });
   }
+  const requiredVisualEffects = [
+    "ADVENTURE_EFFECT_DYNAMAX_CANNON",
+    "ADVENTURE_EFFECT_BEHEMOTH_BASH",
+    "ADVENTURE_EFFECT_BEHEMOTH_BLADE",
+    "ADVENTURE_EFFECT_MEGA_MEWTWO_X",
+    "ADVENTURE_EFFECT_MEGA_MEWTWO_Y",
+    "ADVENTURE_EFFECT_SPACIAL_REND",
+    "ADVENTURE_EFFECT_ROAR_OF_TIME",
+  ];
+  assert.deepEqual(
+    requiredVisualEffects.filter((id) => !results.some((result) => result.id === id)),
+    [],
+  );
+  assert.equal(await page.getByText("Source et fiabilité", { exact: true }).count(), 0);
+  assert.ok(await page.locator("[data-adventure-effect-metric]").count() >= 22);
   const mewtwo = page.locator('[data-adventure-effect="ADVENTURE_EFFECT_MEGA_MEWTWO_X"]');
   assert.match(await mewtwo.innerText(), /Description EN/);
   assert.match(await mewtwo.innerText(), /10 min/);
@@ -95,6 +110,31 @@ try {
   const detail = await context.request.get(`${origin}/api/pokemon-admin?action=detail&key=${encodeURIComponent("form:data/pokemon/forms/0484-palkia-origin.json#PALKIA_ORIGIN")}`);
   assert.equal(detail.status(), 200);
   assert.match(await detail.text(), /ADVENTURE_EFFECT_SPACIAL_REND/);
+
+  async function verifyPokedexDetail({ query, name, effectId = null }) {
+    await page.goto(`${origin}/pokedex?q=${encodeURIComponent(query)}`, { waitUntil: "domcontentloaded" });
+    await page.getByRole("heading", { name: "Fiches", exact: true }).waitFor({ timeout: 60000 });
+    await page.getByRole("button", { name: "Ouvrir", exact: true }).first().click({ timeout: 60000 });
+    const modal = page.locator(".pokemon-detail-modal");
+    await modal.waitFor({ timeout: 60000 });
+    assert.equal(await modal.getByRole("heading", { name, exact: true }).count(), 1);
+    if (effectId) {
+      await modal.getByRole("button", { name: "Effets d’aventure", exact: true }).click();
+      await modal.locator(`[data-adventure-effect="${effectId}"]`).waitFor();
+      assert.equal(await modal.getByText("Source et fiabilité", { exact: true }).count(), 0);
+      assert.equal(await modal.evaluate((element) => element.scrollWidth <= element.clientWidth + 1), true);
+      await modal.screenshot({ path: path.join(output, `${effectId}-pokemon-detail.png`) });
+    } else {
+      assert.equal(await modal.getByRole("button", { name: "Effets d’aventure", exact: true }).count(), 0);
+      assert.equal(await modal.locator("[data-adventure-effect]").count(), 0);
+    }
+    await modal.getByRole("button", { name: "Fermer", exact: true }).click();
+  }
+
+  await verifyPokedexDetail({ query: "MEWTWO_MEGA_X", name: "Méga-Mewtwo X", effectId: "ADVENTURE_EFFECT_MEGA_MEWTWO_X" });
+  await verifyPokedexDetail({ query: "MEWTWO_MEGA_Y", name: "Méga-Mewtwo Y", effectId: "ADVENTURE_EFFECT_MEGA_MEWTWO_Y" });
+  await verifyPokedexDetail({ query: "data/pokemon/normal/0150-mewtwo.json", name: "Mewtwo" });
+  results.push({ megaMewtwoXDetail: true, megaMewtwoYDetail: true, normalMewtwoIsolated: true });
 
   await page.goto(`${origin}/json-builder`, { waitUntil: "domcontentloaded" });
   await page.locator("[data-json-builder]").waitFor({ timeout: 60000 });

@@ -64,7 +64,6 @@ export const navGroups: NavGroup[] = [
       { href: "/backgrounds", label: "Backgrounds", icon: `${filtersAssetBase}/TodayView_Icon_PostCard.png`, sectionId: "backgrounds" },
       { href: "/collections", label: "Collections", icon: pokemonNavigationIcons.collections, sectionId: "collections" },
       { href: "/assets", label: "Assets", icon: pokemonNavigationIcons.assets, sectionId: "assets" },
-      { href: "/json-builder", label: "JSON Builder", icon: FileJson, sectionId: "json-builder" },
       { href: "/catalogues", label: "Catalogues", icon: pokemonNavigationIcons.catalogs, sectionId: "catalogs" },
       { href: "/pokemon-docs", label: "Docs JSON", icon: pokemonNavigationIcons.docs },
       { href: "/shiny-tracker", label: "Shiny Tracker", icon: `${filtersAssetBase}/ic_shiny_white.png`, sectionId: "shiny" },
@@ -111,6 +110,7 @@ export const navGroups: NavGroup[] = [
     id: "maintenance",
     label: "Maintenance",
     items: [
+      { href: "/json-builder", label: "JSON Builder", icon: FileJson, sectionId: "json-builder" },
       { href: "/pokemon-todo", label: "Todo Pokémon", icon: ListTodo, sectionId: "todo" },
       { href: "/logs", label: "Logs & MAJ", icon: History, sectionId: "logs" },
       { href: "/rules", label: "Règles JSON", icon: Sparkles, sectionId: "rules" },

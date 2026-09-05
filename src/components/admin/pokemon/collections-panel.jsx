@@ -133,28 +133,28 @@ function Sheet({ open, title, description, onClose, children, footer, size = "lg
   if (!open || typeof document === "undefined") return null;
   return createPortal(
     <div
-      className="fixed inset-0 z-[1100] overflow-y-auto flex items-start justify-center bg-overlay p-2 backdrop-blur-md md:items-center md:p-6"
+      className="fixed inset-0 z-[1100] flex max-w-full items-start justify-center overflow-x-hidden overflow-y-auto bg-overlay p-2 pt-[max(0.5rem,env(safe-area-inset-top))] pr-[max(0.5rem,env(safe-area-inset-right))] pb-[max(0.5rem,env(safe-area-inset-bottom))] pl-[max(0.5rem,env(safe-area-inset-left))] backdrop-blur-md md:items-center md:p-6"
       onMouseDown={(event) => event.target === event.currentTarget && onCloseRef.current()}
     >
       <section
         ref={dialogRef}
-        className={`flex max-h-[calc(100dvh-max(1rem,env(safe-area-inset-top))-max(1rem,env(safe-area-inset-bottom)))] min-h-[76dvh] w-full flex-col overflow-hidden rounded-overlay border border-line bg-panel-strong shadow-overlay md:min-h-0 ${size === "sm" ? "md:max-w-xl" : "md:max-w-3xl"}`}
+        className={`flex max-h-[calc(100dvh-max(1rem,env(safe-area-inset-top))-max(1rem,env(safe-area-inset-bottom)))] min-h-[76dvh] w-full min-w-0 max-w-full flex-col overflow-hidden rounded-overlay border border-line bg-panel-strong shadow-overlay md:min-h-0 ${size === "sm" ? "md:max-w-xl" : "md:max-w-3xl"}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="collections-editor-title"
         aria-describedby={description ? "collections-editor-description" : undefined}
       >
-        <header className="flex shrink-0 items-start justify-between gap-4 border-b border-line bg-panel-strong p-4 sm:p-5">
-          <div>
+        <header className="flex min-w-0 shrink-0 items-start justify-between gap-4 overflow-hidden border-b border-line bg-panel-strong p-4 sm:p-5">
+          <div className="min-w-0 flex-1">
             <h3 id="collections-editor-title" className="type-title-section text-domain-foreground">{title}</h3>
-            {description ? <p id="collections-editor-description" className="mt-1 text-sm font-semibold text-muted">{description}</p> : null}
+            {description ? <p id="collections-editor-description" className="mt-1 break-words text-sm font-semibold text-muted">{description}</p> : null}
           </div>
           <button className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-line bg-surface-control text-domain-foreground" type="button" onClick={onClose} aria-label="Fermer">
             <X size={20} />
           </button>
         </header>
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5">{children}</div>
-        {footer ? <footer className="shrink-0 border-t border-line bg-panel-strong p-4 sm:p-5">{footer}</footer> : null}
+        <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain p-4 sm:p-5">{children}</div>
+        {footer ? <footer className="min-w-0 shrink-0 overflow-x-hidden border-t border-line bg-panel-strong p-4 sm:p-5">{footer}</footer> : null}
       </section>
     </div>,
     document.body,
@@ -207,7 +207,7 @@ function StatusTabs({ value, onChange, compact = false }) {
     <div className="grid grid-cols-3 gap-1 rounded-control border border-line bg-surface-inset p-1" aria-label="État de progression">
       {["all", "have", "need"].map((id) => (
         <button
-          className={`${compact ? "min-h-9 px-2 text-[11px]" : "min-h-10 px-4 text-xs"} rounded-control font-black tracking-wide transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/50 ${value === id ? "bg-cyan-400/20 text-accent-text shadow-surface" : "text-muted hover:bg-surface-hover"}`}
+          className={`${compact ? "min-h-11 min-w-0 px-2 text-[11px]" : "min-h-10 px-4 text-xs"} rounded-control font-black tracking-wide transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/50 ${value === id ? "bg-cyan-400/20 text-accent-text shadow-surface" : "text-muted hover:bg-surface-hover"}`}
           key={id}
           type="button"
           aria-pressed={value === id}
@@ -422,7 +422,7 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
   }
 
   return (
-    <section className={panelClass} data-testid="collections-panel">
+    <section className={`${panelClass} min-w-0 max-w-full overflow-x-hidden`} data-testid="collections-panel">
       <header className="mb-1 flex items-start justify-between gap-3 sm:mb-4">
         <div>
           <p className="type-overline text-cyan-200/70">Checklist canonique</p>
@@ -477,12 +477,16 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
           </div>
 
           <div className="sticky top-2 z-30 mb-2 rounded-surface border border-line bg-panel-strong/95 p-1.5 shadow-floating backdrop-blur-xl md:hidden" data-testid="collections-sticky-bar">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto_auto] items-center gap-1.5">
-              <StatusTabs value={status} onChange={setStatus} compact />
-              <button className="grid h-10 w-10 place-items-center rounded-control border border-line bg-surface-control text-domain-foreground" type="button" onClick={() => setSheet("search")} aria-label="Ouvrir la recherche"><Search size={17} /></button>
-              <button className="grid h-10 w-10 place-items-center rounded-control border border-line bg-surface-control text-domain-foreground" type="button" onClick={() => setSheet("filters")} aria-label={`Ouvrir les filtres, ${activeFilterCount} actifs`}><Filter size={17} /></button>
-              <button className="grid h-10 w-10 place-items-center rounded-control border border-line bg-surface-control text-domain-foreground" type="button" onClick={() => setSheet("region")} aria-label="Changer de région"><LayoutDashboard size={17} /></button>
-              <span className="shrink-0 rounded-full border border-cyan-300/25 bg-cyan-400/10 px-2 py-1 font-mono text-[11px] font-black text-accent-text">{haveCount}/{catalog.length}</span>
+            <div className="grid min-w-0 gap-1.5">
+              <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-1.5">
+                <StatusTabs value={status} onChange={setStatus} compact />
+                <span className="shrink-0 rounded-full border border-cyan-300/25 bg-cyan-400/10 px-2 py-1 font-mono text-[11px] font-black text-accent-text">{haveCount}/{catalog.length}</span>
+              </div>
+              <div className="grid min-w-0 grid-cols-3 gap-1.5" data-testid="collections-mobile-actions">
+                <button className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-control border border-line bg-surface-control px-2 text-[11px] font-black text-domain-foreground" type="button" onClick={() => setSheet("search")} aria-label="Ouvrir la recherche"><Search size={16} /><span className="truncate">Recherche</span></button>
+                <button className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-control border border-line bg-surface-control px-2 text-[11px] font-black text-domain-foreground" type="button" onClick={() => setSheet("filters")} aria-label={`Ouvrir les filtres, ${activeFilterCount} actifs`}><Filter size={16} /><span className="truncate">Filtres</span></button>
+                <button className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-control border border-line bg-surface-control px-2 text-[11px] font-black text-domain-foreground" type="button" onClick={() => setSheet("region")} aria-label="Changer de région"><LayoutDashboard size={16} /><span className="truncate">Région</span></button>
+              </div>
             </div>
           </div>
 
@@ -553,8 +557,8 @@ export function CollectionsPanel({ entries = [], collections = [], onSave, globa
       <Sheet open={sheet === "collections"} title="Mes collections" description={`${collections.length} collection(s)`} onClose={closeSheet} size="sm">
         <div className="grid gap-2">
           {collections.map((collection) => (
-            <button className={`rounded-control border p-3 text-left transition ${activeCollection?.id === collection.id ? "border-cyan-200/55 bg-cyan-400/18" : "border-line bg-surface-flat hover:bg-surface-hover"}`} key={collection.id} type="button" title={collection.name} data-testid="collection-option" onClick={() => { setActiveId(collection.id); closeSheet(); }}>
-              <span className="flex items-center justify-between gap-3"><strong className="truncate text-domain-foreground">{collection.name}</strong><small className="rounded-full bg-surface-emphasis px-2 py-1 type-label text-foreground">{collection.shiny ? "SHINY" : "STANDARD"}</small></span>
+            <button className={`w-full min-w-0 overflow-hidden rounded-control border p-3 text-left transition ${activeCollection?.id === collection.id ? "border-cyan-200/55 bg-cyan-400/18" : "border-line bg-surface-flat hover:bg-surface-hover"}`} key={collection.id} type="button" title={collection.name} data-testid="collection-option" onClick={() => { setActiveId(collection.id); closeSheet(); }}>
+              <span className="flex min-w-0 items-center justify-between gap-3"><strong className="min-w-0 flex-1 truncate text-domain-foreground">{collection.name}</strong><small className="shrink-0 rounded-full bg-surface-emphasis px-2 py-1 type-label text-foreground">{collection.shiny ? "SHINY" : "STANDARD"}</small></span>
               <small className="mt-1 block truncate font-bold text-muted">{typeLabel(collection.type)} · {variantModeLabel(collection.variantMode)}{collection.includeGenderVariants ? " · Sexe" : ""}{collection.hundo ? " · Hundo" : ""}</small>
             </button>
           ))}

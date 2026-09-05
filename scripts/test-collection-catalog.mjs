@@ -27,54 +27,54 @@ test("la table de vérité canonique garde les compteurs calculés depuis les JS
   assert.equal(report.valid, true);
   assert.deepEqual(report.diagnostics, []);
   assert.deepEqual(report.counts, {
-    "normal.single.standard": 955,
-    "normal.single.shiny": 876,
-    "normal.single.gender.standard": 1055,
-    "normal.single.gender.shiny": 975,
-    "normal.multi.standard": 1258,
-    "normal.multi.shiny": 1151,
-    "normal.multi.gender.standard": 1359,
-    "normal.multi.gender.shiny": 1251,
-    "event.single.standard": 311,
-    "event.single.shiny": 308,
-    "event.single.gender.standard": 429,
-    "event.single.gender.shiny": 425,
-    "event.multi.standard": 311,
-    "event.multi.shiny": 308,
-    "event.multi.gender.standard": 429,
-    "event.multi.gender.shiny": 425,
-    "lucky.single.standard": 955,
-    "lucky.single.shiny": 876,
-    "lucky.single.gender.standard": 1055,
-    "lucky.single.gender.shiny": 975,
-    "lucky.multi.standard": 1258,
-    "lucky.multi.shiny": 1151,
-    "lucky.multi.gender.standard": 1359,
-    "lucky.multi.gender.shiny": 1251,
+    "normal.single.standard": 954,
+    "normal.single.shiny": 890,
+    "normal.single.gender.standard": 1054,
+    "normal.single.gender.shiny": 989,
+    "normal.multi.standard": 1257,
+    "normal.multi.shiny": 1165,
+    "normal.multi.gender.standard": 1358,
+    "normal.multi.gender.shiny": 1265,
+    "event.single.standard": 316,
+    "event.single.shiny": 313,
+    "event.single.gender.standard": 438,
+    "event.single.gender.shiny": 434,
+    "event.multi.standard": 316,
+    "event.multi.shiny": 313,
+    "event.multi.gender.standard": 438,
+    "event.multi.gender.shiny": 434,
+    "lucky.single.standard": 954,
+    "lucky.single.shiny": 890,
+    "lucky.single.gender.standard": 1054,
+    "lucky.single.gender.shiny": 989,
+    "lucky.multi.standard": 1257,
+    "lucky.multi.shiny": 1165,
+    "lucky.multi.gender.standard": 1358,
+    "lucky.multi.gender.shiny": 1265,
     "shadow.single.standard": 458,
-    "shadow.single.shiny": 307,
+    "shadow.single.shiny": 457,
     "shadow.single.gender.standard": 526,
-    "shadow.single.gender.shiny": 348,
+    "shadow.single.gender.shiny": 525,
     "shadow.multi.standard": 480,
-    "shadow.multi.shiny": 325,
+    "shadow.multi.shiny": 475,
     "shadow.multi.gender.standard": 548,
-    "shadow.multi.gender.shiny": 366,
+    "shadow.multi.gender.shiny": 543,
     "purified.single.standard": 458,
-    "purified.single.shiny": 307,
+    "purified.single.shiny": 457,
     "purified.single.gender.standard": 526,
-    "purified.single.gender.shiny": 348,
+    "purified.single.gender.shiny": 525,
     "purified.multi.standard": 480,
-    "purified.multi.shiny": 325,
+    "purified.multi.shiny": 475,
     "purified.multi.gender.standard": 548,
-    "purified.multi.gender.shiny": 366,
-    "mega.single.standard": 58,
-    "mega.single.shiny": 58,
-    "mega.single.gender.standard": 58,
-    "mega.single.gender.shiny": 58,
-    "mega.multi.standard": 58,
-    "mega.multi.shiny": 58,
-    "mega.multi.gender.standard": 58,
-    "mega.multi.gender.shiny": 58,
+    "purified.multi.gender.shiny": 543,
+    "mega.single.standard": 61,
+    "mega.single.shiny": 61,
+    "mega.single.gender.standard": 61,
+    "mega.single.gender.shiny": 61,
+    "mega.multi.standard": 61,
+    "mega.multi.shiny": 61,
+    "mega.multi.gender.standard": 61,
+    "mega.multi.gender.shiny": 61,
     "dynamax.single.standard": 127,
     "dynamax.single.shiny": 121,
     "dynamax.single.gender.standard": 127,
@@ -130,7 +130,7 @@ test("aucune checklist ne contient une fiche non sortie, un asset absent ou une 
 });
 
 test("Non variante garde les catégories spécialisées et corrige le catalogue Gigamax vide", () => {
-  assert.equal(catalog("mega").length, 58);
+  assert.equal(catalog("mega").length, 61);
   assert.equal(catalog("dynamax").length, 127);
   assert.equal(catalog("gigantamax").length, 17);
   assert.ok(catalog("gigantamax").every((entry) => entry.category === "gigantamax"));
@@ -147,12 +147,12 @@ test("Event repose exclusivement sur kind costume/event et sépare Sexe de Multi
   assert.ok(multi.every((entry) => ["costume", "event"].includes(entry.kind)));
   assert.ok(single.every((entry) => entry.gender !== "female"));
   assert.ok(multi.every((entry) => entry.gender !== "female"));
-  assert.equal(genderOnly.filter((entry) => entry.gender === "female").length, 118);
-  assert.equal(multiGender.filter((entry) => entry.gender === "female").length, 118);
-  assert.equal(single.length, 311);
-  assert.equal(multi.length, 311);
-  assert.equal(genderOnly.length, 429);
-  assert.equal(multiGender.length, 429);
+  assert.equal(genderOnly.filter((entry) => entry.gender === "female").length, 122);
+  assert.equal(multiGender.filter((entry) => entry.gender === "female").length, 122);
+  assert.equal(single.length, 316);
+  assert.equal(multi.length, 316);
+  assert.equal(genderOnly.length, 438);
+  assert.equal(multiGender.length, 438);
 });
 
 test("la table de vérité rend Multi variante et Sexe strictement orthogonaux", () => {
@@ -164,10 +164,10 @@ test("la table de vérité rend Multi variante et Sexe strictement orthogonaux",
   assert.equal(multi.filter((entry) => entry.gender === "female").length, 0);
   assert.equal(gender.filter((entry) => entry.gender === "female").length, 100);
   assert.equal(multiGender.filter((entry) => entry.gender === "female").length, 101);
-  assert.equal(base.length, 955);
-  assert.equal(multi.length, 1258);
-  assert.equal(gender.length, 1055);
-  assert.equal(multiGender.length, 1359);
+  assert.equal(base.length, 954);
+  assert.equal(multi.length, 1257);
+  assert.equal(gender.length, 1054);
+  assert.equal(multiGender.length, 1358);
   assert.ok(multi.every((entry) => !["costume", "event", "mega", "primal", "dynamax", "gigantamax"].includes(entry.category)));
 });
 

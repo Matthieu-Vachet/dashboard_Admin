@@ -163,7 +163,6 @@ function makeAdventureEffectDraft(root) {
     pokemonRefs: [{ pokemonId: "BUILDERMON", formId: "BUILDERMON", pokemonRef: "data/pokemon/normal/9995-buildermon.json" }],
     localization: { en: { name: "Builder Effect", description: null, bonusLabel: null, status: "NOT_AVAILABLE" } },
     cost: { candy: { amount: 1, pokemonId: "BUILDERMON" } },
-    sources: [{ source: "Builder source", sourceUrl: "https://db.pokemongohub.net/en/move/999999", retrievedAt: "2026-09-02T14:00:00.000Z", sourceType: "MANUAL_CONFIRMED", confidence: "LOW", fields: [] }],
   });
   return { entityType: "adventure-effect", values, states: {}, assets: {}, assetStates: {}, options: { assetFamilies: [] } };
 }

@@ -65,7 +65,9 @@ async function fetchCanonicalFile(relativePath) {
 }
 
 async function resolveContractRoot(dataRoot) {
-  if (hasCanonicalContract(dataRoot) && repositoryRef(dataRoot) === CONTRACT_REF) return { root: dataRoot, source: "data-root", ref: CONTRACT_REF };
+  if (hasCanonicalContract(dataRoot)) {
+    return { root: dataRoot, source: "data-root", ref: repositoryRef(dataRoot) || CONTRACT_REF };
+  }
   const localCandidates = [
     process.env.POKEMON_GO_DATA_WRITE_DIR,
     process.env.POKEMON_GO_DATA_DIR,

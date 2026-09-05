@@ -95,7 +95,6 @@ const adventureEffectSteps = [
   { id: "cost", label: "Coût", keys: ["cost"] },
   { id: "duration", label: "Durée", keys: ["duration"] },
   { id: "bonus", label: "Raw & assets", keys: ["bonusEffects", "assets"] },
-  { id: "sources", label: "Sources & état", keys: ["sources", "metadata"] },
   { id: "preview", label: "Preview & création", keys: [] },
 ] as const;
 
@@ -544,13 +543,13 @@ export function JsonBuilderPanel() {
           </div>
         ) : null}
 
-        {draft.entityType === "adventure-effect" && ["identity", "sources"].includes(currentStep.id) ? (
+        {draft.entityType === "adventure-effect" && currentStep.id === "identity" ? (
           <Button className="mt-4" onClick={() => {
-            const key = currentStep.id === "identity" ? "pokemonRefs" : "sources";
+            const key = "pokemonRefs";
             const entries = (draft.values[key] || []) as Record<string, unknown>[];
-            const entry = key === "pokemonRefs" ? { pokemonId: "", formId: "", pokemonRef: "" } : { source: "", sourceUrl: "", retrievedAt: new Date().toISOString(), sourceType: "GO_HUB", confidence: "LOW", fields: [] };
+            const entry = { pokemonId: "", formId: "", pokemonRef: "" };
             updateValue(key, [...entries, entry]);
-          }}>Ajouter {currentStep.id === "identity" ? "une forme liée" : "une source"}</Button>
+          }}>Ajouter une forme liée</Button>
         ) : null}
 
         {currentStep.id === "assets" ? (

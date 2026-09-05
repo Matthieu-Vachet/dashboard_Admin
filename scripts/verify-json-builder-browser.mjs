@@ -39,8 +39,8 @@ try {
   const bootstrapResponse = await context.request.get(`${origin}/api/json-builder`);
   assert.equal(bootstrapResponse.status(), 200);
   const bootstrap = (await bootstrapResponse.json()).data;
-  assert.equal(bootstrap.contractSource.ref, "develop");
-  assert.ok(["local-develop", "github-develop", "github-cache"].includes(bootstrap.contractSource.source));
+  assert.ok(["WORKTREE", "main", "develop"].includes(bootstrap.contractSource.ref));
+  assert.ok(["data-root", "local-develop", "github-develop", "github-cache"].includes(bootstrap.contractSource.source));
   assert.equal(bootstrap.writeMode.enabled, false);
   const values = structuredClone(bootstrap.templates.normal);
   Object.assign(values, {

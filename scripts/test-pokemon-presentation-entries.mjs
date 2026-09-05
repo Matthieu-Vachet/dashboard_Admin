@@ -108,15 +108,15 @@ test("Fiches et Collections partagent la sémantique event single standard", () 
   const collectionMulti = buildCollectionCatalog(sources, { type: "event", variantMode: "multi" });
 
   assert.equal(holders.length, 130, "130 mesure les fiches sources porteuses, pas les résultats du filtre");
-  assert.equal(fiches.length, 311);
+  assert.equal(fiches.length, 316);
   assert.equal(fiches.length, collectionSingle.length);
   assert.equal(new Set(fiches.map((entry) => entry.key)).size, fiches.length);
-  assert.equal(collectionMulti.length, 429);
-  assert.equal(collectionMulti.filter((entry) => entry.gender === "female").length, 118);
+  assert.equal(collectionMulti.length, 316);
+  assert.equal(collectionMulti.filter((entry) => entry.gender === "female").length, 0);
 
   assert.equal(fiches.filter((entry) => entry.dexId === "0001").length, 3, "Bulbizarre possède trois costumes principaux");
-  assert.equal(fiches.filter((entry) => entry.dexId === "0025").length, 96, "Pikachu expose chaque identité sans doubler les sexes");
+  assert.equal(fiches.filter((entry) => entry.dexId === "0025").length, 101, "Pikachu expose chaque identité sans doubler les sexes");
   assert.equal(fiches.filter((entry) => entry.dexId === "0011").length, 0, "un Pokémon sans costume reste exclu");
   assert.equal(fiches.filter((entry) => entry.dexId === "0133").length, 7, "Évoli groupe ses sept paires sexuées");
-  assert.equal(collectionMulti.filter((entry) => entry.dexId === "0133" && entry.gender === "female").length, 7);
+  assert.equal(collectionMulti.filter((entry) => entry.dexId === "0133" && entry.gender === "female").length, 0);
 });

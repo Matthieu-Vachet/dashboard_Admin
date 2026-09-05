@@ -144,13 +144,17 @@ function buildAssetArchitectureAudit() {
     actual,
     severity = "error",
   }) {
+    const manifestStale = code.startsWith("asset_manifest_") && code !== "asset_manifest_missing";
     const diagnostic = enrichDiagnostic({
       category: "assets",
-      severity,
+      severity: manifestStale ? "warning" : severity,
       sourceFile,
       assetRef,
       path: pathName,
-      issue: code,
+      issue: manifestStale ? "MANIFEST_STALE" : code,
+      detailCode: manifestStale ? code : null,
+      classification: manifestStale ? "OPERATIONAL_METADATA" : null,
+      fix: manifestStale ? "npm run manifests:rebuild" : null,
       expected,
       actual,
     });

@@ -10,7 +10,7 @@ const {
   relativeToData,
   resolveDataFile,
 } = require("../../../src/lib/data-repository");
-const { detailForKey, hydrateSourceData, validateSourceData } = require("./engine");
+const { adventureEffectPresentation, detailForKey, hydrateSourceData, validateSourceData } = require("./engine");
 const {
   deleteCustomRule,
   listCustomRules,
@@ -578,7 +578,7 @@ function buildMoveCatalog() {
   const adventureEffects = fs.existsSync(adventureEffectsDir)
     ? listFiles(adventureEffectsDir).map((file) => readJson(file)).filter(Boolean)
     : [];
-  const adventureEffectByMove = new Map(adventureEffects.map((effect) => [effect.moveRef, effect]));
+  const adventureEffectByMove = new Map(adventureEffects.map((effect) => [effect.moveRef, adventureEffectPresentation(effect)]));
   const groups = new Map();
   for (const file of listFiles(movesDir)) {
     const move = readJson(file);

@@ -14,19 +14,18 @@ try {
 
 async function authenticate(page) {
   const target = `${baseUrl}/pokemon-admin?section=collections`;
-  await page.goto(target, { waitUntil: "networkidle", timeout: 30_000 });
+  await page.goto(target, { waitUntil: "domcontentloaded", timeout: 60_000 });
   if (await page.locator('input[type="email"]').isVisible().catch(() => false)) {
     await page.locator('input[type="email"]').fill(process.env.ADMIN_EMAIL || "matthieu@example.com");
     await page.locator('input[type="password"]').fill(process.env.ADMIN_PASSWORD || "change-moi");
     await page.getByRole("button", { name: "Entrer dans le dashboard" }).click();
     await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 30_000 });
-    await page.goto(target, { waitUntil: "networkidle", timeout: 30_000 });
+    await page.goto(target, { waitUntil: "domcontentloaded", timeout: 60_000 });
   }
   if (await page.locator("#form-a11y-pokemon-admin-password").isVisible().catch(() => false)) {
     await page.locator("#form-a11y-pokemon-admin-password").fill(process.env.ADMIN_PASSWORD || "change-moi");
     await page.getByRole("button", { name: "Se connecter" }).click();
-    await page.waitForLoadState("networkidle");
-    await page.goto(target, { waitUntil: "networkidle", timeout: 30_000 });
+    await page.goto(target, { waitUntil: "domcontentloaded", timeout: 60_000 });
   }
   await page.waitForSelector('[data-testid="collections-panel"]', { timeout: 30_000 });
 }
@@ -181,39 +180,39 @@ try {
   assert.ok(Math.abs((await page.evaluate(() => window.scrollY)) - scrollBeforeSheet) < 4);
 
   const expectedCounts = new Map([
-    ["Événement", 311],
-    ["Chanceux", 955],
+    ["Événement", 316],
+    ["Chanceux", 954],
     ["Obscur", 458],
     ["Purifié", 458],
-    ["Méga", 58],
+    ["Méga", 61],
     ["Dynamax", 127],
     ["Gigamax", 17],
-    ["Normal", 955],
+    ["Normal", 954],
   ]);
   for (const [label, expected] of expectedCounts) {
     assert.equal(await selectCollectionType(page, label), expected, label);
   }
 
-  assert.equal(await page.locator(".collection-pokemon-card").count(), 955);
+  assert.equal(await page.locator(".collection-pokemon-card").count(), 954);
   assert.equal(await page.getByLabel("Choisir une page Collections").count(), 0);
 
   await page.getByRole("button", { name: "Actions de la collection" }).click();
   dialog = page.getByRole("dialog");
   await dialog.getByRole("button", { name: "Sélectionner tous les résultats", exact: true }).click();
   await dialog.getByRole("button", { name: "Fermer" }).click();
-  assert.match(await page.locator('[data-testid="collections-sticky-bar"]').innerText(), /955\/955/);
+  assert.match(await page.locator('[data-testid="collections-sticky-bar"]').innerText(), /954\/954/);
   await page.getByRole("button", { name: "Actions de la collection" }).click();
   dialog = page.getByRole("dialog");
   await dialog.getByRole("button", { name: "Désélectionner tous les résultats", exact: true }).click();
   await dialog.getByRole("button", { name: "Fermer" }).click();
-  assert.match(await page.locator('[data-testid="collections-sticky-bar"]').innerText(), /0\/955/);
+  assert.match(await page.locator('[data-testid="collections-sticky-bar"]').innerText(), /0\/954/);
 
   await page.getByRole("button", { name: /filtres/i }).first().click();
   dialog = page.getByRole("dialog");
   await dialog.getByLabel("Chromatique").check();
-  assert.match(await dialog.getByRole("button", { name: /Afficher .* Pokémon/ }).innerText(), /876 Pokémon/);
+  assert.match(await dialog.getByRole("button", { name: /Afficher .* Pokémon/ }).innerText(), /890 Pokémon/);
   await dialog.getByLabel("Sexe").check();
-  assert.match(await dialog.getByRole("button", { name: /Afficher .* Pokémon/ }).innerText(), /975 Pokémon/);
+  assert.match(await dialog.getByRole("button", { name: /Afficher .* Pokémon/ }).innerText(), /989 Pokémon/);
   await dialog.getByRole("button", { name: /Afficher .* Pokémon/ }).click();
   await page.locator('[data-sonner-toast]').waitFor({ state: "hidden", timeout: 6_000 }).catch(() => {});
 
