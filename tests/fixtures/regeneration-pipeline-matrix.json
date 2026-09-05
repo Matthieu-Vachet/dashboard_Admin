@@ -1,11 +1,11 @@
 {
-  "validatedAt": "2026-08-09T21:38:04Z",
+  "validatedAt": "2026-09-05T01:11:29Z",
   "environment": "production",
-  "pendingProductionValidation": ["adventure-effects"],
+  "pendingProductionValidation": [],
   "dashboardUrl": "https://dashboard-admin-pi-ebon.vercel.app/pokemon-admin",
   "execution": {
     "mode": "dashboard-sequential",
-    "steps": 15,
+    "steps": 16,
     "consoleErrors": 0,
     "gitCommitOrDispatch": false,
     "persistence": "MongoDB atomic upsert with dataset run history"
@@ -220,6 +220,20 @@
       "commitDispatch": "non applicable",
       "result": "pass-with-warning",
       "diagnostics": { "unmatched": 1, "added": 724, "removed": 671, "modified": 1290 }
+    },
+    {
+      "id": "adventure-effects",
+      "source": "Pokémon GO Hub DB multilingue + inventaire Margxt",
+      "preview": "11 cartes · 18 images · 2 thèmes × 3 viewports",
+      "network": "POST Dashboard Production HTTP 200 · API publique et relations HTTP 200",
+      "parsing": "11/11 effets · 66 pages GO Hub · 11/11 Margxt",
+      "writing": "dry-run idempotent · 0 ajout · 0 modification · 0 suppression",
+      "toast": "contrat de succès et d’erreur couvert par les tests Dashboard",
+      "refresh": "catalogue et relations Move/Pokémon relus en Production",
+      "target": "PokemonGo-Data data/adventure-effects · lecture API canonique",
+      "commitDispatch": "non applicable",
+      "result": "pass-unchanged",
+      "diagnostics": { "deploymentId": "dpl_ENc4tW9BpZ5TDGomS7ASEcd5GMfy", "status": "SUCCESS", "effectsFound": 11, "effectsMapped": 11, "added": 0, "modified": 0, "removed": 0, "warnings": 0, "errors": 0, "hash": "c90022e038a8a27919a0ac38811540a3d908cd115e6725c25b5a8b0b52006f4c", "consoleErrors": 0 }
     }
   ]
 }
