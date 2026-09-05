@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## 1.54.1 - 2026-09-05
+
+### Changed
+
+- Remplace l’attente Adventure Effects de la matrice par la preuve Production réelle : 11/11, synchronisation idempotente, hash stable et zéro erreur console.
+
+### Fixed
+
+- Aligne la version PATCH du Dashboard sur la publication de sa matrice de validation Production.
+
 ## 1.54.0 - 2026-09-02
 
 ### Added
