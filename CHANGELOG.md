@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 1.54.2 - 2026-09-05
+
+### Fixed
+
+- Remplace les deux sélecteurs natifs Adventure Effects du JSON Builder par la primitive `Select` partagée.
+- Aligne les nouvelles cartes et alertes de veille sur les rôles typographiques sémantiques du Design System.
+
 ## 1.54.1 - 2026-09-05
 
 ### Changed
