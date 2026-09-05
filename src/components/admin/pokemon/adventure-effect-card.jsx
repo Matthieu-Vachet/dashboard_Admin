@@ -61,9 +61,9 @@ export function AdventureEffectCard({ effect, compact = false }) {
           <span className="grid h-20 w-20 shrink-0 place-items-center rounded-3xl border border-line bg-surface-inset-subtle p-2">
             <AdventureImage key={effect.assets?.portrait || "missing-portrait"} src={effect.assets?.portrait} portrait name={localized.name} />
           </span>
-          <span className="min-w-0 flex-1"><span className="type-overline text-foreground-secondary">✨ Effet d’aventure</span><strong className="mt-1 block text-xl font-black text-domain-foreground">{localized.name}</strong><span className="mt-1 block font-mono text-[11px] text-disabled">{effect.moveRef}</span>{localized.fallback ? <span className="mt-2 inline-flex rounded-full border border-amber-200/30 bg-amber-300/10 px-2 py-1 text-[10px] font-black text-foreground">Description EN · traduction FR non publiée</span> : null}</span>
+          <span className="min-w-0 flex-1"><span className="type-overline text-foreground-secondary">✨ Effet d’aventure</span><strong className="mt-1 block type-title-card text-domain-foreground">{localized.name}</strong><span className="mt-1 block font-mono text-[11px] text-disabled">{effect.moveRef}</span>{localized.fallback ? <span className="mt-2 inline-flex rounded-full border border-amber-200/30 bg-amber-300/10 px-2 py-1 text-[10px] font-black text-foreground">Description EN · traduction FR non publiée</span> : null}</span>
         </div>
-        <p className="mt-4 text-sm font-semibold leading-6 text-foreground">{localized.description}</p>
+        <p className="mt-4 type-body-strong text-foreground">{localized.description}</p>
         <div className={`mt-4 grid gap-2 ${compact ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
           {rows.map(([label, value], index) => <span className="rounded-2xl border border-line bg-surface-inset-subtle px-3 py-2" key={`${label}-${index}`}><small className="block type-overline-compact text-disabled">{label}</small><strong className="mt-1 block break-words text-domain-foreground">{value}</strong></span>)}
         </div>

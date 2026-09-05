@@ -492,20 +492,20 @@ export function JsonBuilderPanel() {
             {fields.map((field) => field.path === "adventureEffectRefs" ? (
               <div className="min-w-0 rounded-2xl border border-line bg-surface-inset-subtle p-3" key={field.path}>
                 <label className="type-label text-domain-foreground" htmlFor="json-builder-adventure-effect-refs">Effets d’aventure existants</label>
-                <select id="json-builder-adventure-effect-refs" multiple className={`${fieldClass} mt-2 min-h-32`} value={Array.isArray(field.value) ? field.value.map(String) : []} onChange={(event) => updateValue(field.path, [...event.currentTarget.selectedOptions].map((option) => option.value))}>
+                <Select id="json-builder-adventure-effect-refs" multiple className={`${fieldClass} mt-2 min-h-32`} value={Array.isArray(field.value) ? field.value.map(String) : []} onChange={(event) => updateValue(field.path, [...event.currentTarget.selectedOptions].map((option) => option.value))}>
                   {data.catalog.adventureEffects.map((effect) => <option value={effect.id} key={effect.id}>{adventureEffectName(effect)}</option>)}
-                </select>
+                </Select>
               </div>
             ) : draft.entityType === "adventure-effect" && /^pokemonRefs\.\d+\.formId$/.test(field.path) ? (
               <label className="rounded-2xl border border-line p-3" key={field.path}>
                 <span className="type-label">Pokémon · forme exacte</span>
-                <select aria-label={field.path} className={`${fieldClass} mt-2`} value={String(field.value || "")} onChange={(event) => {
+                <Select aria-label={field.path} className={`${fieldClass} mt-2`} value={String(field.value || "")} onChange={(event) => {
                   const identity = data.catalog.identities.find((entry) => entry.formId === event.target.value);
                   if (identity) updateValue(field.path.replace(/\.formId$/, ""), { pokemonId: identity.id, formId: identity.formId, pokemonRef: identity.file });
                 }}>
                   <option value="">Sélectionner une forme</option>
                   {data.catalog.identities.map((identity) => <option key={identity.file} value={identity.formId}>{identity.formId}</option>)}
-                </select>
+                </Select>
               </label>
             ) : (
               <FieldEditor

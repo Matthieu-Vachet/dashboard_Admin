@@ -7,6 +7,16 @@ export type DashboardVersionEntry = {
 
 export const dashboardVersionHistory: DashboardVersionEntry[] = [
   {
+    version: "V1.54.2",
+    date: "2026-09-05",
+    title: "Conformité Design System Adventure Effects",
+    changes: [
+      "Utilise la primitive Select partagée pour les relations Adventure Effects du JSON Builder.",
+      "Aligne les cartes et diffs de veille sur les rôles typographiques sémantiques.",
+      "Rétablit les contrôles de gouvernance Design System dans la CI sans assouplir leurs règles.",
+    ],
+  },
+  {
     version: "V1.54.1",
     date: "2026-09-05",
     title: "Preuve Production Adventure Effects",
