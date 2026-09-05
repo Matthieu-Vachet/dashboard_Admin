@@ -30,8 +30,13 @@ try {
   });
   const page = await context.newPage();
   const errors = [];
+  const ignoredExternalErrors = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  page.on("console", (message) => { if (message.type() === "error" && !message.text().includes("net::ERR_FAILED")) errors.push(message.text()); });
+  page.on("console", (message) => {
+    if (message.type() !== "error" || message.text().includes("net::ERR_FAILED")) return;
+    if (/vercel\.live\/_next-live\/feedback\/feedback\.js/.test(message.text())) ignoredExternalErrors.push(message.text());
+    else errors.push(message.text());
+  });
   await page.goto(`${origin}/catalogues`, { waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "Effets d’aventure", exact: true }).click({ timeout: 60000 });
   await page.waitForFunction(() => document.querySelectorAll("[data-adventure-effect]").length === 11);
@@ -106,8 +111,8 @@ try {
   await page.screenshot({ path: path.join(output, "builder-dry-run.png"), fullPage: true });
   results.push({ builderPreview: true, overwriteProtected: true, writesPrevented: true });
   assert.deepEqual(errors, []);
-  fs.writeFileSync(path.join(output, "verification.json"), JSON.stringify({ origin, results, errors }, null, 2));
-  console.log(JSON.stringify({ origin, cards: results.filter((result) => result.id).length, themes: 2, viewports: 3, move: true, pokemonRelation: true, builder: true, errors }, null, 2));
+  fs.writeFileSync(path.join(output, "verification.json"), JSON.stringify({ origin, results, errors, ignoredExternalErrors }, null, 2));
+  console.log(JSON.stringify({ origin, cards: results.filter((result) => result.id).length, themes: 2, viewports: 3, move: true, pokemonRelation: true, builder: true, errors, ignoredExternalErrors: ignoredExternalErrors.length }, null, 2));
 } finally {
   await browser.close();
 }
