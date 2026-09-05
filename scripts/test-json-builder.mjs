@@ -153,6 +153,21 @@ function dry(root, draft) {
   return engine.buildDryRun({ root, draft, owner: "builder@test.local", secret: "test-json-builder-secret" });
 }
 
+function makeAdventureEffectDraft(root) {
+  const contract = contractApi.loadCanonicalContract(root);
+  const values = structuredClone(contract.pokemonTemplates["adventure-effect"]);
+  Object.assign(values, {
+    id: "ADVENTURE_EFFECT_BUILDER_EFFECT",
+    slug: "builder-effect",
+    moveRef: "BUILDER_EFFECT",
+    pokemonRefs: [{ pokemonId: "BUILDERMON", formId: "BUILDERMON", pokemonRef: "data/pokemon/normal/9995-buildermon.json" }],
+    localization: { en: { name: "Builder Effect", description: null, bonusLabel: null, status: "NOT_AVAILABLE" } },
+    cost: { candy: { amount: 1, pokemonId: "BUILDERMON" } },
+    sources: [{ source: "Builder source", sourceUrl: "https://db.pokemongohub.net/en/move/999999", retrievedAt: "2026-09-02T14:00:00.000Z", sourceType: "MANUAL_CONFIRMED", confidence: "LOW", fields: [] }],
+  });
+  return { entityType: "adventure-effect", values, states: {}, assets: {}, assetStates: {}, options: { assetFamilies: [] } };
+}
+
 function hashTree(root) {
   const hashes = {};
   function visit(directory) {
@@ -245,6 +260,62 @@ test("familles Assets: consomme les cinq templates et applique les états autori
   const core = JSON.parse(result.files.find((file) => file.kind === "assets:core").content);
   assert.equal(core.assets.image, null);
   assert.deepEqual(Object.keys(core.assetRefs).sort(), ["home", "location-cards", "shuffle", "variants"]);
+});
+
+test("la sélection d’un effet existant exige son Move et ajoute la relation inverse sans reformater", (t) => {
+  const root = fixture();
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const relative = "data/adventure-effects/effects/spacial-rend.adventure-effect.json";
+  fs.mkdirSync(path.dirname(path.join(root, relative)), { recursive: true });
+  fs.copyFileSync(path.join(canonicalRoot, relative), path.join(root, relative));
+  const before = fs.readFileSync(path.join(root, relative), "utf8");
+  const draft = makeDraft(root);
+  draft.values.adventureEffectRefs = ["ADVENTURE_EFFECT_SPACIAL_REND"];
+  assert.ok(dry(root, draft).issues.some((issue) => issue.code === "ADVENTURE_EFFECT_MOVE_REQUIRED"));
+  draft.values.cinematicMoves.push("SPACIAL_REND");
+  const result = dry(root, draft);
+  assert.equal(result.completeness.canCommit, true, JSON.stringify(result.issues));
+  const patch = result.files.find((file) => file.kind === "adventure-effect-pokemon-reference");
+  const effect = JSON.parse(patch.content);
+  assert.equal(effect.pokemonRefs.at(-1).formId, "BUILDERMON");
+  assert.equal(patch.content.slice(0, patch.content.indexOf('"pokemonRefs"')), before.slice(0, before.indexOf('"pokemonRefs"')));
+  assert.equal(patch.content.slice(patch.content.indexOf('"localization"')), before.slice(before.indexOf('"localization"')));
+  assert.equal(JSON.parse(result.files.find((file) => file.kind === "adventure-effect-manifest").content).count, 1);
+});
+
+test("Adventure Effect: formulaire dédié, preview ordonnée, relations minimales, manifeste et transaction atomique", (t) => {
+  const root = fixture();
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const pokemon = makeDraft(root, "normal", { base: "BUILDERMON", dexNr: 9995 }).values;
+  writeJson(path.join(root, "data/pokemon/normal/9995-buildermon.json"), pokemon);
+  writeJson(path.join(root, "data/moves/charged/BUILDER_EFFECT.json"), { id: "BUILDER_EFFECT", names: localized("Builder Effect") });
+  const unrelated = path.join(root, "data/unrelated.json");
+  writeJson(unrelated, { sentinel: true });
+  const unrelatedHash = crypto.createHash("sha256").update(fs.readFileSync(unrelated)).digest("hex");
+  const draft = makeAdventureEffectDraft(root);
+  const result = dry(root, draft);
+  assert.equal(result.completeness.canCommit, true, JSON.stringify(result.issues));
+  assertKeyOrder(contractApi.loadCanonicalContract(root).pokemonTemplates["adventure-effect"], JSON.parse(result.preview));
+  assert.deepEqual(result.checks, {
+    templatesConsumed: true,
+    recursiveKeyOrderPreserved: true,
+    existingJsonReformatted: 0,
+    existingJsonReordered: 0,
+    unrelatedJsonModified: 0,
+    overwriteProtection: true,
+    identityInventory: 1,
+    engine: "SCHEMA_AND_IDENTITY_VALID",
+  });
+  assert.ok(result.files.some((file) => file.kind === "adventure-effect"));
+  assert.ok(result.files.some((file) => file.kind === "pokemon-adventure-reference"));
+  assert.ok(result.files.some((file) => file.kind === "move-adventure-reference"));
+  assert.ok(result.files.some((file) => file.kind === "adventure-effect-manifest"));
+  const committed = engine.commitDryRun({ root, draft, token: result.token, owner: "builder@test.local", secret: "test-json-builder-secret", commit: false, engineCheck: false });
+  assert.equal(committed.transaction.atomic, true);
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root, "data/pokemon/normal/9995-buildermon.json"), "utf8")).adventureEffectRefs, ["ADVENTURE_EFFECT_BUILDER_EFFECT"]);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(root, "data/moves/charged/BUILDER_EFFECT.json"), "utf8")).adventureEffectRef, "ADVENTURE_EFFECT_BUILDER_EFFECT");
+  assert.equal(JSON.parse(fs.readFileSync(path.join(root, "data/adventure-effects/manifests/index.json"), "utf8")).count, 1);
+  assert.equal(crypto.createHash("sha256").update(fs.readFileSync(unrelated)).digest("hex"), unrelatedHash);
 });
 
 test("états inconnue/non publiée: null si autorisé, blocage si le schéma exige une valeur", (t) => {
@@ -351,6 +422,6 @@ test("architecture route/UI: session, same-origin, rate limit, navigation et pan
   assert.match(route, /rateLimit\(request, "json-builder-write"/);
   assert.match(route, /assertJsonPayloadSize\(body/);
   assert.match(panel, /data-json-builder/);
-  assert.match(panel, /Étape \{step \+ 1\} \/ \{steps\.length\}/);
+  assert.match(panel, /Étape \{step \+ 1\} \/ \{activeSteps\.length\}/);
   assert.match(routes, /"json-builder"/);
 });

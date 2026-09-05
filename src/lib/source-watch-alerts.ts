@@ -15,6 +15,9 @@ export type SourceWatchRecord = {
   previousCommit: string | null;
   currentContentHash: string | null;
   previousContentHash: string | null;
+  currentSnapshot: Record<string, unknown> | null;
+  previousSnapshot: Record<string, unknown> | null;
+  readableDiff: string[];
   lastCheckedAt: string | null;
   lastChangedAt: string | null;
   lastAcknowledgedAt: string | null;
@@ -100,6 +103,8 @@ function deriveChangeType(previous: SourceWatchRecord, source: SourceWatchInput)
   const contentHash = stringValue(source.contentHash);
   const type = String(source.type || "").toLowerCase();
 
+  if (String(source.category || "").startsWith("adventure-effects")) return "Adventure Effects — changement détecté";
+
   if (commit && contentHash && (commit !== previous.currentCommit || contentHash !== previous.currentContentHash)) {
     return "Commit et contenu JSON";
   }
@@ -107,6 +112,49 @@ function deriveChangeType(previous: SourceWatchRecord, source: SourceWatchInput)
   if (contentHash && contentHash !== previous.currentContentHash) return "Contenu JSON";
   if (type === "website") return "ETag ou Last-Modified";
   return "Empreinte distante";
+}
+
+function comparableSnapshot(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
+}
+
+function displayValue(value: unknown) {
+  if (value === undefined) return "absent";
+  if (value === null) return "null";
+  if (typeof value === "string") return value;
+  return JSON.stringify(value);
+}
+
+function flattenSnapshot(value: unknown, prefix = "", output = new Map<string, unknown>()) {
+  if (value && typeof value === "object") {
+    const entries = Array.isArray(value)
+      ? value.map((entry, index) => [String(index), entry] as const)
+      : Object.entries(value as Record<string, unknown>);
+    for (const [key, entry] of entries) flattenSnapshot(entry, prefix ? `${prefix}.${key}` : key, output);
+  } else {
+    output.set(prefix, value);
+  }
+  return output;
+}
+
+export function adventureEffectSemanticDiff(previousValue: unknown, currentValue: unknown) {
+  const previous = comparableSnapshot(previousValue);
+  const current = comparableSnapshot(currentValue);
+  if (!previous || !current) return [];
+  const before = flattenSnapshot(previous);
+  const after = flattenSnapshot(current);
+  const paths = [...new Set([...before.keys(), ...after.keys()])].sort();
+  return paths.flatMap((path) => {
+    const left = before.get(path);
+    const right = after.get(path);
+    if (JSON.stringify(left) === JSON.stringify(right)) return [];
+    const effectId = path.match(/^effects\.([^.]+)/)?.[1] || "Adventure Effects";
+    const effect = comparableSnapshot((current.effects as Record<string, unknown> | undefined)?.[effectId])
+      || comparableSnapshot((previous.effects as Record<string, unknown> | undefined)?.[effectId]);
+    const label = stringValue(effect?.label) || effectId;
+    const field = path.replace(/^effects\.[^.]+\.?/, "") || "fiche";
+    return [`${label} · ${field} · ${displayValue(left)} → ${displayValue(right)}`];
+  });
 }
 
 function baseRecord(sourceId: string, source: SourceWatchInput): SourceWatchRecord {
@@ -123,6 +171,9 @@ function baseRecord(sourceId: string, source: SourceWatchInput): SourceWatchReco
     previousCommit: null,
     currentContentHash: null,
     previousContentHash: null,
+    currentSnapshot: null,
+    previousSnapshot: null,
+    readableDiff: [],
     lastCheckedAt: null,
     lastChangedAt: null,
     lastAcknowledgedAt: null,
@@ -148,6 +199,9 @@ function normalizeRecord(sourceId: string, value: unknown): SourceWatchRecord {
     previousCommit: stringValue(record.previousCommit),
     currentContentHash: stringValue(record.currentContentHash),
     previousContentHash: stringValue(record.previousContentHash),
+    currentSnapshot: comparableSnapshot(record.currentSnapshot),
+    previousSnapshot: comparableSnapshot(record.previousSnapshot),
+    readableDiff: Array.isArray(record.readableDiff) ? record.readableDiff.map(String).slice(0, 100) : [],
     lastCheckedAt: validDate(record.lastCheckedAt),
     lastChangedAt: validDate(record.lastChangedAt),
     lastAcknowledgedAt: validDate(record.lastAcknowledgedAt),
@@ -192,6 +246,7 @@ function publicSource(source: SourceWatchInput, record: SourceWatchRecord) {
     lastAcknowledgedAt: record.lastAcknowledgedAt,
     monitoringState: sourceMonitoringState(record),
     changeType: record.changeType,
+    readableDiff: record.readableDiff,
     unreadChange: record.unreadChange,
     changedSinceLastCheck: record.unreadChange,
   };
@@ -257,6 +312,7 @@ export function applySourceWatchCheck(
         const version = stringValue(source.version);
         const commit = stringValue(source.commit);
         const contentHash = stringValue(source.contentHash);
+        const snapshot = comparableSnapshot(source.semanticSnapshot);
         const changed = Boolean(previous.currentSignature && previous.currentSignature !== signature);
 
         if (changed) {
@@ -265,6 +321,8 @@ export function applySourceWatchCheck(
           record.previousVersion = previous.currentVersion;
           record.previousCommit = previous.currentCommit;
           record.previousContentHash = previous.currentContentHash;
+          record.previousSnapshot = previous.currentSnapshot;
+          record.readableDiff = adventureEffectSemanticDiff(previous.currentSnapshot, snapshot);
           record.lastChangedAt = checkedAt;
           record.changeType = changeType;
           record.unreadChange = true;
@@ -277,6 +335,7 @@ export function applySourceWatchCheck(
             previousSignature: previous.currentSignature!,
             previousVersion: previous.currentVersion,
             changeType,
+            readableDiff: record.readableDiff,
           });
         }
 
@@ -284,6 +343,7 @@ export function applySourceWatchCheck(
         record.currentVersion = version;
         record.currentCommit = commit;
         record.currentContentHash = contentHash;
+        record.currentSnapshot = snapshot;
       }
     } else {
       record.lastCheckStatus = "error";

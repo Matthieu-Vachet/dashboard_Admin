@@ -21,6 +21,9 @@ const nextConfig: NextConfig = {
       "./runtime-data/PokemonGo-Data/data/battles/gbl/**/*",
     ],
     "/api/pokemon-admin": [
+      "./runtime-data/PokemonGo-Data/data/adventure-effects/**/*",
+      "./runtime-data/PokemonGo-Data/schemas/adventure-effects/**/*",
+      "./runtime-data/PokemonGo-Data/operations/reports/adventure-effects/**/*",
       "./runtime-data/PokemonGo-Data/package.json",
       "./runtime-data/PokemonGo-Data/.dashboard-data-snapshot.json",
       "./runtime-data/PokemonGo-Data/data/pokemon/**/*",
@@ -46,6 +49,7 @@ const nextConfig: NextConfig = {
       "./public/assets/**/*",
     ],
     "/api/json-builder": [
+      "./runtime-data/PokemonGo-Data/data/adventure-effects/**/*",
       "./runtime-data/PokemonGo-Data/package.json",
       "./runtime-data/PokemonGo-Data/.dashboard-data-snapshot.json",
       "./runtime-data/PokemonGo-Data/data/pokemon/**/*",

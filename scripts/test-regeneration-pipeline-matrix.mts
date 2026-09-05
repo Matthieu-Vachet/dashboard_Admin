@@ -11,15 +11,16 @@ import {
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const matrix = JSON.parse(fs.readFileSync(path.join(root, "tests/fixtures/regeneration-pipeline-matrix.json"), "utf8"));
 
-test("la matrice de production couvre exactement toutes les régénérations globales", () => {
+test("chaque régénération possède une preuve de production ou une validation explicitement en attente", () => {
   assert.equal(matrix.environment, "production");
   assert.equal(matrix.execution.mode, "dashboard-sequential");
   assert.equal(matrix.execution.consoleErrors, 0);
   assert.equal(matrix.execution.gitCommitOrDispatch, false);
   assert.deepEqual(
-    matrix.pipelines.map((pipeline: { id: string }) => pipeline.id),
-    globalRegenerationDefinitions.map((definition) => definition.id),
+    [...matrix.pipelines.map((pipeline: { id: string }) => pipeline.id), ...matrix.pendingProductionValidation].sort(),
+    globalRegenerationDefinitions.map((definition) => definition.id).sort(),
   );
+  for (const id of matrix.pendingProductionValidation) assert.ok(!matrix.pipelines.some((pipeline: { id: string }) => pipeline.id === id), `${id}: ne pas déclarer une validation en attente comme preuve de production`);
 });
 
 test("chaque pipeline documente le contrat complet demandé par le lot 8", () => {

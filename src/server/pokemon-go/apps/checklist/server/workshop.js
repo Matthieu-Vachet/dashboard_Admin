@@ -28,6 +28,7 @@ const typesFile = dataPath("data", "reference", "types", "types.json");
 const weatherFile = dataPath("data", "reference", "weather", "weather.json");
 const stickersFile = dataPath("data", "reference", "stickers", "stickers.json");
 const movesDir = dataPath("data", "moves");
+const adventureEffectsDir = dataPath("data", "adventure-effects", "effects");
 const remoteHd =
   "https://raw.githubusercontent.com/Matthieu-Vachet/PokemonGo-Assets-API/refs/heads/main/PokemonHd";
 const remoteShuffle =
@@ -574,6 +575,10 @@ function movePvpViewModel(move) {
 
 function buildMoveCatalog() {
   const moveLinks = buildMoveLinks();
+  const adventureEffects = fs.existsSync(adventureEffectsDir)
+    ? listFiles(adventureEffectsDir).map((file) => readJson(file)).filter(Boolean)
+    : [];
+  const adventureEffectByMove = new Map(adventureEffects.map((effect) => [effect.moveRef, effect]));
   const groups = new Map();
   for (const file of listFiles(movesDir)) {
     const move = readJson(file);
@@ -601,16 +606,19 @@ function buildMoveCatalog() {
       },
       sourceFiles: ordered.map((record) => record.file),
       pokemon: moveLinks.get(id) || [],
+      adventureEffect: adventureEffectByMove.get(id) || null,
     };
   }).sort((left, right) => String(left.names?.French || left.id).localeCompare(String(right.names?.French || right.id), "fr"));
 }
 
 function catalog() {
+  const moves = buildMoveCatalog();
   return {
     types: readJson(typesFile, []),
     weather: readJson(weatherFile, []),
     stickers: readJson(stickersFile, []),
-    moves: buildMoveCatalog(),
+    moves,
+    adventureEffects: moves.map((move) => move.adventureEffect).filter(Boolean),
   };
 }
 

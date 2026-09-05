@@ -16,8 +16,10 @@ const { CATEGORY_DIRECTORIES } = require("../apps/checklist/server/entity-catego
 
 const ALLOWED_WRITE_PREFIXES = Object.freeze([
   "data/pokemon/",
+  "data/moves/",
   "data/assets/",
   "data/pvp/",
+  "data/adventure-effects/",
   "mappings/pokemon/",
   "operations/backups/json-builder/",
   "operations/reports/json-builder/",
@@ -185,6 +187,122 @@ function patchJsonBoolean(source, key, value) {
   const content = `${source.slice(0, match.index)}${match[1]}${String(value)}${source.slice(match.index + match[0].length)}`;
   JSON.parse(content);
   return { content, changed: true };
+}
+
+function appendJsonProperty(source, key, serializedValue) {
+  const closing = source.match(/\n}\s*$/);
+  if (!closing) throw builderError(`Objet JSON invalide pour ${key}.`, "REFERENCE_PATCH_TARGET_INVALID", 409);
+  const before = source.slice(0, closing.index).replace(/\s*$/, "");
+  const content = `${before},\n  ${JSON.stringify(key)}: ${serializedValue}\n}\n`;
+  JSON.parse(content);
+  return content;
+}
+
+function patchJsonStringArrayOptional(source, key, value) {
+  if (new RegExp(`"${key}"\\s*:`).test(source)) return patchJsonStringArray(source, key, value);
+  return { content: appendJsonProperty(source, key, `[\n    ${JSON.stringify(value)}\n  ]`), changed: true };
+}
+
+function patchJsonStringOptional(source, key, value) {
+  const expression = new RegExp(`("${key}"\\s*:\\s*)"([^"]*)"`);
+  const match = expression.exec(source);
+  if (match) {
+    if (match[2] === value) return { content: source, changed: false };
+    throw builderError(`${key} pointe déjà vers ${match[2]}.`, "REFERENCE_COLLISION", 409);
+  }
+  return { content: appendJsonProperty(source, key, JSON.stringify(value)), changed: true };
+}
+
+function adventureEffectReferencePatches(root, effect, operationId) {
+  const patches = [];
+  for (const reference of effect.pokemonRefs || []) {
+    const relativePath = normalizeRelativePath(reference.pokemonRef);
+    const source = readText(root, relativePath);
+    if (!source) {
+      patches.push({ issue: { level: "blocking", code: "POKEMON_REFERENCE_MISSING", path: "$.pokemonRefs", message: `Pokémon introuvable : ${relativePath}.` } });
+      continue;
+    }
+    const pokemon = readJsonFile(pathInsideRoot(root, relativePath));
+    if (pokemon.id !== reference.pokemonId || pokemon.formId !== reference.formId) {
+      patches.push({ issue: { level: "blocking", code: "POKEMON_FORM_REFERENCE_MISMATCH", path: "$.pokemonRefs", message: `Identité divergente : ${reference.pokemonId}/${reference.formId}.` } });
+      continue;
+    }
+    const patched = patchJsonStringArrayOptional(source, "adventureEffectRefs", effect.id);
+    if (patched.changed) {
+      patches.push({ kind: "adventure-reference-backup", relativePath: `operations/backups/json-builder/${operationId}/${relativePath}`, content: source, mode: "create", expected: { exists: false, sha256: null, bytes: 0 } });
+      patches.push({ kind: "pokemon-adventure-reference", relativePath, content: patched.content, mode: "update", expected: fileState(root, relativePath), beforeContent: source });
+    }
+  }
+  const moveFiles = listJsonFiles(path.join(root, "data", "moves"));
+  const moveFile = moveFiles.find((file) => {
+    try { return readJsonFile(file).id === effect.moveRef; } catch { return false; }
+  });
+  if (!moveFile) {
+    patches.push({ issue: { level: "blocking", code: "MOVE_REFERENCE_MISSING", path: "$.moveRef", message: `Move introuvable : ${effect.moveRef}.` } });
+  } else {
+    const relativePath = path.relative(root, moveFile).replace(/\\/g, "/");
+    const source = readText(root, relativePath);
+    const patched = patchJsonStringOptional(source, "adventureEffectRef", effect.id);
+    if (patched.changed) {
+      patches.push({ kind: "adventure-reference-backup", relativePath: `operations/backups/json-builder/${operationId}/${relativePath}`, content: source, mode: "create", expected: { exists: false, sha256: null, bytes: 0 } });
+      patches.push({ kind: "move-adventure-reference", relativePath, content: patched.content, mode: "update", expected: fileState(root, relativePath), beforeContent: source });
+    }
+  }
+  return patches;
+}
+
+function updateAdventureEffectManifest(root, generatedFiles) {
+  const manifestPath = "data/adventure-effects/manifests/index.json";
+  const source = readText(root, manifestPath);
+  const byId = new Map(listJsonFiles(path.join(root, "data", "adventure-effects", "effects")).map((file) => { const effect = readJsonFile(file); return [effect.id, effect]; }));
+  for (const file of generatedFiles.filter((entry) => ["adventure-effect", "adventure-effect-pokemon-reference"].includes(entry.kind))) {
+    const effect = JSON.parse(file.content);
+    byId.set(effect.id, effect);
+  }
+  const effects = [...byId.values()];
+  effects.sort((left, right) => left.id.localeCompare(right.id));
+  const hash = crypto.createHash("sha256").update(JSON.stringify(effects)).digest("hex");
+  const effectTypes = Object.fromEntries([...new Set(effects.map((effect) => effect.effectType))].sort().map((type) => [type, effects.filter((effect) => effect.effectType === type).length]));
+  const manifest = {
+    schemaVersion: 1,
+    count: effects.length,
+    hash,
+    effectTypes,
+    effects: effects.map((effect) => ({ id: effect.id, slug: effect.slug, moveRef: effect.moveRef, pokemonRefs: effect.pokemonRefs.map((ref) => ref.formId), path: `data/adventure-effects/effects/${effect.slug}.adventure-effect.json` })),
+  };
+  return { kind: "adventure-effect-manifest", relativePath: manifestPath, content: serializeOrdered(manifest), mode: source ? "update" : "create", expected: fileState(root, manifestPath), beforeContent: source || "" };
+}
+
+function selectedAdventureEffectPatches(root, pokemon, pokemonPath, operationId) {
+  const patches = [];
+  const files = listJsonFiles(path.join(root, "data/adventure-effects/effects"));
+  for (const id of [...new Set(pokemon.adventureEffectRefs || [])]) {
+    const file = files.find((candidate) => readJsonFile(candidate).id === id);
+    if (!file) {
+      patches.push({ issue: { level: "blocking", code: "ADVENTURE_EFFECT_REFERENCE_MISSING", path: "$.adventureEffectRefs", message: `Effet introuvable : ${id}.` } });
+      continue;
+    }
+    const effect = readJsonFile(file);
+    if (![...(pokemon.cinematicMoves || []), ...(pokemon.eliteCinematicMoves || [])].includes(effect.moveRef)) {
+      patches.push({ issue: { level: "blocking", code: "ADVENTURE_EFFECT_MOVE_REQUIRED", path: "$.cinematicMoves", message: `Ajouter l’attaque liée ${effect.moveRef} avant de sélectionner ${id}.` } });
+      continue;
+    }
+    const relativePath = path.relative(root, file).replace(/\\/g, "/");
+    const source = readText(root, relativePath);
+    const match = /(^|\n)([ \t]*)"pokemonRefs"\s*:\s*\[/m.exec(source);
+    if (!match) throw builderError("Tableau pokemonRefs absent.", "REFERENCE_PATCH_TARGET_INVALID", 409);
+    const start = source.indexOf("[", match.index + match[0].length - 1);
+    const end = matchingBracket(source, start);
+    const reference = { pokemonId: pokemon.id, formId: pokemon.formId, pokemonRef: pokemonPath };
+    const indent = match[2];
+    const addition = JSON.stringify(reference, null, 2).split("\n").map((line) => `${indent}  ${line}`).join("\n");
+    const prefix = source.slice(0, end).replace(/\s*$/, "");
+    const content = `${prefix}${effect.pokemonRefs.length ? "," : ""}\n${addition}\n${indent}${source.slice(end)}`;
+    JSON.parse(content);
+    patches.push({ kind: "adventure-reference-backup", relativePath: `operations/backups/json-builder/${operationId}/${relativePath}`, content: source, mode: "create", expected: { exists: false, sha256: null, bytes: 0 } });
+    patches.push({ kind: "adventure-effect-pokemon-reference", relativePath, content, mode: "update", expected: fileState(root, relativePath), beforeContent: source });
+  }
+  return patches;
 }
 
 function parentPatchContract(entityType) {
@@ -398,7 +516,7 @@ function buildDryRun({ root, contractRoot = root, draft, owner, secret, now = Da
   const generated = buildCanonicalFiles(contract, draft);
   const id = requestedOperationId || operationId();
   const inventory = loadIdentityInventory(root);
-  const collisions = identityCollisions(inventory, generated.pokemon, generated.pokemonPath);
+  const collisions = generated.isAdventureEffect ? [] : identityCollisions(inventory, generated.pokemon, generated.pokemonPath);
   const issues = [...generated.issues];
   if (collisions.length) issues.push({ level: "blocking", code: "IDENTITY_COLLISION", path: "$.formId", message: `${collisions.length} collision(s) d’identité détectée(s).`, details: collisions });
 
@@ -407,18 +525,25 @@ function buildDryRun({ root, contractRoot = root, draft, owner, secret, now = Da
     normalizeRelativePath(file.relativePath);
     if (file.expected.exists) issues.push({ level: "blocking", code: "OVERWRITE_PROTECTED", path: file.relativePath, message: "Le fichier existe déjà ; l’écrasement est interdit." });
   }
-  const parentEntries = parentPatch(root, inventory, generated.pokemon, draft.entityType, id);
+  const parentEntries = generated.isAdventureEffect
+    ? adventureEffectReferencePatches(root, generated.effect, id)
+    : [...parentPatch(root, inventory, generated.pokemon, draft.entityType, id), ...selectedAdventureEffectPatches(root, generated.pokemon, generated.pokemonPath, id)];
   for (const entry of parentEntries) {
     if (entry.issue) issues.push(entry.issue);
     else planned.push(entry);
   }
-  if (draft.entityType === "gigantamax" && !inventory.some((entry) => entry.formId === `${generated.pokemon.baseFormId}_DYNAMAX`)) {
+  if (!generated.isAdventureEffect && draft.entityType === "gigantamax" && !inventory.some((entry) => entry.formId === `${generated.pokemon.baseFormId}_DYNAMAX`)) {
     issues.push({ level: "blocking", code: "DYNAMAX_DEPENDENCY_MISSING", path: "$.dynamaxForms", message: "La forme Dynamax parente requise par la forme Gigamax est introuvable." });
   }
   if (!issues.some((issue) => issue.code === "FILE_COLLISION" || issue.code === "OVERWRITE_PROTECTED")) {
-    planned.push(updateAssetManifest(root, planned, generated.category));
-    planned.push(updatePvpManifest(root, planned, generated.pokemon, generated.category));
-    planned.push(updateIdentityInventory(root, planned, now));
+    if (generated.isAdventureEffect) {
+      planned.push(updateAdventureEffectManifest(root, planned));
+    } else {
+      planned.push(updateAssetManifest(root, planned, generated.category));
+      planned.push(updatePvpManifest(root, planned, generated.pokemon, generated.category));
+      planned.push(updateIdentityInventory(root, planned, now));
+      if (planned.some((file) => file.kind === "adventure-effect-pokemon-reference")) planned.push(updateAdventureEffectManifest(root, planned));
+    }
   }
   const repository = repositoryState(root);
   if (requireDevelop && repository.git && repository.branch !== "develop") {
@@ -447,7 +572,9 @@ function buildDryRun({ root, contractRoot = root, draft, owner, secret, now = Da
     expiresAt: new Date(expiresAt).toISOString(),
     repository,
     category: generated.category,
-    identity: { id: generated.pokemon.id, formId: generated.pokemon.formId, baseFormId: generated.pokemon.baseFormId, dexId: generated.pokemon.dexId, slug: generated.pokemon.slug },
+    identity: generated.isAdventureEffect
+      ? { id: generated.effect.id, formId: generated.effect.id, baseFormId: generated.effect.pokemonRefs?.[0]?.formId || null, dexId: null, slug: generated.effect.slug }
+      : { id: generated.pokemon.id, formId: generated.pokemon.formId, baseFormId: generated.pokemon.baseFormId, dexId: generated.pokemon.dexId, slug: generated.pokemon.slug },
     preview: serializeOrdered(generated.pokemon),
     files: planned.map((file) => ({
       kind: file.kind,
@@ -659,7 +786,8 @@ function loadCatalog(root) {
     }
   });
   const types = [...new Set(moves.map((move) => move.type).filter(Boolean))].sort();
-  return { identities, moves, types };
+  const adventureEffects = listJsonFiles(path.join(root, "data", "adventure-effects", "effects")).map(readJsonFile);
+  return { identities, moves, types, adventureEffects };
 }
 
 function publicContract(root, contractRoot = root) {
